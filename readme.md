@@ -1,8 +1,19 @@
 ---
 不羁的方言比较——地理语言学小站
 ---
-## 這個說明也是舊版的了。新的可以看知乎
+### 這個說明也是舊版的了。新的可以看知乎
+
 https://zhuanlan.zhihu.com/p/1934345780199682731
+
+### 字表处理仓库地址：
+
+[dialects-build: 方言比較網站的數據預處理](https://github.com/jengzang/dialects-build)
+
+### 后端仓库地址：
+
+[dialects-backend：方言比较小站的fastapi后端](https://github.com/jengzang/dialects-backend)
+
+---
 
 # 网站功能简介
 
