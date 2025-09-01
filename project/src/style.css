@@ -1,0 +1,98 @@
+/* src/style.css */
+body {
+  margin: 0;
+  background: #e0e6f6;
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (min-width: 768px) {
+  body {
+    font-size: 18px;
+  }
+}
+
+
+.thanks-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+  text-align: center;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  color: #1d1d1f;
+}
+
+/* Title Styling */
+.thanks-title {
+  font-size: 2rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  letter-spacing: 0.03em;
+}
+
+/* List Styling */
+.thanks-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  font-size: 1.2rem;
+  line-height: 1.8;
+}
+
+.thanks-list li {
+  margin-bottom: 1rem;
+}
+
+/* Link Styling */
+.thanks-link {
+  font-weight: 500;
+  color: #007aff;
+  text-decoration: none;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.thanks-link::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: 50%;
+  width: 0%;
+  height: 2px;
+  background: linear-gradient(90deg, #007aff, #00c6ff);
+  transition: width 0.3s ease, left 0.3s ease;
+}
+
+.thanks-link:hover {
+  color: #0051a8;
+  transform: scale(1.05);
+}
+
+.thanks-link:hover::after {
+  width: 100%;
+  left: 0;
+}
+
+/* Medium Screen: Tablet */
+@media (max-width: 768px) {
+  .thanks-title {
+    font-size: 2.2rem; /* 更大 */
+  }
+
+  .thanks-list {
+    font-size: 1.2rem;
+  }
+}
+
+/* Small Screen: Mobile */
+@media (max-width: 480px) {
+  .thanks-title {
+    font-size: 2.4rem; /* 更大 */
+  }
+
+  .thanks-list {
+    font-size: 1.35rem;
+  }
+}
