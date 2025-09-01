@@ -25,10 +25,11 @@ body {
 }
 
 /* Title Styling */
-.thanks-title {
+.tabs-title {
   font-size: 2rem;
   font-weight: 600;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.2rem;
+  margin-top: 0.5rem;
   letter-spacing: 0.03em;
 }
 
@@ -77,7 +78,7 @@ body {
 
 /* Medium Screen: Tablet */
 @media (max-width: 768px) {
-  .thanks-title {
+  .panel-title {
     font-size: 2.2rem; /* 更大 */
   }
 
@@ -88,7 +89,7 @@ body {
 
 /* Small Screen: Mobile */
 @media (max-width: 480px) {
-  .thanks-title {
+  .panel-title {
     font-size: 2.4rem; /* 更大 */
   }
 

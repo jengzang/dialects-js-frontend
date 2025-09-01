@@ -1,6 +1,6 @@
 <template>
   <div class="thanks-container">
-    <h2 class="thanks-title">🙏 特別鳴謝</h2>
+    <h2 class="tabs-title">🙏 特別鳴謝</h2>
     <ul class="thanks-list">
       <li>
         <a href="https://mcpdict.vear.vip/" target="_blank" rel="noopener noreferrer" class="thanks-link">漢字音典</a>
