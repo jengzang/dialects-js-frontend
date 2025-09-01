@@ -2,10 +2,10 @@
   <nav class="tab-bar">
     <RouterLink
         v-for="tab in tabs"
-        :key="tab.path"
-        :to="tab.path"
+        :key="tab.tab"
+        :to="{ path: '/', query: { tab: tab.tab } }"
         class="tab-button"
-        :class="{ active: isActiveRoute(tab.path) }"
+        :class="{ active: isActiveTab(tab.tab) }"
     >
       <span class="emoji">{{ tab.icon }}</span>
       <span class="label">{{ tab.label }}</span>
@@ -19,12 +19,15 @@ import { useRoute } from 'vue-router'
 const route = useRoute()
 
 const tabs = [
-  { path: '/like', label: '喜歡作者', icon: '❤️' },
-  { path: '/suggestions', label: '我有建議', icon: '💬' },
-  { path: '/thanks', label: '特別鳴謝', icon: '🙏' }
+  { tab: 'like', label: '喜歡作者', icon: '❤️' },
+  { tab: 'suggestions', label: '我有建議', icon: '💬' },
+  { tab: 'thanks', label: '特別鳴謝', icon: '🙏' }
 ]
 
-const isActiveRoute = (path) => route.path === path
+// 根據 query.tab 判斷哪個 active
+const isActiveTab = (tabName) =>
+    (route.query.tab === tabName) ||
+    (!route.query.tab && tabName === 'like') // 預設 tab 為 like
 </script>
 
 <style scoped>
