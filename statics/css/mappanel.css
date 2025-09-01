@@ -1,0 +1,241 @@
+#mapPanel {
+    overflow-x: hidden;  /* 禁止水平方向滚动 */
+}
+
+/* 控件面板 */
+.input-card {
+    display: flex;
+    position: absolute;
+    align-items: center;    /* 垂直居中对齐 */
+    justify-content: flex-start; /* 水平左对齐 */
+    top: 15px;
+    left: -60px;
+    width: 180px;
+    z-index: 1000;
+    padding: 10px;
+    background-color: rgba(255, 255, 255, 0.7);
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;  /* 平滑过渡 */
+    overflow: hidden; /* 防止溢出 */
+    transform: scale(0.2); /* 默认最小化 */
+    flex-wrap: wrap; /* 允许换行 */
+}
+
+
+/* 控件最大化时 */
+.input-card.maximized {
+    transform: translateX(80px) translateY(50px);  /* 向右和向下展开 */
+    /*transform: scale(1);   !* 最大化面板 *!*/
+}
+
+@media (orientation: landscape) {
+    .input-card:hover {
+        transform: translateX(80px) translateY(50px);
+    }
+}
+
+
+/* 控件面板内的内容样式 */
+.input-card .input-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+}
+
+/* 按钮文本 */
+.custom-label {
+    font-size: 15px; /* 设置字体大小 */
+    color: #333;     /* 设置字体颜色 */
+    margin-left: 10px;
+    cursor: pointer;
+    z-index: 10; /* 确保文本在顶部 */
+    position: relative; /* 添加相对定位 */
+
+    display: inline-block; /* 保持文本与按钮在同一行 */
+    justify-content: center;  /* 水平居中 */
+    align-items: center;      /* 垂直居中 */
+
+}
+.custom1-label {
+    font-size: 13px; /* 设置字体大小 */
+    color: #333;     /* 设置字体颜色 */
+    margin-left: 10px;
+    cursor: pointer;
+    z-index: 10; /* 确保文本在顶部 */
+    position: relative; /* 添加相对定位 */
+
+    display: inline-block; /* 保持文本与按钮在同一行 */
+    justify-content: center;  /* 水平居中 */
+    align-items: center;      /* 垂直居中 */
+
+}
+
+
+/* 控件隐藏时，禁用或隐藏单选按钮 */
+.hidden-controls #toggleControlsRadio {
+    display: none;  /* 隐藏单选按钮 */
+}
+
+/* 禁用状态的按钮 */
+#toggleControlsRadio:disabled {
+    opacity: 0.5;  /* 按钮禁用时变透明 */
+    cursor: not-allowed; /* 禁用时禁止点击 */
+}
+
+
+/* 使 #myPageTop 在 mapPanel 内部悬浮 */
+#myPageTop {
+    position: absolute;  /* 相对于父容器 #mapPanel 定位 */
+    top: 50px;  /* 设置距离顶部的距离 */
+    left: 50%;  /* 水平居中 */
+    transform: translateX(-50%);  /* 使元素水平居中 */
+    z-index: 1000;  /* 确保它位于其他内容之上 */
+    background-color: rgba(255, 255, 255, 0.7);  /* 背景色，保持半透明效果 */
+    padding: 5px 8px;  /* 减小内边距，使内容更紧凑 */
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);  /* 添加阴影 */
+    width: 80%;  /* 控制宽度，可以根据需要调整 */
+    max-width: 200px;  /* 设置最大宽度 */
+    display: none;
+}
+
+/* 优化 #myPageTop 中 table 样式 */
+#myPageTop table {
+    width: 100%;
+    margin: 0;  /* 去掉默认的间距 */
+    padding: 0;  /* 去掉默认的内边距 */
+}
+
+#myPageTop td{
+    margin: 0;  /* 去掉默认的间距 */
+    padding: 0;  /* 去掉默认的内边距 */
+}
+
+/* 优化 label 和输入框之间的间距 */
+#myPageTop label {
+    font-size: 16px;
+    margin-bottom: 1px;  /* 缩小文本和输入框之间的距离 */
+    color: #333;
+}
+
+
+/* 在你的 CSS 文件中定义样式 */
+/*.amap-overlay-text-container {*/
+/*    padding: .05rem .1rem;        !* 调整 padding，更加紧凑 *!*/
+/*    margin-bottom: .1rem;           !* 调整底部 margin *!*/
+/*    border-radius: .1rem;*/
+/*    background-color: white;*/
+/*    width: auto;                    !* 根据文字长度自动撑开宽度 *!*/
+/*    border-width: 0;*/
+/*    box-shadow: 0 2px 6px 0 rgba(114, 124, 245, .5);*/
+/*    text-align: center;*/
+/*    font-size: 12px;                !* 调小字体大小 *!*/
+/*    color: blue;*/
+/*    display: inline-block;          !* 让容器根据内容宽度调整 *!*/
+/*    white-space: nowrap;            !* 保证文字不换行 *!*/
+/*    overflow: hidden;               !* 防止超出容器的文本显示 *!*/
+/*    text-overflow: ellipsis;        !* 超过容器时显示省略号 *!*/
+/*    font-family: "Times New Roman","SimHei", "黑体", sans-serif; !* 设置黑体字体 *!*/
+/*}*/
+
+
+/* 新增的特徵值下拉框或按钮容器样式 */
+.feature-container {
+    position: absolute;
+    left: 40%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    min-width: 150px;
+    min-height: 35px;
+    padding: 5px;
+    pointer-events: auto; /* 确保可交互 */
+}
+
+
+/* 占位符（placeholder）样式 */
+.placeholder {
+    padding: 10px 20px;
+    color: #888;
+    cursor: pointer;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    text-align: center;
+    font-weight: 500; /* 加粗一点 */
+    font-size: 13px;  /* 适当增大字体 */
+    border-radius: 10px;  /* 圆角边框 */
+    transition: background-color 0.2s ease;
+}
+
+.placeholder:hover {
+    background-color: #f0f0f0; /* 鼠标悬停时背景颜色变化 */
+}
+
+/* 下拉框容器（dropdown）样式 */
+.dropdown {
+    display: none; /* 默认隐藏 */
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background: white;
+    border: 1px solid #ddd;
+    z-index: 1000;
+    max-height: 200px;
+    overflow-y: auto;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    transition: max-height 0.2s ease;
+}
+
+.dropdown.expanded {
+    display: block; /* 展开时显示 */
+}
+
+.dropdown-item {
+    padding: 10px 20px;
+    cursor: pointer;
+    background-color: white;
+    font-size: 13.5px;
+    text-align: center;
+    font-weight: 400;
+    transition: background-color 0.2s ease;
+}
+
+.dropdown-item:hover {
+    background-color: #f0f0f0; /* 悬停时背景色变化 */
+}
+
+.dropdown-item:active {
+    background-color: #e0e0e0; /* 激活状态时的背景色 */
+}
+
+.feature-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-arrow {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 20px;
+    padding: 10px;
+    background: none;
+    border: none;
+    color: #444;
+    cursor: pointer;
+    z-index: 10;
+}
+
+
+.dropdown-arrow:hover {
+    color: #007bff; /* 鼠标悬停时颜色变化 */
+    transform: translateY(-50%) rotate(180deg); /* 鼠标悬停时箭头旋转 */
+}
+

@@ -1,0 +1,148 @@
+/*===============================
+------右側面板（自定義添加）輸入框-----
+================================= */
+/* 表單行 */
+.form-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px; /* 控制每行之间的间距 */
+    align-items: center;
+    /*gap: 12px;*/
+}
+
+.form-row input::placeholder{
+    font-size:12px;
+}
+/* 修改標籤字體大小 */
+.form-row label {
+    width: 30%;  /* 標籤寬度 */
+    font-size: 14px;  /* 增加字體大小 */
+    font-weight: bold;  /* 设置加粗 */
+}
+.form-row label.location-input-label {
+    /*font-size: 13px;*/
+    white-space: nowrap;
+}
+
+.form-row input, .form-row textarea {
+    width: 65%;  /* 輸入框寬度 */
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+/* 特徵和值分開顯示，垂直排列 */
+.feature-row {
+    flex-direction: column;  /* 讓特徵和值垂直排列 */
+}
+
+.feature-row input[type="text"] {
+    width: 100%;  /* 讓每個輸入框占滿整行 */
+}
+
+#description-input{
+    height : 35px
+}
+
+/*===============================
+-------查字、查調輸入框---------------
+=============================== */
+.input-search {
+    width: 35%;  /* 输入框占据30%宽度 */
+    padding: 5px 8px;
+    font-size: 13px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    margin-right: 1px;  /* 给按钮一些间距 */
+}
+
+/* 输入框的炫酷hover效果 */
+.input-search:hover ,
+.form-row input:hover,
+#tipinput2:hover{
+    transform: scale(1.15);  /* 稍微放大 */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);  /* 更强的阴影效果 */
+    border-color: #007aff;  /* 聚焦时边框变色 */
+}
+/*====================
+------自定義特徵輸入框----
+===================== */
+/* 输入框样式 */
+/* 共享输入框样式 */
+#tipinput, #tipinput2 {
+    padding: 8px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+    margin-top: 1px;
+    margin-bottom: 5px;
+}
+
+/* 特定样式 - #tipinput */
+#tipinput {
+    width: 100%;  /* 宽度为100% */
+    border-radius: 4px;  /* 边角圆润 */
+}
+
+/* 特定样式 - #tipinput2 */
+#tipinput2 {
+    width: 60%;  /* 宽度为60% */
+    border-radius: 6px;  /* 边角圆润 */
+    z-index: 9999;   /* 确保在最顶层 */
+    pointer-events: auto; /* 强制可交互 */
+}
+
+
+#tipinput2::placeholder {
+    color: gray;       /* 字体颜色 */
+    font-size: 12px;   /* 字体大小 */
+    /*font-style: italic;!* 斜体 *!*/
+    opacity: 0.7;      /* 透明度 */
+}
+
+/*============================
+-----------輸入面板的輸入框----------
+============================= */
+textarea {
+    width: 100%;
+    height: 60px;
+    box-sizing: border-box;
+    font-family: monospace;
+    font-size: 13px;
+    margin-top: 4px;
+    padding: 6px 10px;
+    resize: none;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    background: #fff;
+    min-width: 60px;
+}
+/* text area悬停效果 */
+textarea:hover {
+    border-color: #007aff; /* 悬停时边框变为蓝色 */
+    box-shadow: 0 0 8px rgba(0, 123, 255, 0.6); /* 添加发光效果 */
+}
+
+
+/* 🔹 中古音分類輸入區塊（左右並排） */
+.input-row {
+    display: flex;
+    gap: 10px;
+}
+
+.input-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.input-col label {
+    font-weight: bold;
+    margin-bottom: 4px;
+}
+
+.input-col textarea {
+    height: 60px;
+}
+
+
