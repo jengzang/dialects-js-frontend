@@ -1,0 +1,394 @@
+/* 全局設定：Apple風格簡潔字體 + 無邊界設計 */
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Arial", sans-serif;
+    background-color: #f5f5f7;
+}
+
+/* 通用 panel 外觀樣式 */
+.panel {
+    position: fixed;
+    resize: both;        /* ✅ 允许横向和纵向都可以调整大小 */
+    overflow: auto;      /* ✅ 必须有 overflow 才能启用 resize */
+    background: #ffffff;
+    border-radius: 12px;
+    border: 1px solid #e0e0e0;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    transition: all 0.3s ease;
+    z-index: 1;
+}
+
+.panel-header {
+    background: #f2f2f2;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px; /* ✅ 讓按鈕間有空隙 */
+    border-bottom: 1px solid #ddd;
+}
+
+.panel-title {
+    font-weight: 600;
+    font-size: 16px;
+    flex: 1;
+    color: #333;
+    white-space: nowrap; /* 禁止文本换行 */
+}
+
+
+.panel-content {
+    flex: 1;
+    overflow: visible;
+    padding: 13px;
+    box-sizing: border-box;
+    color: #333;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;  /* 自動控制表單行間距 */
+    /*flex-grow: 1;  !* 使表單填滿可用空間 *!*/
+    overflow-y: auto;  /* 如果內容過多，可以滾動 */
+}
+
+/* 面板尺寸定義 */
+.panel-medium {
+    top: 0;
+    left: 0;
+    width: 20vw;
+    height: 100vh;
+}
+
+/*#inputpanel.panelContent {*/
+/*    display: flex;*/
+/*    flex-direction: column;  !* 默认竖直布局 *!*/
+/*}*/
+.panel-subtitle {
+    margin: 6px 0 8px;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 600;
+    color: #444;
+    /*width: 70%;*/
+}
+
+/* 增加panel-subtitle的hover效果 */
+.panel-subtitle:hover {
+    color: #007aff; /* 悬停时文字颜色变化 */
+}
+
+
+.panel-fullscreen {
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    resize: none;
+}
+
+.panel-minimized {
+    width: 48px !important;
+    height: 48px !important;
+    background: transparent;
+    border: none;
+    display: none;
+}
+.panel-minimized .panel-content,
+.panel-minimized .mode-btn:not(#panelRestoreBtn):not(#resultRestoreBtn),
+.panel-minimized .panel-title {
+    display: none;
+}
+
+#resultPanel.panel-medium {
+    left: 20vw;
+    width: 35vw;
+}
+
+#mapPanel.panel-medium {
+    left: 55vw; /* 右侧 2/5 */
+    width: 45vw; /* 右侧占 2/5 */
+    overflow-x: hidden; /* 禁止水平滚动 */
+}
+
+#mapContainer {
+    width: 100%;      /* 宽度撑满父容器 */
+    height: 100%;     /* 高度撑满父容器 */
+}
+
+@media (max-aspect-ratio: 1/1) {
+    /* 屏幕宽度小于高度时的样式 */
+    /* 面板上下叠加，1/5, 2/5, 2/5 */
+    #inputpanel.panel-medium {
+        width: 100%;    /* 占满屏幕宽度 */
+        height:65dvh;   /* 1/5 的高度 */
+        top: 0;
+        left: 0;
+        z-index: 1;
+    }
+    #resultPanel.panel-medium {
+        width: 100%;
+        height: 15dvh;   /* 2/5 的高度 */
+        top: 65dvh;
+        left: 0;
+        z-index: 2;
+    }
+    #mapPanel.panel-medium {
+        width: 100%;
+        height: 20dvh;   /* 2/5 的高度 */
+        top: 80dvh;
+        left: 0;
+        overflow-x: hidden; /* 禁止水平滚动 */
+        z-index: 3;
+    }
+    .panel-content{
+        gap:5px;
+    }
+    .panel-subtitle{
+        margin: 1px;
+    }
+    h4{
+        margin:0;
+        gap: 0;
+    }
+    #mode-subtitle{
+        margin-top: 10px;
+    }
+    /*#inputpanel .panel-content {*/
+    /*    flex-direction: row !important;   !* 横向布局 *!*/
+    /*    justify-content: flex-start !important;  !* 从左到右排列 *!*/
+    /*    align-items: center !important;  !* 垂直居中 *!*/
+    /*    gap: 15px !important;  !* 保持行间距 *!*/
+    /*}*/
+    /*#mode-subtitle{*/
+    /*    display: none;*/
+    /*}*/
+    /*.feature-box{*/
+    /*    max-width: 100px!important;*/
+    /*    padding: 2px!important;*/
+    /*}*/
+    /*.mode-box{*/
+    /*    max-width: 200px!important;*/
+    /*    padding:2px!important;*/
+
+    .panel-header {
+        padding: 2px;
+    }
+
+    /*}*/
+    /*.mode-title {*/
+    /*    font-size: 13px!important;*/
+    /*    margin-left: -10px;*/
+    /*}*/
+
+    /*.mode-desc {*/
+    /*    font-size: 11px!important;*/
+    /*    margin-left: -24px;*/
+    /*}*/
+    /*.checkbox-group label {*/
+    /*    font-size: 12px!important;*/
+    /*}*/
+}
+/*@media (max-width: 768px){*/
+/*    .mode-box {*/
+/*        max-width: 100px!important;*/
+/*    }*/
+/*    .feature-box {*/
+/*        max-width: 50px!important;*/
+/*    }*/
+/*}*/
+#panelRestoreBtn,
+#resultRestoreBtn,
+#mapPanelRestoreBtn {
+    position: absolute;
+    display: flex;
+    align-items: center;    /* 垂直居中 */
+    justify-content: center; /* 水平居中 */
+    white-space: nowrap;    /* 禁止换行 */
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 0 8px;
+    height: 30px;
+    min-width: 30px;
+    font-size: 16px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+
+#panelRestoreBtn {
+    top: 10px;
+    left: 10px;
+    background: #007aff;
+}
+#resultRestoreBtn {
+    top: 43px;
+    right: 10px;
+    background: #34c759;
+}
+
+/* mapPanel最小化按钮位置 */
+#mapPanelRestoreBtn {
+    position: absolute;
+    top: 90px; /* 下方 40px 的位置 */
+    right: 10px;
+    background: #ff9500;
+}
+
+.draggable {
+    /*position: absolute;*/
+    /*transform: translate(0, 0);*/
+    transition: transform 0.3s ease;
+    /*will-change: transform;*/
+}
+
+.dragging {
+    transform: scale(1.05);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+    opacity: 0.95;
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
+    cursor: grabbing !important;
+    user-select: none;
+}
+
+
+
+.loading-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 300px;
+    font-size: 1.2em;
+    color: #333;
+}
+
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 5px solid #ddd;
+    border-top: 5px solid #333;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 10px;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.loading-text {
+    font-weight: bold;
+}
+
+
+/* 背景遮罩層 */
+.welcome-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10001;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.welcome-overlay.show {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* 模態框 */
+.welcome-modal {
+    background: rgba(255, 255, 255, 0.97);
+    border-radius: 16px;
+    box-shadow: 0 15px 50px rgba(0, 0, 0, 0.4);
+    padding: 30px;
+    width: 80%;
+    max-width: 400px;
+    text-align: center;
+    transform: scale(0.8);
+    opacity: 0;
+    transition: transform 0.35s cubic-bezier(0.25, 1.5, 0.5, 1), opacity 0.3s ease;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+.welcome-overlay.show .welcome-modal {
+    transform: scale(1);
+    opacity: 1;
+}
+
+.welcome-modal h2,
+#login-title{
+    font-size: 40px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    transition: all 0.3s ease;
+}
+.welcome-modal h2:hover,#login-title:hover {
+    color: #007aff;
+    text-shadow: 0 0 8px rgba(0, 122, 255, 0.6);
+    transform: scale(1.05);
+}
+
+.welcome-modal h3,
+#login-title2{
+    font-size: 22px;
+    font-weight: 500;
+    margin: 8px 0 16px;
+    color: #333;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    transition: all 0.3s ease;
+}
+.welcome-modal h3:hover,
+#login-title2:hover{
+    background: linear-gradient(90deg, #007aff, #00c2ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-decoration: underline;
+    transform: scale(1.03);
+}
+
+.welcome-modal p,
+#login-info{
+    font-size: 25px;
+    margin: 6px 0;
+    transition: all 0.3s ease;
+}
+.welcome-modal p:hover,
+#login-info:hover{
+    transform: translateY(-2px);
+    text-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+    color: #005fcc;
+}
+
+#welcomeModal span {
+    display: block;
+    margin: 6px 0;
+    font-size: 14px;
+    color: #444;
+    line-height: 1.6;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    transition: color 0.3s ease;
+}
+#welcomeModal span:hover {
+    color: #111;
+}
+
+
+.hidden {
+    display: none;
+}
+.close-hint {
+    margin-top: 10px;
+    font-size: 12px;
+    color: #999;
+}

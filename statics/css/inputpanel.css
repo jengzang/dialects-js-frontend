@@ -1,0 +1,754 @@
+/* === #inputpanel 輸入面板 專屬樣式 === */
+
+/* 模式選擇與特徵選項區 */
+.mode-feature-row {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 12px;
+    /*width: 100%; !* 父容器寬度會根據頁面寬度來調整 *!*/
+    align-items: stretch;
+    max-width: 100%; /* 防止容器寬度超出父元素 */
+    /*overflow: hidden; !* 防止橫向滾動條出現 *!*/
+    justify-content: center;
+}
+
+.mode-box,
+.feature-box {
+    border: 1px solid #ddd;
+    background: #fafafa;
+    border-radius: 10px;
+    padding: 12px;
+    box-sizing: border-box;
+    min-width: 0;
+    flex: 1 1 auto;         /* 可撐開，也可收縮 */
+}
+
+.mode-box {
+    flex: 2.2;
+    max-width: 200px;
+    justify-content: center;
+}
+.feature-box {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    max-width: 100px;
+
+}
+
+/* 炫酷的hover效果 */
+.mode-box:hover, .feature-box:hover {
+    background: #f9f9f9;  /* 背景渐变 */
+    transform: scale(1.1);  /* 增加放大效果 */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);  /* 加强阴影效果 */
+
+}
+
+.mode-label {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    margin-bottom: 10px;
+}
+
+/* mode-label 悬停时的炫酷效果 */
+.mode-label:hover {
+    color: #007aff;  /* 文字颜色变化 */
+    text-shadow: 0 2px 6px gray;  /* 添加文字的阴影效果 */
+    transform: scale(1.05);  /* 悬停时放大文字 */
+    letter-spacing: 1px;  /* 增加字母间距，使文字看起来更加分散 */
+    transition: transform 0.3s ease, color 0.3s ease, letter-spacing 0.3s ease, text-shadow 0.3s ease; /* 平滑过渡 */
+    background-image: linear-gradient(45deg, #007aff, #4cd964); /* 文字背景渐变 */
+    background-clip: text;  /* 背景渐变只应用于文字 */
+    -webkit-background-clip: text;  /* Webkit 支持 */
+    cursor:pointer;
+}
+
+
+.mode-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.mode-title {
+    font-weight: bold;
+    font-size: 16px;
+    color: #111;
+}
+
+.mode-desc {
+    font-size: 13px;
+    color: #888;
+    margin-left: -24px;
+}
+
+.mode-title,
+.mode-desc {
+    white-space: nowrap;  /* 防止文字換行 */
+    overflow: hidden;     /* 如果文字過長，會隱藏超出部分 */
+    text-overflow: ellipsis; /* 顯示省略號 (...)，當文字過長時 */
+}
+
+/* Checkbox 組群 */
+.checkbox-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+.checkbox-group label {
+    display: flex;
+    font-size: 16px;
+    font-weight: bold;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;  /* 防止文字換行 */
+    overflow: hidden;     /* 如果文字過長，會隱藏超出部分 */
+    text-overflow: ellipsis; /* 顯示省略號 (...)，當文字過長時 */
+    /*font-weight: 500;*/
+    /*font-size: 14px;*/
+}
+
+.checkbox-group label:hover {
+    color: #007aff;  /* 悬停时文字颜色变化 */
+    transform: scale(1.2); /* 向右滑动效果 */
+    cursor:pointer;
+}
+
+/* Checkbox 按钮悬停效果 */
+.checkbox-group input[type="checkbox"]:hover + span {
+    background-color: #0051a8;
+    transform: scale(1.1);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* 强化阴影 */
+    cursor:pointer;
+}
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+    /* mode-feature-row 确保默认为纵向排列 */
+    .mode-feature-row {
+        flex-direction: column;  /* 在小屏幕上调整为纵向布局 */
+        gap: 10px;  /* 减小垂直间距 */
+        margin-bottom: 0;
+        /*flex-direction: row;  !* 在移动端切换为横向排列 *!*/
+    }
+
+    /* 在移动端让 mode-box 撑满父容器 */
+    .mode-box {
+        flex: 1;              /* 撑满父容器 */
+        max-width: none;      /* 取消最大宽度限制 */
+        width: 100%;          /* 撑满宽度 */
+        justify-content: center;
+        padding:3px;
+    }
+
+    /* 在移动端让 feature-box 撑满父容器 */
+    .feature-box {
+        flex: 1;              /* 撑满父容器 */
+        max-width: none;      /* 取消最大宽度限制 */
+        width: 100%;          /* 撑满宽度 */
+        justify-content: center;
+        align-items: center;
+        flex-wrap: nowrap;    /* 不换行 */
+        padding:3px;
+    }
+
+    /* 保证 mode-box 和 feature-box 中的 label 横向排列 */
+    .mode-box {
+        display: flex;
+        flex-direction: row;  /* 横向排列 */
+        gap: 10px;            /* 设置横向间距 */
+        flex-wrap: nowrap;    /* 不换行 */
+        justify-content: space-between; /* 居中排列 */
+    }
+    /* 针对 feature-box 内的 label 横向排列 */
+    /* feature-box 内的 checkbox-group */
+    .feature-box .checkbox-group {
+        display: flex;
+        gap: 10px;              /* 设置横向间距 */
+        justify-content: center; /* 水平方向居中 */
+        align-items: center;     /* 垂直方向居中 */
+        flex-direction: row;     /* 横向排列 */
+        width: 100%;             /* 确保填满父容器宽度 */
+    }
+
+    /* 每个 label 内的内容居中 */
+    .feature-box .checkbox-group label {
+        display: flex;           /* 横向排列 label 内部内容 */
+        align-items: center;     /* 让复选框和文字垂直居中 */
+        justify-content: center; /* 让文字和复选框在水平方向居中 */
+        gap: 6px;                /* 文字和复选框之间的间距 */
+        font-size: 14px;         /* 根据需要调整字体大小 */
+        flex: 1;                 /* 让每个 label 撑满宽度 */
+        text-align: center;      /* 确保 label 文字居中 */
+    }
+
+    /* 横向排列 label 内部内容 */
+    .mode-box .mode-label,
+    .feature-box .checkbox-group label {
+        display: flex;        /* 横向排列 label 内部内容 */
+        align-items: center;  /* 确保文字和复选框垂直居中 */
+        gap: 6px;             /* 文字和复选框之间的间距 */
+        font-size: 14px;      /* 调整字体大小 */
+        flex: 1;              /* 撑满父容器 */
+    }
+
+    .mode-title {
+        font-size: 14px;  /* 减小标题字体 */
+    }
+
+    .mode-desc {
+        font-size: 12px;  /* 减小描述文字字体 */
+        margin-left: 0;   /* 调整描述文字左边距 */
+    }
+
+    .checkbox-group label {
+        display: flex;              /* label 内部使用 flex 排列 */
+        align-items: center;        /* 确保文字和复选框垂直居中 */
+        gap: 6px;                   /* 文字和复选框之间的间距 */
+        font-size: 14px;            /* 根据需要调整字体大小 */
+    }
+
+    .checkbox-group input[type="checkbox"]:hover + span {
+        transform: scale(1.05);  /* 减小复选框的放大效果 */
+    }
+}
+
+/*!* 🔹 輸入組塊樣式 *!*/
+/*.input-section {*/
+/*    margin-top: 12px;      !* 與上方區塊的距離 *!*/
+/*    margin-bottom: 10px;   !* 與下方保持呼吸感 *!*/
+/*    padding: 12px 0;*/
+/*}*/
+
+
+/* 地點區排版 */
+.location-row {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    align-items: flex-start;
+}
+.location-input,
+.region-input {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    max-width: 250px;
+    min-width: 0;
+    width: 100%;
+}
+.location-input{
+    flex: 1;
+}
+.region-input{
+    flex: 1.2;
+}
+
+/* 输入框悬停效果 */
+.location-input:hover,
+.region-input:hover {
+    transform: scale(1.05); /* 放大效果 */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* 增加阴影 */
+}
+
+
+label {
+    font-size: 13px;
+    color: #333;
+    margin-bottom: 2px;
+}
+
+
+/* label悬停效果 */
+label:hover {
+    color: #007aff; /* 悬停时文字颜色变为蓝色 */
+}
+
+.suggest-line {
+    padding: 8px 12px;
+    cursor: pointer !important;
+    transition: background-color 0.15s ease;
+}
+
+.suggest-line:hover {
+    background-color: #e6f2ff !important; /* 背景色变化 */
+    transform: scale(1.1); /* 放大效果 */
+}
+
+
+
+.success {
+    font-weight: bold;
+    color: #007aff;
+}
+
+/* success 悬停效果 */
+.success:hover {
+    color: #0051a8; /* 悬停时颜色变化 */
+    transform: scale(1.1); /* 放大效果 */
+}
+
+
+/*!* 測試後端連線 *!*/
+/*.debug-row {*/
+/*    display: flex;*/
+/*    gap: 10px;*/
+/*    align-items: stretch;*/
+/*    margin-top: 16px;*/
+/*}*/
+/*.vertical-btn {*/
+/*    background-color: #666;*/
+/*    color: white;*/
+/*    font-size: 12px;*/
+/*    border-radius: 4px;*/
+/*    width: 40px;*/
+/*    padding: 6px 0;*/
+/*    line-height: 1.2;*/
+/*    text-align: center;*/
+/*    white-space: pre-wrap;*/
+/*    cursor: pointer;*/
+/*    border: none;*/
+/*}*/
+/*.vertical-btn:hover {*/
+/*    background-color: #444;*/
+/*}*/
+
+/*#debug-log {*/
+/*    flex: 1;*/
+/*    padding: 8px;*/
+/*    background: #fcfcfc;*/
+/*    border: 1px dashed #999;*/
+/*    font-size: 12px;*/
+/*    white-space: pre-wrap;*/
+/*    overflow-y: auto;*/
+/*    border-radius: 6px;*/
+/*}*/
+
+
+
+
+/*.partition-container { position: fixed; z-index: 9999; background: #fff; border: 1px solid #ccc; box-shadow: 0 2px 8px rgba(0,0,0,0.2); display: flex; gap: 0px; padding: 0px; pointer-events: auto; border-radius: 50px; }*/
+
+.partition-container {
+    position: fixed;
+    z-index: 9999;
+    background: rgba(255, 255, 255, 0.25);               /* ✅ 半透明玻璃 */
+    border: 1px solid rgba(255, 255, 255, 0.3);           /* ✅ 微白边框 */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);            /* ✅ 柔光阴影 */
+    /*backdrop-filter: blur(12px);                         !* ✅ 玻璃模糊 *!*/
+    /*-webkit-backdrop-filter: blur(12px);                 !* ✅ Safari 支持 *!*/
+
+    display: flex;
+    gap: 0px;
+    padding: 0px;
+    pointer-events: auto;
+    border-radius: 50px;
+}
+
+.partition-line {
+    display: flex;
+    flex-direction: row;              /* 水平排列 */
+    align-items: center;              /* 垂直置中（防止位移） */
+    justify-content: space-between;
+    gap: 0;                         /* 控制箭頭與文字間距 */
+    padding: 4px 1px 4px 8px!important;
+}
+
+.partition-item {
+    flex: 1 1 auto;
+    white-space: nowrap;             /* ✅ 防止換行 */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.4;
+    cursor: pointer;
+    padding: 0 1px!important;
+    flex-grow: 1;
+}
+
+.partition-arrow {
+    font-size: 13px;
+    color: darkblue;
+    user-select: none;
+    cursor: pointer;
+    flex-shrink: 0;
+    margin: 0;
+    padding: 0 8px 0 8px !important;
+    font-weight: bold;
+    opacity: 0.8;
+
+    /* ✅ 修复关键 */
+    display: flex;
+    align-items: center;      /* 垂直居中 */
+    justify-content: center;  /* 水平居中 */
+    height: 100%;
+    width: auto;              /* ❗ 只占内容宽度，避免遮盖地点文字 */
+}
+
+
+.partition-arrow:hover {
+    opacity: 1;
+}
+
+
+
+.partition-list {
+    list-style: none;
+    margin: 0;
+    padding: 4px 0;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 30px;
+    min-width: 120px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.partition-list li {
+    padding: 6px 12px;
+    cursor: pointer;
+}
+.partition-list li:hover {
+    background: #f0f0f0;
+}
+
+/* 音典分區下拉整體容器（第一層） */
+.partition-popup {
+    background: rgba(255, 255, 255, 0.35);  /* 💡 半透明玻璃 */
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    padding: 6px;
+    display: flex;
+    flex-direction: column;
+}
+
+
+/* 各層級容器最小寬度 */
+.partition-popup.partition-lvl1,
+.partition-popup.partition-lvl2,
+.partition-popup.partition-lvl3 {
+
+    /*min-width: 140px;*/
+    border-radius: 10px;
+    /*justify-content: center;  !* 水平居中 *!*/
+    user-select: none;               /* 禁止文本选择 */
+    -webkit-user-select: none;       /* iOS/Safari */
+    -webkit-touch-callout: none;     /* 禁止 iOS 的长按菜单 */
+}
+
+/* 列表項目 */
+.partition-popup div {
+    padding: 6px 12px;
+    cursor: pointer;
+    border-radius: 30px;
+    transition: background 0.2s;
+
+}
+.partition-popup div:hover {
+    background: rgba(255, 255, 255, 0.3);
+    box-shadow: 0 0 4px rgba(255,255,255,0.6) inset;
+}
+
+.partition-popup div.active {
+    background: rgba(180, 223, 244, 0.72);  /* 浅蓝色高亮 */
+    box-shadow: 0 0 6px rgba(0, 122, 255, 0.3);  /* 微光效果 */
+}
+
+/*.partition-popup.partition-lvl1 div {*/
+/*    justify-content: center;  !* 水平居中 *!*/
+/*}*/
+/* 第三級內容捲動區樣式 */
+.partition-popup.partition-lvl3 {
+    max-height: 240px;
+    overflow-y: auto;
+}
+
+/* 美化 scrollbar（Chrome/Firefox） */
+.partition-popup.partition-lvl3::-webkit-scrollbar {
+    width: 6px;
+}
+.partition-popup.partition-lvl3::-webkit-scrollbar-thumb {
+    background: #bbb;
+    border-radius: 3px;
+}
+.partition-popup.partition-lvl3::-webkit-scrollbar-track {
+    background: #f5f5f7;
+}
+.partition-popup.partition-lvl3 {
+    scrollbar-width: thin;
+    scrollbar-color: #bbb #f5f5f7;
+}
+
+.group-row {
+    display: flex;
+    gap: 16px;
+    margin-top: 10px;
+    justify-content: center;
+}
+.group-row2 {
+    display: flex;
+    gap: 16px;
+    /*margin-top: 10px;*/
+    /*flex: 0 0 auto;*/
+    width: 100%;
+    justify-content: center; /* 子項未撐滿時居中 */
+}
+/*.group-row2 > div {*/
+/*    !*flex: 0.5;*!*/
+/*    display: flex;*/
+/*    flex-direction: column;*/
+/*    justify-content: flex-start;*/
+/*    min-width: 0; !* 🔧 確保它會收縮 *!*/
+/*    overflow: hidden;       !* ✅ 防止內容撐開 *!*/
+/*}*/
+#status_inputs_group {
+    flex: 3;
+    min-width: 0;
+    max-width: 400px;
+}
+
+
+.group-row > div {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+.group-row label,.group-row2 label {
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 4px;
+}
+
+.group-row textarea,.group-row2 textarea {
+    height: 60px;
+    resize: none;
+    font-family: monospace;
+    font-size: 13px;
+    padding: 6px 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    box-sizing: border-box;
+    background: #fff;
+}
+
+/* 通用輸入區塊排版 */
+.input-section {
+    margin-top: 0;      /* ✅ 往上靠緊一點 */
+    margin-bottom: 0;   /* 下方略有空隙即可 */
+    padding: 0 0;       /* 減少上下 padding */
+}
+
+/* 增加input-section hover效果 */
+.input-section:hover {
+    background-color: #f9f9f9; /* 悬停时背景颜色变化 */
+    transform: scale(1.02); /* 轻微放大 */
+}
+
+.input-section:empty {
+    display: none;
+    visibility: hidden;
+    height: 0;
+    width: 0;
+    margin: 0;
+    padding: 0;
+    border: none;
+    overflow: hidden;
+}
+
+
+.partition-list:empty {
+    display: none;
+}
+
+.partition-popup:empty {
+    display: none;
+}
+
+/* 即時提示面板 */
+.inline-suggestion {
+    position: absolute !important;
+    display: none;
+    background: #ffffff !important;
+    border: 1px solid #ccc !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    padding: 8px 12px;
+    border-radius: 6px;
+    white-space: pre-line;  /* 支援多行 */
+    font-size: 14px;
+    color: #333;
+    max-width: 320px;
+    z-index: 99999 !important;
+    pointer-events:auto !important;
+    max-height: calc(8 * 2.5em); /* 8行，每行1.2em */
+    overflow-y: auto;  /* 超過8行時顯示滾動條 */
+}
+
+.inline-suggestion .success {
+    color: #007aff; /* iOS 藍色 ✔️ */
+    font-weight: bold;
+}
+
+.inline-suggestion .error {
+    color: #ff3b30; /* Apple 紅錯誤 */
+    font-weight: bold;
+}
+
+
+/* 容器設置 */
+.button-container-map {
+    display: flex;
+    flex-direction: row; /* 垂直排列 */
+    align-items: center; /* 使元素緊貼容器的上部 */
+    justify-content: flex-start; /* 讓元素緊貼容器上部 */
+
+    gap: 8px; /* 控制按鈕和文字之間的間距 */
+    /*flex: 0 0 30%; !* 確保寬度為父容器的 30% *!*/
+    max-width: 240px; /* 最大寬度，防止過度擴展 */
+    margin: 0 auto; /* 水平居中 */
+}
+
+/* 文字描述部分 */
+.button-description-map {
+    text-align: center;
+    color: #333; /* 深色文字 */
+    font-size: 12px; /* 較小的文字 */
+    font-weight: 400; /* 普通字重 */
+    line-height: 1; /* 行高，讓文字顯得更清晰 */
+}
+
+/* 主要容器樣式 */
+.dropdown-container-map {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Helvetica Neue", sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    /*margin-bottom: 20px;*/
+    width: 50px; /* 可以調整寬度 */
+    margin-left: 0; /* 確保容器從左邊開始 */
+    /* 防止選項內容撐開 */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+
+/* 下拉選框樣式 */
+.dropdown-map {
+    width: 50px; /* 固定寬度 */
+    padding: 2px 3px;
+    font-size: 10px; /* 自動縮小文字字號 */
+    border: 2px solid #ccc;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    color: #333;
+    outline: none;
+    transition: all 0.3s ease;
+    text-align: center; /* 文字居中 */
+}
+
+
+/* 展開下拉框的箭頭 */
+.dropdown-map::-ms-expand {
+    display: none; /* 去除 IE 和 Edge 中的默認箭頭 */
+}
+
+/* 展開時的樣式 */
+.dropdown-map option {
+    padding: 8px 12px;               /* 更舒适的内边距 */
+    font-size: 14px;                 /* 稍大字体，更易读 */
+    background-color: #fefefe;       /* 明亮干净的背景 */
+    color: #1d1d1f;                  /* 苹果系深灰文字 */
+    text-align: left;                /* iOS 通常左对齐 */
+    border: none;
+    border-radius: 6px;              /* 微圆角，干净利落 */
+    transition: background-color 0.2s ease, color 0.2s ease;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+}
+
+.dropdown-map option:hover {
+    background-color: #eaeaea;       /* 悬停时淡灰色 */
+    color: #000;
+}
+
+/* focus 和 hover 時的樣式 */
+.dropdown-map:hover,
+.dropdown-map:focus {
+    border-color: #007aff; /* 蘋果藍 */
+    background-color: #e1f3ff; /* 輕微的藍色背景 */
+    box-shadow: 0 4px 10px rgba(0, 122, 255, 0.2);
+}
+
+
+.input-example-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start; /* 控制主轴（竖直）对齐 */
+    align-items: center;         /* ✅ 控制交叉轴（水平方向）居中 */
+    flex: 1;
+    min-width: 0;
+    max-width: 50px;
+}
+
+
+.feature-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: -apple-system, BlinkMacSystemFont, "San Francisco", "Helvetica Neue", sans-serif;
+    font-size: 14px;
+    margin-top: 10px;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    border-radius: 12px;
+    overflow: hidden;
+    color: #222;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);  /* 添加陰影 */
+    transition: transform 0.3s ease, box-shadow 0.3s ease; /* 平滑過渡效果 */
+}
+
+.feature-table th,
+.feature-table td {
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    padding: 12px 15px;  /* 增加間距 */
+    text-align: left;
+    vertical-align: top;
+    word-wrap: break-word;  /* 強制換行 */
+    white-space: normal;
+}
+
+.feature-table th {
+    background: rgba(255, 255, 255, 0.3);
+    font-weight: bold;
+    color: #000;
+    white-space: nowrap;  /* 防止文字換行 */
+    overflow: hidden;     /* 防止超出範圍 */
+    text-overflow: ellipsis; /* 當文字過長時顯示省略號 */
+}
+
+
+.feature-table td {
+    line-height: 1.6;
+    background: rgba(255, 255, 255, 0.1);  /* 單元格背景 */
+}
+
+/* 增加 hover 效果 */
+.feature-table tr:hover {
+    /*transform: translateY(-5px);  !* 偏移 *!*/
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);  /* 放大陰影 */
+}
+
+/* 奇偶行交替背景色 */
+.feature-table tr:nth-child(odd) {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.feature-table tr:nth-child(even) {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
