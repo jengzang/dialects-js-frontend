@@ -3,7 +3,7 @@
     <RouterLink
         v-for="tab in tabs"
         :key="tab.tab"
-        :to="{ path: '/', query: { tab: tab.tab } }"
+        :to="{ path: '/intro', query: { tab: tab.tab } }"
         class="tab-button"
         :class="{ active: isActiveTab(tab.tab) }"
     >
@@ -24,34 +24,50 @@ const tabs = [
   { tab: 'thanks', label: '特別鳴謝', icon: '🙏' }
 ]
 
-// 根據 query.tab 判斷哪個 active
 const isActiveTab = (tabName) => {
-  return (
-      route.path === '/' && (
-          route.query.tab === tabName ||
-          (!route.query.tab && tabName === 'like')
-      )
-  )
+  const path = route.path
+  const tab = route.query.tab
+
+  if (path === '/intro') {
+    return tab === tabName || (!tab && tabName === 'like')
+  }
+
+  if (path === '/menu') {
+    // 專門處理 about tab 對應 Thanks.vue 的邏輯
+    if (tabName === 'thanks' && tab === 'about') {
+      return true
+    }
+    // 其他 tab 正常對應
+    return tab === tabName || (!tab && tabName === 'query')
+  }
+
+  return false
 }
 
 </script>
 
 <style scoped>
 .tab-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 999;
+  background: #f0f4ff;
+  padding: 0.5rem;
+  gap: 0.5rem;
+  border-radius: 0 0 16px 16px; /* 頂部貼住，底部保留圓角 */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  max-width: 700px;
+  margin: 0 auto;
+  width: 100%;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   align-items: stretch;
-  background: #f0f4ff;
-  padding: 0.5rem;
-  gap: 0.5rem;
-  border-radius: 16px 16px 0 0;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  margin: 0 auto;
-  max-width: 100%;
   box-sizing: border-box;
-  width: 100%;
 }
+
 
 /* 🧱 核心結構：每個 tab 撐滿整行、不可換行 */
 .tab-button {

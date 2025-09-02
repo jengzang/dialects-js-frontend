@@ -28,12 +28,12 @@
 
 <style scoped>
 .suggestion-box {
-  max-width: 600px;
+  max-width: 700px;
   margin: 0 auto;
-  padding: 24px 16px;
   text-align: center;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
   color: #1f2937; /* 深灰黑 */
+  justify-content: center;
 }
 
 .suggestion-box p {

@@ -1,45 +1,87 @@
 // src/router.js
 import {createRouter, createWebHashHistory, createWebHistory} from 'vue-router'
-import LikeAuthor from './views/LikeAuthor.vue'
-import Suggestions from './views/Suggestions.vue'
-import Thanks from './views/Thanks.vue'
-import auth from './views/Auth.vue'
+import LikeAuthor from './views/intro/LikeAuthor.vue'
+import Suggestions from './views/intro/Suggestions.vue'
+import Thanks from './views/intro/Thanks.vue'
+import Auth from './views/Auth.vue'
+import QueryPage from './views/menu/QueryPage.vue'
+import MapPage from './views/menu/MapPage.vue'
 
 const routes = [
+    // ✅ 根路由 → 直接導到 /menu?tab=query
     {
         path: '/',
-        component: {
-            render: () => null
-        }
+        redirect: { path: '/menu', query: { tab: 'query' } }
     },
+
+    // ✅ /menu 佔位（由 beforeEach 動態注入組件）
+    {
+        path: '/menu',
+        component: { render: () => null }
+    },
+
+    // ✅ /intro 佔位（由 beforeEach 動態注入組件）
+    {
+        path: '/intro',
+        component: { render: () => null }
+    },
+
+    // 其他頁面
     {
         path: '/auth',
-        component: auth
+        component: Auth
+    },
+
+    // 可選：兜底導回首頁（避免 404）
+    {
+        path: '/:pathMatch(.*)*',
+        redirect: '/'
     }
 ]
 
 const router = createRouter({
-    history: createWebHashHistory('/intro'),
-    routes
+    base:'/',
+    history: createWebHistory(),
+    // ❗hash 模式不需要傳 base，傳 '/' 會被忽略
+    // history: createWebHashHistory(),
+    routes,
+    scrollBehavior() {
+        return { top: 0 }
+    }
 })
 
-// 根據 query.tab 動態切換組件（僅限 path === '/'）
+// ✅ 根據 query.tab 動態切換組件（/intro 與 /menu 各自映射）
 router.beforeEach((to, from, next) => {
-    if (to.path === '/') {
-        const tab = to.query.tab;
+    if (!to.matched.length) return next()
 
+    if (to.path === '/intro') {
+        const tab = to.query.tab
+        if (tab === 'thanks') {
+            return next({ path: '/menu', query: { tab: 'about' } })
+        }
         const tabMap = {
             like: LikeAuthor,
             suggestions: Suggestions,
-            thanks: Thanks
-        };
-
+        }
         to.matched[0].components = {
             default: tabMap[tab] || LikeAuthor
-        };
+        }
     }
 
-    next();
-});
+    if (to.path === '/menu') {
+        const tab = to.query.tab
+        const tabMap = {
+            query: QueryPage,
+            map: MapPage,
+            about: Thanks
+        }
+        to.matched[0].components = {
+            default: tabMap[tab] || QueryPage
+        }
+    }
+
+    next()
+})
 
 export default router
+
