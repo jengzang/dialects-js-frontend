@@ -1,5 +1,5 @@
 // src/router.js
-import { createRouter, createWebHistory } from 'vue-router'
+import {createRouter, createWebHashHistory, createWebHistory} from 'vue-router'
 import LikeAuthor from './views/LikeAuthor.vue'
 import Suggestions from './views/Suggestions.vue'
 import Thanks from './views/Thanks.vue'
@@ -19,7 +19,7 @@ const routes = [
 ]
 
 const router = createRouter({
-    history: createWebHistory('/intro'),
+    history: createWebHashHistory('/intro'),
     routes
 })
 

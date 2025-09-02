@@ -27,14 +27,15 @@ const goToAuthPage = () => {
 }
 
 const goBack = () => {
-  window.location.href = 'http://10.250.101.238:5000/'
+  window.location.replace('http://10.250.101.238:5000/')
 }
+
 </script>
 
 
 <style scoped>
 .container {
-  max-width: 480px;
+  max-width: 700px;
   margin: 0 auto;
   background: #f5f8ff;
   border-radius: 16px;
@@ -74,6 +75,11 @@ const goBack = () => {
   cursor: pointer;
   transition: background 0.3s, transform 0.2s;
   z-index: 9999;
+  font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  /* ✅ 关键部分：用 Flex 保证文字完全居中 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .floating-login-button:hover {
@@ -96,7 +102,7 @@ const goBack = () => {
   bottom: 18px;
   background: darkgoldenrod;
   color: white;
-  font-size: 1.6rem;
+  font-size: 2rem;
   border: none;
   border-radius: 50%;
   width: 52px;
@@ -105,6 +111,11 @@ const goBack = () => {
   cursor: pointer;
   transition: background 0.3s, transform 0.2s;
   z-index: 9999;
+  font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  /* ✅ 关键部分：用 Flex 保证文字完全居中 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .floating-back-button:hover {

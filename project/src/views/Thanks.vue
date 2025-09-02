@@ -13,12 +13,16 @@
               target="_blank" rel="noopener noreferrer" class="thanks-link">泛粵大典</a>
       </li>
       <li>
+        <a href="https://zhongguoyuyan.cn/" target="_blank" rel="noopener noreferrer"
+           class="thanks-link">語保</a> - 篩選了部分資料
+      </li>
+      <li>
         <a href="https://xiaoxue.iis.sinica.edu.tw/ccrdata/" target="_blank" rel="noopener noreferrer"
-           class="thanks-link">小學堂</a> - 節選了部分資料
+           class="thanks-link">小學堂</a> - 篩選了部分資料
       </li>
       <li>
         <a href="http://1.14.238.88:8099/dialect/main/about.html" target="_blank" rel="noopener noreferrer"
-           class="thanks-link">粵閩客方言系統</a> - 節選了部分資料
+           class="thanks-link">粵閩客方言系統</a> - 篩選了部分資料
       </li>
       <li>
         <a href="#" class="thanks-link">測試人員</a> - 正式上線之前測試、提建議的網友！

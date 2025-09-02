@@ -7,7 +7,9 @@
           關注
         </button>
       </h2>
-      <p style="margin: 0">「如果你覺得項目不錯，可以給個 ⭐️ 嗎！」</p>
+      <p style="display: block; width: 100%; clear: both; margin: 0;">
+        「如果你覺得項目不錯，可以給個 ⭐️ 嗎！」
+      </p>
 
       <a
           class="project-card"
@@ -36,6 +38,8 @@
           服務器和域名的開銷，也是從生活費中省出來的💸」
         </span>
       </p>
+      <p></p>
+      <p></p>
     </div>
     <div v-if="showQRCodes" class="qr-modal">
       <div class="qr-modal-content">

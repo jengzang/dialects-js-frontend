@@ -25,9 +25,15 @@ const tabs = [
 ]
 
 // 根據 query.tab 判斷哪個 active
-const isActiveTab = (tabName) =>
-    (route.query.tab === tabName) ||
-    (!route.query.tab && tabName === 'like') // 預設 tab 為 like
+const isActiveTab = (tabName) => {
+  return (
+      route.path === '/' && (
+          route.query.tab === tabName ||
+          (!route.query.tab && tabName === 'like')
+      )
+  )
+}
+
 </script>
 
 <style scoped>
