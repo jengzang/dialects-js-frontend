@@ -16,21 +16,39 @@
       <div v-else-if="currentTab === 'tab2'" class="page">📜 查中古頁面</div>
       <div v-else-if="currentTab === 'tab3'" class="page">🔤 查音位頁面</div>
       <div v-else-if="currentTab === 'tab4'" class="page">🎵 查調頁面</div>
+
+      <LocationAndRegionInput />
+      <!-- ✅ 炫酷按鈕 -->
+      <button class="fancy-run-btn" @click="runAction">
+        {{ currentTabLabel }}
+      </button>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
+import LocationAndRegionInput from "@/components/LocationAndRegionInput.vue";
 
-const currentTab = ref('tab2')
+const currentTab = ref('tab1')
 
 const tabs = [
-  {name: 'tab1', label: '查字'},
-  {name: 'tab2', label: '查中古'},
-  {name: 'tab3', label: '查音位'},
-  {name: 'tab4', label: '查調'}
+  { name: 'tab1', label: '查字' },
+  { name: 'tab2', label: '查中古' },
+  { name: 'tab3', label: '查音位' },
+  { name: 'tab4', label: '查調' }
 ]
+
+const currentTabLabel = '單擊運行'
+
+// 點擊按鈕行為
+const runAction = () => {
+  const currentTabLabel = computed(() => {
+    const found = tabs.find(t => t.name === currentTab.value)
+    return found?.label ?? '執行'
+  })
+  console.log(`你點擊了：${currentTabLabel.value}`)
+}
 </script>
 
 <style scoped>
@@ -94,8 +112,14 @@ const tabs = [
 /* 📄 內容區塊動畫 */
 .tab-content {
   width: 100%;
-  animation: fade 0.6s ease;
+  max-width: 600px;
   margin-top: 24px;
+  animation: fade 0.6s ease;
+
+  /* ✅ 新增這些 */
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
 }
 
 .page {
@@ -136,4 +160,37 @@ const tabs = [
     font-size: 16px;
   }
 }
+
+.fancy-run-btn {
+  font-size: 18px;
+  font-weight: bold;
+  padding: 14px 28px;
+  color: white;
+  background: linear-gradient(135deg, #6e00ff, #00c3ff);
+  border: none;
+  border-radius: 30px;
+  box-shadow: 0 0 12px rgba(0, 195, 255, 0.6), 0 0 30px rgba(110, 0, 255, 0.3);
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+  letter-spacing: 1px;
+  position: relative;
+  overflow: hidden;
+  white-space: nowrap;
+  margin-top: 24px;
+}
+
+.fancy-run-btn:hover {
+  transform: scale(1.2);
+  box-shadow: 0 0 20px rgba(0, 195, 255, 0.8), 0 0 50px rgba(110, 0, 255, 0.5);
+}
+
+/* 📱 響應式：小螢幕按鈕變小 */
+@media screen and (max-width: 600px) {
+  .fancy-run-btn {
+    font-size: 16px;
+    padding: 10px 20px;
+    border-radius: 24px;
+  }
+}
+
 </style>

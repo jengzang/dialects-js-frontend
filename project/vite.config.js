@@ -18,5 +18,6 @@ export default defineConfig({
         inlineDynamicImports: true          // 合并动态导入，确保单文件
       }
     }
-  }
+  },
+  publicDir: 'public', // ✅ 正確
 })
