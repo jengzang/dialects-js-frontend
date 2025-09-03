@@ -6,7 +6,7 @@
     <!--    <meta http-equiv="X-UA-Compatible" content="IE=edge">-->
 <!--    <meta name="viewport" content="initial-scale=1.0, user-scalable=no, width=device-width">-->
     <title>方言比較-地理語言學</title>
-
+    <script src="../config.js"></script>
     <!-- CSS 引入 -->
     <link rel="stylesheet" href="css/global.css" />
     <link rel="stylesheet" href="css/inputpanel.css" />
@@ -17,7 +17,6 @@
     <link rel="stylesheet" href="css/button_switchs.css">
     <link rel="stylesheet" href="css/input_style.css">
     <link rel="stylesheet" href="css/popups.css">
-<!--    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">-->
 
     <!-- 加載 Vue 3 的 CDN -->
     <script src="https://cdn.jsdelivr.net/npm/vue@3.2.47/dist/vue.global.js"></script>
@@ -28,16 +27,21 @@
 </head>
 
 <body>
-<!-- 使用 iframe 嵌入 Vue 应用 -->
-<iframe src="./admin/index.html" width="100%" height="600px" frameborder="0"></iframe>
 
 <div id="welcomeOverlay" class="welcome-overlay hidden">
     <div id="welcomeModal" class="welcome-modal">
         <div class="modal-content">
             <h2>👏 歡迎</h2>
             <h3>🗣️ 方言比較 - 地理語言學🌏</h3>
-            <p>開發者：不羈</p>
-            <button id="contactBtn">聯繫作者</button>
+            <div class="author-row">
+                <p>開發者：不羈</p>
+                <button id="contactBtn" style="padding: 4px 6px;background-color: #1c8dba">聯繫作者</button>
+            </div>
+            <div class="button-group">
+                <button id="likeAuthorBtn" style="background-color: darkred">👍喜歡作者</button>
+                <button id="suggestionBtn">💡我有建議</button>
+            </div>
+
             <span id="currentDateTime"></span>
             <span class="close-hint">點擊空白處關閉</span>
         </div>
@@ -76,6 +80,8 @@
         <p style="margin: 0"><span class="example-input"><strong>「庄組」</strong></span> 使用 <span class="example-desc">庄組</span> 進行分析（如果只輸入「庄」，會使用 <span class="example-desc">庄母</span> 分析）。</p>
         <p style="margin: 0"><span class="example-input"><strong>「流開一」</strong></span> 使用 <span class="example-desc">流攝開口一等字</span> 進行分析。</p>
         <p style="margin: 0"><span class="example-input"><strong>「假知組 假章組」</strong></span> 使用 <span class="example-desc">假攝的知、章組</span> 轄字進行分析。</p>
+        <p style="margin: 0"><span class="example-input"><strong>「塞擦」</strong></span> 提取 <span class="example-desc">塞擦音</span> 進行分析。</p>
+        <p style="margin: 0"><span class="example-input"><strong>「-部位」</strong></span> 分析 <span class="example-desc">所有發聲部位</span> ，包括“唇齒、喉、捲舌、腭、軟腭、雙唇、齒”。</p>
         <p style="margin-bottom:0;font-size: 17px ">支持的輸入見下表（簡體也可以）</p>
         <table class="feature-table">
             <thead>
@@ -86,15 +92,18 @@
             </thead>
             <tbody>
             <tr><td>攝</td><td>通、宕、江、止、遇、蟹、流、山、效、咸、深、臻、曾、梗、果、假</td></tr>
+            <tr><td>韻</td><td>之、仙、佳、侯、侵、元、先、冬、凡、刪、咍、咸、唐、嚴、夬、宵、寒、尤、山、幽、庚、廢、微、支、文、東、模、欣、
+                歌、江、泰、添、灰、痕、登、皆、真、祭、耕、肴、脂、臻、蒸、蕭、虞、覃、談、豪、銜、鍾、陽、青、魂、魚、鹽、麻、齊、#清(清有歧義，需用#指定清韻)</td></tr>
             <tr><td>呼</td><td>合、開</td></tr>
-            <tr><td>等</td><td>一、二、三、四</td></tr>
-            <tr><td>韻</td><td>之、仙、佳、侯、侵、元、先、冬、凡、刪、咍、咸、唐、嚴、夬、宵、寒、尤、山、幽、庚、廢、微、支、文、東、桓、模、欣、歌、江、泰、添、灰、痕、登、皆、真、祭、耕、肴、脂、臻、蒸、蕭、虞、覃、談、豪、銜、鐘、陽、青、魂、魚、鹽、麻、齊、#清(清有歧義，需用#指定清韻)</td></tr>
-            <tr><td>入</td><td>入、舒</td></tr>
+            <tr><td>等</td><td>一、二、三、三A、三B、三C、三銳、四(輸入“三”會輸出所有的三等字，如果考慮重紐，請指明“ABC銳”，例如“三A”)</td></tr>
+            <tr><td>入</td><td>舒、入</td></tr>
             <tr><td>調</td><td>平、上、去、入</td></tr>
-            <tr><td>清濁</td><td>全清、全濁、次清、次濁、*清(清有歧義，需用*指定)、濁</td></tr>
+            <tr><td>部位</td><td>雙唇、齒、唇齒、喉、捲舌、腭、軟腭</td></tr>
+            <tr><td>方式</td><td>塞、塞擦、擦、近、鼻</td></tr>
+            <tr><td>清濁</td><td>全清、全濁、次清、次濁</td></tr>
             <tr><td>系</td><td>幫、知、端、見</td></tr>
-            <tr><td>組</td><td>幫、影、日、曉、泥、知、章、端、精、莊、見、非</td></tr>
-            <tr><td>母</td><td>並、云、以、來、初、匣、奉、娘、定、崇、常、幫、影、從、微、徹、心、敷、日、昌、明、曉、書、泥、溪、滂、澄、生、疑、知、禪、章、端、精、群、船、莊、見、透、邪、非、@清(清有歧義，需用@指定清母)</td></tr>
+            <tr><td>組</td><td>幫、非、端、泥、精、莊、知、章、見、曉、影、日</td></tr>
+            <tr><td>母</td><td>幫、滂、並、明、非、敷、奉、微、端、透、定、泥、知、徹、澄、娘、精、從、心、邪、莊、初、崇、俟、生、章、昌、常、書、日、船、見、溪、群、疑、影、曉、匣、云、以、來、@清(清有歧義，需用@指定清母)</td></tr>
             </tbody>
         </table>
         <p><span class="example-desc">點擊按鈕即可查詢！</span></p>
@@ -104,7 +113,7 @@
         <p>✔ 注1：<span class="example-desc">移動端</span>界面可能顯示不全，請多滑動/拖動。</p>
         <p>✔ 注2：點擊 <span class="example-input">分區 ▼</span> 按鈕，會出現音典分區彈窗，用戶可<span class="example-desc">單擊</span>選擇所需分區。如要顯示下一級分區:<br>
             ※ <span class="example-desc">電腦端</span>只需將<span class="example-desc">光標</span>移到對應分區上即可；<br>
-            ※ <span class="example-desc">移動端</span>則需要<span class="example-desc">長按</span>對應分區</p>
+            ※ <span class="example-desc">移動端</span>則需要<span class="example-desc">點擊箭頭⌵</span>或<span class="example-desc">長按</span>對應分區</p>
         <p>更詳細的使用說明，可點擊屏幕上方 <span class="example-input"> ❓使用說明 </span> 按鈕，點擊後會跳轉至詳細教程文章</p>
         <p>點擊🎲 可隨機生成分析示例</p>
     </div>
@@ -251,6 +260,7 @@
                 </div>
              </div>
         </div>
+        <span id="bugBtn" class="bug-btn">發現了bug⁉️ 點我👈</span>
     </div>
 </div>
 
@@ -492,12 +502,6 @@
 
 
 <!-- JS 檔案引入 -->
-<script>
-    // window.WEB_BASE = location.origin
-    window.WEB_BASE = "http://10.250.101.238:5000"
-    window.API_BASE = window.WEB_BASE + "/api";
-    window.LOG_BASE = window.WEB_BASE + "/auth"
-</script>
 <script src="js/main.js"></script>
 <script src="js/inputpanel.js"></script>
 <script src="js/html_table.js"></script>
@@ -506,5 +510,6 @@
 <script src="js/vue_table.js"></script>
 <script src="js/process_data.js"></script>
 <script src="js/popup.js"></script>
+<script src="js/get_vue.js"></script>
 </body>
 </html>

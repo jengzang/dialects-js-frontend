@@ -27,6 +27,7 @@
                 style="height: 5dvh"
                 placeholder="可輸入一個或多個漢字"
                 v-model="hanziInput"
+                autocomplete="off"
             ></textarea>
           </div>
         </div>
@@ -154,26 +155,26 @@
 
             <!-- ✅ 鍵值 + 輸入框 -->
             <div class="dropdown-row">
-              <!-- 鍵值 dropdown（保留） -->
+              <!-- 🔑 tab3 鍵名 dropdown -->
               <div class="dropdown-wrapper" style="flex: 1">
-                <div class="dropdown" ref="tab3ValueTriggerEl" @click="toggleDropdown('tab3Value')">
-                  {{ tab3SelectedValue || '請選擇鍵值' }}
+                <div class="dropdown" @click="toggleDropdown('tab3Key')" ref="tab3KeyTriggerEl">
+                  {{ tab3SelectedKey || '請選擇鍵名' }}
                   <span class="arrow">▾</span>
                 </div>
                 <Teleport to="body">
                   <div
-                      v-if="dropdownOpen === 'tab3Value'"
+                      v-if="dropdownOpen === 'tab3Key'"
                       class="dropdown-panel"
-                      :style="dropdownStyle.tab3Value"
-                      ref="tab3ValueDropdownEl"
+                      :style="dropdownStyle.tab3Key"
+                      ref="tab3KeyDropdownEl"
                   >
                     <div
-                        v-for="value in keyValueMap[selectedKey]"
-                        :key="value"
+                        v-for="key in keys"
+                        :key="key"
                         class="dropdown-item"
-                        @click="selectTab3Value(value)"
+                        @click="selectTab3Key(key)"
                     >
-                      {{ value }}
+                      {{ key }}
                     </div>
                   </div>
                 </Teleport>
@@ -188,6 +189,7 @@
                       v-model="tab3KeyInput"
                       placeholder="請輸入待查音節，留空則全查"
                       style="max-height: 5dvh"
+                      autocomplete="off"
                   ></textarea>
                 </div>
               </div>
@@ -204,7 +206,7 @@
         </div>
       </div>
 
-      <LocationAndRegionInput />
+      <LocationAndRegionInput ref="locationRef" />
 
       <!-- ✅ 炫酷按鈕 -->
       <div class="fancy-run-container">
@@ -222,6 +224,7 @@
 <script setup>
 import {computed, nextTick, reactive, ref, onMounted, onBeforeUnmount} from 'vue'
 import LocationAndRegionInput from "@/components/LocationAndRegionInput.vue";
+const locationRef = ref(null)
 
 const currentTab = ref('tab2')
 
@@ -233,19 +236,22 @@ const tabs = [
 ]
 const hanziInput = ref('好')
 
-const selectedCard = ref('聲母')
-const selectedKey = ref('音系')
-const selectedValue = ref('平上去入')
+const selectedCard = ref('韻母')
+const selectedKey = ref('攝')
+const selectedValue = ref('流')
 const dropdownOpen = ref(null)
 
 const cards = ['聲母', '韻母', '聲調']
-const keys = ['音系', '調類', '韻部']
-
-const keyValueMap = {
-  音系: ['平上去入', '陰陽對立', '聲母配列'],
-  調類: ['陰平', '陽平', '上聲', '去聲', '入聲'],
-  韻部: ['東', '冬', '鍾', '江', '支', '微']
-}
+const keys = Object.keys(column_values)
+const keyValueMap = column_values
+const tab3SelectedKey = ref(Object.keys(column_values)[0])
+const tab3KeyTriggerEl = ref(null)
+const tab3KeyDropdownEl = ref(null)
+const valueDropdownEl = ref(null)
+const keyDropdownEl = ref(null)
+const valueTriggerEl = ref(null)
+const keyTriggerEl = ref(null)
+const tab3KeyInput = ref('a an')
 
 const dropdownStyle = reactive({
   value: {
@@ -258,16 +264,6 @@ const dropdownStyle = reactive({
   }
 })
 
-const valueDropdownEl = ref(null)
-const keyDropdownEl = ref(null)
-const valueTriggerEl = ref(null)
-const keyTriggerEl = ref(null)
-const tab3ValueTriggerEl = ref(null)
-const tab3ValueDropdownEl = ref(null)
-const tab3SelectedValue = ref('')
-const tab3KeyInput = ref('')
-
-
 function toggleDropdown(type) {
   dropdownOpen.value = dropdownOpen.value === type ? null : type
 
@@ -275,7 +271,8 @@ function toggleDropdown(type) {
     let triggerEl = null
     if (type === 'value') triggerEl = valueTriggerEl.value
     else if (type === 'key') triggerEl = keyTriggerEl.value
-    else if (type === 'tab3Value') triggerEl = tab3ValueTriggerEl.value
+    else if (type === 'tab3Key') triggerEl = tab3KeyTriggerEl.value
+
 
     if (triggerEl) {
       const rect = triggerEl.getBoundingClientRect()
@@ -294,7 +291,9 @@ function onClickOutside(event) {
     keyTriggerEl.value,
     keyDropdownEl.value,
     valueTriggerEl.value,
-    valueDropdownEl.value
+    valueDropdownEl.value,
+    tab3KeyTriggerEl.value,       // ✅ 新增
+    tab3KeyDropdownEl.value       // ✅ 新增
   ]
 
   const isInsideAny = targets.some(el => el?.contains(event.target))
@@ -309,13 +308,12 @@ function selectKey(key) {
   selectedValue.value = keyValueMap[key][0]
   dropdownOpen.value = null
 }
-
-function selectValue(value) {
-  selectedValue.value = value
+function selectTab3Key(key) {
+  tab3SelectedKey.value = key
   dropdownOpen.value = null
 }
-function selectTab3Value(val) {
-  tab3SelectedValue.value = val
+function selectValue(value) {
+  selectedValue.value = value
   dropdownOpen.value = null
 }
 
@@ -323,11 +321,55 @@ const currentTabLabel = computed(() => {
   const found = tabs.find(t => t.name === currentTab.value)
   return found?.label ?? '執行'
 })
+
+
 // 點擊按鈕行為
 const runAction = () => {
+  const base = {
+    mode: currentTab.value,
+    location: locationRef.value?.inputValue,
+    region: locationRef.value?.selectedValue,
+    region_source: locationRef.value?.regionUsing
+  }
 
-  console.log(`你點擊了：${currentTabLabel.value}`)
+  let data = {}
+
+  if (currentTab.value === 'tab1') {
+    data = {
+      ...base,
+      chars: hanziInput.value
+    }
+  }
+  else if (currentTab.value === 'tab2') {
+    data = {
+      ...base,
+      card: selectedCard.value,
+      key: selectedKey.value,
+      value: selectedValue.value
+    }
+  }
+  else if (currentTab.value === 'tab3') {
+    data = {
+      ...base,
+      card: selectedCard.value,
+      key: tab3SelectedKey.value,
+      pho: tab3KeyInput.value
+    }
+  }
+  else if (currentTab.value === 'tab4') {
+    data = {
+      ...base,
+      // no extra fields
+    }
+  }
+  sessionStorage.setItem('vueToNativeData', JSON.stringify(data))
+  window.location.href = '/detail'//等会记得改
 }
+
+
+
+
+
 const handleEnter = () => {
   window.location.href = window.WEB_BASE + '/detail'
 }
@@ -458,7 +500,8 @@ onBeforeUnmount(() => {
 }
 
 .run-label {
-  font-size: 16px;
+  font-size: 18px;
+  font-weight: bold;
   color: darkblue;
   white-space: nowrap;
 }
@@ -503,7 +546,6 @@ onBeforeUnmount(() => {
 /* ✅ 整行居中（小字 + 按鈕） */
 .page-footer {
   display: inline-flex;
-
   align-items: center;
   gap: 12px;
   margin: 0 auto;  /* 讓這整行居中 */
@@ -512,7 +554,7 @@ onBeforeUnmount(() => {
 /* 小字樣式 */
 .hint {
   font-size: 14px;
-  color: #aaa;
+  color: #787878;
   white-space: nowrap;
 }
 
@@ -645,6 +687,8 @@ onBeforeUnmount(() => {
   position: absolute;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
   min-width: 80px;
+  max-height: 45dvh;
+  overflow: auto;
 }
 
 .dropdown-item {

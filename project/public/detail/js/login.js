@@ -329,7 +329,7 @@ function showAuthPopup() {
             }
 
             const goToAdminPanel = () => {
-                window.location.href = window.WEB_BASE + '/admin';  // 跳转到后台管理页面
+                    window.location.href = window.WEB_BASE + '/admin';  // 跳转到后台管理页面
             };
 
 

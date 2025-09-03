@@ -83,7 +83,7 @@
         </div>
 
       </div>
-      <LocationAndRegionInput />
+      <LocationAndRegionInput ref="locationRef" />
       <!-- 條列說明區（居中） -->
       <div class="list-wrapper"
            v-if="currentTab === 'custom'">
@@ -127,8 +127,8 @@
 <script setup>
 import { ref, computed, reactive, nextTick, onMounted, onBeforeUnmount } from 'vue'
 import LocationAndRegionInput from "@/components/LocationAndRegionInput.vue";
+const locationRef = ref(null)
 import { useRouter } from 'vue-router'
-
 const router = useRouter()
 
 const handleLogin = () => {
@@ -186,8 +186,34 @@ const handleEnter = () => {
 }
 
 const runAction = () => {
-  console.log(`🚀 選擇分區：${selectedRegion.value || '未選擇'}`)
+  const base = {
+    mode: currentTab.value,
+    location: locationRef.value?.inputValue,
+    region: locationRef.value?.selectedValue
+  }
+
+  let data = {}
+
+  if (currentTab.value === 'map') {
+    data = {
+      ...base,
+      level: selectedRegion.value
+    }
+  } else if (currentTab.value === 'custom') {
+    data = {
+      ...base
+      // no additional fields
+    }
+  }
+
+  // ✅ 打印或傳值
+  console.log('📦 傳送資料：', data)
+  sessionStorage.setItem('vueToNativeData', JSON.stringify(data))
+
+  // 跳轉（可替換為 router.push('/xxx')）
+  window.location.href = '/detail'
 }
+
 
 // 關閉 dropdown 點外面就收起來
 const onClickOutside = (event) => {
@@ -300,7 +326,7 @@ onBeforeUnmount(() => {
 }
 .hint {
   font-size: 14px;
-  color: #aaa;
+  color: #787878;
   white-space: nowrap;
 }
 .enter-btn {
@@ -321,11 +347,6 @@ onBeforeUnmount(() => {
 }
 
 /* === 炫酷執行按鈕 === */
-.run-label {
-  font-size: 16px;
-  color: darkblue;
-  white-space: nowrap;
-}
 .fancy-run-container {
   margin-top: 1.5rem;
   display: flex;
