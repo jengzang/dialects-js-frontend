@@ -14,22 +14,24 @@
             @keyup="onKeyup"
             @blur="onBlur"
         ></textarea>
-        <div
-            ref="suggestionEl"
-            v-if="suggestions.length || successMessage"
-            class="inline-suggestion"
-            :style="suggestionStyle"
-        >
-          <div v-if="successMessage" class="success">✅ {{ successMessage }}</div>
+        <Teleport to="body">
           <div
-              v-for="item in suggestions"
-              :key="item"
-              class="suggest-line"
-              @mousedown.prevent="applySuggestion(item)"
+              ref="suggestionEl"
+              v-if="suggestions.length || successMessage"
+              class="inline-suggestion"
+              :style="suggestionStyle"
           >
-            {{ item }}
+            <div v-if="successMessage" class="success">✅ {{ successMessage }}</div>
+            <div
+                v-for="item in suggestions"
+                :key="item"
+                class="suggest-line"
+                @mousedown.prevent="applySuggestion(item)"
+            >
+              {{ item }}
+            </div>
           </div>
-        </div>
+        </Teleport>
       </div>
 
         <!-- ✅ 分區選擇區 -->
@@ -44,7 +46,6 @@
                 class="tab-btn"
                 :class="{ active: regionUsing === tab }"
                 @click="onTabClick(tab)"
-                style="padding: 3px 6px;"
             >
               {{ tab === 'map' ? '地圖集' : '音典' }}
             </button>
@@ -54,17 +55,17 @@
         <!-- ✅ 分區 Cascader -->
         <n-cascader
             :options="options"
-            :value="selectedValue"
+            v-model:value="selectedValue"
             :show-path="false"
             :label-field="'label'"
             :value-field="'label'"
-            lazy
-            :on-load="onLoad"
+            :allow-checking-not-leaf="true"
+            clearable
             @update:value="onSelect"
             style="width: 100%;"
             :placement="'bottom-start'"
             dropdown-class="custom-cascader-dropdown"
-            placeholder="請選擇地圖集/音典分區"
+            :placeholder="regionUsing === 'map' ? '請選擇地圖集分區' : '請選擇音典分區'"
         />
       </div>
     </div>
@@ -74,11 +75,11 @@
 
 
 <script setup>
-import { ref, nextTick } from 'vue'
+import { ref, nextTick ,onMounted} from 'vue'
 import { NCascader } from 'naive-ui'
 
 /** 地點輸入邏輯 */
-const inputValue = ref('')
+const inputValue = ref('廣州')
 const inputEl = ref(null)
 const suggestionEl = ref(null)
 const suggestions = ref([])
@@ -161,14 +162,16 @@ function fetchSuggestion() {
 
         nextTick(() => {
           const el = inputEl.value
+          const rect = el.getBoundingClientRect()
+
           suggestionStyle.value = {
-            left: `${el.offsetLeft}px`,                              // 與 textarea 左邊對齊
-            top:  `${el.offsetTop + el.offsetHeight + 6}px`,        // 貼住 textarea 下沿 + 6px
             position: 'absolute',
-            zIndex: 99999
-            // 可選：讓寬度跟 textarea 一樣
-            // ,minWidth: `${el.clientWidth}px`
+            left: `${rect.left + window.scrollX}px`,
+            top: `${rect.top + rect.height + 6 + window.scrollY}px`,
+            zIndex: 99999,
+            minWidth: `${el.offsetWidth}px` // 可選：匹配寬度
           }
+
         })
       })
 }
@@ -191,18 +194,25 @@ function applySuggestion(item) {
 
 const regionUsing = ref('map')
 const options = ref([])
-const selectedValues = ref([])
+const selectedValue = ref(['東北官話', '黑松片'])
+
 
 function onTabClick(tab) {
   if (regionUsing.value === tab) return
   regionUsing.value = tab
-  selectedValues.value = []
-
+  selectedValue.value = []
   loadTreeFor(tab)
+  // console.log('tab',tab)
+  // 根據 tab 設置對應的預設值
+  if (tab === 'map') {
+    selectedValue.value = ['客家話']
+  } else if (tab === 'yindian') {
+    selectedValue.value = ['閩','閩西']
+  }
 }
 
 function onSelect(values) {
-  selectedValues.value = values
+  selectedValue.value = values
 }
 
 /* ========== 一次性轉換整棵樹 ========== */
@@ -379,30 +389,81 @@ const STATIC_REGION_TREE = {
 function loadTreeFor(mode) {
   if (mode === 'map') {
     options.value = convertToCascaderOptions(STATIC_REGION_TREE)
+    // console.log(options)
   } else if (mode === 'yindian') {
     const CACHE_KEY = '__YINDIAN_TREE_CACHE__'
     const top = [
       '華北','西北','官話','中上江','下江','兩浙','浙南','湘贛','嶺東','廣中',
       '嶺南','嶺西','閩','湘南','道州','鄕話','白語','蔡家話','民語漢字音'
     ]
-
+// ✅ 真正的 filter，不轉格式，只刪除 key
+    const filterTopLevelKeys = (obj) => {
+      if (typeof obj !== 'object' || Array.isArray(obj) || obj === null) {
+        console.warn('[Yindian Tree] Expected tree to be object, got:', typeof obj)
+        return {}
+      }
+      const filtered = {}
+      for (const key of top) {
+        if (obj.hasOwnProperty(key)) {
+          filtered[key] = obj[key]
+        }
+      }
+      return filtered
+    }
     if (!sessionStorage.getItem(CACHE_KEY)) {
       fetch(`${window.API_BASE}/partitions`)
           .then(res => res.json())
           .then(tree => {
-            sessionStorage.setItem(CACHE_KEY, JSON.stringify(tree))
-            options.value = convertToCascaderOptions(tree)
+            const filteredTree = filterTopLevelKeys(tree)
+            sessionStorage.setItem(CACHE_KEY, JSON.stringify(filteredTree))
+            options.value = convertToCascaderOptions(filteredTree)
           })
     } else {
       const cachedTree = JSON.parse(sessionStorage.getItem(CACHE_KEY))
-      options.value = convertToCascaderOptions(cachedTree)
+      const filteredTree = filterTopLevelKeys(cachedTree)
+      options.value = convertToCascaderOptions(filteredTree)
     }
+
   }
 }
-
 // 初始加載
 loadTreeFor(regionUsing.value)
 
+const cascaderRef = ref(null)
+async function simulateClickPath(path) {
+  // 1. 打開 Cascader 的彈窗
+  cascaderRef.value?.showMenu()
+
+  await nextTick()
+  // 2. 遞迴點擊每一層
+  for (const label of path) {
+    await nextTick()
+    // 獲取當前展開層的選項列表
+    const menuList = document.querySelectorAll('.n-cascader-menu')
+
+    // 找到當前層中 label 匹配的項
+    let found = false
+    for (const menu of menuList) {
+      const items = menu.querySelectorAll('.n-cascader-option')
+      for (const item of items) {
+        if (item.textContent?.trim().includes(label)) {
+          item.click()
+          found = true
+          break
+        }
+      }
+      if (found) break
+    }
+
+    if (!found) {
+      console.warn(`❗未找到 label: ${label}`)
+      break
+    }
+
+    // 等下一層渲染
+    await new Promise(resolve => setTimeout(resolve, 100))
+  }
+}
 
 </script>
 
@@ -425,41 +486,6 @@ loadTreeFor(regionUsing.value)
 </style>
 
 <style scoped>
-textarea {
-  width: 100%;
-  height: 60px;
-  box-sizing: border-box;
-  font-family: monospace;
-  font-size: 13px;
-  margin-top: 4px;
-  padding: 6px 10px;
-  resize: none;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  background: #fff;
-  min-width: 60px;
-}
-
-textarea:hover {
-  border-color: #007aff;
-  box-shadow: 0 0 8px rgba(0, 123, 255, 0.6);
-}
-
-
-.suggest-line {
-  padding: 4px 8px;
-  cursor: pointer;
-}
-
-.suggest-line:hover {
-  background-color: #f0f0f0;
-}
-
-.success {
-  color: green;
-  padding: 4px 8px;
-  font-weight: bold;
-}
 
 .region-tabs {
   display: inline-flex;
@@ -470,20 +496,21 @@ textarea:hover {
   gap: 4px;
   border: 1px solid rgba(0, 0, 0, 0.1);
   background-color: #f9f9fb;
+  max-width: 250px;
 }
 
 .region-tabs button {
   appearance: none;
   background: none;
   border: none;
-  padding: 10px 20px;
+  padding: 3px 6px;
   border-radius: 12px;
   cursor: pointer;
   font-size: 15px;
   font-weight: 500;
   transition: all 0.25s ease;
   color: #333;
-  min-width: 80px;
+  min-width: 60px;
   text-align: center;
   user-select: none;
 }
@@ -504,30 +531,57 @@ textarea:hover {
 /* 即時提示面板 */
 .inline-suggestion {
   position: absolute !important;
-  background: #ffffff !important;
-  border: 1px solid #ccc !important;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  background: rgba(255, 255, 255, 0.6) !important; /* 🔹 半透明背景 */
+  border: 1px solid rgba(200, 200, 200, 0.5) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   padding: 8px 12px;
-  border-radius: 6px;
-  white-space: pre-line;  /* 支援多行 */
+  border-radius: 12px; /* 蘋果味更重一點 */
+  backdrop-filter: blur(12px); /* 🔹 液態玻璃效果 */
+  -webkit-backdrop-filter: blur(12px); /* for Safari */
+  white-space: pre-line;
   font-size: 14px;
   color: #333;
-  max-width: 320px;
+  max-width: 100px;
+  width: fit-content; /* ✅ 根據內容自動撐寬 */
   z-index: 99999 !important;
-  pointer-events:auto !important;
-  max-height: 20dvh; /* 8行，每行1.2em */
-  overflow-y: auto;  /* 超過8行時顯示滾動條 */
+  pointer-events: auto !important;
+  max-height: 20dvh;
+  overflow-y: auto;
+  transition: background-color 0.2s ease;
 }
 
+/* ✅ 成功訊息 */
 .inline-suggestion .success {
-  color: #007aff; /* iOS 藍色 ✔️ */
+  color: #007aff;
   font-weight: bold;
 }
 
+/* ✅ 錯誤訊息 */
 .inline-suggestion .error {
-  color: #ff3b30; /* Apple 紅錯誤 */
+  color: #ff3b30;
   font-weight: bold;
 }
+
+/* ✅ 建議項目 */
+.suggest-line {
+  padding: 4px 8px;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background-color 0.2s ease;
+}
+
+/* ✅ Hover：蘋果淺藍 */
+.suggest-line:hover {
+  background-color: rgba(175, 217, 251, 0.8);
+}
+
+
+.success {
+  color: green;
+  padding: 4px 8px;
+  font-weight: bold;
+}
+
 .location-input,
 .region-input {
   display: flex;
@@ -549,7 +603,7 @@ textarea:hover {
   align-items: center;
   justify-content: center; /* 居中子元素內容 */
   max-width: 600px;        /* 限定總寬度 */
-  margin: 0 auto;          /* 水平置中 */
+  margin: 3dvh auto;          /* 水平置中 */
   width: 100%;
 }
 

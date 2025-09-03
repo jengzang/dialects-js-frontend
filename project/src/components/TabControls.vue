@@ -22,7 +22,7 @@ const showTabBar = computed(() => {
   const tab = route.query.tab
   return (
       path.startsWith('/intro') ||
-      (path === '/menu' && tab === 'about')
+      (path === '/menu' && tab === 'about')||(path === '/auth')
   )
 })
 

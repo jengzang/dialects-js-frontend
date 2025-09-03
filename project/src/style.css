@@ -97,3 +97,23 @@ body {
     font-size: 1.35rem;
   }
 }
+
+textarea {
+  width: 100%;
+  height: 60px;
+  box-sizing: border-box;
+  font-family: monospace;
+  font-size: 13px;
+  margin-top: 0px;
+  padding: 6px 10px;
+  resize: none;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background: #fff;
+  min-width: 60px;
+}
+
+textarea:hover {
+  border-color: #007aff;
+  box-shadow: 0 0 8px rgba(0, 123, 255, 0.6);
+}

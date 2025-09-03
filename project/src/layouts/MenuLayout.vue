@@ -30,7 +30,7 @@ import { computed } from 'vue'
 const route = useRoute()
 const shouldShowHeader = computed(() => {
   // console.log(route)
-  return route.query.tab !== 'about'
+  return route.query.tab !== 'about' && !route.path.includes('auth')
 })
 </script>
 

@@ -6,9 +6,9 @@
     </div>
   </div>
   <!-- 自訂浮動按鈕 -->
-  <button ref="buttonRef" class="floating-button" @click="onEnterClick">
-    進入網站
-  </button>
+<!--  <button ref="buttonRef" class="floating-button" @click="onEnterClick">-->
+<!--    進入網站-->
+<!--  </button>-->
 </template>
 
 <script setup>
@@ -107,7 +107,7 @@ onBeforeUnmount(() => {
 /* 你要的純藍色浮動按鈕 */
 .floating-button {
   position: fixed;
-  top: 5vh;
+  top: 8vh;
   transform: translateX(-50%);
   z-index: 999;
 

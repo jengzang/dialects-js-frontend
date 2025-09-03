@@ -12,25 +12,218 @@
     </div>
 
     <div class="tab-content">
-      <div v-if="currentTab === 'tab1'" class="page">📘 查字頁面</div>
-      <div v-else-if="currentTab === 'tab2'" class="page">📜 查中古頁面</div>
-      <div v-else-if="currentTab === 'tab3'" class="page">🔤 查音位頁面</div>
-      <div v-else-if="currentTab === 'tab4'" class="page">🎵 查調頁面</div>
+      <div v-if="currentTab === 'tab1'" class="page">
+        <div class="page-content-stack">
+          <!-- 🔹 建議與操作區 -->
+          <div class="page-footer">
+            <small class="hint">查詢漢字的讀音、地位及注釋<br>想輸入多個分區❓️ 點擊👉</small>
+            <button class="enter-btn" @click="handleEnter">進入網站</button>
+          </div>
+          <!-- 🔹 輸入框區塊 -->
+          <div class="query-box">
+            <label class="query-label" for="hanzi-input">請輸入待查漢字</label>
+            <textarea
+                id="hanzi-input"
+                style="height: 5dvh"
+                placeholder="可輸入一個或多個漢字"
+                v-model="hanziInput"
+            ></textarea>
+          </div>
+        </div>
+      </div>
+
+
+      <div v-else-if="currentTab === 'tab2'" class="page">
+        <div class="page-content-stack">
+          <!-- Footer -->
+          <div class="page-footer">
+            <small class="hint">中古➡️讀音•按中古地位整理讀音<br>想輸入多種地位組合❓️點擊👉</small>
+            <button class="enter-btn" @click="handleEnter">進入網站</button>
+          </div>
+
+          <!-- 三欄選擇 -->
+          <div class="triple-select-box">
+            <!-- ✅ 卡片選擇區：獨立一行 -->
+            <div class="card-row">
+              <div class="card-group">
+                <div
+                    v-for="(item, index) in cards"
+                    :key="item"
+                    class="card-group-item"
+                    :class="{
+                              active: selectedCard === item,
+                              first: index === 0,
+                              last: index === cards.length - 1
+                            }"
+                    @click="selectedCard = item"
+                >
+                  {{ item }}
+                </div>
+              </div>
+            </div>
+
+            <!-- ✅ 鍵名 + 鍵值：同一行，用容器包 -->
+            <div class="dropdown-row">
+              <!-- 中：鍵值 dropdown -->
+              <div class="dropdown-wrapper">
+                <!-- 鍵值下拉 -->
+                <div class="dropdown" ref="valueTriggerEl" @click="toggleDropdown('value')">
+                  {{ selectedValue || '請選擇鍵值' }}
+                  <span class="arrow">▾</span>
+                </div>
+                <Teleport to="body">
+                  <div
+                      v-if="dropdownOpen === 'value'"
+                      class="dropdown-panel"
+                      :style="dropdownStyle.value"
+                      ref="valueDropdownEl"
+                  >
+                    <div
+                        class="dropdown-item"
+                        v-for="value in keyValueMap[selectedKey]"
+                        :key="value"
+                        @click="selectValue(value)"
+                    >
+                      {{ value }}
+                    </div>
+                  </div>
+                </Teleport>
+              </div>
+
+              <!-- 右：鍵名 dropdown -->
+              <div class="dropdown-wrapper">
+                <!-- 鍵名下拉 -->
+                <div class="dropdown" ref="keyTriggerEl" @click="toggleDropdown('key')">
+                  {{ selectedKey || '請選擇鍵名' }}
+                  <span class="arrow">▾</span>
+                </div>
+                <Teleport to="body">
+                  <div
+                      v-if="dropdownOpen === 'key'"
+                      class="dropdown-panel"
+                      :style="dropdownStyle.key"
+                      ref="keyDropdownEl"
+                  >
+                    <div
+                        class="dropdown-item"
+                        v-for="key in keys"
+                        :key="key"
+                        @click="selectKey(key)"
+                    >
+                      {{ key }}
+                    </div>
+                  </div>
+                </Teleport>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 📤 tab3：查音位頁面 -->
+      <div v-else-if="currentTab === 'tab3'" class="page">
+        <div class="page-content-stack">
+
+          <!-- Footer 區域（保留） -->
+          <div class="page-footer">
+            <small class="hint">讀音➡️中古•分析音位的中古來源<br>想輸入多種地位組合❓️點擊👉</small>
+            <button class="enter-btn" @click="handleEnter">進入網站</button>
+          </div>
+
+          <!-- 三欄選擇區（保留結構） -->
+          <div class="triple-select-box">
+
+            <!-- ✅ 卡片選擇區（不變） -->
+            <div class="card-row">
+              <div class="card-group">
+                <div
+                    v-for="(item, index) in cards"
+                    :key="item"
+                    class="card-group-item"
+                    :class="{
+              active: selectedCard === item,
+              first: index === 0,
+              last: index === cards.length - 1
+            }"
+                    @click="selectedCard = item"
+                >
+                  {{ item }}
+                </div>
+              </div>
+            </div>
+
+            <!-- ✅ 鍵值 + 輸入框 -->
+            <div class="dropdown-row">
+              <!-- 鍵值 dropdown（保留） -->
+              <div class="dropdown-wrapper" style="flex: 1">
+                <div class="dropdown" ref="tab3ValueTriggerEl" @click="toggleDropdown('tab3Value')">
+                  {{ tab3SelectedValue || '請選擇鍵值' }}
+                  <span class="arrow">▾</span>
+                </div>
+                <Teleport to="body">
+                  <div
+                      v-if="dropdownOpen === 'tab3Value'"
+                      class="dropdown-panel"
+                      :style="dropdownStyle.tab3Value"
+                      ref="tab3ValueDropdownEl"
+                  >
+                    <div
+                        v-for="value in keyValueMap[selectedKey]"
+                        :key="value"
+                        class="dropdown-item"
+                        @click="selectTab3Value(value)"
+                    >
+                      {{ value }}
+                    </div>
+                  </div>
+                </Teleport>
+              </div>
+
+              <!-- 🔄 輸入框 -->
+              <div class="dropdown-wrapper" style="flex: 2">
+                <div class="query-box">
+                  <label class="query-label" for="tab3-key-input" style="font-size: 13px">請輸入待查音節</label>
+                  <textarea
+                      id="tab3-key-input"
+                      v-model="tab3KeyInput"
+                      placeholder="請輸入待查音節，留空則全查"
+                      style="max-height: 5dvh"
+                  ></textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <div v-else-if="currentTab === 'tab4'" class="page">
+        <div class="page-footer">
+          <small class="hint">查詢各點的調類、調值<br>想輸入多個分區❓️ 點擊👉</small>
+          <button class="enter-btn" @click="handleEnter">進入網站</button>
+        </div>
+      </div>
 
       <LocationAndRegionInput />
+
       <!-- ✅ 炫酷按鈕 -->
-      <button class="fancy-run-btn" @click="runAction">
-        {{ currentTabLabel }}
-      </button>
+      <div class="fancy-run-container">
+        <span class="run-label">
+          {{ currentTabLabel }}👉
+        </span>
+        <button class="fancy-run-btn" @click="runAction">
+          🚀 單擊運行
+        </button>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import {computed, nextTick, reactive, ref, onMounted, onBeforeUnmount} from 'vue'
 import LocationAndRegionInput from "@/components/LocationAndRegionInput.vue";
 
-const currentTab = ref('tab1')
+const currentTab = ref('tab2')
 
 const tabs = [
   { name: 'tab1', label: '查字' },
@@ -38,17 +231,114 @@ const tabs = [
   { name: 'tab3', label: '查音位' },
   { name: 'tab4', label: '查調' }
 ]
+const hanziInput = ref('好')
 
-const currentTabLabel = '單擊運行'
+const selectedCard = ref('聲母')
+const selectedKey = ref('音系')
+const selectedValue = ref('平上去入')
+const dropdownOpen = ref(null)
 
+const cards = ['聲母', '韻母', '聲調']
+const keys = ['音系', '調類', '韻部']
+
+const keyValueMap = {
+  音系: ['平上去入', '陰陽對立', '聲母配列'],
+  調類: ['陰平', '陽平', '上聲', '去聲', '入聲'],
+  韻部: ['東', '冬', '鍾', '江', '支', '微']
+}
+
+const dropdownStyle = reactive({
+  value: {
+    top: '0px',
+    left: '0px'
+  },
+  key: {
+    top: '0px',
+    left: '0px'
+  }
+})
+
+const valueDropdownEl = ref(null)
+const keyDropdownEl = ref(null)
+const valueTriggerEl = ref(null)
+const keyTriggerEl = ref(null)
+const tab3ValueTriggerEl = ref(null)
+const tab3ValueDropdownEl = ref(null)
+const tab3SelectedValue = ref('')
+const tab3KeyInput = ref('')
+
+
+function toggleDropdown(type) {
+  dropdownOpen.value = dropdownOpen.value === type ? null : type
+
+  nextTick(() => {
+    let triggerEl = null
+    if (type === 'value') triggerEl = valueTriggerEl.value
+    else if (type === 'key') triggerEl = keyTriggerEl.value
+    else if (type === 'tab3Value') triggerEl = tab3ValueTriggerEl.value
+
+    if (triggerEl) {
+      const rect = triggerEl.getBoundingClientRect()
+      dropdownStyle[type] = {
+        position: 'absolute',
+        top: `${rect.top + rect.height + window.scrollY}px`,
+        left: `${rect.left + window.scrollX}px`,
+        zIndex: 99999
+      }
+    }
+  })
+}
+
+function onClickOutside(event) {
+  const targets = [
+    keyTriggerEl.value,
+    keyDropdownEl.value,
+    valueTriggerEl.value,
+    valueDropdownEl.value
+  ]
+
+  const isInsideAny = targets.some(el => el?.contains(event.target))
+  if (!isInsideAny) {
+    dropdownOpen.value = null
+  }
+}
+
+
+function selectKey(key) {
+  selectedKey.value = key
+  selectedValue.value = keyValueMap[key][0]
+  dropdownOpen.value = null
+}
+
+function selectValue(value) {
+  selectedValue.value = value
+  dropdownOpen.value = null
+}
+function selectTab3Value(val) {
+  tab3SelectedValue.value = val
+  dropdownOpen.value = null
+}
+
+const currentTabLabel = computed(() => {
+  const found = tabs.find(t => t.name === currentTab.value)
+  return found?.label ?? '執行'
+})
 // 點擊按鈕行為
 const runAction = () => {
-  const currentTabLabel = computed(() => {
-    const found = tabs.find(t => t.name === currentTab.value)
-    return found?.label ?? '執行'
-  })
+
   console.log(`你點擊了：${currentTabLabel.value}`)
 }
+const handleEnter = () => {
+  window.location.href = window.WEB_BASE + '/detail'
+}
+onMounted(() => {
+  document.addEventListener('click', onClickOutside)
+})
+
+onBeforeUnmount(() => {
+  document.removeEventListener('click', onClickOutside)
+})
+
 </script>
 
 <style scoped>
@@ -57,6 +347,7 @@ const runAction = () => {
   flex-direction: column;
   align-items: center;
   padding: 0;
+  height: 100%;
 }
 
 .tabs {
@@ -113,23 +404,28 @@ const runAction = () => {
 .tab-content {
   width: 100%;
   max-width: 600px;
-  margin-top: 24px;
   animation: fade 0.6s ease;
 
   /* ✅ 新增這些 */
   flex-direction: column;
   align-items: center;
   text-align: center;
+  justify-content: center; /* 垂直置中 */
+  padding: 1rem;
 }
 
 .page {
-  padding: 20px;
+  padding: 2dvh;
   font-size: 18px;
   background: rgba(255, 255, 255, 0.05);
   border-radius: 12px;
   backdrop-filter: blur(8px);
   border: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+  max-width: 500px;
+  justify-content: center;
+  display: flex;
+  margin: 0 auto;
 }
 
 @keyframes fade {
@@ -143,7 +439,7 @@ const runAction = () => {
   }
 }
 /* 📱✅ 媒體查詢：手機螢幕優化 */
-@media screen and (max-width: 600px) {
+@media (max-width: 600px) {
   .tab {
     padding: 10px 16px;
     font-size: 14px;
@@ -161,6 +457,11 @@ const runAction = () => {
   }
 }
 
+.run-label {
+  font-size: 16px;
+  color: darkblue;
+  white-space: nowrap;
+}
 .fancy-run-btn {
   font-size: 18px;
   font-weight: bold;
@@ -176,7 +477,6 @@ const runAction = () => {
   position: relative;
   overflow: hidden;
   white-space: nowrap;
-  margin-top: 24px;
 }
 
 .fancy-run-btn:hover {
@@ -185,12 +485,193 @@ const runAction = () => {
 }
 
 /* 📱 響應式：小螢幕按鈕變小 */
-@media screen and (max-width: 600px) {
+@media(max-width: 600px) {
   .fancy-run-btn {
     font-size: 16px;
     padding: 10px 20px;
     border-radius: 24px;
   }
+  .enter-btn {
+    padding: 5px!important;
+    font-size: 12px!important;
+  }
+  .triple-select-box{
+    flex-wrap: wrap;
+  }
+}
+
+/* ✅ 整行居中（小字 + 按鈕） */
+.page-footer {
+  display: inline-flex;
+
+  align-items: center;
+  gap: 12px;
+  margin: 0 auto;  /* 讓這整行居中 */
+}
+
+/* 小字樣式 */
+.hint {
+  font-size: 14px;
+  color: #aaa;
+  white-space: nowrap;
+}
+
+/* 蘋果藍按鈕 */
+.enter-btn {
+  background: rgba(0, 122, 255, 0.86);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 6px rgba(0, 122, 255, 0.3);
+  white-space: nowrap;
+}
+
+.enter-btn:hover {
+  background: #005ecb;
+}
+/* 🔹 輸入區塊樣式 */
+.query-box {
+  display: block;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  gap: 6px;
+  white-space: wrap;
+}
+
+.query-label {
+  font-size: 15px;
+  font-weight: 600;
+  color: #333;
+}
+.page-content-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5dvh;
+}
+.triple-select-box {
+  display: flex;
+  gap: 1.5dvw;
+  width: 100%;
+  justify-content: space-between;
+}
+
+.card-group{
+  display: flex;
+  flex-direction: row; /* ⬅️ 水平排列 */
+  border-radius: 12px;
+  overflow: hidden;
+  width: fit-content;
+  max-width: 100%;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  max-height: 45px;
+}
+
+.card-group-item {
+  padding: 10px 16px;
+  text-align: center;
+  cursor: pointer;
+  font-weight: 500;
+  flex: 1;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.3);
+  border: none;
+  border-right: 1px solid rgba(200, 200, 200, 0.3);
+  transition: background 0.2s ease;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.card-group-item:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.card-group-item.first {
+  border-radius: 12px 0 0 12px; /* ⬅️ 左圓角 */
+}
+
+.card-group-item.last {
+  border-right: none;
+  border-radius: 0 12px 12px 0; /* ⬅️ 右圓角 */
+}
+
+.card-group-item.active {
+  background: rgba(0, 122, 255, 0.2);
+  color: #007aff;
+  font-weight: 600;
+}
+
+
+.dropdown-wrapper {
+  flex: 1;
+  position: relative;
+  align-items: center;
+  display: flex;
+}
+
+.dropdown {
+  padding: 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  cursor: pointer;
+  font-size: 14px;
+  border: 1px solid rgba(200, 200, 200, 0.5);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-width: 80px;
+  margin: auto;
+}
+
+.arrow {
+  font-size: 12px;
+}
+
+.dropdown-panel {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  border-radius: 10px;
+  padding: 6px 0;
+  position: absolute;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  min-width: 80px;
+}
+
+.dropdown-item {
+  padding: 8px 16px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+.dropdown-item:hover {
+  background-color: #e6f0ff;
+}
+
+.card-row {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.dropdown-row {
+  display: flex;
+  gap: 1dvw;
+  width: 100%;
+  max-width: 600px;
+  justify-content: center;
+  white-space: nowrap;
 }
 
 </style>

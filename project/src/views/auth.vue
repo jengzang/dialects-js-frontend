@@ -185,7 +185,7 @@
         style="text-align: center;padding:30px"
 
     >
-      <h3 id="login-title" style="font-size: 30px; white-space: nowrap">👋 歡迎回來，{{ user.username }}！✨</h3>
+      <h3 id="login-title" style="font-size: 30px; white-space: nowrap">👋{{ user.username }} 歡迎回來✨</h3>
       <p id="login-info" style="font-size: 20px">
         {{ user?.role === 'admin' ? '🛡️ 您是管理員' : '👤 您是普通用戶' }}
       </p>
@@ -738,6 +738,9 @@ export default defineComponent({
   transition: all 0.3s ease;
   width: 100%;
   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  max-width: 180px;
+  justify-content: center;
+  margin: 0 auto;
 }
 
 .btn-action.primary {
@@ -845,6 +848,12 @@ export default defineComponent({
   .api-log-item {
     font-size: 16px;
   }
+  #login-title {
+    font-size: 28px!important;
+  }
+  #login-info{
+    font-size: 18px!important;
+  }
 }
 h3 {
   font-size: 30px;
@@ -852,7 +861,26 @@ h3 {
   color: #1c1c1e; /* 深灰，符合蘋果系統色調 */
   margin-bottom: 16px;
 }
+#login-title{
+  font-weight: 600;
+  margin-bottom: 12px;
+  transition: all 0.3s ease;
+}
+#login-title:hover {
+  color: #007aff;
+  text-shadow: 0 0 8px rgba(0, 122, 255, 0.6);
+  transform: scale(1.05);
+}
+#login-info{
+  margin: 6px 0;
+  transition: all 0.3s ease;
+}
 
+#login-info:hover{
+  transform: translateY(-2px);
+  text-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+  color: #005fcc;
+}
 </style>
 
 
