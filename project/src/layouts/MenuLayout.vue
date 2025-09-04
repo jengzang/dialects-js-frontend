@@ -87,10 +87,9 @@ const shouldShowHeader = computed(() => {
 @media (max-width: 480px) {
   .glass-card {
     border-radius: 22px; /* 手機玻璃四角稍微圓一點 */
-    bottom: 10dvh;
-    height:70dvh;
+    bottom: 8dvh;
+    /*height:70dvh;*/
   }
-
   .glass-content {
     padding: 8px 8px calc(76px + 10px);
     font-size: 1.1rem; /* ✅ 文字變大 */

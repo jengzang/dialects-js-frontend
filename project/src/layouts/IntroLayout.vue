@@ -19,7 +19,6 @@
 <script setup>
 import TabBar from '@/components/TabBar.vue'
 import { useRouter } from 'vue-router'
-
 const router = useRouter()
 
 const goToAuthPage = () => {

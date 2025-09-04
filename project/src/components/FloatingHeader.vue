@@ -2,7 +2,7 @@
   <div class="floating-header">
     <!-- 呼吸邊框 + 玻璃效果 -->
     <div ref="glassRef" class="breathing-border glass-card">
-      <h1>方音圖鑒</h1>
+      <h1>方音圖鑑</h1>
     </div>
   </div>
   <!-- 自訂浮動按鈕 -->

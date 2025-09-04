@@ -213,10 +213,15 @@
         <span class="run-label">
           {{ currentTabLabel }}👉
         </span>
-        <button class="fancy-run-btn" @click="runAction">
-          🚀 單擊運行
+        <button
+            class="fancy-run-btn"
+            @click="runAction"
+            :disabled="isRunning">
+          <span v-if="isRunning">🔄 運行中...</span>
+          <span v-else>🚀 單擊運行</span>
         </button>
       </div>
+      <refresh/>
     </div>
   </div>
 </template>
@@ -224,6 +229,7 @@
 <script setup>
 import {computed, nextTick, reactive, ref, onMounted, onBeforeUnmount} from 'vue'
 import LocationAndRegionInput from "@/components/LocationAndRegionInput.vue";
+import refresh from "@/components/refresh.vue";
 const locationRef = ref(null)
 
 const currentTab = ref('tab2')
@@ -322,9 +328,10 @@ const currentTabLabel = computed(() => {
   return found?.label ?? '執行'
 })
 
-
+const isRunning = ref(false); // 控制運行中的狀態
 // 點擊按鈕行為
 const runAction = () => {
+  isRunning.value = true;
   const base = {
     mode: currentTab.value,
     location: locationRef.value?.inputValue,
@@ -363,16 +370,15 @@ const runAction = () => {
     }
   }
   sessionStorage.setItem('vueToNativeData', JSON.stringify(data))
-  window.location.href = '/detail'//等会记得改
+  window.location.replace(window.WEB_BASE + '/detail/');
+
 }
-
-
-
 
 
 const handleEnter = () => {
-  window.location.href = window.WEB_BASE + '/detail'
+  window.location.href = window.WEB_BASE + '/detail/'
 }
+
 onMounted(() => {
   document.addEventListener('click', onClickOutside)
 })
@@ -526,6 +532,10 @@ onBeforeUnmount(() => {
   transform: scale(1.2);
   box-shadow: 0 0 20px rgba(0, 195, 255, 0.8), 0 0 50px rgba(110, 0, 255, 0.5);
 }
+.fancy-run-btn span {
+  display: inline-block;
+}
+
 
 /* 📱 響應式：小螢幕按鈕變小 */
 @media(max-width: 600px) {
@@ -623,9 +633,13 @@ onBeforeUnmount(() => {
   flex: 1;
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  background: rgba(255, 255, 255, 0.3);
-  border: none;
-  border-right: 1px solid rgba(200, 200, 200, 0.3);
+  /* 上边框是蓝色 */
+  /* 下边框是蓝色 */
+  /* 左边框是浅灰色 */
+  /* 右边框是浅灰色 */
+  border: 1px solid rgba(0, 122, 255, 0.2);
+  border-right-color: rgba(200, 200, 200, 0.3);
+  border-left-color: rgba(200, 200, 200, 0.3);
   transition: background 0.2s ease;
   white-space: nowrap;
   overflow: hidden;
@@ -638,11 +652,12 @@ onBeforeUnmount(() => {
 
 .card-group-item.first {
   border-radius: 12px 0 0 12px; /* ⬅️ 左圓角 */
+  border-left-color: rgba(0, 122, 255, 0.2);
 }
 
 .card-group-item.last {
-  border-right: none;
   border-radius: 0 12px 12px 0; /* ⬅️ 右圓角 */
+  border-right-color: rgba(0, 122, 255, 0.2);
 }
 
 .card-group-item.active {
@@ -687,7 +702,7 @@ onBeforeUnmount(() => {
   position: absolute;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
   min-width: 80px;
-  max-height: 45dvh;
+  max-height: 40dvh;
   overflow: auto;
 }
 

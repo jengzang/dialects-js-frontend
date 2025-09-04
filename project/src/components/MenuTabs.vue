@@ -95,14 +95,25 @@ const onClick = async (tabName, navigate) => {
 }
 
 .tab-item.active {
-  background: linear-gradient(145deg, #007aff, #4e39fd); /* 蘋果藍漸變 */
-  color: #fff;
-  font-weight: 700;
-  box-shadow: 0 6px 18px rgba(0, 122, 255, 0.45);
-  transform: translateY(-1px) scale(1.02);
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1)); /* 柔和透明的漸變 */
+  color: darkblue;
+  font-weight: 1000;
+  text-decoration: underline;
+  border-radius: 20px; /* 圓角邊框 */
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.1), 0 1px 4px rgba(0, 0, 0, 0.08); /* 輕微陰影，玻璃感 */
+  border: 3px solid rgba(255, 255, 255, 0.4); /* 半透明邊框 */
+  transition: all 0.3s ease;
 }
 
-.emoji { font-size: clamp(1.1rem, 3.6vw, 1.5rem); line-height: 1; }
+.tab-item.active:hover {
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.3)); /* 柔和透明的漸變 */
+  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2); /* 鼠標懸停時增強陰影 */
+}
+
+.emoji { font-size: clamp(1.1rem, 3.6vw, 1.5rem);
+  line-height: 1;
+text-decoration: none}
+
 .tab-item.small .label {
   font-size: 0.75rem; /* ✅ 關於網站縮小 */
 }
@@ -112,16 +123,16 @@ const onClick = async (tabName, navigate) => {
 @media (max-width: 480px) {
   .glass-tab-bar {
     gap: 8px;
-    padding: 8px;
-    bottom: 11dvh;
+    padding: 4px;
+    bottom: 9dvh;
   }
   .tab-item {
-    padding: 7px 4px;   /* ✅ 按鈕變大，易於觸控 */
-    font-size: 1.5rem;      /* label 放大 */
+    padding: 4px;   /* ✅ 按鈕變大，易於觸控 */
+    font-size: 1.2rem;      /* label 放大 */
   }
 
   .emoji {
-    font-size: 1.6rem;    /* emoji 更大 */
+    font-size: 1.1rem;    /* emoji 更大 */
   }
 }
 
@@ -130,11 +141,11 @@ const onClick = async (tabName, navigate) => {
 
   .tab-item {
     padding: 12px 10px;
-    font-size: 1.3rem;
+    font-size: 1.1rem;
   }
 
   .emoji {
-    font-size: 1.4rem;
+    font-size: 1rem;
   }
 }
 

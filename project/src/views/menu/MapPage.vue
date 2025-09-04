@@ -106,20 +106,22 @@
             id="allmap-first"
             class="allmap-first"
             @click="runAction"
-        >
-          🌍繪圖
+            :disabled="isRunning">
+          <span v-if="isRunning">🔄 運行中...</span>
+          <span v-else>🌍繪圖</span>
         </button>
 
         <!-- 其他 tab 可以保留 fancy-run-btn（如果你要） -->
         <button
-            v-else
+            v-if="currentTab === 'custom'"
             class="fancy-run-btn"
             @click="runAction"
-        >
-          開始添加個人數據
+            :disabled="isRunning">
+          <span v-if="isRunning">🔄 運行中...</span>
+          <span v-else>🚀 添加個人數據</span>
         </button>
       </div>
-
+    <refresh/>
     </div>
   </div>
 </template>
@@ -127,6 +129,7 @@
 <script setup>
 import { ref, computed, reactive, nextTick, onMounted, onBeforeUnmount } from 'vue'
 import LocationAndRegionInput from "@/components/LocationAndRegionInput.vue";
+import refresh from "@/components/refresh.vue";
 const locationRef = ref(null)
 import { useRouter } from 'vue-router'
 const router = useRouter()
@@ -182,10 +185,12 @@ const currentTabLabel = computed(() => {
 })
 
 const handleEnter = () => {
-  window.location.href = window.WEB_BASE + '/detail'
+  window.location.href = window.WEB_BASE + '/detail/'
 }
 
+const isRunning = ref(false); // 控制運行中的狀態
 const runAction = () => {
+  isRunning.value = true;
   const base = {
     mode: currentTab.value,
     location: locationRef.value?.inputValue,
@@ -210,8 +215,8 @@ const runAction = () => {
   console.log('📦 傳送資料：', data)
   sessionStorage.setItem('vueToNativeData', JSON.stringify(data))
 
-  // 跳轉（可替換為 router.push('/xxx')）
-  window.location.href = '/detail'
+  window.location.replace(window.WEB_BASE + '/detail/');
+
 }
 
 
@@ -373,6 +378,9 @@ onBeforeUnmount(() => {
 .fancy-run-btn:hover {
   transform: scale(1.2);
   box-shadow: 0 0 20px rgba(0, 195, 255, 0.8), 0 0 50px rgba(110, 0, 255, 0.5);
+}
+.fancy-run-btn span {
+  display: inline-block;
 }
 
 /* === 下拉選單樣式 === */
@@ -540,6 +548,5 @@ onBeforeUnmount(() => {
   white-space: nowrap;
   margin-bottom: 4px;
 }
-
 
 </style>
