@@ -4,7 +4,10 @@
 ## 相关链接
 
 - **[知乎文章 - 新版说明](https://zhuanlan.zhihu.com/p/1934345780199682731)**  
-  这篇文章提供了项目的最新说明，建议查看。
+  项目的最新使用说明。
+
+- **[网站首页](https://dialects.yzup.top/)** 
+  其实最新的查询界面，是用vue框架写的。
 
 - **[![dialects-build](https://img.shields.io/badge/dialects--build-ff69b4?logo=github&logoColor=white&style=flat)](https://github.com/jengzang/dialects-build)**  
   方言比较网站的数据预处理仓库。
