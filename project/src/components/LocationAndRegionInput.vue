@@ -81,7 +81,7 @@ import { NCascader } from 'naive-ui'
 
 /** 地點輸入邏輯 */
 const inputEl = ref(null)
-const inputValue = ref('廣州 梅縣 汕頭') // 預設值
+const inputValue = ref('') // 預設值
 const suggestionEl = ref(null)
 const suggestions = ref([])
 const successMessage = ref('')
@@ -328,7 +328,7 @@ onActivated(() => {
 })
 
 function reset() {
-  inputValue.value = '廣州 梅縣 汕頭'
+  inputValue.value = ''
   selectedValue.value = ['']
 }
 defineExpose({

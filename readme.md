@@ -1,17 +1,17 @@
 ---
 不羁的方言比较——地理语言学小站
 ---
-### 這個說明也是舊版的了。新的可以看知乎
+## 相关链接
 
-https://zhuanlan.zhihu.com/p/1934345780199682731
+- **[知乎文章 - 新版说明](https://zhuanlan.zhihu.com/p/1934345780199682731)**  
+  这篇文章提供了项目的最新说明，建议查看。
 
-### 字表处理仓库地址：
+- **[![dialects-build](https://img.shields.io/badge/dialects--build-ff69b4?logo=github&logoColor=white&style=flat)](https://github.com/jengzang/dialects-build)**  
+  方言比较网站的数据预处理仓库。
 
-[dialects-build: 方言比較網站的數據預處理](https://github.com/jengzang/dialects-build)
+- **[![dialects-backend](https://img.shields.io/badge/dialects--backend-0088ff?logo=github&logoColor=white&style=flat)](https://github.com/jengzang/dialects-backend)**  
+  方言比较小站的 FastAPI 后端实现仓库。
 
-### 后端仓库地址：
-
-[dialects-backend：方言比较小站的fastapi后端](https://github.com/jengzang/dialects-backend)
 
 ---
 

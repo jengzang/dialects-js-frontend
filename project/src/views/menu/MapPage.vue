@@ -189,12 +189,27 @@ const handleEnter = () => {
 }
 
 const isRunning = ref(false); // 控制運行中的狀態
+
+function getLocation() {
+  // console.log("loc",locationRef.value?.inputValue)
+  // console.log("region",locationRef.value?.selectedValue)
+  if (!locationRef.value?.selectedValue ||
+      (Array.isArray(locationRef.value?.selectedValue) && locationRef.value.selectedValue.every(item => item === ''))) {
+    // console.log("fuck")
+    return locationRef.value?.inputValue || '廣州';
+  } else {
+    // console.log("bitch")
+    // 如果 selectedValue 不为空，使用 inputValue（如果有）
+    return locationRef.value?.inputValue ;
+  }
+}
 const runAction = () => {
   isRunning.value = true;
   const base = {
     mode: currentTab.value,
-    location: locationRef.value?.inputValue,
-    region: locationRef.value?.selectedValue
+    location: getLocation(), // 调用 getLocation 函数来获取 location
+    region: locationRef.value?.selectedValue,
+    region_source: locationRef.value?.regionUsing
   }
 
   let data = {}
@@ -212,7 +227,7 @@ const runAction = () => {
   }
 
   // ✅ 打印或傳值
-  console.log('📦 傳送資料：', data)
+  // console.log('📦 傳送資料：', data)
   sessionStorage.setItem('vueToNativeData', JSON.stringify(data))
 
   window.location.replace(window.WEB_BASE + '/detail/');

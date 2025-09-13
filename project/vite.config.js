@@ -19,10 +19,9 @@ export default defineConfig({
         intro: path.resolve(__dirname, 'intro/index.html'),
       },
       output: {
-        // ✅ 不帶 hash
-        entryFileNames: 'assets/[name].js',
-        chunkFileNames: 'assets/[name].js',
-        assetFileNames: 'assets/[name].[ext]', // name 保留原名（如 style.css）
+        entryFileNames: 'assets/[name].[hash].js',  // 在入口文件名中添加哈希值
+        chunkFileNames: 'assets/[name].[hash].js',  // 在chunk文件名中添加哈希值
+        assetFileNames: 'assets/[name].[hash].[ext]', // 在资产文件（如 css, images）中添加哈希值
         manualChunks: undefined,               // 可選：禁用分包
       },
     }

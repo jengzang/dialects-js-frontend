@@ -187,7 +187,7 @@
                   <textarea
                       id="tab3-key-input"
                       v-model="tab3KeyInput"
-                      placeholder="請輸入待查音節，留空則全查"
+                      placeholder="請輸入待查音節，例如“a”，留空則全查"
                       style="max-height: 5dvh"
                       autocomplete="off"
                   ></textarea>
@@ -240,7 +240,7 @@ const tabs = [
   { name: 'tab3', label: '查音位' },
   { name: 'tab4', label: '查調' }
 ]
-const hanziInput = ref('好')
+const hanziInput = ref('')
 
 const selectedCard = ref('韻母')
 const selectedKey = ref('攝')
@@ -257,7 +257,7 @@ const valueDropdownEl = ref(null)
 const keyDropdownEl = ref(null)
 const valueTriggerEl = ref(null)
 const keyTriggerEl = ref(null)
-const tab3KeyInput = ref('a an')
+const tab3KeyInput = ref('')
 
 const dropdownStyle = reactive({
   value: {
@@ -332,9 +332,24 @@ const isRunning = ref(false); // 控制運行中的狀態
 // 點擊按鈕行為
 const runAction = () => {
   isRunning.value = true;
+
+  function getLocation() {
+    // console.log("loc",locationRef.value?.inputValue)
+    // console.log("region",locationRef.value?.selectedValue)
+    if (!locationRef.value?.selectedValue ||
+        (Array.isArray(locationRef.value?.selectedValue) && locationRef.value.selectedValue.every(item => item === ''))) {
+      // console.log("fuck")
+      return locationRef.value?.inputValue || '廣州';
+    } else {
+      // console.log("bitch")
+      // 如果 selectedValue 不为空，使用 inputValue（如果有）
+      return locationRef.value?.inputValue ;
+    }
+  }
+
   const base = {
     mode: currentTab.value,
-    location: locationRef.value?.inputValue,
+    location: getLocation(), // 调用 getLocation 函数来获取 location
     region: locationRef.value?.selectedValue,
     region_source: locationRef.value?.regionUsing
   }
@@ -344,7 +359,7 @@ const runAction = () => {
   if (currentTab.value === 'tab1') {
     data = {
       ...base,
-      chars: hanziInput.value
+      chars: hanziInput.value|| '好'
     }
   }
   else if (currentTab.value === 'tab2') {
@@ -360,7 +375,7 @@ const runAction = () => {
       ...base,
       card: selectedCard.value,
       key: tab3SelectedKey.value,
-      pho: tab3KeyInput.value
+      pho: tab3KeyInput.value|| 'a'
     }
   }
   else if (currentTab.value === 'tab4') {
@@ -369,6 +384,7 @@ const runAction = () => {
       // no extra fields
     }
   }
+  // console.log(base)
   sessionStorage.setItem('vueToNativeData', JSON.stringify(data))
   window.location.replace(window.WEB_BASE + '/detail/');
 
