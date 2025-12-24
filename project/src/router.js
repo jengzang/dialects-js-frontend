@@ -6,6 +6,9 @@ import Thanks from './views/intro/Thanks.vue'
 import Auth from './views/Auth.vue'
 import QueryPage from './views/menu/QueryPage.vue'
 import MapPage from './views/menu/MapPage.vue'
+import ResultPage from './views/menu/ResultPage.vue'
+import Source from "@/views/intro/Source.vue";
+import AboutPage from "@/views/menu/AboutPage.vue";
 
 const routes = [
     // ✅ 根路由 → 直接導到 /menu?tab=query
@@ -62,6 +65,7 @@ router.beforeEach((to, from, next) => {
         const tabMap = {
             like: LikeAuthor,
             suggestions: Suggestions,
+            source:Source,
         }
         to.matched[0].components = {
             default: tabMap[tab] || LikeAuthor
@@ -73,7 +77,8 @@ router.beforeEach((to, from, next) => {
         const tabMap = {
             query: QueryPage,
             map: MapPage,
-            about: Thanks
+            about: AboutPage,
+            result: ResultPage,
         }
         to.matched[0].components = {
             default: tabMap[tab] || QueryPage

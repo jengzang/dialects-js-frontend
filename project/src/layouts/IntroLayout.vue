@@ -17,7 +17,7 @@
 </template>
 
 <script setup>
-import TabBar from '@/components/TabBar.vue'
+import TabBar from '@/components/old/TabBar.vue'
 import { useRouter } from 'vue-router'
 const router = useRouter()
 

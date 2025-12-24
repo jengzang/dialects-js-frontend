@@ -261,7 +261,7 @@ onBeforeUnmount(() => {
   flex-direction: column;
   align-items: center;
   padding: 0;
-  height: 100%;
+  height: 100dvh;
 }
 .tabs {
   display: flex;

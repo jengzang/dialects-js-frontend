@@ -1,9 +1,8 @@
 <!-- src/layouts/MenuLayout.vue -->
 <template>
   <div class="menu-bg">
-    <FloatingHeader v-if="shouldShowHeader" />
-    <!-- 玻璃卡：所有內容都在這上面 -->
-    <section class="glass-card">
+  <NavBar />
+<!--    <FloatingHeader v-if="shouldShowHeader" />-->
       <!-- 內容區：注意底部留白避免被 tab 擋住 -->
       <div class="glass-content">
         <router-view v-slot="{ Component }">
@@ -12,26 +11,26 @@
           </transition>
         </router-view>
       </div>
-    </section>
     <!-- 貼在玻璃卡內部底部 -->
-    <MenuTabs />
+<!--    <MenuTabs />-->
     <!-- ✅ 只會在 /menu 和 /menu/thanks 出現 -->
-    <TabControls />
+<!--    <TabControls />-->
   </div>
 </template>
 
 <script setup>
-import MenuTabs from '@/components/MenuTabs.vue'
-import TabControls from "@/components/TabControls.vue";
-import FloatingHeader from '@/components/FloatingHeader.vue'
+// import MenuTabs from '@/components/MenuTabs.vue'
+// import TabControls from "@/components/TabControls.vue";
+// import FloatingHeader from '@/components/FloatingHeader.vue'
 import { useRoute } from 'vue-router'
-import { computed } from 'vue'
+// import { computed } from 'vue'
+import NavBar from "@/components/NavBar.vue";
 
 const route = useRoute()
-const shouldShowHeader = computed(() => {
-  // console.log(route)
-  return route.query.tab !== 'about' && !route.path.includes('auth')
-})
+// const shouldShowHeader = computed(() => {
+//   // console.log(route)
+//   return route.query.tab !== 'about' && !route.path.includes('auth')
+// })
 </script>
 
 <style scoped>
@@ -49,6 +48,13 @@ const shouldShowHeader = computed(() => {
   box-sizing: border-box;
 }
 
+nav {
+  position: fixed; /* 使 NavBar 固定在顶部 */
+  top: 0;
+  left: 0;
+  width: 100%; /* 确保它占满整个宽度 */
+  z-index: 1000; /* 确保 NavBar 层级在上面 */
+}
 /* 玻璃卡：置中、圓角、毛玻璃、陰影 */
 .glass-card {
   position: fixed;
@@ -74,9 +80,10 @@ const shouldShowHeader = computed(() => {
 /* 內容區：底部預留給 tabs 的高度 */
 .glass-content {
   /* tab 高度 + 間距 */
-  padding: 12px 12px calc(72px + 16px);
+  padding: 10dvh 12px 12px;
   color: #0b2540;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  align-items: flex-start;
 }
 
 /* 動畫 */
@@ -91,7 +98,7 @@ const shouldShowHeader = computed(() => {
     /*height:70dvh;*/
   }
   .glass-content {
-    padding: 8px 8px calc(76px + 10px);
+    padding: 17dvh 8px 8px ;
     font-size: 1.1rem; /* ✅ 文字變大 */
     line-height: 1.6;
   }
