@@ -57,11 +57,7 @@
         <RegionSelector
             :mode="regionUsing"
             v-model:selected="selectedValue"
-            :staticTree="MAP_TREE"
-            :topYindian="YINDIAN_TREE"
-            :partitionsUrl="API_BASE"
-            :placeholder="regionUsing === 'map' ? '請選擇地圖集分區' : '請選擇音典分區'"
-        />
+            :placeholder="regionUsing === 'map' ? '請選擇地圖集分區' : '請選擇音典分區'"/>
 
       </div>
     </div>
