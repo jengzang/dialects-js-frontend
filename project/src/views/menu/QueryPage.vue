@@ -5,7 +5,7 @@
           v-for="tab in tabs"
           :key="tab.name"
           :class="['tab', { active: currentTab === tab.name }]"
-          @click="currentTab = tab.name"
+          @click="router.replace({ query: { ...route.query, sub: tab.name } })"
       >
         {{ tab.label }}
       </div>
@@ -221,25 +221,29 @@
           <span v-else>🚀 單擊運行</span>
         </button>
       </div>
-      <refresh/>
     </div>
   </div>
 </template>
 
 <script setup>
 import {computed, nextTick, reactive, ref, onMounted, onBeforeUnmount} from 'vue'
+import {useRoute, useRouter} from 'vue-router'
 import LocationAndRegionInput from "@/components/LocationAndRegionInput.vue";
-import refresh from "@/components/refresh.vue";
+// import refresh from "@/components/old/refresh.vue";
 const locationRef = ref(null)
-
-const currentTab = ref('tab2')
-
+const router = useRouter()
+const route = useRoute()
+// 当前选中的 Tab 页
+let currentTab = ref('tab2')
 const tabs = [
   { name: 'tab1', label: '查字' },
   { name: 'tab2', label: '查中古' },
   { name: 'tab3', label: '查音位' },
   { name: 'tab4', label: '查調' }
 ]
+currentTab = computed(() => {
+  return route.query.sub || 'tab2' // 默认 intro
+})
 const hanziInput = ref('')
 
 const selectedCard = ref('韻母')
@@ -411,7 +415,7 @@ onBeforeUnmount(() => {
   flex-direction: column;
   align-items: center;
   padding: 0;
-  height: 100dvh;
+  min-height: 80dvh;
 }
 
 .tabs {
@@ -467,7 +471,7 @@ onBeforeUnmount(() => {
 /* 📄 內容區塊動畫 */
 .tab-content {
   width: 100%;
-  max-width: 600px;
+  max-width: 800px;
   animation: fade 0.6s ease;
 
   /* ✅ 新增這些 */

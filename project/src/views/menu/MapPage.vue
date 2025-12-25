@@ -5,7 +5,7 @@
           v-for="tab in tabs"
           :key="tab.name"
           :class="['tab', { active: currentTab === tab.name }]"
-          @click="currentTab = tab.name"
+          @click="router.replace({ query: { ...route.query, sub: tab.name } })"
       >
         {{ tab.label }}
       </div>
@@ -121,7 +121,6 @@
           <span v-else>🚀 添加個人數據</span>
         </button>
       </div>
-    <refresh/>
     </div>
   </div>
 </template>
@@ -129,21 +128,25 @@
 <script setup>
 import { ref, computed, reactive, nextTick, onMounted, onBeforeUnmount } from 'vue'
 import LocationAndRegionInput from "@/components/LocationAndRegionInput.vue";
-import refresh from "@/components/refresh.vue";
+import refresh from "@/components/old/refresh.vue";
 const locationRef = ref(null)
-import { useRouter } from 'vue-router'
+import {useRoute, useRouter} from 'vue-router'
 const router = useRouter()
+const route = useRoute()
 
 const handleLogin = () => {
   router.push('/auth')
 }
 
-
-const currentTab = ref('map')
+// 当前选中的 Tab 页
+let currentTab = ref('map') // 默认选择 "簡介" 页面
 const tabs = [
   { name: 'map', label: '分區圖' },
   { name: 'custom', label: '自定義繪圖' }
 ]
+currentTab = computed(() => {
+  return route.query.sub || 'map' // 默认 intro
+})
 
 const selectedRegion = ref('')
 const dropdownOpen = ref(null)
@@ -261,7 +264,7 @@ onBeforeUnmount(() => {
   flex-direction: column;
   align-items: center;
   padding: 0;
-  height: 100dvh;
+  min-height: 80dvh;
 }
 .tabs {
   display: flex;
@@ -305,7 +308,7 @@ onBeforeUnmount(() => {
 /* === 內容區塊 === */
 .tab-content {
   width: 100%;
-  max-width: 600px;
+  max-width: 800px;
   animation: fade 0.6s ease;
   flex-direction: column;
   align-items: center;

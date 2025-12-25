@@ -45,8 +45,12 @@ const route = useRoute()
       linear-gradient(180deg, #eaf5ff, #d7ecff);
   display: grid;
   place-items: center;
+  justify-content: center;  /* 水平居中 .glass-content */
+  align-items: flex-start;  /* 垂直方向上对齐 */
   box-sizing: border-box;
+  justify-items: center;
 }
+
 
 nav {
   position: fixed; /* 使 NavBar 固定在顶部 */
@@ -84,6 +88,10 @@ nav {
   color: #0b2540;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   align-items: flex-start;
+  /* 设置子元素的对齐方式 */
+  display: flex;          /* 使子元素也成为 Flexbox 布局 */
+  justify-content: center;  /* 水平居中子元素 */
+  width: 100%;            /* 确保内容宽度占满父容器 */
 }
 
 /* 動畫 */

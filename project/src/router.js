@@ -9,6 +9,9 @@ import MapPage from './views/menu/MapPage.vue'
 import ResultPage from './views/menu/ResultPage.vue'
 import Source from "@/views/intro/Source.vue";
 import AboutPage from "@/views/menu/AboutPage.vue";
+import SourcePage from "@/views/menu/SourcePage.vue";
+import PrivacyPage from "@/views/menu/PrivacyPage.vue";
+import SettingPage from "@/views/menu/SettingPage.vue";
 
 const routes = [
     // ✅ 根路由 → 直接導到 /menu?tab=query
@@ -23,11 +26,6 @@ const routes = [
         component: { render: () => null }
     },
 
-    // ✅ /intro 佔位（由 beforeEach 動態注入組件）
-    {
-        path: '/intro',
-        component: { render: () => null }
-    },
 
     // 其他頁面
     {
@@ -57,21 +55,6 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
     if (!to.matched.length) return next()
 
-    if (to.path === '/intro') {
-        const tab = to.query.tab
-        if (tab === 'thanks') {
-            return next({ path: '/menu', query: { tab: 'about' } })
-        }
-        const tabMap = {
-            like: LikeAuthor,
-            suggestions: Suggestions,
-            source:Source,
-        }
-        to.matched[0].components = {
-            default: tabMap[tab] || LikeAuthor
-        }
-    }
-
     if (to.path === '/menu') {
         const tab = to.query.tab
         const tabMap = {
@@ -79,6 +62,9 @@ router.beforeEach((to, from, next) => {
             map: MapPage,
             about: AboutPage,
             result: ResultPage,
+            source:SourcePage,
+            privacy: PrivacyPage,
+            setting:SettingPage,
         }
         to.matched[0].components = {
             default: tabMap[tab] || QueryPage

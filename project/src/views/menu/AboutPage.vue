@@ -5,7 +5,7 @@
           v-for="tab in tabs"
           :key="tab.name"
           :class="['tab', { active: currentTab === tab.name }]"
-          @click="currentTab = tab.name"
+          @click="router.replace({ query: { ...route.query, sub: tab.name } })"
       >
         {{ tab.label }}
       </div>
@@ -190,24 +190,30 @@
 import { ref } from 'vue' // ✅ 別忘了引入 ref
 import weixinQR from '@/assets/weixin.png' // 微信支付二维码图片
 import alipayQR from '@/assets/zfb.jpg' // 支付宝支付二维码图片
-import { useRouter } from 'vue-router' // 路由管理
+import { useRouter,useRoute } from 'vue-router' // 路由管理
+import { computed } from 'vue'
 
 // 控制弹窗显示的开关
 const showQRCodes = ref(false)
 
 // 路由管理
 const router = useRouter()
+const route = useRoute()
 
 // 当前选中的 Tab 页
-const currentTab = ref('intro') // 默认选择 "簡介" 页面
+let currentTab = ref('intro') // 默认选择 "簡介" 页面
 
 // 所有 Tab 页信息
 const tabs = [
   { name: 'intro', label: '簡介' },
   { name: 'reflection', label: '感悟' },
   { name: 'suggestion', label: '建議' },
-  { name: 'like', label: '喜歡作者' }
+  { name: 'like', label: '喜歡作者' },
 ]
+
+currentTab = computed(() => {
+  return route.query.sub || 'intro' // 默认 intro
+})
 
 // 项目的 GitHub 链接和描述
 const projects = [
@@ -247,11 +253,12 @@ const changeTab = (tabName) => {
   flex-direction: column;
   align-items: center;
   padding: 0;
-  min-height: 100dvh;
+  min-height: 80dvh;
 }
 .tabs {
   display: flex;
   justify-content: center;
+
   gap: 16px;
   overflow-x: auto;
   max-width: 100%;
@@ -290,7 +297,7 @@ const changeTab = (tabName) => {
 
 /* === 內容區塊 === */
 .page {
-  padding: 2dvh;
+  padding: 1dvw 8dvw;
   font-size: 18px;
   background: rgba(255, 255, 255, 0.05);
   border-radius: 12px;
@@ -419,7 +426,7 @@ p em.emoji {
   }
   .tabs {
     gap: 6px;
-    padding: 8px 8px;
+    padding: 6px 6px;
   }
   .page {
     padding: 16px;
@@ -541,13 +548,15 @@ p em.emoji {
   gap: 1rem;
   justify-content: center;
   text-align: center;
+  max-width: 800px;
 }
+
 
 .project-card {
   position: relative;
   display: block;
-  flex: 1 1 300px;
-  max-width: 350px;
+  flex: 1 1 280px;
+  max-width: 320px;
   background-color: #ffffff; /* 主體白色 */
   border-radius: 12px;
   padding: 1.1rem;
@@ -558,6 +567,9 @@ p em.emoji {
   color: inherit;
   z-index: 0;
   border: 2px solid transparent; /* 邊框起手設置 */
+  width: 100%; /* 确保容器宽度不超过父容器 */
+  box-sizing: border-box; /* 确保内边距不影响宽度计算 */
+  margin: 0 auto; /* 保证容器在父容器中居中 */
 }
 
 .project-card:hover {
@@ -672,7 +684,7 @@ p em.emoji {
 /* ✅ 手機版適配 */
 @media (max-width: 600px) {
   .project-card {
-    padding: 1.5rem;
+    padding: 1.2rem;
   }
 
   .card-header {

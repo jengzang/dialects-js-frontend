@@ -54,30 +54,78 @@
         </div>
 
         <!-- ✅ 分區 Cascader -->
-        <n-cascader
-            :options="options"
-            v-model:value="selectedValue"
-            :show-path="false"
-            :label-field="'label'"
-            :value-field="'label'"
-            :allow-checking-not-leaf="true"
-            clearable
-            @update:value="onSelect"
-            style="width: 100%;"
-            :placement="'bottom-start'"
-            dropdown-class="custom-cascader-dropdown"
+        <RegionSelector
+            :mode="regionUsing"
+            v-model:selected="selectedValue"
+            :staticTree="MAP_TREE"
+            :topYindian="YINDIAN_TREE"
+            :partitionsUrl="API_BASE"
             :placeholder="regionUsing === 'map' ? '請選擇地圖集分區' : '請選擇音典分區'"
         />
+
       </div>
     </div>
+    <!-- ✅ 底部提示欄：已選擇地點數 -->
+    <div class="bottom-hint" >
+      <div class="hint-main">
+        您已選擇 <span class="hint-num">{{ selectedCount }}</span> 個地點
+      </div>
+      <!-- ✅ 新增：深灰色預覽行（最多顯示 4 個 + 省略號 + 展開） -->
+      <div v-if="locationsResult.length" class="hint-preview">
+    <span class="preview-text">
+      {{ previewText }}
+    </span>
+        <button
+            v-if="locationsResult.length > 4"
+            class="expand-btn"
+            type="button"
+            @click="openModal"
+        >
+          展開
+        </button>
+      </div>
+      <!-- ✅ 對應 showToast 的提示行 -->
+      <div v-if="limitHint" class="hint-warning">
+        {{ limitHint }}
+      </div>
+      <Teleport to="body">
+        <div
+            v-if="showLocationsModal"
+            class="glass-overlay"
+            @mousedown.self="closeModal"
+        >
+          <div class="glass-modal" role="dialog" aria-modal="true">
+            <div class="modal-header">
+              <div class="modal-title">已選擇地點（{{ locationsResult.length }}）</div>
+              <button class="modal-close" type="button" @click="closeModal">×</button>
+            </div>
 
+            <div class="modal-body">
+              <div class="locations-list">
+            <span
+                v-for="(loc, idx) in locationsResult"
+                :key="loc + '_' + idx"
+                class="loc-chip"
+            >
+              {{ loc }}
+            </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Teleport>
+    </div>
   </div>
 </template>
 
 
 <script setup>
-import { ref, nextTick ,onMounted, onActivated, watch} from 'vue'
-import { NCascader } from 'naive-ui'
+import { ref, nextTick ,onMounted, onActivated, watch, computed} from 'vue'
+import {api} from '../utils/auth.js'
+import RegionSelector from "@/components/RegionSelector.vue";
+const API_BASE = window.API_BASE;
+const MAP_TREE = STATIC_REGION_TREE;
+const YINDIAN_TREE = top_yindian;
 
 /** 地點輸入邏輯 */
 const inputEl = ref(null)
@@ -92,6 +140,11 @@ const suggestionStyle = ref({
   zIndex: 99999
 })
 
+// 已選擇地點數（來自 /get_locs/ 返回）
+const selectedCount = ref(null)
+// 底部提示欄的「限制提示文案」（對應 showToast）
+// 為空字串時不顯示
+const limitHint = ref('')
 let debounceTimer = null
 
 function getQueryStart() {
@@ -191,7 +244,8 @@ function applySuggestion(item) {
 }
 
 /* ========== 分區選擇邏輯 ========== */
-const selectedValue = ref([''])
+const selectedValue = ref([])  // ✅ 不要 ['']
+
 const regionUsing = ref('map')
 const options = ref([])
 
@@ -203,11 +257,11 @@ function onTabClick(tab) {
   loadTreeFor(tab)
   // console.log('tab',tab)
   // 根據 tab 設置對應的預設值
-  if (tab === 'map') {
-    selectedValue.value = ['客家話']
-  } else if (tab === 'yindian') {
-    selectedValue.value = ['閩','閩西']
-  }
+  // if (tab === 'map') {
+  //   selectedValue.value = ['客家話']
+  // } else if (tab === 'yindian') {
+  //   selectedValue.value = ['閩','閩西']
+  // }
 }
 
 function onSelect(values) {
@@ -326,16 +380,125 @@ onMounted(() => {
 onActivated(() => {
   reset()
 })
+async function fetchLocationsResult() {
+  // 1️⃣ locations ← inputValue（地點輸入）
+  const locations = (inputValue.value ?? '')
+      .trim()
+      .split(/\s+/)
+      .filter(Boolean)
 
+  // 2️⃣ regions ← selectedValue（分區選擇）
+  const rawRegions = selectedValue.value
+  const regions = Array.isArray(rawRegions)
+      ? rawRegions.map(v => String(v).trim()).filter(Boolean)
+      : rawRegions
+          ? [String(rawRegions).trim()].filter(Boolean)
+          : []
+
+  // 3️⃣ 若兩者皆空，直接返回（對齊 isEmptyInput 判斷）
+  if (locations.length === 0 && regions.length === 0) {
+    limitHint.value = '請輸入地點或分區'
+    selectedCount.value = null
+    locationsResult.value = []
+    return
+  }
+
+  try {
+    const query = new URLSearchParams()
+    locations.forEach(loc => query.append('locations', loc))
+    regions.forEach(reg => query.append('regions', reg))
+    query.set('region_mode', regionUsing.value)
+
+    const data = await api(
+        `/api/get_locs/?${query.toString()}`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        }
+    )
+    // ✅ 存列表（用於預覽與彈層）
+    locationsResult.value = Array.isArray(data?.locations_result) ? data.locations_result : []
+    // 6️⃣ 核心結果：locations_result
+    const count = data?.locations_result?.length ?? 0
+    selectedCount.value = count
+
+    // 7️⃣ 對齊你原來的限制邏輯（showToast 對應 bottom-hint）
+    const limit_anonymous = 200
+    const limit_users = 600
+
+    if (window.userRole === 'anonymous' && count > limit_anonymous) {
+      limitHint.value = `未登錄用戶單次最多可查詢 ${limit_anonymous} 個地點`
+    } else if (window.userRole === 'user' && count > limit_users) {
+      limitHint.value = `用戶單次最多可查詢 ${limit_users} 個地點`
+    } else {
+      limitHint.value = ''
+    }
+
+    // ✅ 若你後面還有「正常處理」，從這裡往下接
+    return data
+
+  } catch (err) {
+    console.error('❌ 請求錯誤:', err)
+    limitHint.value = err.message || '地點查詢失敗，請稍後再試'
+    selectedCount.value = null
+    locationsResult.value = []
+  }
+}
+let debounceTimer2 = null
+
+watch(
+    [inputValue, selectedValue, regionUsing],
+    () => {
+      // 清除上一次計時
+      if (debounceTimer2) {
+        clearTimeout(debounceTimer2)
+      }
+
+      // 重新計時：1s 內不再變化才觸發
+      debounceTimer2 = setTimeout(async () => {
+        await fetchLocationsResult()
+      }, 500)
+    },
+    {
+      deep: true
+    }
+)
+// ✅ 保存服務端返回的 locations_result
+const locationsResult = ref([])
+
+// ✅ 彈層開關
+const showLocationsModal = ref(false)
+
+const previewText = computed(() => {
+  const arr = locationsResult.value || []
+  if (!arr.length) return ''
+  const first4 = arr.slice(0, 4).join('、')
+  return arr.length > 4 ? `${first4}…` : first4
+})
+
+function openModal() {
+  showLocationsModal.value = true
+}
+
+function closeModal() {
+  showLocationsModal.value = false
+}
 function reset() {
   inputValue.value = ''
-  selectedValue.value = ['']
+  selectedValue.value = []     // ✅ 不要 ['']
 }
+
 defineExpose({
   inputValue,
   selectedValue,
-  regionUsing
+  regionUsing,
+  selectedCount,
+  limitHint,
+  locationsResult
 })
+
 </script>
 
 <style>
@@ -474,10 +637,175 @@ defineExpose({
   align-items: center;
   justify-content: center; /* 居中子元素內容 */
   max-width: 600px;        /* 限定總寬度 */
-  margin: 3dvh auto;          /* 水平置中 */
+  margin: 3dvh  auto 1dvh auto ;          /* 水平置中 */
   width: 100%;
 }
 
+.bottom-hint {
+  margin:  0 0 4dvh 0 ;
+  max-width: 600px;
+  width: 90%;
+  padding: 6px 14px;
+  justify-self: center;
+  /* liquid glass */
+  background: rgba(255, 255, 255, 0.42);
+  border: 1px solid rgba(200, 200, 200, 0.45);
+  border-radius: 14px;
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.10);
+
+  font-size: 14px;
+  color: rgba(30, 30, 30, 0.88);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  user-select: none;
+}
+
+.hint-num {
+  font-weight: 700;
+  color: #007aff;
+  padding: 0 6px;
+  border-radius: 10px;
+  background: rgba(0, 122, 255, 0.10);
+  border: 1px solid rgba(0, 122, 255, 0.18);
+}
+.hint-main {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+/* ⚠️ 限制提示：比主文案弱一級，但足夠醒目 */
+.hint-warning {
+  font-size: 13px;
+  color: darkgoldenrod;
+  text-align: center;
+  line-height: 1.4;
+  opacity: 0.9;
+}
+/* 預覽行：深灰色，與主文案分層 */
+.hint-preview {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: baseline;
+  gap: 10px;
+  text-align: center;
+}
+
+.preview-text {
+  color: rgba(60, 60, 60, 0.85);
+  font-size: 13px;
+  line-height: 1.35;
+  max-width: 520px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 展開按鈕：克制的蘋果藍 */
+.expand-btn {
+  appearance: none;
+  border: 1px solid rgba(0, 122, 255, 0.22);
+  background: rgba(0, 122, 255, 0.10);
+  color: #007aff;
+  font-size: 13px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.expand-btn:hover {
+  background: rgba(0, 122, 255, 0.16);
+}
+
+/* 全局遮罩 + 玻璃彈層 */
+.glass-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 20000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 18px;
+  background: rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(7px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.glass-modal {
+  width: min(720px, 94vw);
+  max-height: min(70vh, 640px);
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.42);
+  border: 1px solid rgba(200, 200, 200, 0.45);
+  border-radius: 18px;
+  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.18);
+
+  backdrop-filter: blur(18px) saturate(160%);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(180, 180, 180, 0.25);
+}
+
+.modal-title {
+  font-size: 15px;
+  font-weight: 650;
+  color: rgba(20, 20, 20, 0.88);
+}
+
+.modal-close {
+  appearance: none;
+  border: none;
+  background: rgba(0, 0, 0, 0.06);
+  width: 28px;
+  height: 28px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 28px;
+  color: rgba(20, 20, 20, 0.75);
+}
+
+.modal-close:hover {
+  background: rgba(0, 0, 0, 0.10);
+}
+
+.modal-body {
+  padding: 12px 14px 16px;
+  overflow: auto;
+  max-height: calc(min(70vh, 640px) - 100px);
+}
+
+.locations-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.loc-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 6px;
+  border-radius: 999px;
+  font-size: 14px;
+  color: rgba(25, 25, 25, 0.85);
+  background: rgba(255, 255, 255, 0.48);
+  border: 1px solid rgba(160, 160, 160, 0.25);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+}
 
 
 </style>

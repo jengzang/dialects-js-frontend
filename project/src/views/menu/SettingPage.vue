@@ -4,7 +4,7 @@
 
 <template>
   <div class="page-root">
-  <h2 class="tabs-title">📈 查詢結果</h2>
+  <h2 class="tabs-title">⚙️ 設置頁面</h2>
   <div class="coming-soon-container">
     <div class="coming-soon-message">
       <p>该页面待完善</p>
