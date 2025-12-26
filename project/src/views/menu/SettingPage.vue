@@ -1,7 +1,3 @@
-<script setup>
-// 在此部分，你可以添加你所需要的逻辑
-</script>
-
 <template>
   <div class="page-root">
   <h2 class="tabs-title">⚙️ 設置頁面</h2>

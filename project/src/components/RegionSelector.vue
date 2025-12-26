@@ -33,9 +33,9 @@
 
     <!-- ✅ 彈出三級分區（全局玻璃） -->
     <Teleport to="body">
-      <div v-if="popupOpen" class="partition-overlay" @mousedown.self="confirmAndClose">
+      <div v-if="popupOpen" class="partition-overlay">
         <!-- ✅ 頂部確認欄：顯示已選 + 可刪除 + 確認 -->
-        <div class="partition-topbar" @mousedown.stop>
+        <div ref="topbarEl" class="partition-topbar" @mousedown.stop>
           <!-- 第一行：标题 + 按钮 -->
           <div class="topbar-row topbar-row-1">
             <div class="topbar-title">
@@ -61,15 +61,15 @@
           <!-- 第二行：tags -->
           <div class="topbar-row topbar-row-2">
             <div class="topbar-tags" v-if="draftSelected.length">
-      <span
-          v-for="(s, i) in draftSelected"
-          :key="'top_' + s + '_' + i"
-          class="topbar-tag"
-          :title="s"
-      >
-        {{ s }}
-        <button class="tag-remove" type="button" @click="removeDraft(s)">×</button>
-      </span>
+              <span
+                  v-for="(s, i) in draftSelected"
+                  :key="'top_' + s + '_' + i"
+                  class="topbar-tag"
+                  :title="s"
+              >
+                {{ s }}
+                <button class="tag-remove" type="button" @click="removeDraft(s)">×</button>
+              </span>
             </div>
             <div class="topbar-empty" v-else>
               尚未選擇分區
@@ -77,88 +77,98 @@
           </div>
         </div>
 
-
-        <!-- ✅ 從左上角開始排布，不越界（overlay 內可滾動） -->
-        <div class="partition-stage" >
-            <!-- lvl1 -->
-            <div class="partition-popup partition-lvl1" @mousedown.stop>
+        <!-- ✅ Stage：lvl1 仍放在文档流；lvl2/lvl3 以 fixed 浮層跟随 -->
+        <div class="partition-stage">
+          <!-- lvl1 -->
+          <div ref="lvl1El" class="partition-popup partition-lvl1" @mousedown.stop>
+            <div
+                v-for="item in lvl1"
+                :key="'l1_' + item.label"
+                class="partition-line"
+                :class="{ active: activeL1 === item.label }"
+                @mouseenter="onHoverL1(item, $event)"
+            >
+              <!-- ✅ 點擊=選擇（lvl1 也允許） -->
               <div
-                  v-for="item in lvl1"
-                  :key="'l1_' + item.label"
-                  class="partition-line"
-                  :class="{ active: activeL1 === item.label }"
-                  @mouseenter="onHoverL1(item)"
+                  class="partition-item"
+                  :class="{ chosen: draftSelected.includes(item.label) }"
+                  @click="toggleLeaf(item.label)"
+                  :title="item.label"
               >
-                <!-- ✅ 點擊=選擇（lvl1 也允許） -->
-                <div
-                    class="partition-item"
-                    :class="{ chosen: draftSelected.includes(item.label) }"
-                    @click="toggleLeaf(item.label)"
-                    :title="item.label"
-                >
-                  {{ item.label }}
-                </div>
+                {{ item.label }}
+              </div>
 
-                <!-- ✅ 箭頭只負責展開，不再影響選擇 -->
-                <div
-                    v-if="item.hasChildren"
-                    class="partition-arrow"
-                    @click.stop="expand(item, 1)"
-                    title="展開"
-                >
-                  ⌵
-                </div>
+              <!-- ✅ 箭頭只負責展開，不再影響選擇 -->
+              <div
+                  v-if="item.hasChildren"
+                  class="partition-arrow"
+                  @click.stop="expand(item, 1, $event)"
+                  title="展開"
+              >
+                ⌵
               </div>
             </div>
+          </div>
 
-            <!-- lvl2 -->
-            <div v-if="lvl2.length" class="partition-popup partition-lvl2" @mousedown.stop>
+          <!-- lvl2：fixed，跟随 lvl1 hover 行 -->
+          <div
+              ref="lvl2El"
+              v-if="lvl2.length"
+              class="partition-popup partition-lvl2"
+              :style="lvl2Pos"
+              @mousedown.stop
+          >
+            <div
+                v-for="item in lvl2"
+                :key="'l2_' + item.label"
+                class="partition-line"
+                :class="{ active: activeL2 === item.label }"
+                @mouseenter="onHoverL2(item, $event)"
+            >
+              <!-- ✅ 點擊=選擇（lvl2 也允許） -->
               <div
-                  v-for="item in lvl2"
-                  :key="'l2_' + item.label"
-                  class="partition-line"
-                  :class="{ active: activeL2 === item.label }"
-                  @mouseenter="onHoverL2(item)"
+                  class="partition-item"
+                  :class="{ chosen: draftSelected.includes(item.label) }"
+                  @click="toggleLeaf(item.label)"
+                  :title="item.label"
               >
-                <!-- ✅ 點擊=選擇（lvl2 也允許） -->
-                <div
-                    class="partition-item"
-                    :class="{ chosen: draftSelected.includes(item.label) }"
-                    @click="toggleLeaf(item.label)"
-                    :title="item.label"
-                >
-                  {{ item.label }}
-                </div>
+                {{ item.label }}
+              </div>
 
-                <div
-                    v-if="item.hasChildren"
-                    class="partition-arrow"
-                    @click.stop="expand(item, 2)"
-                    title="展開"
-                >
-                  ⌵
-                </div>
+              <div
+                  v-if="item.hasChildren"
+                  class="partition-arrow"
+                  @click.stop="expand(item, 2, $event)"
+                  title="展開"
+              >
+                ⌵
               </div>
             </div>
+          </div>
 
-            <!-- lvl3 -->
-            <div v-if="lvl3.length" class="partition-popup partition-lvl3" @mousedown.stop>
+          <!-- lvl3：fixed，跟随 lvl2 hover 行 -->
+          <div
+              ref="lvl3El"
+              v-if="lvl3.length"
+              class="partition-popup partition-lvl3"
+              :style="lvl3Pos"
+              @mousedown.stop
+          >
+            <div
+                v-for="item in lvl3"
+                :key="'l3_' + item.label"
+                class="partition-line"
+            >
+              <!-- lvl3 點擊=選擇 -->
               <div
-                  v-for="item in lvl3"
-                  :key="'l3_' + item.label"
-                  class="partition-line"
+                  class="partition-item"
+                  :class="{ chosen: draftSelected.includes(item.label) }"
+                  @click="toggleLeaf(item.label)"
+                  :title="item.label"
               >
-                <!-- lvl3 點擊=選擇 -->
-                <div
-                    class="partition-item"
-                    :class="{ chosen: draftSelected.includes(item.label) }"
-                    @click="toggleLeaf(item.label)"
-                    :title="item.label"
-                >
-                  {{ item.label }}
-                </div>
+                {{ item.label }}
               </div>
-
+            </div>
           </div>
         </div>
 
@@ -168,14 +178,12 @@
 </template>
 
 <script setup>
-
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
+
 // 全局已有（你原来 Cascader 就这么用的）
 const STATIC_TREE = STATIC_REGION_TREE ?? {}
 const TOP_YINDIAN = top_yindian ?? []
 const API_BASE = window.API_BASE ?? ''
-
-
 
 const props = defineProps({
   mode: { type: String, required: true },
@@ -196,6 +204,15 @@ const activeL1 = ref('')
 const activeL2 = ref('')
 let hoverTimer = null
 
+const anchorEl = ref(null)
+
+/* =========================
+   ✅ fixed 定位所需：lvl1 容器 ref + lvl2/lvl3 position
+   ========================= */
+const lvl1El = ref(null)
+const lvl2Pos = ref({ position: 'fixed', left: '0px', top: '0px' })
+const lvl3Pos = ref({ position: 'fixed', left: '0px', top: '0px' })
+
 /* =========================
    selected
    ========================= */
@@ -204,7 +221,6 @@ const draftSelected = ref([])
 
 /* =========================
    ✅ 你的原逻辑：加载整棵树（map/yindian）
-   - 我这里保留「不转 cascader options」，直接用原树结构
    ========================= */
 const loadedTree = ref({}) // 当前 mode 对应的 tree（对象结构）
 
@@ -220,6 +236,26 @@ function filterTopLevelKeys(obj) {
     }
   }
   return filtered
+}
+const topbarEl = ref(null)
+const lvl2El = ref(null)
+const lvl3El = ref(null)
+
+function onDocMouseDown(e) {
+  if (!popupOpen.value) return
+
+  const t = e.target
+
+  const allow =
+      topbarEl.value?.contains(t) ||
+      lvl1El.value?.contains(t) ||
+      lvl2El.value?.contains(t) ||
+      lvl3El.value?.contains(t)
+
+  if (!allow) {
+    // 你现在的外部点击是“确认并关闭”，保持一致
+    confirmAndClose()
+  }
 }
 
 async function loadTreeFor(mode) {
@@ -252,7 +288,6 @@ async function loadTreeFor(mode) {
     loadedTree.value = filteredTree
   }
 }
-
 
 watch(
     () => props.mode,
@@ -314,6 +349,30 @@ function getChildren(parentLabel) {
 }
 
 /* =========================
+   ✅ 定位钳制：模仿你原生版用 lvl1 首尾 item 作为上下锚点
+   ========================= */
+function clampPopupTopByLvl1(popupTop, popupHeight = 240) {
+  const host = lvl1El.value
+  if (!host) return popupTop
+
+  const lines = host.querySelectorAll('.partition-line')
+  if (!lines.length) return popupTop
+
+  const firstRect = lines[0].getBoundingClientRect()
+  const lastRect = lines[lines.length - 1].getBoundingClientRect()
+
+  const anchorTop = firstRect.top
+  const anchorBottom = lastRect.bottom
+
+  if (popupTop + popupHeight > anchorBottom) popupTop = anchorBottom - popupHeight
+  if (popupTop < anchorTop) popupTop = anchorTop
+
+  popupTop = Math.max(popupTop, 0)
+  popupTop = Math.min(popupTop, window.innerHeight - popupHeight)
+  return popupTop
+}
+
+/* =========================
    Open/Close
    ========================= */
 async function openPopup() {
@@ -331,6 +390,7 @@ async function openPopup() {
   activeL2.value = ''
 
   bindEsc()
+  document.addEventListener('mousedown', onDocMouseDown, true)
 }
 
 function closePopup() {
@@ -341,6 +401,7 @@ function closePopup() {
   activeL1.value = ''
   activeL2.value = ''
   unbindEsc()
+  document.removeEventListener('mousedown', onDocMouseDown, true)
 }
 
 function togglePopup() {
@@ -350,37 +411,84 @@ function togglePopup() {
 /* =========================
    Expand/Hover
    ========================= */
-function expand(item, level) {
+function expand(item, level, e) {
   if (!item?.hasChildren) return
-  if (level === 1) onHoverL1(item, true)
-  if (level === 2) onHoverL2(item, true)
+
+  // ✅ 用箭头所在的 .partition-line 作为展开基准
+  const lineEl = e?.currentTarget?.closest?.('.partition-line')
+  const fakeEvent = lineEl ? { currentTarget: lineEl } : null
+
+  // ✅ 关键：清掉两层 hover 定时器，并且让两层的旧 hover 全部失效
+  clearTimeout(hoverTimerL1)
+  clearTimeout(hoverTimerL2)
+  hoverSeqL1++
+  hoverSeqL2++
+
+  if (level === 1) onHoverL1(item, fakeEvent, true)
+  if (level === 2) onHoverL2(item, fakeEvent, true)
 }
 
-function onHoverL1(item, immediate = false) {
-  clearTimeout(hoverTimer)
+let hoverTimerL1 = null
+let hoverTimerL2 = null
+let hoverSeqL1 = 0
+let hoverSeqL2 = 0
+
+
+function onHoverL1(item, e, immediate = false) {
+  const seq = ++hoverSeqL1
+  clearTimeout(hoverTimerL1)
+
+  const rect = e?.currentTarget?.getBoundingClientRect?.()
+  const popupLeft = rect ? rect.right : null
+  const rawTop = rect ? rect.top : null
+
   const run = () => {
+    if (seq !== hoverSeqL1) return
+
     activeL1.value = item.label
     lvl2.value = getChildren(item.label)
     lvl3.value = []
     activeL2.value = ''
+
+    if (popupLeft != null && rawTop != null) {
+      const popupTop = clampPopupTopByLvl1(rawTop, 240)
+      lvl2Pos.value = { position: 'fixed', left: `${popupLeft}px`, top: `${popupTop}px` }
+    }
   }
+
   if (immediate) return run()
-  hoverTimer = setTimeout(run, 100)
+  hoverTimerL1 = setTimeout(run, 100)
 }
 
-function onHoverL2(item, immediate = false) {
-  clearTimeout(hoverTimer)
+
+function onHoverL2(item, e, immediate = false) {
+  const seq = ++hoverSeqL2
+  clearTimeout(hoverTimerL2)
+
+  const rect = e?.currentTarget?.getBoundingClientRect?.()
+  const popupLeft = rect ? rect.right : null
+  const rawTop = rect ? rect.top : null
+
   const run = () => {
+    if (seq !== hoverSeqL2) return
+
     activeL2.value = item.label
     lvl3.value = getChildren(item.label)
+
+    if (popupLeft != null && rawTop != null) {
+      const popupTop = clampPopupTopByLvl1(rawTop, 240)
+      lvl3Pos.value = { position: 'fixed', left: `${popupLeft}px`, top: `${popupTop}px` }
+    }
   }
+
   if (immediate) return run()
-  hoverTimer = setTimeout(run, 100)
+  hoverTimerL2 = setTimeout(run, 100)
 }
+
+
 
 /* =========================
    Selection（叶子字符串数组）
-   - 按你要求：一级/二级/三级点 label 都算“选择”
    ========================= */
 function toggleLeaf(label) {
   const arr = draftSelected.value.slice()
@@ -426,14 +534,16 @@ function unbindEsc() {
 }
 
 onBeforeUnmount(() => {
-  clearTimeout(hoverTimer)
+  clearTimeout(hoverTimerL1)
+  clearTimeout(hoverTimerL2)
   unbindEsc()
+  document.removeEventListener('mousedown', onDocMouseDown, true)
 })
+
 
 /* expose for template */
 defineExpose({ togglePopup, openPopup, closePopup })
 </script>
-
 
 <style scoped>
 /* ===== 選框（液態玻璃） ===== */
@@ -459,7 +569,8 @@ defineExpose({ togglePopup, openPopup, closePopup })
   overflow-y: auto;
   align-items: flex-start;
 }
-/* 可选：滚动条更细一点（和玻璃风格更匹配） */
+
+/* 滚动条 */
 .region-select-box::-webkit-scrollbar {
   width: 6px;
 }
@@ -471,6 +582,7 @@ defineExpose({ togglePopup, openPopup, closePopup })
   background: rgba(255, 255, 255, 0.18);
   border-radius: 6px;
 }
+
 .region-select-box.open {
   border-color: rgba(0, 122, 255, 0.35);
   box-shadow: 0 12px 36px rgba(0, 122, 255, 0.16);
@@ -498,7 +610,7 @@ defineExpose({ togglePopup, openPopup, closePopup })
 
 .region-tag,
 .topbar-tag {
-  position: relative; /* ✅ 允許右上角 × */
+  position: relative;
   display: inline-flex;
   align-items: center;
   gap: 2px;
@@ -539,7 +651,7 @@ defineExpose({ togglePopup, openPopup, closePopup })
   top: 0;
   z-index: 20010;
   display: flex;
-  flex-direction: column;   /* ✅ 两行 */
+  flex-direction: column;
   gap: 6px;
 
   align-items: flex-start;
@@ -562,11 +674,11 @@ defineExpose({ togglePopup, openPopup, closePopup })
   width: 100%;
 }
 
-/* 第二行：tags 自动换行 */
+/* 第二行：tags 自动滚动 */
 .topbar-row-2 {
   display: flex;
-  max-height: 84px;        /* 你想要的最大高度，自行调 */
-  overflow-y: auto;        /* 超出就滚动 */
+  max-height: 84px;
+  overflow-y: auto;
   overflow-x: hidden;
 }
 
@@ -627,31 +739,13 @@ defineExpose({ togglePopup, openPopup, closePopup })
   cursor: not-allowed;
 }
 
-/* ===== Stage（左上開始） ===== */
+/* ===== Stage（lvl1 在流式；lvl2/lvl3 fixed 浮层） ===== */
 .partition-stage {
   padding: 12px;
   display: flex;
 }
 
-/* ===== 三级容器 ===== */
-.partition-container {
-  display: flex;
-  gap: 8px;
-  padding: 10px;
-
-  width: fit-content;
-  max-width: calc(100vw - 24px);
-
-  background: rgba(255, 255, 255, 0.25);
-  border: 1px solid rgba(255, 255, 255, 0.30);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
-
-  backdrop-filter: blur(14px) saturate(160%);
-  -webkit-backdrop-filter: blur(14px) saturate(160%);
-
-  border-radius: 16px;
-}
-
+/* ===== 三级容器：仍保留你的玻璃风格 ===== */
 .partition-popup {
   min-width: 80px;
   max-width: 140px;
@@ -664,9 +758,14 @@ defineExpose({ togglePopup, openPopup, closePopup })
   display: flex;
   flex-direction: column;
   user-select: none;
+
+  z-index: 20020; /* ✅ 确保在 overlay 内但不被 topbar 压住（topbar 更高） */
 }
 
+/* ✅ 兜底：lvl2/lvl3 固定定位（真正跟随靠 :style 写 top/left） */
+.partition-popup.partition-lvl2,
 .partition-popup.partition-lvl3 {
+  position: fixed;
   max-height: 240px;
   overflow-y: auto;
 }
@@ -697,14 +796,16 @@ defineExpose({ togglePopup, openPopup, closePopup })
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  cursor: pointer; /* ✅ 点击选择 */
+  cursor: pointer;
   font-size: 15px;
 }
+
 @media (orientation: portrait) {
-  .partition-item{
+  .partition-item {
     font-size: 18px;
   }
 }
+
 .partition-item.chosen {
   font-weight: 800;
   color: rgba(0, 60, 140, 0.92);

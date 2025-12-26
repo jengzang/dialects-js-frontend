@@ -159,6 +159,7 @@ async function initUserByToken({ console_log = false } = {}) {
   mode.value = "login"
 
   if (!token) {
+    console.log("anonymous")
     return {
       user: null,
       role: "anonymous"
@@ -167,26 +168,28 @@ async function initUserByToken({ console_log = false } = {}) {
 
   try {
     const res = await api('/auth/me')
-
-    if (!res.ok) {
-      throw new Error("/auth/me 非 200")
+    // console.log(res)
+    if (!res) {
+      return {
+        user: null,
+        role: "anonymous"
+      }
     }
-    const userData = await res.json()
 
     // —— 统一状态写入 ——
-    window.currentUser = userData
-    user.value = userData || {}
+    window.currentUser = res
+    user.value = res || {}
     mode.value = "normal"
 
-    const role = userData?.role === "admin" ? "admin" : "user"
+    const role = res?.role === "admin" ? "admin" : "user"
     window.userRole = role
 
     if (console_log) {
-      console.log("✅ 用户信息已初始化", userData)
+      console.log("✅ 用户信息已初始化", res)
     }
-
+    // console.log(res)
     return {
-      user: userData,
+      user: res,
       role
     }
 
@@ -554,7 +557,7 @@ const goToPrivacyPolicy = () =>  {router.push({ path: '/menu',
   color:  #005fd3;
   font-weight: 1000;
   border-radius: 25px; /* 圓角邊框 */
-  padding: 10px 20px;
+  padding: 6px 15px;
   box-shadow: 0 6px 10px rgba(0, 0, 0, 0.1), 0 1px 4px rgba(0, 0, 0, 0.08); /* 輕微陰影，玻璃感 */
   border: 3px solid rgba(255, 255, 255, 0.4); /* 半透明邊框 */
   transition: all 0.3s ease;
@@ -605,6 +608,9 @@ const goToPrivacyPolicy = () =>  {router.push({ path: '/menu',
   }
   .navbar-content {
     display: flex;
+  }
+  .sidebar-content li{
+    font-size: 1.1rem;
   }
 }
 
