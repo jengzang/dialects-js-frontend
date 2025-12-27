@@ -42,29 +42,30 @@
             <button class="enter-btn" @click="handleEnter">進入網站</button>
           </div>
 
-          <!-- 三欄選擇 -->
-          <div class="triple-select-box">
-            <!-- ✅ 卡片選擇區：獨立一行 -->
-            <div class="card-row">
-              <div class="card-group">
-                <div
-                    v-for="(item, index) in cards"
-                    :key="item"
-                    class="card-group-item"
-                    :class="{
+          <!-- ✅ 卡片選擇區：獨立一行 -->
+          <div class="card-row">
+            <div class="card-group">
+              <div
+                  v-for="(item, index) in cards"
+                  :key="item"
+                  class="card-group-item"
+                  :class="{
                               active: selectedCard === item,
                               first: index === 0,
                               last: index === cards.length - 1
                             }"
-                    @click="selectedCard = item"
-                >
-                  {{ item }}
-                </div>
+                  @click="selectedCard = item"
+              >
+                {{ item }}
               </div>
             </div>
+          </div>
+
+          <div class="triple-select-box">
+
 
             <!-- ✅ 鍵名 + 鍵值：同一行，用容器包 -->
-            <div class="dropdown-row">
+            <div v-for="key in keys" :key="key" class="dropdown-row">
               <!-- 中：鍵值 dropdown -->
               <div class="dropdown-wrapper">
                 <!-- 鍵值下拉 -->
@@ -92,31 +93,16 @@
               </div>
 
               <!-- 右：鍵名 dropdown -->
-              <div class="dropdown-wrapper">
-                <!-- 鍵名下拉 -->
-                <div class="dropdown" ref="keyTriggerEl" @click="toggleDropdown('key')">
-                  {{ selectedKey || '請選擇鍵名' }}
-                  <span class="arrow">▾</span>
-                </div>
-                <Teleport to="body">
-                  <div
-                      v-if="dropdownOpen === 'key'"
-                      class="dropdown-panel"
-                      :style="dropdownStyle.key"
-                      ref="keyDropdownEl"
-                  >
-                    <div
-                        class="dropdown-item"
-                        v-for="key in keys"
-                        :key="key"
-                        @click="selectKey(key)"
+              <div class="dropdown-wrapper" style="flex: 1">
+                    <button
+                        :class="['key-button', { active: selectedKey.includes(key) }]"
+                        @click="toggleKeySelection(key)"
                     >
                       {{ key }}
-                    </div>
-                  </div>
-                </Teleport>
+                    </button>
               </div>
             </div>
+
           </div>
         </div>
       </div>
@@ -247,7 +233,7 @@ currentTab = computed(() => {
 const hanziInput = ref('')
 
 const selectedCard = ref('韻母')
-const selectedKey = ref('攝')
+const selectedKey = ref(['攝']);
 const selectedValue = ref('流')
 const dropdownOpen = ref(null)
 
@@ -318,14 +304,26 @@ function selectKey(key) {
   selectedValue.value = keyValueMap[key][0]
   dropdownOpen.value = null
 }
+// 切换键名的选择状态
+function toggleKeySelection(key) {
+  if (selectedKey.value.includes(key)) {
+    // 如果已经选中，则取消选中
+    selectedKey.value = selectedKey.value.filter(item => item !== key);
+  } else {
+    // 否则选中
+    selectedKey.value.push(key);
+  }
+}
 function selectTab3Key(key) {
   tab3SelectedKey.value = key
   dropdownOpen.value = null
 }
-function selectValue(value) {
-  selectedValue.value = value
-  dropdownOpen.value = null
+
+function selectValue(value, key) {
+  selectedValue.value = value; // 更新选中的值
+  // 你可以在这里处理选中的键值逻辑，比如提交或者其他操作
 }
+
 
 const currentTabLabel = computed(() => {
   const found = tabs.find(t => t.name === currentTab.value)
@@ -470,8 +468,7 @@ onBeforeUnmount(() => {
 
 /* 📄 內容區塊動畫 */
 .tab-content {
-  width: 100%;
-  max-width: 800px;
+  width: 95%;
   animation: fade 0.6s ease;
 
   /* ✅ 新增這些 */
@@ -490,10 +487,10 @@ onBeforeUnmount(() => {
   backdrop-filter: blur(8px);
   border: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
-  max-width: 500px;
   justify-content: center;
   display: flex;
   margin: 0 auto;
+  width: 92%;
 }
 
 @keyframes fade {
@@ -520,7 +517,7 @@ onBeforeUnmount(() => {
   }
 
   .page {
-    padding: 16px;
+    padding: 12px;
     font-size: 16px;
   }
 }
@@ -626,12 +623,43 @@ onBeforeUnmount(() => {
   flex-direction: column;
   align-items: center;
   gap: 1.5dvh;
+  min-width: 80dvw;
 }
 .triple-select-box {
-  display: flex;
-  gap: 1.5dvw;
-  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  row-gap: 0.6dvh;
+  column-gap: 0.8dvw;
+  width: 95%;
   justify-content: space-between;
+  flex-direction: column;
+  overflow-y: auto;
+  overflow-x: auto;
+  max-height: 30dvh;
+
+  /* 滚动条样式 */
+  scrollbar-width: thin;  /* Firefox */
+  scrollbar-color: rgba(0, 122, 255, 0.5) rgba(0, 0, 0, 0.1); /* Firefox */
+
+  /* Chrome/Safari */
+  ::-webkit-scrollbar {
+    width: 8px;  /* 滚动条宽度 */
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 122, 255, 0.5);
+    border-radius: 4px;
+    border: 2px solid rgba(0, 0, 0, 0.2);  /* 添加一些边框使滚动条更美观 */
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(0, 122, 255, 0.8);  /* 滚动条 hover 状态 */
+  }
+
+  ::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);  /* 滚动条轨道 */
+    border-radius: 10px;
+  }
 }
 
 .card-group{
@@ -707,7 +735,6 @@ onBeforeUnmount(() => {
   justify-content: space-between;
   align-items: center;
   min-width: 80px;
-  margin: auto;
 }
 
 .arrow {
@@ -746,11 +773,52 @@ onBeforeUnmount(() => {
 
 .dropdown-row {
   display: flex;
-  gap: 1dvw;
   width: 100%;
-  max-width: 600px;
   justify-content: center;
   white-space: nowrap;
 }
+/* 键名按钮样式 */
+.key-button {
+  padding: 8px 16px;
+  border: 1px solid rgba(0, 122, 255, 0.2);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.3);
+  cursor: pointer;
+  transition: background 0.3s ease;
+  font-size: 14px;
+  margin: 5px;
+}
 
+.key-button.active {
+  background: rgba(0, 122, 255, 0.5);
+  color: white;
+  font-weight: 600;
+}
+
+/* 键值展示样式 */
+.key-value-dropdown {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-left: 20px;
+}
+
+.key-value-dropdown .dropdown-item {
+  padding: 8px 16px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s;
+  border-radius: 8px;
+}
+
+.key-value-dropdown .dropdown-item:hover {
+  background-color: #e6f0ff;
+}
+
+/* 选中的键名显示的效果 */
+.key-value-dropdown .dropdown-item.active {
+  background-color: rgba(0, 122, 255, 0.2);
+  color: #007aff;
+}
 </style>

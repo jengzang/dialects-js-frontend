@@ -634,14 +634,14 @@ defineExpose({
   justify-content: center; /* 居中子元素內容 */
   max-width: 600px;        /* 限定總寬度 */
   margin: 3dvh  auto 1dvh auto ;          /* 水平置中 */
-  width: 100%;
+  width: 90%;
 }
 
 .bottom-hint {
-  margin:  0 0 4dvh 0 ;
+  margin:  0 1dvw 4dvh  ;
   max-width: 600px;
   width: 90%;
-  padding: 6px 14px;
+  padding: 6px 20px;
   justify-self: center;
   /* liquid glass */
   background: rgba(255, 255, 255, 0.42);

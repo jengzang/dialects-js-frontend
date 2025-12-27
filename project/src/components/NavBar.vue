@@ -121,7 +121,7 @@
 <script setup>
 import { ref , onMounted} from 'vue'
 import {useRoute, useRouter} from 'vue-router'
-import {api, clearToken,} from '../utils/auth.js' // ✅ 引入工具方法
+import {api, clearToken,getToken,saveToken} from '../utils/auth.js' // ✅ 引入工具方法
 const route = useRoute()
 const router = useRouter()
 const user = ref({}) // 存储用户信息
@@ -150,11 +150,11 @@ const goToAuthPage = () => {
 }
 
 async function initUserByToken({ console_log = false } = {}) {
-  const token = localStorage.getItem("ACCESS_TOKEN")
+  const token = getToken();
 
   // 默认未登录态
   window.currentUser = null
-  window.userRole = "anonymous"
+  window.userRole = undefined
   user.value = {}
   mode.value = "login"
 

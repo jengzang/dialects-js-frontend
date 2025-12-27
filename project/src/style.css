@@ -110,7 +110,7 @@ textarea {
   border: 1px solid #ccc;
   border-radius: 6px;
   background: #fff;
-  min-width: 60px;
+  min-width: 50px;
 }
 
 textarea:hover {

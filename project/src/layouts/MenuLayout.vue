@@ -92,6 +92,7 @@ nav {
   display: flex;          /* 使子元素也成为 Flexbox 布局 */
   justify-content: center;  /* 水平居中子元素 */
   width: 100%;            /* 确保内容宽度占满父容器 */
+  overflow-x: hidden;
 }
 
 /* 動畫 */
