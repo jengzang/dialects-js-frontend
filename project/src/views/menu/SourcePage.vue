@@ -8,6 +8,7 @@
     <div class="coming-soon-container">
       <div class="coming-soon-message">
         <p>该页面待完善</p>
+        <p>資料截至2025.9</p>
       </div>
     </div>
   </div>

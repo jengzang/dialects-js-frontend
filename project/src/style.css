@@ -98,6 +98,30 @@ body {
   }
 }
 
+/* 🔹 輸入區塊樣式 */
+.query-box {
+  display: flex; /* 改为 flex 以便控制头部 */
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  gap: 6px;
+}
+
+.query-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  width: 95%;
+  /*gap:20px;*/
+  padding: 0 4px;
+  max-width: 600px;
+}
+
+.query-label {
+  font-size: 15px;
+  font-weight: 600;
+  color: #333;
+}
 textarea {
   width: 100%;
   height: 60px;
@@ -111,6 +135,7 @@ textarea {
   border-radius: 6px;
   background: #fff;
   min-width: 50px;
+  max-width: 600px;
 }
 
 textarea:hover {
@@ -180,7 +205,7 @@ textarea:hover {
   background: rgba(255, 255, 255, 0.05);
   border-radius: 12px;
   backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.1);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
   justify-content: center;
   display: flex;
@@ -242,7 +267,14 @@ textarea:hover {
 .fancy-run-btn span {
   display: inline-block;
 }
-
+/* 🔴 给按钮增加一个明显的禁用样式 */
+.fancy-run-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+  opacity: 0.7;
+}
 
 /* 📱 響應式：小螢幕按鈕變小 */
 @media(max-width: 600px) {
@@ -284,6 +316,67 @@ textarea:hover {
 }
 .enter-btn:hover {
   background: #005ecb;
+}
+
+.info-text {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: pre-wrap;
+  font-size: 15px;
+}
+
+.info-text strong {
+  color: #02469e;
+}
+
+/* ✅ 通用 Glass Effect */
+/* 全屏遮罩：深色模糊背景 */
+.glass-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.2); /* 轻微暗色背景 */
+  backdrop-filter: blur(10px);    /* 背景模糊 */
+  -webkit-backdrop-filter: blur(10px);
+}
+.glass-card {
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05), inset 0 0 0 1px rgba(255, 255, 255, 0.4);
+  border-radius: 20px;
+  transition: all 0.3s ease;
+}
+
+/* 关闭按钮 */
+.close-btn {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: rgba(0, 0, 0, 0.05);
+  border: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  font-size: 20px;
+  line-height: 28px;
+  color: #666;
+  cursor: pointer;
+  transition: background 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.close-btn:hover {
+  background: rgba(0, 0, 0, 0.1);
 }
 
 

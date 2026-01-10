@@ -118,6 +118,7 @@
                 :value-map="selectedValueMap"
                 :is-dropdown-open="!!dropdownOpen"
                 :selected-card="selectedCard"
+                @update:runDisabled="isRunDisabled = $event"
             />
           </div>
         </div>
@@ -126,10 +127,9 @@
       <!-- 📤 tab3：查音位頁面 -->
       <div v-else-if="currentTab === 'tab3'" class="page">
         <div class="page-content-stack">
-          <!-- 三欄選擇區（保留結構） -->
+          <!-- 三欄選擇 -->
           <div class="triple-select-box">
-
-            <!-- ✅ 卡片選擇區（不變） -->
+            <!-- ✅ 卡片選擇區：獨立一行 -->
             <div class="card-row">
               <div class="card-group">
                 <div
@@ -137,10 +137,10 @@
                     :key="item"
                     class="card-group-item"
                     :class="{
-                      active: selectedCard === item,
-                      first: index === 0,
-                      last: index === cards.length - 1
-                    }"
+                              active: selectedCard === item,
+                              first: index === 0,
+                              last: index === cards.length - 1
+                            }"
                     @click="selectedCard = item"
                 >
                   {{ item }}
@@ -148,64 +148,54 @@
               </div>
             </div>
 
-            <!-- ✅ 鍵值 + 輸入框 -->
+            <!-- ✅ 鍵名 + 鍵值：同一行，用容器包 -->
             <div class="dropdown-row">
-              <!-- 🔑 tab3 鍵名 dropdown -->
-              <div class="dropdown-wrapper" style="flex: 1">
-                <div class="dropdown" @click="toggleDropdown('tab3Key')" ref="tab3KeyTriggerEl">
-                  {{ tab3SelectedKey || '請選擇分類' }}
-                  <span class="arrow">▾</span>
-                </div>
-                <Teleport to="body">
-                  <div
-                      v-if="dropdownOpen === 'tab3Key'"
-                      class="dropdown-panel"
-                      :style="dropdownStyle.tab3Key"
-                      ref="tab3KeyDropdownEl"
+              <div class="button-group">
+                <!-- 键名按钮，支持多选 -->
+                <div v-for="key in keys" :key="key" class="key-item">
+                  <!-- 键名部分为按钮 -->
+                  <button
+                      :class="['key-button', { active: selectedKey.includes(key) }]"
+                      @click="toggleKeySelection(key)"
                   >
-                    <div
-                        v-for="key in keys"
-                        :key="key"
-                        class="dropdown-item"
-                        @click="selectTab3Key(key)"
-                    >
-                      {{ key }}
-                    </div>
-                  </div>
-                </Teleport>
+                    {{ key }}
+                  </button>
+                </div>
               </div>
 
-              <!-- 🔄 輸入框 -->
-              <div class="dropdown-wrapper" style="flex: 2">
-                <div class="query-box">
-                  <label class="query-label" for="tab3-key-input" style="font-size: 13px">請輸入待查音節</label>
-                  <textarea
-                      id="tab3-key-input"
-                      v-model="tab3KeyInput"
-                      placeholder="請輸入待查音節，例如“a”，留空則全查"
-                      style="max-height: 5dvh"
-                      autocomplete="off"
-                  ></textarea>
-                </div>
+              <div class="info-text" style="margin: 15px 0">
+                <span class="info-icon">ℹ️</span>
+                <span>
+                  分析<strong>{{ selectedCard }}</strong>音節的中古來源，即當今的同<strong>{{ selectedCard }}</strong>字分別來自哪些中古[<strong>{{ selectedKeysString }}</strong>]
+                </span>
               </div>
+              <!-- 🔄 輸入框 -->
+              <YinweiSelector
+                  ref="YinweiSelectorRef"
+                  :locationRef="locationRef"
+              />
             </div>
           </div>
         </div>
       </div>
 
 
-      <LocationAndRegionInput ref="locationRef" />
+      <LocationAndRegionInput
+          ref="locationRef"
+          @update:runDisabled="isRunDisabled = $event"
+          :model-value="locationModel"
+      />
 
       <!-- ✅ 炫酷按鈕 -->
       <div class="fancy-run-container">
-        <span class="run-label">
-          {{ currentTabLabel }}👉
-        </span>
         <button
             class="fancy-run-btn"
             @click="runAction"
-            :disabled="isRunning">
+            :disabled="isRunning || isRunDisabled"
+            :class="{ disabled: isRunDisabled }"
+        >
           <span v-if="isRunning">🔄 運行中...</span>
+          <span v-else-if="isRunDisabled">🚫 超出限制</span>
           <span v-else>🚀 單擊運行</span>
         </button>
       </div>
@@ -223,6 +213,10 @@
         <small class="hint">查詢各點的調類、調值</small>
       </div>
     </div>
+    <FloatingDice
+        :current-tab="currentTab"
+        @applyConfig="handleApplyConfig"
+    />
   </div>
 </template>
 
@@ -231,6 +225,8 @@ import {computed, nextTick, reactive, ref, onMounted, onBeforeUnmount} from 'vue
 import {useRoute, useRouter} from 'vue-router'
 import LocationAndRegionInput from "@/components/query/LocationAndRegionInput.vue";
 import ZhongguSelector from "@/components/query/ZhongguSelector.vue";
+import YinweiSelector from "@/components/query/YinweiSelector.vue";
+import FloatingDice from "@/components/query/FloatingDice.vue";
 // import refresh from "@/components/old/refresh.vue";
 const locationRef = ref(null)
 const router = useRouter()
@@ -261,11 +257,14 @@ const keyValueMap = column_values
 const tab3SelectedKey = ref(Object.keys(column_values)[0])
 const tab3KeyTriggerEl = ref(null)
 const tab3KeyDropdownEl = ref(null)
-const valueDropdownEl = ref(null)
-const keyDropdownEl = ref(null)
-const valueTriggerEl = ref(null)
+// const valueDropdownEl = ref(null)
+// const keyDropdownEl = ref(null)
+// const valueTriggerEl = ref(null)
 const keyTriggerEl = ref(null)
 const tab3KeyInput = ref('')
+const YinweiSelectorRef = ref(null);
+
+const isRunDisabled = ref(false) // 控制按钮禁用的状态
 
 // 1. 新增：用来存储循环中 Trigger 元素的 Map
 const triggerRefs = ref({})
@@ -277,6 +276,11 @@ const setTriggerRef = (el, key) => {
     triggerRefs.value[key] = el
   }
 }
+const locationModel = ref({
+  locations: [],
+  regions: [],
+  regionUsing: 'map'
+})
 
 const dropdownStyle = reactive({
   value: {
@@ -360,26 +364,56 @@ function onClickOutside(event) {
   // }
 }
 
-
-function selectKey(key) {
-  selectedKey.value = key
-  selectedValue.value = keyValueMap[key][0]
-  dropdownOpen.value = null
-}
 // 切换键名的选择状态
 function toggleKeySelection(key) {
+  // 定义有选择限制的键值及其最大选择数量
+  const restrictedKeys = {
+    '攝': 1,
+    '韻': 1,
+    '系': 1,
+    '組': 1,
+    '母': 1,
+    '入': 1,
+    '調': 1
+  };
+
+  // 如果 selectedKey 不是数组，先初始化
   if (!Array.isArray(selectedKey.value)) {
     selectedKey.value = [];
   }
 
-  if (selectedKey.value.includes(key)) {
-    // 如果已经选中，则取消选中
-    selectedKey.value = selectedKey.value.filter(item => item !== key);
+  const currentLimit = restrictedKeys[key];
+
+  // 如果是有选择数量限制的键，执行特殊的逻辑
+  if (currentLimit) {
+    // 如果当前键已经在已选择列表中，移除它
+    if (selectedKey.value.includes(key)) {
+      selectedKey.value = selectedKey.value.filter(item => item !== key);
+    } else {
+      // 对于限制选择的键，先移除同类的键，再添加当前键
+      if (key === '系' || key === '組' || key === '母') {
+        selectedKey.value = selectedKey.value.filter(item => item !== '系' && item !== '組' && item !== '母');
+      }
+      // 如果是“攝”和“韻”，限制只能选择一个
+      if (key === '攝' || key === '韻') {
+        selectedKey.value = selectedKey.value.filter(item => item !== '攝' && item !== '韻');
+      }
+      if (key === '入' || key === '調') {
+        selectedKey.value = selectedKey.value.filter(item => item !== '入' && item !== '調');
+      }
+      // 添加当前选择的键
+      selectedKey.value.push(key);
+    }
   } else {
-    // 否则选中
-    selectedKey.value.push(key);
+    // 对于没有限制的键，正常切换选择状态
+    if (selectedKey.value.includes(key)) {
+      selectedKey.value = selectedKey.value.filter(item => item !== key);
+    } else {
+      selectedKey.value.push(key);
+    }
   }
 }
+
 
 // 选择键值时的处理
 function selectValue(value, key) {
@@ -438,7 +472,7 @@ function getDisplayText(key) {
   // 2. 全选
   const allOptions = keyValueMap[key] || []
   if (allOptions.length > 0 && list.length === allOptions.length) {
-    return `[${key}] 全選`
+    return `✅ 全選`
   }
   // 3. 超过两个：截取前两个 + 省略号
   if (list.length > 3) {
@@ -446,11 +480,6 @@ function getDisplayText(key) {
   }
   // 4. 少于等于两个：直接显示
   return list.join(',')
-}
-
-function selectTab3Key(key) {
-  tab3SelectedKey.value = key
-  dropdownOpen.value = null
 }
 
 
@@ -522,9 +551,39 @@ const runAction = () => {
 
 }
 
+const selectedKeysString = computed(() => {
+  // 方案 A：按点击顺序显示 (如果先点B再点A，显示 "B·A")
+  return selectedKey.value.join('·')
 
-const handleEnter = () => {
-  window.location.href = window.WEB_BASE + '/detail/'
+  // 方案 B (推荐)：按原列表顺序显示 (即使先点B再点A，依然显示 "A·B")
+  // 假设 `keys` 是你定义所有按钮顺序的那个常量数组
+  // return keys.filter(k => selectedKey.value.includes(k)).join('·')
+})
+
+function handleApplyConfig(data) {
+  // 1. 更新卡片 (聲/韻/調)
+  selectedCard.value = data.card
+
+  // 2. 更新地點
+  locationModel.value = {
+    locations: data.loc.locations,
+    regions: data.loc.regions,
+    regionUsing: data.loc.regionUsing
+  }
+
+  // 3. 更新鍵名 (Keys)
+  selectedKey.value = data.keys
+
+  // 4. 根據 Tab 更新具體的值
+  if (data.isTab3) {
+    // Tab3: 更新 YinweiSelector 組件的輸入框
+    if (YinweiSelectorRef.value) {
+      YinweiSelectorRef.value.tab3KeyInput = data.tab3InputValue
+    }
+  } else {
+    // Tab2: 更新下拉菜單映射
+    selectedValueMap.value = data.valuesMap
+  }
 }
 
 onMounted(() => {
@@ -580,21 +639,6 @@ onBeforeUnmount(() => {
   }
 }
 
-/* 🔹 輸入區塊樣式 */
-.query-box {
-  display: block;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-  gap: 6px;
-  white-space: wrap;
-}
-
-.query-label {
-  font-size: 15px;
-  font-weight: 600;
-  color: #333;
-}
 .page-content-stack {
   display: flex;
   flex-direction: column;
@@ -666,6 +710,7 @@ onBeforeUnmount(() => {
   display: flex;
   justify-content: center;
   align-items: center;
+  gap:20px;
 }
 
 .dropdown-row {
@@ -811,4 +856,6 @@ onBeforeUnmount(() => {
   width: 16px; /* 占位，防止文字抖动 */
   display: inline-block;
 }
+
+
 </style>

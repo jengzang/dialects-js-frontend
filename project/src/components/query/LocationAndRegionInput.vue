@@ -117,16 +117,33 @@
 
 
 <script setup>
-import { ref, nextTick ,onMounted, onActivated, watch, computed} from 'vue'
+import { ref, nextTick ,onMounted, onActivated, watch, computed,defineProps,} from 'vue'
 import {api} from '../../utils/auth.js'
 import RegionSelector from "@/components/query/RegionSelector.vue";
 // const API_BASE = window.API_BASE;
 // const MAP_TREE = STATIC_REGION_TREE;
 // const YINDIAN_TREE = top_yindian;
+// 接收外部传入的地點和分區
+const props = defineProps({
+  modelValue: {
+    type: Object,
+    default: () => ({ locations: [], regions: [] ,regionUsing:'map'})  // 默认值
+  }
+})
+// watch 外部传入的值
+watch(() => props.modelValue, (newVal) => {
+  inputValue.value = newVal.locations.join(' ')
+  selectedValue.value = newVal.regions
+  regionUsing.value = newVal.regionUsing
+})
+
+const inputValue = ref(props.modelValue.locations.join(' '))  // 初始化地點
+const selectedValue = ref(props.modelValue.regions)            // 初始化分區
+const regionUsing = ref(props.modelValue.regionUsing)
 
 /** 地點輸入邏輯 */
 const inputEl = ref(null)
-const inputValue = ref('') // 預設值
+// const inputValue = ref('') // 預設值
 const suggestionEl = ref(null)
 const suggestions = ref([])
 const successMessage = ref('')
@@ -139,6 +156,8 @@ const suggestionStyle = ref({
 
 // 已選擇地點數（來自 /get_locs/ 返回）
 const selectedCount = ref(null)
+// 定义事件，用于通知父组件禁用/启用按钮
+const emit = defineEmits(['update:runDisabled'])
 // 底部提示欄的「限制提示文案」（對應 showToast）
 // 為空字串時不顯示
 const limitHint = ref('')
@@ -241,9 +260,8 @@ function applySuggestion(item) {
 }
 
 /* ========== 分區選擇邏輯 ========== */
-const selectedValue = ref([])  // ✅ 不要 ['']
+// const selectedValue = ref([])  // ✅ 不要 ['']
 
-const regionUsing = ref('map')
 const options = ref([])
 
 
@@ -428,8 +446,10 @@ async function fetchLocationsResult() {
 
     if (window.userRole === 'anonymous' && count > limit_anonymous) {
       limitHint.value = `未登錄用戶單次最多可查詢 ${limit_anonymous} 個地點`
+      emit('update:runDisabled', true)
     } else if (window.userRole === 'user' && count > limit_users) {
       limitHint.value = `用戶單次最多可查詢 ${limit_users} 個地點`
+      emit('update:runDisabled', true)
     } else {
       limitHint.value = ''
     }
