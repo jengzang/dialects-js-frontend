@@ -97,3 +97,286 @@ body {
     font-size: 1.35rem;
   }
 }
+
+/* 🔹 輸入區塊樣式 */
+.query-box {
+  display: flex; /* 改为 flex 以便控制头部 */
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  gap: 6px;
+}
+
+.query-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  width: 95%;
+  /*gap:20px;*/
+  padding: 0 4px;
+  max-width: 600px;
+}
+
+.query-label {
+  font-size: 15px;
+  font-weight: 600;
+  color: #333;
+}
+textarea {
+  width: 100%;
+  height: 60px;
+  box-sizing: border-box;
+  font-family: monospace;
+  font-size: 13px;
+  margin-top: 0px;
+  padding: 6px 10px;
+  resize: none;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background: #fff;
+  min-width: 50px;
+  max-width: 600px;
+}
+
+textarea:hover {
+  border-color: #007aff;
+  box-shadow: 0 0 8px rgba(0, 123, 255, 0.6);
+}
+
+.tabs-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0;
+  min-height: 80dvh;
+  width: 100%;
+}
+
+.tabs {
+  display: flex;
+  justify-content: flex-start;
+  gap: 16px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  max-width: 100%;
+  padding: 8px 12px;
+  -webkit-overflow-scrolling: touch; /* ✅ 手機滑順滾動 */
+  scrollbar-width: none; /* Firefox */
+}
+
+.tabs::-webkit-scrollbar {
+  display: none; /* Chrome, Safari */
+}
+
+.tab {
+  flex-shrink: 0;
+  white-space: nowrap;
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: 500;
+  border-radius: 16px;
+  cursor: pointer;
+  color: #444;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(4px);
+  transition: all 0.5s ease;
+  user-select: none;
+
+  /* ✅ 加上蘋果藍邊框（全部） */
+  border: 1px solid #007AFF;
+}
+
+.tab:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #007AFF;
+}
+
+.tab.active {
+  color: #fff;
+
+  /* ✅ 選中後變成玻璃蘋果藍 */
+  background: rgba(0, 122, 255, 0.7);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 4px 20px rgba(0, 122, 255, 0.3);
+}
+.page {
+  padding: 2dvh;
+  font-size: 18px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  backdrop-filter: blur(8px);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+  justify-content: center;
+  display: flex;
+  margin: 0 auto;
+  max-height: 35dvh;
+  overflow-y: auto;
+
+}
+
+/* 📱✅ 媒體查詢：手機螢幕優化 */
+@media (max-width: 600px) {
+  .tab {
+    padding: 10px 16px;
+    font-size: 14px;
+    border-radius: 12px;
+  }
+
+  .tabs {
+    gap: 6px;
+    padding: 8px 8px;
+  }
+
+  .page {
+    padding: 10px;
+    font-size: 16px;
+  }
+}
+
+
+.fancy-run-container {
+  margin-top: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: center;
+}
+
+.fancy-run-btn {
+  font-size: 18px;
+  font-weight: bold;
+  padding: 14px 28px;
+  color: white;
+  background: linear-gradient(135deg, #6e00ff, #00c3ff);
+  border: none;
+  border-radius: 30px;
+  box-shadow: 0 0 12px rgba(0, 195, 255, 0.6), 0 0 30px rgba(110, 0, 255, 0.3);
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+  letter-spacing: 1px;
+  position: relative;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.fancy-run-btn:hover {
+  transform: scale(1.2);
+  box-shadow: 0 0 20px rgba(0, 195, 255, 0.8), 0 0 50px rgba(110, 0, 255, 0.5);
+}
+.fancy-run-btn span {
+  display: inline-block;
+}
+/* 🔴 给按钮增加一个明显的禁用样式 */
+.fancy-run-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+  opacity: 0.7;
+}
+
+/* 📱 響應式：小螢幕按鈕變小 */
+@media(max-width: 600px) {
+  .fancy-run-btn {
+    font-size: 16px;
+    padding: 10px 20px;
+    border-radius: 24px;
+  }
+  .enter-btn {
+    padding: 5px!important;
+    font-size: 12px!important;
+  }
+}
+
+/* === Footer 說明與按鈕 === */
+.page-footer {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 auto;
+}
+.hint {
+  font-size: 14px;
+  color: #787878;
+  white-space: nowrap;
+}
+.enter-btn {
+  background: rgba(0, 122, 255, 0.86);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 6px rgba(0, 122, 255, 0.3);
+  white-space: nowrap;
+}
+.enter-btn:hover {
+  background: #005ecb;
+}
+
+.info-text {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: pre-wrap;
+  font-size: 15px;
+}
+
+.info-text strong {
+  color: #02469e;
+}
+
+/* ✅ 通用 Glass Effect */
+/* 全屏遮罩：深色模糊背景 */
+.glass-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.2); /* 轻微暗色背景 */
+  backdrop-filter: blur(10px);    /* 背景模糊 */
+  -webkit-backdrop-filter: blur(10px);
+}
+.glass-card {
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05), inset 0 0 0 1px rgba(255, 255, 255, 0.4);
+  border-radius: 20px;
+  transition: all 0.3s ease;
+}
+
+/* 关闭按钮 */
+.close-btn {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: rgba(0, 0, 0, 0.05);
+  border: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  font-size: 20px;
+  line-height: 28px;
+  color: #666;
+  cursor: pointer;
+  transition: background 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.close-btn:hover {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+
