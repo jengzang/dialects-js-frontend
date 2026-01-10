@@ -1,6 +1,5 @@
 <template>
   <div class="query-detail-panel" >
-
     <!-- 登錄介面 -->
     <div v-if="mode === 'login'" style="padding: 12px; text-align: center;">
       <h3>登錄</h3>
@@ -183,9 +182,10 @@
     <!-- 🎉 Profile 歡迎彈窗 -->
     <div
         v-if="mode === 'profile' && user"
-        style="padding: 12px; text-align: center;"
+        style="text-align: center;padding:30px"
+
     >
-      <h3 id="login-title" style="font-size: 30px; white-space: nowrap">👋 歡迎回來，{{ user.username }}！✨</h3>
+      <h3 id="login-title" style="font-size: 30px; white-space: nowrap">👋{{ user.username }} 歡迎回來✨</h3>
       <p id="login-info" style="font-size: 20px">
         {{ user?.role === 'admin' ? '🛡️ 您是管理員' : '👤 您是普通用戶' }}
       </p>
@@ -618,23 +618,22 @@ export default defineComponent({
 </script>
 
 <style scoped>
-/* 🔲 登錄註冊彈窗主體樣式（Apple 液態玻璃風格） */
 .query-detail-panel {
-  position: relative;
+  /* ✅ 加这些👇 */
   width: 100%;
-  height: 100%;
-  padding: 24px;
+  max-width: 480px;       /* 控制在大屏不太宽 */
+  margin: 0 auto;         /* 居中显示 */
+
   box-sizing: border-box;
   font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.05));
   backdrop-filter: blur(16px) saturate(180%);
   -webkit-backdrop-filter: blur(16px) saturate(180%);
   border-radius: 16px;
-  font-size: 17px; /* ✅ 提高整體字體大小 */
+  font-size: 16px; /* ✅ 字體統一 */
 }
 
 .query-detail-panel.border-breath {
@@ -650,14 +649,13 @@ export default defineComponent({
   100% { box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.6); }
 }
 
-/* 登錄/註冊 Tabs */
 .login-tabs {
   display: inline-flex;
   border: 1px solid #d0d0d0;
   border-radius: 12px;
   padding: 4px;
   background-color: #f0f0f5;
-  box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
   margin-bottom: 20px;
 }
 
@@ -665,26 +663,26 @@ export default defineComponent({
   appearance: none;
   background: none;
   border: none;
-  padding: 10px 16px; /* ✅ 放大 */
+  padding: 10px 16px;
   border-radius: 10px;
   cursor: pointer;
-  font-size: 16px; /* ✅ 字體更大 */
+  font-size: 16px;
   transition: all 0.25s ease;
   color: #333;
+  font-weight: 500;
 }
 
 .login-tabs button:hover {
-  background-color: rgba(0, 0, 0, 0.05);
+  background-color: rgba(0, 122, 255, 0.1); /* 🍏 Hover 藍光 */
 }
 
 .login-tabs button.active {
   background-color: white;
-  color: #000;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+  color: #007aff;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
   font-weight: 600;
 }
 
-/* ✅ 表單容器 */
 .form-row {
   width: 100%;
   margin: 12px 0;
@@ -693,7 +691,6 @@ export default defineComponent({
   position: relative;
 }
 
-/* ✅ 表單輸入框：蘋果風液態樣式 */
 .form-row input {
   width: 100%;
   max-width: 320px;
@@ -701,25 +698,24 @@ export default defineComponent({
   font-size: 16px;
   border: none;
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.3);
   backdrop-filter: blur(12px) saturate(180%);
   -webkit-backdrop-filter: blur(12px) saturate(180%);
   box-shadow: inset 0 0 1px rgba(255, 255, 255, 0.4),
-  0 4px 10px rgba(0, 0, 0, 0.1);
+  0 4px 12px rgba(0, 0, 0, 0.08);
   color: #333;
   outline: none;
   transition: all 0.3s ease;
 }
 
 .form-row input::placeholder {
-  color: #aaa;
+  color: #999;
 }
 
 .form-row input:focus {
-  box-shadow: 0 0 0 2px #007aff, 0 0 12px rgba(0, 122, 255, 0.3);
+  box-shadow: 0 0 0 2px #007aff, 0 0 12px rgba(0, 122, 255, 0.2);
 }
 
-/* ✅ 按鈕區塊容器 */
 .action-buttons {
   display: flex;
   flex-direction: column;
@@ -731,7 +727,6 @@ export default defineComponent({
   margin-right: auto;
 }
 
-/* ✅ 統一按鈕樣式 */
 .btn-action {
   padding: 14px 18px;
   font-size: 16px;
@@ -742,10 +737,12 @@ export default defineComponent({
   color: white;
   transition: all 0.3s ease;
   width: 100%;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  max-width: 180px;
+  justify-content: center;
+  margin: 0 auto;
 }
 
-/* 🎨 顏色變體 */
 .btn-action.primary {
   background-color: #007aff;
 }
@@ -767,15 +764,6 @@ export default defineComponent({
   background-color: #a91f1f;
 }
 
-/* 📱 手機調整字體大一點、間距更寬 */
-@media (max-width: 480px) {
-  .btn-action {
-    font-size: 18px;
-    padding: 16px;
-  }
-}
-
-/* ✅ 按鈕樣式升級 */
 .btn-search {
   background-color: #007aff;
   color: white;
@@ -789,11 +777,9 @@ export default defineComponent({
 
 .btn-search:hover {
   background-color: #0056b3;
-  transform: scale(1.03);
+  transform: scale(1.04);
 }
 
-
-/* ✅ 錯誤提示 */
 .err {
   color: red;
   margin-top: 10px;
@@ -801,7 +787,6 @@ export default defineComponent({
   font-weight: bold;
 }
 
-/* API 統計區塊 */
 .api-log-list {
   margin: 4px 0 0 16px;
   padding: 0;
@@ -820,37 +805,82 @@ export default defineComponent({
 
 .api-log-item:hover {
   background-color: #eaeffd;
-  color: #409EFF;
+  color: #007aff;
   font-weight: bold;
 }
 
-/* 防止 eye icon 被選中 */
 .form-row span {
   user-select: none;
 }
 
-/* 📱 手機適配：更大的字體和間距 */
+/* 📱 Mobile: 字體放大、距離拉開、互動更舒適 */
 @media (max-width: 480px) {
   .query-detail-panel {
     font-size: 18px;
-    padding: 16px;
+    max-width: 350px;       /* 控制在大屏不太宽 */
   }
 
   .btn-search {
     width: 100%;
-    padding: 14px 0;
+    padding: 16px;
     font-size: 18px;
   }
 
   .login-tabs {
     flex-direction: column;
-    gap: 6px;
+    gap: 8px;
   }
 
   .form-row input {
-    font-size: 17px;
+    font-size: 18px;
     padding: 16px;
   }
+
+  .btn-action {
+    font-size: 18px;
+    padding: 16px;
+  }
+
+  .err {
+    font-size: 16px;
+  }
+
+  .api-log-item {
+    font-size: 16px;
+  }
+  #login-title {
+    font-size: 28px!important;
+  }
+  #login-info{
+    font-size: 18px!important;
+  }
+}
+h3 {
+  font-size: 30px;
+  font-weight: 700;
+  color: #1c1c1e; /* 深灰，符合蘋果系統色調 */
+  margin-bottom: 16px;
+}
+#login-title{
+  font-weight: 600;
+  margin-bottom: 12px;
+  transition: all 0.3s ease;
+}
+#login-title:hover {
+  color: #007aff;
+  text-shadow: 0 0 8px rgba(0, 122, 255, 0.6);
+  transform: scale(1.05);
+}
+#login-info{
+  margin: 6px 0;
+  transition: all 0.3s ease;
+}
+
+#login-info:hover{
+  transform: translateY(-2px);
+  text-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+  color: #005fcc;
 }
 </style>
+
 
