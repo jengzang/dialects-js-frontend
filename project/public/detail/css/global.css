@@ -326,14 +326,14 @@ html, body {
     opacity: 1;
 }
 
-.welcome-modal h2,
+.welcome-modal h1,
 #login-title{
     font-size: 40px;
     font-weight: 600;
     margin-bottom: 12px;
     transition: all 0.3s ease;
 }
-.welcome-modal h2:hover,#login-title:hover {
+.welcome-modal h1:hover,#login-title:hover {
     color: #007aff;
     text-shadow: 0 0 8px rgba(0, 122, 255, 0.6);
     transform: scale(1.05);

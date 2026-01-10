@@ -548,7 +548,7 @@ defineExpose({ togglePopup, openPopup, closePopup })
 <style scoped>
 /* ===== 選框（液態玻璃） ===== */
 .region-select-box {
-  width: 95%;
+  width: 98%;
   min-height: 38px;
   border-radius: 14px;
   padding: 8px 34px 8px 10px;
@@ -565,8 +565,9 @@ defineExpose({ togglePopup, openPopup, closePopup })
 
   backdrop-filter: blur(16px) saturate(160%);
   -webkit-backdrop-filter: blur(16px) saturate(160%);
-  max-height: 96px;
+  max-height: 60px;
   overflow-y: auto;
+  overflow-x: hidden;
   align-items: flex-start;
 }
 
@@ -591,6 +592,8 @@ defineExpose({ togglePopup, openPopup, closePopup })
 .region-placeholder {
   font-size: 13px;
   color: rgba(60, 60, 60, 0.72);
+  white-space: nowrap;
+  overflow: hidden;
 }
 
 .region-caret {
@@ -622,6 +625,7 @@ defineExpose({ togglePopup, openPopup, closePopup })
   border: 1px solid rgba(160, 160, 160, 0.22);
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
   max-width: 100%;
+  white-space: nowrap;
 }
 
 .tag-remove {

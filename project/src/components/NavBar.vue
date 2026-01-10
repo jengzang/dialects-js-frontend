@@ -160,6 +160,7 @@ async function initUserByToken({ console_log = false } = {}) {
 
   if (!token) {
     console.log("anonymous")
+    window.userRole = 'anonymous'
     return {
       user: null,
       role: "anonymous"
@@ -170,6 +171,7 @@ async function initUserByToken({ console_log = false } = {}) {
     const res = await api('/auth/me')
     // console.log(res)
     if (!res) {
+      window.userRole = 'anonymous'
       return {
         user: null,
         role: "anonymous"

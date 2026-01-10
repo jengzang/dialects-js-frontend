@@ -127,7 +127,7 @@
 
 <script setup>
 import { ref, computed, reactive, nextTick, onMounted, onBeforeUnmount } from 'vue'
-import LocationAndRegionInput from "@/components/LocationAndRegionInput.vue";
+import LocationAndRegionInput from "@/components/query/LocationAndRegionInput.vue";
 import refresh from "@/components/old/refresh.vue";
 const locationRef = ref(null)
 import {useRoute, useRouter} from 'vue-router'
@@ -258,53 +258,6 @@ onBeforeUnmount(() => {
 <!-- ✅ 你原本的 dropdown 樣式 CSS 無需改動，這裡保留 -->
 
 <style scoped>
-/* === Tabs === */
-.tabs-wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 0;
-  min-height: 80dvh;
-}
-.tabs {
-  display: flex;
-  justify-content: flex-start;
-  gap: 16px;
-  overflow-x: auto;
-  max-width: 100%;
-  padding: 8px 12px;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-}
-.tabs::-webkit-scrollbar {
-  display: none;
-}
-.tab {
-  flex-shrink: 0;
-  white-space: nowrap;
-  padding: 12px 24px;
-  font-size: 16px;
-  font-weight: 500;
-  border-radius: 16px;
-  cursor: pointer;
-  color: #444;
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(4px);
-  transition: all 0.5s ease;
-  user-select: none;
-  border: 1px solid #007aff;
-}
-.tab:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: #007aff;
-}
-.tab.active {
-  color: #fff;
-  background: rgba(0, 122, 255, 0.7);
-  backdrop-filter: blur(14px);
-  box-shadow: 0 4px 20px rgba(0, 122, 255, 0.3);
-}
-
 /* === 內容區塊 === */
 .tab-content {
   width: 100%;
@@ -316,19 +269,7 @@ onBeforeUnmount(() => {
   justify-content: center;
   padding: 1rem;
 }
-.page {
-  padding: 2dvh;
-  font-size: 18px;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 12px;
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
-  max-width: 500px;
-  justify-content: center;
-  display: flex;
-  margin: 0 auto;
-}
+
 @keyframes fade {
   from {
     opacity: 0;
@@ -338,160 +279,6 @@ onBeforeUnmount(() => {
     opacity: 1;
     transform: translateY(0);
   }
-}
-
-/* === Footer 說明與按鈕 === */
-.page-footer {
-  display: inline-flex;
-  align-items: center;
-  gap: 12px;
-  margin: 0 auto;
-}
-.hint {
-  font-size: 14px;
-  color: #787878;
-  white-space: nowrap;
-}
-.enter-btn {
-  background: rgba(0, 122, 255, 0.86);
-  color: white;
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
-  font-weight: 500;
-  font-size: 13px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 6px rgba(0, 122, 255, 0.3);
-  white-space: nowrap;
-}
-.enter-btn:hover {
-  background: #005ecb;
-}
-
-/* === 炫酷執行按鈕 === */
-.fancy-run-container {
-  margin-top: 1.5rem;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  justify-content: center;
-}
-.fancy-run-btn {
-  font-size: 18px;
-  font-weight: bold;
-  padding: 14px 28px;
-  color: white;
-  background: linear-gradient(135deg, #6e00ff, #00c3ff);
-  border: none;
-  border-radius: 30px;
-  box-shadow: 0 0 12px rgba(0, 195, 255, 0.6), 0 0 30px rgba(110, 0, 255, 0.3);
-  cursor: pointer;
-  transition: all 0.3s ease-in-out;
-  letter-spacing: 1px;
-  position: relative;
-  overflow: hidden;
-  white-space: nowrap;
-}
-.fancy-run-btn:hover {
-  transform: scale(1.2);
-  box-shadow: 0 0 20px rgba(0, 195, 255, 0.8), 0 0 50px rgba(110, 0, 255, 0.5);
-}
-.fancy-run-btn span {
-  display: inline-block;
-}
-
-/* === 下拉選單樣式 === */
-.dropdown-wrapper {
-  flex: 1;
-  position: relative;
-  align-items: center;
-  display: flex;
-}
-.dropdown {
-  padding: 12px;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.3);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  cursor: pointer;
-  font-size: 14px;
-  border: 1px solid rgba(200, 200, 200, 0.5);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  min-width: 80px;
-  margin: auto;
-}
-
-/* === 手機響應式 === */
-@media (max-width: 600px) {
-  .tab {
-    padding: 10px 16px;
-    font-size: 14px;
-    border-radius: 12px;
-  }
-  .tabs {
-    gap: 6px;
-    padding: 8px 8px;
-  }
-  .page {
-    padding: 16px;
-    font-size: 16px;
-  }
-  .fancy-run-btn {
-    font-size: 16px;
-    padding: 10px 20px;
-    border-radius: 24px;
-  }
-  .enter-btn {
-    padding: 5px !important;
-    font-size: 12px !important;
-  }
-}
-
-/* 以下是你自定義 dropdown 样式：直接保留即可 */
-.dropdown-wrapper {
-  flex: 1;
-  position: relative;
-  align-items: center;
-  display: flex;
-}
-.dropdown {
-  padding: 12px;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.3);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  cursor: pointer;
-  font-size: 14px;
-  border: 1px solid rgba(200, 200, 200, 0.5);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  min-width: 80px;
-  margin: auto;
-}
-.arrow {
-  font-size: 12px;
-}
-.dropdown-panel {
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(12px);
-  border-radius: 10px;
-  padding: 6px 0;
-  position: absolute;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
-  min-width: 80px;
-}
-.dropdown-item {
-  padding: 8px 16px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: background-color 0.2s;
-}
-.dropdown-item:hover {
-  background-color: #e6f0ff;
 }
 
 /* ✅ Label + Dropdown 水平排列 */

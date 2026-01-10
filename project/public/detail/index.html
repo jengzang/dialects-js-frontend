@@ -5,7 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <!--    <meta http-equiv="X-UA-Compatible" content="IE=edge">-->
 <!--    <meta name="viewport" content="initial-scale=1.0, user-scalable=no, width=device-width">-->
-    <title>方言比較-地理語言學</title>
+    <title>方音圖鑑 - 方言比較 地理語言學</title>
+    <meta name="description" content="方音圖鑑深入分析中古地位、方言比較、地理語言學，呈現各方言點的聲韻層次及音位分合。
+    支持：按中古地位整理讀音、分析音位的中古來源、查詢調值調類、查詢漢字讀音、用戶自定義繪圖等。">
+    <script>
+        if (!/\/$/.test(location.pathname)) {
+            location.replace(location.pathname + '/' + location.search + location.hash)
+        }
+    </script>
     <script src="../config.js"></script>
     <!-- CSS 引入 -->
     <link rel="stylesheet" href="css/global.css" />
@@ -31,7 +38,7 @@
 <div id="welcomeOverlay" class="welcome-overlay hidden">
     <div id="welcomeModal" class="welcome-modal">
         <div class="modal-content">
-            <h2>👏 歡迎</h2>
+            <h1>👏 方音圖鑑</h1>
             <h3>🗣️ 方言比較 - 地理語言學🌏</h3>
             <div class="author-row">
                 <p>開發者：不羈</p>
@@ -50,7 +57,7 @@
 
 <div id="authBox"></div>
 <div id="toast"></div>
-<!-- 全局彈出層 用於音典分區的彈出 -->
+<!-- 全局彈出層 用於分區的彈出 -->
 <div id="popupLayer"></div>
 <!-- 地點匹配建議提示框 -->
 <div id="inlineSuggestion" class="inline-suggestion"></div>
@@ -111,7 +118,7 @@
             <span class="example-desc">可點擊</span>的。<br>單擊後可在浮窗中選擇特徵，即可再次生成新窗口，進行<span class="example-desc">細分查詢</span>
             。<br>這樣的窗口可以<span class="example-desc">無限生成</span>(瀏覽器帶得動的話)，可以同時對比多個地點/特徵。</p>
         <p>✔ 注1：<span class="example-desc">移動端</span>界面可能顯示不全，請多滑動/拖動。</p>
-        <p>✔ 注2：點擊 <span class="example-input">分區 ▼</span> 按鈕，會出現音典分區彈窗，用戶可<span class="example-desc">單擊</span>選擇所需分區。如要顯示下一級分區:<br>
+        <p>✔ 注2：點擊 <span class="example-input">分區 ▼</span> 按鈕，會出分區彈窗，用戶可<span class="example-desc">單擊</span>選擇所需分區。如要顯示下一級分區:<br>
             ※ <span class="example-desc">電腦端</span>只需將<span class="example-desc">光標</span>移到對應分區上即可；<br>
             ※ <span class="example-desc">移動端</span>則需要<span class="example-desc">點擊箭頭⌵</span>或<span class="example-desc">長按</span>對應分區</p>
         <p>更詳細的使用說明，可點擊屏幕上方 <span class="example-input"> ❓使用說明 </span> 按鈕，點擊後會跳轉至詳細教程文章</p>
@@ -126,6 +133,7 @@
     </div>
 </div>
 
+<button id="floating-button">↺</button>
 <!-- 輸入面板 -->
 <div id="inputpanel" class="panel panel-medium" style="overflow-x: hidden; box-sizing: border-box;">
     <div class="panel-header" id="dragHandle">
@@ -240,7 +248,7 @@
         </div>
         <div class="button-container-map">
             <div class="button-description-map">
-                繪製方言分佈<br>點圖(不帶特徵)
+                方言分區點圖
             </div>
             <button id="allmap-first" class="allmap-first">
                 🌍繪圖
@@ -248,7 +256,7 @@
             <!-- 下拉選框 -->
             <div>
                 <div class="button-description-map">
-                    音典分區級數
+                    分區級數
                 </div>
                 <div class="dropdown-container-map">
                     <select id="max-level" class="dropdown-map">
@@ -260,7 +268,15 @@
                 </div>
              </div>
         </div>
-        <span id="bugBtn" class="bug-btn">發現了bug⁉️ 點我👈</span>
+        <!-- 父容器 -->
+        <div class="bug-button-container">
+            <span class="bug-text">發現了bug⁉️</span> <!-- 纯文字部分 -->
+            <!-- 强制刷新按钮 -->
+            <button class="btn-refresh" id="refreshBtn" style="background-color: #28a745">刷新</button>
+            <!-- 反馈BUG按钮 -->
+            <button class="btn-feedback" id="feedbackBtn">反饋</button>
+        </div>
+
     </div>
 </div>
 
@@ -462,13 +478,13 @@
             </div>
             <div class="syllables">
                 <br>****************************
-                <br>更詳細的查字功能，可移步<br>
+                <!-- <br>更詳細的查字功能，可移步<br>
                 <a href="https://mcpdict.vear.vip/" target="_blank" rel="noopener noreferrer">
                     漢字音典（唯二網頁版）
                 </a>
                 <br><a href="https://jyutdict.org/" target="_blank" rel="noopener noreferrer">
                     泛粵典(官網)
-                </a>
+                </a> -->
             </div>
             <div id="loading-overlay" class="loading-hidden">
                 <div class="bouncing-wrapper">
@@ -510,6 +526,7 @@
 <script src="js/vue_table.js"></script>
 <script src="js/process_data.js"></script>
 <script src="js/popup.js"></script>
-<script src="js/get_vue.js"></script>
+<script src="js/get_vue.js">
+</script>
 </body>
 </html>

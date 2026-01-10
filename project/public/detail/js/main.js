@@ -11,20 +11,27 @@ let currentMode = 1;
 let resultMode = 1;
 // 用戶身份判斷
 async function getUserRole() {
-    if (typeof window.userRole !== 'undefined') {
-        return window.userRole; // 只有 undefined 才會重新驗證
+    try {
+        if (typeof window.userRole !== 'undefined') {
+            return window.userRole; // 只有 undefined 才會重新驗證
+        }
+        window.userRole = "anonymous";
+        const token = localStorage.getItem("ACCESS_TOKEN")
+        if (token) {
+            // console.log(token)
+            const user = await update_userdatas_bytoken(token, true);
+            window.userRole = user?.role === "admin" ? "admin" : "user";
+        }
+        return window.userRole;
+    } catch (err) {
+        console.error("❌ 获取用户角色时发生错误", err);
+        return "anonymous";  // 如果发生错误，默认返回 "anonymous"
     }
-    window.userRole = "anonymous";
-    const token = localStorage.getItem("ACCESS_TOKEN")
-    if (token) {
-        // console.log(token)
-        const user = await update_userdatas_bytoken(token, true);
-        window.userRole = user?.role === "admin" ? "admin" : "user";
-    }
-    return window.userRole;
-
 }
 
+document.getElementById('floating-button').addEventListener('click', function() {
+    window.location.href = window.WEB_BASE; // 跳轉到指定的 URL
+});
 
 /****************
 歡迎界面以及使用教程
@@ -209,7 +216,6 @@ function v_togglePanel(panel, height, top, zIndex) {
         panel.style.zIndex = zIndex;
     }
 }
-
 function h_togglePanel(panel, width, left, zIndex) {
     panel.style.width = width + 'vw';
     panel.style.left = left + 'vw';
@@ -667,6 +673,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         updateLoginUI(isLoggedIn, res?.username);
     } catch (err) {
         console.error('登录状态检查失败:', err);
+        clearToken();
         updateLoginUI(false); // 默认为未登录
     }
 });
@@ -703,6 +710,10 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("runBtn")?.addEventListener("click", async () => {
         const locations = document.getElementById('locations').value.trim().split(/\s+/);
         const regions = document.getElementById('regions').value.trim().split(/\s+/);
+        const mode = document.querySelector('input[name="mode"]:checked').value;
+        const status_inputs = parseMultilineListInput("status_inputs");
+        const pho_values = parseMultilineListInput("pho_values");
+        const runBtn = document.getElementById("runBtn");
 
         if (isEmptyInput(locations) && isEmptyInput(regions)) {
             showToast("❌ 請輸入地點或分區！",'darkred');
@@ -716,9 +727,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         else{
             if (userRole === "anonymous"){
-                const mode = document.querySelector('input[name="mode"]:checked').value;
-                const status_inputs = parseMultilineListInput("status_inputs");
-                const pho_values = parseMultilineListInput("pho_values");
                 // console.log(status_inputs);
                 // 判断是否为空或只包含空白字符（空格、回车等）
                 if (mode === "s2p" && status_inputs.length === 0) {
@@ -759,6 +767,7 @@ document.addEventListener("DOMContentLoaded", () => {
             // 🚫 判斷返回的地點數是否超過 限制
             const limit_anonymous =200
             const limit_users =600
+            const limit_phos_locs = 10
             if (userRole === "anonymous"){
                 if (data.locations_result && data.locations_result.length > limit_anonymous) {
                     showToast(`🚫 由於服務器限制，未登錄用戶單次只能查詢 ${limit_anonymous} 個地點。\n⚠️ 本次查詢了 ${data.locations_result.length} 個地點。`);
@@ -768,6 +777,12 @@ document.addEventListener("DOMContentLoaded", () => {
             }else if (userRole === "user") {
                 if (data.locations_result && data.locations_result.length > limit_users) {
                     showToast(`🚫 由於服務器限制，用戶單次只能查詢 ${limit_users} 個地點。\n⚠️ 本次查詢了 ${data.locations_result.length} 個地點。`);
+                    return;
+                }
+            }
+            if (mode === "p2s" && pho_values.length === 0 && userRole !== "admin") {
+                if (data.locations_result && data.locations_result.length > limit_phos_locs) {
+                    showToast(`🚫 查詢全部音節時，單次最多只能查 ${limit_phos_locs} 個地點。\n⚠️ 本次查詢了 ${data.locations_result.length} 個地點。`);
                     return;
                 }
             }
@@ -786,6 +801,11 @@ document.addEventListener("DOMContentLoaded", () => {
             setTimeout(() => {
                 window.runCooldown = false;
             }, 10000);
+        }
+        if (runBtn) {
+            // 禁用按钮并更改文本为 "运行中"
+            runBtn.disabled = true;
+            runBtn.textContent = "⏳ 運行中...";
         }
 
         // Clear the resultPanelContent div before proceeding with any other logic
@@ -825,6 +845,10 @@ document.addEventListener("DOMContentLoaded", () => {
         await loadData();
         // 数据加载完成后执行 mergeData 函数
         await func_mergeData();
+        if (runBtn) {
+            runBtn.disabled = false;
+            runBtn.textContent = "🚀 單擊運行";
+        }
     });
 });
 

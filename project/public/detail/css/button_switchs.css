@@ -207,7 +207,8 @@
 }
 
 .panel-content1 #login.logged-out,
-.input-example-btn {
+.input-example-btn,
+.btn-feedback,.btn-refresh{
     background: #007aff; /* 蓝色调，Apple 默认按钮色 */
     border: none; /* Apple 按钮通常无边框 */
     border-radius: 12px;
@@ -220,9 +221,11 @@
     transition: all 0.25s ease;
     min-width: 24px;
 }
-.panel-content1 #login.logged-out{
+.panel-content1 #login.logged-out,
+.btn-feedback,.btn-refresh{
     margin-right: 10px;
     padding: 4px 8px;
+    white-space: nowrap;
 }
 
 
@@ -241,7 +244,8 @@
 }
 
 .panel-content1 #login.logged-out:hover,
-.input-example-btn:hover {
+.input-example-btn:hover,
+.btn-feedback:hover{
     background: #339aff;
     box-shadow: 0 4px 10px rgba(0,0,0,0.15);
     transform: translateY(-1px);
@@ -261,7 +265,7 @@
     margin-right: 10px;
     min-width: 24px;
 }
-#login.logged-in:hover{
+#login.logged-in:hover,.btn-refresh:hover{
     background-color: #34c759; /* Apple 风格绿色，hover 更亮 */
     box-shadow: 0 4px 10px rgba(0,0,0,0.15);
     transform: translateY(-1px);
@@ -648,6 +652,28 @@ button[type="submit"]:active {
     transform: scale(1.2);
 }
 
+/* 浮動按鈕樣式 */
+#floating-button {
+    position: fixed; /* 固定在頁面上 */
+    bottom: 10px; /* 離底部20px */
+    left: 10px;   /* 離左邊20px */
+    background-color: darkgoldenrod; /* 藍色背景 */
+    color: white; /* 文字顏色 */
+    border: none; /* 無邊框 */
+    padding: 8px; /* 按鈕內邊距 */
+    border-radius: 50%; /* 圓形按鈕 */
+    width: 50px;
+    height: 50px;
+    font-size: 30px; /* 文字大小 */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* 按鈕陰影 */
+    cursor: pointer; /* 鼠標樣式 */
+    transition: background-color 0.3s; /* 背景顏色變化 */
+    z-index: 1000;
+}
+/* 懸停時按鈕變色 */
+#floating-button:hover {
+    background-color: #684b02;
+}
 
 
 
@@ -867,3 +893,4 @@ input:checked + .slider:before {
     /*transform:  translateX(18.2px) scale(1.1); !* 滑块放大 *!*/
     box-shadow: 0 0 8px rgba(0, 123, 255, 0.5);  /* 添加滑块的发光效果 */
 }
+

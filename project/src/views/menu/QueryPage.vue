@@ -14,11 +14,6 @@
     <div class="tab-content">
       <div v-if="currentTab === 'tab1'" class="page">
         <div class="page-content-stack">
-          <!-- 🔹 建議與操作區 -->
-          <div class="page-footer">
-            <small class="hint">查詢漢字的讀音、地位及注釋<br>想輸入多個分區❓️ 點擊👉</small>
-            <button class="enter-btn" @click="handleEnter">進入網站</button>
-          </div>
           <!-- 🔹 輸入框區塊 -->
           <div class="query-box">
             <label class="query-label" for="hanzi-input">請輸入待查漢字</label>
@@ -36,73 +31,94 @@
 
       <div v-else-if="currentTab === 'tab2'" class="page">
         <div class="page-content-stack">
-          <!-- Footer -->
-          <div class="page-footer">
-            <small class="hint">中古➡️讀音•按中古地位整理讀音<br>想輸入多種地位組合❓️點擊👉</small>
-            <button class="enter-btn" @click="handleEnter">進入網站</button>
-          </div>
-
-          <!-- ✅ 卡片選擇區：獨立一行 -->
-          <div class="card-row">
-            <div class="card-group">
-              <div
-                  v-for="(item, index) in cards"
-                  :key="item"
-                  class="card-group-item"
-                  :class="{
+         <!-- 三欄選擇 -->
+          <div class="triple-select-box">
+            <!-- ✅ 卡片選擇區：獨立一行 -->
+            <div class="card-row">
+              <div class="card-group">
+                <div
+                    v-for="(item, index) in cards"
+                    :key="item"
+                    class="card-group-item"
+                    :class="{
                               active: selectedCard === item,
                               first: index === 0,
                               last: index === cards.length - 1
                             }"
-                  @click="selectedCard = item"
-              >
-                {{ item }}
+                    @click="selectedCard = item"
+                >
+                  {{ item }}
+                </div>
               </div>
             </div>
-          </div>
-
-          <div class="triple-select-box">
-
 
             <!-- ✅ 鍵名 + 鍵值：同一行，用容器包 -->
-            <div v-for="key in keys" :key="key" class="dropdown-row">
-              <!-- 中：鍵值 dropdown -->
-              <div class="dropdown-wrapper">
-                <!-- 鍵值下拉 -->
-                <div class="dropdown" ref="valueTriggerEl" @click="toggleDropdown('value')">
-                  {{ selectedValue || '請選擇鍵值' }}
-                  <span class="arrow">▾</span>
-                </div>
-                <Teleport to="body">
-                  <div
-                      v-if="dropdownOpen === 'value'"
-                      class="dropdown-panel"
-                      :style="dropdownStyle.value"
-                      ref="valueDropdownEl"
-                  >
-                    <div
-                        class="dropdown-item"
-                        v-for="value in keyValueMap[selectedKey]"
-                        :key="value"
-                        @click="selectValue(value)"
-                    >
-                      {{ value }}
-                    </div>
-                  </div>
-                </Teleport>
-              </div>
-
-              <!-- 右：鍵名 dropdown -->
-              <div class="dropdown-wrapper" style="flex: 1">
+            <div class="dropdown-row">
+                <div class="button-group">
+                  <!-- 键名按钮，支持多选 -->
+                  <div v-for="key in keys" :key="key" class="key-item">
+                    <!-- 键名部分为按钮 -->
                     <button
                         :class="['key-button', { active: selectedKey.includes(key) }]"
                         @click="toggleKeySelection(key)"
                     >
                       {{ key }}
                     </button>
+                  </div>
+                </div>
+              <!-- 键值部分：当键名被选中时显示对应的键值下拉框 -->
+              <div class="key-dropdown-group">
+                <div v-for="key in selectedKey" :key="key" class="key-value-dropdown">
+                  <div class="dropdown"
+                       @click="toggleDropdown('value',key)"
+                       :ref="(el) => setTriggerRef(el, key)"
+                  >
+                    {{ getDisplayText(key) }}
+                    <span class="arrow">▾</span>
+                  </div>
+
+                  <Teleport to="body">
+                    <div
+                        v-if="dropdownOpen === 'value' && currentActiveKey === key"
+                        class="dropdown-panel"
+                        :style="dropdownStyle.value"
+                    >
+                      <div
+                          class="dropdown-item select-all-item"
+                          :class="{ active: isAllSelected(key) }"
+                          @click="toggleSelectAll(key)"
+                      >
+                        <span v-if="isAllSelected(key)">☑</span>
+                        <span v-else>☐</span>
+                        全選
+                      </div>
+
+                      <div style="height:1px; background:#eee; margin:2px 0;"></div>
+
+                      <div
+                          class="dropdown-item"
+                          v-for="value in keyValueMap[key]"
+                          :key="value"
+                          :class="{ active: isSelected(value, key) }"
+                          @click="selectValue(value, key)"
+                      >
+                        <span class="check-icon">{{ isSelected(value, key) ? '✓' : '' }}</span>
+                        {{ value }}
+                      </div>
+                    </div>
+                  </Teleport>
+                <div class="key-name">
+                  <strong style="color: #02469e">{{ key }}</strong>
+                </div>
+              </div>
               </div>
             </div>
-
+            <ZhongguSelector
+                :active-keys="selectedKey"
+                :value-map="selectedValueMap"
+                :is-dropdown-open="!!dropdownOpen"
+                :selected-card="selectedCard"
+            />
           </div>
         </div>
       </div>
@@ -110,13 +126,6 @@
       <!-- 📤 tab3：查音位頁面 -->
       <div v-else-if="currentTab === 'tab3'" class="page">
         <div class="page-content-stack">
-
-          <!-- Footer 區域（保留） -->
-          <div class="page-footer">
-            <small class="hint">讀音➡️中古•分析音位的中古來源<br>想輸入多種地位組合❓️點擊👉</small>
-            <button class="enter-btn" @click="handleEnter">進入網站</button>
-          </div>
-
           <!-- 三欄選擇區（保留結構） -->
           <div class="triple-select-box">
 
@@ -128,10 +137,10 @@
                     :key="item"
                     class="card-group-item"
                     :class="{
-              active: selectedCard === item,
-              first: index === 0,
-              last: index === cards.length - 1
-            }"
+                      active: selectedCard === item,
+                      first: index === 0,
+                      last: index === cards.length - 1
+                    }"
                     @click="selectedCard = item"
                 >
                   {{ item }}
@@ -144,7 +153,7 @@
               <!-- 🔑 tab3 鍵名 dropdown -->
               <div class="dropdown-wrapper" style="flex: 1">
                 <div class="dropdown" @click="toggleDropdown('tab3Key')" ref="tab3KeyTriggerEl">
-                  {{ tab3SelectedKey || '請選擇鍵名' }}
+                  {{ tab3SelectedKey || '請選擇分類' }}
                   <span class="arrow">▾</span>
                 </div>
                 <Teleport to="body">
@@ -185,13 +194,6 @@
       </div>
 
 
-      <div v-else-if="currentTab === 'tab4'" class="page">
-        <div class="page-footer">
-          <small class="hint">查詢各點的調類、調值<br>想輸入多個分區❓️ 點擊👉</small>
-          <button class="enter-btn" @click="handleEnter">進入網站</button>
-        </div>
-      </div>
-
       <LocationAndRegionInput ref="locationRef" />
 
       <!-- ✅ 炫酷按鈕 -->
@@ -207,6 +209,19 @@
           <span v-else>🚀 單擊運行</span>
         </button>
       </div>
+      <!-- 🔹 建議與操作區 -->
+      <div v-if="currentTab === 'tab1'" class="page-footer" style="margin-top: 20px">
+        <small class="hint">查詢漢字的讀音、地位及注釋</small>
+      </div>
+      <div v-else-if="currentTab === 'tab2'" class="page-footer" style="margin-top: 20px">
+        <small class="hint">中古➡️讀音•按中古地位整理讀音</small>
+      </div>
+      <div v-else-if="currentTab === 'tab3'" class="page-footer" style="margin-top: 20px">
+        <small class="hint">讀音➡️中古•分析音位的中古來源</small>
+      </div>
+      <div v-else-if="currentTab === 'tab4'" class="page-footer" style="margin-top: 20px">
+        <small class="hint">查詢各點的調類、調值</small>
+      </div>
     </div>
   </div>
 </template>
@@ -214,7 +229,8 @@
 <script setup>
 import {computed, nextTick, reactive, ref, onMounted, onBeforeUnmount} from 'vue'
 import {useRoute, useRouter} from 'vue-router'
-import LocationAndRegionInput from "@/components/LocationAndRegionInput.vue";
+import LocationAndRegionInput from "@/components/query/LocationAndRegionInput.vue";
+import ZhongguSelector from "@/components/query/ZhongguSelector.vue";
 // import refresh from "@/components/old/refresh.vue";
 const locationRef = ref(null)
 const router = useRouter()
@@ -236,6 +252,8 @@ const selectedCard = ref('韻母')
 const selectedKey = ref(['攝']);
 const selectedValue = ref('流')
 const dropdownOpen = ref(null)
+// 用于存储每个键名对应的选中值
+const selectedValueMap = ref({});
 
 const cards = ['聲母', '韻母', '聲調']
 const keys = Object.keys(column_values)
@@ -249,6 +267,17 @@ const valueTriggerEl = ref(null)
 const keyTriggerEl = ref(null)
 const tab3KeyInput = ref('')
 
+// 1. 新增：用来存储循环中 Trigger 元素的 Map
+const triggerRefs = ref({})
+// 2. 新增：用来记录当前具体打开的是哪个 key
+const currentActiveKey = ref(null)
+// 3. 修改：Ref 绑定函数（用于在 template 中收集 DOM）
+const setTriggerRef = (el, key) => {
+  if (el) {
+    triggerRefs.value[key] = el
+  }
+}
+
 const dropdownStyle = reactive({
   value: {
     top: '0px',
@@ -260,42 +289,75 @@ const dropdownStyle = reactive({
   }
 })
 
-function toggleDropdown(type) {
-  dropdownOpen.value = dropdownOpen.value === type ? null : type
+function toggleDropdown(type,key=null) {
+  // dropdownOpen.value = dropdownOpen.value === type ? null : type
+  // 判断是否正在点击【已经打开】的那个下拉框
+  const isClosing = (dropdownOpen.value === type) &&
+      (key === null || currentActiveKey.value === key);
 
-  nextTick(() => {
-    let triggerEl = null
-    if (type === 'value') triggerEl = valueTriggerEl.value
-    else if (type === 'key') triggerEl = keyTriggerEl.value
-    else if (type === 'tab3Key') triggerEl = tab3KeyTriggerEl.value
+  if (isClosing) {
+    // 🔽 关闭逻辑
+    dropdownOpen.value = null
+    currentActiveKey.value = null // 清空当前 Key
+  } else {
+    // 🔼 打开逻辑
+    dropdownOpen.value = type
 
+    // 🔥🔥🔥 关键点：这里进行了赋值！🔥🔥🔥
+    currentActiveKey.value = key
+    nextTick(() => {
+      let triggerEl = null
 
-    if (triggerEl) {
-      const rect = triggerEl.getBoundingClientRect()
-      dropdownStyle[type] = {
-        position: 'absolute',
-        top: `${rect.top + rect.height + window.scrollY}px`,
-        left: `${rect.left + window.scrollX}px`,
-        zIndex: 99999
+      // if (type === 'value') triggerEl = valueTriggerEl.value
+      if (type === 'value' && key) {
+        triggerEl = triggerRefs.value[key]
+        // console.log(`get in value:`, triggerEl);  // 检查是否能够正确访问 ref
+      } else if (type === 'key') triggerEl = keyTriggerEl.value
+      else if (type === 'tab3Key') {
+        triggerEl = tab3KeyTriggerEl.value
+        // console.log(`get in tab3`, triggerEl)
       }
-    }
-  })
+
+
+      if (triggerEl) {
+        const rect = triggerEl.getBoundingClientRect()
+        dropdownStyle[type] = {
+          position: 'absolute',
+          top: `${rect.top + rect.height + window.scrollY}px`,
+          left: `${rect.left + window.scrollX}px`,
+          zIndex: 99999
+        }
+      }
+    })
+  }
 }
 
 function onClickOutside(event) {
-  const targets = [
+  // const targets = [
+  //   keyTriggerEl.value,
+  //   keyDropdownEl.value,
+  //   valueTriggerEl.value,
+  //   valueDropdownEl.value,
+  //   tab3KeyTriggerEl.value,       // ✅ 新增
+  //   tab3KeyDropdownEl.value       // ✅ 新增
+  // ]
+  const isInsideTrigger = [
     keyTriggerEl.value,
-    keyDropdownEl.value,
-    valueTriggerEl.value,
-    valueDropdownEl.value,
-    tab3KeyTriggerEl.value,       // ✅ 新增
-    tab3KeyDropdownEl.value       // ✅ 新增
-  ]
+    tab3KeyTriggerEl.value,
+    // 检查动态的 triggers
+    ...Object.values(triggerRefs.value)
+  ].some(el => el?.contains(event.target))
 
-  const isInsideAny = targets.some(el => el?.contains(event.target))
-  if (!isInsideAny) {
+  const isInsidePanel = event.target.closest('.dropdown-panel')
+
+  if (!isInsideTrigger && !isInsidePanel) {
     dropdownOpen.value = null
+    currentActiveKey.value = null
   }
+  // const isInsideAny = targets.some(el => el?.contains(event.target))
+  // if (!isInsideAny) {
+  //   dropdownOpen.value = null
+  // }
 }
 
 
@@ -306,6 +368,10 @@ function selectKey(key) {
 }
 // 切换键名的选择状态
 function toggleKeySelection(key) {
+  if (!Array.isArray(selectedKey.value)) {
+    selectedKey.value = [];
+  }
+
   if (selectedKey.value.includes(key)) {
     // 如果已经选中，则取消选中
     selectedKey.value = selectedKey.value.filter(item => item !== key);
@@ -314,15 +380,79 @@ function toggleKeySelection(key) {
     selectedKey.value.push(key);
   }
 }
+
+// 选择键值时的处理
+function selectValue(value, key) {
+  // 确保该 key 对应的值是数组，如果之前是字符串或未定义，初始化为空数组
+  if (!Array.isArray(selectedValueMap.value[key])) {
+    selectedValueMap.value[key] = []
+  }
+
+  const list = selectedValueMap.value[key]
+  const index = list.indexOf(value)
+
+  if (index > -1) {
+    // 存在则移除 (取消勾选)
+    list.splice(index, 1)
+  } else {
+    // 不存在则添加 (勾选)
+    list.push(value)
+  }
+
+  // ⚠️ 注意：这里不再调用 dropdownOpen.value = null，为了允许继续多选
+  // selectedValueMap.value[key] = value; // 更新选中的值
+  // dropdownOpen.value = null; // 关闭下拉框
+}
+// 2. 新增：全选/取消全选 逻辑
+function toggleSelectAll(key) {
+  const allOptions = keyValueMap[key] || []
+  const currentSelected = selectedValueMap.value[key] || []
+
+  // 如果当前已经全选了，则清空；否则全选
+  if (currentSelected.length === allOptions.length) {
+    selectedValueMap.value[key] = []
+  } else {
+    selectedValueMap.value[key] = [...allOptions] // 复制所有选项
+  }
+}
+
+// 3. 新增：判断是否被选中 (辅助 Template 显示样式)
+function isSelected(value, key) {
+  const list = selectedValueMap.value[key]
+  return Array.isArray(list) && list.includes(value)
+}
+
+// 4. 新增：判断是否全选 (辅助 Template 显示全选状态)
+function isAllSelected(key) {
+  const all = keyValueMap[key] || []
+  const current = selectedValueMap.value[key] || []
+  return all.length > 0 && all.length === current.length
+}
+
+// 5. 新增：格式化按钮文字 (把数组变成 "知, 徹, 澄" 这样显示)
+// 修改：格式化按钮文字 (超过2个显示省略号)
+function getDisplayText(key) {
+  const list = selectedValueMap.value[key]
+  // 1. 没选
+  if (!list || list.length === 0) return `請選擇 [${key}]`
+  // 2. 全选
+  const allOptions = keyValueMap[key] || []
+  if (allOptions.length > 0 && list.length === allOptions.length) {
+    return `[${key}] 全選`
+  }
+  // 3. 超过两个：截取前两个 + 省略号
+  if (list.length > 3) {
+    return `${list.slice(0, 3).join(',')}...`
+  }
+  // 4. 少于等于两个：直接显示
+  return list.join(',')
+}
+
 function selectTab3Key(key) {
   tab3SelectedKey.value = key
   dropdownOpen.value = null
 }
 
-function selectValue(value, key) {
-  selectedValue.value = value; // 更新选中的值
-  // 你可以在这里处理选中的键值逻辑，比如提交或者其他操作
-}
 
 
 const currentTabLabel = computed(() => {
@@ -408,67 +538,11 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
-.tabs-wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 0;
-  min-height: 80dvh;
-}
-
-.tabs {
-  display: flex;
-  justify-content: flex-start;
-  gap: 16px;
-  flex-wrap: nowrap;
-  overflow-x: auto;
-  max-width: 100%;
-  padding: 8px 12px;
-  -webkit-overflow-scrolling: touch; /* ✅ 手機滑順滾動 */
-  scrollbar-width: none; /* Firefox */
-}
-
-.tabs::-webkit-scrollbar {
-  display: none; /* Chrome, Safari */
-}
-
-.tab {
-  flex-shrink: 0;
-  white-space: nowrap;
-  padding: 12px 24px;
-  font-size: 16px;
-  font-weight: 500;
-  border-radius: 16px;
-  cursor: pointer;
-  color: #444;
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(4px);
-  transition: all 0.5s ease;
-  user-select: none;
-
-  /* ✅ 加上蘋果藍邊框（全部） */
-  border: 1px solid #007AFF;
-}
-
-.tab:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: #007AFF;
-}
-
-.tab.active {
-  color: #fff;
-
-  /* ✅ 選中後變成玻璃蘋果藍 */
-  background: rgba(0, 122, 255, 0.7);
-  backdrop-filter: blur(14px);
-  box-shadow: 0 4px 20px rgba(0, 122, 255, 0.3);
-}
-
-
 
 /* 📄 內容區塊動畫 */
 .tab-content {
-  width: 95%;
+  width: 100%;
+  max-width: 900px;
   animation: fade 0.6s ease;
 
   /* ✅ 新增這些 */
@@ -479,19 +553,6 @@ onBeforeUnmount(() => {
   padding: 1rem;
 }
 
-.page {
-  padding: 2dvh;
-  font-size: 18px;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 12px;
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
-  justify-content: center;
-  display: flex;
-  margin: 0 auto;
-  width: 92%;
-}
 
 @keyframes fade {
   from {
@@ -503,24 +564,6 @@ onBeforeUnmount(() => {
     transform: translateY(0);
   }
 }
-/* 📱✅ 媒體查詢：手機螢幕優化 */
-@media (max-width: 600px) {
-  .tab {
-    padding: 10px 16px;
-    font-size: 14px;
-    border-radius: 12px;
-  }
-
-  .tabs {
-    gap: 6px;
-    padding: 8px 8px;
-  }
-
-  .page {
-    padding: 12px;
-    font-size: 16px;
-  }
-}
 
 .run-label {
   font-size: 18px;
@@ -528,81 +571,15 @@ onBeforeUnmount(() => {
   color: darkblue;
   white-space: nowrap;
 }
-.fancy-run-btn {
-  font-size: 18px;
-  font-weight: bold;
-  padding: 14px 28px;
-  color: white;
-  background: linear-gradient(135deg, #6e00ff, #00c3ff);
-  border: none;
-  border-radius: 30px;
-  box-shadow: 0 0 12px rgba(0, 195, 255, 0.6), 0 0 30px rgba(110, 0, 255, 0.3);
-  cursor: pointer;
-  transition: all 0.3s ease-in-out;
-  letter-spacing: 1px;
-  position: relative;
-  overflow: hidden;
-  white-space: nowrap;
-}
-
-.fancy-run-btn:hover {
-  transform: scale(1.2);
-  box-shadow: 0 0 20px rgba(0, 195, 255, 0.8), 0 0 50px rgba(110, 0, 255, 0.5);
-}
-.fancy-run-btn span {
-  display: inline-block;
-}
 
 
 /* 📱 響應式：小螢幕按鈕變小 */
 @media(max-width: 600px) {
-  .fancy-run-btn {
-    font-size: 16px;
-    padding: 10px 20px;
-    border-radius: 24px;
-  }
-  .enter-btn {
-    padding: 5px!important;
-    font-size: 12px!important;
-  }
   .triple-select-box{
     flex-wrap: wrap;
   }
 }
 
-/* ✅ 整行居中（小字 + 按鈕） */
-.page-footer {
-  display: inline-flex;
-  align-items: center;
-  gap: 12px;
-  margin: 0 auto;  /* 讓這整行居中 */
-}
-
-/* 小字樣式 */
-.hint {
-  font-size: 14px;
-  color: #787878;
-  white-space: nowrap;
-}
-
-/* 蘋果藍按鈕 */
-.enter-btn {
-  background: rgba(0, 122, 255, 0.86);
-  color: white;
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
-  font-weight: 500;
-  font-size: 13px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 6px rgba(0, 122, 255, 0.3);
-  white-space: nowrap;
-}
-
-.enter-btn:hover {
-  background: #005ecb;
-}
 /* 🔹 輸入區塊樣式 */
 .query-box {
   display: block;
@@ -623,43 +600,13 @@ onBeforeUnmount(() => {
   flex-direction: column;
   align-items: center;
   gap: 1.5dvh;
-  min-width: 80dvw;
 }
 .triple-select-box {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  row-gap: 0.6dvh;
-  column-gap: 0.8dvw;
-  width: 95%;
+  display: flex;
+  gap: 1.5dvw;
+  width: 100%;
   justify-content: space-between;
   flex-direction: column;
-  overflow-y: auto;
-  overflow-x: auto;
-  max-height: 30dvh;
-
-  /* 滚动条样式 */
-  scrollbar-width: thin;  /* Firefox */
-  scrollbar-color: rgba(0, 122, 255, 0.5) rgba(0, 0, 0, 0.1); /* Firefox */
-
-  /* Chrome/Safari */
-  ::-webkit-scrollbar {
-    width: 8px;  /* 滚动条宽度 */
-  }
-
-  ::-webkit-scrollbar-thumb {
-    background-color: rgba(0, 122, 255, 0.5);
-    border-radius: 4px;
-    border: 2px solid rgba(0, 0, 0, 0.2);  /* 添加一些边框使滚动条更美观 */
-  }
-
-  ::-webkit-scrollbar-thumb:hover {
-    background-color: rgba(0, 122, 255, 0.8);  /* 滚动条 hover 状态 */
-  }
-
-  ::-webkit-scrollbar-track {
-    background: rgba(0, 0, 0, 0.1);  /* 滚动条轨道 */
-    border-radius: 10px;
-  }
 }
 
 .card-group{
@@ -714,7 +661,89 @@ onBeforeUnmount(() => {
   font-weight: 600;
 }
 
+.card-row {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 
+.dropdown-row {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  white-space: nowrap;
+  flex-direction: column;
+  align-items: center;
+}
+
+.button-group{
+  flex-wrap: wrap; /* 按钮换行 */
+  display: flex;
+  justify-content: center;
+  border-bottom: 1px solid #013173;  /* 添加苹果蓝色调的下划线 */
+}
+.key-item {
+  flex: 0 1 auto; /* 保证它们的大小适应内容 */
+}
+/* 键名按钮样式 */
+.key-button {
+  padding: 8px 16px;
+  border: 1px solid rgba(0, 122, 255, 0.2);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.3);
+  cursor: pointer;
+  transition: background 0.3s ease;
+  font-size: 14px;
+  margin: 5px;
+}
+
+@media(max-width: 600px) {
+  .key-button{
+    padding: 6px 10px;
+  }
+}
+
+.key-button.active {
+  background: rgba(0, 122, 255, 0.5);
+  color: white;
+  font-weight: 600;
+}
+.key-dropdown-group{
+  display: flex;
+  flex-wrap: wrap;
+  column-gap:30px;
+}
+/* 键值展示样式 */
+.key-value-dropdown {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: row;
+  width: 135px;
+}
+.key-name{
+  align-self: center;
+}
+
+.key-value-dropdown .dropdown-item {
+  padding: 8px 16px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s;
+  border-radius: 8px;
+}
+
+.key-value-dropdown .dropdown-item:hover {
+  background-color: #e6f0ff;
+}
+
+/* 选中的键名显示的效果 */
+.key-value-dropdown .dropdown-item.active {
+  background-color: rgba(0, 122, 255, 0.2);
+  color: #007aff;
+}
+
+/* === 下拉選單樣式 === */
 .dropdown-wrapper {
   flex: 1;
   position: relative;
@@ -735,6 +764,7 @@ onBeforeUnmount(() => {
   justify-content: space-between;
   align-items: center;
   min-width: 80px;
+  margin: auto;
 }
 
 .arrow {
@@ -759,66 +789,26 @@ onBeforeUnmount(() => {
   font-size: 14px;
   transition: background-color 0.2s;
 }
+/* 选中状态 */
+.dropdown-item.active {
+  background-color: #e6f0ff; /* 浅蓝色背景 */
+  color: #02469e;            /* 深蓝色文字 */
+  font-weight: bold;
+}
 
 .dropdown-item:hover {
   background-color: #e6f0ff;
 }
 
-.card-row {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+/* 全选按钮特殊样式 */
+.select-all-item {
+  color: #666;
+  font-size: 0.9em;
+  border-bottom: 1px solid #f0f0f0;
 }
 
-.dropdown-row {
-  display: flex;
-  width: 100%;
-  justify-content: center;
-  white-space: nowrap;
-}
-/* 键名按钮样式 */
-.key-button {
-  padding: 8px 16px;
-  border: 1px solid rgba(0, 122, 255, 0.2);
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.3);
-  cursor: pointer;
-  transition: background 0.3s ease;
-  font-size: 14px;
-  margin: 5px;
-}
-
-.key-button.active {
-  background: rgba(0, 122, 255, 0.5);
-  color: white;
-  font-weight: 600;
-}
-
-/* 键值展示样式 */
-.key-value-dropdown {
-  margin-top: 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  padding-left: 20px;
-}
-
-.key-value-dropdown .dropdown-item {
-  padding: 8px 16px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: background-color 0.2s;
-  border-radius: 8px;
-}
-
-.key-value-dropdown .dropdown-item:hover {
-  background-color: #e6f0ff;
-}
-
-/* 选中的键名显示的效果 */
-.key-value-dropdown .dropdown-item.active {
-  background-color: rgba(0, 122, 255, 0.2);
-  color: #007aff;
+.check-icon {
+  width: 16px; /* 占位，防止文字抖动 */
+  display: inline-block;
 }
 </style>

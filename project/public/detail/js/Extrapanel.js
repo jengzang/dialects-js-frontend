@@ -156,23 +156,23 @@ document.getElementById("infoForm").addEventListener("submit", async function (e
     else
     {
         // 獲取表單元素
-        const location = document.getElementById("location-input").value.trim();
-        const region = document.getElementById("region-input").value.trim();
+        const location_submit = document.getElementById("location-input").value.trim();
+        const region_submit = document.getElementById("region-input").value.trim();
         const coordinates = document.getElementById("coordinates-input").value.trim();
         const feature = document.getElementById("feature-input").value.trim();
         const value = document.getElementById("value-input").value.trim();
         const description = document.getElementById("description-input").value.trim();
 
         // 表單驗證
-        if (!location || !region || !coordinates || !feature || !value) {
+        if (!location_submit || !region_submit || !coordinates || !feature || !value) {
             showToast("❌ 所有字段（除說明）必須填寫！",'darkred');
             return;  // 如果有空的字段，則不提交
         }
 
         // 構建表單數據對象
         const formData = {
-            location: location,
-            region: region,
+            location: location_submit,
+            region: region_submit,
             coordinates: coordinates,
             feature: feature,
             value: value,
@@ -193,7 +193,57 @@ document.getElementById("infoForm").addEventListener("submit", async function (e
             .then(data => {
                 // 根據後端返回的結果處理
                 if (data.success) {
-                    showToast(data.message);
+                    const locations_input = document.getElementById('locations').value.trim().split(/\s+/);
+                    const regions_input = document.getElementById('regions').value.trim().split(/\s+/);
+                    // 检查 locations_input 和 location_submit
+                    function checkLocation() {
+                        return locations_input.includes(location_submit);
+                    }
+                    // 检查 regions_input 和 region_submit
+                    function checkRegion() {
+                        // 拆分 region_submit
+                        let regionParts = region_submit.split('-');
+                        // 检查 region_submit 中的每一部分是否能与 regions_input 中的任何元素匹配
+                        return regions_input.some(region => {
+                            // 将 regions_input 中的元素按 - 拆分成多个部分
+                            let regionPartsInRegion = region.split('-');
+                            // 检查 region_submit 的任意一部分是否能在 regions_input 中找到
+                            return regionParts.some(part => regionPartsInRegion.includes(part));
+                        });
+                    }
+                    const customOpen = window.isCustomOn;
+                    let HowToClick = "🎉👌";
+                    let clickTimes = 0; // 默认点击次数为0
+
+                    if (customOpen) {
+                        // HowToClick = "<br>請雙擊自定義按鈕(關閉再打開)<br>進而刷新數據並查看<br>按鈕在地圖頁面的頂部";
+                        clickTimes = 2; // 如果 customOpen 为 true，点击两次
+                    } else {
+                        // HowToClick = "<br>請打開自定義按鈕，進而查看數據<br>按鈕在地圖頁面的頂部";
+                        clickTimes = 1; // 如果 customOpen 为 false，点击一次
+                    }
+
+                    if (checkLocation() || checkRegion()) {
+                        const message = data.message + HowToClick;
+                        showToast(message, 'darkgreen', 50);
+
+                        // 根据 clickTimes 决定点击按钮的次数
+                        for (let i = 0; i < clickTimes; i++) {
+                            document.getElementById('custom-toggle').click();  // 自动点击按钮
+                        }
+                    } else {
+                        const notice = `<br>當前輸入框的分區是${regions_input.join(',')},地點是${locations_input.join(',')}<br>` +
+                            "無法與您提交的匹配，需更改地點/分區輸入，並重新打開地圖頁面頂部的自定義按鈕，方可顯示";
+                        const message = data.message + notice + HowToClick;
+                        showToast(message, 'darkgoldenrod', 30);
+
+                        // 根据 clickTimes 决定点击按钮的次数
+                        for (let i = 0; i < clickTimes; i++) {
+                            document.getElementById('custom-toggle').click();  // 自动点击按钮
+                        }
+                    }
+
+
                     // 可以選擇清空表單或其他操作
                     // document.getElementById("infoForm").reset();  // 清空表單
                 } else {
@@ -241,7 +291,8 @@ customToggle.addEventListener('click', async function (e) {
 
     if (window.isRun) {
         if (window.plotted === false) {
-            await create_map1();
+            await create_map1(true);
+            // console.log("來了")
         } else {
             await func_mergeData();
             await triggerDrawingFunction();
@@ -416,7 +467,13 @@ document.addEventListener("DOMContentLoaded", function () {
             showToast("❌ 請輸入地點或分區！",'darkred');
             return;
         }
+
         if (window.userRole !== 'admin'){
+            if (chars.length > 10) {
+                showToast("❌ 一次最多查詢 10 个汉字！", 'darkred');
+                document.getElementById('loading-overlay').classList.add('loading-hidden');
+                return;
+            }
             // 🔒 冷卻控制只針對分析主邏輯
             if (window.runCooldown) {
                 showToast("⏳ 分析已啟動，請等待 3 秒後再試！");
@@ -464,17 +521,19 @@ document.addEventListener("DOMContentLoaded", function () {
             const loc_data = await res.json();
             // 🚫 判斷返回的地點數是否超過 限制
             const limit_anonymous =300
-            const limit_users =1000
+            const limit_users =800
             if (userRole === "anonymous"){
                 if (loc_data.locations_result && loc_data.locations_result.length > limit_anonymous) {
-                    showToast(`🚫 由於服務器限制，未登錄用戶查字只能選擇 ${limit_anonymous} 個地點。\n⚠️ 本次查詢了 ${data.locations_result.length} 個地點。`);
+                    showToast(`🚫 由於服務器限制，未登錄用戶查字只能選擇 ${limit_anonymous} 個地點。\n⚠️ 本次查詢了 ${loc_data.locations_result.length} 個地點。`);
                     showAuthPopup();
+                    document.getElementById('loading-overlay').classList.add('loading-hidden');
                     return;
                 }
             }else if (userRole === "user") {
                 if (loc_data.locations_result && loc_data.locations_result.length > limit_users) {
-                    const userConfirmed = confirm(`⚠️ 本次選擇了超過1000個地點（${loc_data.locations_result.length}個）\n⚠️ 可能會很卡。\n\n是否繼續？`);
+                    const userConfirmed = confirm(`⚠️ 本次選擇了超過800個地點（${loc_data.locations_result.length}個）\n⚠️ 可能會很卡。\n\n是否繼續？`);
                     if (!userConfirmed) {
+                        document.getElementById('loading-overlay').classList.add('loading-hidden');
                         return;  // 如果用户点击“取消”，停止后续操作
                     }
                 }
@@ -532,7 +591,6 @@ document.addEventListener("DOMContentLoaded", function () {
                     resultData.forEach((item) => {
                         // 如果音节或 location 为空，则跳过当前元素
                         if (!item.音节.length|| !item.location) {
-                            document.getElementById('loading-overlay').classList.add('loading-hidden');
                             return; // 跳过当前元素
                         }
                         // 创建 charDiv，如果和上一个不一样
@@ -591,8 +649,14 @@ document.addEventListener("DOMContentLoaded", function () {
                         // 将整个容器添加到 DOM 中
                         contentSearch.appendChild(infoContainer);
                     });
-                    await create_map1();
                     document.getElementById('loading-overlay').classList.add('loading-hidden');
+                    // 提取 char 字段作为特征
+                    const uniqueChars = [...new Set(resultData.map(item => item.char))];
+                    const featureData = uniqueChars.map(char => ({ 特徵值: char }));
+                    mapFeatureSelection(featureData);  // 这里传入的是 featureData 数组
+                    await create_map1();
+                    window.mergedData = []
+                    generateCharsMergedData(resultData, window.locations_data);
                     lastCharDiv = [];
                     lastPositionsDiv = [];
                 } else {
@@ -800,7 +864,65 @@ document.addEventListener("DOMContentLoaded",  function () {
 
                     tbody.appendChild(row);
                 });
+                const toneMapping = {
+                    "T1": "陰平",
+                    "T2": "陽平",
+                    "T3": "陰上",
+                    "T4": "陽上",
+                    "T5": "陰去",
+                    "T6": "陽去",
+                    "T7": "陰入",
+                    "T8": "陽入",
+                    "T9": "其他調",
+                    "T10": "輕聲"
+                };
+                const processedData = [];
+                resultData.forEach(locationData => {
+                    const { 簡稱, tones } = locationData;
+
+                    // 遍历每个音调（T1 到 T10）
+                    tones.forEach(toneData => {
+                        // 提取音调的键（T1, T2, ...）
+                        const toneName = Object.keys(toneData)[0];
+                        let toneValue = toneData[toneName];
+                        let notes = "";
+                        // 将 "無" 转为空字符串
+                        if (toneValue === "無") {
+                            toneValue = "無";
+                        } else {
+                            toneValue = toneValue.replace(/`/g, "");
+                        }
+                        // 使用 toneMapping 对应表将 T1, T2, ... 转换为中文音调
+                        const chineseToneName = toneMapping[toneName] || toneName; // 如果找不到映射则保留原名称
+                        // 如果是 T 开头的音调，查找对应的值并替换
+                        if (toneValue.startsWith("T")) {
+                            const chineseToneName2 = toneMapping[toneValue] || toneValue; // 如果找不到映射则保留原名称
+                            notes = toneValue.startsWith("T") ? `與${chineseToneName2}合併` : "";
+                            // const correspondingTone = toneMapping[toneValue];  // 获取对应的中文音调名称
+                            const toneObj = locationData.tones.find(item => item[toneValue]);
+                            if (toneObj) {
+                                toneValue = toneObj[toneValue];  // 取得 T1 对应的数值
+                            } else {
+                                toneValue = "";  // 如果找不到，设置为空字符串
+                            }
+                        }
+                        // 推入结果数据
+                        processedData.push({
+                            location: 簡稱,  // 使用 "簡稱" 作为地点名称
+                            tone: chineseToneName,  // 使用对应的中文音调名称
+                            value: toneValue,  // 音调的数值或为空字符串
+                            notes: notes  // 默认备注为空
+                        });
+                    });
+                });
+                // console.log(processedData);
+                const toneNames = ["陰平", "陽平", "陰上", "陽上","陰去","陽去", "陰入","陽入","其他調", "輕聲"];
+                const featureData = toneNames.map(char => ({ 特徵值: char }));
+                mapFeatureSelection(featureData);
                 await create_map1();
+                window.mergedData = []
+                generateTonesMergedData(processedData, window.locations_data);
+                // console.log(window.mergedData)
                 table.appendChild(tbody);
 
                 // 将表格添加到页面中的 .content-search 元素
@@ -815,7 +937,7 @@ document.addEventListener("DOMContentLoaded",  function () {
             }
         } catch (error) {
             document.getElementById('loading-overlay').classList.add('loading-hidden');
-            console.log("报错报错")
+            console.log("报错报错",error)
         }
     })
 })

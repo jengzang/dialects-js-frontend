@@ -123,6 +123,7 @@ document.addEventListener("DOMContentLoaded", () => {
 })
 
 
+
 // 獲取匹配到的分區列表
 function getSubregions(parentLabel, mode = 'yindian') {
     if (mode === 'map') {
@@ -173,7 +174,6 @@ function getSubregions(parentLabel, mode = 'yindian') {
 
     else if (mode === 'yindian') {
         const CACHE_KEY = '__YINDIAN_TREE_CACHE__';
-
         // 初始化快取
         if (!sessionStorage.getItem(CACHE_KEY)) {
             return fetch(`${window.API_BASE}/partitions`)
@@ -612,9 +612,47 @@ inputEl.addEventListener("blur", () => {
 });
 
 
-const bugBtn = document.getElementById("bugBtn");
+const feedbackBtn = document.getElementById("feedbackBtn");
 
-bugBtn.addEventListener("click", (e) => {
+feedbackBtn.addEventListener("click", (e) => {
     e.stopPropagation();
-    window.open(window.WEB_BASE + "/intro#/?tab=suggestions","_blank");
+    window.open(window.WEB_BASE + "/intro?tab=suggestions","_blank");
 });
+
+document.getElementById('refreshBtn').addEventListener('click', function() {
+    showToast("開始刷新，請稍等頁面加載", 'darkgreen');
+    setTimeout(() => {
+        // 获取页面上的所有 <script> 和 <link> 标签（CSS 文件）
+        var scripts = document.getElementsByTagName('script');
+        var links = document.getElementsByTagName('link');
+
+        // 强制重新加载所有 <script> 标签的资源
+        for (var i = 0; i < scripts.length; i++) {
+            var src = scripts[i].src;
+            if (src) {
+                // 删除并重新添加 <script> 标签来强制重新加载资源
+                var newScript = document.createElement('script');
+                newScript.src = src + '?t=' + new Date().getTime();  // 添加时间戳避免缓存
+                document.body.appendChild(newScript);
+                scripts[i].parentNode.removeChild(scripts[i]);
+            }
+        }
+        // 强制重新加载所有 <link> 标签（CSS 文件）
+        for (var i = 0; i < links.length; i++) {
+            var href = links[i].href;
+            if (href && links[i].rel === 'stylesheet') {
+                // 删除并重新添加 <link> 标签来强制重新加载资源
+                var newLink = document.createElement('link');
+                newLink.rel = 'stylesheet';
+                newLink.href = href + '?t=' + new Date().getTime();  // 添加时间戳避免缓存
+                document.head.appendChild(newLink);
+                links[i].parentNode.removeChild(links[i]);
+            }
+        }
+
+        // 不清除 localStorage 和 sessionStorage
+        // location.reload();  // 如果不想清除 storage，直接刷新页面
+        window.location.reload();  // 重新加载页面，但不清除 localStorage 和 sessionStorage
+    }, 1000);  // 延迟 1000 毫秒（1 秒）
+});
+

@@ -61,7 +61,9 @@ window.addEventListener('DOMContentLoaded', function () {
             if (cardCheckbox) cardCheckbox.checked = true;
 
             // value+key 合併填入 status_inputs
-            document.getElementById('status_inputs').value = (parsed.value || '') + (parsed.key || '');
+            let key = (parsed.key || '').replace(/清濁|部位|方式/g, '');
+            document.getElementById('status_inputs').value = (parsed.value || '') + key;
+
 
             const runBtn = document.querySelector('#runBtn')
             if (runBtn) {

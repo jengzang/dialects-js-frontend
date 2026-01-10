@@ -79,7 +79,7 @@ function positionAndShowPopup({ popupEl, event, offsetTop = 30, offsetLeft = 30,
 }
 
 
-function showToast(message, color) {
+function showToast(message, color, top) {
     const toast = document.getElementById("toast");
     // 替換換行符為 <br>
     toast.innerHTML = message.replace(/\n/g, "<br>");
@@ -90,7 +90,12 @@ function showToast(message, color) {
     } else {
         toast.style.color = ""; // 恢复默认样式表颜色
     }
-
+    if (top){
+        toast.style.top = top+'%'
+    }
+    else{
+        toast.style.top = ''
+    }
     toast.className = "show";
 
     setTimeout(() => {

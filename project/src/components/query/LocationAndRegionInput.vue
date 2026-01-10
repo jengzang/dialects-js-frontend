@@ -57,7 +57,8 @@
         <RegionSelector
             :mode="regionUsing"
             v-model:selected="selectedValue"
-            :placeholder="regionUsing === 'map' ? '請選擇地圖集分區' : '請選擇音典分區'"/>
+            :placeholder="regionUsing === 'map' ? '請選擇地圖集分區' : '請選擇音典分區'"
+        />
 
       </div>
     </div>
@@ -117,11 +118,11 @@
 
 <script setup>
 import { ref, nextTick ,onMounted, onActivated, watch, computed} from 'vue'
-import {api} from '../utils/auth.js'
-import RegionSelector from "@/components/RegionSelector.vue";
-const API_BASE = window.API_BASE;
-const MAP_TREE = STATIC_REGION_TREE;
-const YINDIAN_TREE = top_yindian;
+import {api} from '../../utils/auth.js'
+import RegionSelector from "@/components/query/RegionSelector.vue";
+// const API_BASE = window.API_BASE;
+// const MAP_TREE = STATIC_REGION_TREE;
+// const YINDIAN_TREE = top_yindian;
 
 /** 地點輸入邏輯 */
 const inputEl = ref(null)
@@ -333,41 +334,42 @@ function loadTreeFor(mode) {
 // 初始加載
 loadTreeFor(regionUsing.value)
 
-const cascaderRef = ref(null)
-async function simulateClickPath(path) {
-  // 1. 打開 Cascader 的彈窗
-  cascaderRef.value?.showMenu()
+// const cascaderRef = ref(null)
 
-  await nextTick()
-  // 2. 遞迴點擊每一層
-  for (const label of path) {
-    await nextTick()
-    // 獲取當前展開層的選項列表
-    const menuList = document.querySelectorAll('.n-cascader-menu')
-
-    // 找到當前層中 label 匹配的項
-    let found = false
-    for (const menu of menuList) {
-      const items = menu.querySelectorAll('.n-cascader-option')
-      for (const item of items) {
-        if (item.textContent?.trim().includes(label)) {
-          item.click()
-          found = true
-          break
-        }
-      }
-      if (found) break
-    }
-
-    if (!found) {
-      console.warn(`❗未找到 label: ${label}`)
-      break
-    }
-
-    // 等下一層渲染
-    await new Promise(resolve => setTimeout(resolve, 100))
-  }
-}
+// async function simulateClickPath(path) {
+//   // 1. 打開 Cascader 的彈窗
+//   cascaderRef.value?.showMenu()
+//
+//   await nextTick()
+//   // 2. 遞迴點擊每一層
+//   for (const label of path) {
+//     await nextTick()
+//     // 獲取當前展開層的選項列表
+//     const menuList = document.querySelectorAll('.n-cascader-menu')
+//
+//     // 找到當前層中 label 匹配的項
+//     let found = false
+//     for (const menu of menuList) {
+//       const items = menu.querySelectorAll('.n-cascader-option')
+//       for (const item of items) {
+//         if (item.textContent?.trim().includes(label)) {
+//           item.click()
+//           found = true
+//           break
+//         }
+//       }
+//       if (found) break
+//     }
+//
+//     if (!found) {
+//       console.warn(`❗未找到 label: ${label}`)
+//       break
+//     }
+//
+//     // 等下一層渲染
+//     await new Promise(resolve => setTimeout(resolve, 100))
+//   }
+// }
 
 onMounted(() => {
   reset()
@@ -420,7 +422,7 @@ async function fetchLocationsResult() {
     const count = data?.locations_result?.length ?? 0
     selectedCount.value = count
 
-    // 7️⃣ 對齊你原來的限制邏輯（showToast 對應 bottom-hint）
+    // 7️⃣ 對齊原來的限制邏輯（showToast 對應 bottom-hint）
     const limit_anonymous = 200
     const limit_users = 600
 
@@ -497,23 +499,6 @@ defineExpose({
 
 </script>
 
-<style>
-/* 限制每一層最大寬度 */
-.custom-cascader-dropdown .n-cascader-menu {
-  width: 180px !important;
-  max-width: 200px !important;
-  min-width: 120px !important;
-}
-
-/* 防止選項文字太長撐爆一整列 */
-.custom-cascader-dropdown .n-cascader-option {
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  max-width: 180px;
-}
-
-</style>
 
 <style scoped>
 
@@ -638,8 +623,8 @@ defineExpose({
 }
 
 .bottom-hint {
-  margin:  0 1dvw 4dvh  ;
-  max-width: 600px;
+  margin:  0 1dvw 3dvh  ;
+  max-width: 500px;
   width: 90%;
   padding: 6px 20px;
   justify-self: center;
@@ -715,6 +700,7 @@ defineExpose({
   border-radius: 999px;
   cursor: pointer;
   user-select: none;
+  white-space: nowrap;
 }
 
 .expand-btn:hover {

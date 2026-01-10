@@ -505,8 +505,9 @@ async function func_mergeData() {
     }
 
     assignColorToMergedData(mergedData);
+    // console.log(mergedData)
     window.mergedData = mergedData;
-    console.log("mergedData存储完成");
+    // console.log("mergedData存储完成");
 
 }
 
@@ -772,4 +773,75 @@ function assignColorToMergedData(mergedData) {
     mergedData.forEach(item => {
         item.color = featureToColor[item.feature]?.[item.maxValue] || '#888';
     });
+}
+
+function generateCharsMergedData(resultData, locationsData) {
+    // 创建地点到坐标的映射
+    let locationToCoordinates = {};
+    locationsData.coordinates_locations.forEach(coord => {
+        locationToCoordinates[coord[0]] = coord[1];  // coord[0] 是地点，coord[1] 是坐标
+    });
+    let notesString = "";  // 默认空字符串
+    // 初始化 mergedData 数组
+    let mergedData = [];
+    // 生成 mergedData
+    return resultData.map(item => {
+        // 计算音节和 notes
+        let syllablesString = item.音节.join('·');  // 拼接音节
+        if (Array.isArray(item.notes) && item.notes.some(note => note !== "_")) {
+            notesString = item.notes.join(' / ');  // 处理 notes（拼接非空的 notes）
+        }
+
+        // 获取坐标
+        let coordinate = locationToCoordinates[item.location] || [0, 0];  // 默认坐标是 [0, 0]，如果没有找到则为默认值
+
+        // 拼接到 mergedData
+        mergedData.push({
+            location: item.location,  // 使用 location 字段
+            feature: item.char,  // 使用 char 字段作为 feature
+            value: syllablesString,  // 拼接后的音节字符串
+            zoomLevel: locationsData.zoom_level,  // 从 locationsData 获取 zoom_level
+            coordinate: coordinate,  // 使用映射的坐标
+            centerCoordinate: locationsData.center_coordinate,  // 从 locationsData 获取 center_coordinate
+            maxValue: syllablesString,  // 与 value 相同
+            detailContent: notesString  // 使用处理后的 notes 字符串
+        });
+        // 调用颜色分配函数
+        assignColorToMergedData(mergedData);
+        window.mergedData = mergedData;  // 不返回，而是存储在全局变量 window.mergedData 中
+    });
+}
+
+// 新的函数：处理音调并分配颜色
+function generateTonesMergedData(resultData, locationsData) {
+    // 创建地点到坐标的映射
+    let locationToCoordinates = {};
+    locationsData.coordinates_locations.forEach(coord => {
+        locationToCoordinates[coord[0]] = coord[1];  // coord[0] 是地点，coord[1] 是坐标
+    });
+
+    // 初始化 mergedData 数组
+    let mergedData = [];
+
+    resultData.forEach(item => {
+        // 获取坐标
+        let coordinate = locationToCoordinates[item.location] || [0, 0];  // 默认坐标是 [0, 0]，如果没有找到则为默认值
+        // 拼接到 mergedData
+        mergedData.push({
+            location: item.location,  // 使用 location 字段
+            feature: item.tone,  // 使用 char 字段作为 feature
+            value: item.value,  // 拼接后的音节字符串
+            zoomLevel: locationsData.zoom_level,  // 从 locationsData 获取 zoom_level
+            coordinate: coordinate,  // 使用映射的坐标
+            centerCoordinate: locationsData.center_coordinate,  // 从 locationsData 获取 center_coordinate
+            maxValue: item.value,  // 与 value 相同
+            detailContent: item.notes  // 使用处理后的 notes 字符串
+        });
+    });
+
+    // 调用分配颜色的函数
+    assignColorToMergedData(mergedData);
+
+    // 将处理后的 mergedData 存储在 window.mergedData 中
+    window.mergedData = mergedData;
 }

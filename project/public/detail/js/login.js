@@ -713,21 +713,37 @@ const saveToken = (token) => {
 }
 
 const clearToken = () => {
-    localStorage.removeItem('ACCESS_TOKEN')
-    localStorage.removeItem('TOKEN_EXP')
+    // 删除 localStorage 中的 token
+    localStorage.removeItem('ACCESS_TOKEN');
+    localStorage.removeItem('TOKEN_EXP');
+
+    // 删除 cookie 中的 token（需要和设置时的 path 一致）
+    document.cookie = 'ACCESS_TOKEN=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; secure; samesite=None';
+    document.cookie = 'TOKEN_EXP=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; secure; samesite=None';
 }
+
 async function api(path, { method = 'GET', headers = {}, body = null } = {}) {
-    const token = getToken()
-    const WEB_BASE = window.WEB_BASE || 'http://localhost:5000'
-    if (token) headers['Authorization'] = `Bearer ${token}`
-    const res = await fetch(WEB_BASE + path, { method, headers, body })
-    if (!res.ok) {
-        const text = await res.text()
-        throw new Error(text || `請求失敗：${res.status}`)
+    try {
+        const token = getToken()
+        const WEB_BASE = window.WEB_BASE || 'http://localhost:5000'
+        if (token) headers['Authorization'] = `Bearer ${token}`
+
+        const res = await fetch(WEB_BASE + path, { method, headers, body })
+
+        if (!res.ok) {
+            const text = await res.text()
+            throw new Error(text || `請求失敗：${res.status}`)
+        }
+
+        const ct = res.headers.get('content-type') || ''
+        return ct.includes('application/json') ? res.json() : res.text()
+
+    } catch (error) {
+        // console.error("API请求出错:", error)  // 捕获并打印错误
+        throw error  // 重新抛出错误，供调用方继续处理
     }
-    const ct = res.headers.get('content-type') || ''
-    return ct.includes('application/json') ? res.json() : res.text()
 }
+
 
 /**
  * 驗證當前用戶是否已登入

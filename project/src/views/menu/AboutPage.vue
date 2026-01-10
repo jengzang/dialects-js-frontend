@@ -92,7 +92,7 @@
       </div>
 
       <!-- 新的“建議”页面 -->
-      <div v-if="currentTab === 'suggestion'" class="page">
+      <div v-if="currentTab === 'suggestion'" class="page2">
         <div class="suggestion-box">
           <h2 class="tabs-title">💬 我有建議</h2>
           <p>發現 bug？有建議？<br />歡迎通過 GitHub Issue 提出！</p>
@@ -247,56 +247,9 @@ const changeTab = (tabName) => {
 </script>
 
 <style scoped>
-/* === Tabs === */
-.tabs-wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 0;
-  min-height: 80dvh;
-}
-.tabs {
-  display: flex;
-  justify-content: center;
-
-  gap: 16px;
-  overflow-x: auto;
-  max-width: 100%;
-  padding: 8px 12px;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-}
-.tabs::-webkit-scrollbar {
-  display: none;
-}
-.tab {
-  flex-shrink: 0;
-  white-space: nowrap;
-  padding: 12px 24px;
-  font-size: 16px;
-  font-weight: 500;
-  border-radius: 16px;
-  cursor: pointer;
-  color: #444;
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(4px);
-  transition: all 0.5s ease;
-  user-select: none;
-  border: 1px solid #007aff;
-}
-.tab:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: #007aff;
-}
-.tab.active {
-  color: #fff;
-  background: rgba(0, 122, 255, 0.7);
-  backdrop-filter: blur(14px);
-  box-shadow: 0 4px 20px rgba(0, 122, 255, 0.3);
-}
 
 /* === 內容區塊 === */
-.page {
+.page2 {
   padding: 1dvw 8dvw;
   font-size: 18px;
   background: rgba(255, 255, 255, 0.05);
@@ -417,117 +370,6 @@ p em.emoji {
   color: #000000; /* 橙色文字強調 */
 }
 
-/* === 手機響應式 === */
-@media (max-width: 600px) {
-  .tab {
-    padding: 10px 16px;
-    font-size: 14px;
-    border-radius: 12px;
-  }
-  .tabs {
-    gap: 6px;
-    padding: 6px 6px;
-  }
-  .page {
-    padding: 16px;
-    font-size: 16px;
-  }
-  .fancy-run-btn {
-    font-size: 16px;
-    padding: 10px 20px;
-    border-radius: 24px;
-  }
-  .enter-btn {
-    padding: 5px !important;
-    font-size: 12px !important;
-  }
-}
-
-/* 以下是你自定義 dropdown 样式：直接保留即可 */
-.dropdown-wrapper {
-  flex: 1;
-  position: relative;
-  align-items: center;
-  display: flex;
-}
-.dropdown {
-  padding: 12px;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.3);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  cursor: pointer;
-  font-size: 14px;
-  border: 1px solid rgba(200, 200, 200, 0.5);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  min-width: 80px;
-  margin: auto;
-}
-.arrow {
-  font-size: 12px;
-}
-.dropdown-panel {
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(12px);
-  border-radius: 10px;
-  padding: 6px 0;
-  position: absolute;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
-  min-width: 80px;
-}
-.dropdown-item {
-  padding: 8px 16px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: background-color 0.2s;
-}
-.dropdown-item:hover {
-  background-color: #e6f0ff;
-}
-
-/* ✅ Label + Dropdown 水平排列 */
-.horizontal-dropdown {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 6px;
-  width: 100%;
-  max-width: 300px;
-  margin: auto;
-}
-
-/* 🍏 Fancy 蘋果風格按鈕，大小對齊 fancy-run-btn */
-.allmap-first {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(90deg, #007aff, mediumblue);
-  border: none;
-  border-radius: 30px; /* ✔️ same as fancy-run-btn */
-  padding: 14px 28px;  /* ✔️ same as fancy-run-btn */
-  font-size: 18px;     /* ✔️ same as fancy-run-btn */
-  font-weight: bold;   /* ✔️ same */
-  letter-spacing: 1px; /* ✔️ same */
-  color: white;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  white-space: nowrap;
-}
-
-/* 懸停效果 */
-.allmap-first:hover {
-  background: linear-gradient(145deg, #4e5d5b, #212d2b);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3), 0 12px 32px rgba(0, 0, 0, 0.25);
-  transform: translateY(-3px);
-}
-
-/* 點擊效果 */
-.allmap-first:active {
-  transform: translateY(2px);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1), 0 4px 12px rgba(0, 0, 0, 0.15);
-}
 
 /* 整體文字樣式 */
 .thoughts p {

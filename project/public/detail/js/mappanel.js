@@ -1,4 +1,22 @@
 // let mergedData;
+
+// 覆盖 Image 对象，重定向所有图标请求
+(function() {
+    const originalImage = Image;
+    window.Image = function() {
+        const img = new originalImage();
+        // 获取图标的 URL
+        const originalSrc = img.src;
+        // 判断是否是要加载的图标URL
+        if (originalSrc && originalSrc.includes('c-webapi.amap.com/style_icon')) {
+            // 替换成根目录下的自定义favicon.ico
+            img.src = '/favicon.ico'; // 根目录下的图标路径
+        }
+
+        return img;
+    };
+})();
+
 // 配置安全代码
 window._AMapSecurityConfig = {
     securityJsCode: "06fece76cc6ddd8f7996819c28315b58",  // 高德key
@@ -218,7 +236,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 //初次绘图
-async function create_map1(){
+async function create_map1(create_mep = false){
     const locations = document.getElementById('locations').value.trim().split(/\s+/);  // 获取地點，并拆分成数组
     const regions = document.getElementById('regions').value.trim().split(/\s+/);  // 获取分區，并拆分成数组
     // console.log('locations', locations);
@@ -245,9 +263,6 @@ async function create_map1(){
     }
     // ✅ 加上 token
     const token = localStorage.getItem("ACCESS_TOKEN")
-    if (token) {
-        url.searchParams.append('token', token);
-    }
 
     // 显示加载提示
     // const debugLog = document.getElementById("debug-log");
@@ -276,7 +291,7 @@ async function create_map1(){
         // 解析返回的数据
         window.locations_data = await res.json();
         // console.log("✅ 后端返回数据:", window.locations_data);  // 打印接收到的所有数据
-// 判断整个数据结构是否为空或不合法
+        // 判断整个数据结构是否为空或不合法
         if (
             !window.locations_data ||
             !Array.isArray(window.locations_data.coordinates_locations) ||
@@ -287,7 +302,7 @@ async function create_map1(){
         }
 
         // 如果数据存在，动态更新地图
-        if (locations_data) {
+        if (locations_data && create_mep) {
             // 更新地图中心点和缩放级别
             map.setCenter(locations_data.center_coordinate);
             map.setZoom(locations_data.zoom_level);
@@ -367,15 +382,23 @@ async function create_map1(){
 
 // 特徵下拉框和按鈕的監聽
 function setupEventListeners(dropdownArrow, dropdown, placeholder, selectBox) {
+    let timeoutId; // 用于存储延时操作的 ID
     // Hover 控制下拉（只限 selectBox）
     selectBox.addEventListener("mouseenter", () => {
         dropdown.classList.add("expanded");
         dropdownArrow.textContent = "▲";
     });
-
+    // 给下拉项添加事件监听器，确保进入下拉项时不会关闭
+    dropdown.addEventListener("mouseenter", () => {
+        // 清除收起延时操作
+        clearTimeout(timeoutId);
+    });
     selectBox.addEventListener("mouseleave", () => {
-        dropdown.classList.remove("expanded");
-        dropdownArrow.textContent = "▼";
+        // 延时操作：在鼠标离开后延迟 300 毫秒收起下拉框
+        timeoutId = setTimeout(() => {
+            dropdown.classList.remove("expanded");  // 收起下拉框
+            dropdownArrow.textContent = "▼";        // 修改箭头指向
+        }, 500); // 300ms 延时
     });
 
     // 点击箭头 toggle 展开状态（移动端专用）
@@ -413,31 +436,31 @@ function setupEventListeners(dropdownArrow, dropdown, placeholder, selectBox) {
 
 
 // 用於點擊runBtn後的數據整理、生成特徵下拉框或按鈕
-function mapFeatureSelection() {
+function mapFeatureSelection(latestResults = window.latestResults) {  // 默认使用全局变量 window.latestResults
     const featureContainer = document.getElementById('featureContainer');
 
     // 清空容器
     featureContainer.innerHTML = '';
 
-    // 開始等待資料填充
+    // 开始等待资料填充
     checkDataAvailability();
 
     function checkDataAvailability() {
         const checkInterval = setInterval(() => {
-            if (Array.isArray(window.latestResults) && window.latestResults.length > 0) {
-                clearInterval(checkInterval); // 停止輪詢
+            if (Array.isArray(latestResults) && latestResults.length > 0) {
+                clearInterval(checkInterval); // 停止轮询
                 populateFeatureData();
             } else {
                 console.log('等待数据加载...');
             }
-        }, 3000);
+        }, 1000);
     }
 
     function populateFeatureData() {
-        const uniqueFeatures = [...new Set(window.latestResults.map(result => result.特徵值))];
+        const uniqueFeatures = [...new Set(latestResults.map(result => result.特徵值))];
 
         if (document.querySelector('.dropdown') || document.querySelector('.single-button')) {
-            return; // 防止重複生成
+            return; // 防止重复生成
         }
 
         if (uniqueFeatures.length === 1) {
@@ -453,6 +476,10 @@ function mapFeatureSelection() {
                 }
                 await triggerDrawingFunction();
             });
+            // 延时模拟点击按钮
+            setTimeout(() => {
+                button.click(); // 模拟点击
+            }, 1000); // 1000ms 延迟点击按钮
 
         } else if (uniqueFeatures.length > 1) {
             // console.log("生成下拉框，特徵值:", uniqueFeatures);
@@ -491,6 +518,13 @@ function mapFeatureSelection() {
 
             // 初始化事件监听
             setupEventListeners(dropdownArrow, dropdown, placeholder, selectBox);
+            // 延时模拟点击下拉框中的第一个元素
+            setTimeout(() => {
+                const firstItem = dropdown.querySelector('.dropdown-item');
+                if (firstItem) {
+                    firstItem.click(); // 模拟点击第一个元素
+                }
+            }, 1000); // 1000ms 延迟点击第一个元素
         }
 
         const selectBox = document.querySelector(".select-box");
@@ -501,10 +535,11 @@ function mapFeatureSelection() {
 }
 
 
+
 // 再次触发绘图函数，繪製具體的特徵圖
 async function triggerDrawingFunction() {
     let selectedItem = window.selectedItem;
-    console.log("绘图函数触发，选中的项是：", selectedItem);
+    // console.log("绘图函数触发，选中的项是：", selectedItem);
     // 将 selectedItem 填入表单中的“特征”输入框
     document.getElementById("feature-input").value = selectedItem;
 
@@ -530,6 +565,10 @@ async function triggerDrawingFunction() {
                 const feature = dataItem.feature;
 
                 // console.log("处理:", locationName);
+                if (!value || value.trim() === '') {
+                    // 如果 value 为空或只包含空白字符，跳过当前项的绘制
+                    continue;
+                }
 
                 try {
                     // 检查坐标是否有效
@@ -592,23 +631,31 @@ async function triggerDrawingFunction() {
                                 featureEl.textContent = ` ${feature}`;
                                 // detailContentEl.textContent = `详细内容: ${JSON.stringify(detailContent)}`;
 
-                                // 清空旧的详细内容并插入新内容
-                                detailContentEl.innerHTML = ""; // 清空之前的内容
-                                detailContent.sort((a, b) => b.percentage - a.percentage); // 改为降序
-                                // 使用 <ul> 和 <li> 显示详细内容
-                                const ul = document.createElement("ul");
+                                if (Array.isArray(detailContent) && detailContent.length > 0 &&
+                                    detailContent.some(item => item.hasOwnProperty('percentage'))) {
+                                    // 清空旧的详细内容并插入新内容
+                                    detailContentEl.innerHTML = ""; // 清空之前的内容
+                                    detailContent.sort((a, b) => b.percentage - a.percentage); // 改为降序
+                                    // 使用 <ul> 和 <li> 显示详细内容
+                                    const ul = document.createElement("ul");
 
-                                detailContent.forEach(item => {
-                                    const li = document.createElement("li");
-                                    // 保留一位小数并带上百分号
-                                    const percentageFormatted = (item.percentage * 100).toFixed(1) + '%';
-                                    li.innerHTML = `<span>•</span> ${item.value} <span>~</span> ${percentageFormatted}`;
-                                    ul.appendChild(li);
-                                });
+                                    detailContent.forEach(item => {
+                                        const li = document.createElement("li");
+                                        // 保留一位小数并带上百分号
+                                        const percentageFormatted = (item.percentage * 100).toFixed(1) + '%';
+                                        li.innerHTML = `<span>•</span> ${item.value} <span>~</span> ${percentageFormatted}`;
+                                        ul.appendChild(li);
+                                    });
+                                    detailContentEl.appendChild(ul); // 将生成的 <ul> 添加到弹窗中
+                                    document.getElementById("mini-btn").style.display = "inline-block";
+                                }else {
+                                    // 如果没有 percentage 字段，或者 detailContent 不是数组，直接显示内容
+                                    detailContentEl.textContent = `${detailContent}`; // 直接显示 detailContent
+                                    document.getElementById("mini-btn").style.display = "none";
+                                }
 
-                                detailContentEl.appendChild(ul); // 将生成的 <ul> 添加到弹窗中
                                 // 顯示按鈕
-                                document.getElementById("mini-btn").style.display = "inline-block";
+                                // document.getElementById("mini-btn").style.display = "inline-block";
                                 document.getElementById("mini-btn0").style.display = "none";
                                 // 定位與顯示
                                 positionAndShowPopup({
@@ -755,9 +802,6 @@ async function create_dot_all() {
     url.searchParams.append('iscustom', 'true');
     url.searchParams.append('flag', 'False');
     const token = localStorage.getItem("ACCESS_TOKEN")
-    if (token) {
-        url.searchParams.append('token', token);
-    }
     try {
         // 使用 Authorization 標頭來發送 token
         const headers = {

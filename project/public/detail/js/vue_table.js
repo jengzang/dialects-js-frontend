@@ -119,10 +119,16 @@ async function initVue(mountTarget = '#resultPanelContent',
             const tableData = ref(data || []);
             // console.log("初始化时的数据:", tableData.value);  // 查看初始数据
             // console.log('this ',this)
-            const visibleRows = ref(20);  // 显示的行数
+            const visibleRows = ref(mountTarget === '#resultPanelContent' ? 20 : tableData.value.length);  // 判断是否是主面板，如果是，使用 20 行，否则显示所有行
             const changeDiaplayRows = () => {
-                visibleRows.value  = visibleRows.value + 20
-            }
+                // 如果是主面板，并且是紧凑模式
+                if (mountTarget === '#resultPanelContent') {
+                    visibleRows.value = visibleRows.value + 20;  // 每次加载 20 行
+                } else {
+                    // 非主面板或非紧凑模式，显示所有行
+                    visibleRows.value = tableData.value.length;
+                }
+            };
             const totalRows = ref(tableData.value.length);  // 总行数
 
             const availableValues = ref([]);           // 仍保留原有字符串列表（给筛选逻辑用）
@@ -159,7 +165,9 @@ async function initVue(mountTarget = '#resultPanelContent',
             onUnmounted(() => {
                 document.removeEventListener('click', handleOutsideClick); // 组件销毁时清除
             });
-            const isCondensedMode = ref(isCondensed); // 默认隐藏模式
+
+            const isCondensedMode = ref(totalRows.value < 50 ? false : isCondensed);  // 如果总行数小于 30，默认非隐藏模式
+
 
             // 过滤数据的计算属性
             const filteredData = computed(() => {
@@ -496,6 +504,19 @@ async function initVue(mountTarget = '#resultPanelContent',
 
 
             onMounted(() => {
+                const switchWrapper = document.getElementById('toggleColumnsBtn2');
+                const switchElement = switchWrapper?.querySelector('.custom-switch');
+                const switchText = document.getElementById('switch-text2');
+
+                // 更新按钮样式
+                if (switchElement) {
+                    switchElement.classList.toggle('open', !isCondensedMode.value);
+                }
+
+                // 更新按钮文本
+                if (switchText) {
+                    switchText.textContent = isCondensedMode.value ? '主體' : '全顯';
+                }
                 if (mountTarget !== '#resultPanelContent') {
                     return; // 🚫 不是主面板，就不执行以下逻辑
                 }
@@ -616,7 +637,6 @@ async function initVue(mountTarget = '#resultPanelContent',
                     }
                 }
             });
-
 
             return {
                 isCondensedMode,
