@@ -7,7 +7,6 @@
         <div class="liquid-spinner"></div>
         <div class="timer-text">{{ timer }}s</div>
         <div class="loading-text">正在分析中...</div>
-
         <div v-if="showLongWaitWarning" class="warning-msg">
           ⚠️ 當前請求數據量較大，運算需時較長。<br>建議適當減少查詢條件以提升速度。
         </div>
@@ -18,6 +17,12 @@
         v-else-if="latestResults.length > 0 && ['tab2', 'tab3'].includes(currentTabRef)"
         :data="latestResults"
         :is-condensed="true"
+    />
+
+    <CharsAndTones
+        v-else-if="latestResults.length > 0 && ['tab1', 'tab4'].includes(currentTabRef)"
+        :data="latestResults"
+        :mode="currentTabRef"
     />
 
     <div v-else-if="!isLoading && latestResults.length === 0" class="empty-state">
@@ -32,19 +37,18 @@
 <script setup>
 import { ref, watch, computed, onUnmounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-// import ResultTable from "@/components/result/ResultTable.vue"; // 沒用到可以註釋掉
-import { api } from '@/utils/auth.js'
-import { globalPayload } from '@/utils/store.js'
+import { api } from '@/utils/auth.js';
+import { globalPayload } from '@/utils/store.js';
 import ResultList from "@/components/result/ResultList.vue";
+import CharsAndTones from "@/components/result/CharsAndTones.vue"; // 引入新組件
 
 const route = useRoute();
-const router = useRouter(); // 🌟 初始化 router
+const router = useRouter();
 const results = ref([]);
 const latestResults = ref([]);
 const currentTabRef = ref('tab2');
 const payload = ref(null);
 
-// 🌟 新增狀態
 const isLoading = ref(false);
 const timer = ref('0.0');
 const showLongWaitWarning = ref(false);
@@ -63,23 +67,17 @@ const pageTitle = computed(() => {
   const sourceTab = p._sourceTab || 'tab2';
   const tabName = tabMap[sourceTab] || sourceTab;
   let featureText = '';
-  if (p.features && Array.isArray(p.features) && p.features.length > 0) {
-    featureText = p.features.join(' ');
-  }
   return featureText ? `${tabName}·${featureText}` : tabName;
 });
 
-// 🌟 新增：計時器邏輯封裝
 const startTimer = () => {
   isLoading.value = true;
   showLongWaitWarning.value = false;
   let startTime = Date.now();
   timer.value = '0.0';
-
   timerInterval = setInterval(() => {
     const elapsed = (Date.now() - startTime) / 1000;
-    timer.value = elapsed.toFixed(1); // 保留一位小數
-
+    timer.value = elapsed.toFixed(1);
     if (elapsed > 30 && !showLongWaitWarning.value) {
       showLongWaitWarning.value = true;
     }
@@ -91,7 +89,6 @@ const stopTimer = () => {
   if (timerInterval) clearInterval(timerInterval);
 };
 
-// 組件銷毀時清理定時器，防止內存洩漏
 onUnmounted(() => {
   if (timerInterval) clearInterval(timerInterval);
 });
@@ -99,52 +96,84 @@ onUnmounted(() => {
 watch(
     () => globalPayload.value,
     async (newPayload) => {
-      console.log("🚀 ResultPage 检测到数据变化:", newPayload);
+      console.log("🚀 ResultPage 檢測到數據變化:", newPayload);
 
-      if (!newPayload) {
-        console.warn("⚠️ 没有收到 payload");
-        return;
-      }
-      results.value = [];       // 清空原始結果
-      latestResults.value = []; // 清空顯示列表
-      window.latestdetailResults = [];
-          payload.value = newPayload;
+      if (!newPayload) return;
+
+      results.value = [];
+      latestResults.value = [];
+      payload.value = newPayload;
       const sourceTab = newPayload._sourceTab || 'tab2';
       currentTabRef.value = sourceTab;
 
-      // 🌟 開始加載動畫
       startTimer();
 
       try {
-        if (sourceTab === 'tab2') {
-          const modeCN = tabMap[sourceTab] || sourceTab;
-          const featuresList = Array.isArray(newPayload.features) ? newPayload.features : [];
-          window._resultPageCache = {mode: modeCN, features: featuresList};
+        // ================= TAB 1: 查字 =================
+        if (sourceTab === 'tab1') {
+          // 2. 構建 Query String
+          const params = new URLSearchParams();
 
+          // 1. 處理 chars (兼容 String 和 Array)
+          let rawChars = newPayload.chars;
+          if (rawChars) {
+            // 情況 A: 如果是字串 (例如 "abc")，拆分成 ['a', 'b', 'c']
+            if (typeof rawChars === 'string') {
+              rawChars = rawChars.split('');
+            }
+            // 情況 B: 確保已經是陣列後，進行遍歷添加
+            if (Array.isArray(rawChars)) {
+              rawChars.forEach(c => params.append("chars", c));
+            }
+          }
+          if (Array.isArray(newPayload.locations)) {
+            newPayload.locations.forEach(loc => params.append("locations", loc));
+          }
+          if (Array.isArray(newPayload.regions)) {
+            newPayload.regions.forEach(reg => params.append("regions", reg));
+          }
+          // 單個值
+          params.append("region_mode", newPayload.region_mode || 'yindian');
+
+          // 3. 發送請求 (將 params 拼接到 URL)
+          // 假設你的後端路由是 /search_chars/，如果需要 /api 前綴請自行保留
+          const response = await api(`/api/search_chars/?${params.toString()}`, {
+            method: 'GET'
+          });
+
+          if (response && response.result) {
+            latestResults.value = response.result;
+          } else {
+            console.warn("Tab1 Error:", response);
+          }
+        }
+
+        // ================= TAB 2: 查中古 =================
+        else if (sourceTab === 'tab2') {
           const response = await api('/api/ZhongGu', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify(payload.value)
           });
-
           if (response.success || response.status === 'success') {
             results.value = response.results || response.data;
             latestResults.value = Array.isArray(results.value) ? results.value.flat() : [];
           } else {
             console.warn("⚠️ API 返回错误:", response.message);
           }
-        } else if (sourceTab === 'tab3') {
+        }
+        // ================= TAB 3: 查音位 =================
+        else if (sourceTab === 'tab3') {
           const modeCN = tabMap[sourceTab] || sourceTab;
           const featuresList = Array.isArray(newPayload.features) ? newPayload.features : [];
           window._resultPageCache = {mode: modeCN, features: featuresList};
 
-          console.log("🚀 Sending Payload:", JSON.stringify(payload, null, 2));
+          // console.log("🚀 Sending Payload:", JSON.stringify(payload, null, 2));
           const response = await api('/api/YinWei', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify(payload.value)
           });
-
           if (response.success) {
             results.value = response.results || response.data;
             latestResults.value = Array.isArray(results.value) ? results.value.flat() : [];
@@ -152,10 +181,31 @@ watch(
             console.warn("⚠️ API returned empty or error:", response.error);
           }
         }
+
+        // ================= TAB 4: 查調 =================
+        else if (sourceTab === 'tab4') {
+          const params = new URLSearchParams();
+          if (Array.isArray(newPayload.locations)) {
+            newPayload.locations.forEach(loc => params.append("locations", loc));
+          }
+          if (Array.isArray(newPayload.regions)) {
+            newPayload.regions.forEach(reg => params.append("regions", reg));
+          }
+          // 單個值
+          params.append("region_mode", newPayload.region_mode || 'yindian');
+          const response = await api(`/api/search_tones/?${params.toString()}`, {
+            method: 'GET',
+
+          });
+
+          if (response && response.tones_result) {
+            latestResults.value = response.tones_result;
+          }
+        }
+
       } catch (error) {
-        console.error("❌ 请求失败:", error);
+        console.error("❌ 請求失敗:", error);
       } finally {
-        // 🌟 無論成功失敗，都停止加載動畫
         stopTimer();
         window.latestdetailResults = JSON.parse(JSON.stringify(latestResults.value));
       }
@@ -164,8 +214,6 @@ watch(
 );
 
 const goToQuery = () => {
-  // 假設你的查詢界面是 tab2 (查中古)，如果是其他 tab 請自行修改 'tab2'
-  // 使用 push 讓用戶可以按瀏覽器「返回」鍵回到這裡，體驗更好
   router.push({ query: { tab: 'query' } });
 };
 </script>
@@ -174,6 +222,9 @@ const goToQuery = () => {
 .result-page-container {
   position: relative;
   min-height: 200px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 /* 🌟 液態玻璃加載器樣式 */

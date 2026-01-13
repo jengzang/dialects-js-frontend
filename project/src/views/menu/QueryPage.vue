@@ -118,7 +118,7 @@
                 :value-map="tabStates.tab2.valueMap"
                 :is-dropdown-open="!!dropdownOpen"
                 :selected-card="tabStates.tab2.card"
-                @update:runDisabled="isRunDisabled = $event"
+                @update:runDisabled="tabContentDisabled.tab2 = $event"
                 ref="ZhongguRef"
             />
           </div>
@@ -173,7 +173,7 @@
               <YinweiSelector
                   ref="YinweiSelectorRef"
                   :locationRef="locationRef"
-                  @update:runDisabled="isRunDisabled = $event"
+                  @update:runDisabled="tabContentDisabled.tab3 = $event"
               />
             </div>
           </div>
@@ -183,7 +183,7 @@
 
       <LocationAndRegionInput
           ref="locationRef"
-          @update:runDisabled="isRunDisabled = $event"
+          @update:runDisabled="isLocationDisabled = $event"
           v-model="locationModel"
       />
 
@@ -304,7 +304,29 @@ const tab3KeyTriggerEl = ref(null)
 const keyTriggerEl = ref(null)
 const YinweiSelectorRef = ref(null);
 
-const isRunDisabled = ref(false) // 控制按钮禁用的状态
+// 1️⃣ 定義公共狀態 (地點組件)
+const isLocationDisabled = ref(false)
+
+// 2️⃣ 定義各個 Tab 的獨立內容狀態
+const tabContentDisabled = reactive({
+  tab1: true,  // 預設 true (因為一開始輸入框是空的)
+  tab2: true, // 預設 false (如果組件初始化時會自動驗證，這裏設為 true 也可以)
+  tab3: true,
+  tab4: false  // Tab4 只有地點，沒有額外內容，所以內容部分永遠是 false (不禁用)
+})
+
+// 3️⃣ 監聽 Tab 1 的輸入框內容 (因為它沒有子組件 emit 事件，需要手動監聽)
+watch(hanziInput, (newVal) => {
+  // 如果為空或只有空白，則禁用
+  tabContentDisabled.tab1 = !newVal || newVal.trim() === ''
+}, { immediate: true })
+
+// 4️⃣ 🔥 最終計算屬性：控制按鈕是否禁用
+const isRunDisabled = computed(() => {
+  // 規則：如果「地點不合規」或者「當前 Tab 的內容不合規」，則禁用按鈕
+  return isLocationDisabled.value || tabContentDisabled[currentTab.value]
+})
+
 
 // 1. 新增：用来存储循环中 Trigger 元素的 Map
 const triggerRefs = ref({})
@@ -576,13 +598,6 @@ const runAction = async () => {
 
     // 2. 存入全局仓库
     globalPayload.value = JSON.parse(JSON.stringify(finalPayload))
-
-    // 3. 纯净跳转
-    await router.replace({
-      path: '/menu',
-      query: { tab: 'result' }
-    });
-      isRunning.value = false; // 請求結束，關閉 loading 狀態
   }
 
   else if (currentTab.value === 'tab3') {
@@ -607,20 +622,49 @@ const runAction = async () => {
 
     // 2. 存入全局仓库
     globalPayload.value = JSON.parse(JSON.stringify(finalPayload))
-
-    // 3. 纯净跳转
-    await router.replace({
-      path: '/menu',
-      query: { tab: 'result' }
-    });
-    isRunning.value = false; // 請求結束，關閉 loading 狀態
   }
+  else if  (currentTab.value === 'tab1'){
+    const chars = hanziInput.value;
+    payload = {
+      chars: chars,
+      locations: locationList,
+      regions: regionList,
+      region_mode: locationRef.value?.regionUsing || 'yindian',
+    };
 
-  else {
-    // 暫時處理其他 Tab
-    isRunning.value = false;
+    // 1. 准备要发送的数据
+    const finalPayload = {
+      ...payload,           // 原本的数据 (path_strings, locations 等)
+      _sourceTab: 'tab1'    // 👈 手动加上当前的 Tab 标记
+    }
+
+    // 2. 存入全局仓库
+    globalPayload.value = JSON.parse(JSON.stringify(finalPayload))
   }
+  else if  (currentTab.value === 'tab4'){
+    payload = {
+      locations: locationList,
+      regions: regionList,
+      region_mode: locationRef.value?.regionUsing || 'yindian',
+    };
+
+    // 1. 准备要发送的数据
+    const finalPayload = {
+      ...payload,           // 原本的数据 (path_strings, locations 等)
+      _sourceTab: 'tab4'    // 👈 手动加上当前的 Tab 标记
+    }
+
+    // 2. 存入全局仓库
+    globalPayload.value = JSON.parse(JSON.stringify(finalPayload))
+  }
+  // 3. 纯净跳转
+  await router.replace({
+    path: '/menu',
+    query: { tab: 'result' }
+  });
+  isRunning.value = false; // 請求結束，關閉 loading 狀態
 }
+
 
 const selectedKeysString = computed(() => {
   // 方案 A：按点击顺序显示 (如果先点B再点A，显示 "B·A")

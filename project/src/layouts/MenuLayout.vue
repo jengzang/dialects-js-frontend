@@ -100,7 +100,7 @@ nav {
 .fade-enter-from, .fade-leave-to { opacity: 0; transform: translateY(6px); }
 
 /* 📱 手機：只調整文字與按鈕 */
-@media (max-width: 480px) {
+@media (max-aspect-ratio: 1/1)  {
   /*.glass-card {*/
   /* border-radius: 22px;  手機玻璃四角稍微圓一點 */
   /* bottom: 8dvh;

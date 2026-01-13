@@ -804,7 +804,7 @@ defineExpose({ togglePopup, openPopup, closePopup })
   font-size: 15px;
 }
 
-@media (orientation: portrait) {
+@media (max-aspect-ratio: 1/1)  {
   .partition-item {
     font-size: 18px;
   }

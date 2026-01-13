@@ -258,31 +258,6 @@
     background-color: #005bb5;
 }
 
-/* 声调弹窗 */
-.popup-tones {
-    position: absolute;
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.05));
-    backdrop-filter: blur(20px) saturate(140%);
-    -webkit-backdrop-filter: blur(20px) saturate(140%);
-    padding: 15px;
-    border-radius: 12px;
-    border: 2px solid rgba(255, 255, 255, 0.25);
-    box-shadow: inset 0 0 1px rgba(255, 255, 255, 0.2), 0 4px 12px rgba(0, 0, 0, 0.15);
-    max-width: 300px;
-    min-width: 150px;
-    font-size: 14px;
-    color: #000000;
-    z-index: 10000;
-    display: none;
-    white-space: pre-wrap;
-    transition: opacity 0.3s ease, transform 0.3s ease;
-}
-
-.popup-tones h3 {
-    margin-top: 0;
-    font-size: 16px;
-    color: #333;
-}
 
 #toast {
     visibility: hidden;
