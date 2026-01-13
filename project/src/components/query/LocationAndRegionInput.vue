@@ -130,16 +130,29 @@ const props = defineProps({
     default: () => ({ locations: [], regions: [] ,regionUsing:'map'})  // 默认值
   }
 })
-// watch 外部传入的值
-watch(() => props.modelValue, (newVal) => {
-  inputValue.value = newVal.locations.join(' ')
-  selectedValue.value = newVal.regions
-  regionUsing.value = newVal.regionUsing
-})
 
 const inputValue = ref(props.modelValue.locations.join(' '))  // 初始化地點
 const selectedValue = ref(props.modelValue.regions)            // 初始化分區
 const regionUsing = ref(props.modelValue.regionUsing)
+// watch 外部传入的值
+watch(() => props.modelValue, (newVal) => {
+  if (!newVal) return
+
+  // 為了防止光標跳動或死循環，可以加一個判斷：只有值真的不一樣才更新
+  const newStr = Array.isArray(newVal.locations) ? newVal.locations.join(' ') : ''
+  if (inputValue.value !== newStr) {
+    inputValue.value = newStr
+  }
+
+  if (JSON.stringify(selectedValue.value) !== JSON.stringify(newVal.regions)) {
+    selectedValue.value = newVal.regions
+  }
+
+  if (regionUsing.value !== newVal.regionUsing) {
+    regionUsing.value = newVal.regionUsing
+  }
+}, { deep: true, immediate: true })
+
 
 /** 地點輸入邏輯 */
 const inputEl = ref(null)
@@ -157,7 +170,7 @@ const suggestionStyle = ref({
 // 已選擇地點數（來自 /get_locs/ 返回）
 const selectedCount = ref(null)
 // 定义事件，用于通知父组件禁用/启用按钮
-const emit = defineEmits(['update:runDisabled'])
+const emit = defineEmits(['update:runDisabled', 'update:modelValue'])
 // 底部提示欄的「限制提示文案」（對應 showToast）
 // 為空字串時不顯示
 const limitHint = ref('')
@@ -393,9 +406,9 @@ onMounted(() => {
   reset()
 })
 
-onActivated(() => {
-  reset()
-})
+// onActivated(() => {
+//   reset()
+// })
 async function fetchLocationsResult() {
   // 1️⃣ locations ← inputValue（地點輸入）
   const locations = (inputValue.value ?? '')
@@ -468,20 +481,24 @@ let debounceTimer2 = null
 
 watch(
     [inputValue, selectedValue, regionUsing],
-    () => {
-      // 清除上一次計時
-      if (debounceTimer2) {
-        clearTimeout(debounceTimer2)
-      }
+    ([newInput, newSelected, newMode]) => {
+      // 1. 立即通知父組件更新數據 (實現雙向綁定)
+      const locationsArr = (newInput ?? '').trim().split(/\s+/).filter(Boolean)
 
-      // 重新計時：1s 內不再變化才觸發
+      // 🔥 發射事件！這行代碼讓父組件知道數據變了
+      emit('update:modelValue', {
+        locations: locationsArr,
+        regions: newSelected,
+        regionUsing: newMode
+      })
+
+      // 2. 處理後端查詢邏輯 (防抖)
+      if (debounceTimer2) clearTimeout(debounceTimer2)
       debounceTimer2 = setTimeout(async () => {
         await fetchLocationsResult()
       }, 500)
     },
-    {
-      deep: true
-    }
+    { deep: true }
 )
 // ✅ 保存服務端返回的 locations_result
 const locationsResult = ref([])

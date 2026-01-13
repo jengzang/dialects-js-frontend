@@ -1,0 +1,435 @@
+/* 展开面板的动画效果 */
+.right-panel {
+    position: absolute;
+    right: -43%;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 38%;
+    max-width: 400px;
+    height: 50%;
+
+    /* 🍸 背景：多层渐变液态玻璃 */
+    background: linear-gradient(
+            135deg,
+            rgba(255, 255, 255, 0.20),
+            rgba(255, 255, 255, 0.05)
+    );
+    backdrop-filter: blur(10px) saturate(200%);
+    -webkit-backdrop-filter: blur(10px) saturate(200%);
+
+    /* 🍏 玻璃边框 + 高光描边 */
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    outline: 2px solid rgba(255, 255, 255, 0.2);
+    outline-offset: -4px;
+    border-radius: 18px 0 0 18px;
+
+    /* 🌈 光影感增强：内发光 + 深阴影 */
+    box-shadow:
+            inset 0 0 1px rgba(255,255,255,0.5),
+            inset 0 0 15px rgba(255,255,255,0.1),
+            -8px 0 30px rgba(0,0,0,0.3),
+            0 0 12px rgba(255,255,255,0.2);
+
+    padding: 10px 20px 10px 20px;
+    transition: right 0.5s ease;
+    flex-direction: column;
+    justify-content: flex-start;
+    display: flex;
+}
+/* 展開按鈕和面板展開時的樣式 */
+.right-panel.open {
+    right: 0; /* 展開時位於頁面右側 */
+}
+@media (max-aspect-ratio: 1/1) {
+    .right-panel {
+        right: -47% ;
+    }
+
+}
+
+/* 右側面板的內容 */
+.panel-content1 {
+    color: #333;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;  /* 自動控制表單行間距 */
+    flex-grow: 1;  /* 使表單填滿可用空間 */
+    overflow-y: auto;  /* 如果內容過多，可以滾動 */
+    overflow-x: hidden; /* 禁止水平滚动 */
+}
+
+/* 调整 h2 和表单之间的间距 */
+.panel-content1 h3 {
+    font-size: 18px;
+    text-align: center;
+    margin: 0;  /* 增加 h2 和表单之间的空隙 */
+    padding:0;
+}
+
+/*!* 特徵和值在同一行 *!*/
+/*.feature-row {*/
+/*    flex-direction: row;*/
+/*}*/
+
+/* 面板容器 */
+.container-search {
+    position: relative;
+    width: 50%;
+    max-width: 700px;
+    min-width: 300px;
+    z-index: 999;
+}
+
+/* 可展开的面板样式（多层玻璃升级版） */
+.expansion-panel-search {
+    position: fixed;
+    overflow: hidden; /* 确保圆角区域外的子元素不显示 */
+    top: 0;
+    left: 27.5%;
+    width: 21%;
+    resize: horizontal;
+    /* base glass */
+    background: linear-gradient(135deg, rgba(255,255,255,0.18), rgba(255,255,255,0.05));
+    backdrop-filter: blur(10px) saturate(150%);
+    -webkit-backdrop-filter: blur(10px) saturate(150%);
+    border: 1px solid rgba(255,255,255,0.35);
+    border-radius: 12px;
+    /* 外部景深 + 柔光 */
+    box-shadow:
+            0 8px 28px rgba(0, 0, 0, 0.18),
+            0 1px 0 rgba(255,255,255,0.25) inset; /* 轻微顶边高光 */
+    height: 6%;
+    transition: height 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+    justify-content: center;
+    isolation: isolate; /* 让伪元素分层更干净 */
+}
+
+/* --- 多层玻璃：高光层 + 折射层 --- */
+.expansion-panel-search::before,
+.expansion-panel-search::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none; /* 不挡交互 */
+}
+
+/* 高光折射层：边缘内发光 + 角落高光 */
+.expansion-panel-search::before {
+    /* 角落高光 + 轻微内发光模拟厚玻璃边缘 */
+    background:
+            radial-gradient(180px 60px at 100% 0%, rgba(255,255,255,0.45), transparent 60%),
+            radial-gradient(120px 50px at 0% 100%, rgba(255,255,255,0.25), transparent 60%),
+            linear-gradient(180deg, rgba(255,255,255,0.12), rgba(255,255,255,0.02));
+    box-shadow:
+            inset 0 0 0.5px rgba(255,255,255,0.6),
+            inset 0 0 18px rgba(255,255,255,0.08);
+    mix-blend-mode: screen;
+}
+
+/*!* 折射/噪点层：极淡噪点 + 侧向光带（更真实） *!*/
+/*.expansion-panel-search::after {*/
+/*    !* 轻微噪点纹理（用渐变模拟，保证纯 CSS）+ 右侧光带 *!*/
+/*    background:*/
+/*            linear-gradient(90deg, rgba(255,255,255,0.18), rgba(255,255,255,0.02) 30%, rgba(255,255,255,0) 60%) ,*/
+/*            repeating-linear-gradient(0deg, rgba(255,255,255,0.02) 0, rgba(255,255,255,0.02) 1px, rgba(0,0,0,0.02) 2px, rgba(0,0,0,0.02) 3px);*/
+/*    opacity: 0.9;*/
+/*    filter: blur(0.2px); !* 让噪点不尖锐 *!*/
+/*}*/
+
+/* 悬停：轻微放大 + 提亮高光与阴影，像真实玻璃被光线扫过 */
+.expansion-panel-search:hover {
+    box-shadow:
+            0 12px 34px rgba(0, 0, 0, 0.22),
+            0 1px 0 rgba(255,255,255,0.3) inset,
+            0 0 0 1px rgba(255,255,255,0.06); /* 边缘薄雾 */
+    transform: translateZ(0) scale(1.01);
+}
+
+/*!* 可选：轻微高光“擦拭”动画（仅在 hover 时出现） *!*/
+/*.expansion-panel-search:hover::before {*/
+/*    animation: glass-sheen 1.6s ease forwards;*/
+/*}*/
+
+/*@keyframes glass-sheen {*/
+/*    0%   { background-position: 120% 0, 0 100%, 0 0; opacity: 0.85; }*/
+/*    60%  { background-position: 0% 0, 0 100%, 0 0; opacity: 1; }*/
+/*    100% { background-position: -20% 0, 0 100%, 0 0; opacity: 0.95; }*/
+/*}*/
+
+/*!* 用户减少动效时，关闭动画 *!*/
+/*@media (prefers-reduced-motion: reduce) {*/
+/*    .expansion-panel-search,*/
+/*    .expansion-panel-search::before {*/
+/*        animation: none !important;*/
+/*        transition: none !important;*/
+/*    }*/
+/*}*/
+
+
+
+@media (max-aspect-ratio: 1/1) {
+    .expansion-panel-search {
+        left: 1% !important; /* 左侧位置在页面的3/10 */
+        width: 60% !important; /* 设置元素宽度 */
+        top: 0; /* 顶部贴着页面上边缘 */
+        height: 40px; /* 默认高度为页面的2/5 */
+        justify-content: center; /* 水平居中 */
+        display: flex;
+    }
+    .footer-search{
+        padding: 3px 10px!important;
+    }
+}
+
+/* 面板内容样式 */
+.content-search {
+    padding: 20px;
+    overflow-y: auto; /* 内容超出时启用滚动条 */
+    /*max-height: 100%;*/
+    flex-grow: 1; /* 让内容区域填满剩余空间 */
+    max-height: calc(100% - 70px); /* 限制内容区域的最大高度，防止超过底部按钮 */
+    border-radius: 12px;
+}
+
+.footer-search {
+    display: flex;
+    width: 90%;
+    flex-shrink: 1;
+    flex-grow: 0;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 20px;
+
+    /* 🧊 液态玻璃背景（替换原背景） */
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.03));
+    backdrop-filter: blur(5px) saturate(180%);
+    -webkit-backdrop-filter: blur(10px) saturate(180%);
+
+    /* ✨ 边角和上边框增强玻璃感 */
+    border-radius: 0 0 12px 12px;
+    border-top: 1px solid rgba(255, 255, 255, 0.3);
+
+    /* 🌫️ 向上轻微发光感 */
+    box-shadow:
+            inset 0 1px 1px rgba(255, 255, 255, 0.3),
+            0 -2px 10px rgba(0, 0, 0, 0.05),
+            0 -1px 4px rgba(255, 255, 255, 0.2);
+
+    position: absolute;
+    bottom: 0;
+    /*width: 100%;*/  /* ✅ 按你原注释保持不变 */
+}
+
+
+.char {
+    font-size: 28px;
+    font-weight: bold;
+    text-align: center;
+    margin-top: 15px;  /* 上边距增加 */
+    margin-bottom: 1px;
+}
+
+.positions {
+    font-size: 13px;
+    color: gray;
+    text-align: center;
+    margin-bottom: 15px; /* 调小 p 标签之间的间距 */
+}
+.positions p {
+    margin: 2px 0; /* 调小上下间距 */
+}
+
+
+.location {
+    font-size: 16px;
+    /*font-weight: bold;*/
+    color: darkblue;
+    margin-bottom: 5px;
+    display: inline-block; /* 设置为 inline-block */
+    margin-right: 8px;     /* 增加右侧间距 */
+}
+
+.syllables {
+    font-size: 16px;
+    font-weight: bold;
+    text-align: center;
+    display: inline-block; /* 设置为 inline-block */
+    font-family: "Times New Roman", sans-serif;
+}
+
+.syllables span {
+    margin-right: 3px;
+}
+
+
+/* 表格样式 */
+.table-tones {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.table-tones th,
+.table-tones td {
+    border: 1px solid #ddd;
+    padding: 3px;
+    text-align: center;
+    white-space: nowrap; /* 禁止换行 */
+    overflow: hidden;    /* 超出内容隐藏 */
+    text-overflow: ellipsis; /* 显示省略号 */
+    font-size: 1em; /* 默认字体大小 */
+}
+
+/* 地点名称列 */
+.location-tones {
+    width: 100px;
+    text-overflow: ellipsis; /* 超出显示省略号 */
+    overflow: hidden; /* 隐藏超出部分 */
+    white-space: nowrap; /* 禁止换行 */
+    font-size: 12px; /* 默认字体大小 */
+    transition: transform 0.2s ease, background-color 0.2s ease; /* 添加过渡效果 */
+    /*box-sizing: border-box; !* 确保边框不会被缩放后遮挡 *!*/
+}
+
+
+.location-tones:hover {
+    background-color: #f4f4f4; /* 鼠标悬停时变色 */
+    transform: scale(1.15); /* 鼠标悬停时稍微放大 */
+    cursor: pointer; /* 鼠标指针变为手形 */
+    color: #0038a1; /* 文字变成深蓝色 */
+    /*border: 5px solid #020000; !* 添加边框 *!*/
+    /*border: 2px solid #003366; !* 放大后加上边框 *!*/
+}
+
+/* 音调列 */
+.tones-cell-tones {
+    width: 60px;
+    text-overflow: ellipsis; /* 超出显示省略号 */
+    overflow: hidden; /* 隐藏超出部分 */
+    white-space: nowrap; /* 禁止换行 */
+    font-size: 1em; /* 默认字体大小 */
+    box-sizing: border-box; /* 确保边框不会被缩放后遮挡 */
+}
+
+/*.tones-cell-tones:hover {*/
+/*    transform: scale(1.1); !* 鼠标悬停时稍微放大 *!*/
+/*    border: 3px solid #020000; !* 添加边框 *!*/
+/*    !*box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); !* 添加阴影 *!*!*/
+/*    !*font-size: 1.1em; !* 放大字体 *!*!*/
+/*    !*cursor: pointer; !* 鼠标指针变为手形 *!*!*/
+/*}*/
+
+/*!* 内容居中 *!*/
+/*.query-detail-panel .panel-content {*/
+/*    flex: 1;*/
+/*    display: flex;*/
+/*    flex-direction: column;*/
+/*    justify-content: center;*/
+/*}*/
+
+
+/* 登录和提示同排显示 */
+.login-line {
+    display: flex;
+    align-self: center;
+    align-items: center;
+    gap: 10px; /* 控制按钮与文字之间距离 */
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+.login-line p{
+    white-space: nowrap;
+    overflow: hidden;    /* 超出内容隐藏 */
+    text-overflow: ellipsis; /* 显示省略号 */
+}
+.panel-content1 #login,
+.panel-content1 p {
+    display: inline-block;
+    vertical-align: middle;
+    margin: 0;
+}
+
+
+/* 可选：调整 p 的字体大小略微柔和 */
+.panel-content1 p {
+    font-size: 13px;
+    margin-top: 0;
+    color: #555;
+}
+@media (max-width: 768px) {
+    .panel-content1 p {
+        font-size: 12px;
+        margin-top: 0;
+        color: #555;
+    }
+}
+
+#loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    transition: opacity 0.3s ease;
+}
+
+#loading-overlay.loading-hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.bouncing-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.bouncing-loader {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.bouncing-loader > div {
+    width: 14px;
+    height: 14px;
+    margin: 4px;
+    background: #9aa0a6;
+    border-radius: 50%;
+    animation: bouncing 0.6s infinite ease-in-out;
+    box-shadow: 0 0 8px rgba(0,0,0,0.05);
+}
+
+.bouncing-loader > div:nth-child(2) {
+    animation-delay: 0.2s;
+}
+.bouncing-loader > div:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes bouncing {
+    0%, 80%, 100% {
+        transform: scale(0.7);
+        opacity: 0.5;
+    }
+    40% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.loading-text {
+    font-size: 16px;
+    color: #666;
+    font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Segoe UI", sans-serif;
+}
+
+
+

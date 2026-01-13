@@ -85,7 +85,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed ,watch} from 'vue';
 import {api} from "@/utils/auth.js";
 
 // 1. 接收父組件傳入的 locationRef
@@ -99,6 +99,22 @@ const props = defineProps({
 
 const tab3KeyInput = ref('');
 const isHelpModalOpen = ref(false);
+
+const emit = defineEmits(['update:runDisabled']);
+// ✅ 3. 修改後的監聽邏輯：
+// 僅當輸入框為空，或“只包含”空格和特定分隔符時，禁用按鈕
+watch(tab3KeyInput, (newVal) => {
+  // 正則解釋：
+  // \s      -> 匹配所有空白字符（空格、換行、Tab）
+  // ,;，；、 -> 匹配中英文的逗號、分號、頓號
+  // ^...*$  -> 匹配從頭到尾只有這些字符的情況
+
+  // 這樣寫法絕對安全，不會誤傷 IPA 符號（如 ː ʰ ʔ ˥ ˩ 等）
+  // 也不會誤傷語法符號（如 - 或 回車換行組合）
+  const isInvalid = !newVal || /^[\s,;，；、]*$/.test(newVal);
+  if (window.userRole !== 'admin'){
+    emit('update:runDisabled', isInvalid);}
+}, { immediate: true });
 
 // 狀態管理
 const loadingStates = ref({});

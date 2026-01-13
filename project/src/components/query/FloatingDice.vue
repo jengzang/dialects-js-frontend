@@ -1,7 +1,8 @@
 <template>
   <div v-if="isVisible" class="floating-tools">
 
-    <button class="close-btn" style="top:0;right: 0" @click="isVisible = false" title="關閉工具欄">
+    <button v-if="currentTab === 'tab2' || currentTab === 'tab3'"
+            class="close-btn" style="top:0;right: 0;height: 22px;width: 22px" @click="isVisible = false" title="關閉工具欄">
       ✕
     </button>
 
@@ -172,7 +173,7 @@ const presets_tab3 = [
     card: '韻母',
     keys: ['攝'],
     tab3KeyInput:['a'],
-    loc: { locations: ['揭陽 饒平 永安 福州'], regions: ['瓊崖'], regionUsing: 'yindian' }
+    loc: { locations: ['揭陽 饒平 永安 福州'], regions: ['莆仙'], regionUsing: 'yindian' }
   },
   {
     card: '聲母',
@@ -238,7 +239,6 @@ function handleRoll() {
   bottom: 63dvh; /* 根据实际页面调整高度，避免遮挡底部 Tab */
   display: flex;
   flex-direction: column;
-  gap: 5px;
   z-index: 99;
 }
 
@@ -247,7 +247,7 @@ function handleRoll() {
   border-radius: 12px;
   border: none;
   white-space: nowrap;
-  font-size: 16px;
+  font-size: 14px;
   cursor: pointer;
   background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(10px);

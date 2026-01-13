@@ -31,6 +31,7 @@ body {
   margin-bottom: 1.2rem;
   margin-top: 0.5rem;
   letter-spacing: 0.03em;
+  text-align: center;      /* 🔥 強制文字居中 */
 }
 
 /* List Styling */

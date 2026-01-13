@@ -221,6 +221,9 @@ function formatTitle(queryStr) {
   }
   return queryStr;
 }
+
+defineExpose({ combinations })
+
 </script>
 
 <style scoped>
