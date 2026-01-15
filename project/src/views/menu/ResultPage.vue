@@ -112,7 +112,7 @@ watch(
       results.value = [];
       latestResults.value = [];
       payload.value = newPayload;
-
+      // console.log(payload.value)
       const sourceTab = newPayload._sourceTab || 'tab2';
       currentTabRef.value = sourceTab;
 
@@ -122,12 +122,9 @@ watch(
         mapStore.mode = 'feature';
         // ================= 获取 MapData（放入 try 内，避免失败不 stopTimer）=================
         const params_geo = new URLSearchParams();
-        if (Array.isArray(newPayload.locations)) {
-          newPayload.locations.forEach(loc => params_geo.append("locations", loc));
-        }
-        if (Array.isArray(newPayload.regions)) {
-          newPayload.regions.forEach(reg => params_geo.append("regions", reg));
-        }
+// 這裡加個 || "" 只是為了防止變量不存在時出現 "undefined" 字樣，其他情況都直接添加
+        params_geo.append("locations", newPayload.locations || "");
+        params_geo.append("regions", newPayload.regions || "");
         params_geo.append("region_mode", newPayload.region_mode || 'yindian');
         params_geo.append("iscustom", "true");
         params_geo.append("flag", "False");
@@ -135,6 +132,7 @@ watch(
         const MapData = await api(`/api/get_coordinates?${params_geo.toString()}`, {
           method: 'GET'
         });
+        console.log(MapData)
 
         // ✅ 竞态保护：MapData 回来时如果不是最新请求，直接退出
         if (seq !== requestSeq) return;
@@ -154,12 +152,9 @@ watch(
             if (typeof rawChars === 'string') rawChars = rawChars.split('');
             if (Array.isArray(rawChars)) rawChars.forEach(c => params.append("chars", c));
           }
-          if (Array.isArray(newPayload.locations)) {
-            newPayload.locations.forEach(loc => params.append("locations", loc));
-          }
-          if (Array.isArray(newPayload.regions)) {
-            newPayload.regions.forEach(reg => params.append("regions", reg));
-          }
+// 這裡加個 || "" 只是為了防止變量不存在時出現 "undefined" 字樣，其他情況都直接添加
+          params.append("locations", newPayload.locations || "");
+          params.append("regions", newPayload.regions || "");
           params.append("region_mode", newPayload.region_mode || 'yindian');
 
           const response = await api(`/api/search_chars/?${params.toString()}`, {
@@ -243,12 +238,9 @@ watch(
         else if (sourceTab === 'tab4') {
           window._resultPageCache = {};
           const params = new URLSearchParams();
-          if (Array.isArray(newPayload.locations)) {
-            newPayload.locations.forEach(loc => params.append("locations", loc));
-          }
-          if (Array.isArray(newPayload.regions)) {
-            newPayload.regions.forEach(reg => params.append("regions", reg));
-          }
+// 這裡加個 || "" 只是為了防止變量不存在時出現 "undefined" 字樣，其他情況都直接添加
+          params.append("locations", newPayload.locations || "");
+          params.append("regions", newPayload.regions || "");
           params.append("region_mode", newPayload.region_mode || 'yindian');
 
           const response = await api(`/api/search_tones/?${params.toString()}`, {

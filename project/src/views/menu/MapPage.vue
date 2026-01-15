@@ -128,14 +128,14 @@ watch(availableFeatures, (newVal) => {
       // 選中新列表的第一個
       selectedFeature.value = firstFeature;
       // 同步給 Store，觸發地圖繪製
-      mapStore.activeFeature = firstFeature;
+      // mapStore.activeFeature = firstFeature;
     }
     // 如果 isCurrentValid 為 true，說明用戶選的特徵在新數據裡也有，那就保持不動，體驗更絲滑
   }
   else {
     // 如果新數據為空，清空狀態
     selectedFeature.value = '';
-    mapStore.activeFeature = '';
+    // mapStore.activeFeature = '';
   }
 }, { immediate: true });
 
@@ -161,7 +161,7 @@ const selectFeature = (val) => {
   selectedFeature.value = val
   dropdownOpen.value = null
   // 如果需要同步到 Store
-  mapStore.activeFeature = val
+  // mapStore.activeFeature = val
 }
 
 // 點擊外部關閉 (完全復刻)

@@ -20,7 +20,7 @@
         </div>
 
         <div
-            v-if="isMiddleChineseMode"
+            v-if="isMiddleChineseMode && hasCustomData"
             id="custom-switch-container"
             class="custom-switch-container1"
             @click="toggleCustomSwitch"
@@ -103,6 +103,13 @@ const showCustomData = ref(false);
 
 // 2. ✨ 判斷是否為“查中古”模式
 const isMiddleChineseMode = ref(false);
+const hasCustomData = computed(() => {
+  const data = mapStore.mergedData;
+  if (!data || data.length === 0) return false;
+
+  // 只要數組裡有一個 item 的 iscustoms 為 1，就說明開關是有用的
+  return data.some(item => item.iscustoms === 1);
+});
 let modeCheckInterval = null;
 // 2. 定義檢查函數
 const checkWindowMode = () => {
@@ -350,7 +357,7 @@ const drawDotMap = () => {
 // =======================================================
 const drawFeatureMap = () => {
   if (!mapStore.mergedData || mapStore.mergedData.length === 0) return;
-  if (!mapStore.activeFeature) return;
+  if (!props.activeFeature) return;
 
   const items = mapStore.mergedData.filter(item => {
     // item.feature === mapStore.activeFeature
@@ -364,9 +371,19 @@ const drawFeatureMap = () => {
 
     return isFeatureMatch && isCustomMatch;
   });
-
+  // console.log(items)
   items.forEach(item => {
+    // 1. 基礎校驗：無值跳過
     if (!item.value || !item.value.trim()) return;
+    // console.log(item.coordinate)
+    // ✨ 新增魯棒性檢查：確保坐標存在、是數組、且前兩位是有效數字
+    // 如果不滿足這些條件，直接 return 跳過，防止 maplibregl 報錯
+    if (!Array.isArray(item.coordinate) ||
+        item.coordinate.length < 2 ||
+        !Number.isFinite(item.coordinate[0]) ||
+        !Number.isFinite(item.coordinate[1])) {
+      return;
+    }
 
     // 1. 創建地圖上的文字 Marker (保持不變)
     const el = document.createElement('div');
