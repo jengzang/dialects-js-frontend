@@ -1,5 +1,5 @@
 <template>
-  <div class="query-detail-panel" >
+  <div  >
     <!-- 登錄介面 -->
     <div v-if="mode === 'login'" style="padding: 12px; text-align: center;">
       <h3>登錄</h3>
@@ -555,7 +555,9 @@ export default defineComponent({
       const stats = user.value?.usage_summary || []
 
       const labelMap = {
-        '/api/phonology': '🔍 查地位',
+        '/api/ZhongGu': '🔍 查中古',   // 新增：也映射为查中古
+        '/api/YinWei': '🗣🔍 查音位',    // 新增：查音位
+        '/api/phonology': '🔍 查地位', // 修改：原查地位改为查中古
         '/api/search_chars/': '🔤 查字',
         '/api/search_tones/': '🎶 查調',
       }

@@ -1,0 +1,351 @@
+.content-search {
+    padding: 20px;
+    overflow-y: auto; /* 内容超出时启用滚动条 */
+    /*max-height: 100%;*/
+    flex-grow: 1; /* 让内容区域填满剩余空间 */
+    max-height: calc(100% - 70px); /* 限制内容区域的最大高度，防止超过底部按钮 */
+    border-radius: 12px;
+}
+
+.char {
+    font-size: 28px;
+    font-weight: bold;
+    text-align: center;
+    margin-top: 15px;  /* 上边距增加 */
+    margin-bottom: 1px;
+}
+.info-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 8px 5px;
+    border-bottom: 1px solid #eee;
+}
+
+/* 🌟 佈局容器 */
+.syllables-grid {
+    /* 使用 Flex 而不是 Grid，這樣可以根據文字長度自動排列 */
+    display: flex;
+    flex-wrap: wrap; /* 允許換行 */
+    gap: 1px 16px;   /* 行間距 8px，列間距 16px (拉開一點點區分不同音) */
+    font-family: "Times New Roman", sans-serif;
+
+}
+
+/* 🌟 單個音節單元 */
+.syllable-unit {
+    display: inline-flex; /* 內容寬度自適應 */
+    flex-direction: row;  /* 👈 確保音和注釋在同一行 */
+    align-items: baseline;/* 基線對齊，保證漢字和拼音底部對齊 */
+
+    /* 關鍵：防止音節內部換行，保證“音+注釋”是一個整體 */
+    white-space: nowrap;
+    gap: 4px;
+}
+
+/* 1. 發音 */
+.pronunciation {
+    color: #000;
+    font-weight: normal;
+    font-size: 1.1em;
+}
+
+/* 2. 注釋 */
+.annotation {
+    color: #888;
+    font-size: 0.85em;
+}
+
+/* 3. 分隔符 */
+.separator {
+    margin: 0 5px;
+    color: #ccc;
+    font-weight: bold;
+}
+.positions {
+    font-size: 13px;
+    color: gray;
+    text-align: center;
+    margin-bottom: 15px; /* 调小 p 标签之间的间距 */
+}
+.positions p {
+    margin: 2px 0; /* 调小上下间距 */
+}
+
+
+.location {
+    font-size: 16px;
+    /*font-weight: bold;*/
+    color: darkblue;
+    margin-bottom: 5px;
+    display: inline-block; /* 设置为 inline-block */
+    margin-right: 15px;     /* 增加右侧间距 */
+    white-space: nowrap;
+}
+
+
+.syllables span {
+    margin-right: 3px;
+}
+
+
+/* 表格样式 */
+.table-tones {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.table-tones th,
+.table-tones td {
+    border: 1px solid #ddd;
+    padding: 3px;
+    text-align: center;
+    white-space: nowrap; /* 禁止换行 */
+    overflow: hidden;    /* 超出内容隐藏 */
+    text-overflow: ellipsis; /* 显示省略号 */
+    font-size: 1em; /* 默认字体大小 */
+}
+/* ================= 🌟 優化：首列固定 (Sticky Column) ================= */
+
+/* 1. 給第一列 (th 和 td) 添加固定定位 */
+.table-tones th:first-child,
+.table-tones td:first-child {
+    position: sticky;
+    left: 0;
+
+    /* 關鍵 1：層級要比普通單元格高 */
+    z-index: 10;
+
+    /* 關鍵 2：背景處理 (配合你的玻璃風格) */
+    /* 這裡不能完全透明，否則字會疊在一起。
+       方案 A: 純色 (最安全) -> background-color: #f0f0f0;
+       方案 B: 毛玻璃 (最漂亮) -> 如下 */
+    background: rgba(255, 255, 255, 0.75); /* 稍微不透明一點的白色 */
+    backdrop-filter: blur(8px);            /* 🌟 核心：讓穿過去的文字變模糊 */
+    -webkit-backdrop-filter: blur(8px);
+
+    /* 關鍵 3：右側陰影，製造「浮在上面」的層次感 */
+    box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+
+    /* 確保邊框不會因為 sticky 而消失 */
+    border-right: 1px solid rgba(0,0,0,0.1);
+
+    /* 處理邊框重疊導致的變粗問題 */
+    background-clip: padding-box;
+}
+
+/* 2. 特別處理表頭 (th) */
+.table-tones th:first-child {
+    /* 表頭層級必須比內容層級更高，防止捲動時被遮擋 */
+    z-index: 20;
+
+    /* 表頭通常顏色可以深一點，或者保持一致 */
+    background: rgba(255, 255, 255, 0.9);
+}
+
+/* 地点名称列 */
+.location-tones {
+    width: 100px;
+    text-overflow: ellipsis; /* 超出显示省略号 */
+    overflow: hidden; /* 隐藏超出部分 */
+    white-space: nowrap; /* 禁止换行 */
+    font-size: 12px; /* 默认字体大小 */
+    transition: transform 0.2s ease, background-color 0.2s ease; /* 添加过渡效果 */
+    /*box-sizing: border-box; !* 确保边框不会被缩放后遮挡 *!*/
+}
+
+
+.location-tones:hover {
+    background-color: #f4f4f4; /* 鼠标悬停时变色 */
+    transform: scale(1.15); /* 鼠标悬停时稍微放大 */
+    cursor: pointer; /* 鼠标指针变为手形 */
+    color: #0038a1; /* 文字变成深蓝色 */
+    /*border: 5px solid #020000; !* 添加边框 *!*/
+    /*border: 2px solid #003366; !* 放大后加上边框 *!*/
+}
+
+/* 音调列 */
+.tones-cell-tones {
+    width: 60px;
+    text-overflow: ellipsis; /* 超出显示省略号 */
+    overflow: hidden; /* 隐藏超出部分 */
+    white-space: nowrap; /* 禁止换行 */
+    font-size: 1em; /* 默认字体大小 */
+    box-sizing: border-box; /* 确保边框不会被缩放后遮挡 */
+}
+
+/*.tones-cell-tones:hover {*/
+/*    transform: scale(1.1); !* 鼠标悬停时稍微放大 *!*/
+/*    border: 3px solid #020000; !* 添加边框 *!*/
+/*    !*box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); !* 添加阴影 *!*!*/
+/*    !*font-size: 1.1em; !* 放大字体 *!*!*/
+/*    !*cursor: pointer; !* 鼠标指针变为手形 *!*!*/
+/*}*/
+
+/*!* 内容居中 *!*/
+/*.query-detail-panel .panel-content {*/
+/*    flex: 1;*/
+/*    display: flex;*/
+/*    flex-direction: column;*/
+/*    justify-content: center;*/
+/*}*/
+
+
+#loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    transition: opacity 0.3s ease;
+}
+
+#loading-overlay.loading-hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.bouncing-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.bouncing-loader {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.bouncing-loader > div {
+    width: 14px;
+    height: 14px;
+    margin: 4px;
+    background: #9aa0a6;
+    border-radius: 50%;
+    animation: bouncing 0.6s infinite ease-in-out;
+    box-shadow: 0 0 8px rgba(0,0,0,0.05);
+}
+
+.bouncing-loader > div:nth-child(2) {
+    animation-delay: 0.2s;
+}
+.bouncing-loader > div:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes bouncing {
+    0%, 80%, 100% {
+        transform: scale(0.7);
+        opacity: 0.5;
+    }
+    40% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.loading-text {
+    font-size: 16px;
+    color: #666;
+    font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Segoe UI", sans-serif;
+}
+
+/* ------------------------- */
+/* 多音字樣式 / 滑鼠提示效果 */
+/* ------------------------- */
+.multi {
+    /*font-style: italic;*/
+    margin: 0 2px;
+    text-decoration: none;
+    transition: color 0.2s ease;
+    position: relative;
+    display: inline-block;
+    padding: 2px 2px;
+    cursor: pointer;
+    font-size: 16px;
+}
+.multi:hover {
+    color: #d33;
+}
+
+
+.multi::after {
+    content: attr(data-title);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #333;
+    color: #fff;
+    padding: 5px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    z-index: 9999;
+    pointer-events: none;
+    font-style: normal;
+}
+
+.multi:hover::after {
+    opacity: 1;
+    visibility: visible;
+}
+
+/**************************
+----------聲調彈窗----------
+ **************************/
+/* 弹窗样式 */
+.popup-tones{
+    position: absolute;
+
+    /* 🧊 更淡的液态玻璃背景 */
+    background: linear-gradient(
+            135deg,
+            rgba(255, 255, 255, 0.18),  /* 透明度更低 */
+            rgba(255, 255, 255, 0.05)
+    );
+    backdrop-filter: blur(20px) saturate(140%); /* 降低饱和度 */
+    -webkit-backdrop-filter: blur(20px) saturate(140%);
+
+    padding: 15px;
+    border-radius: 12px;
+
+    /* ✨ 柔和边框（减弱白边） */
+    border: 2px solid rgba(255, 255, 255, 0.25);
+
+    /* 🌫️ 阴影更轻柔，避免厚重 */
+    box-shadow:
+            inset 0 0 1px rgba(255,255,255,0.2),
+            0 4px 12px rgba(0, 0, 0, 0.15);
+
+    max-width: 300px;
+    min-width: 150px;
+    font-size: 14px;
+    color: #000000; /* 保持易读性 */
+
+    z-index: 10000;
+
+    white-space: pre-wrap;
+
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+
+.popup-tones h3 {
+    margin-top: 0;
+    font-size: 16px;
+    color: #333;
+}
+
+

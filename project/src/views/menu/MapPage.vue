@@ -9,259 +9,176 @@
       >
         {{ tab.label }}
       </div>
+
+      <div v-if="currentTab === 'map' && mapStore.mode === 'feature' && availableFeatures.length > 0" class="feature-control-area">
+        <div v-if="availableFeatures.length > 1" class="dropdown-wrapper">
+          <div
+              class="dropdown"
+              ref="featureTriggerEl"
+              style="white-space: nowrap;min-width: 50px"
+              @click="toggleDropdown('feature')"
+          >
+            {{ selectedFeature || '請選擇特徵' }}
+            <span class="arrow">{{ dropdownOpen === 'feature' ? '▲' : '▼' }}</span>
+          </div>
+
+          <Teleport to="body">
+            <div
+                v-if="dropdownOpen === 'feature'"
+                class="dropdown-panel"
+                :style="dropdownStyle.feature"
+                ref="featureDropdownEl"
+            >
+              <div
+                  class="dropdown-item"
+                  v-for="feat in availableFeatures"
+                  :key="feat"
+                  @click="selectFeature(feat)"
+              >
+                {{ feat }}
+              </div>
+            </div>
+          </Teleport>
+        </div>
+        <div v-else-if="availableFeatures.length === 1" class="single-btn-wrapper">
+          <button class="feature-btn active" @click="selectFeature(availableFeatures[0])">
+            {{ availableFeatures[0] }}
+          </button>
+        </div>
+
+    </div>
     </div>
 
-    <div class="tab-content">
-      <!-- 🟦 分區圖頁面 -->
-      <div v-if="currentTab === 'map'" class="page">
-        <div class="page-content-stack">
-          <div class="page-footer">
-            <small class="hint">繪製所選方言點的分區圖<br>想輸入多個分區❓️ 點擊👉</small>
-            <button class="enter-btn" @click="handleEnter">進入網站</button>
-          </div>
+    <div class="tab-content" style="justify-items: center; position: relative;">
 
-          <!-- ✅ Label + 自訂 Dropdown：一行 -->
-          <div class="dropdown-row horizontal-dropdown" style="margin-top: 12px;">
-            <!-- 左：Label -->
-            <label class="query-label" style="margin:0;font-size: 14px;">
-              請選擇繪圖分區級數
-            </label>
+      <MapLibre
+          v-if="currentTab === 'map'"
+          :active-feature="selectedFeature"
+          :is-custom="true"
+          :dot-level="selectedLevel"
+      />
+      <DivideTab
+          v-if="currentTab === 'divide'"
+          @region-selected="(val) => selectedLevel = val"
+      />
+      <CustomTab v-else-if="currentTab === 'custom'" />
 
-            <!-- 右：自訂 Dropdown -->
-            <div class="dropdown-wrapper" style="width: 200px">
-              <div class="dropdown" ref="regionTriggerEl" @click="toggleDropdown('region')" style="margin: 0">
-                {{ selectedRegion || '請選擇級數' }}
-                <span class="arrow">▾</span>
-              </div>
-
-              <Teleport to="body">
-                <div
-                    v-if="dropdownOpen === 'region'"
-                    class="dropdown-panel"
-                    :style="dropdownStyle.region"
-                    ref="regionDropdownEl"
-                >
-                  <div
-                      class="dropdown-item"
-                      v-for="region in [1, 2, 3]"
-                      :key="region"
-                      @click="selectRegion(region)"
-                  >
-                    {{ region }}級分區
-                  </div>
-                </div>
-              </Teleport>
-            </div>
-          </div>
-
-        </div>
-      </div>
-
-      <!-- 🟨 自定義頁面 -->
-      <div v-else-if="currentTab === 'custom'" class="page">
-        <div class="page-content-stack">
-          <!-- 🎨 說明 1 -->
-          <div class="page-footer">
-            <small class="hint">
-              🧩 您可以自由添加點、設置該點對應的特徵<br>
-              🖌️ 網站會根據特徵自動分配顏色
-            </small>
-          </div>
-
-          <!-- 🔐 登錄按鈕 -->
-          <div class="button-row">
-            <button class="enter-btn" @click="handleLogin">🔐 登錄</button>
-          </div>
-
-          <!-- 👤 說明 2 -->
-          <div class="page-footer">
-            <small class="hint">
-              👤 您將創建的是僅屬於您的數據，故需要登錄<br>
-              🤝 本站承諾：不會洩漏您的個人數據
-            </small>
-          </div>
-        </div>
-
-      </div>
-      <LocationAndRegionInput ref="locationRef" />
-      <!-- 條列說明區（居中） -->
-      <div class="list-wrapper"
-           v-if="currentTab === 'custom'">
-        <ul class="explain-list">
-          <li>請在上方填入您將添加的地點或其所屬分區</li>
-          <li><strong>點擊下方按鈕</strong> 右側將彈出一個面板</li>
-          <li>您需在面板中填入簡稱、分區、特徵、值</li>
-          <li>“特徵”是指分析的類別，例如“流攝"</li>
-          <li>“值”是顯示在地圖上的，例如“iu"</li>
-          <li>點擊地圖即可自動填入經緯度</li>
-        </ul>
-      </div>
-
-      <!-- 🚀 炫酷按鈕 -->
-      <div class="fancy-run-container">
-
-        <!-- 🌍 分區圖專用按鈕 -->
-        <button
-            v-if="currentTab === 'map'"
-            id="allmap-first"
-            class="allmap-first"
-            @click="runAction"
-            :disabled="isRunning">
-          <span v-if="isRunning">🔄 運行中...</span>
-          <span v-else>🌍繪圖</span>
-        </button>
-
-        <!-- 其他 tab 可以保留 fancy-run-btn（如果你要） -->
-        <button
-            v-if="currentTab === 'custom'"
-            class="fancy-run-btn"
-            @click="runAction"
-            :disabled="isRunning">
-          <span v-if="isRunning">🔄 運行中...</span>
-          <span v-else>🚀 添加個人數據</span>
-        </button>
-      </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, reactive, nextTick, onMounted, onBeforeUnmount } from 'vue'
-import LocationAndRegionInput from "@/components/query/LocationAndRegionInput.vue";
-import refresh from "@/components/old/refresh.vue";
-const locationRef = ref(null)
-import {useRoute, useRouter} from 'vue-router'
+import { computed, ref, reactive, nextTick, onMounted, onBeforeUnmount, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { mapStore } from '@/utils/store.js' // 引入 Store 獲取數據
+
+import DivideTab from "@/components/map/DivideTab.vue";
+import CustomTab from '@/components/map/CustomTab.vue'
+import MapLibre from "@/components/map/MapLibre.vue";
+const selectedLevel = ref(3)
 const router = useRouter()
 const route = useRoute()
 
-const handleLogin = () => {
-  router.push('/auth')
-}
-
-// 当前选中的 Tab 页
-let currentTab = ref('map') // 默认选择 "簡介" 页面
-const tabs = [
-  { name: 'map', label: '分區圖' },
-  { name: 'custom', label: '自定義繪圖' }
-]
-currentTab = computed(() => {
-  return route.query.sub || 'map' // 默认 intro
+// Tab 邏輯
+const currentTab = computed(() => {
+  return route.query.sub || 'map'
 })
 
-const selectedRegion = ref('')
-const dropdownOpen = ref(null)
+const tabs = [
+  { name: 'map', label: '地圖' },
+  { name: 'divide', label: '分區圖' },
+  { name: 'custom', label: '自定義' }
+]
 
-const regionTriggerEl = ref(null)
-const regionDropdownEl = ref(null)
+// --- ✨ 特徵選擇邏輯 (復刻你提供的邏輯) ---
+
+const selectedFeature = ref('')
+const dropdownOpen = ref(null)
+const featureTriggerEl = ref(null)
+const featureDropdownEl = ref(null)
 
 const dropdownStyle = reactive({
-  region: {
-    top: '0px',
-    left: '0px',
-  }
+  feature: { top: '0px', left: '0px' }
 })
 
+// 計算可用特徵
+const availableFeatures = computed(() => {
+  if (!mapStore.mergedData || mapStore.mergedData.length === 0) return []
+  const features = mapStore.mergedData.map(item => item.feature)
+  return [...new Set(features)]
+})
+
+// ✨ 監聽特徵列表變化 (修復版)
+watch(availableFeatures, (newVal) => {
+  // 1. 確保新數據存在且不為空
+  if (newVal && newVal.length > 0) {
+
+    // 獲取新列表的第一個特徵
+    const firstFeature = newVal[0];
+
+    // ✨ 核心修復：
+    // 不管之前有沒有選中，只要數據列表變了，我們就檢查：
+    // "當前選中的值" 是否還存在於 "新列表" 中？
+    const isCurrentValid = selectedFeature.value && newVal.includes(selectedFeature.value);
+
+    // 邏輯決策：
+    // 如果當前選中的值在新列表裡不存在 (說明換了一批數據)
+    // 或者 你希望每次搜索都強制重置到第一個特徵 (通常這樣體驗更好，能觸發視角復位)
+    if (!isCurrentValid) {
+      // 選中新列表的第一個
+      selectedFeature.value = firstFeature;
+      // 同步給 Store，觸發地圖繪製
+      // mapStore.activeFeature = firstFeature;
+    }
+    // 如果 isCurrentValid 為 true，說明用戶選的特徵在新數據裡也有，那就保持不動，體驗更絲滑
+  }
+  else {
+    // 如果新數據為空，清空狀態
+    selectedFeature.value = '';
+    // mapStore.activeFeature = '';
+  }
+}, { immediate: true });
+
+// Toggle 邏輯 (完全復刻)
 const toggleDropdown = (type) => {
   dropdownOpen.value = dropdownOpen.value === type ? null : type
-
   nextTick(() => {
-    if (type === 'region' && regionTriggerEl.value) {
-      const rect = regionTriggerEl.value.getBoundingClientRect()
-      dropdownStyle.region = {
+    if (type === 'feature' && featureTriggerEl.value) {
+      const rect = featureTriggerEl.value.getBoundingClientRect()
+      dropdownStyle.feature = {
         position: 'absolute',
         top: `${rect.top + rect.height + window.scrollY}px`,
         left: `${rect.left + window.scrollX}px`,
+        width: `${rect.width}px`, // 讓下拉框寬度跟隨按鈕
         zIndex: 99999
       }
     }
   })
 }
 
-const selectRegion = (val) => {
-  selectedRegion.value = val
+// 選擇邏輯
+const selectFeature = (val) => {
+  selectedFeature.value = val
   dropdownOpen.value = null
+  // 如果需要同步到 Store
+  // mapStore.activeFeature = val
 }
 
-const currentTabLabel = computed(() => {
-  const found = tabs.find(t => t.name === currentTab.value)
-  return found?.label ?? '執行'
-})
-
-const handleEnter = () => {
-  window.location.href = window.WEB_BASE + '/detail/'
-}
-
-const isRunning = ref(false); // 控制運行中的狀態
-
-function getLocation() {
-  // console.log("loc",locationRef.value?.inputValue)
-  // console.log("region",locationRef.value?.selectedValue)
-  if (!locationRef.value?.selectedValue ||
-      (Array.isArray(locationRef.value?.selectedValue) && locationRef.value.selectedValue.every(item => item === ''))) {
-    // console.log("fuck")
-    return locationRef.value?.inputValue || '廣州';
-  } else {
-    // console.log("bitch")
-    // 如果 selectedValue 不为空，使用 inputValue（如果有）
-    return locationRef.value?.inputValue ;
-  }
-}
-const runAction = () => {
-  isRunning.value = true;
-  const base = {
-    mode: currentTab.value,
-    location: getLocation(), // 调用 getLocation 函数来获取 location
-    region: locationRef.value?.selectedValue,
-    region_source: locationRef.value?.regionUsing
-  }
-
-  let data = {}
-
-  if (currentTab.value === 'map') {
-    data = {
-      ...base,
-      level: selectedRegion.value
-    }
-  } else if (currentTab.value === 'custom') {
-    data = {
-      ...base
-      // no additional fields
-    }
-  }
-
-  // ✅ 打印或傳值
-  // console.log('📦 傳送資料：', data)
-  sessionStorage.setItem('vueToNativeData', JSON.stringify(data))
-
-  window.location.replace(window.WEB_BASE + '/detail/');
-
-}
-
-
-// 關閉 dropdown 點外面就收起來
+// 點擊外部關閉 (完全復刻)
 const onClickOutside = (event) => {
-  const targets = [regionTriggerEl.value, regionDropdownEl.value]
+  const targets = [featureTriggerEl.value, featureDropdownEl.value]
   const isInsideAny = targets.some(el => el?.contains(event.target))
-  if (!isInsideAny) {
-    dropdownOpen.value = null
-  }
+  if (!isInsideAny) dropdownOpen.value = null
 }
 
-onMounted(() => {
-  document.addEventListener('click', onClickOutside)
-})
-onBeforeUnmount(() => {
-  document.removeEventListener('click', onClickOutside)
-})
+onMounted(() => document.addEventListener('click', onClickOutside))
+onBeforeUnmount(() => document.removeEventListener('click', onClickOutside))
 </script>
 
-<!-- ✅ 你原本的 dropdown 樣式 CSS 無需改動，這裡保留 -->
-
 <style scoped>
-/* === 內容區塊 === */
+/* 僅保留外層容器樣式 */
 .tab-content {
   width: 100%;
-  max-width: 800px;
   animation: fade 0.6s ease;
   flex-direction: column;
   align-items: center;
@@ -271,87 +188,50 @@ onBeforeUnmount(() => {
 }
 
 @keyframes fade {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-/* ✅ Label + Dropdown 水平排列 */
-.horizontal-dropdown {
+/* 特徵控制區 (放在地圖上方) */
+.feature-control-area {
+  margin-left: 12px;
+  z-index: 200; /* 確保下拉框在地圖之上 */
+  position: relative;
   display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 6px;
-  width: 100%;
-  max-width: 300px;
-  margin: auto;
-}
-
-/* 🍏 Fancy 蘋果風格按鈕，大小對齊 fancy-run-btn */
-.allmap-first {
-  display: flex;
-  align-items: center;
   justify-content: center;
-  background: linear-gradient(90deg, #007aff, mediumblue);
-  border: none;
-  border-radius: 30px; /* ✔️ same as fancy-run-btn */
-  padding: 14px 28px;  /* ✔️ same as fancy-run-btn */
-  font-size: 18px;     /* ✔️ same as fancy-run-btn */
-  font-weight: bold;   /* ✔️ same */
-  letter-spacing: 1px; /* ✔️ same */
-  color: white;
+}
+/* === 單一按鈕樣式 (復刻你之前的 Button 風格) === */
+.single-btn-wrapper {
+  display: flex;
+  justify-content: center;
+}
+
+.feature-btn {
+  padding: 10px 24px;
+  border-radius: 20px;
+  border: 1px solid rgba(200, 200, 200, 0.5);
+  background: rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(10px);
   cursor: pointer;
-  transition: all 0.3s ease;
-  white-space: nowrap;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2), 0 6px 20px rgba(0, 0, 0, 0.19);
-}
-
-/* 懸停效果 */
-.allmap-first:hover {
-  background: linear-gradient(145deg, #4e5d5b, #212d2b);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3), 0 12px 32px rgba(0, 0, 0, 0.25);
-  transform: translateY(-3px);
-}
-
-/* 點擊效果 */
-.allmap-first:active {
-  transform: translateY(2px);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1), 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-/* 🧍‍♂️ 讓按鈕單獨一行並居中 */
-.button-row {
-  display: flex;
-  justify-content: center;
-  width: 100%;
-  margin-top: 12px;
-}
-/* 外層包裹，控制居中對齊 */
-.list-wrapper {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-}
-
-/* 條列說明樣式 */
-.explain-list {
-  list-style-type: disc;
-  padding-left: 1.5rem;
-  margin:  0;
-  color: #555; /* 深灰色 */
   font-size: 14px;
-  line-height: 1.6;
-  text-align: left;
-  max-width: 360px; /* 避免太寬，保持閱讀性 */
+  color: #333;
+  transition: all 0.3s ease;
 }
 
-.explain-list li {
-  white-space: nowrap;
-  margin-bottom: 4px;
+.feature-btn.active {
+  background: #34c759; /* 綠色表示激活 */
+  color: white;
+  border-color: #34c759;
+  box-shadow: 0 4px 12px rgba(52, 199, 89, 0.3);
 }
 
+.feature-btn:hover {
+  transform: translateY(-2px);
+}
+
+@keyframes fade {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
 </style>
+

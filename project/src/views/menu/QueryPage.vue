@@ -12,7 +12,7 @@
     </div>
 
     <div class="tab-content">
-      <div v-if="currentTab === 'tab1'" class="page">
+      <div v-show="currentTab === 'tab1'" class="page">
         <div class="page-content-stack">
           <!-- 🔹 輸入框區塊 -->
           <div class="query-box">
@@ -29,7 +29,7 @@
       </div>
 
 
-      <div v-else-if="currentTab === 'tab2'" class="page">
+      <div v-show="currentTab === 'tab2'" class="page">
         <div class="page-content-stack">
          <!-- 三欄選擇 -->
           <div class="triple-select-box">
@@ -41,11 +41,11 @@
                     :key="item"
                     class="card-group-item"
                     :class="{
-                              active: selectedCard === item,
+                              active: tabStates.tab2.card === item,
                               first: index === 0,
                               last: index === cards.length - 1
                             }"
-                    @click="selectedCard = item"
+                    @click="tabStates.tab2.card = item"
                 >
                   {{ item }}
                 </div>
@@ -59,8 +59,8 @@
                   <div v-for="key in keys" :key="key" class="key-item">
                     <!-- 键名部分为按钮 -->
                     <button
-                        :class="['key-button', { active: selectedKey.includes(key) }]"
-                        @click="toggleKeySelection(key)"
+                        :class="['key-button', { active: tabStates.tab2.keys.includes(key) }]"
+                        @click="toggleKeySelection(key, tabStates.tab2.keys)"
                     >
                       {{ key }}
                     </button>
@@ -68,7 +68,7 @@
                 </div>
               <!-- 键值部分：当键名被选中时显示对应的键值下拉框 -->
               <div class="key-dropdown-group">
-                <div v-for="key in selectedKey" :key="key" class="key-value-dropdown">
+                <div v-for="key in tabStates.tab2.keys" :key="key" class="key-value-dropdown">
                   <div class="dropdown"
                        @click="toggleDropdown('value',key)"
                        :ref="(el) => setTriggerRef(el, key)"
@@ -114,18 +114,19 @@
               </div>
             </div>
             <ZhongguSelector
-                :active-keys="selectedKey"
-                :value-map="selectedValueMap"
+                :active-keys="tabStates.tab2.keys"
+                :value-map="tabStates.tab2.valueMap"
                 :is-dropdown-open="!!dropdownOpen"
-                :selected-card="selectedCard"
-                @update:runDisabled="isRunDisabled = $event"
+                :selected-card="tabStates.tab2.card"
+                @update:runDisabled="tabContentDisabled.tab2 = $event"
+                ref="ZhongguRef"
             />
           </div>
         </div>
       </div>
 
       <!-- 📤 tab3：查音位頁面 -->
-      <div v-else-if="currentTab === 'tab3'" class="page">
+      <div v-show="currentTab === 'tab3'" class="page">
         <div class="page-content-stack">
           <!-- 三欄選擇 -->
           <div class="triple-select-box">
@@ -137,26 +138,25 @@
                     :key="item"
                     class="card-group-item"
                     :class="{
-                              active: selectedCard === item,
+                              active: tabStates.tab3.card === item,
                               first: index === 0,
                               last: index === cards.length - 1
                             }"
-                    @click="selectedCard = item"
+                    @click="tabStates.tab3.card = item"
                 >
                   {{ item }}
                 </div>
               </div>
             </div>
 
-            <!-- ✅ 鍵名 + 鍵值：同一行，用容器包 -->
             <div class="dropdown-row">
               <div class="button-group">
                 <!-- 键名按钮，支持多选 -->
                 <div v-for="key in keys" :key="key" class="key-item">
                   <!-- 键名部分为按钮 -->
                   <button
-                      :class="['key-button', { active: selectedKey.includes(key) }]"
-                      @click="toggleKeySelection(key)"
+                      :class="['key-button', { active: tabStates.tab3.keys.includes(key) }]"
+                      @click="toggleKeySelection(key, tabStates.tab3.keys)"
                   >
                     {{ key }}
                   </button>
@@ -166,13 +166,14 @@
               <div class="info-text" style="margin: 15px 0">
                 <span class="info-icon">ℹ️</span>
                 <span>
-                  分析<strong>{{ selectedCard }}</strong>音節的中古來源，即當今的同<strong>{{ selectedCard }}</strong>字分別來自哪些中古[<strong>{{ selectedKeysString }}</strong>]
+                  分析<strong>{{ tabStates.tab3.card }}</strong>音節的中古來源，即當今的同<strong>{{ tabStates.tab3.card }}</strong>字分別來自哪些中古[<strong>{{ selectedKeysString }}</strong>]
                 </span>
               </div>
               <!-- 🔄 輸入框 -->
               <YinweiSelector
                   ref="YinweiSelectorRef"
                   :locationRef="locationRef"
+                  @update:runDisabled="tabContentDisabled.tab3 = $event"
               />
             </div>
           </div>
@@ -182,8 +183,8 @@
 
       <LocationAndRegionInput
           ref="locationRef"
-          @update:runDisabled="isRunDisabled = $event"
-          :model-value="locationModel"
+          @update:runDisabled="isLocationDisabled = $event"
+          v-model="locationModel"
       />
 
       <!-- ✅ 炫酷按鈕 -->
@@ -195,7 +196,7 @@
             :class="{ disabled: isRunDisabled }"
         >
           <span v-if="isRunning">🔄 運行中...</span>
-          <span v-else-if="isRunDisabled">🚫 超出限制</span>
+          <span v-else-if="isRunDisabled">🚫 輸入不合規</span>
           <span v-else>🚀 單擊運行</span>
         </button>
       </div>
@@ -221,50 +222,111 @@
 </template>
 
 <script setup>
-import {computed, nextTick, reactive, ref, onMounted, onBeforeUnmount} from 'vue'
+import {computed, nextTick, reactive, ref, onMounted, onBeforeUnmount, watch, onActivated} from 'vue'
 import {useRoute, useRouter} from 'vue-router'
 import LocationAndRegionInput from "@/components/query/LocationAndRegionInput.vue";
 import ZhongguSelector from "@/components/query/ZhongguSelector.vue";
 import YinweiSelector from "@/components/query/YinweiSelector.vue";
 import FloatingDice from "@/components/query/FloatingDice.vue";
 // import refresh from "@/components/old/refresh.vue";
+import { globalPayload } from '@/utils/store.js'
+
 const locationRef = ref(null)
 const router = useRouter()
 const route = useRoute()
 // 当前选中的 Tab 页
-let currentTab = ref('tab2')
+const currentTab = ref(route.query.sub || 'tab2')
 const tabs = [
   { name: 'tab1', label: '查字' },
   { name: 'tab2', label: '查中古' },
   { name: 'tab3', label: '查音位' },
   { name: 'tab4', label: '查調' }
 ]
-currentTab = computed(() => {
-  return route.query.sub || 'tab2' // 默认 intro
+// 2. 监听路由变化（处理浏览器前进/后退，以及 Tab 点击切换）
+watch(
+    () => route.query,
+    (newQuery) => {
+      // 🛡️ 关键保护：只有当仍然在 'query' 页面时，才响应 sub 的变化
+      // 这样当你跳去 'result' 页 (tab=result) 时，虽然 sub 没了，currentTab 不会被重置
+      if (newQuery.tab === 'query' && newQuery.sub) {
+        currentTab.value = newQuery.sub
+      }
+    }
+)
+
+// 3. 当页面从缓存中恢复显示时 (KeepAlive)
+onActivated(() => {
+  // 如果当前 URL 只有 /menu?tab=query 而没有 sub 参数
+  // 我们手动把上次记住的 tab (比如 tab3) 补回 URL 上
+  if (route.query.tab === 'query' && !route.query.sub && currentTab.value) {
+    router.replace({
+      query: { ...route.query, sub: currentTab.value }
+    })
+  }
+  // 如果 URL 里有 sub (比如用户是通过带参链接进来的)，则以 URL 为准
+  else if (route.query.sub && route.query.sub !== currentTab.value) {
+    currentTab.value = route.query.sub
+  }
 })
+
 const hanziInput = ref('')
 
-const selectedCard = ref('韻母')
-const selectedKey = ref(['攝']);
-const selectedValue = ref('流')
+// const selectedCard = ref('韻母')
+// const selectedKey = ref(['攝']);
+// const selectedValue = ref('流')
+// const selectedValueMap = ref({});
+
 const dropdownOpen = ref(null)
-// 用于存储每个键名对应的选中值
-const selectedValueMap = ref({});
+
+const tabStates = reactive({
+  tab2: {
+    card: '韻母',
+    keys: ['攝'],
+    valueMap: {} // Tab2 专用的下拉菜单选择值
+  },
+  tab3: {
+    card: '韻母',
+    keys: ['攝'], // Tab3 专用的键名
+    // Tab3 似乎没有 valueMap 下拉框，如果有也放在这
+  }
+})
 
 const cards = ['聲母', '韻母', '聲調']
 const keys = Object.keys(column_values)
 const keyValueMap = column_values
-const tab3SelectedKey = ref(Object.keys(column_values)[0])
 const tab3KeyTriggerEl = ref(null)
-const tab3KeyDropdownEl = ref(null)
+// const tab3KeyInput = ref('')
+// const tab3SelectedKey = ref(Object.keys(column_values)[0])
+// const tab3KeyDropdownEl = ref(null)
 // const valueDropdownEl = ref(null)
 // const keyDropdownEl = ref(null)
 // const valueTriggerEl = ref(null)
 const keyTriggerEl = ref(null)
-const tab3KeyInput = ref('')
 const YinweiSelectorRef = ref(null);
 
-const isRunDisabled = ref(false) // 控制按钮禁用的状态
+// 1️⃣ 定義公共狀態 (地點組件)
+const isLocationDisabled = ref(false)
+
+// 2️⃣ 定義各個 Tab 的獨立內容狀態
+const tabContentDisabled = reactive({
+  tab1: true,  // 預設 true (因為一開始輸入框是空的)
+  tab2: true, // 預設 false (如果組件初始化時會自動驗證，這裏設為 true 也可以)
+  tab3: true,
+  tab4: false  // Tab4 只有地點，沒有額外內容，所以內容部分永遠是 false (不禁用)
+})
+
+// 3️⃣ 監聽 Tab 1 的輸入框內容 (因為它沒有子組件 emit 事件，需要手動監聽)
+watch(hanziInput, (newVal) => {
+  // 如果為空或只有空白，則禁用
+  tabContentDisabled.tab1 = !newVal || newVal.trim() === ''
+}, { immediate: true })
+
+// 4️⃣ 🔥 最終計算屬性：控制按鈕是否禁用
+const isRunDisabled = computed(() => {
+  // 規則：如果「地點不合規」或者「當前 Tab 的內容不合規」，則禁用按鈕
+  return isLocationDisabled.value || tabContentDisabled[currentTab.value]
+})
+
 
 // 1. 新增：用来存储循环中 Trigger 元素的 Map
 const triggerRefs = ref({})
@@ -337,14 +399,6 @@ function toggleDropdown(type,key=null) {
 }
 
 function onClickOutside(event) {
-  // const targets = [
-  //   keyTriggerEl.value,
-  //   keyDropdownEl.value,
-  //   valueTriggerEl.value,
-  //   valueDropdownEl.value,
-  //   tab3KeyTriggerEl.value,       // ✅ 新增
-  //   tab3KeyDropdownEl.value       // ✅ 新增
-  // ]
   const isInsideTrigger = [
     keyTriggerEl.value,
     tab3KeyTriggerEl.value,
@@ -365,7 +419,7 @@ function onClickOutside(event) {
 }
 
 // 切换键名的选择状态
-function toggleKeySelection(key) {
+function toggleKeySelection(key, targetList) {
   // 定义有选择限制的键值及其最大选择数量
   const restrictedKeys = {
     '攝': 1,
@@ -377,39 +431,44 @@ function toggleKeySelection(key) {
     '調': 1
   };
 
-  // 如果 selectedKey 不是数组，先初始化
-  if (!Array.isArray(selectedKey.value)) {
-    selectedKey.value = [];
-  }
+  if (!Array.isArray(targetList)) return;
 
   const currentLimit = restrictedKeys[key];
 
-  // 如果是有选择数量限制的键，执行特殊的逻辑
   if (currentLimit) {
-    // 如果当前键已经在已选择列表中，移除它
-    if (selectedKey.value.includes(key)) {
-      selectedKey.value = selectedKey.value.filter(item => item !== key);
+    if (targetList.includes(key)) {
+      // 移除
+      const idx = targetList.indexOf(key);
+      if (idx > -1) targetList.splice(idx, 1);
     } else {
-      // 对于限制选择的键，先移除同类的键，再添加当前键
+      // 互斥逻辑：先处理排他
+      // 注意：reactive 数组最好用 splice 修改，或者 push/filter 组合
+      // 这里创建一个临时数组处理逻辑
+      let newList = [...targetList];
+
       if (key === '系' || key === '組' || key === '母') {
-        selectedKey.value = selectedKey.value.filter(item => item !== '系' && item !== '組' && item !== '母');
+        newList = newList.filter(item => !['系', '組', '母'].includes(item));
       }
-      // 如果是“攝”和“韻”，限制只能选择一个
       if (key === '攝' || key === '韻') {
-        selectedKey.value = selectedKey.value.filter(item => item !== '攝' && item !== '韻');
+        newList = newList.filter(item => !['攝', '韻'].includes(item));
       }
       if (key === '入' || key === '調') {
-        selectedKey.value = selectedKey.value.filter(item => item !== '入' && item !== '調');
+        newList = newList.filter(item => !['入', '調'].includes(item));
       }
-      // 添加当前选择的键
-      selectedKey.value.push(key);
+      // 添加当前
+      newList.push(key);
+
+      // 将结果写回 reactive 数组 (清空旧的，推入新的)
+      targetList.length = 0;
+      targetList.push(...newList);
     }
   } else {
-    // 对于没有限制的键，正常切换选择状态
-    if (selectedKey.value.includes(key)) {
-      selectedKey.value = selectedKey.value.filter(item => item !== key);
+    // 普通多选
+    const idx = targetList.indexOf(key);
+    if (idx > -1) {
+      targetList.splice(idx, 1);
     } else {
-      selectedKey.value.push(key);
+      targetList.push(key);
     }
   }
 }
@@ -418,11 +477,11 @@ function toggleKeySelection(key) {
 // 选择键值时的处理
 function selectValue(value, key) {
   // 确保该 key 对应的值是数组，如果之前是字符串或未定义，初始化为空数组
-  if (!Array.isArray(selectedValueMap.value[key])) {
-    selectedValueMap.value[key] = []
+  if (!Array.isArray(tabStates.tab2.valueMap[key])) {
+    tabStates.tab2.valueMap[key] = []
   }
 
-  const list = selectedValueMap.value[key]
+  const list = tabStates.tab2.valueMap[key]
   const index = list.indexOf(value)
 
   if (index > -1) {
@@ -440,33 +499,33 @@ function selectValue(value, key) {
 // 2. 新增：全选/取消全选 逻辑
 function toggleSelectAll(key) {
   const allOptions = keyValueMap[key] || []
-  const currentSelected = selectedValueMap.value[key] || []
+  const currentSelected = tabStates.tab2.valueMap[key] || []
 
   // 如果当前已经全选了，则清空；否则全选
   if (currentSelected.length === allOptions.length) {
-    selectedValueMap.value[key] = []
+    tabStates.tab2.valueMap[key] = []
   } else {
-    selectedValueMap.value[key] = [...allOptions] // 复制所有选项
+    tabStates.tab2.valueMap[key] = [...allOptions]
   }
 }
 
 // 3. 新增：判断是否被选中 (辅助 Template 显示样式)
 function isSelected(value, key) {
-  const list = selectedValueMap.value[key]
+  const list = tabStates.tab2.valueMap[key]
   return Array.isArray(list) && list.includes(value)
 }
 
 // 4. 新增：判断是否全选 (辅助 Template 显示全选状态)
 function isAllSelected(key) {
   const all = keyValueMap[key] || []
-  const current = selectedValueMap.value[key] || []
+  const current = tabStates.tab2.valueMap[key] || []
   return all.length > 0 && all.length === current.length
 }
 
 // 5. 新增：格式化按钮文字 (把数组变成 "知, 徹, 澄" 这样显示)
 // 修改：格式化按钮文字 (超过2个显示省略号)
 function getDisplayText(key) {
-  const list = selectedValueMap.value[key]
+  const list = tabStates.tab2.valueMap[key]
   // 1. 没选
   if (!list || list.length === 0) return `請選擇 [${key}]`
   // 2. 全选
@@ -482,87 +541,150 @@ function getDisplayText(key) {
   return list.join(',')
 }
 
-
-
-const currentTabLabel = computed(() => {
-  const found = tabs.find(t => t.name === currentTab.value)
-  return found?.label ?? '執行'
-})
-
 const isRunning = ref(false); // 控制運行中的狀態
+const ZhongguRef = ref(null);
 // 點擊按鈕行為
-const runAction = () => {
+const runAction = async () => {
   isRunning.value = true;
 
+  // 1. 獲取地點邏輯 (保持不變)
   function getLocation() {
-    // console.log("loc",locationRef.value?.inputValue)
-    // console.log("region",locationRef.value?.selectedValue)
     if (!locationRef.value?.selectedValue ||
         (Array.isArray(locationRef.value?.selectedValue) && locationRef.value.selectedValue.every(item => item === ''))) {
-      // console.log("fuck")
+      // 如果沒有選區域，或者區域是空的，回傳輸入框的值 (預設 '廣州')
       return locationRef.value?.inputValue || '廣州';
     } else {
-      // console.log("bitch")
-      // 如果 selectedValue 不为空，使用 inputValue（如果有）
-      return locationRef.value?.inputValue ;
+      // 否則回傳輸入框的值 (這裡邏輯可能視你具體需求微調，目前保持原樣)
+      return locationRef.value?.inputValue;
     }
   }
 
-  const base = {
-    mode: currentTab.value,
-    location: getLocation(), // 调用 getLocation 函数来获取 location
-    region: locationRef.value?.selectedValue,
-    region_source: locationRef.value?.regionUsing
+  // 2. 準備基礎參數
+  // 注意：API 接受的是 Array (List)，前端可能是 String，這裡要做轉換
+  const locationVal = getLocation();
+  const locationList = locationVal ? [locationVal] : []; // 轉成 List
+
+  const regionVal = locationRef.value?.selectedValue;
+  // 如果 regionVal 是 array 就直接用，如果是字串就轉 array，如果是 null 就空 array
+  const regionList = Array.isArray(regionVal) ? regionVal : (regionVal ? [regionVal] : []);
+  window.locationList = locationList;
+  window.regionList = regionList;
+  // 3. 構建 payload
+  let payload = {};
+
+  if (currentTab.value === 'tab2') {
+
+    // 假設 selectedCard.value 是一個字串，後端 features 需要 List
+    const featureList = tabStates.tab2.card ? [tabStates.tab2.card] : ['韻母'];
+
+    // 這裡對應後端的 path_strings
+    const pathStrings = ZhongguRef.value?.combinations || [];
+    payload = {
+      // 第一部分：查字參數
+      path_strings: pathStrings,
+      column: [],            // 目前前端沒提供，預設空
+      combine_query: false,  // 目前前端沒提供，預設 false
+
+      // 第二部分：分析參數
+      locations: locationList,
+      regions: regionList,
+      features: featureList,
+      region_mode: locationRef.value?.regionUsing || 'yindian'
+    };
+    // 1. 准备要发送的数据
+    const finalPayload = {
+      ...payload,           // 原本的数据 (path_strings, locations 等)
+      _sourceTab: 'tab2'    // 👈 手动加上当前的 Tab 标记
+    }
+
+    // 2. 存入全局仓库
+    globalPayload.value = JSON.parse(JSON.stringify(finalPayload))
   }
 
-  let data = {}
-
-  if (currentTab.value === 'tab1') {
-    data = {
-      ...base,
-      chars: hanziInput.value|| '好'
-    }
-  }
-  else if (currentTab.value === 'tab2') {
-    data = {
-      ...base,
-      card: selectedCard.value,
-      key: selectedKey.value,
-      value: selectedValue.value
-    }
-  }
   else if (currentTab.value === 'tab3') {
-    data = {
-      ...base,
-      card: selectedCard.value,
-      key: tab3SelectedKey.value,
-      pho: tab3KeyInput.value|| 'a'
-    }
-  }
-  else if (currentTab.value === 'tab4') {
-    data = {
-      ...base,
-      // no extra fields
-    }
-  }
-  // console.log(base)
-  sessionStorage.setItem('vueToNativeData', JSON.stringify(data))
-  window.location.replace(window.WEB_BASE + '/detail/');
+    const featureList = tabStates.tab3.card ? [tabStates.tab3.card] : ['韻母'];
+    const selectedKeys = selectedKeysString.value.replace(/·/g, '');
+    const phos = YinweiSelectorRef.value.tab3KeyInput;
 
+    payload = {
+      group_inputs: selectedKeys,
+      pho_values: phos,
+      locations: locationList,
+      regions: regionList,
+      features: featureList,
+      region_mode: locationRef.value?.regionUsing || 'yindian',
+    };
+
+    // 1. 准备要发送的数据
+    const finalPayload = {
+      ...payload,           // 原本的数据 (path_strings, locations 等)
+      _sourceTab: 'tab3'    // 👈 手动加上当前的 Tab 标记
+    }
+
+    // 2. 存入全局仓库
+    globalPayload.value = JSON.parse(JSON.stringify(finalPayload))
+  }
+  else if  (currentTab.value === 'tab1'){
+    const chars = hanziInput.value;
+    payload = {
+      chars: chars,
+      locations: locationList,
+      regions: regionList,
+      region_mode: locationRef.value?.regionUsing || 'yindian',
+    };
+
+    // 1. 准备要发送的数据
+    const finalPayload = {
+      ...payload,           // 原本的数据 (path_strings, locations 等)
+      _sourceTab: 'tab1'    // 👈 手动加上当前的 Tab 标记
+    }
+
+    // 2. 存入全局仓库
+    globalPayload.value = JSON.parse(JSON.stringify(finalPayload))
+  }
+  else if  (currentTab.value === 'tab4'){
+    payload = {
+      locations: locationList,
+      regions: regionList,
+      region_mode: locationRef.value?.regionUsing || 'yindian',
+    };
+
+    // 1. 准备要发送的数据
+    const finalPayload = {
+      ...payload,           // 原本的数据 (path_strings, locations 等)
+      _sourceTab: 'tab4'    // 👈 手动加上当前的 Tab 标记
+    }
+
+    // 2. 存入全局仓库
+    globalPayload.value = JSON.parse(JSON.stringify(finalPayload))
+  }
+  // 3. 纯净跳转
+  await router.replace({
+    path: '/menu',
+    query: { tab: 'result' }
+  });
+  isRunning.value = false; // 請求結束，關閉 loading 狀態
 }
+
 
 const selectedKeysString = computed(() => {
   // 方案 A：按点击顺序显示 (如果先点B再点A，显示 "B·A")
-  return selectedKey.value.join('·')
+  return tabStates.tab3.keys.join('·')
 
-  // 方案 B (推荐)：按原列表顺序显示 (即使先点B再点A，依然显示 "A·B")
+  // 方案 B：按原列表顺序显示 (即使先点B再点A，依然显示 "A·B")
   // 假设 `keys` 是你定义所有按钮顺序的那个常量数组
   // return keys.filter(k => selectedKey.value.includes(k)).join('·')
 })
 
 function handleApplyConfig(data) {
+  const tab = currentTab.value
   // 1. 更新卡片 (聲/韻/調)
-  selectedCard.value = data.card
+  if (tab === 'tab2') {
+    tabStates.tab2.card = data.card
+  }
+  else {
+    tabStates.tab3.card = data.card
+  }
 
   // 2. 更新地點
   locationModel.value = {
@@ -570,9 +692,13 @@ function handleApplyConfig(data) {
     regions: data.loc.regions,
     regionUsing: data.loc.regionUsing
   }
-
   // 3. 更新鍵名 (Keys)
-  selectedKey.value = data.keys
+  if (tab === 'tab2') {
+    tabStates.tab2.keys = data.keys
+  }
+  else {
+    tabStates.tab3.keys = data.keys
+  }
 
   // 4. 根據 Tab 更新具體的值
   if (data.isTab3) {
@@ -582,7 +708,7 @@ function handleApplyConfig(data) {
     }
   } else {
     // Tab2: 更新下拉菜單映射
-    selectedValueMap.value = data.valuesMap
+    tabStates.tab2.valueMap = data.valuesMap
   }
 }
 
@@ -593,7 +719,12 @@ onMounted(() => {
 onBeforeUnmount(() => {
   document.removeEventListener('click', onClickOutside)
 })
+</script>
 
+<script>
+export default {
+  name: 'QueryPage' // 👈 必须加这个名字，KeepAlive 才能认出它
+}
 </script>
 
 <style scoped>
@@ -788,74 +919,7 @@ onBeforeUnmount(() => {
   color: #007aff;
 }
 
-/* === 下拉選單樣式 === */
-.dropdown-wrapper {
-  flex: 1;
-  position: relative;
-  align-items: center;
-  display: flex;
-}
 
-.dropdown {
-  padding: 12px;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.3);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  cursor: pointer;
-  font-size: 14px;
-  border: 1px solid rgba(200, 200, 200, 0.5);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  min-width: 80px;
-  margin: auto;
-}
-
-.arrow {
-  font-size: 12px;
-}
-
-.dropdown-panel {
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(12px);
-  border-radius: 10px;
-  padding: 6px 0;
-  position: absolute;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
-  min-width: 80px;
-  max-height: 40dvh;
-  overflow: auto;
-}
-
-.dropdown-item {
-  padding: 8px 16px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: background-color 0.2s;
-}
-/* 选中状态 */
-.dropdown-item.active {
-  background-color: #e6f0ff; /* 浅蓝色背景 */
-  color: #02469e;            /* 深蓝色文字 */
-  font-weight: bold;
-}
-
-.dropdown-item:hover {
-  background-color: #e6f0ff;
-}
-
-/* 全选按钮特殊样式 */
-.select-all-item {
-  color: #666;
-  font-size: 0.9em;
-  border-bottom: 1px solid #f0f0f0;
-}
-
-.check-icon {
-  width: 16px; /* 占位，防止文字抖动 */
-  display: inline-block;
-}
 
 
 </style>
