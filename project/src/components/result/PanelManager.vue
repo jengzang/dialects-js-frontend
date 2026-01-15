@@ -275,7 +275,7 @@ const onTriggerPopup = (type, item, feature, value, e) => {
   else { popupDataFeature.value = dataObj; showPopupFeature.value = true; }
 };
 
-// [修復] 補上漏掉的 Confirm 處理函數
+
 const handleValueConfirm = ({ location, value }) => {
   if (typeof get_detail === 'function') get_detail(location, value, false, true);
   showPopupValue.value = false;

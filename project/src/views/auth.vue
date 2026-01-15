@@ -1,5 +1,5 @@
 <template>
-  <div class="query-detail-panel" >
+  <div  >
     <!-- 登錄介面 -->
     <div v-if="mode === 'login'" style="padding: 12px; text-align: center;">
       <h3>登錄</h3>

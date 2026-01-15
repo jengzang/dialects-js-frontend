@@ -2,7 +2,9 @@
   <div>
     <div class="page">
       <div class="page-content-stack">
+        <p>该功能尚不完善！使用旧版网站才能添加个人数据</p>
       <div class="page-footer">
+
         <small class="hint">
           🧩 您可以自由添加點、設置該點對應的特徵<br>
           🖌️ 網站會根據特徵自動分配顏色

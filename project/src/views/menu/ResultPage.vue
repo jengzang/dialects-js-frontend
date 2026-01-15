@@ -35,12 +35,13 @@
 </template>
 
 <script setup>
-import { ref, watch, computed, onUnmounted } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-import { api } from '@/utils/auth.js';
-import { globalPayload } from '@/utils/store.js';
+import {computed, onUnmounted, ref, watch} from 'vue';
+import {useRoute, useRouter} from 'vue-router';
+import {api} from '@/utils/auth.js';
+import {globalPayload, mapStore} from '@/utils/store.js';
 import ResultList from "@/components/result/ResultList.vue";
 import CharsAndTones from "@/components/result/CharsAndTones.vue"; // 引入新組件
+import {generateTonesMergedData,generateCharsMergedData,func_mergeData} from "@/utils/MapData.js";
 
 const route = useRoute();
 const router = useRouter();
@@ -48,6 +49,10 @@ const results = ref([]);
 const latestResults = ref([]);
 const currentTabRef = ref('tab2');
 const payload = ref(null);
+window.mergedData = [];
+let mergedData = [];
+// ✅ 修复2：防止并发竞态（旧请求覆盖新请求）
+let requestSeq = 0;
 
 const isLoading = ref(false);
 const timer = ref('0.0');
@@ -90,41 +95,64 @@ const stopTimer = () => {
 };
 
 onUnmounted(() => {
+  // ✅ 卸载时让当前请求失效，防止卸载后仍写入 store
+  requestSeq++;
   if (timerInterval) clearInterval(timerInterval);
 });
 
 watch(
     () => globalPayload.value,
     async (newPayload) => {
-      console.log("🚀 ResultPage 檢測到數據變化:", newPayload);
+      // ✅ 每次触发生成一个序号，只有最新序号允许落库
+      const seq = ++requestSeq;
 
+      // console.log("🚀 ResultPage 檢測到數據變化:", newPayload);
       if (!newPayload) return;
 
       results.value = [];
       latestResults.value = [];
       payload.value = newPayload;
+
       const sourceTab = newPayload._sourceTab || 'tab2';
       currentTabRef.value = sourceTab;
 
       startTimer();
 
       try {
+        mapStore.mode = 'feature';
+        // ================= 获取 MapData（放入 try 内，避免失败不 stopTimer）=================
+        const params_geo = new URLSearchParams();
+        if (Array.isArray(newPayload.locations)) {
+          newPayload.locations.forEach(loc => params_geo.append("locations", loc));
+        }
+        if (Array.isArray(newPayload.regions)) {
+          newPayload.regions.forEach(reg => params_geo.append("regions", reg));
+        }
+        params_geo.append("region_mode", newPayload.region_mode || 'yindian');
+        params_geo.append("iscustom", "true");
+        params_geo.append("flag", "False");
+
+        const MapData = await api(`/api/get_coordinates?${params_geo.toString()}`, {
+          method: 'GET'
+        });
+
+        // ✅ 竞态保护：MapData 回来时如果不是最新请求，直接退出
+        if (seq !== requestSeq) return;
+
+        // ✅ MapData 基本校验，避免后续工具函数/渲染链路崩
+        if (!MapData || !MapData.coordinates_locations) {
+          console.warn("⚠️ MapData invalid:", MapData);
+          return;
+        }
+
         // ================= TAB 1: 查字 =================
         if (sourceTab === 'tab1') {
-          // 2. 構建 Query String
           const params = new URLSearchParams();
 
-          // 1. 處理 chars (兼容 String 和 Array)
           let rawChars = newPayload.chars;
           if (rawChars) {
-            // 情況 A: 如果是字串 (例如 "abc")，拆分成 ['a', 'b', 'c']
-            if (typeof rawChars === 'string') {
-              rawChars = rawChars.split('');
-            }
-            // 情況 B: 確保已經是陣列後，進行遍歷添加
-            if (Array.isArray(rawChars)) {
-              rawChars.forEach(c => params.append("chars", c));
-            }
+            if (typeof rawChars === 'string') rawChars = rawChars.split('');
+            if (Array.isArray(rawChars)) rawChars.forEach(c => params.append("chars", c));
           }
           if (Array.isArray(newPayload.locations)) {
             newPayload.locations.forEach(loc => params.append("locations", loc));
@@ -132,17 +160,22 @@ watch(
           if (Array.isArray(newPayload.regions)) {
             newPayload.regions.forEach(reg => params.append("regions", reg));
           }
-          // 單個值
           params.append("region_mode", newPayload.region_mode || 'yindian');
 
-          // 3. 發送請求 (將 params 拼接到 URL)
-          // 假設你的後端路由是 /search_chars/，如果需要 /api 前綴請自行保留
           const response = await api(`/api/search_chars/?${params.toString()}`, {
             method: 'GET'
           });
 
+          if (seq !== requestSeq) return;
+
           if (response && response.result) {
             latestResults.value = response.result;
+
+            mergedData = generateCharsMergedData(latestResults.value, MapData);
+            if (seq !== requestSeq) return;
+
+            mapStore.mapData = MapData;
+            mapStore.mergedData = mergedData;
           } else {
             console.warn("Tab1 Error:", response);
           }
@@ -150,33 +183,57 @@ watch(
 
         // ================= TAB 2: 查中古 =================
         else if (sourceTab === 'tab2') {
+          const modeCN = tabMap[sourceTab] || sourceTab;
+          const featuresList = Array.isArray(newPayload.features) ? newPayload.features : [];
+          window._resultPageCache = { mode: modeCN, features: featuresList };
+
           const response = await api('/api/ZhongGu', {
             method: 'POST',
-            headers: {'Content-Type': 'application/json'},
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload.value)
           });
+
+          if (seq !== requestSeq) return;
+
           if (response.success || response.status === 'success') {
             results.value = response.results || response.data;
             latestResults.value = Array.isArray(results.value) ? results.value.flat() : [];
+
+            // ✅ 修复：func_mergeData 是 async，必须 await
+            mergedData = await func_mergeData(latestResults.value, MapData);
+            if (seq !== requestSeq) return;
+
+            mapStore.mapData = MapData;
+            mapStore.mergedData = mergedData;
           } else {
             console.warn("⚠️ API 返回错误:", response.message);
           }
         }
+
         // ================= TAB 3: 查音位 =================
         else if (sourceTab === 'tab3') {
           const modeCN = tabMap[sourceTab] || sourceTab;
           const featuresList = Array.isArray(newPayload.features) ? newPayload.features : [];
-          window._resultPageCache = {mode: modeCN, features: featuresList};
+          window._resultPageCache = { mode: modeCN, features: featuresList };
 
-          // console.log("🚀 Sending Payload:", JSON.stringify(payload, null, 2));
           const response = await api('/api/YinWei', {
             method: 'POST',
-            headers: {'Content-Type': 'application/json'},
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload.value)
           });
+
+          if (seq !== requestSeq) return;
+
           if (response.success) {
             results.value = response.results || response.data;
             latestResults.value = Array.isArray(results.value) ? results.value.flat() : [];
+
+            // ✅ 修复：func_mergeData 是 async，必须 await
+            mergedData = await func_mergeData(latestResults.value, MapData);
+            if (seq !== requestSeq) return;
+
+            mapStore.mapData = MapData;
+            mapStore.mergedData = mergedData;
           } else {
             console.warn("⚠️ API returned empty or error:", response.error);
           }
@@ -191,15 +248,24 @@ watch(
           if (Array.isArray(newPayload.regions)) {
             newPayload.regions.forEach(reg => params.append("regions", reg));
           }
-          // 單個值
           params.append("region_mode", newPayload.region_mode || 'yindian');
+
           const response = await api(`/api/search_tones/?${params.toString()}`, {
             method: 'GET',
-
           });
+
+          if (seq !== requestSeq) return;
 
           if (response && response.tones_result) {
             latestResults.value = response.tones_result;
+
+            mergedData = generateTonesMergedData(response.tones_result, MapData);
+            if (seq !== requestSeq) return;
+
+            mapStore.mapData = MapData;
+            mapStore.mergedData = mergedData;
+          } else {
+            console.warn("Tab4 Error:", response);
           }
         }
 
@@ -207,16 +273,25 @@ watch(
         console.error("❌ 請求失敗:", error);
       } finally {
         stopTimer();
-        window.latestdetailResults = JSON.parse(JSON.stringify(latestResults.value));
+
+        // ✅ finally 里拷贝加保护，避免这里再抛错
+        try {
+          window.latestdetailResults = (typeof structuredClone === 'function')
+              ? structuredClone(latestResults.value)
+              : JSON.parse(JSON.stringify(latestResults.value));
+        } catch (e) {
+          window.latestdetailResults = latestResults.value;
+        }
       }
     },
-    {immediate: true}
+    { immediate: true }
 );
 
 const goToQuery = () => {
   router.push({ query: { tab: 'query' } });
 };
 </script>
+
 
 <style scoped>
 .result-page-container {

@@ -1,207 +1,179 @@
 // 整理數據，用於地圖繪製
-async function func_mergeData() {
-    // 检查数据是否准备好
-    if (!window.latestResults || !window.locations_data) {
+export async function func_mergeData(resultData = null, mapData = null) {
+    // 1) 数据来源：优先参数，否则 fallback 到 window
+    const latestResults = resultData ?? window.latestResults;
+    const locations_data = mapData ?? window.locations_data;
+
+    // 2) 检查数据是否准备好
+    if (!latestResults || !locations_data) {
         console.log("数据未准备好！");
-        return;
+        return []; // ✅ 有返回值：空数组
     }
-    let locations_data = window.locations_data;
-    let latestResults = window.latestResults;
-    // 获取 zoom_level 和 center_coordinate
-    let zoomLevel = locations_data.zoom_level;
-    let centerCoordinate = locations_data.center_coordinate;
-    let coordinates_raw = locations_data.coordinates_locations;
+
+    // 3) 读取地图基础信息
+    const zoomLevel = locations_data.zoom_level;
+    const centerCoordinate = locations_data.center_coordinate;
+    const coordinates_raw = locations_data.coordinates_locations || [];
 
     // 最小化改动 - 创建地点到坐标的映射
-    let locationToCoordinates = {};
+    const locationToCoordinates = {};
     coordinates_raw.forEach(coord => {
         locationToCoordinates[coord[0]] = coord[1]; // coord[0] 是地点，coord[1] 是坐标
     });
 
     // 用于存储合并后的数据
-    let mergedData = [];
+    const mergedData = [];
     // 用一个对象根据 location 和 feature 分组数据
-    let groupedData = {};
+    const groupedData = {};
 
     // 遍历 latestResults 中的数据，获取相关列数据
     latestResults.forEach(item => {
         // 确保 "分組值" 是一个对象，并从中正确获取 feature 和 value
-        if (item["分組值"] && typeof item["分組值"] === 'object') {
-            // 假设 "分組值" 是一个对象，获取对象的第一个键
+        if (item["分組值"] && typeof item["分組值"] === "object") {
             const keys = Object.keys(item["分組值"]);
             if (keys.length > 0) {
-                let feature = keys[0];  // 获取第一个键作为 feature
-                let value = item["分組值"][feature];  // 获取对应的值作为 value
-                let percentage = item["佔比"];
-                let location = item["地點"];
-                let cha_nums = item["字數"];
+                const feature = keys[0];
+                const value = item["分組值"][feature];
+                const percentage = item["佔比"];
+                const location = item["地點"];
+                const cha_nums = item["字數"];
 
-                // console.log("正在处理 location:", location); // 打印正在处理的地点
-                // 将数据按 location 和 feature 分组
-                if (!groupedData[location]) {
-                    groupedData[location] = {};
-                }
+                if (!groupedData[location]) groupedData[location] = {};
                 if (!groupedData[location][feature]) {
-                    groupedData[location][feature] = {
-                        items: [],
-                        detailContent: []
-                    };
+                    groupedData[location][feature] = { items: [], detailContent: [] };
                 }
 
                 // 判断字数 * 占比是否大于等于 0.06
                 if (percentage * cha_nums >= 0.06) {
-                    // 记录原始数据
-                    groupedData[location][feature].detailContent.push({
-                        value,
-                        percentage
-                    });
+                    groupedData[location][feature].detailContent.push({ value, percentage });
                 }
 
-                // 将数据项推入对应的分组
-                groupedData[location][feature].items.push({
-                    value,
-                    percentage,
-                    cha_nums
-                });
-                // console.log("处理完成：",location)
+                groupedData[location][feature].items.push({ value, percentage, cha_nums });
             }
         }
     });
 
     // 遍历所有分组的数据，进行合并
-    for (let location in groupedData) {
-        for (let feature in groupedData[location]) {
-            let group = groupedData[location][feature].items;
-            let more = [];
-            let middle = [];
-            let less = [];
+    for (const location in groupedData) {
+        for (const feature in groupedData[location]) {
+            const group = groupedData[location][feature].items;
+            const more = [];
+            const middle = [];
+            const less = [];
 
             // 按占比分类
             group.forEach(item => {
-                if (item.percentage >= 0.5) {
-                    more.push(item.value);
-                } else if (item.percentage >= 0.35) {
-                    middle.push(item.value);
-                } else if (item.percentage >= 0.2) {
-                    less.push(item.value);
-                }
+                if (item.percentage >= 0.5) more.push(item.value);
+                else if (item.percentage >= 0.35) middle.push(item.value);
+                else if (item.percentage >= 0.2) less.push(item.value);
             });
 
             // 合并后处理的值
-            let finalValue = '';
+            let finalValue = "";
 
-            // 处理 "多" 的情况
-            if (more.length > 0)
-                if (more.length === 1) {
-                    finalValue += more.join('');  // 直接拼接“多”
-                } else {
-                    finalValue += more.join('/');
-                }
-            // 处理 "中" 的情况
+            // 处理 "多"
+            if (more.length > 0) {
+                finalValue += (more.length === 1) ? more.join("") : more.join("/");
+            }
+
+            // 处理 "中"
             if (middle.length > 0) {
                 if (less.length === 0 && more.length === 0) {
-                    // 如果没有 "少" 和 "多"，且只有一个 "中"，直接加上
-                    if (middle.length === 1) {
-                        finalValue += middle[0];  // 只有一个“中”，直接加上
-                    } else {
-                        finalValue += middle.join('/');  // 多个“中”，用斜杠分隔
-                    }
+                    finalValue += (middle.length === 1) ? middle[0] : middle.join("/");
                 } else {
-                    // 如果有 "少" 或者 "多"，则中使用括号包裹并用逗号分隔
-                    finalValue += `(${middle.join(',')})`;
+                    finalValue += `(${middle.join(",")})`;
                 }
             }
 
-            // 处理 "少" 的情况
+            // 处理 "少"
             if (less.length > 0) {
-                finalValue += `(*${less.join(', *')})`;  // 用括号包住“少”，并加上 * 前缀
+                finalValue += `(*${less.join(", *")})`;
             }
 
-            if (!finalValue) {
-                finalValue = '散';
-            }
+            if (!finalValue) finalValue = "散";
 
             // 获取最大占比对应的 value
-            let maxPercentageValue = groupedData[location][feature].detailContent.reduce((prev, current) => {
-                return (prev.percentage > current.percentage) ? prev : current;
-            }).value;
+            // ⚠️ 最小化改动：如果 detailContent 为空，避免 reduce 报错
+            const dc = groupedData[location][feature].detailContent;
+            const maxPercentageValue =
+                (Array.isArray(dc) && dc.length > 0)
+                    ? dc.reduce((prev, current) => (prev.percentage > current.percentage ? prev : current)).value
+                    : "";
 
             // 最小化改动 - 获取对应地点的坐标并添加到 mergedData 中
-            let coordinate = locationToCoordinates[location] || null; // 获取坐标，若没有则设为 null
-            // const [lng, lat] = await convertCoordinates(coordinate);
-            // 将合并后的数据推入 mergedData
+            const coordinate = locationToCoordinates[location] || null;
+
             mergedData.push({
-                location: location,
-                feature: feature,
+                location,
+                feature,
                 value: finalValue,
-                zoomLevel: zoomLevel,
-                coordinate: coordinate,
-                centerCoordinate: centerCoordinate,
-                maxValue: maxPercentageValue,  // 添加最大占比对应的 value
-                detailContent: groupedData[location][feature].detailContent // 详细记录
+                zoomLevel,
+                coordinate,
+                centerCoordinate,
+                maxValue: maxPercentageValue,
+                detailContent: dc // 详细记录
             });
         }
     }
-
-    // 获取前端页面数据
-    const locations = document.getElementById('locations').value.trim().split(/\s+/);
-    const regions = document.getElementById('regions').value.trim().split(/\s+/);
-    const uniqueFeatures = [...new Set(latestResults.map(result => result.特徵值))];
-
-    // 创建请求参数
-    const queryParams = {
-        locations: locations,
-        regions: regions,
-        need_features: uniqueFeatures
-    };
-
-    let shouldContinue = true;
-    let result = null;
-    try {
-        const token = localStorage.getItem("ACCESS_TOKEN")
-        // 如果没有 token，直接返回，表示用户未登录
-        if (!token) {
-            shouldContinue = false;
-            throw "用戶未登錄，不查詢個人數據";
-        }
-        // 用 URLSearchParams 拼接到 GET URL
-        const queryString = new URLSearchParams(queryParams).toString();
-        const response = await fetch(`${window.API_BASE}/get_custom?${queryString}`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                ...(token ? { Authorization: `Bearer ${token}` } : {})
-            }
-        });
-
-        if (!response.ok) {
-            // const errorData = await response.json().catch(() => ({}));
-            // const errorMessage = errorData.detail || "後端返回錯誤";
-            // alert(errorMessage);
-            shouldContinue = false; // 标记不要继续往下处理
-        }else {
-            result = await response.json();
-        }
-        // result = shouldContinue ? await response.json() : null;
-    } catch (error) {
-        // console.error("请求失败:", error);
-        // alert("請求失敗：" + error.message);
-        shouldContinue = false;
-    }
-    if (shouldContinue && Array.isArray(result)) {
-        mergeBackendData(result, mergedData,
-            mergedData.length > 0 ? mergedData[0].zoomLevel : 10,
-            mergedData.length > 0 ? mergedData[0].centerCoordinate : [0, 0]
-        );
-    } else {
-        console.log("當前地點/分區選擇不包含自定義數據", result);
-    }
-
     assignColorToMergedData(mergedData);
-    // console.log(mergedData)
+    // 4) 保险：写入全局（如果你要一致行为）
     window.mergedData = mergedData;
-    // console.log("mergedData存储完成");
+    // 5) ✅ 返回值
+    return mergedData;
+}
 
+
+// 對用戶自定義數據進行處理
+function mergeBackendData(result, mergedData, defaultZoom, defaultCenter) {
+    result.forEach(row => {
+        const newCoordinate = row["經緯度"];
+        const newLocation = row["簡稱"];
+        const newFeature = row["特徵"];
+        const created_at = row["created_at"] || null;
+
+        const locationIndex = mergedData.findIndex(item =>
+            item.feature === newFeature &&
+            JSON.stringify(item.coordinate) === JSON.stringify(newCoordinate)
+        );
+
+        if (locationIndex === -1) {
+            mergedData.push({
+                location: newLocation,
+                feature: newFeature,
+                value: row["值"],
+                coordinate: newCoordinate,
+                maxValue: row["maxValue"],
+                notes: row["說明"],
+                iscustoms: 1,
+                zoomLevel: defaultZoom,
+                centerCoordinate: defaultCenter,
+                detailContent: [],
+                created_at:created_at,
+            });
+        } else {
+            const existingItem = mergedData[locationIndex];
+            if (existingItem.location === newLocation) {
+                existingItem.value += "║" + row["值"];
+                existingItem.maxValue += "║" + row["maxValue"];
+                existingItem.notes += "║" + row["說明"];
+                existingItem.iscustoms = 1;
+            } else {
+                mergedData.push({
+                    location: newLocation,
+                    feature: newFeature,
+                    value: row["值"],
+                    coordinate: newCoordinate,
+                    maxValue: row["maxValue"],
+                    notes: row["說明"],
+                    iscustoms: 1,
+                    zoomLevel: defaultZoom,
+                    centerCoordinate: defaultCenter,
+                    detailContent: [],
+                    created_at:created_at,
+                });
+            }
+        }
+    });
 }
 
 // 分配顏色
@@ -236,73 +208,133 @@ function assignColorToMergedData(mergedData) {
     });
 }
 
-function generateCharsMergedData(resultData, locationsData) {
-    // 创建地点到坐标的映射
-    let locationToCoordinates = {};
-    locationsData.coordinates_locations.forEach(coord => {
-        locationToCoordinates[coord[0]] = coord[1];  // coord[0] 是地点，coord[1] 是坐标
+export function generateCharsMergedData(resultData, locationsData) {
+    const locationToCoordinates = {};
+    locationsData.coordinates_locations.forEach(([loc, coord]) => {
+        locationToCoordinates[loc] = coord;
     });
-    let notesString = "";  // 默认空字符串
-    // 初始化 mergedData 数组
-    let mergedData = [];
-    // 生成 mergedData
-    return resultData.map(item => {
-        // 计算音节和 notes
-        let syllablesString = item.音节.join('·');  // 拼接音节
-        if (Array.isArray(item.notes) && item.notes.some(note => note !== "_")) {
-            notesString = item.notes.join(' / ');  // 处理 notes（拼接非空的 notes）
-        }
 
-        // 获取坐标
-        let coordinate = locationToCoordinates[item.location] || [0, 0];  // 默认坐标是 [0, 0]，如果没有找到则为默认值
+    const mergedData = resultData.map(item => {
+        const syllablesString = item.音节.join('·');
 
-        // 拼接到 mergedData
-        mergedData.push({
-            location: item.location,  // 使用 location 字段
-            feature: item.char,  // 使用 char 字段作为 feature
-            value: syllablesString,  // 拼接后的音节字符串
-            zoomLevel: locationsData.zoom_level,  // 从 locationsData 获取 zoom_level
-            coordinate: coordinate,  // 使用映射的坐标
-            centerCoordinate: locationsData.center_coordinate,  // 从 locationsData 获取 center_coordinate
-            maxValue: syllablesString,  // 与 value 相同
-            detailContent: notesString  // 使用处理后的 notes 字符串
-        });
-        // 调用颜色分配函数
-        assignColorToMergedData(mergedData);
-        window.mergedData = mergedData;  // 不返回，而是存储在全局变量 window.mergedData 中
+        const notesArray = item.notes.filter(note => note !== "_"); // 忽略 "_" 的备注
+        // 创建音节和备注的一一对应数组，只有当备注不为空时才保留
+        const pairedArray = item.音节
+            .map((syllable, index) => {
+                if (notesArray[index]) {
+                    return `${syllable}:${notesArray[index]}`;  // 如果备注存在，返回"音节:备注"
+                }
+                return null;  // 如果备注为空，返回 null 来忽略
+            })
+            .filter(item => item !== null);  // 过滤掉 null 项
+
+        return {
+            location: item.location,
+            feature: item.char,
+            value: syllablesString,
+            zoomLevel: locationsData.zoom_level,
+            coordinate: locationToCoordinates[item.location] || [0, 0],
+            centerCoordinate: locationsData.center_coordinate,
+            maxValue: syllablesString,
+            detailContent: pairedArray
+        };
     });
+
+    assignColorToMergedData(mergedData);
+    window.mergedData = mergedData;
+    return mergedData;
 }
+
 
 // 新的函数：处理音调并分配颜色
-function generateTonesMergedData(resultData, locationsData) {
-    // 创建地点到坐标的映射
-    let locationToCoordinates = {};
-    locationsData.coordinates_locations.forEach(coord => {
-        locationToCoordinates[coord[0]] = coord[1];  // coord[0] 是地点，coord[1] 是坐标
+export function generateTonesMergedData(resultData, locationsData) {
+    // 1) tone 映射
+    const toneMapping = {
+        T1: "陰平",
+        T2: "陽平",
+        T3: "陰上",
+        T4: "陽上",
+        T5: "陰去",
+        T6: "陽去",
+        T7: "陰入",
+        T8: "陽入",
+        T9: "其他調",
+        T10: "輕聲"
+    };
+
+    // 2) 地点 -> 坐标映射
+    const locationToCoordinates = {};
+    (locationsData?.coordinates_locations || []).forEach(([loc, coord]) => {
+        locationToCoordinates[loc] = coord;
     });
 
-    // 初始化 mergedData 数组
-    let mergedData = [];
+    // 3) 将原始 tones_result 扁平化并同时组装 mergedData
+    const mergedData = [];
 
-    resultData.forEach(item => {
-        // 获取坐标
-        let coordinate = locationToCoordinates[item.location] || [0, 0];  // 默认坐标是 [0, 0]，如果没有找到则为默认值
-        // 拼接到 mergedData
-        mergedData.push({
-            location: item.location,  // 使用 location 字段
-            feature: item.tone,  // 使用 char 字段作为 feature
-            value: item.value,  // 拼接后的音节字符串
-            zoomLevel: locationsData.zoom_level,  // 从 locationsData 获取 zoom_level
-            coordinate: coordinate,  // 使用映射的坐标
-            centerCoordinate: locationsData.center_coordinate,  // 从 locationsData 获取 center_coordinate
-            maxValue: item.value,  // 与 value 相同
-            detailContent: item.notes  // 使用处理后的 notes 字符串
+    (resultData || []).forEach(locationData => {
+        const tones = locationData?.tones || [];
+        const locationName = locationData?.["簡稱"] ?? locationData?.location ?? "";
+
+        tones.forEach(toneData => {
+            const toneName = Object.keys(toneData || {})[0];  // e.g. "T1"
+            if (!toneName) return;
+
+            let toneValue = toneData[toneName];              // e.g. "55", "無", "`33", "T2"
+            let notes = [];
+
+            // 3.1 处理 toneValue：去掉 `（如果不是 無）
+            if (toneValue === "無") {
+                // 保持 "無"（你原代码其实没转空，而是保持“無”）
+                toneValue = "無";
+            } else if (typeof toneValue === "string") {
+                toneValue = toneValue.replace(/`/g, "");
+            }
+
+            // 3.2 toneName -> 中文调名
+            const chineseToneName = toneMapping[toneName] || toneName;
+
+            // 3.3 若 toneValue 是 "T*"，表示与某调合并：备注 + 用对应调的实际数值替换
+            if (typeof toneValue === "string" && toneValue.startsWith("T")) {
+                const chineseMergedTo = toneMapping[toneValue] || toneValue;
+                console.log(chineseMergedTo)
+                notes.push(`與${chineseMergedTo}合併`);  // 改为推入数组
+
+                // 在当前地点的 tones 里找到 toneValue 对应那一项，取其值作为真正数值
+                const toneObj = tones.find(obj => obj && Object.prototype.hasOwnProperty.call(obj, toneValue));
+                if (toneObj) {
+                    let v = toneObj[toneValue];
+                    if (v === "無") v = "無";
+                    else if (typeof v === "string") v = v.replace(/`/g, "");
+                    toneValue = v ?? "";
+                } else {
+                    toneValue = "";
+                }
+            }
+
+            // 3.4 坐标/视图信息
+            const coordinate = locationToCoordinates[locationName] || [0, 0];
+
+            mergedData.push({
+                location: locationName,
+                feature: chineseToneName,                 // 中文调名作为 feature
+                value: toneValue,
+                zoomLevel: locationsData?.zoom_level,
+                coordinate,
+                centerCoordinate: locationsData?.center_coordinate,
+                maxValue: toneValue,
+                detailContent: notes                      // 合并说明
+            });
         });
     });
 
-    // 调用分配颜色的函数
+    // 4) 一次性分配颜色
     assignColorToMergedData(mergedData);
 
-    // 将处理后的 mergedData 存储在 window.mergedData 中
+    // 5) 多重保险：写全局 + 返回
     window.mergedData = mergedData;
+    // 6) 再保险：提供只读快照（可选，但很实用）
+    // 防止其他地方不小心 push/改字段导致地图状态“幽灵变化”
+    // window.mergedDataSnapshot = mergedData.slice();
+    return mergedData;
 }
+
