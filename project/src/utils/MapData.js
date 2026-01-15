@@ -115,6 +115,55 @@ export async function func_mergeData(resultData = null, mapData = null) {
             });
         }
     }
+
+    const locations = window.locationList;
+    const regions = window.regionList;
+    const uniqueFeatures = [...new Set(latestResults.map(result => result.特徵值))];
+
+    // 创建请求参数
+    const queryParams = {
+        locations: locations,
+        regions: regions,
+        need_features: uniqueFeatures
+    };
+
+    let shouldContinue = true;
+    let result = null;
+    try {
+        const token = localStorage.getItem("ACCESS_TOKEN")
+        // 如果没有 token，直接返回，表示用户未登录
+        if (!token) {
+            shouldContinue = false;
+            throw "用戶未登錄，不查詢個人數據";
+        }
+        // 用 URLSearchParams 拼接到 GET URL
+        const queryString = new URLSearchParams(queryParams).toString();
+        const response = await fetch(`${window.API_BASE}/get_custom?${queryString}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                ...(token ? { Authorization: `Bearer ${token}` } : {})
+            }
+        });
+
+        if (!response.ok) {
+            shouldContinue = false; // 标记不要继续往下处理
+        }else {
+            result = await response.json();
+        }
+        // result = shouldContinue ? await response.json() : null;
+    } catch (error) {
+        shouldContinue = false;
+    }
+    if (shouldContinue && Array.isArray(result)) {
+        mergeBackendData(result, mergedData,
+            mergedData.length > 0 ? mergedData[0].zoomLevel : 10,
+            mergedData.length > 0 ? mergedData[0].centerCoordinate : [0, 0]
+        );
+    } else {
+        console.log("當前地點/分區選擇不包含自定義數據", result);
+    }
+
     assignColorToMergedData(mergedData);
     // 4) 保险：写入全局（如果你要一致行为）
     window.mergedData = mergedData;

@@ -567,7 +567,8 @@ const runAction = async () => {
   const regionVal = locationRef.value?.selectedValue;
   // 如果 regionVal 是 array 就直接用，如果是字串就轉 array，如果是 null 就空 array
   const regionList = Array.isArray(regionVal) ? regionVal : (regionVal ? [regionVal] : []);
-
+  window.locationList = locationList;
+  window.regionList = regionList;
   // 3. 構建 payload
   let payload = {};
 

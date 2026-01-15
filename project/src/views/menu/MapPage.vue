@@ -108,21 +108,36 @@ const availableFeatures = computed(() => {
   return [...new Set(features)]
 })
 
-// ✨ 核心修改：監聽特徵列表變化
+// ✨ 監聽特徵列表變化 (修復版)
 watch(availableFeatures, (newVal) => {
-  // 只要有數據
+  // 1. 確保新數據存在且不為空
   if (newVal && newVal.length > 0) {
-    // 條件 1: 當前還沒有選中值 (初始化)
-    // 條件 2: 只有一條數據 (強制默認選中，無需點擊)
-    if (!selectedFeature.value || newVal.length === 1) {
-      const firstFeature = newVal[0];
-      // 1. 更新 UI 顯示狀態
+
+    // 獲取新列表的第一個特徵
+    const firstFeature = newVal[0];
+
+    // ✨ 核心修復：
+    // 不管之前有沒有選中，只要數據列表變了，我們就檢查：
+    // "當前選中的值" 是否還存在於 "新列表" 中？
+    const isCurrentValid = selectedFeature.value && newVal.includes(selectedFeature.value);
+
+    // 邏輯決策：
+    // 如果當前選中的值在新列表裡不存在 (說明換了一批數據)
+    // 或者 你希望每次搜索都強制重置到第一個特徵 (通常這樣體驗更好，能觸發視角復位)
+    if (!isCurrentValid) {
+      // 選中新列表的第一個
       selectedFeature.value = firstFeature;
-      // 2. ✨ 關鍵：同步給 Store，通知地圖組件立即繪圖
+      // 同步給 Store，觸發地圖繪製
       mapStore.activeFeature = firstFeature;
     }
+    // 如果 isCurrentValid 為 true，說明用戶選的特徵在新數據裡也有，那就保持不動，體驗更絲滑
   }
-}, { immediate: true }) // 確保組件掛載時如果有數據也觸發
+  else {
+    // 如果新數據為空，清空狀態
+    selectedFeature.value = '';
+    mapStore.activeFeature = '';
+  }
+}, { immediate: true });
 
 // Toggle 邏輯 (完全復刻)
 const toggleDropdown = (type) => {

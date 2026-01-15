@@ -148,7 +148,7 @@ watch(
         // ================= TAB 1: 查字 =================
         if (sourceTab === 'tab1') {
           const params = new URLSearchParams();
-
+          window._resultPageCache = {};
           let rawChars = newPayload.chars;
           if (rawChars) {
             if (typeof rawChars === 'string') rawChars = rawChars.split('');
@@ -241,6 +241,7 @@ watch(
 
         // ================= TAB 4: 查調 =================
         else if (sourceTab === 'tab4') {
+          window._resultPageCache = {};
           const params = new URLSearchParams();
           if (Array.isArray(newPayload.locations)) {
             newPayload.locations.forEach(loc => params.append("locations", loc));

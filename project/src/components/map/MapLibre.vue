@@ -18,8 +18,42 @@
             <span class="arrow">▾</span>
           </div>
         </div>
-        <button class="action-btn" @click="resetView">🎯 視角復位</button>
-        <button class="action-btn fullscreen-btn" @click="toggleFullScreen">⛶ 全屏模式</button>
+
+        <div
+            v-if="isMiddleChineseMode"
+            id="custom-switch-container"
+            class="custom-switch-container1"
+            @click="toggleCustomSwitch"
+        >
+          <span class="switch-label-text">用戶個人數據</span>
+          <div class="custom-switch" :class="{ 'open': showCustomData }" id="custom-toggle">
+              <span class="custom-slider">
+                  <span id="switch-text" class="switch-text">
+                    {{ showCustomData ? '顯示' : '隱藏' }}
+                  </span>
+              </span>
+          </div>
+        </div>
+
+        <div
+            id="base-switch-container"
+            class="custom-switch-container1"
+            @click="toggleBaseMode"
+        >
+          <span class="switch-label-text">查看地名</span>
+
+          <div class="custom-switch" :class="{ 'open': isBaseModeActive }" id="base-toggle">
+        <span class="custom-slider">
+            <span class="switch-text">
+              {{ isBaseModeActive ? '開啟' : '關閉' }}
+            </span>
+        </span>
+          </div>
+        </div>
+        <div class="button-row">
+          <button class="action-btn" @click="resetView">🎯 復位</button>
+          <button class="action-btn fullscreen-btn" @click="toggleFullScreen">⛶ 全屏</button>
+        </div>
       </div>
     </div>
 
@@ -35,7 +69,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount, shallowRef, nextTick, watch } from 'vue';
+import { ref, onMounted, onBeforeUnmount, shallowRef, nextTick, watch, computed } from 'vue';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { mapStyle, mapStyleConfig, calculateDenseMapCenterAndZoom } from '@/utils/MapSource.js';
@@ -55,7 +89,7 @@ const props = defineProps({
   // 4. 當前選中的特徵 (僅 feature 模式有效)
   activeFeature: { type: String, default: '' },
   // 5. 是否開啟自定義顯示邏輯 (對應 window.isCustomOn)
-  isCustom: { type: Boolean, default: true },
+  isCustom: { type: Boolean, default: false },
   // ✨ 新增：指定色點圖的層級 (1, 2, 3)
   dotLevel: { type: [String, Number], default: null },
 });
@@ -65,7 +99,42 @@ const map = shallowRef(null);
 const currentStyleKey = ref('maptiler_streets');
 const loading = ref(false);
 const isFullScreen = ref(false);
+const showCustomData = ref(false);
 
+// 2. ✨ 判斷是否為“查中古”模式
+const isMiddleChineseMode = ref(false);
+let modeCheckInterval = null;
+// 2. 定義檢查函數
+const checkWindowMode = () => {
+  const cache = window._resultPageCache;
+  // 賦值給 ref，Vue 會自動檢測值是否真正改變，不會導致無意義的重渲染
+  isMiddleChineseMode.value = (cache && cache.mode === '查中古');
+};
+// 3. 切換開關邏輯
+const toggleCustomSwitch = () => {
+  if (window.userRole === 'anonymous') {
+    // 未登錄：提示並攔截
+    alert("未登錄用戶無法查看用戶個人數據！");
+    return;
+  }
+  showCustomData.value = !showCustomData.value;
+};
+const lastNonBaseMode = ref('feature');
+// 只要當前 store 是 base 模式，開關就是開的
+const isBaseModeActive = computed(() => mapStore.mode === 'base');
+
+// 4. 切換邏輯
+const toggleBaseMode = (e) => {
+  if (e) e.stopPropagation();
+
+  if (mapStore.mode === 'base') {
+    // 關閉開關 -> 回復到原來的模式
+    mapStore.mode = lastNonBaseMode.value;
+  } else {
+    // 打開開關 -> 切換到 base 模式
+    mapStore.mode = 'base';
+  }
+};
 // 管理所有的 Marker 實例，用於清除
 let currentMarkers = [];
 
@@ -80,6 +149,8 @@ const colorPalette = [
 // --- 生命周期 ---
 onMounted(() => {
   initMap();
+  // ✨ 立即檢查一次
+  checkWindowMode();
 });
 
 onBeforeUnmount(() => {
@@ -98,6 +169,20 @@ watch(
       renderMapContent();
     },
     { deep: true }
+);
+watch(showCustomData, () => {
+  renderMapContent();
+});
+// 2. 監聽 store 的模式變化，自動記錄歷史
+watch(
+    () => mapStore.mode,
+    (newMode) => {
+      // 只要當前模式不是 base，就把它記下來
+      if (newMode !== 'base') {
+        lastNonBaseMode.value = newMode;
+      }
+    },
+    { immediate: true }
 );
 
 // --- 初始化地圖 ---
@@ -264,11 +349,21 @@ const drawDotMap = () => {
 // 邏輯 3: 特徵圖 + 複雜彈窗 (DOM版，支持按鈕點擊)
 // =======================================================
 const drawFeatureMap = () => {
-  // ... (前面的過濾邏輯不變)
   if (!mapStore.mergedData || mapStore.mergedData.length === 0) return;
   if (!mapStore.activeFeature) return;
 
-  const items = mapStore.mergedData.filter(item => item.feature === mapStore.activeFeature);
+  const items = mapStore.mergedData.filter(item => {
+    // item.feature === mapStore.activeFeature
+    // 必须匹配特征
+    const isFeatureMatch = item.feature === props.activeFeature;
+
+    // ✨ 开关逻辑：
+    // 如果开关开了(true)，则显示所有。
+    // 如果开关关了(false)，则只显示 iscustoms !== 1 的数据。
+    const isCustomMatch = showCustomData.value ? true : item.iscustoms !== 1;
+
+    return isFeatureMatch && isCustomMatch;
+  });
 
   items.forEach(item => {
     if (!item.value || !item.value.trim()) return;
@@ -359,7 +454,7 @@ const createPopupDOM = (item) => {
     btn.style.cursor = 'pointer';
 
     if (showButtonType === 'custom') {
-      btn.innerText = '📝 查看詳情'; // (原 mini-btn0)
+      btn.innerText = '🗑️ 刪除'; // (原 mini-btn0)
       btn.onclick = (e) => {
         e.stopPropagation(); // 防止點擊按鈕穿透到地圖
         handleCustomBtnClick(item);
@@ -381,7 +476,60 @@ const createPopupDOM = (item) => {
 // --- 按鈕點擊處理函數 ---
 const handleCustomBtnClick = (item) => {
   console.log("觸發自定義按鈕邏輯", item);
-  // 這裡寫你的舊邏輯，比如 window.detaillocation = ...
+  const feature = item.feature;
+  const value = item.value;
+  const location = item.location;
+  const created_at = item.created_at;
+  // 顯示確認刪除的對話框
+  const isConfirmed = confirm(
+      "⚠️ 你確定要刪除這條信息嗎？\n" +
+      "📍 " + location + "\n" +
+      "🔧 " + feature + "" +
+      "  🔢 " + value + "\n" +
+      "🗑️ 刪除後將無法恢復！"
+  );
+  // 如果用戶點擊確定，執行刪除操作
+  if (isConfirmed) {
+    // 表單驗證
+    if (!location || !feature || !value) {
+      alert("⚠️ 刪除失敗，地點/特徵/值存在空值");
+      return;  // 如果有空的字段，則不提交
+    }
+    // 構建表單數據對象
+    const formData = {
+      location: location,
+      // region: null,
+      // coordinates: null,
+      feature: feature,
+      value: value,
+      created_at:created_at,
+      // description: null // 如果說明為空，設置為 null
+    };
+    const token = localStorage.getItem("ACCESS_TOKEN")
+    fetch(`${window.API_BASE}/delete_form`, {
+      method: "DELETE",  // 改為 DELETE 方法
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {})  // 如果有 token，則添加 Authorization 標頭
+      },
+      body: JSON.stringify(formData)  // 將表單數據作為請求體
+    })
+        .then(response => response.json())
+        .then(data => {
+          // 根據後端返回的結果處理
+          if (data.success) {
+            alert("🧹 刪除成功！\n請點擊自定按鈕刷新！\n" + data.message);
+            // 可以選擇清空表單或其他操作
+            // document.getElementById("infoForm").reset();  // 清空表單
+          } else {
+            alert("刪除失敗：" + data.message);
+          }
+        })
+        .catch(error => {
+          console.error("刪除失敗:", error);
+          alert("刪除時發生錯誤！",'darkred');
+        });
+  }
 };
 
 const handleDetailBtnClick = (item) => {
@@ -445,64 +593,6 @@ const resetView = () => {
 
 .map-container { width: 100%; height: 100%; }
 
-/* --- 控制欄樣式 --- */
-.map-controls {
-  position: absolute;
-  top: 16px; right: 16px;
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(12px);
-  padding: 12px;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  z-index: 10;
-  width: 200px;
-}
-
-.custom-select select {
-  width: 100%;
-  padding: 8px 12px;
-  border-radius: 8px;
-  border: 1px solid #ddd;
-}
-.action-btn {
-  background: #007aff;
-  color: white;
-  border: none;
-  padding: 8px;
-  border-radius: 8px;
-  cursor: pointer;
-}
-.fullscreen-btn { background: #34c759; }
-
-.exit-fullscreen-btn {
-  position: absolute;
-  top: 24px; right: 24px;
-  padding: 12px 24px;
-  background: rgba(255, 255, 255, 0.65);
-  backdrop-filter: blur(20px);
-  border-radius: 50px;
-  cursor: pointer;
-  z-index: 2000;
-}
-
-.loading-overlay {
-  position: absolute; inset: 0;
-  background: rgba(255,255,255,0.8);
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  z-index: 20;
-}
-.spinner {
-  width: 30px; height: 30px;
-  border: 3px solid #eee; border-top-color: #007aff;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-  margin-bottom: 10px;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
 
 /* ========================================= */
 /* 復刻原代碼中的 Marker CSS (使用 :deep) */
@@ -598,6 +688,7 @@ const resetView = () => {
   margin-left: 4px;
 }
 </style>
+
 <style scoped>
 .map-page-container {
   width: 70dvw;
@@ -676,14 +767,20 @@ const resetView = () => {
   padding: 12px;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  z-index: 10;
-  width: 150px;
-  transition: opacity 0.3s ease; /* ✨ 控制欄淡入淡出 */
-}
 
+  /* ✨ 關鍵佈局設置 */
+  display: flex;
+  flex-direction: column; /* 讓子元素垂直排列 (各佔一行) */
+  gap: 5px;              /* 控制三行之間的間距 */
+
+  z-index: 10;
+  width: 160px; /* 給個固定寬度，保證佈局穩定 */
+}
+.control-group {
+  width: 100%; /* 填滿父容器寬度 */
+  position: relative; /* 保持相對定位，不要用 absolute */
+  display: flex; /* 確保它是塊級元素 */
+}
 .control-group label {
   font-size: 12px;
   color: #666;
@@ -725,6 +822,22 @@ const resetView = () => {
   color: #888;
 }
 
+/* ✨ 新增：按鈕並排容器 */
+.button-row {
+  display: flex;
+  gap: 10px;        /* 按鈕之間的間距 */
+  width: 100%;
+}
+
+/* 讓按鈕平均分佈，或者根據需要調整寬度 */
+.button-row .action-btn {
+  flex: 1;          /* 兩個按鈕平分寬度 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  white-space: nowrap;
+}
+
 .action-btn {
   background: #007aff;
   color: white;
@@ -743,7 +856,6 @@ const resetView = () => {
 /* ✨ 全屏按鈕樣式 (綠色區分) */
 .fullscreen-btn {
   background: #34c759; /* Apple Green */
-  margin-top: 4px;
 }
 
 .fullscreen-btn:hover {
@@ -760,6 +872,19 @@ const resetView = () => {
   z-index: 20;
   font-weight: bold;
   color: #555;
+}
+/* 整个容器样式 */
+.custom-switch-container1 {
+  /* 關鍵：讓容器佔滿整行寬度，這樣它就獨占一行 */
+  width: 100%;
+
+  /* 關鍵：使用 Flex 讓內部的開關按鈕居中 */
+  display: flex;
+  justify-content: center; /* 水平居中 */
+  align-items: center;     /* 垂直居中 */
+
+  /* 確保它是相對定位，參與正常排版 */
+  position: relative; /* 改回相對定位 */
 }
 </style>
 
