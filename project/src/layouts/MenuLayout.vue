@@ -1,13 +1,13 @@
 <!-- src/layouts/MenuLayout.vue -->
 <template>
   <div class="menu-bg">
-  <NavBar />
+    <NavBar />
 <!--    <FloatingHeader v-if="shouldShowHeader" />-->
       <!-- 內容區：注意底部留白避免被 tab 擋住 -->
       <div class="glass-content">
         <router-view v-slot="{ Component }">
           <transition name="fade" mode="out-in">
-            <component :is="Component" :key="$route.fullPath" />
+            <component :is="Component" />
           </transition>
         </router-view>
       </div>
@@ -26,7 +26,7 @@ import { useRoute } from 'vue-router'
 // import { computed } from 'vue'
 import NavBar from "@/components/NavBar.vue";
 
-const route = useRoute()
+// const route = useRoute()
 // const shouldShowHeader = computed(() => {
 //   // console.log(route)
 //   return route.query.tab !== 'about' && !route.path.includes('auth')
@@ -36,7 +36,7 @@ const route = useRoute()
 <style scoped>
 /* 背景：柔和藍色漸層 + 細微噪點質感 */
 .menu-bg {
-  min-height: 100vh;
+  min-height: 100dvh;
   padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right))
   max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
   background:
@@ -100,12 +100,12 @@ nav {
 .fade-enter-from, .fade-leave-to { opacity: 0; transform: translateY(6px); }
 
 /* 📱 手機：只調整文字與按鈕 */
-@media (max-width: 480px) {
-  .glass-card {
-    border-radius: 22px; /* 手機玻璃四角稍微圓一點 */
-    bottom: 8dvh;
-    /*height:70dvh;*/
-  }
+@media (max-aspect-ratio: 1/1)  {
+  /*.glass-card {*/
+  /* border-radius: 22px;  手機玻璃四角稍微圓一點 */
+  /* bottom: 8dvh;
+   /*height:70dvh;*/
+  /*} */
   .glass-content {
     padding: 17dvh 8px 8px ;
     font-size: 1.1rem; /* ✅ 文字變大 */

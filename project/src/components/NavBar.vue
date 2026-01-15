@@ -485,7 +485,7 @@ const goToPrivacyPolicy = () =>  {router.push({ path: '/menu',
 
 
 
-@media (orientation: portrait) {
+@media (max-aspect-ratio: 1/1) {
   /* 隐藏桌面端布局 */
   .navbar-desktop {
     display: none;
@@ -604,7 +604,7 @@ const goToPrivacyPolicy = () =>  {router.push({ path: '/menu',
 }
 
 /* 响应式样式，移动端显示边栏 */
-@media (orientation: portrait) {
+@media (max-aspect-ratio: 1/1)  {
   .navbar-desktop {
     display: none;
   }

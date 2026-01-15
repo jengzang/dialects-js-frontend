@@ -1,16 +1,9 @@
 <!-- ✅ App.vue -->
 <template>
   <!-- 🧱 動態載入 layout -->
-  <component :is="layoutComponent" />
+    <component :is="layoutComponent" />
 
-  <!-- ✅ 嵌入 iframe：原生 JS -->
-<!--  <iframe-->
-<!--      ref="nativeFrame"-->
-<!--      src="/detail/"-->
-<!--      style="width: 0; height: 0; border: none;"-->
-<!--      @load="onIframeLoad"-->
-<!--      id="native-frame"-->
-<!--  />-->
+  <PanelManager />
 </template>
 
 <script>

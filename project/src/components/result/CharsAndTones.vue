@@ -1,0 +1,251 @@
+<template>
+  <div class="chartonepage" >
+    <div v-if="mode === 'tab1'" class="content-search">
+      <template v-for="(item, index) in processedData" :key="index">
+        <div v-if="shouldShowChar(index)" class="char">{{ item.char }}</div>
+
+        <div v-if="shouldShowPositions(index)" class="positions">
+          <p v-for="(pos, pIdx) in item.positions" :key="pIdx">{{ pos }}</p>
+        </div>
+
+
+          <div class="info-container">
+            <div class="location">{{ item.location }}</div>
+
+            <div class="syllables-grid">
+              <div
+                  v-for="(syl, sIdx) in item.音节"
+                  :key="sIdx"
+                  class="syllable-unit"
+              >
+                <span class="pronunciation">{{ syl }}</span>
+
+                <span v-if="shouldShowNote(item.notes, sIdx)" class="annotation">
+                {{ item.notes[sIdx] }}
+              </span>
+              </div>
+            </div>
+
+        </div>
+      </template>
+    </div>
+
+    <table v-if="mode === 'tab4'" class="table-tones">
+        <thead>
+        <tr>
+          <th v-for="(header, idx) in toneHeaders" :key="idx"
+              :style="idx > 0 ? { backgroundColor: colorArray[idx - 1].hex } : {}">
+            {{ header }}
+          </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr v-for="(row, rIdx) in processedData" :key="rIdx">
+          <td class="location-tones" @click.stop="showPopup($event, row['總數據'])">
+            {{ row['簡稱'] }}
+          </td>
+          <td v-for="(toneVal, tIdx) in getToneValues(row.tones)" :key="tIdx"
+              class="tones-cell-tones"
+              :style="getToneStyle(toneVal, tIdx)">
+            {{ formatToneText(toneVal) }}
+          </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <Teleport to="body">
+      <div
+          v-if="popup.visible"
+          class="popup-tones"
+          :style="{ top: popup.top + 'px', left: popup.left + 'px' }"
+          v-html="popup.content"
+      ></div>
+    </Teleport>
+
+  </div>
+</template>
+
+<script setup>
+import { computed, ref, onMounted, onUnmounted } from 'vue';
+
+const props = defineProps({
+  data: {
+    type: Array,
+    required: true,
+    default: () => []
+  },
+  mode: {
+    type: String,
+    required: true // 'tab1' or 'tab4'
+  }
+});
+
+// ================= 通用數據處理 =================
+const processedData = computed(() => {
+  return props.data || [];
+});
+
+// ================= TAB 1 邏輯 =================
+const shouldShowChar = (index) => {
+  if (index === 0) return true;
+  return processedData.value[index].char !== processedData.value[index - 1].char;
+};
+
+const shouldShowPositions = (index) => {
+  if (index === 0) return true;
+  const curr = processedData.value[index];
+  const prev = processedData.value[index - 1];
+  if (curr.char !== prev.char) return true;
+  return JSON.stringify(curr.positions) !== JSON.stringify(prev.positions);
+};
+
+// 🌟 新增：檢查單個音節是否有對應的註釋
+const shouldShowNote = (notesArray, index) => {
+  // 1. notes 必須是數組
+  // 2. 該 index 必須有值
+  // 3. 值不能是 "_" (後端用下劃線表示無數據)
+  // 4. 值不能是空字符串
+  if (!Array.isArray(notesArray) || !notesArray[index]) return false;
+  const note = notesArray[index];
+  return note !== "_" && note.trim() !== "";
+};
+
+// 舊的 getNotesTitle 和 hasNotes 函數已刪除，因為不再需要 tooltip
+
+// ================= TAB 4: 查調邏輯 =================
+const toneHeaders = ['地點', '陰平', '陽平', '陰上', '陽上', '陰去', '陽去', '陰入', '陽入', '其他調', '輕聲'];
+
+const colorArray = [
+  { name: "Orange", hex: "#f58231" },
+  { name: "Yellow", hex: "#ffe119" },
+  { name: "Green", hex: "#3cb44b" },
+  { name: "Cyan", hex: "#42d4f4" },
+  { name: "Blue", hex: "#CCFFFF" },
+  { name: "Magenta", hex: "#9999FF" },
+  { name: "Pink", hex: "#fabed4" },
+  { name: "Beige", hex: "#fffac8" },
+  { name: "Mint", hex: "#aaffc3" },
+  { name: "Lavender", hex: "#dcbfff" }
+];
+
+// 從 tones 數組提取 T1-T10 的值
+const getToneValues = (tones) => {
+  // tones 是一個數組 [{'T1': val}, {'T2': val}...]
+  // 我們需要按順序提取值
+  const keys = ['T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8', 'T9', 'T10'];
+  return keys.map(k => {
+    const found = tones.find(t => Object.keys(t)[0] === k);
+    return found ? found[k] : '無';
+  });
+};
+
+// 獲取單元格樣式 (背景色、斜線等)
+const getToneStyle = (val, colIndex) => {
+  if (!val || val === "無") {
+    return {
+      backgroundColor: 'transparent',
+      border: '1px solid #000',
+      backgroundImage: 'linear-gradient(45deg, transparent 49%, #000 50%, transparent 51%)',
+      backgroundSize: '15px 15px'
+    };
+  }
+
+  let bgHex = colorArray[colIndex].hex;
+
+  // 邏輯移植：如果以 T 開頭 (如 T1)，使用對應列的顏色
+  if (val.startsWith("T")) {
+    const targetIndex = parseInt(val.substring(1)) - 1;
+    if (colorArray[targetIndex]) {
+      bgHex = colorArray[targetIndex].hex;
+    }
+  }
+
+  const style = { backgroundColor: bgHex };
+
+  // 邏輯移植：數字開頭加粗
+  if (/^\d/.test(val)) {
+    style.fontFamily = 'Courier New, sans-serif';
+    style.fontWeight = 'bold';
+  }
+  // 邏輯移植：` 開頭特殊字體
+  else if (/^`/.test(val)) {
+    style.fontFamily = 'Times New Roman, sans-serif';
+  }
+
+  return style;
+};
+
+// 格式化文字 (去除 ` 符號)
+const formatToneText = (val) => {
+  if (!val || val === "無") return "";
+  if (val.startsWith("`")) return val.replace(/`/g, '');
+  return val;
+};
+
+// ================= 彈窗邏輯 =================
+const popup = ref({ visible: false, top: 0, left: 0, content: '' });
+
+const showPopup = (event, contentArray) => {
+
+  // 數據保護：如果沒有詳情數據，不彈窗
+  if (!contentArray || !Array.isArray(contentArray) || contentArray.length === 0) {
+    // console.log('沒數據')
+    return;
+  }
+  // console.log('有數據')
+  popup.value = {
+    visible: true,
+    // 使用 pageX/Y 確保是相對於整個文檔的坐標 (因為 Teleport 到了 body)
+    // +15 是為了讓彈窗稍微偏離鼠標一點，避免遮擋視線或誤觸
+    top: event.pageY + 10,
+    left: event.pageX + 10,
+    content: contentArray.join('<br>') // 將數組換行顯示
+  };
+};
+
+// 點擊頁面其他地方關閉彈窗
+const handleGlobalClick = (e) => {
+  if (popup.value.visible) {
+    // 如果點擊的不是觸發按鈕 (.location-tones)，則關閉
+    if (!e.target.closest('.location-tones')) {
+      popup.value.visible = false;
+    }
+  }
+};
+
+onMounted(() => window.addEventListener('click', handleGlobalClick));
+onUnmounted(() => window.removeEventListener('click', handleGlobalClick));
+
+</script>
+
+<style>
+@import "ExtraPanel.css";
+.chartonepage{
+  max-width: 85dvw;
+  min-width: 60dvw;
+  height: 66dvh;
+  overflow-y: auto;
+  overflow-x: auto;
+  padding: 20px;
+  font-size: 18px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  backdrop-filter: blur(8px);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+
+  display: flex;
+  margin: 0 auto;
+  width: 90%;
+
+}
+@media (max-aspect-ratio: 1/1) {
+  .chartonepage{
+    height: 60dvh;
+  }
+}
+</style>
+
+<style>
+@import "ExtraPanel.css";
+</style>
