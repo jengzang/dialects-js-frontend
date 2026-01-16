@@ -16,6 +16,7 @@
   "dependencies": {
     "maplibre-gl": "^5.16.0",
     "naive-ui": "^2.42.0",
-    "vue-router": "^4.5.1"
+    "vue-router": "^4.5.1",
+    "xlsx": "^0.18.5"
   }
 }

@@ -49,7 +49,13 @@
             <span role="img" aria-label="refresh">🔄</span> 刷新
           </li>
           <li @click="goToYCVillages">
-            <span role="img" aria-label="ycVillages">🏠</span> 阳春自然村
+            <span role="img" aria-label="ycVillages">🏠</span> 陽春自然村
+          </li>
+          <li @click="goToGDVillages">
+            <span role="img" aria-label="gdVillages">🏘</span> 全粵村情
+          </li>
+          <li @click="goToSpoken">
+            <span role="img" aria-label="spoken">🗣</span> 陽春口語詞
           </li>
           <li @click="goToSuggestions">
             <span role="img" aria-label="suggestions">💡</span> 提出建議
@@ -263,6 +269,12 @@ const goToSource = () => {router.push({ path: '/menu',
   toggleSidebar(); }
 const goToPrivacyPolicy = () =>  {router.push({ path: '/menu',
   query: { tab: 'privacy'}}) /* 跳转到隐私政策页面 */
+  toggleSidebar(); }
+const goToGDVillages = () =>  {router.push({ path: '/menu',
+  query: { tab: 'gdVillages'}}) /* 跳转到隐私政策页面 */
+  toggleSidebar(); }
+const goToSpoken = () =>  {router.push({ path: '/menu',
+  query: { tab: 'ycSpoken'}}) /* 跳转到隐私政策页面 */
   toggleSidebar(); }
 </script>
 
