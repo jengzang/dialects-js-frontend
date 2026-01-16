@@ -49,7 +49,13 @@
     font-weight: normal;
     font-size: 1.1em;
 }
-
+/* ✨ 新增：轉換失敗的樣式 */
+.conversion-failed {
+    color: #666; /* 深灰色 */
+    text-decoration: underline dashed; /* 虛線下劃線 */
+    text-underline-offset: 3px; /* 下劃線稍微離文字遠一點 */
+    cursor: help; /* 鼠標放上去顯示問號/幫助手勢 */
+}
 /* 2. 注釋 */
 .annotation {
     color: #888;

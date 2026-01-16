@@ -48,8 +48,8 @@
           <li @click="refreshPage">
             <span role="img" aria-label="refresh">🔄</span> 刷新
           </li>
-          <li @click="goToSettings">
-            <span role="img" aria-label="settings">⚙️</span> 設置
+          <li @click="goToYCVillages">
+            <span role="img" aria-label="ycVillages">🏠</span> 阳春自然村
           </li>
           <li @click="goToSuggestions">
             <span role="img" aria-label="suggestions">💡</span> 提出建議
@@ -249,8 +249,8 @@ const refreshPage = () => {
   });
   toggleSidebar();
 }
-const goToSettings = () => {router.push({ path: '/menu',
-  query: { tab: 'setting'}})  /* 跳转到设置页面 */
+const goToYCVillages = () => {router.push({ path: '/menu',
+  query: { tab: 'ycVillages'}})  /* 跳转到设置页面 */
   toggleSidebar(); }
 const goToSuggestions = () => {router.push({ path: '/menu',
   query: { tab: 'about', sub: 'suggestion' }}) /* 跳转到喜欢作者页面 */

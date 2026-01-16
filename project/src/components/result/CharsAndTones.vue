@@ -18,7 +18,13 @@
                   :key="sIdx"
                   class="syllable-unit"
               >
-                <span class="pronunciation">{{ syl }}</span>
+                <span
+                  class="pronunciation"
+                  :class="{ 'conversion-failed': isConversionFailed(syl, item.location) }"
+                  :title="isConversionFailed(syl, item.location) ? '可能有誤：未匹配到對應數據' : ''"
+                >
+                  {{ getDisplaySyllable(syl, item.location) }}
+                </span>
 
                 <span v-if="shouldShowNote(item.notes, sIdx)" class="annotation">
                 {{ item.notes[sIdx] }}
@@ -77,6 +83,15 @@ const props = defineProps({
   mode: {
     type: String,
     required: true // 'tab1' or 'tab4'
+  },
+  tone_for_chars:{
+    type: Array,
+    required:false,
+    default: () => []
+  },
+  selectedToneType: {
+    type: String,
+    default: '默認'
   }
 });
 
@@ -109,7 +124,104 @@ const shouldShowNote = (notesArray, index) => {
   const note = notesArray[index];
   return note !== "_" && note.trim() !== "";
 };
+// ================= 1. 構建高效查詢表 (Tone Map) =================
+// 結構: { '廣州': { '1': { val: '55', cat: '陰平' }, '7a': { val: '5', cat: '上陰入' } } }
+const toneMap = computed(() => {
+  const map = {};
 
+  if (!props.tone_for_chars || props.tone_for_chars.length === 0) return map;
+
+  props.tone_for_chars.forEach(cityData => {
+    const cityMap = {};
+    const rawData = cityData['總數據'] || [];
+
+    rawData.forEach(entry => {
+      if (!entry) return;
+
+      // 處理可能包含逗號的情況，如 "[7a]5上陰入,[7b]3下陰入"
+      const parts = entry.split(',');
+
+      parts.forEach(part => {
+        part = part.trim();
+        if (!part) return;
+
+        // 正則解析: 匹配 [id]數字漢字
+        // Group 1: ID (如 1, 7a)
+        // Group 2: 數字 (調值, 如 55, 5)
+        // Group 3: 剩餘部分 (調類, 如 陰平, 上陰入)
+        const match = part.match(/^\[([0-9a-zA-Z]+)\](\d+)(.*)$/);
+
+        if (match) {
+          const id = match[1];
+          const val = match[2];
+          const cat = match[3];
+
+          cityMap[id] = { val, cat };
+        }
+      });
+    });
+
+    map[cityData['簡稱']] = cityMap;
+  });
+
+  return map;
+});
+
+// ================= 2. 顯示轉換邏輯 =================
+
+const getDisplaySyllable = (syllable, location) => {
+  // 如果是默認模式，或者數據有問題，直接返回原始音節
+  if (props.selectedToneType === '默認' || !syllable) return syllable;
+
+  // ✨ 修復核心：
+  // 舊正則: /^(.*?)([0-9a-zA-Z]+)$/  <-- 這會把拼音字母也吃掉
+  // 新正則說明:
+  // 1. ^(.*?)        -> 非貪婪匹配開頭的拼音部分
+  // 2. (\d+[a-zA-Z]*) -> 強制以數字(\d+)開頭，後面可以跟字母(處理 7a, 9b)
+  // 3. |([A-Z])$     -> 或者(|)匹配單個大寫字母結尾 (處理你提到的 A/B 結尾情況)
+
+  const match = syllable.match(/^(.*?)(\d+[a-zA-Z]*|[A-Z])$/);
+
+  if (!match) return syllable;
+
+  const base = match[1];            // 拼音部分 (如 hou)
+  // match[2] 是數字開頭的後綴 (如 3, 7a)
+  // match[3] 是大寫字母后綴 (如 A) - 如果命中的話
+  const suffix = match[2] || match[3];
+
+  // 2. 查找映射數據
+  // 這裡加個 ?. 避免 location 不存在時報錯
+  const cityTones = toneMap.value?.[location];
+  if (!cityTones || !cityTones[suffix]) return syllable;
+  const toneInfo = cityTones[suffix];
+
+  // 3. 根據模式返回
+  if (props.selectedToneType === '調值') {
+    return base + toneInfo.val;
+  }
+  if (props.selectedToneType === '調類') {
+    return base + toneInfo.cat;
+  }
+
+  return syllable;
+};
+// ✨ 新增：判斷轉換是否失敗
+const isConversionFailed = (syllable, location) => {
+  // 1. 如果是默認模式，不算錯誤
+  if (props.selectedToneType === '默認' || !syllable) return false;
+
+  // 2. 正則檢查（使用修復後的正則）
+  const match = syllable.match(/^(.*?)(\d+[a-zA-Z]*|[A-Z])$/);
+  if (!match) return true; // 沒匹配到後綴 -> 視為失敗
+
+  const suffix = match[2] || match[3];
+
+  // 3. Map 數據檢查
+  const cityTones = toneMap.value?.[location];
+  if (!cityTones || !cityTones[suffix]) return true; // 有後綴但沒數據 -> 視為失敗
+
+  return false; // 成功
+};
 // 舊的 getNotesTitle 和 hasNotes 函數已刪除，因為不再需要 tooltip
 
 // ================= TAB 4: 查調邏輯 =================
@@ -244,6 +356,7 @@ onUnmounted(() => window.removeEventListener('click', handleGlobalClick));
     height: 60dvh;
   }
 }
+
 </style>
 
 <style>

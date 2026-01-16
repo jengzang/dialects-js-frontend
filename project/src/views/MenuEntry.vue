@@ -16,6 +16,7 @@ import AboutPage from "@/views/menu/AboutPage.vue";
 import SourcePage from "@/views/menu/SourcePage.vue";
 import PrivacyPage from "@/views/menu/PrivacyPage.vue";
 import SettingPage from "@/views/menu/SettingPage.vue";
+import YangChunVillages from "@/views/menu/YangChunVillages.vue";
 // ... 其他组件引入
 
 const route = useRoute()
@@ -31,6 +32,7 @@ const activeComponent = computed(() => {
     privacy: PrivacyPage,
     setting:SettingPage,
     about: AboutPage,
+    ycVillages:YangChunVillages,
     // ... 其他映射
   }
   return tabMap[tab] || QueryPage

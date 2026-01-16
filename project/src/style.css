@@ -562,3 +562,6 @@ textarea:hover {
   white-space: nowrap;  /* 禁止换行 */
 }
 
+.result-panel-vue{
+  margin-bottom: 50px;
+}

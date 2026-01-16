@@ -1,6 +1,38 @@
 <template>
   <div class="result-page-container">
-    <h2 class="tabs-title">{{ pageTitle }}</h2>
+    <div class="header-row">
+      <h2 class="tabs-title">{{ pageTitle }}</h2>
+      <div v-if="currentTabRef === 'tab1'" class="dropdown-wrapper" style="flex:none;">
+        <div
+            class="dropdown"
+            ref="tab1TriggerEl"
+            @click="toggleTab1Dropdown"
+            style="margin: 0"
+        >
+          {{ selectedTab1Type }}
+          <span class="arrow">▾</span>
+        </div>
+
+        <Teleport to="body">
+          <div
+              v-if="isTab1DropdownOpen"
+              class="dropdown-panel"
+              :style="tab1DropdownStyle"
+              ref="toneDropdownPanel"
+          >
+            <div
+                class="dropdown-item"
+                v-for="opt in ['默認', '調值', '調類']"
+                :key="opt"
+                @click="selectTab1Type(opt)"
+                :class="{ 'active': selectedTab1Type === opt }"
+            >
+              {{ opt }}
+            </div>
+          </div>
+        </Teleport>
+      </div>
+    </div>
 
     <div v-if="isLoading" class="glass-loader-container">
       <div class="glass-card">
@@ -19,11 +51,15 @@
         :is-condensed="true"
     />
 
-    <CharsAndTones
-        v-else-if="latestResults.length > 0 && ['tab1', 'tab4'].includes(currentTabRef)"
-        :data="latestResults"
-        :mode="currentTabRef"
-    />
+    <template v-else-if="latestResults.length > 0 && ['tab1', 'tab4'].includes(currentTabRef)">
+
+      <CharsAndTones
+          :data="latestResults"
+          :mode="currentTabRef"
+          :tone_for_chars="tone_for_chars"
+          :selected-tone-type="selectedTab1Type"
+      />
+    </template>
 
     <div v-else-if="!isLoading && latestResults.length === 0" class="empty-state">
       <p>暫無數據，請發起查詢</p>
@@ -35,7 +71,7 @@
 </template>
 
 <script setup>
-import {computed, onUnmounted, ref, watch} from 'vue';
+import {computed, onUnmounted, ref, watch, onMounted} from 'vue';
 import {useRoute, useRouter} from 'vue-router';
 import {api} from '@/utils/auth.js';
 import {globalPayload, mapStore} from '@/utils/store.js';
@@ -47,6 +83,7 @@ const route = useRoute();
 const router = useRouter();
 const results = ref([]);
 const latestResults = ref([]);
+const tone_for_chars = ref([]);
 const currentTabRef = ref('tab2');
 const payload = ref(null);
 window.mergedData = [];
@@ -72,6 +109,9 @@ const pageTitle = computed(() => {
   const sourceTab = p._sourceTab || 'tab2';
   const tabName = tabMap[sourceTab] || sourceTab;
   let featureText = '';
+  if (p.features && Array.isArray(p.features) && p.features.length > 0) {
+    featureText = p.features.join(' ');
+  }
   return featureText ? `${tabName}·${featureText}` : tabName;
 });
 
@@ -93,6 +133,17 @@ const stopTimer = () => {
   isLoading.value = false;
   if (timerInterval) clearInterval(timerInterval);
 };
+onMounted(() => {
+  window.addEventListener('click', handleClickOutside);
+  window.addEventListener('resize', updateDropdownPosition);
+  // ... 原有的 onMounted
+});
+
+onUnmounted(() => {
+  window.removeEventListener('click', handleClickOutside);
+  window.removeEventListener('resize', updateDropdownPosition);
+  // ... 原有的 onUnmounted
+});
 
 onUnmounted(() => {
   // ✅ 卸载时让当前请求失效，防止卸载后仍写入 store
@@ -112,7 +163,7 @@ watch(
       results.value = [];
       latestResults.value = [];
       payload.value = newPayload;
-      // console.log(payload.value)
+      // console.log("payload:",payload.value)
       const sourceTab = newPayload._sourceTab || 'tab2';
       currentTabRef.value = sourceTab;
 
@@ -132,7 +183,7 @@ watch(
         const MapData = await api(`/api/get_coordinates?${params_geo.toString()}`, {
           method: 'GET'
         });
-        console.log(MapData)
+        // console.log(MapData)
 
         // ✅ 竞态保护：MapData 回来时如果不是最新请求，直接退出
         if (seq !== requestSeq) return;
@@ -154,7 +205,12 @@ watch(
           }
 // 這裡加個 || "" 只是為了防止變量不存在時出現 "undefined" 字樣，其他情況都直接添加
           params.append("locations", newPayload.locations || "");
-          params.append("regions", newPayload.regions || "");
+          // ✅ 如果想传数组，要这样写：
+          if (Array.isArray(newPayload.regions)) {
+            newPayload.regions.forEach(r => params.append("regions", r));
+          } else {
+            params.append("regions", newPayload.regions || "");
+          }
           params.append("region_mode", newPayload.region_mode || 'yindian');
 
           const response = await api(`/api/search_chars/?${params.toString()}`, {
@@ -238,9 +294,14 @@ watch(
         else if (sourceTab === 'tab4') {
           window._resultPageCache = {};
           const params = new URLSearchParams();
-// 這裡加個 || "" 只是為了防止變量不存在時出現 "undefined" 字樣，其他情況都直接添加
+        // 這裡加個 || "" 只是為了防止變量不存在時出現 "undefined" 字樣，其他情況都直接添加
           params.append("locations", newPayload.locations || "");
-          params.append("regions", newPayload.regions || "");
+          // ✅ 如果想传数组，要这样写：
+          if (Array.isArray(newPayload.regions)) {
+            newPayload.regions.forEach(r => params.append("regions", r));
+          } else {
+            params.append("regions", newPayload.regions || "");
+          }
           params.append("region_mode", newPayload.region_mode || 'yindian');
 
           const response = await api(`/api/search_tones/?${params.toString()}`, {
@@ -266,6 +327,23 @@ watch(
         console.error("❌ 請求失敗:", error);
       } finally {
         stopTimer();
+        if (sourceTab === 'tab1'){
+          const params = new URLSearchParams();
+          params.append("locations", newPayload.locations || "");
+          if (Array.isArray(newPayload.regions)) {
+            newPayload.regions.forEach(r => params.append("regions", r));
+          } else {
+            params.append("regions", newPayload.regions || "");
+          }
+          params.append("region_mode", newPayload.region_mode || 'yindian');
+          const res = await api(`/api/search_tones/?${params.toString()}`, {
+            method: 'GET',
+          });
+          if (res && res.tones_result) {
+            tone_for_chars.value = res.tones_result;
+            // console.log(tone_for_chars.value)
+          }
+        }
 
         // ✅ finally 里拷贝加保护，避免这里再抛错
         try {
@@ -283,6 +361,51 @@ watch(
 const goToQuery = () => {
   router.push({ query: { tab: 'query' } });
 };
+
+// ================= ✨ 新增：Tab1 Dropdown 邏輯 =================
+const selectedTab1Type = ref('默認'); // 傳給子組件的狀態
+const isTab1DropdownOpen = ref(false);
+const tab1TriggerEl = ref(null);
+const tab1DropdownStyle = ref({});
+
+const toggleTab1Dropdown = () => {
+  if (isTab1DropdownOpen.value) {
+    isTab1DropdownOpen.value = false;
+  } else {
+    updateDropdownPosition();
+    isTab1DropdownOpen.value = true;
+  }
+};
+
+const selectTab1Type = (type) => {
+  selectedTab1Type.value = type;
+  isTab1DropdownOpen.value = false;
+  // 此處僅更新狀態，數據邏輯交由子組件根據 props 變化處理
+};
+
+const updateDropdownPosition = () => {
+  if (tab1TriggerEl.value) {
+    const rect = tab1TriggerEl.value.getBoundingClientRect();
+    tab1DropdownStyle.value = {
+      position: 'absolute',
+      top: `${rect.bottom + window.scrollY + 5}px`,
+      left: `${rect.left + window.scrollX}px`,
+      minWidth: `${rect.width}px`,
+      zIndex: 9999
+    };
+  }
+};
+
+// 點擊外部關閉
+const handleClickOutside = (e) => {
+  if (isTab1DropdownOpen.value && tab1TriggerEl.value) {
+    // 如果點擊的不是 Trigger 且不是 Panel 內部
+    if (!tab1TriggerEl.value.contains(e.target) && !e.target.closest('.dropdown-panel')) {
+      isTab1DropdownOpen.value = false;
+    }
+  }
+};
+
 </script>
 
 
@@ -429,5 +552,13 @@ const goToQuery = () => {
 
 .go-query-btn:active {
   transform: translateY(1px);
+}
+
+.header-row {
+  display: flex;
+  align-items: center; /* 垂直居中對齊 */
+  gap: 15px;           /* 標題和下拉框之間的間距 */
+  margin-bottom: 20px; /* 整個頭部與下方內容的間距 */
+  justify-content: center;
 }
 </style>
