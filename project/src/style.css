@@ -236,15 +236,30 @@ textarea:hover {
 }
 
 
-.fancy-run-container {
-  margin-top: 1.5rem;
+.run-container {
+  /* --- 核心修改开始 --- */
+  position: fixed;        /* 1. 固定定位：让它脱离文档流，参考窗口定位 */
+  bottom: 25px;           /* 2. 距离底部的位置（可以根据喜好调整） */
+  left: 50%;              /* 3.以此为基准居中 */
+  transform: translateX(-50%); /* 4. 精确居中修正 */
+  z-index: 1000;          /* 5. 层级设高，确保它浮在其他内容之上 */
+  /* --- 核心修改结束 --- */
+
   display: flex;
   align-items: center;
   gap: 8px;
   justify-content: center;
+
+  /* 移除原来的 margin-top，因为浮动后就不需要它来推开距离了 */
+  margin-top: 0;
+
+  /* 可选：防止容器宽度过大挡住背后内容的点击，
+     只有点到按钮本身才触发点击 */
+  pointer-events: none;
 }
 
-.fancy-run-btn {
+.run-btn {
+  pointer-events: auto;
   font-size: 18px;
   font-weight: bold;
   padding: 14px 28px;
@@ -261,15 +276,15 @@ textarea:hover {
   white-space: nowrap;
 }
 
-.fancy-run-btn:hover {
+.run-btn:hover {
   transform: scale(1.2);
   box-shadow: 0 0 20px rgba(0, 195, 255, 0.8), 0 0 50px rgba(110, 0, 255, 0.5);
 }
-.fancy-run-btn span {
+.run-btn span {
   display: inline-block;
 }
 /* 🔴 给按钮增加一个明显的禁用样式 */
-.fancy-run-btn:disabled {
+.run-btn:disabled {
   background: #ccc;
   cursor: not-allowed;
   transform: none;
@@ -279,7 +294,7 @@ textarea:hover {
 
 /* 📱 響應式：小螢幕按鈕變小 */
 @media(max-width: 600px) {
-  .fancy-run-btn {
+  .frun-btn {
     font-size: 16px;
     padding: 10px 20px;
     border-radius: 24px;

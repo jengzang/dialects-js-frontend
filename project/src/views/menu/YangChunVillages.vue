@@ -2,6 +2,7 @@
   <div class="glass-container">
     <div class="header-section">
       <h2 class="title">廣東陽春行政區劃</h2>
+      <p>數據源：《陽春縣志》(1996)</p>
       <div class="search-wrapper">
         <span class="search-icon">🔍</span>
         <input
@@ -156,13 +157,19 @@ const displayData = computed(() => {
 }
 
 .header-section {
-  padding: 24px 24px 16px;
+  padding: 20px 20px 10px;
   border-bottom: 1px solid rgba(0, 0, 0, 0.05);
   background: rgba(255, 255, 255, 0.3);
 }
 
-.title {
+.header-section p{
   margin: 0 0 16px 0;
+  color: dimgrey;
+  font-size: 14px;
+}
+
+.title {
+  margin:0;
   font-size: 22px;
   font-weight: 700;
 }

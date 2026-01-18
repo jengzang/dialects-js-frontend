@@ -45,9 +45,6 @@
           <li @click="goToOldWebsite">
             <span role="img" aria-label="old-website">🕰️</span> 舊版網站
           </li>
-          <li @click="refreshPage">
-            <span role="img" aria-label="refresh">🔄</span> 刷新
-          </li>
           <li @click="goToYCVillages">
             <span role="img" aria-label="ycVillages">🏠</span> 陽春自然村
           </li>
@@ -66,9 +63,12 @@
           <li @click="goToSource">
             <span role="img" aria-label="source">📚</span> 資料來源
           </li>
-          <li @click="goToPrivacyPolicy">
-            <span role="img" aria-label="privacy-policy">🔐</span> 隱私政策
+          <li @click="refreshPage">
+            <span role="img" aria-label="refresh">🔄</span> 刷新
           </li>
+<!--          <li @click="goToPrivacyPolicy">-->
+<!--            <span role="img" aria-label="privacy-policy">🔐</span> 隱私政策-->
+<!--          </li>-->
 
         </ul>
         <div class="icp-number">粤ICP备2025466875号-1</div>
@@ -538,10 +538,11 @@ const goToSpoken = () =>  {router.push({ path: '/menu',
   z-index: 1001;
   display: flex;
   flex-direction: column;
-  justify-content: space-between; /* 保证内容和底部对齐 */
+  justify-content: flex-end; /* 保证内容和底部对齐 */
   gap: 20px;
   /* 给底部留出空间 */
   padding: 20px 20px 40px;
+
 }
 
 /* 内容部分居中显示 */
@@ -552,7 +553,10 @@ const goToSpoken = () =>  {router.push({ path: '/menu',
   align-items: center; /* 水平居中 */
   justify-items: center;
   gap: 20px;
+  max-height: 90dvh;
+  overflow: auto;
   flex-grow: 1;
+  margin-bottom: 20px;
 }
 
 .sidebar-content ul {

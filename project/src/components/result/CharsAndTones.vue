@@ -9,7 +9,7 @@
         </div>
 
 
-          <div class="info-container">
+          <div class="info-container" v-if="item.音节 && item.音节.length > 0">
             <div class="location">{{ item.location }}</div>
 
             <div class="syllables-grid">
@@ -107,8 +107,11 @@ const shouldShowChar = (index) => {
 };
 
 const shouldShowPositions = (index) => {
-  if (index === 0) return true;
   const curr = processedData.value[index];
+  if (!curr.音节 || curr.音节.length === 0) {
+    return false;
+  }
+  if (index === 0) return true;
   const prev = processedData.value[index - 1];
   if (curr.char !== prev.char) return true;
   return JSON.stringify(curr.positions) !== JSON.stringify(prev.positions);

@@ -33,22 +33,16 @@
 
           <div class="scroll-content">
             <div id='display-detail3' class="panel-content">
-              <p style="margin: 0">說明<br><span class="example-input"><strong>-</strong></span> 代表 <span class="example-desc">全匹配</span> 分析，意為提取“-”後對應的所有中古類別。</p>
-              <p style="margin: 0"><span class="example-input"><strong>空格</strong></span> 代表 <span class="example-desc">合併</span> 分析，即一起分析多個特徵的所轄字。</p>
-              <p style="margin-top: 0"><span class="example-input"><strong>回車</strong></span> 代表 <span class="example-desc">獨立</span> 分析，即把輸入特徵按回車拆分再各自分析轄字。</p>
-
-              <div class="divider"></div>
-
               <p style="margin: 0">一些示例<br><span class="example-input"><strong>「泥」</strong></span> 使用 <span class="example-desc">泥母</span> 進行分析。</p>
               <p style="margin: 0"><span class="example-input"><strong>「豪」</strong></span> 使用 <span class="example-desc">豪韻</span> 進行分析。</p>
-              <p style="margin: 0"><span class="example-input"><strong>「蟹-等」</strong></span> 使用 <span class="example-desc">蟹攝一、二、三、四等</span> 進行分析("-"代表全匹配,“-”後需輸入中古類別)</p>
-              <p style="margin: 0"><span class="example-input"><strong>「次浊-調」</strong></span> 使用 <span class="example-desc">次濁聲母+平上去入</span> 進行分析。</p>
+              <p style="margin: 0"><span class="example-input"><strong>「蟹 + (全選)等」</strong></span> 使用 <span class="example-desc">蟹攝一、二、三、四等</span> 進行分析("-"代表全匹配,“-”後需輸入中古類別)</p>
+              <p style="margin: 0"><span class="example-input"><strong>「次浊 + (全選)調」</strong></span> 使用 <span class="example-desc">次濁聲母+平上去入</span> 進行分析。</p>
               <p style="margin: 0"><span class="example-input"><strong>「宕 江」</strong></span> 使用合併後的 <span class="example-desc">宕、江攝</span> 轄字進行分析(中間空格代表一起分析，回車則是按照不同特徵處理)</p>
               <p style="margin: 0"><span class="example-input"><strong>「庄組」</strong></span> 使用 <span class="example-desc">庄組</span> 進行分析（如果只輸入「庄」，會使用 <span class="example-desc">庄母</span> 分析）。</p>
               <p style="margin: 0"><span class="example-input"><strong>「流開一」</strong></span> 使用 <span class="example-desc">流攝開口一等字</span> 進行分析。</p>
-              <p style="margin: 0"><span class="example-input"><strong>「假知組 假章組」</strong></span> 使用 <span class="example-desc">假攝的知、章組</span> 轄字進行分析。</p>
+              <p style="margin: 0"><span class="example-input"><strong>「假 + 知組 章組」</strong></span> 使用 <span class="example-desc">假攝的知、章組</span> 轄字進行分析。</p>
               <p style="margin: 0"><span class="example-input"><strong>「塞擦」</strong></span> 提取 <span class="example-desc">塞擦音</span> 進行分析。</p>
-              <p style="margin: 0"><span class="example-input"><strong>「-部位」</strong></span> 分析 <span class="example-desc">所有發聲部位</span> ，包括“唇齒、喉、捲舌、腭、軟腭、雙唇、齒”。</p>
+              <p style="margin: 0"><span class="example-input"><strong>「(全選)部位」</strong></span> 分析 <span class="example-desc">所有發聲部位</span> ，包括“唇齒、喉、捲舌、腭、軟腭、雙唇、齒”。</p>
 
               <div class="divider"></div>
 
@@ -88,7 +82,7 @@
               <p>✔ 注1：<span class="example-desc">移動端</span>界面可能顯示不全，請多滑動/拖動。</p>
               <p>✔ 注2：點擊 <span class="example-input">分區 ▼</span> 按鈕，會出分區彈窗，用戶可<span class="example-desc">單擊</span>選擇所需分區。如要顯示下一級分區:<br>
                 ※ <span class="example-desc">電腦端</span>只需將<span class="example-desc">光標</span>移到對應分區上即可；<br>
-                ※ <span class="example-desc">移動端</span>則需要<span class="example-desc">點擊箭頭⌵</span>或<span class="example-desc">長按</span>對應分區</p>
+                ※ <span class="example-desc">移動端</span>則需要<span class="example-desc">點擊箭頭⌵</span>對應分區</p>
               <p>更詳細的使用說明，可點擊屏幕上方 <span class="example-input"> ❓使用說明 </span> 按鈕，點擊後會跳轉至詳細教程文章</p>
               <p>點擊🎲 可隨機生成分析示例</p>
             </div>

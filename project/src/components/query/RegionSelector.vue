@@ -259,6 +259,8 @@ function onDocMouseDown(e) {
 }
 
 async function loadTreeFor(mode) {
+  loadedTree.value = {};
+
   if (mode === 'map') {
     loadedTree.value = STATIC_TREE || {}
     return

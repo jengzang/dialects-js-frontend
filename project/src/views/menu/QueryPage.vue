@@ -188,9 +188,9 @@
       />
 
       <!-- ✅ 炫酷按鈕 -->
-      <div class="fancy-run-container">
+      <div class="run-container">
         <button
-            class="fancy-run-btn"
+            class="run-btn"
             @click="runAction"
             :disabled="isRunning || isRunDisabled"
             :class="{ disabled: isRunDisabled }"
@@ -876,7 +876,8 @@ export default {
 
 @media(max-width: 600px) {
   .key-button{
-    padding: 6px 10px;
+    padding: 8px 10px;
+    margin: 3px;
   }
 }
 

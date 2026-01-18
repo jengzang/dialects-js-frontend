@@ -21,6 +21,14 @@
     </div>
 
     <div class="table-scroll-area">
+      <div v-if="isLoading" class="loading-overlay">
+        <div class="spinner"></div>
+        <span>數據加載中...</span>
+      </div>
+
+      <div v-else-if="tableData.length === 0" class="empty-state">
+        <span>📭 暫無數據</span>
+      </div>
       <table>
         <colgroup>
           <col
@@ -54,7 +62,7 @@
         </tr>
         </thead>
 
-        <tbody>
+        <tbody :class="{ 'blur-content': isLoading }">
         <tr v-for="row in tableData" :key="row.id">
           <td v-for="col in columns" :key="col.key">
             {{ row[col.key] }}
@@ -87,21 +95,36 @@
               <button class="close-btn-mobile" @click="closeFilter">✕</button>
             </div>
 
-            <div class="filter-list custom-scrollbar">
-              <label class="checkbox-item empty-option">
-                <input type="checkbox" :value="null" v-model="filterState[activeFilterCol]">
-                <span class="custom-checkbox"></span>
-                <span class="label-text italic">(空值)</span>
-              </label>
+            <div v-bind="containerProps" class="filter-list custom-scrollbar" style="max-height: 300px">
 
-              <label v-for="val in distinctValues[activeFilterCol] || []" :key="val" class="checkbox-item">
-                <input type="checkbox" :value="val" v-model="filterState[activeFilterCol]">
-                <span class="custom-checkbox"></span>
-                <span class="label-text">{{ val }}</span>
-              </label>
+              <div v-bind="wrapperProps">
+
+                <div v-if="popupLoading" class="loading-item">加载中...</div>
+
+<!--                <label class="checkbox-item empty-option">-->
+<!--                  <input type="checkbox" :value="null" v-model="filterState[activeFilterCol]">-->
+<!--                  <span class="custom-checkbox"></span>-->
+<!--                  <span class="label-text italic">(空值)</span>-->
+<!--                </label>-->
+
+                <label
+                    v-for="item in list"
+                    :key="item.index"
+                    class="checkbox-item"
+                    :style="{ height: '35px' }"
+                >
+                  <input type="checkbox" :value="item.data" v-model="filterState[activeFilterCol]">
+                  <span class="custom-checkbox"></span>
+                  <span class="label-text">{{ item.data }}</span>
+                </label>
+
+              </div>
             </div>
 
             <div class="filter-actions">
+              <button class="text-btn toggle-select" @click="handleToggleSelect">
+                {{ isSelectionEmpty ? '全选' : '反选' }}
+              </button>
               <button class="text-btn cancel" @click="closeFilter">取消</button>
               <button class="text-btn confirm" @click="applyFilter">確認</button>
             </div>
@@ -113,9 +136,10 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, computed } from 'vue';
+import { ref, reactive, onMounted, computed, onUnmounted } from 'vue';
 import * as XLSX from 'xlsx';
 import { api } from "@/utils/auth.js";
+import { useVirtualList } from '@vueuse/core';
 
 const props = defineProps({
   dbKey: { type: String, required: true },
@@ -136,7 +160,7 @@ const activeFilterCol = ref(null); // 當前激活的篩選列 Key
 const distinctValues = reactive({}); // 緩存各列的篩選選項
 const filterState = reactive({});    // 存儲選中的篩選值
 const popupPos = reactive({ top: 0, left: 0 }); // 彈窗座標
-
+const isLoading = ref(false);
 // 計算總寬度比例
 const totalRatio = computed(() => {
   return props.columns.reduce((sum, col) => sum + (Number(col.width) || 1), 0);
@@ -149,6 +173,7 @@ props.columns.forEach(col => {
 
 // 獲取數據
 const fetchData = async () => {
+  isLoading.value = true; // 開啟 loading
   const searchCols = props.columns.map(c => c.key);
   const payload = {
     db_key: props.dbKey,
@@ -172,6 +197,8 @@ const fetchData = async () => {
     total.value = response.total;
   } catch (e) {
     console.error("Data Load Error:", e);
+  }finally {
+    isLoading.value = false; // 請求結束（無論成功失敗）都關閉
   }
 };
 
@@ -188,6 +215,7 @@ const currentFilterLabel = computed(() => {
   return col ? col.label : '';
 });
 
+const popupLoading = ref(false);
 // 計算彈窗樣式 (PC端定位)
 const popupStyle = computed(() => {
   // 移動端樣式由 CSS class 控制 (fixed center)，這裡返回空
@@ -204,22 +232,35 @@ const popupStyle = computed(() => {
   };
 });
 
+// 把当前要显示的列表数据变成一个 computed
+const currentListSource = computed(() => {
+  return distinctValues[activeFilterCol.value] || [];
+});
+
+// 使用 useVirtualList
+const { list, containerProps, wrapperProps } = useVirtualList(
+    currentListSource,
+    {
+      itemHeight: 35, // 预估每一行的高度(px)，根据你的 CSS 调整
+      overscan: 10,   // 多渲染几个在视口外，防止滚动白屏
+    }
+);
 // 打開篩選器
 const openFilter = async (key, event) => {
-  // 如果點擊當前已打開的列，則關閉
+  // 1. 如果點擊當前已打開的列，則關閉
   if (activeFilterCol.value === key) {
     closeFilter();
     return;
   }
 
-  // ✨ 計算位置核心邏輯
+  // 2. ✨ 計算位置核心邏輯
   if (event && event.currentTarget) {
     const rect = event.currentTarget.getBoundingClientRect();
-    // 加上 scrollY 防止滾動後位置錯誤，+8 是為了留點間隙
     popupPos.top = rect.bottom + window.scrollY + 8;
     popupPos.left = rect.left + window.scrollX;
   }
 
+  // 3. 設置當前激活列
   activeFilterCol.value = key;
 
   // 移動端打開時鎖定背景滾動
@@ -227,14 +268,42 @@ const openFilter = async (key, event) => {
     document.body.style.overflow = 'hidden';
   }
 
-  // 如果該列的選項還沒加載過，去後端拉取
-  if (!distinctValues[key]) {
-    try {
-      const res = await api(`/sql/distinct/${props.dbKey}/${props.tableName}/${key}`);
-      distinctValues[key] = res.values;
-    } catch (e) {
-      console.error("Filter Load Error:", e);
-    }
+  // 4. 準備 Payload (核心修改部分)
+  // -------------------------------------------------
+
+  // A. 處理上下文篩選 (排除當前列自己)
+  const contextFilters = { ...filterState };
+  delete contextFilters[key];
+
+  // B. 準備搜索相關參數 (新增!)
+  const searchCols = props.columns.map(c => c.key);
+
+  const payload = {
+    db_key: props.dbKey,
+    table_name: props.tableName,
+    target_column: key,
+    current_filters: contextFilters,
+    // ✅ 新增：把全局搜索詞和搜索列發給後端
+    search_text: searchText.value || "",
+    search_columns: searchCols
+  };
+  // -------------------------------------------------
+
+  // 5. 發送請求
+  popupLoading.value = true;
+  distinctValues[key] = []; // 先清空
+
+  try {
+    const res = await api('/sql/distinct-query', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' }, // 必须加这行！
+      body: JSON.stringify(payload)
+    });
+    distinctValues[key] = res.values;
+  } catch (e) {
+    console.error("Filter Load Error:", e);
+  } finally {
+    popupLoading.value = false;
   }
 };
 
@@ -252,11 +321,41 @@ const closeFilter = () => {
 };
 
 // 搜索
+let timeout;
 const handleSearch = () => {
-  currentPage.value = 1;
-  fetchData();
+  clearTimeout(timeout);
+  timeout = setTimeout(() => {
+    currentPage.value = 1;
+    fetchData();
+  }, 300); // 停止輸入 300ms 後才發請求
 };
+// --- 新增逻辑：全选/反选 ---
 
+// 1. 计算属性：判断当前列是否完全没选
+const isSelectionEmpty = computed(() => {
+  const current = filterState[activeFilterCol.value];
+  return !current || current.length === 0;
+});
+
+// 2. 核心逻辑：全选/反选
+const handleToggleSelect = () => {
+  const key = activeFilterCol.value;
+  const currentSelected = filterState[key] || [];
+  const rawOptions = distinctValues[key] || [];
+
+  // 构建页面上显示的所有选项集合
+  // 逻辑：页面上有个硬编码的 (空值) 选项，加上接口返回的非 null 值
+  const allPossibleOptions = [null, ...rawOptions.filter(v => v !== null)];
+
+  if (currentSelected.length === 0) {
+    // 【全选】：将所有可能的选项赋值给 filterState
+    filterState[key] = [...allPossibleOptions];
+  } else {
+    // 【反选】：从全集中 剔除 已经在 currentSelected 里的项
+    // 使用 filter 和 includes 实现差集
+    filterState[key] = allPossibleOptions.filter(opt => !currentSelected.includes(opt));
+  }
+};
 // 導出 Excel
 const exportToExcel = () => {
   const ws = XLSX.utils.json_to_sheet(tableData.value);
@@ -283,11 +382,26 @@ const handleDelete = async (row) => {
 const openAddModal = () => alert("有待完善：新增模態框");
 const handleEdit = (row) => alert(`編輯: ${row.粤拼 || row.id}`);
 
+const handleGlobalClick = () => {
+  if (activeFilterCol.value) {
+    closeFilter();
+  }
+};
+
 onMounted(() => {
   fetchData();
-  // 不再需要全局 document click listener，因為使用了 overlay
+  // 添加全局監聽
+  document.addEventListener('click', handleGlobalClick);
+});
+
+onUnmounted(() => {
+  // 組件銷毀時移除監聽，防止內存洩漏
+  document.removeEventListener('click', handleGlobalClick);
 });
 </script>
+
+
+
 <style scoped>
 :root {
   --glass-bg: rgba(255, 255, 255, 0.65);
@@ -393,6 +507,7 @@ onMounted(() => {
   overflow-y: auto;
   border-radius: 12px;
   background: rgba(255, 255, 255, 0.3);
+  min-height: 200px; /* 給個最小高度，防止加載時高度塌陷 */
 
   /* iOS 滾動優化，讓滑動更順滑 */
   -webkit-overflow-scrolling: touch;
@@ -572,7 +687,6 @@ td {
   display: flex;
   justify-content: flex-end;
   gap: 10px;
-  margin-top: 8px;
   padding-top: 8px;
   border-top: 1px solid rgba(0, 0, 0, 0.05);
   flex-shrink: 0; /* 禁止被壓縮 */
@@ -639,13 +753,25 @@ td {
   border-radius: 6px;
 }
 
-.text-btn.confirm {
-  background: var(--primary-blue);
-  color: darkgreen;
+/* 左侧全选/反选按钮的特殊样式 */
+.toggle-select {
+  color: #6e00ff; /* 主题色 */
+  font-weight: bold;
+}
+.toggle-select:hover {
+  background: rgba(110, 0, 255, 0.1);
 }
 
+/* 原有的 cancel/confirm 样式保持不变或微调 */
+.text-btn.confirm {
+  background: linear-gradient(135deg, #6e00ff, #00c3ff);
+  color: white;
+}
 .text-btn.cancel {
-  color: var(--text-secondary);
+  color: #666;
+}
+.text-btn.cancel:hover {
+  background: rgba(0,0,0,0.05);
 }
 
 /* Mobile Responsiveness */
@@ -696,8 +822,7 @@ td {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 85vw;
-    max-width: 350px;
+    max-width: 85dvw;
     max-height: 70vh; /* 給鍵盤留點空間 */
     margin: 0;
     z-index: 1000;
@@ -762,5 +887,56 @@ td {
   background: white;
   border: 1px solid rgba(0, 0, 0, 0.1);
   cursor: pointer;
+}
+.label-text{
+  font-size: 14px;
+}
+/* --- 加載遮罩層 --- */
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  /* 半透明白色/黑色背景 */
+  background: rgba(255, 255, 255, 0.5);
+  /* 關鍵：背景模糊，營造高級感 */
+  backdrop-filter: blur(3px);
+  z-index: 10;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: #555;
+  font-weight: bold;
+}
+
+/* --- 旋轉圈圈動畫 --- */
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-left-color: #6e00ff; /* 使用你的主題色 */
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* --- 空狀態樣式 --- */
+.empty-state {
+  padding: 40px;
+  text-align: center;
+  color: #888;
+  font-size: 16px;
+}
+
+/* --- (可選) 讓底下的內容在加載時稍微變淡 --- */
+.blur-content {
+  opacity: 0.5;
 }
 </style>
