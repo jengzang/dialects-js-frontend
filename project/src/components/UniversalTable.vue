@@ -372,6 +372,7 @@ const changePage = (delta) => {
 
 // 操作按鈕 (Stub)
 const handleDelete = async (row) => {
+  // console.log(row)
   if(!confirm(`確定刪除 ${row.粤拼 || row.id}?`)) return;
   // 這裡補全你的刪除邏輯
   alert(`模擬刪除: ${row.粤拼}`);

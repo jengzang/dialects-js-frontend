@@ -59,8 +59,11 @@
                 <span class="combo-name">{{ formatTitle(item.query) }}</span>
                 <span class="count-badge">{{ item['字数'] }} 字</span>
               </div>
+<!--              <div class="full-chars">-->
+<!--                <span v-for="(char, idx) in item['汉字']" :key="idx" class="char-tag">{{ char }}</span>-->
+<!--              </div>-->
               <div class="full-chars">
-                <span v-for="(char, idx) in item['汉字']" :key="idx" class="char-tag">{{ char }}</span>
+                {{ item['汉字'].join('') }}
               </div>
             </div>
           </div>
@@ -71,7 +74,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { api } from '@/utils/auth.js'
 // 定义事件，用于通知父组件禁用/启用按钮
 const emit = defineEmits(['update:runDisabled'])
@@ -92,7 +95,16 @@ let debounceTimer = null
 // ✅ 新增：控制全屏弹窗开关
 const isModalOpen = ref(false)
 // 获取当前用户角色，默认为 anonymous
-const userRole = window.userRole || 'anonymous'
+const userRole = ref('anonymous');
+function checkUserRole() {
+  // 这是一个简单的轮询示例，实际中最好由请求的回调来触发
+  const interval = setInterval(() => {
+    if (window.userRole) {
+      userRole.value = window.userRole; // ✅ 赋值给 ref，界面会自动更新
+      clearInterval(interval);
+    }
+  }, 100);
+}
 
 // 1. 计算逻辑 (保持不变)
 const combinations = computed(() => {
@@ -221,6 +233,10 @@ function formatTitle(queryStr) {
   }
   return queryStr;
 }
+
+onMounted(()=>{
+  checkUserRole();
+});
 
 defineExpose({ combinations })
 
@@ -379,6 +395,10 @@ defineExpose({ combinations })
   font-size: 18px;
   line-height: 1.6;
   color: #333;
+  /* 每个字之间增加 1em 的间距，相当于一个空格的宽度 */
+  letter-spacing: 0.5em;
+  /* 可选：防止连体字或特殊渲染问题 */
+  font-variant-ligatures: none;
 }
 .full-chars .char-tag {
   display: inline-block;
