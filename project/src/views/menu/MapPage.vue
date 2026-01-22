@@ -51,19 +51,21 @@
 
     <div class="tab-content" style="justify-items: center; position: relative;">
 
+      <!-- 使用 v-show 代替 v-if，保持组件状态 -->
       <MapLibre
-          v-if="currentTab === 'map'"
+          v-show="currentTab === 'map'"
           :active-feature="selectedFeature"
           :is-custom="true"
           :dot-level="selectedLevel"
           @map-click="handleMapClick"
       />
       <DivideTab
-          v-if="currentTab === 'divide'"
+          v-show="currentTab === 'divide'"
           @region-selected="(val) => selectedLevel = val"
       />
-      <CustomTab v-else-if="currentTab === 'custom'" />
-
+      <CustomTab
+          v-show="currentTab === 'custom'"
+      />
       <!-- 自定義數據提交面板（只在 map tab 顯示） -->
       <CustomDataPanel
           v-if="currentTab === 'map'"
@@ -85,8 +87,8 @@ import DivideTab from "@/components/map/DivideTab.vue";
 import CustomTab from '@/components/map/CustomTab.vue'
 import MapLibre from "@/components/map/MapLibre.vue";
 import CustomDataPanel from '@/components/map/CustomDataPanel.vue'
-import { showSuccess } from '@/utils/message.js'
-import { func_mergeData } from '@/utils/MapData.js'
+import { showSuccess, showError } from '@/utils/message.js'
+import { func_mergeData, addCustomFeatureData } from '@/utils/MapData.js'
 
 const selectedLevel = ref(3)
 const router = useRouter()
@@ -211,6 +213,62 @@ const onClickOutside = (event) => {
 
 onMounted(() => document.addEventListener('click', onClickOutside))
 onBeforeUnmount(() => document.removeEventListener('click', onClickOutside))
+
+// 监听路由参数，自动加载自定义特征
+watch(
+  () => route.query.feature,
+  async (newFeature, oldFeature) => {
+    // 防止重复触发
+    if (!newFeature || newFeature === oldFeature) return
+
+    // 只在 map tab 中触发
+    if (route.query.sub !== 'map') return
+
+    // console.log('检测到特征参数，开始加载:', newFeature)
+
+    try {
+      // 提取路由参数
+      const locations = route.query.locations?.split(',').filter(Boolean) || []
+      const regions = route.query.regions?.split(',').filter(Boolean) || []
+      const regionMode = route.query.regionMode || 'map'
+
+      // console.log('加载参数:', { feature: newFeature, locations, regions, regionMode })
+
+      // 调用 addCustomFeatureData 加载数据
+      await addCustomFeatureData([newFeature], locations, regions, regionMode)
+
+      // 自动选中该特征
+      selectedFeature.value = newFeature
+      mapStore.selectedFeature = newFeature
+
+      // 自动开启自定义数据显示
+      mapStore.showCustomData = true
+
+      // 自动切换到 feature 模式（关闭"查看地名"开关）
+      mapStore.mode = 'feature'
+
+      showSuccess(`已加载特征：${newFeature}`)
+
+      // console.log('✅ 特征加载成功')
+
+      // 清除路由参数（避免刷新重复加载）
+      await router.replace({
+        query: {
+          ...route.query,
+          feature: undefined,
+          locations: undefined,
+          regions: undefined,
+          regionMode: undefined
+        }
+      })
+    } catch (error) {
+      console.error('❌ 加载特征失败:', error)
+      showError('加载特征失败：' + (error.message || error))
+    }
+  },
+  { immediate: true } // 立即执行一次，检查初始路由参数
+)
+
 </script>
 
 <style scoped>

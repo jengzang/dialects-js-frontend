@@ -128,7 +128,7 @@
               </div>
 
               <div class="history-section">
-                <h4 class="section-title">歷史記錄（最近30天）</h4>
+                <h4 class="section-title">歷史記錄（最近60天）</h4>
                 <div class="history-list">
                   <div v-for="item in visitHistory" :key="item.date" class="history-item-modal">
                     <span class="history-date">{{ item.date }}</span>
@@ -338,7 +338,16 @@ function closeStatsPanel() {
 async function fetchVisitHistory() {
   loadingStats.value = true
   try {
-    const data = await api('/logs/visits/history?limit=30')
+    const today = new Date();
+    const startDate = new Date(today);
+    startDate.setDate(today.getDate() - 60); // 30天前
+    const endDate = today;
+
+    const start_date = startDate.toISOString().split('T')[0];  // 格式化为 'YYYY-MM-DD'
+    const end_date = endDate.toISOString().split('T')[0];      // 格式化为 'YYYY-MM-DD'
+
+    const data = await api(`/logs/visits/history?start_date=${start_date}&end_date=${end_date}&limit=999`);
+
 
     // 按日期汇总数据
     const dateMap = new Map()
@@ -824,10 +833,10 @@ const goToSpoken = () =>  {router.push({ path: '/menu',
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  padding:10px;
 }
 
 .stats-content {
-  overflow-y: auto;
   padding: 5px;
 }
 
@@ -919,7 +928,7 @@ const goToSpoken = () =>  {router.push({ path: '/menu',
   display: flex;
   flex-direction: column;
   gap: 8px;
-  max-height: 400px;
+  max-height: 50dvh;
   overflow-y: auto;
 }
 
@@ -937,7 +946,6 @@ const goToSpoken = () =>  {router.push({ path: '/menu',
 
 .history-item-modal:hover {
   background: rgba(255, 255, 255, 0.6);
-  transform: translateX(4px);
 }
 
 .history-date {

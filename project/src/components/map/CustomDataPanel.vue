@@ -185,7 +185,7 @@ watch(() => props.mapClickCoordinates, (newVal) => {
 watch(() => props.selectedFeature, (newFeature) => {
   if (!newFeature) return
 
-  // featureField = selectedFeature（子字段，不包含 "-"）
+  // featureField = selectedFeature
   formData.featureField = newFeature
 
   // featureType 从 resultCache.features 获取
@@ -272,11 +272,11 @@ const validateForm = () => {
     return false
   }
   if (!formData.featureType.trim()) {
-    showWarning('請填寫特徵類型')
+    showWarning('請填寫聲韻調')
     return false
   }
   if (!formData.featureField.trim()) {
-    showWarning('請填寫特徵子字段')
+    showWarning('請填寫特徵')
     return false
   }
   if (!formData.value.trim()) {

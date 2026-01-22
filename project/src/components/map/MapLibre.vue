@@ -186,12 +186,12 @@ watch(() => resultCache.mode, () => {
   checkWindowMode();
 }, { immediate: true });
 
-// 監聽 hasCustomData 變化（用於調試）
-watch(hasCustomData, (newVal) => {
-  console.log('📊 hasCustomData 變化:', newVal);
-  console.log('📌 isMiddleChineseMode:', isMiddleChineseMode.value);
-  console.log('📌 resultCache.mode:', resultCache.mode);
-});
+// // 監聽 hasCustomData 變化（用於調試）
+// watch(hasCustomData, (newVal) => {
+//   console.log('📊 hasCustomData 變化:', newVal);
+//   console.log('📌 isMiddleChineseMode:', isMiddleChineseMode.value);
+//   console.log('📌 resultCache.mode:', resultCache.mode);
+// });
 
 // 2. 監聽 store 的模式變化，自動記錄歷史
 watch(
@@ -241,13 +241,29 @@ const renderMapContent = async () => {
   // 清除舊標記
   clearMarkers();
 
-  // 根據數據調整視角 (如果 props.mapData 存在)
+  // 根據數據調整視角
+  let centerCoord = null;
+  let zoomLevel = 8;
+
+  // 优先使用 mapStore.mapData（基础地图数据）
   if (mapStore.mapData && mapStore.mapData.center_coordinate) {
-    // 注意：MapLibre 需要 [lng, lat]，後端如果是 [lng, lat] 則直接用
-    // 這裡假設後端返回的 center_coordinate 格式正確
+    centerCoord = mapStore.mapData.center_coordinate;
+    zoomLevel = mapStore.mapData.zoom_level || 8;
+  }
+  // 如果没有 mapData，或者在 feature 模式且有 mergedData，则从 mergedData 中提取
+  else if (mapStore.mergedData && mapStore.mergedData.length > 0) {
+    const firstItem = mapStore.mergedData[0];
+    if (firstItem.centerCoordinate) {
+      centerCoord = firstItem.centerCoordinate;
+      zoomLevel = firstItem.zoomLevel || 8;
+    }
+  }
+
+  // 应用视角调整
+  if (centerCoord && Array.isArray(centerCoord) && centerCoord.length >= 2) {
     map.value.flyTo({
-      center: mapStore.mapData.center_coordinate,
-      zoom: mapStore.mapData.zoom_level || 8
+      center: centerCoord,
+      zoom: zoomLevel
     });
   }
 
@@ -270,12 +286,25 @@ const clearMarkers = () => {
 // 邏輯 1: 基礎圖繪製 (復刻 create_map1 的後半部分)
 // =======================================================
 const drawBaseMap = () => {
-  if (!mapStore.mapData || !mapStore.mapData.coordinates_locations) return;
+  // 用于跟踪已显示的坐标，避免重复
+  const displayedCoordinates = new Set();
 
-  mapStore.mapData.coordinates_locations.forEach(([locationName, coordinates]) => {
-    // 確保坐標存在
-    if (!coordinates || coordinates.length < 2) return;
+  // 辅助函数：将坐标转换为字符串键
+  const coordToKey = (coord) => {
+    if (!Array.isArray(coord) || coord.length < 2) return null;
+    return `${coord[0].toFixed(6)},${coord[1].toFixed(6)}`;
+  };
+
+  // 辅助函数：创建地名标记
+  const createLocationMarker = (locationName, coordinates) => {
+    if (!coordinates || coordinates.length < 2) return null;
+    if (!locationName || !locationName.trim()) return null;
+
     const [lng, lat] = coordinates;
+    const key = coordToKey(coordinates);
+
+    // 如果这个坐标已经显示过，跳过
+    if (key && displayedCoordinates.has(key)) return null;
 
     // 字體大小邏輯 (完全復刻)
     const len = locationName.length;
@@ -295,8 +324,46 @@ const drawBaseMap = () => {
         .setLngLat([lng, lat])
         .addTo(map.value);
 
-    currentMarkers.push(marker);
-  });
+    // 标记该坐标已显示
+    if (key) displayedCoordinates.add(key);
+
+    return marker;
+  };
+
+  // 1. 显示基础地图数据的地名
+  if (mapStore.mapData && mapStore.mapData.coordinates_locations) {
+    mapStore.mapData.coordinates_locations.forEach(([locationName, coordinates]) => {
+      const marker = createLocationMarker(locationName, coordinates);
+      if (marker) currentMarkers.push(marker);
+    });
+  }
+
+  // 2. 如果开启了自定义数据显示，额外显示自定义数据的地名
+  if (mapStore.showCustomData && mapStore.mergedData && mapStore.mergedData.length > 0) {
+    // 从 mergedData 中提取唯一的地点和坐标
+    const customLocations = new Map(); // key: coordKey, value: locationName
+
+    mapStore.mergedData.forEach(item => {
+      if (item.iscustoms === 1 && item.coordinate && item.location) {
+        const key = coordToKey(item.coordinate);
+        if (key && !displayedCoordinates.has(key)) {
+          // 同一个坐标可能有多个特征，只显示一次地名
+          if (!customLocations.has(key)) {
+            customLocations.set(key, {
+              name: item.location,
+              coord: item.coordinate
+            });
+          }
+        }
+      }
+    });
+
+    // 显示自定义地名
+    customLocations.forEach(({ name, coord }) => {
+      const marker = createLocationMarker(name, coord);
+      if (marker) currentMarkers.push(marker);
+    });
+  }
 };
 
 // =======================================================
@@ -487,17 +554,17 @@ const createPopupDOM = (item) => {
   if (showButtonType) {
     const btn = document.createElement('button');
     // 給按鈕加個通用的 class 方便寫樣式
-    btn.className = 'mini-button';
-    // btn.style.marginTop = '8px';
     btn.style.cursor = 'pointer';
 
     if (showButtonType === 'custom') {
+      btn.className = 'mini-button-delete'; // 删除按钮使用暗红色样式
       btn.innerText = '🗑️ 刪除'; // (原 mini-btn0)
       btn.onclick = (e) => {
         e.stopPropagation(); // 防止點擊按鈕穿透到地圖
         handleCustomBtnClick(item);
       };
     } else if (showButtonType === 'detail') {
+      btn.className = 'mini-button'; // 详情按钮使用蓝色样式
       btn.innerText = '📝 詳情'; // (原 mini-btn)
       btn.onclick = (e) => {
         e.stopPropagation();
@@ -513,7 +580,7 @@ const createPopupDOM = (item) => {
 
 // --- 按鈕點擊處理函數 ---
 const handleCustomBtnClick = async (item) => {
-  console.log("觸發自定義按鈕邏輯", item);
+  // console.log("觸發自定義按鈕邏輯", item);
   const feature = item.feature;
   const value = item.value;
   const location = item.location;
@@ -596,15 +663,34 @@ const handleStyleChange = () => {
 
 const resetView = () => {
   if (!map.value) return;
-  // 確保有數據可供計算
+
+  let points = [];
+
+  // 1. 优先从 mapStore.mapData 提取坐标（基础地图数据）
   if (mapStore.mapData && mapStore.mapData.coordinates_locations) {
-    // 提取坐標數組：item[1] 是 [lng, lat]
-    const points = mapStore.mapData.coordinates_locations.map(item => item[1]);
-    // 使用工具函數重新計算最佳視角
+    points = mapStore.mapData.coordinates_locations.map(item => item[1]);
+  }
+  // 2. 如果没有基础数据，从 mergedData 提取坐标（自定义数据或特征数据）
+  else if (mapStore.mergedData && mapStore.mergedData.length > 0) {
+    points = mapStore.mergedData
+      .map(item => item.coordinate)
+      .filter(coord => Array.isArray(coord) && coord.length >= 2 &&
+                      Number.isFinite(coord[0]) && Number.isFinite(coord[1]));
+  }
+
+  // 3. 如果有坐标数据，重新计算最佳视角
+  if (points.length > 0) {
     const { center, zoom } = calculateDenseMapCenterAndZoom(points);
     map.value.flyTo({
       center,
       zoom,
+      essential: true
+    });
+  } else {
+    // 没有数据时，返回默认视角（广州）
+    map.value.flyTo({
+      center: [113.2644, 23.1291],
+      zoom: 8,
       essential: true
     });
   }

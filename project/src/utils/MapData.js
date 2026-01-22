@@ -167,14 +167,162 @@ export async function func_mergeData(resultData = null, mapData = null) {
     return mergedData;
 }
 
+/**
+ * 添加自定义特征数据到地图
+ * @param {Array<string>} featuresToAdd - 要添加的特征列表
+ * @param {Array<string>} locations - 地点列表
+ * @param {Array<string>} regions - 分区列表
+ * @param {string} regionMode - 分区模式 ('map' 或 'yindian')
+ * @returns {Promise<Array>} 合并后的数据
+ */
+export async function addCustomFeatureData(featuresToAdd, locations = [], regions = [], regionMode = 'map') {
+    // 1. 验证用户认证
+    if (!userStore.isAuthenticated || userStore.role === 'anonymous') {
+        throw new Error('需要登录才能加载自定义特征')
+    }
+
+    // 2. 验证特征参数
+    if (!featuresToAdd || featuresToAdd.length === 0) {
+        throw new Error('请提供要添加的特征')
+    }
+
+    // 3. 检查重复特征（避免重复加载）
+    const existingFeatures = new Set(mapStore.mergedData.map(item => item.feature))
+    const newFeatures = featuresToAdd.filter(f => !existingFeatures.has(f))
+
+    if (newFeatures.length === 0) {
+        console.log('特征已存在，跳过加载:', featuresToAdd)
+        return mapStore.mergedData
+    }
+
+    console.log('开始加载新特征:', newFeatures)
+
+    // 4. 构建查询参数
+    const params = new URLSearchParams()
+
+// 添加地点，即使为空也要添加
+    if (locations && locations.length > 0) {
+        locations.forEach(loc => {
+            if (loc && loc.trim()) {
+                params.append('locations', loc.trim())
+            } else {
+                params.append('locations', '')  // 即使为空也添加
+            }
+        })
+    } else {
+        // 如果 locations 为空，也确保传递空值
+        params.append('locations', '')
+    }
+
+// 添加分区，即使为空也要添加
+    if (regions && regions.length > 0) {
+        regions.forEach(reg => {
+            if (reg && reg.trim()) {
+                params.append('regions', reg.trim())
+            } else {
+                params.append('regions', '')  // 即使为空也添加
+            }
+        })
+    } else {
+        // 如果 regions 为空，也确保传递空值
+        params.append('regions', '')
+    }
+
+
+    // 添加特征
+    newFeatures.forEach(feat => {
+        params.append('need_features', feat)
+    })
+
+    // 添加分区模式
+    params.set('region_mode', regionMode)
+
+    try {
+        // 5. 调用 API 获取自定义数据
+        // console.log('调用 API: /api/get_custom?' + params.toString())
+
+        const customData = await api(`/api/get_custom?${params.toString()}`, {
+            method: 'GET',
+            showError: false
+        })
+
+        // 6. 验证返回数据
+        if (!Array.isArray(customData) || customData.length === 0) {
+            throw new Error('未找到匹配的自定义数据')
+        }
+
+        // console.log('获取到自定义数据:', customData.length, '条')
+
+        // 7. 复用现有函数合并数据
+        const currentData = JSON.parse(JSON.stringify(mapStore.mergedData))
+
+        // 获取默认的 zoom 和 center
+        let defaultZoom = 10
+        let defaultCenter = [113.2644, 23.1291] // 默认广州
+
+        // 优先从现有数据获取
+        if (currentData.length > 0) {
+            defaultZoom = currentData[0].zoomLevel || 10
+            defaultCenter = currentData[0].centerCoordinate || [113.2644, 23.1291]
+        }
+        // 如果没有现有数据，从新数据中计算中心点
+        else if (customData.length > 0) {
+            // 提取所有有效坐标
+            const validCoords = customData
+                .map(item => item["經緯度"])
+                .filter(coord => Array.isArray(coord) && coord.length >= 2 &&
+                               Number.isFinite(coord[0]) && Number.isFinite(coord[1]))
+
+            if (validCoords.length > 0) {
+                // 计算中心点（平均值）
+                const sumLng = validCoords.reduce((sum, coord) => sum + coord[0], 0)
+                const sumLat = validCoords.reduce((sum, coord) => sum + coord[1], 0)
+                defaultCenter = [sumLng / validCoords.length, sumLat / validCoords.length]
+
+                // 计算合适的缩放级别（根据坐标范围）
+                const lngs = validCoords.map(c => c[0])
+                const lats = validCoords.map(c => c[1])
+                const lngRange = Math.max(...lngs) - Math.min(...lngs)
+                const latRange = Math.max(...lats) - Math.min(...lats)
+                const maxRange = Math.max(lngRange, latRange)
+
+                // 根据范围设置缩放级别
+                if (maxRange < 0.1) defaultZoom = 12
+                else if (maxRange < 0.5) defaultZoom = 10
+                else if (maxRange < 1) defaultZoom = 9
+                else if (maxRange < 2) defaultZoom = 8
+                else if (maxRange < 5) defaultZoom = 7
+                else defaultZoom = 6
+            }
+        }
+
+        // 合并数据（复用现有函数，传递 isCustomFeatureSearch = true 跳过聲韻調过滤）
+        mergeBackendData(customData, currentData, defaultZoom, defaultCenter, true)
+
+        // 8. 分配颜色（复用现有函数）
+        assignColorToMergedData(currentData)
+
+        // 9. 更新 store
+        mapStore.mergedData = currentData
+
+        // console.log('成功加载特征，当前总数据量:', currentData.length)
+
+        return currentData
+    } catch (error) {
+        console.error('加载自定义特征失败:', error)
+        throw new Error('加载特征失败：' + (error.message || error))
+    }
+}
+
 
 // 對用戶自定義數據進行處理
-function mergeBackendData(result, mergedData, defaultZoom, defaultCenter) {
+function mergeBackendData(result, mergedData, defaultZoom, defaultCenter, isCustomFeatureSearch = false) {
     result.forEach(row => {
-        const featureType = row["聲韻調"];  // "声母"/"韵母"/"声调"
+        const featureType = row["聲韻調"];  // "声母"/"韵母"/"声调" 或空字符串（自定义特征）
 
         // ✅ 前端过滤：只有当后端返回的聲韻調在 resultCache.features 中时才显示
-        if (!resultCache.features || !resultCache.features.includes(featureType)) {
+        // 对于自定义特征搜索，直接放行，不检查聲韻調
+        if (!isCustomFeatureSearch && (!resultCache.features || !resultCache.features.includes(featureType))) {
             return; // 跳过这条数据
         }
 
@@ -348,7 +496,7 @@ export function generateTonesMergedData(resultData, locationsData) {
             // 3.3 若 toneValue 是 "T*"，表示与某调合并：备注 + 用对应调的实际数值替换
             if (typeof toneValue === "string" && toneValue.startsWith("T")) {
                 const chineseMergedTo = toneMapping[toneValue] || toneValue;
-                console.log(chineseMergedTo)
+                // console.log(chineseMergedTo)
                 notes.push(`與${chineseMergedTo}合併`);  // 改为推入数组
 
                 // 在当前地点的 tones 里找到 toneValue 对应那一项，取其值作为真正数值

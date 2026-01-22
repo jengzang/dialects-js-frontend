@@ -11,11 +11,28 @@
         />
       </div>
       <div class="action-buttons">
-        <button class="glass-btn" @click="exportToExcel">
-          <span class="icon">📤</span> <span class="btn-text">Excel</span>
+        <button class="glass-btn" style="padding:8px 6px " @click="exportToExcel">
+          <span class="icon">📤</span><span class="btn-text">Excel</span>
         </button>
         <button class="glass-btn primary" @click="openAddModal">
           <span class="icon">＋</span> <span class="btn-text">新增</span>
+        </button>
+        <button
+          class="glass-btn edit-mode"
+          :class="{ 'edit-mode': isEditMode }"
+          @click="toggleEditMode"
+        >
+          <span class="icon">{{ isEditMode ? '✕' : '✎' }}</span>
+          <span class="btn-text">{{ isEditMode ? '取消' : '編輯' }}</span>
+        </button>
+        <button
+          v-if="isEditMode"
+          class="glass-btn primary submit-btn"
+          @click="submitBatchEdit"
+          :disabled="Object.keys(changedCells).length === 0"
+        >
+          <span class="icon">✓</span>
+          <span class="btn-text">提交 ({{ Object.keys(changedCells).length }})</span>
         </button>
       </div>
     </div>
@@ -36,7 +53,7 @@
               :key="col.key"
               :style="{ width: ((Number(col.width) || 1) / totalRatio * 100) + '%' }"
           />
-          <col style="width: 100px; min-width: 100px;" />
+          <col style="width: 60px; min-width: 50px;" />
         </colgroup>
 
         <thead>
@@ -63,12 +80,18 @@
         </thead>
 
         <tbody :class="{ 'blur-content': isLoading }">
-        <tr v-for="row in tableData" :key="row.id">
-          <td v-for="col in columns" :key="col.key">
+        <tr v-for="row in tableData" :key="row.rowid">
+          <td
+            v-for="col in columns"
+            :key="col.key"
+            :contenteditable="isEditMode"
+            :class="{ 'editable-cell': isEditMode, 'cell-changed': isCellChanged(row.rowid, col.key) }"
+            @input="handleCellEdit(row.rowid, col.key, $event)"
+            @blur="handleCellBlur(row.rowid, col.key, $event)"
+          >
             {{ row[col.key] }}
           </td>
           <td class="action-td">
-            <button class="icon-action-btn edit" @click="handleEdit(row)">✎</button>
             <button class="icon-action-btn delete" @click="handleDelete(row)">✕</button>
           </td>
         </tr>
@@ -132,6 +155,35 @@
         </div>
       </transition>
     </Teleport>
+
+    <!-- 新增记录模态框 -->
+    <Teleport to="body">
+      <transition name="fade-scale">
+        <div v-if="showAddModal" class="glass-modal-overlay" @click="closeAddModal">
+          <div class="add-modal glass-card" @click.stop>
+            <button class="close-btn" @click="closeAddModal">×</button>
+            <h3 class="modal-title">新增記錄</h3>
+
+            <div class="form-content custom-scrollbar">
+              <div v-for="col in columns" :key="col.key" class="form-field">
+                <label class="field-label">{{ col.label }}</label>
+                <input
+                  v-model="newRecordData[col.key]"
+                  type="text"
+                  class="field-input"
+                  :placeholder="`請輸入${col.label}`"
+                />
+              </div>
+            </div>
+
+            <div class="modal-actions">
+              <button class="modal-btn cancel-btn" @click="closeAddModal">取消</button>
+              <button class="modal-btn confirm-btn" @click="submitNewRecord">確認新增</button>
+            </div>
+          </div>
+        </div>
+      </transition>
+    </Teleport>
   </div>
 </template>
 
@@ -139,9 +191,10 @@
 import { ref, reactive, onMounted, computed, onUnmounted } from 'vue';
 import * as XLSX from 'xlsx';
 import { api } from "@/utils/auth.js";
+import { userStore } from '@/utils/store.js';
 import { useVirtualList } from '@vueuse/core';
 import { TABLE_CONFIG } from '@/utils/constants.js';
-import { showSuccess, showWarning, showInfo, showConfirm } from '@/utils/message.js';
+import { showSuccess, showWarning, showInfo, showConfirm, showError } from '@/utils/message.js';
 
 const props = defineProps({
   dbKey: { type: String, required: true },
@@ -156,6 +209,15 @@ const currentPage = ref(1);
 const searchText = ref('');
 const sortCol = ref(null);
 const sortDesc = ref(false);
+
+// 編輯模式相關狀態
+const isEditMode = ref(false);
+const changedCells = reactive({}); // { rowId: { colKey: newValue } }
+const originalData = ref([]); // 保存進入編輯模式時的原始數據
+
+// 新增記錄相關狀態
+const showAddModal = ref(false);
+const newRecordData = reactive({});
 
 // 篩選相關狀態
 const activeFilterCol = ref(null); // 當前激活的篩選列 Key
@@ -372,23 +434,235 @@ const changePage = (delta) => {
   fetchData();
 };
 
-// 操作按鈕 (Stub)
+// ========================================
+// 權限檢查
+// ========================================
+const checkAdminPermission = () => {
+  if (userStore.role !== 'admin') {
+    showWarning('此操作需要管理員權限');
+    return false;
+  }
+  return true;
+};
+
+// ========================================
+// 編輯模式相關函數
+// ========================================
+
+// 切換編輯模式
+const toggleEditMode = () => {
+  if (!checkAdminPermission()) return;
+
+  if (isEditMode.value) {
+    // 取消編輯：恢復原始數據
+    tableData.value = JSON.parse(JSON.stringify(originalData.value));
+    Object.keys(changedCells).forEach(key => delete changedCells[key]);
+  } else {
+    // 進入編輯模式：保存原始數據
+    originalData.value = JSON.parse(JSON.stringify(tableData.value));
+  }
+
+  isEditMode.value = !isEditMode.value;
+};
+
+// 處理單元格編輯
+const handleCellEdit = (rowId, colKey, event) => {
+  const newValue = event.target.innerText.trim();
+
+  // 初始化該行的變更記錄
+  if (!changedCells[rowId]) {
+    changedCells[rowId] = {};
+  }
+
+  // 查找原始值
+  const originalRow = originalData.value.find(r => r.rowid === rowId);
+  const originalValue = originalRow ? originalRow[colKey] : '';
+
+  // 如果值改變了，記錄；如果改回原值，刪除記錄
+  if (newValue !== String(originalValue)) {
+    changedCells[rowId][colKey] = newValue;
+  } else {
+    delete changedCells[rowId][colKey];
+    // 如果該行沒有任何改變，刪除該行記錄
+    if (Object.keys(changedCells[rowId]).length === 0) {
+      delete changedCells[rowId];
+    }
+  }
+};
+
+// 處理單元格失焦（更新 tableData）
+const handleCellBlur = (rowId, colKey, event) => {
+  const newValue = event.target.innerText.trim();
+  const row = tableData.value.find(r => r.rowid === rowId);
+  if (row) {
+    row[colKey] = newValue;
+  }
+};
+
+// 判斷單元格是否已改變
+const isCellChanged = (rowId, colKey) => {
+  return changedCells[rowId] && changedCells[rowId][colKey] !== undefined;
+};
+
+// 提交批量編輯
+const submitBatchEdit = async () => {
+  if (!checkAdminPermission()) return;
+
+  if (Object.keys(changedCells).length === 0) {
+    showWarning('沒有需要提交的修改');
+    return;
+  }
+
+  const confirmed = await showConfirm(
+    `確定提交 ${Object.keys(changedCells).length} 行的修改?`,
+    {
+      title: '批量更新確認',
+      confirmText: '提交',
+      cancelText: '取消'
+    }
+  );
+
+  if (!confirmed) return;
+
+  try {
+    // 構建批量更新數據
+    const updateData = Object.keys(changedCells).map(rowId => {
+      return {
+        rowid: rowId,
+        ...changedCells[rowId]
+      };
+    });
+
+    const payload = {
+      db_key: props.dbKey,
+      table_name: props.tableName,
+      action: 'batch_update',
+      pk_column: 'rowid',
+      update_data: updateData
+    };
+
+    const response = await api('/sql/batch-mutate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    if (response.status === 'completed') {
+      showSuccess(`批量更新成功: ${response.success_count} 條記錄已更新`);
+
+      if (response.error_count > 0) {
+        console.warn('部分記錄更新失敗:', response.errors);
+        showWarning(`${response.error_count} 條記錄更新失敗`);
+      }
+
+      // 清空變更記錄並退出編輯模式
+      Object.keys(changedCells).forEach(key => delete changedCells[key]);
+      isEditMode.value = false;
+
+      // 重新加載數據
+      await fetchData();
+    }
+  } catch (error) {
+    console.error('批量更新失敗:', error);
+    showError('批量更新失敗: ' + error.message);
+  }
+};
+
+// ========================================
+// 操作按鈕
+// ========================================
+
+// 刪除操作（需要管理員權限）
 const handleDelete = async (row) => {
-  // console.log(row)
-  const confirmed = await showConfirm(`確定刪除 ${row.粤拼 || row.id}?`, {
+  if (!checkAdminPermission()) return;
+
+  const confirmed = await showConfirm(`確定刪除 ${row.自然村}?`, {
     title: '刪除確認',
     confirmText: '刪除',
     cancelText: '取消'
   });
+
   if (!confirmed) return;
-  // 這裡補全你的刪除邏輯
-  showInfo(`模擬刪除: ${row.粤拼}`);
-  // await api(...)
-  // fetchData();
+
+  try {
+    const payload = {
+      db_key: props.dbKey,
+      table_name: props.tableName,
+      action: 'delete',
+      pk_column: 'rowid',
+      pk_value: row.rowid
+    };
+
+    await api('/sql/mutate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    showSuccess('刪除成功');
+    await fetchData();
+  } catch (error) {
+    console.error('刪除失敗:', error);
+    showError('刪除失敗: ' + error.message);
+  }
 };
 
-const openAddModal = () => showWarning("有待完善：新增模態框");
-const handleEdit = (row) => showInfo(`編輯: ${row.粤拼 || row.id}`);
+// 新增操作（需要管理員權限）
+const openAddModal = () => {
+  if (!checkAdminPermission()) return;
+
+  // 初始化新增表單數據
+  props.columns.forEach(col => {
+    newRecordData[col.key] = '';
+  });
+
+  showAddModal.value = true;
+};
+
+// 關閉新增模態框
+const closeAddModal = () => {
+  showAddModal.value = false;
+  // 清空表單數據
+  Object.keys(newRecordData).forEach(key => {
+    newRecordData[key] = '';
+  });
+};
+
+// 提交新增記錄
+const submitNewRecord = async () => {
+  if (!checkAdminPermission()) return;
+
+// 检查是否至少有一个字段非空
+  const hasAtLeastOneField = props.columns.some(col => newRecordData[col.key]);
+  if (!hasAtLeastOneField) {
+    showWarning('至少填写一个字段');
+    return;
+  }
+
+
+
+  try {
+    const payload = {
+      db_key: props.dbKey,
+      table_name: props.tableName,
+      action: 'create',
+      data: { ...newRecordData }
+    };
+
+    await api('/sql/mutate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    showSuccess('新增成功');
+    closeAddModal();
+    await fetchData();
+  } catch (error) {
+    console.error('新增失敗:', error);
+    showError('新增失敗: ' + error.message);
+  }
+};
 
 const handleGlobalClick = () => {
   if (activeFilterCol.value) {
@@ -479,6 +753,7 @@ onUnmounted(() => {
 .action-buttons {
   display: flex;
   gap: 8px;
+
 }
 
 .glass-btn {
@@ -493,6 +768,7 @@ onUnmounted(() => {
   gap: 6px;
   transition: all 0.2s;
   max-width: 100px;
+  white-space: nowrap;
 }
 
 .glass-btn:hover {
@@ -503,6 +779,35 @@ onUnmounted(() => {
 .glass-btn.primary {
   background: var(--color-primary);
   color: white;
+}
+
+/* 編輯模式按鈕樣式 */
+.glass-btn.edit-mode {
+  background: #ff9500;
+  color: white;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(255, 149, 0, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(255, 149, 0, 0);
+  }
+}
+
+/* 提交按鈕樣式 */
+.glass-btn.submit-btn {
+  background: linear-gradient(135deg, #34c759, #28a745);
+  color: white;
+  font-weight: 600;
+}
+
+.glass-btn.submit-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: #ccc;
 }
 
 /* Table Area */
@@ -557,6 +862,43 @@ td {
   word-break: break-word;
   vertical-align: top;
   line-height: 1.5;
+}
+
+/* 可編輯單元格樣式 */
+td.editable-cell {
+  cursor: text;
+  background: #fffbf0;
+  border: 1px solid #ffd700;
+  transition: all 0.2s;
+}
+
+td.editable-cell:hover {
+  background: #fff9e6;
+  box-shadow: 0 0 0 2px rgba(255, 215, 0, 0.2);
+}
+
+td.editable-cell:focus {
+  outline: none;
+  background: white;
+  box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.2);
+  border-color: var(--color-primary);
+}
+
+/* 已改變的單元格樣式 */
+td.cell-changed {
+  background: #e6f7ff;
+  border-color: var(--color-primary);
+  font-weight: 600;
+  position: relative;
+}
+
+td.cell-changed::after {
+  content: '✎';
+  position: absolute;
+  top: 2px;
+  right: 4px;
+  font-size: 10px;
+  color: var(--color-primary);
 }
 
 /* Header & Filter */
@@ -865,6 +1207,18 @@ td {
   color: white;
 }
 
+/* 删除按钮专用样式（暗红色） */
+.icon-action-btn.delete {
+  background: #8B0000; /* 暗红色 */
+  color: white;
+}
+
+.icon-action-btn.delete:hover {
+  background: #A52A2A; /* 悬停时更浅的红色 */
+  color: white;
+  transform: scale(1.1);
+}
+
 /* Pagination */
 .pagination {
   display: flex;
@@ -942,5 +1296,122 @@ td {
 
 .blur-content {
   opacity: 0.5;
+}
+
+/* ========================================
+   新增记录模态框样式
+   ======================================== */
+
+.add-modal {
+  position: relative;
+  width: 90%;
+  max-width: 500px;
+  max-height: 80vh;
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.modal-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-primary);
+  text-align: center;
+}
+
+.form-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  overflow-y: auto;
+  max-height: 50vh;
+  padding: 4px;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.field-input {
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-medium);
+  background: white;
+  font-size: 14px;
+  outline: none;
+  transition: all 0.3s;
+}
+
+.field-input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-light);
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-light);
+}
+
+.modal-btn {
+  padding: 10px 20px;
+  border-radius: var(--radius-md);
+  border: none;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cancel-btn {
+  background: var(--bg-hover);
+  color: var(--text-secondary);
+}
+
+.cancel-btn:hover {
+  background: var(--bg-hover-strong);
+}
+
+.confirm-btn {
+  background: var(--color-primary);
+  color: white;
+}
+
+.confirm-btn:hover {
+  background: var(--color-primary-hover);
+  transform: translateY(-1px);
+}
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+  .add-modal {
+    width: 95%;
+    max-width: none;
+    padding: 20px;
+  }
+
+  .form-content {
+    max-height: 60vh;
+  }
+
+  .modal-actions {
+    flex-direction: column;
+  }
+
+  .modal-btn {
+    width: 100%;
+  }
 }
 </style>
