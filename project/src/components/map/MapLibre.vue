@@ -26,10 +26,10 @@
             @click="toggleCustomSwitch"
         >
           <span class="switch-label-text">用戶個人數據</span>
-          <div class="custom-switch" :class="{ 'open': showCustomData }" id="custom-toggle">
+          <div class="custom-switch" :class="{ 'open': mapStore.showCustomData }" id="custom-toggle">
               <span class="custom-slider">
                   <span id="switch-text" class="switch-text">
-                    {{ showCustomData ? '顯示' : '隱藏' }}
+                    {{ mapStore.showCustomData ? '顯示' : '隱藏' }}
                   </span>
               </span>
           </div>
@@ -74,7 +74,10 @@ import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { mapStyle, mapStyleConfig, calculateDenseMapCenterAndZoom } from '@/utils/MapSource.js';
 import {get_detail} from "@/utils/ResultTable.js";
-import {mapStore} from "@/utils/store.js";
+import {mapStore, userStore, resultCache} from "@/utils/store.js";
+import { showSuccess, showError, showWarning, showConfirm } from '@/utils/message.js';
+import { api } from '@/utils/auth.js';
+import { func_mergeData } from '@/utils/MapData.js';
 
 // --- Props: 只接收數據，不負責請求 ---
 const props = defineProps({
@@ -94,37 +97,36 @@ const props = defineProps({
   dotLevel: { type: [String, Number], default: null },
 });
 
+// --- Emits ---
+const emit = defineEmits(['map-click']);
+
 const mapContainer = ref(null);
 const map = shallowRef(null);
 const currentStyleKey = ref('maptiler_streets');
 const loading = ref(false);
 const isFullScreen = ref(false);
-const showCustomData = ref(false);
+// showCustomData 改为使用 mapStore 中的状态
 
 // 2. ✨ 判斷是否為“查中古”模式
 const isMiddleChineseMode = ref(false);
 const hasCustomData = computed(() => {
   const data = mapStore.mergedData;
   if (!data || data.length === 0) return false;
-
   // 只要數組裡有一個 item 的 iscustoms 為 1，就說明開關是有用的
   return data.some(item => item.iscustoms === 1);
 });
-let modeCheckInterval = null;
+
 // 2. 定義檢查函數
 const checkWindowMode = () => {
-  const cache = window._resultPageCache;
-  // 賦值給 ref，Vue 會自動檢測值是否真正改變，不會導致無意義的重渲染
-  isMiddleChineseMode.value = (cache && cache.mode === '查中古');
+  isMiddleChineseMode.value = (resultCache && resultCache.mode === '查中古');
 };
 // 3. 切換開關邏輯
 const toggleCustomSwitch = () => {
-  if (window.userRole === 'anonymous') {
-    // 未登錄：提示並攔截
-    alert("未登錄用戶無法查看用戶個人數據！");
+  if (userStore.role === 'anonymous') {
+    showWarning("未登錄用戶無法查看用戶個人數據！");
     return;
   }
-  showCustomData.value = !showCustomData.value;
+  mapStore.showCustomData = !mapStore.showCustomData;
 };
 const lastNonBaseMode = ref('feature');
 // 只要當前 store 是 base 模式，開關就是開的
@@ -156,8 +158,6 @@ const colorPalette = [
 // --- 生命周期 ---
 onMounted(() => {
   initMap();
-  // ✨ 立即檢查一次
-  checkWindowMode();
 });
 
 onBeforeUnmount(() => {
@@ -177,9 +177,22 @@ watch(
     },
     { deep: true }
 );
-watch(showCustomData, () => {
+watch(() => mapStore.showCustomData, () => {
   renderMapContent();
 });
+
+// 監聽 resultCache.mode 變化，更新 isMiddleChineseMode
+watch(() => resultCache.mode, () => {
+  checkWindowMode();
+}, { immediate: true });
+
+// // 監聽 hasCustomData 變化（用於調試）
+// watch(hasCustomData, (newVal) => {
+//   console.log('📊 hasCustomData 變化:', newVal);
+//   console.log('📌 isMiddleChineseMode:', isMiddleChineseMode.value);
+//   console.log('📌 resultCache.mode:', resultCache.mode);
+// });
+
 // 2. 監聽 store 的模式變化，自動記錄歷史
 watch(
     () => mapStore.mode,
@@ -211,6 +224,14 @@ const initMap = () => {
     // 地圖加載完畢，如果有數據，立即渲染
     renderMapContent();
   });
+
+  // 監聽地圖點擊事件，傳遞坐標給父組件
+  map.value.on('click', (e) => {
+    emit('map-click', {
+      lng: e.lngLat.lng,
+      lat: e.lngLat.lat
+    });
+  });
 };
 
 // --- 核心渲染入口 ---
@@ -220,13 +241,29 @@ const renderMapContent = async () => {
   // 清除舊標記
   clearMarkers();
 
-  // 根據數據調整視角 (如果 props.mapData 存在)
+  // 根據數據調整視角
+  let centerCoord = null;
+  let zoomLevel = 8;
+
+  // 优先使用 mapStore.mapData（基础地图数据）
   if (mapStore.mapData && mapStore.mapData.center_coordinate) {
-    // 注意：MapLibre 需要 [lng, lat]，後端如果是 [lng, lat] 則直接用
-    // 這裡假設後端返回的 center_coordinate 格式正確
+    centerCoord = mapStore.mapData.center_coordinate;
+    zoomLevel = mapStore.mapData.zoom_level || 8;
+  }
+  // 如果没有 mapData，或者在 feature 模式且有 mergedData，则从 mergedData 中提取
+  else if (mapStore.mergedData && mapStore.mergedData.length > 0) {
+    const firstItem = mapStore.mergedData[0];
+    if (firstItem.centerCoordinate) {
+      centerCoord = firstItem.centerCoordinate;
+      zoomLevel = firstItem.zoomLevel || 8;
+    }
+  }
+
+  // 应用视角调整
+  if (centerCoord && Array.isArray(centerCoord) && centerCoord.length >= 2) {
     map.value.flyTo({
-      center: mapStore.mapData.center_coordinate,
-      zoom: mapStore.mapData.zoom_level || 8
+      center: centerCoord,
+      zoom: zoomLevel
     });
   }
 
@@ -249,12 +286,25 @@ const clearMarkers = () => {
 // 邏輯 1: 基礎圖繪製 (復刻 create_map1 的後半部分)
 // =======================================================
 const drawBaseMap = () => {
-  if (!mapStore.mapData || !mapStore.mapData.coordinates_locations) return;
+  // 用于跟踪已显示的坐标，避免重复
+  const displayedCoordinates = new Set();
 
-  mapStore.mapData.coordinates_locations.forEach(([locationName, coordinates]) => {
-    // 確保坐標存在
-    if (!coordinates || coordinates.length < 2) return;
+  // 辅助函数：将坐标转换为字符串键
+  const coordToKey = (coord) => {
+    if (!Array.isArray(coord) || coord.length < 2) return null;
+    return `${coord[0].toFixed(6)},${coord[1].toFixed(6)}`;
+  };
+
+  // 辅助函数：创建地名标记
+  const createLocationMarker = (locationName, coordinates) => {
+    if (!coordinates || coordinates.length < 2) return null;
+    if (!locationName || !locationName.trim()) return null;
+
     const [lng, lat] = coordinates;
+    const key = coordToKey(coordinates);
+
+    // 如果这个坐标已经显示过，跳过
+    if (key && displayedCoordinates.has(key)) return null;
 
     // 字體大小邏輯 (完全復刻)
     const len = locationName.length;
@@ -274,8 +324,46 @@ const drawBaseMap = () => {
         .setLngLat([lng, lat])
         .addTo(map.value);
 
-    currentMarkers.push(marker);
-  });
+    // 标记该坐标已显示
+    if (key) displayedCoordinates.add(key);
+
+    return marker;
+  };
+
+  // 1. 显示基础地图数据的地名
+  if (mapStore.mapData && mapStore.mapData.coordinates_locations) {
+    mapStore.mapData.coordinates_locations.forEach(([locationName, coordinates]) => {
+      const marker = createLocationMarker(locationName, coordinates);
+      if (marker) currentMarkers.push(marker);
+    });
+  }
+
+  // 2. 如果开启了自定义数据显示，额外显示自定义数据的地名
+  if (mapStore.showCustomData && mapStore.mergedData && mapStore.mergedData.length > 0) {
+    // 从 mergedData 中提取唯一的地点和坐标
+    const customLocations = new Map(); // key: coordKey, value: locationName
+
+    mapStore.mergedData.forEach(item => {
+      if (item.iscustoms === 1 && item.coordinate && item.location) {
+        const key = coordToKey(item.coordinate);
+        if (key && !displayedCoordinates.has(key)) {
+          // 同一个坐标可能有多个特征，只显示一次地名
+          if (!customLocations.has(key)) {
+            customLocations.set(key, {
+              name: item.location,
+              coord: item.coordinate
+            });
+          }
+        }
+      }
+    });
+
+    // 显示自定义地名
+    customLocations.forEach(({ name, coord }) => {
+      const marker = createLocationMarker(name, coord);
+      if (marker) currentMarkers.push(marker);
+    });
+  }
 };
 
 // =======================================================
@@ -367,7 +455,7 @@ const drawFeatureMap = () => {
     // ✨ 开关逻辑：
     // 如果开关开了(true)，则显示所有。
     // 如果开关关了(false)，则只显示 iscustoms !== 1 的数据。
-    const isCustomMatch = showCustomData.value ? true : item.iscustoms !== 1;
+    const isCustomMatch = mapStore.showCustomData ? true : item.iscustoms !== 1;
 
     return isFeatureMatch && isCustomMatch;
   });
@@ -466,17 +554,17 @@ const createPopupDOM = (item) => {
   if (showButtonType) {
     const btn = document.createElement('button');
     // 給按鈕加個通用的 class 方便寫樣式
-    btn.className = 'mini-button';
-    // btn.style.marginTop = '8px';
     btn.style.cursor = 'pointer';
 
     if (showButtonType === 'custom') {
+      btn.className = 'mini-button-delete'; // 删除按钮使用暗红色样式
       btn.innerText = '🗑️ 刪除'; // (原 mini-btn0)
       btn.onclick = (e) => {
         e.stopPropagation(); // 防止點擊按鈕穿透到地圖
         handleCustomBtnClick(item);
       };
     } else if (showButtonType === 'detail') {
+      btn.className = 'mini-button'; // 详情按钮使用蓝色样式
       btn.innerText = '📝 詳情'; // (原 mini-btn)
       btn.onclick = (e) => {
         e.stopPropagation();
@@ -491,25 +579,26 @@ const createPopupDOM = (item) => {
 };
 
 // --- 按鈕點擊處理函數 ---
-const handleCustomBtnClick = (item) => {
-  console.log("觸發自定義按鈕邏輯", item);
+const handleCustomBtnClick = async (item) => {
+  // console.log("觸發自定義按鈕邏輯", item);
   const feature = item.feature;
   const value = item.value;
   const location = item.location;
   const created_at = item.created_at;
   // 顯示確認刪除的對話框
-  const isConfirmed = confirm(
-      "⚠️ 你確定要刪除這條信息嗎？\n" +
-      "📍 " + location + "\n" +
-      "🔧 " + feature + "" +
-      "  🔢 " + value + "\n" +
-      "🗑️ 刪除後將無法恢復！"
+  const isConfirmed = await showConfirm(
+      `📍 ${location}\n🔧 ${feature}  🔢 ${value}\n\n刪除後將無法恢復！`,
+      {
+        title: '確認刪除',
+        confirmText: '刪除',
+        cancelText: '取消'
+      }
   );
   // 如果用戶點擊確定，執行刪除操作
   if (isConfirmed) {
     // 表單驗證
     if (!location || !feature || !value) {
-      alert("⚠️ 刪除失敗，地點/特徵/值存在空值");
+      showError("刪除失敗，地點/特徵/值存在空值");
       return;  // 如果有空的字段，則不提交
     }
     // 構建表單數據對象
@@ -522,30 +611,34 @@ const handleCustomBtnClick = (item) => {
       created_at:created_at,
       // description: null // 如果說明為空，設置為 null
     };
-    const token = localStorage.getItem("ACCESS_TOKEN")
-    fetch(`${window.API_BASE}/delete_form`, {
-      method: "DELETE",  // 改為 DELETE 方法
-      headers: {
-        "Content-Type": "application/json",
-        ...(token ? { Authorization: `Bearer ${token}` } : {})  // 如果有 token，則添加 Authorization 標頭
-      },
-      body: JSON.stringify(formData)  // 將表單數據作為請求體
-    })
-        .then(response => response.json())
-        .then(data => {
-          // 根據後端返回的結果處理
-          if (data.success) {
-            alert("🧹 刪除成功！\n請點擊自定按鈕刷新！\n" + data.message);
-            // 可以選擇清空表單或其他操作
-            // document.getElementById("infoForm").reset();  // 清空表單
-          } else {
-            alert("刪除失敗：" + data.message);
-          }
-        })
-        .catch(error => {
-          console.error("刪除失敗:", error);
-          alert("刪除時發生錯誤！",'darkred');
-        });
+
+    try {
+      const data = await api('/api/delete_form', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+
+      if (data.success) {
+        showSuccess("刪除成功！\n" + data.message);
+
+        // 自动打开自定义数据开关
+        mapStore.showCustomData = true;
+
+        // 重新加載合併數據
+        try {
+          await func_mergeData(resultCache.latestResults, mapStore.mapData)
+          console.log('✅ 刪除後數據已刷新')
+        } catch (error) {
+          console.error('❌ 刷新數據失敗:', error)
+        }
+      } else {
+        showError("刪除失敗：" + data.message);
+      }
+    } catch (error) {
+      console.error("刪除失敗:", error);
+      showError("刪除時發生錯誤！");
+    }
   }
 };
 
@@ -570,15 +663,34 @@ const handleStyleChange = () => {
 
 const resetView = () => {
   if (!map.value) return;
-  // 確保有數據可供計算
+
+  let points = [];
+
+  // 1. 优先从 mapStore.mapData 提取坐标（基础地图数据）
   if (mapStore.mapData && mapStore.mapData.coordinates_locations) {
-    // 提取坐標數組：item[1] 是 [lng, lat]
-    const points = mapStore.mapData.coordinates_locations.map(item => item[1]);
-    // 使用工具函數重新計算最佳視角
+    points = mapStore.mapData.coordinates_locations.map(item => item[1]);
+  }
+  // 2. 如果没有基础数据，从 mergedData 提取坐标（自定义数据或特征数据）
+  else if (mapStore.mergedData && mapStore.mergedData.length > 0) {
+    points = mapStore.mergedData
+      .map(item => item.coordinate)
+      .filter(coord => Array.isArray(coord) && coord.length >= 2 &&
+                      Number.isFinite(coord[0]) && Number.isFinite(coord[1]));
+  }
+
+  // 3. 如果有坐标数据，重新计算最佳视角
+  if (points.length > 0) {
     const { center, zoom } = calculateDenseMapCenterAndZoom(points);
     map.value.flyTo({
       center,
       zoom,
+      essential: true
+    });
+  } else {
+    // 没有数据时，返回默认视角（广州）
+    map.value.flyTo({
+      center: [113.2644, 23.1291],
+      zoom: 8,
       essential: true
     });
   }

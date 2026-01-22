@@ -307,7 +307,8 @@ import {
   getUserRole,
   ensureAuthenticated,
   update_userdatas_bytoken
-} from '../utils/auth.js' // ✅ 引入工具方法
+} from '../utils/auth.js'
+import { userStore } from '../utils/store.js'
 
 export default defineComponent({
   name: 'AuthPopup',
@@ -360,9 +361,8 @@ export default defineComponent({
         })
         saveToken(res.access_token)
         await fetchUser()
-        window.userRole = undefined;
-        window.userRole = await getUserRole();
-        console.log(userRole)
+        await getUserRole();
+        console.log(userStore.role)
         error.value = '✅ 登錄成功<br>即將跳轉個人信息界面'
         setTimeout(() => {
           mode.value = 'profile'
@@ -439,7 +439,8 @@ export default defineComponent({
         await api('/auth/logout', { method: 'POST' })
       } catch {}
       clearToken()
-      window.userRole = undefined;
+      userStore.role = 'anonymous';
+      userStore.isAuthenticated = false;
       setTimeout(async () => {
         mode.value = 'login'
         error.value = ''

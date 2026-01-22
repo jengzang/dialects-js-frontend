@@ -11,9 +11,7 @@
           </transition>
         </router-view>
       </div>
-    <!-- 貼在玻璃卡內部底部 -->
 <!--    <MenuTabs />-->
-    <!-- ✅ 只會在 /menu 和 /menu/thanks 出現 -->
 <!--    <TabControls />-->
   </div>
 </template>
