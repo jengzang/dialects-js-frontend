@@ -69,12 +69,22 @@
               <!-- 键值部分：当键名被选中时显示对应的键值下拉框 -->
               <div class="key-dropdown-group">
                 <div v-for="key in tabStates.tab2.keys" :key="key" class="key-value-dropdown">
-                  <div class="dropdown"
-                       @click="toggleDropdown('value',key)"
+                  <div class="dropdown-wrapper"
                        :ref="(el) => setTriggerRef(el, key)"
                   >
-                    {{ getDisplayText(key) }}
-                    <span class="arrow">▾</span>
+                    <input
+                        type="text"
+                        :value="getInputDisplayValue(key)"
+                        @input="handleDropdownInput($event, key)"
+                        @focus="handleInputFocus(key)"
+                        @blur="handleInputBlur(key)"
+                        @click.stop
+                        :placeholder="`輸/選 [${key}]`"
+                        class="dropdown-input"
+                    />
+                    <span class="arrow-trigger" @click.stop="toggleDropdown('value',key)">
+                      <span class="arrow-icon">▼</span>
+                    </span>
                   </div>
 
                   <Teleport to="body">
@@ -93,11 +103,11 @@
                         全選
                       </div>
 
-                      <div style="height:1px; background:#eee; margin:2px 0;"></div>
+                      <div class="dropdown-divider"></div>
 
                       <div
                           class="dropdown-item"
-                          v-for="value in keyValueMap[key]"
+                          v-for="value in getFilteredOptions(key)"
                           :key="value"
                           :class="{ active: isSelected(value, key) }"
                           @click="selectValue(value, key)"
@@ -108,7 +118,7 @@
                     </div>
                   </Teleport>
                 <div class="key-name">
-                  <strong style="color: #02469e">{{ key }}</strong>
+                  <strong class="key-name-text">{{ key }}</strong>
                 </div>
               </div>
               </div>
@@ -228,8 +238,7 @@ import LocationAndRegionInput from "@/components/query/LocationAndRegionInput.vu
 import ZhongguSelector from "@/components/query/ZhongguSelector.vue";
 import YinweiSelector from "@/components/query/YinweiSelector.vue";
 import FloatingDice from "@/components/query/FloatingDice.vue";
-// import refresh from "@/components/old/refresh.vue";
-import { globalPayload } from '@/utils/store.js'
+import { globalPayload, queryStore } from '@/utils/store.js'
 
 const locationRef = ref(null)
 const router = useRouter()
@@ -332,11 +341,114 @@ const isRunDisabled = computed(() => {
 const triggerRefs = ref({})
 // 2. 新增：用来记录当前具体打开的是哪个 key
 const currentActiveKey = ref(null)
-// 3. 修改：Ref 绑定函数（用于在 template 中收集 DOM）
+// 3. 新增：存储每个 key 的输入值
+const dropdownInputs = ref({})
+// 4. 新增：存储每个 key 是否正在编辑
+const isEditing = ref({})
+// 5. 修改：Ref 绑定函数（用于在 template 中收集 DOM）
 const setTriggerRef = (el, key) => {
   if (el) {
     triggerRefs.value[key] = el
   }
+}
+
+// 监听 keys 变化，初始化输入框
+watch(() => tabStates.tab2.keys, (newKeys) => {
+  newKeys.forEach(key => {
+    if (!(key in dropdownInputs.value)) {
+      dropdownInputs.value[key] = ''
+    }
+    if (!(key in isEditing.value)) {
+      isEditing.value[key] = false
+    }
+  })
+}, { immediate: true, deep: true })
+
+// 获取输入框显示的值
+function getInputDisplayValue(key) {
+  // 如果正在编辑，显示用户输入的内容
+  if (isEditing.value[key]) {
+    return dropdownInputs.value[key] || ''
+  }
+  // 如果不在编辑，显示已选中的内容
+  return getDisplayText(key)
+}
+
+// 处理输入框获得焦点
+function handleInputFocus(key) {
+  isEditing.value[key] = true
+  dropdownInputs.value[key] = ''
+}
+
+// 处理输入框失去焦点
+function handleInputBlur(key) {
+  // 延迟执行，避免点击下拉选项时立即触发
+  setTimeout(() => {
+    isEditing.value[key] = false
+    dropdownInputs.value[key] = ''
+  }, 200)
+}
+
+// 繁简转换函数
+function convertToTraditional(text) {
+  // 简单的繁简对照表（仅包含常用字，实际项目建议使用完整的繁简转换库）
+  const s2tMap = {
+    '摄': '攝', '韵': '韻', '等': '等', '呼': '呼', '系': '系',
+    '组': '組', '母': '母', '声': '聲', '调': '調', '入': '入',
+    '开': '開', '合': '合', '齐': '齊', '撮': '撮',
+    '流': '流', '咸': '咸', '深': '深', '山': '山', '宕': '宕',
+    '江': '江', '曾': '曾', '梗': '梗', '通': '通', '臻': '臻',
+    '效': '效', '果': '果', '假': '假', '遇': '遇', '蟹': '蟹',
+    '止': '止', '舌': '舌', '齿': '齒', '牙': '牙', '喉': '喉',
+    '唇': '唇', '尖': '尖', '面': '面', '后': '後', '前': '前',
+    '清': '清', '浊': '濁', '次': '次', '全': '全', '帮': '幫',
+    '滂': '滂', '并': '並', '明': '明', '端': '端', '透': '透',
+    '定': '定', '泥': '泥', '来': '來', '精': '精',
+    '从': '從', '心': '心', '邪': '邪', '庄': '莊', '初': '初',
+    '崇': '崇', '生': '生', '俟': '俟', '章': '章', '昌': '昌',
+    '常': '常', '书': '書', '船': '船', '日': '日', '见': '見',
+    '溪': '溪', '群': '群', '疑': '疑', '晓': '曉', '匣': '匣',
+    '影': '影', '云': '云', '以': '以', '知': '知', '彻': '徹',
+    '澄': '澄', '娘': '娘', '照': '照'
+  }
+  return text.split('').map(char => s2tMap[char] || char).join('')
+}
+
+// 处理输入框输入
+function handleDropdownInput(event, key) {
+  const inputValue = event.target.value
+  dropdownInputs.value[key] = inputValue
+
+  // 有输入时自动打开下拉框显示过滤后的选项
+  if (inputValue.trim()) {
+    if (dropdownOpen.value !== 'value' || currentActiveKey.value !== key) {
+      toggleDropdown('value', key)
+    }
+  } else {
+    // 输入为空时关闭下拉框
+    if (dropdownOpen.value === 'value' && currentActiveKey.value === key) {
+      dropdownOpen.value = null
+      currentActiveKey.value = null
+    }
+  }
+}
+
+// 获取过滤后的选项
+function getFilteredOptions(key) {
+  const inputValue = dropdownInputs.value[key] || ''
+  const allOptions = keyValueMap[key] || []
+
+  if (!inputValue.trim()) {
+    return allOptions
+  }
+
+  // 繁简转换
+  const traditionalInput = convertToTraditional(inputValue.trim())
+
+  // 过滤选项（支持繁简匹配）
+  return allOptions.filter(opt =>
+    opt.includes(inputValue) || opt.includes(traditionalInput)
+  )
 }
 const locationModel = ref({
   locations: [],
@@ -522,23 +634,23 @@ function isAllSelected(key) {
   return all.length > 0 && all.length === current.length
 }
 
-// 5. 新增：格式化按钮文字 (把数组变成 "知, 徹, 澄" 这样显示)
+// 5. 新增：格式化选中的文字（显示在输入框内）
 // 修改：格式化按钮文字 (超过2个显示省略号)
 function getDisplayText(key) {
   const list = tabStates.tab2.valueMap[key]
-  // 1. 没选
-  if (!list || list.length === 0) return `請選擇 [${key}]`
+  // 1. 没选 - 返回空字符串，让 placeholder 显示
+  if (!list || list.length === 0) return ''
   // 2. 全选
   const allOptions = keyValueMap[key] || []
   if (allOptions.length > 0 && list.length === allOptions.length) {
-    return `✅ 全選`
+    return '全選'
   }
-  // 3. 超过两个：截取前两个 + 省略号
+  // 3. 超过三个：截取前三个 + 省略号
   if (list.length > 3) {
-    return `${list.slice(0, 3).join(',')}...`
+    return `${list.slice(0, 3).join(', ')}...`
   }
-  // 4. 少于等于两个：直接显示
-  return list.join(',')
+  // 4. 少于等于三个：直接显示
+  return list.join(', ')
 }
 
 const isRunning = ref(false); // 控制運行中的狀態
@@ -567,8 +679,8 @@ const runAction = async () => {
   const regionVal = locationRef.value?.selectedValue;
   // 如果 regionVal 是 array 就直接用，如果是字串就轉 array，如果是 null 就空 array
   const regionList = Array.isArray(regionVal) ? regionVal : (regionVal ? [regionVal] : []);
-  window.locationList = locationList;
-  window.regionList = regionList;
+  queryStore.locations = locationList;
+  queryStore.regions = regionList;
   // 3. 構建 payload
   let payload = {};
 
@@ -791,7 +903,7 @@ export default {
   overflow: hidden;
   width: fit-content;
   max-width: 100%;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-md);
   max-height: 45px;
 }
 
@@ -807,9 +919,9 @@ export default {
   /* 下边框是蓝色 */
   /* 左边框是浅灰色 */
   /* 右边框是浅灰色 */
-  border: 1px solid rgba(0, 122, 255, 0.2);
-  border-right-color: rgba(200, 200, 200, 0.3);
-  border-left-color: rgba(200, 200, 200, 0.3);
+  border: 1px solid var(--color-primary-medium);
+  border-right-color: var(--border-gray-medium);
+  border-left-color: var(--border-gray-medium);
   transition: background 0.2s ease;
   white-space: nowrap;
   overflow: hidden;
@@ -817,22 +929,22 @@ export default {
 }
 
 .card-group-item:hover {
-  background: rgba(255, 255, 255, 0.5);
+  background: var(--glass-medium);
 }
 
 .card-group-item.first {
   border-radius: 12px 0 0 12px; /* ⬅️ 左圓角 */
-  border-left-color: rgba(0, 122, 255, 0.2);
+  border-left-color: var(--color-primary-medium);
 }
 
 .card-group-item.last {
   border-radius: 0 12px 12px 0; /* ⬅️ 右圓角 */
-  border-right-color: rgba(0, 122, 255, 0.2);
+  border-right-color: var(--color-primary-medium);
 }
 
 .card-group-item.active {
-  background: rgba(0, 122, 255, 0.2);
-  color: #007aff;
+  background: var(--color-primary-medium);
+  color: var(--color-primary);
   font-weight: 600;
 }
 
@@ -857,7 +969,7 @@ export default {
   flex-wrap: wrap; /* 按钮换行 */
   display: flex;
   justify-content: center;
-  border-bottom: 1px solid #013173;  /* 添加苹果蓝色调的下划线 */
+  border-bottom: 1px solid var(--color-blue-dark);  /* 添加苹果蓝色调的下划线 */
 }
 .key-item {
   flex: 0 1 auto; /* 保证它们的大小适应内容 */
@@ -865,9 +977,9 @@ export default {
 /* 键名按钮样式 */
 .key-button {
   padding: 8px 16px;
-  border: 1px solid rgba(0, 122, 255, 0.2);
+  border: 1px solid var(--color-primary-medium);
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.3);
+  background: var(--glass-light);
   cursor: pointer;
   transition: background 0.3s ease;
   font-size: 14px;
@@ -882,7 +994,7 @@ export default {
 }
 
 .key-button.active {
-  background: rgba(0, 122, 255, 0.5);
+  background: var(--color-primary-medium2);
   color: white;
   font-weight: 600;
 }
@@ -911,16 +1023,83 @@ export default {
 }
 
 .key-value-dropdown .dropdown-item:hover {
-  background-color: #e6f0ff;
+  background-color: var(--color-blue-very-light);
 }
 
 /* 选中的键名显示的效果 */
 .key-value-dropdown .dropdown-item.active {
-  background-color: rgba(0, 122, 255, 0.2);
-  color: #007aff;
+  background-color: var(--color-primary-medium);
+  color: var(--color-primary);
 }
 
+/* 下拉菜单分割线 */
+.dropdown-divider {
+  height: 1px;
+  background: var(--border-divider);
+  margin: 2px 0;
+}
 
+/* 键名文字颜色 */
+.key-name-text {
+  color: var(--color-blue-custom);
+}
+
+/* 下拉框包装器 */
+.dropdown-wrapper {
+  display: flex;
+  align-items: stretch;
+  border: 1px solid var(--color-primary-medium);
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--glass-light);
+}
+
+/* 输入框样式 */
+.dropdown-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  padding: 8px 0px;
+  font-size: 14px;
+  background: transparent;
+  width: 80px;
+  color: #333;
+  text-align: center;
+}
+
+.dropdown-input::placeholder {
+  color: #6a6a6a;
+  font-size: 12px;
+  text-align: center;
+}
+
+/* 箭头触发区域 */
+.arrow-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background: var(--color-primary-medium);
+  border-left: 1px solid rgba(255, 255, 255, 0.3);
+  transition: all 0.2s ease;
+  user-select: none;
+  min-width: 36px;
+  max-width: 36px;
+}
+
+.arrow-trigger:hover {
+  background: var(--color-primary-medium2);
+}
+
+.arrow-trigger:active {
+  transform: scale(0.95);
+}
+
+.arrow-icon {
+  font-size: 14px;
+  color: white;
+  font-weight: bold;
+}
 
 
 </style>

@@ -4,7 +4,8 @@
     w.WEB_BASE = "https://dialects.yzup.top"
     // w.WEB_BASE = "http://10.250.101.238:5000" ||"http://localhost:5000"
     // w.WEB_BASE = "http://192.168.1.16:5000" ||"http://localhost:5000"
-    // w.WEB_BASE = "http://192.168.0.101:5000/"
+    // w.WEB_BASE = "http://192.168.0.101:5000"
+    // w.WEB_BASE = "http://127.0.0.1:5000"
     w.API_BASE = w.WEB_BASE + '/api';      // API 前缀
 })(window);
 

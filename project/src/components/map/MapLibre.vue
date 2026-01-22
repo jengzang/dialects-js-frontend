@@ -26,10 +26,10 @@
             @click="toggleCustomSwitch"
         >
           <span class="switch-label-text">用戶個人數據</span>
-          <div class="custom-switch" :class="{ 'open': showCustomData }" id="custom-toggle">
+          <div class="custom-switch" :class="{ 'open': mapStore.showCustomData }" id="custom-toggle">
               <span class="custom-slider">
                   <span id="switch-text" class="switch-text">
-                    {{ showCustomData ? '顯示' : '隱藏' }}
+                    {{ mapStore.showCustomData ? '顯示' : '隱藏' }}
                   </span>
               </span>
           </div>
@@ -74,7 +74,10 @@ import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { mapStyle, mapStyleConfig, calculateDenseMapCenterAndZoom } from '@/utils/MapSource.js';
 import {get_detail} from "@/utils/ResultTable.js";
-import {mapStore} from "@/utils/store.js";
+import {mapStore, userStore, resultCache} from "@/utils/store.js";
+import { showSuccess, showError, showWarning, showConfirm } from '@/utils/message.js';
+import { api } from '@/utils/auth.js';
+import { func_mergeData } from '@/utils/MapData.js';
 
 // --- Props: 只接收數據，不負責請求 ---
 const props = defineProps({
@@ -94,37 +97,36 @@ const props = defineProps({
   dotLevel: { type: [String, Number], default: null },
 });
 
+// --- Emits ---
+const emit = defineEmits(['map-click']);
+
 const mapContainer = ref(null);
 const map = shallowRef(null);
 const currentStyleKey = ref('maptiler_streets');
 const loading = ref(false);
 const isFullScreen = ref(false);
-const showCustomData = ref(false);
+// showCustomData 改为使用 mapStore 中的状态
 
 // 2. ✨ 判斷是否為“查中古”模式
 const isMiddleChineseMode = ref(false);
 const hasCustomData = computed(() => {
   const data = mapStore.mergedData;
   if (!data || data.length === 0) return false;
-
   // 只要數組裡有一個 item 的 iscustoms 為 1，就說明開關是有用的
   return data.some(item => item.iscustoms === 1);
 });
-let modeCheckInterval = null;
+
 // 2. 定義檢查函數
 const checkWindowMode = () => {
-  const cache = window._resultPageCache;
-  // 賦值給 ref，Vue 會自動檢測值是否真正改變，不會導致無意義的重渲染
-  isMiddleChineseMode.value = (cache && cache.mode === '查中古');
+  isMiddleChineseMode.value = (resultCache && resultCache.mode === '查中古');
 };
 // 3. 切換開關邏輯
 const toggleCustomSwitch = () => {
-  if (window.userRole === 'anonymous') {
-    // 未登錄：提示並攔截
-    alert("未登錄用戶無法查看用戶個人數據！");
+  if (userStore.role === 'anonymous') {
+    showWarning("未登錄用戶無法查看用戶個人數據！");
     return;
   }
-  showCustomData.value = !showCustomData.value;
+  mapStore.showCustomData = !mapStore.showCustomData;
 };
 const lastNonBaseMode = ref('feature');
 // 只要當前 store 是 base 模式，開關就是開的
@@ -156,8 +158,6 @@ const colorPalette = [
 // --- 生命周期 ---
 onMounted(() => {
   initMap();
-  // ✨ 立即檢查一次
-  checkWindowMode();
 });
 
 onBeforeUnmount(() => {
@@ -177,9 +177,22 @@ watch(
     },
     { deep: true }
 );
-watch(showCustomData, () => {
+watch(() => mapStore.showCustomData, () => {
   renderMapContent();
 });
+
+// 監聽 resultCache.mode 變化，更新 isMiddleChineseMode
+watch(() => resultCache.mode, () => {
+  checkWindowMode();
+}, { immediate: true });
+
+// 監聽 hasCustomData 變化（用於調試）
+watch(hasCustomData, (newVal) => {
+  console.log('📊 hasCustomData 變化:', newVal);
+  console.log('📌 isMiddleChineseMode:', isMiddleChineseMode.value);
+  console.log('📌 resultCache.mode:', resultCache.mode);
+});
+
 // 2. 監聽 store 的模式變化，自動記錄歷史
 watch(
     () => mapStore.mode,
@@ -210,6 +223,14 @@ const initMap = () => {
   map.value.on('load', () => {
     // 地圖加載完畢，如果有數據，立即渲染
     renderMapContent();
+  });
+
+  // 監聽地圖點擊事件，傳遞坐標給父組件
+  map.value.on('click', (e) => {
+    emit('map-click', {
+      lng: e.lngLat.lng,
+      lat: e.lngLat.lat
+    });
   });
 };
 
@@ -367,7 +388,7 @@ const drawFeatureMap = () => {
     // ✨ 开关逻辑：
     // 如果开关开了(true)，则显示所有。
     // 如果开关关了(false)，则只显示 iscustoms !== 1 的数据。
-    const isCustomMatch = showCustomData.value ? true : item.iscustoms !== 1;
+    const isCustomMatch = mapStore.showCustomData ? true : item.iscustoms !== 1;
 
     return isFeatureMatch && isCustomMatch;
   });
@@ -491,25 +512,26 @@ const createPopupDOM = (item) => {
 };
 
 // --- 按鈕點擊處理函數 ---
-const handleCustomBtnClick = (item) => {
+const handleCustomBtnClick = async (item) => {
   console.log("觸發自定義按鈕邏輯", item);
   const feature = item.feature;
   const value = item.value;
   const location = item.location;
   const created_at = item.created_at;
   // 顯示確認刪除的對話框
-  const isConfirmed = confirm(
-      "⚠️ 你確定要刪除這條信息嗎？\n" +
-      "📍 " + location + "\n" +
-      "🔧 " + feature + "" +
-      "  🔢 " + value + "\n" +
-      "🗑️ 刪除後將無法恢復！"
+  const isConfirmed = await showConfirm(
+      `📍 ${location}\n🔧 ${feature}  🔢 ${value}\n\n刪除後將無法恢復！`,
+      {
+        title: '確認刪除',
+        confirmText: '刪除',
+        cancelText: '取消'
+      }
   );
   // 如果用戶點擊確定，執行刪除操作
   if (isConfirmed) {
     // 表單驗證
     if (!location || !feature || !value) {
-      alert("⚠️ 刪除失敗，地點/特徵/值存在空值");
+      showError("刪除失敗，地點/特徵/值存在空值");
       return;  // 如果有空的字段，則不提交
     }
     // 構建表單數據對象
@@ -522,30 +544,34 @@ const handleCustomBtnClick = (item) => {
       created_at:created_at,
       // description: null // 如果說明為空，設置為 null
     };
-    const token = localStorage.getItem("ACCESS_TOKEN")
-    fetch(`${window.API_BASE}/delete_form`, {
-      method: "DELETE",  // 改為 DELETE 方法
-      headers: {
-        "Content-Type": "application/json",
-        ...(token ? { Authorization: `Bearer ${token}` } : {})  // 如果有 token，則添加 Authorization 標頭
-      },
-      body: JSON.stringify(formData)  // 將表單數據作為請求體
-    })
-        .then(response => response.json())
-        .then(data => {
-          // 根據後端返回的結果處理
-          if (data.success) {
-            alert("🧹 刪除成功！\n請點擊自定按鈕刷新！\n" + data.message);
-            // 可以選擇清空表單或其他操作
-            // document.getElementById("infoForm").reset();  // 清空表單
-          } else {
-            alert("刪除失敗：" + data.message);
-          }
-        })
-        .catch(error => {
-          console.error("刪除失敗:", error);
-          alert("刪除時發生錯誤！",'darkred');
-        });
+
+    try {
+      const data = await api('/api/delete_form', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+
+      if (data.success) {
+        showSuccess("刪除成功！\n" + data.message);
+
+        // 自动打开自定义数据开关
+        mapStore.showCustomData = true;
+
+        // 重新加載合併數據
+        try {
+          await func_mergeData(resultCache.latestResults, mapStore.mapData)
+          console.log('✅ 刪除後數據已刷新')
+        } catch (error) {
+          console.error('❌ 刷新數據失敗:', error)
+        }
+      } else {
+        showError("刪除失敗：" + data.message);
+      }
+    } catch (error) {
+      console.error("刪除失敗:", error);
+      showError("刪除時發生錯誤！");
+    }
   }
 };
 

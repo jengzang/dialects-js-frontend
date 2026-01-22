@@ -74,8 +74,11 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { api } from '@/utils/auth.js'
+import { userStore } from '@/utils/store.js'
+import { ROLE_LIMITS, QUERY_CONFIG } from '@/utils/constants.js'
+
 // 定义事件，用于通知父组件禁用/启用按钮
 const emit = defineEmits(['update:runDisabled'])
 
@@ -94,17 +97,9 @@ let debounceTimer = null
 
 // ✅ 新增：控制全屏弹窗开关
 const isModalOpen = ref(false)
-// 获取当前用户角色，默认为 anonymous
-const userRole = ref('anonymous');
-function checkUserRole() {
-  // 这是一个简单的轮询示例，实际中最好由请求的回调来触发
-  const interval = setInterval(() => {
-    if (window.userRole) {
-      userRole.value = window.userRole; // ✅ 赋值给 ref，界面会自动更新
-      clearInterval(interval);
-    }
-  }, 100);
-}
+
+// ✅ 直接使用 userStore.role（响应式），无需轮询
+// userStore.role 会在 auth.js 的 getUserRole() 中自动更新
 
 // 1. 计算逻辑 (保持不变)
 const combinations = computed(() => {
@@ -141,14 +136,13 @@ watch(combinations, (newVal, oldVal) => {
     return
   }
 
-  // 🔴 限制 2：非 Admin 用户，如果组合超过 500，禁止请求
+  // ✅ 使用 constants 中的限制值
   const count = newVal.length
-  if (userRole === 'user' && count > 200)
-    emit('update:runDisabled', true)
-  else if (userRole === 'anonymous' && count > 10)
-    emit('update:runDisabled', true)
-  if (userRole !== 'admin' && count > 500) {
-    limitHint.value = `檢索組合過多(${count}>500)，請縮小檢索範圍`
+  const limits = ROLE_LIMITS[userStore.role] || ROLE_LIMITS.anonymous
+
+  // 检查组合数是否超限
+  if (count > limits.MAX_COMBINATIONS) {
+    limitHint.value = `檢索組合過多(${count}>${limits.MAX_COMBINATIONS})，請縮小檢索範圍`
     results.value = [] // 清空旧数据
     return // ⛔️ 终止，不发起 API 请求
   }
@@ -159,7 +153,7 @@ watch(combinations, (newVal, oldVal) => {
     } else {
       pendingQuery.value = true
     }
-  }, 1000)
+  }, QUERY_CONFIG.DEBOUNCE_DELAY)  // ✅ 使用 constants 中的防抖延迟
 })
 
 watch(() => props.isDropdownOpen, (isOpen) => {
@@ -195,24 +189,18 @@ async function fetchData(pathStrings) {
   }
 }
 
-// 🔴 新增：结果数量校验逻辑
+// ✅ 结果数量校验逻辑（使用 constants 配置）
 function validateResultLimit(count) {
-  const limit_anonymous = 10
-  const limit_users = 100
+  const limits = ROLE_LIMITS[userStore.role] || ROLE_LIMITS.anonymous
 
-  if (userRole === 'admin') {
-    // Admin 无限制
-    emit('update:runDisabled', false)
-  }
-  else if (userRole === 'user' && count > limit_users) {
-    limitHint.value = `查詢結果過多(${count}>${limit_users})，請減少組合`
+  if (count > limits.MAX_RESULTS) {
+    const hint = userStore.role === 'anonymous'
+      ? `查詢結果過多(${count}>${limits.MAX_RESULTS})，登錄可查詢更多組合`
+      : `查詢結果過多(${count}>${limits.MAX_RESULTS})，請減少組合`
+
+    limitHint.value = hint
     emit('update:runDisabled', true)
-  }
-  else if (userRole === 'anonymous' && count > limit_anonymous) {
-    limitHint.value = `查詢結果過多(${count}>${limit_anonymous})，登錄可查詢更多組合`
-    emit('update:runDisabled', true)
-  }
-  else {
+  } else {
     // 通过检查
     limitHint.value = ''
     emit('update:runDisabled', false)
@@ -234,9 +222,8 @@ function formatTitle(queryStr) {
   return queryStr;
 }
 
-onMounted(()=>{
-  checkUserRole();
-});
+// ✅ 不再需要 onMounted 中的轮询
+// userStore.role 会在应用启动时由 auth.js 自动初始化
 
 defineExpose({ combinations })
 
@@ -256,19 +243,19 @@ defineExpose({ combinations })
 /* 头部样式调整 */
 .info-header {
   margin-bottom: 10px;
-  color: #555;
+  color: var(--text-medium);
   font-size: 14px;
   display: flex;
   justify-content: space-between; /* 两端对齐 */
   align-items: center;
   padding-bottom: 12px;
-  border-bottom: 1px solid rgba(0,0,0,0.05); /* 分割线 */
+  border-bottom: 1px solid var(--border-light); /* 分割线 */
 }
 
 /* 全局展开按钮 */
 .global-expand-btn {
-  background: rgba(2, 70, 158, 0.1);
-  color: #02469e;
+  background: var(--color-blue-custom-light);
+  color: var(--color-blue-custom);
   border: none;
   padding: 4px 12px;
   border-radius: 12px;
@@ -279,14 +266,14 @@ defineExpose({ combinations })
   white-space:nowrap;
 }
 .global-expand-btn:hover {
-  background: #02469e;
+  background: var(--color-blue-custom);
   color: white;
 }
 
 /* Loading 和 Empty 状态 */
 .status-msg {
   text-align: center;
-  color: #888;
+  color: var(--text-muted);
   font-size: 14px;
   width: 100%;
 }
@@ -309,26 +296,26 @@ defineExpose({ combinations })
   font-size: 14px;
   padding: 8px;
   border-radius: 8px;
-  background: rgba(255,255,255,0.4);
+  background: var(--glass-lighter);
   transition: background 0.2s;
 }
 .compact-item:hover {
-  background: rgba(255,255,255,0.7);
+  background: var(--glass-medium-strong);
 }
 
 .compact-title {
   font-weight: bold;
-  color: #333;
+  color: var(--text-dark);
   margin-right: 4px;
 }
 .compact-count {
-  color: #02469e;
+  color: var(--color-blue-custom);
   font-size: 0.9em;
   margin-right: 8px;
   font-weight: 600;
 }
 .compact-preview {
-  color: #888;
+  color: var(--text-muted);
   overflow: hidden;
   text-overflow: ellipsis;
   flex: 1; /* 占据剩余空间 */
@@ -343,7 +330,7 @@ defineExpose({ combinations })
   width: 90%;
   max-width: 1000px;
   height: 85vh;
-  background: rgba(255, 255, 255, 0.85);
+  background: var(--glass-heavy);
   backdrop-filter: blur(40px) saturate(180%);
   -webkit-backdrop-filter: blur(40px) saturate(180%);
   border-radius: 24px;
@@ -351,7 +338,7 @@ defineExpose({ combinations })
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  border: 1px solid rgba(255,255,255,0.6);
+  border: 1px solid var(--glass-border-strong);
 }
 
 .modal-header {
@@ -359,10 +346,10 @@ defineExpose({ combinations })
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid rgba(0,0,0,0.1);
-  background: rgba(255,255,255,0.5);
+  border-bottom: 1px solid var(--border-medium);
+  background: var(--glass-medium);
 }
-.modal-header h2 { margin: 0; font-size: 18px; color: #333; }
+.modal-header h2 { margin: 0; font-size: 18px; color: var(--text-dark); }
 
 .modal-body {
   flex: 1;
@@ -375,7 +362,7 @@ defineExpose({ combinations })
 
 /* 弹窗内的完整列表项 */
 .full-item {
-  border-bottom: 1px dashed rgba(0,0,0,0.1);
+  border-bottom: 1px dashed var(--border-medium);
   padding-bottom: 16px;
 }
 .full-item:last-child { border-bottom: none; }
@@ -386,15 +373,15 @@ defineExpose({ combinations })
   align-items: center;
   gap: 10px;
 }
-.full-item-header .combo-name { font-size: 16px; font-weight: bold; color: #02469e; }
+.full-item-header .combo-name { font-size: 16px; font-weight: bold; color: var(--color-blue-custom); }
 .full-item-header .count-badge {
-  background: #f0f7ff; color: #02469e; padding: 2px 8px; border-radius: 10px; font-size: 12px;
+  background: var(--color-blue-custom-bg); color: var(--color-blue-custom); padding: 2px 8px; border-radius: 10px; font-size: 12px;
 }
 
 .full-chars {
   font-size: 18px;
   line-height: 1.6;
-  color: #333;
+  color: var(--text-dark);
   /* 每个字之间增加 1em 的间距，相当于一个空格的宽度 */
   letter-spacing: 0.5em;
   /* 可选：防止连体字或特殊渲染问题 */
@@ -414,9 +401,9 @@ defineExpose({ combinations })
 @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 .limit-warning {
   padding: 12px;
-  background: rgba(255, 59, 48, 0.1); /* 浅红色背景 */
-  border: 1px solid rgba(255, 59, 48, 0.3);
-  color: #d32f2f;
+  background: var(--color-error-bg); /* 浅红色背景 */
+  border: 1px solid var(--color-error-border);
+  color: var(--color-error);
   border-radius: 12px;
   font-size: 14px;
   text-align: center;

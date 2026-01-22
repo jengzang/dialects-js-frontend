@@ -120,6 +120,7 @@
 import { ref, nextTick ,onMounted, onActivated, watch, computed,defineProps,} from 'vue'
 import {api} from '../../utils/auth.js'
 import RegionSelector from "@/components/query/RegionSelector.vue";
+import { userStore } from '@/utils/store.js'
 // const API_BASE = window.API_BASE;
 // const MAP_TREE = STATIC_REGION_TREE;
 // const YINDIAN_TREE = top_yindian;
@@ -429,6 +430,7 @@ async function fetchLocationsResult() {
     limitHint.value = '請輸入地點或分區'
     selectedCount.value = null
     locationsResult.value = []
+    emit('update:runDisabled', true)  // ⭐ 禁用按鈕
     return
   }
 
@@ -457,14 +459,15 @@ async function fetchLocationsResult() {
     const limit_anonymous = 200
     const limit_users = 600
 
-    if (window.userRole === 'anonymous' && count > limit_anonymous) {
+    if (userStore.role === 'anonymous' && count > limit_anonymous) {
       limitHint.value = `未登錄用戶單次最多可查詢 ${limit_anonymous} 個地點`
       emit('update:runDisabled', true)
-    } else if (window.userRole === 'user' && count > limit_users) {
+    } else if (userStore.role === 'user' && count > limit_users) {
       limitHint.value = `用戶單次最多可查詢 ${limit_users} 個地點`
       emit('update:runDisabled', true)
     } else {
       limitHint.value = ''
+      emit('update:runDisabled', false)
     }
 
     // ✅ 若你後面還有「正常處理」，從這裡往下接
@@ -475,6 +478,7 @@ async function fetchLocationsResult() {
     limitHint.value = err.message || '地點查詢失敗，請稍後再試'
     selectedCount.value = null
     locationsResult.value = []
+    emit('update:runDisabled', true)  // ⭐ 錯誤時禁用按鈕
   }
 }
 let debounceTimer2 = null
@@ -543,11 +547,11 @@ defineExpose({
   display: inline-flex;
   border-radius: 16px;
   padding: 4px;
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-inset);
   margin-bottom: 24px;
   gap: 4px;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  background-color: #f9f9fb;
+  border: 1px solid var(--border-medium);
+  background-color: var(--bg-light-gray);
   max-width: 250px;
 }
 
@@ -561,38 +565,38 @@ defineExpose({
   font-size: 15px;
   font-weight: 500;
   transition: all 0.25s ease;
-  color: #333;
+  color: var(--text-dark);
   min-width: 60px;
   text-align: center;
   user-select: none;
 }
 
 .region-tabs button:hover {
-  background-color: rgba(0, 0, 0, 0.04);
+  background-color: var(--bg-hover-light);
 }
 
 .region-tabs button.active {
-  background-color: #007aff; /* Apple Blue */
+  background-color: var(--color-primary); /* Apple Blue */
   color: white;
   font-weight: 600;
   box-shadow:
-      0 0 0 1px rgba(0, 122, 255, 0.3),
-      0 4px 12px rgba(0, 122, 255, 0.2);
+      0 0 0 1px var(--color-primary-shadow-light),
+      0 4px 12px var(--color-primary-shadow);
 }
 
 /* 即時提示面板 */
 .inline-suggestion {
   position: absolute !important;
-  background: rgba(255, 255, 255, 0.6) !important; /* 🔹 半透明背景 */
-  border: 1px solid rgba(200, 200, 200, 0.5) !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  background: var(--glass-medium2) !important; /* 🔹 半透明背景 */
+  border: 1px solid var(--border-gray-light) !important;
+  box-shadow: var(--shadow-lg2);
   padding: 8px 12px;
   border-radius: 12px; /* 蘋果味更重一點 */
   backdrop-filter: blur(12px); /* 🔹 液態玻璃效果 */
   -webkit-backdrop-filter: blur(12px); /* for Safari */
   white-space: pre-line;
   font-size: 14px;
-  color: #333;
+  color: var(--text-dark);
   max-width: 100px;
   width: fit-content; /* ✅ 根據內容自動撐寬 */
   z-index: 99999 !important;
@@ -604,13 +608,13 @@ defineExpose({
 
 /* ✅ 成功訊息 */
 .inline-suggestion .success {
-  color: #007aff;
+  color: var(--color-primary);
   font-weight: bold;
 }
 
 /* ✅ 錯誤訊息 */
 .inline-suggestion .error {
-  color: #ff3b30;
+  color: var(--color-error-light);
   font-weight: bold;
 }
 
@@ -624,12 +628,12 @@ defineExpose({
 
 /* ✅ Hover：蘋果淺藍 */
 .suggest-line:hover {
-  background-color: rgba(175, 217, 251, 0.8);
+  background-color: var(--bg-blue-hover);
 }
 
 
 .success {
-  color: green;
+  color: var(--color-success-green);
   padding: 4px 8px;
   font-weight: bold;
 }
@@ -666,15 +670,15 @@ defineExpose({
   padding: 6px 20px;
   justify-self: center;
   /* liquid glass */
-  background: rgba(255, 255, 255, 0.42);
-  border: 1px solid rgba(200, 200, 200, 0.45);
+  background: var(--glass-lighter2);
+  border: 1px solid var(--border-gray-lighter);
   border-radius: 14px;
   backdrop-filter: blur(16px) saturate(160%);
   -webkit-backdrop-filter: blur(16px) saturate(160%);
-  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.10);
+  box-shadow: var(--shadow-md2);
 
   font-size: 14px;
-  color: rgba(30, 30, 30, 0.88);
+  color: var(--text-dark-alpha);
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -685,11 +689,11 @@ defineExpose({
 
 .hint-num {
   font-weight: 700;
-  color: #007aff;
+  color: var(--color-primary);
   padding: 0 6px;
   border-radius: 10px;
-  background: rgba(0, 122, 255, 0.10);
-  border: 1px solid rgba(0, 122, 255, 0.18);
+  background: var(--color-primary-light);
+  border: 1px solid var(--color-primary-border);
 }
 .hint-main {
   display: flex;
@@ -701,7 +705,7 @@ defineExpose({
 /* ⚠️ 限制提示：比主文案弱一級，但足夠醒目 */
 .hint-warning {
   font-size: 13px;
-  color: darkgoldenrod;
+  color: var(--color-warning);
   text-align: center;
   line-height: 1.4;
   opacity: 0.9;
@@ -717,7 +721,7 @@ defineExpose({
 }
 
 .preview-text {
-  color: rgba(60, 60, 60, 0.85);
+  color: var(--text-dark-medium);
   font-size: 13px;
   line-height: 1.35;
   max-width: 520px;
@@ -729,9 +733,9 @@ defineExpose({
 /* 展開按鈕：克制的蘋果藍 */
 .expand-btn {
   appearance: none;
-  border: 1px solid rgba(0, 122, 255, 0.22);
-  background: rgba(0, 122, 255, 0.10);
-  color: #007aff;
+  border: 1px solid var(--color-primary-border2);
+  background: var(--color-primary-light);
+  color: var(--color-primary);
   font-size: 13px;
   padding: 2px 10px;
   border-radius: 999px;
@@ -741,7 +745,7 @@ defineExpose({
 }
 
 .expand-btn:hover {
-  background: rgba(0, 122, 255, 0.16);
+  background: var(--color-primary-light2);
 }
 
 /* 全局遮罩 + 玻璃彈層 */
@@ -753,7 +757,7 @@ defineExpose({
   justify-content: center;
   align-items: center;
   padding: 18px;
-  background: rgba(0, 0, 0, 0.1);
+  background: var(--border-medium);
   backdrop-filter: blur(7px);
   -webkit-backdrop-filter: blur(6px);
 }
@@ -762,10 +766,10 @@ defineExpose({
   width: min(720px, 94vw);
   max-height: min(70vh, 640px);
   overflow: hidden;
-  background: rgba(255, 255, 255, 0.42);
-  border: 1px solid rgba(200, 200, 200, 0.45);
+  background: var(--glass-lighter2);
+  border: 1px solid var(--border-gray-lighter);
   border-radius: 18px;
-  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.18);
+  box-shadow: var(--shadow-xl);
 
   backdrop-filter: blur(18px) saturate(160%);
   -webkit-backdrop-filter: blur(18px) saturate(160%);
@@ -776,30 +780,30 @@ defineExpose({
   align-items: center;
   justify-content: space-between;
   padding: 12px 14px;
-  border-bottom: 1px solid rgba(180, 180, 180, 0.25);
+  border-bottom: 1px solid var(--border-gray-lightest);
 }
 
 .modal-title {
   font-size: 15px;
   font-weight: 650;
-  color: rgba(20, 20, 20, 0.88);
+  color: var(--text-dark-light);
 }
 
 .modal-close {
   appearance: none;
   border: none;
-  background: rgba(0, 0, 0, 0.06);
+  background: var(--bg-hover-medium);
   width: 28px;
   height: 28px;
   border-radius: 10px;
   cursor: pointer;
   font-size: 18px;
   line-height: 28px;
-  color: rgba(20, 20, 20, 0.75);
+  color: var(--text-dark-lighter);
 }
 
 .modal-close:hover {
-  background: rgba(0, 0, 0, 0.10);
+  background: var(--bg-hover-strong);
 }
 
 .modal-body {
@@ -820,10 +824,10 @@ defineExpose({
   padding: 3px 6px;
   border-radius: 999px;
   font-size: 14px;
-  color: rgba(25, 25, 25, 0.85);
-  background: rgba(255, 255, 255, 0.48);
-  border: 1px solid rgba(160, 160, 160, 0.25);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+  color: var(--text-dark-lightest);
+  background: var(--glass-lighter3);
+  border: 1px solid var(--border-gray-light2);
+  box-shadow: var(--shadow-sm2);
 }
 
 

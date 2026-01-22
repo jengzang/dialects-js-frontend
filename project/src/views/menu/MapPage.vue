@@ -56,12 +56,21 @@
           :active-feature="selectedFeature"
           :is-custom="true"
           :dot-level="selectedLevel"
+          @map-click="handleMapClick"
       />
       <DivideTab
           v-if="currentTab === 'divide'"
           @region-selected="(val) => selectedLevel = val"
       />
       <CustomTab v-else-if="currentTab === 'custom'" />
+
+      <!-- 自定義數據提交面板（只在 map tab 顯示） -->
+      <CustomDataPanel
+          v-if="currentTab === 'map'"
+          :map-click-coordinates="mapClickCoordinates"
+          :selected-feature="selectedFeature"
+          @submit-success="handleSubmitSuccess"
+      />
 
     </div>
   </div>
@@ -70,14 +79,21 @@
 <script setup>
 import { computed, ref, reactive, nextTick, onMounted, onBeforeUnmount, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { mapStore } from '@/utils/store.js' // 引入 Store 獲取數據
+import { mapStore, resultCache } from '@/utils/store.js' // 引入 Store 獲取數據
 
 import DivideTab from "@/components/map/DivideTab.vue";
 import CustomTab from '@/components/map/CustomTab.vue'
 import MapLibre from "@/components/map/MapLibre.vue";
+import CustomDataPanel from '@/components/map/CustomDataPanel.vue'
+import { showSuccess } from '@/utils/message.js'
+import { func_mergeData } from '@/utils/MapData.js'
+
 const selectedLevel = ref(3)
 const router = useRouter()
 const route = useRoute()
+
+// 地圖點擊坐標
+const mapClickCoordinates = ref(null)
 
 // Tab 邏輯
 const currentTab = computed(() => {
@@ -89,6 +105,28 @@ const tabs = [
   { name: 'divide', label: '分區圖' },
   { name: 'custom', label: '自定義' }
 ]
+
+// 處理地圖點擊事件
+const handleMapClick = (coordinates) => {
+  mapClickCoordinates.value = coordinates
+}
+
+// 處理提交成功事件
+const handleSubmitSuccess = async (response) => {
+  showSuccess('自定義數據提交成功！')
+  console.log('提交成功:', response)
+
+  // 自动打开自定义数据开关
+  mapStore.showCustomData = true;
+
+  // 重新加載合併數據
+  try {
+    await func_mergeData(resultCache.latestResults, mapStore.mapData)
+    console.log('✅ 數據已刷新')
+  } catch (error) {
+    console.error('❌ 刷新數據失敗:', error)
+  }
+}
 
 // --- ✨ 特徵選擇邏輯 (復刻你提供的邏輯) ---
 
@@ -127,15 +165,15 @@ watch(availableFeatures, (newVal) => {
     if (!isCurrentValid) {
       // 選中新列表的第一個
       selectedFeature.value = firstFeature;
-      // 同步給 Store，觸發地圖繪製
-      // mapStore.activeFeature = firstFeature;
+      // 同步給 Store
+      mapStore.selectedFeature = firstFeature;
     }
     // 如果 isCurrentValid 為 true，說明用戶選的特徵在新數據裡也有，那就保持不動，體驗更絲滑
   }
   else {
     // 如果新數據為空，清空狀態
     selectedFeature.value = '';
-    // mapStore.activeFeature = '';
+    mapStore.selectedFeature = '';
   }
 }, { immediate: true });
 
@@ -160,8 +198,8 @@ const toggleDropdown = (type) => {
 const selectFeature = (val) => {
   selectedFeature.value = val
   dropdownOpen.value = null
-  // 如果需要同步到 Store
-  // mapStore.activeFeature = val
+  // 同步到 Store
+  mapStore.selectedFeature = val
 }
 
 // 點擊外部關閉 (完全復刻)

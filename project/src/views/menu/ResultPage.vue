@@ -74,9 +74,9 @@
 import {computed, onUnmounted, ref, watch, onMounted} from 'vue';
 import {useRoute, useRouter} from 'vue-router';
 import {api} from '@/utils/auth.js';
-import {globalPayload, mapStore} from '@/utils/store.js';
+import {globalPayload, mapStore, resultCache} from '@/utils/store.js';
 import ResultList from "@/components/result/ResultList.vue";
-import CharsAndTones from "@/components/result/CharsAndTones.vue"; // 引入新組件
+import CharsAndTones from "@/components/result/CharsAndTones.vue";
 import {generateTonesMergedData,generateCharsMergedData,func_mergeData} from "@/utils/MapData.js";
 
 const route = useRoute();
@@ -86,7 +86,6 @@ const latestResults = ref([]);
 const tone_for_chars = ref([]);
 const currentTabRef = ref('tab2');
 const payload = ref(null);
-window.mergedData = [];
 let mergedData = [];
 // ✅ 修复2：防止并发竞态（旧请求覆盖新请求）
 let requestSeq = 0;
@@ -197,7 +196,8 @@ watch(
         // ================= TAB 1: 查字 =================
         if (sourceTab === 'tab1') {
           const params = new URLSearchParams();
-          window._resultPageCache = {};
+          resultCache.mode = '';
+          resultCache.features = [];
           let rawChars = newPayload.chars;
           if (rawChars) {
             if (typeof rawChars === 'string') rawChars = rawChars.split('');
@@ -236,7 +236,8 @@ watch(
         else if (sourceTab === 'tab2') {
           const modeCN = tabMap[sourceTab] || sourceTab;
           const featuresList = Array.isArray(newPayload.features) ? newPayload.features : [];
-          window._resultPageCache = { mode: modeCN, features: featuresList };
+          resultCache.mode = modeCN;
+          resultCache.features = featuresList;
 
           const response = await api('/api/ZhongGu', {
             method: 'POST',
@@ -252,6 +253,7 @@ watch(
 
             // ✅ 修复：func_mergeData 是 async，必须 await
             mergedData = await func_mergeData(latestResults.value, MapData);
+            console.log(mergedData)
             if (seq !== requestSeq) return;
 
             mapStore.mapData = MapData;
@@ -265,7 +267,8 @@ watch(
         else if (sourceTab === 'tab3') {
           const modeCN = tabMap[sourceTab] || sourceTab;
           const featuresList = Array.isArray(newPayload.features) ? newPayload.features : [];
-          window._resultPageCache = { mode: modeCN, features: featuresList };
+          resultCache.mode = modeCN;
+          resultCache.features = featuresList;
 
           const response = await api('/api/YinWei', {
             method: 'POST',
@@ -292,7 +295,8 @@ watch(
 
         // ================= TAB 4: 查調 =================
         else if (sourceTab === 'tab4') {
-          window._resultPageCache = {};
+          resultCache.mode = '';
+          resultCache.features = [];
           const params = new URLSearchParams();
         // 這裡加個 || "" 只是為了防止變量不存在時出現 "undefined" 字樣，其他情況都直接添加
           params.append("locations", newPayload.locations || "");
@@ -347,11 +351,11 @@ watch(
 
         // ✅ finally 里拷贝加保护，避免这里再抛错
         try {
-          window.latestdetailResults = (typeof structuredClone === 'function')
+          resultCache.latestResults = (typeof structuredClone === 'function')
               ? structuredClone(latestResults.value)
               : JSON.parse(JSON.stringify(latestResults.value));
         } catch (e) {
-          window.latestdetailResults = latestResults.value;
+          resultCache.latestResults = latestResults.value;
         }
       }
     },

@@ -78,7 +78,7 @@
 
     <div class="pagination">
       <button class="page-btn" @click="changePage(-1)" :disabled="currentPage === 1">←</button>
-      <span class="page-info">{{ currentPage }} / {{ Math.ceil(total / 50) || 1 }}</span>
+      <span class="page-info">{{ currentPage }} / {{ Math.ceil(total / TABLE_CONFIG.PAGE_SIZE) || 1 }}</span>
       <button class="page-btn" @click="changePage(1)">→</button>
     </div>
 
@@ -140,6 +140,8 @@ import { ref, reactive, onMounted, computed, onUnmounted } from 'vue';
 import * as XLSX from 'xlsx';
 import { api } from "@/utils/auth.js";
 import { useVirtualList } from '@vueuse/core';
+import { TABLE_CONFIG } from '@/utils/constants.js';
+import { showSuccess, showWarning, showInfo, showConfirm } from '@/utils/message.js';
 
 const props = defineProps({
   dbKey: { type: String, required: true },
@@ -179,7 +181,7 @@ const fetchData = async () => {
     db_key: props.dbKey,
     table_name: props.tableName,
     page: currentPage.value,
-    page_size: 50,
+    page_size: TABLE_CONFIG.PAGE_SIZE,  // ✅ 使用 constants 配置
     sort_by: sortCol.value,
     sort_desc: sortDesc.value,
     filters: filterState,
@@ -327,7 +329,7 @@ const handleSearch = () => {
   timeout = setTimeout(() => {
     currentPage.value = 1;
     fetchData();
-  }, 300); // 停止輸入 300ms 後才發請求
+  }, TABLE_CONFIG.SEARCH_DEBOUNCE); // ✅ 使用 constants 配置
 };
 // --- 新增逻辑：全选/反选 ---
 
@@ -373,15 +375,20 @@ const changePage = (delta) => {
 // 操作按鈕 (Stub)
 const handleDelete = async (row) => {
   // console.log(row)
-  if(!confirm(`確定刪除 ${row.粤拼 || row.id}?`)) return;
+  const confirmed = await showConfirm(`確定刪除 ${row.粤拼 || row.id}?`, {
+    title: '刪除確認',
+    confirmText: '刪除',
+    cancelText: '取消'
+  });
+  if (!confirmed) return;
   // 這裡補全你的刪除邏輯
-  alert(`模擬刪除: ${row.粤拼}`);
+  showInfo(`模擬刪除: ${row.粤拼}`);
   // await api(...)
   // fetchData();
 };
 
-const openAddModal = () => alert("有待完善：新增模態框");
-const handleEdit = (row) => alert(`編輯: ${row.粤拼 || row.id}`);
+const openAddModal = () => showWarning("有待完善：新增模態框");
+const handleEdit = (row) => showInfo(`編輯: ${row.粤拼 || row.id}`);
 
 const handleGlobalClick = () => {
   if (activeFilterCol.value) {
@@ -404,24 +411,22 @@ onUnmounted(() => {
 
 
 <style scoped>
-:root {
-  --glass-bg: rgba(255, 255, 255, 0.65);
-  --glass-border: rgba(255, 255, 255, 0.5);
-  --primary-blue: #007aff;
-  --text-main: #1d1d1f;
-  --text-secondary: #86868b;
-}
+/* ========================================
+   UniversalTable 组件样式
+   使用全局 CSS 变量和工具类
+   ======================================== */
 
 .glass-container {
-  background: var(--glass-bg);
+  /* 使用全局变量替代局部变量 */
+  background: var(--glass-light);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border-radius: 20px;
+  border-radius: var(--radius-xl);
   border: 1px solid var(--glass-border);
-  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+  box-shadow: var(--shadow-md);
   padding: 24px;
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  color: var(--text-main);
+  color: var(--text-primary);
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -435,7 +440,7 @@ onUnmounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  border-bottom: 1px solid var(--border-light);
   gap: 12px;
   flex-wrap: wrap;
 }
@@ -449,18 +454,18 @@ onUnmounted(() => {
 .search-input {
   width: 80%;
   padding: 10px 12px 10px 36px;
-  border-radius: 12px;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  background: rgba(255, 255, 255, 0.5);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-medium);
+  background: var(--glass-medium);
   font-size: 14px;
   outline: none;
   transition: all 0.3s;
 }
 
 .search-input:focus {
-  background: #fff;
-  border-color: var(--primary-blue);
-  box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.15);
+  background: var(--bg-white);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-light);
 }
 
 .search-icon {
@@ -478,8 +483,8 @@ onUnmounted(() => {
 
 .glass-btn {
   padding: 8px 16px;
-  border-radius: 12px;
-  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-light);
   background: rgba(255, 255, 255, 0.8);
   font-size: 13px;
   cursor: pointer;
@@ -491,26 +496,24 @@ onUnmounted(() => {
 }
 
 .glass-btn:hover {
-  background: #fff;
+  background: var(--bg-white);
   transform: translateY(-1px);
 }
 
 .glass-btn.primary {
-  background: #007aff;
+  background: var(--color-primary);
   color: white;
 }
 
 /* Table Area */
 .table-scroll-area {
   flex: 1;
-  width: 100%;             /* 關鍵：限制寬度為父容器的 100% */
-  overflow-x: auto;        /* 關鍵：強制開啟橫向滾動 */
+  width: 100%;
+  overflow-x: auto;
   overflow-y: auto;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.3);
-  min-height: 200px; /* 給個最小高度，防止加載時高度塌陷 */
-
-  /* iOS 滾動優化，讓滑動更順滑 */
+  border-radius: var(--radius-md);
+  background: var(--glass-light);
+  min-height: 200px;
   -webkit-overflow-scrolling: touch;
 }
 
@@ -518,7 +521,7 @@ table {
   width: 100%;
   border-collapse: separate;
   border-spacing: 0;
-  table-layout: fixed; /* 保持列寬比例 */
+  table-layout: fixed;
   min-width: 1000px;
 }
 
@@ -528,44 +531,40 @@ thead {
   z-index: 10;
   background: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
 
 th, td {
-  padding:8px 12px;
+  padding: 8px 12px;
   text-align: left;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-  /* ✨ 新增：添加豎線 (右邊框) ✨ */
-  border-right: 1px solid rgba(0, 0, 0, 0.05);
+  border-bottom: 1px solid var(--border-light);
+  border-right: 1px solid var(--border-light);
 }
 
 th {
   font-size: 15px;
   color: var(--text-secondary);
   font-weight: 600;
-  padding: 8px 3px!important;
+  padding: 8px 3px !important;
 }
 
 td {
   padding: 8px 12px;
   text-align: left;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-
-  /* ✨ 核心修改：允許文字換行，不要隱藏 */
+  border-bottom: 1px solid var(--border-light);
   font-size: 14px;
-  white-space: normal;      /* 允許換行 */
-  word-break: break-word;   /* 長單詞強制換行 */
-  vertical-align: top;      /* 內容頂部對齊，多行時更好看 */
-  line-height: 1.5;         /* 增加行高，多行閱讀更舒適 */
+  white-space: normal;
+  word-break: break-word;
+  vertical-align: top;
+  line-height: 1.5;
 }
 
 /* Header & Filter */
 .header-content {
   display: flex;
   align-items: center;
-  justify-content: flex-start; /* 修正為標準寫法 flex-start */
+  justify-content: flex-start;
   position: relative;
-
-  /* ✨ 新增：限制容器寬度並隱藏溢出 */
   width: 100%;
   overflow: hidden;
 }
@@ -573,20 +572,17 @@ td {
 .header-text-wrapper {
   display: flex;
   align-items: center;
-  gap: 4px; /* 建議加上 gap 讓文字和圖標有點間距 */
+  gap: 4px;
   padding: 4px;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   transition: background 0.2s;
-
-  /* ✨ 新增：防止超出容器的關鍵屬性 */
-  flex: 1;              /* 佔據剩餘空間 */
-  min-width: 0;         /* ⚠️ 關鍵：允許 Flex 子元素收縮，否則長文字會撐開容器 */
-  overflow: hidden;     /* 隱藏內部超出的內容 */
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
 }
 
-/* 如果你希望文字太長時顯示省略號 (...)，請確保內部的 span 也有以下設置 */
 .header-text {
-  white-space: nowrap;      /* 不換行 */
+  white-space: nowrap;
 }
 
 .header-text-wrapper.clickable {
@@ -594,11 +590,11 @@ td {
 }
 
 .header-text-wrapper.clickable:hover {
-  background: rgba(0, 0, 0, 0.05);
+  background: var(--bg-hover);
 }
 
 .header-text-wrapper.filtering .header-text {
-  color: var(--primary-blue);
+  color: var(--color-primary);
   font-weight: bold;
 }
 
@@ -623,7 +619,7 @@ td {
 }
 
 .sort-arrow.active {
-  color: var(--primary-blue);
+  color: var(--color-primary);
   opacity: 1;
 }
 
@@ -637,10 +633,9 @@ td {
   min-width: 240px;
   max-width: 300px;
   padding: 10px;
-  /* ✨ 關鍵修復：確保 Flex 佈局讓列表滾動，按鈕固定 */
   display: flex;
   flex-direction: column;
-  max-height: 400px; /* PC 端最大高度 */
+  max-height: 400px;
 }
 
 .filter-popup.align-right {
@@ -649,11 +644,12 @@ td {
 }
 
 .glass-panel {
-  background: rgba(255, 255, 255, 0.3);
+  background: var(--glass-light);
   backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
   border: 1px solid rgba(255, 255, 255, 0.8);
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
-  border-radius: 16px;
+  box-shadow: var(--shadow-lg);
+  border-radius: var(--radius-lg);
   max-height: 50dvh;
 }
 
@@ -661,7 +657,7 @@ td {
   font-size: 13px;
   font-weight: 600;
   color: var(--text-secondary);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  border-bottom: 1px solid var(--border-light);
   padding-bottom: 8px;
   margin-bottom: 8px;
   display: flex;
@@ -673,24 +669,22 @@ td {
   display: none;
 }
 
-/* ✨ 關鍵修復：列表佔據剩餘空間並滾動 */
 .filter-list {
   overflow-y: auto;
-  flex: 1; /* 佔據剩餘空間 */
+  flex: 1;
   display: flex;
   flex-direction: column;
   gap: 4px;
-  min-height: 0; /* 防止 Flex 子元素溢出 */
+  min-height: 0;
 }
 
-/* ✨ 關鍵修復：操作按鈕固定底部，不被壓縮 */
 .filter-actions {
   display: flex;
   justify-content: flex-end;
   gap: 10px;
   padding-top: 8px;
-  border-top: 1px solid rgba(0, 0, 0, 0.05);
-  flex-shrink: 0; /* 禁止被壓縮 */
+  border-top: 1px solid var(--border-light);
+  flex-shrink: 0;
 }
 
 /* Checkbox Styling */
@@ -700,47 +694,42 @@ td {
   gap: 10px;
   cursor: pointer;
   padding: 3px;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   transition: background 0.2s;
 }
 
 .checkbox-item:hover {
-  background: rgba(0, 0, 0, 0.03);
+  background: var(--bg-hover-light);
 }
 
 .checkbox-item input {
   display: none;
 }
 
-/* --- Checkbox 修改 (顯示 ✅ 圖樣) --- */
 .custom-checkbox {
   width: 20px;
   height: 20px;
   border-radius: 5px;
-  border: 2px solid #d1d1d6;
+  border: 2px solid var(--border-gray);
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.2s;
   background: white;
   flex-shrink: 0;
-
-  /* 準備顯示偽元素 */
   position: relative;
 }
 
-/* 選中狀態：背景變藍，邊框變藍 */
 .checkbox-item input:checked + .custom-checkbox {
-  background: var(--primary-blue);
-  border-color: var(--primary-blue);
+  background: var(--color-primary);
+  border-color: var(--color-primary);
 }
 
-/* ✨ 選中時顯示勾勾 (使用 CSS 繪製，比 SVG 更輕量且穩定) */
 .checkbox-item input:checked + .custom-checkbox::after {
-  content: '✓';          /* 顯示勾勾符號 */
-  color: darkgreen;          /* 白色勾勾 */
-  font-size: 14px;       /* 大小 */
-  font-weight: bold;     /* 加粗 */
+  content: '✓';
+  color: darkgreen;
+  font-size: 14px;
+  font-weight: bold;
   line-height: 1;
   display: block;
 }
@@ -751,28 +740,29 @@ td {
   font-size: 13px;
   cursor: pointer;
   padding: 6px 12px;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
 }
 
-/* 左侧全选/反选按钮的特殊样式 */
 .toggle-select {
-  color: #6e00ff; /* 主题色 */
+  color: var(--color-accent-purple);
   font-weight: bold;
 }
+
 .toggle-select:hover {
-  background: rgba(110, 0, 255, 0.1);
+  background: var(--color-accent-purple-light);
 }
 
-/* 原有的 cancel/confirm 样式保持不变或微调 */
 .text-btn.confirm {
-  background: linear-gradient(135deg, #6e00ff, #00c3ff);
+  background: var(--color-gradient);
   color: white;
 }
+
 .text-btn.cancel {
-  color: #666;
+  color: var(--text-tertiary);
 }
+
 .text-btn.cancel:hover {
-  background: rgba(0,0,0,0.05);
+  background: var(--bg-hover);
 }
 
 /* Mobile Responsiveness */
@@ -783,9 +773,11 @@ td {
     height: 85dvh;
     border: none;
   }
+
   th, td {
     padding: 4px 6px;
   }
+
   .toolbar {
     flex-direction: column;
     align-items: stretch;
@@ -804,27 +796,27 @@ td {
     justify-content: center;
   }
 
-  /* ✨ 移動端滾動優化：強制表格最小寬度，觸發橫向滾動 */
   table {
-    min-width: 800px; /* 你可以根據列數調整這個值 */
+    min-width: 800px;
   }
 
-  /* 移動端彈窗 */
   .mobile-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.3);
+    background: var(--bg-overlay);
     z-index: 999;
     backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
   }
 
-  .filter-popup, .filter-popup.align-right {
+  .filter-popup,
+  .filter-popup.align-right {
     position: fixed;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     max-width: 85dvw;
-    max-height: 70vh; /* 給鍵盤留點空間 */
+    max-height: 70vh;
     margin: 0;
     z-index: 1000;
   }
@@ -839,16 +831,17 @@ td {
   }
 }
 
-/* 通用樣式 */
+/* Custom Scrollbar */
 .custom-scrollbar::-webkit-scrollbar {
   width: 4px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.1);
+  background: var(--border-medium);
   border-radius: 4px;
 }
 
+/* Action Buttons */
 .action-td {
   display: flex;
   gap: 8px;
@@ -857,9 +850,9 @@ td {
 .icon-action-btn {
   width: 28px;
   height: 28px;
-  border-radius: 50%;
+  border-radius: var(--radius-full);
   border: none;
-  background: rgba(0, 0, 0, 0.03);
+  background: var(--bg-hover-light);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -868,11 +861,11 @@ td {
 }
 
 .icon-action-btn:hover {
-  background: var(--primary-blue);
-  background: #007aff;
+  background: var(--color-primary);
   color: white;
 }
 
+/* Pagination */
 .pagination {
   display: flex;
   justify-content: center;
@@ -884,59 +877,69 @@ td {
 .page-btn {
   width: 36px;
   height: 36px;
-  border-radius: 50%;
+  border-radius: var(--radius-full);
   background: white;
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--border-medium);
   cursor: pointer;
+  transition: all 0.2s;
 }
-.label-text{
+
+.page-btn:hover:not(:disabled) {
+  background: var(--color-primary-light);
+  border-color: var(--color-primary);
+}
+
+.page-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.label-text {
   font-size: 14px;
 }
-/* --- 加載遮罩層 --- */
+
+/* Loading States */
 .loading-overlay {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  /* 半透明白色/黑色背景 */
   background: rgba(255, 255, 255, 0.5);
-  /* 關鍵：背景模糊，營造高級感 */
   backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
   z-index: 10;
-
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 10px;
-  color: #555;
+  color: var(--text-muted);
   font-weight: bold;
 }
 
-/* --- 旋轉圈圈動畫 --- */
 .spinner {
   width: 40px;
   height: 40px;
-  border: 4px solid rgba(0, 0, 0, 0.1);
-  border-left-color: #6e00ff; /* 使用你的主題色 */
-  border-radius: 50%;
+  border: 4px solid var(--border-medium);
+  border-left-color: var(--color-accent-purple);
+  border-radius: var(--radius-full);
   animation: spin 1s linear infinite;
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
-/* --- 空狀態樣式 --- */
 .empty-state {
   padding: 40px;
   text-align: center;
-  color: #888;
+  color: var(--text-muted);
   font-size: 16px;
 }
 
-/* --- (可選) 讓底下的內容在加載時稍微變淡 --- */
 .blur-content {
   opacity: 0.5;
 }

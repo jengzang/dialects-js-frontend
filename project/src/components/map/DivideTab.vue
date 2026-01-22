@@ -46,7 +46,7 @@
         v-model="locationModel"
     />
 
-    <div class="fancy-run-container">
+    <div class="run-container">
       <button
           id="allmap-first"
           class="allmap-first"
@@ -67,6 +67,7 @@ import { useRouter, useRoute } from 'vue-router' // ✨ 1. 引入路由
 import LocationAndRegionInput from "@/components/query/LocationAndRegionInput.vue";
 import { mapStore } from "@/utils/store.js";
 import { api } from "@/utils/auth.js";
+import { showError } from '@/utils/message.js';
 
 // ✨ 2. 初始化路由
 const router = useRouter()
@@ -184,7 +185,7 @@ const runAction = async () => {
 
   } catch (error) {
     console.error(error);
-    alert("獲取數據失敗: " + error.message);
+    showError("獲取數據失敗: " + error.message);
   } finally {
     isRunning.value = false;
   }

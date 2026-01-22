@@ -4,6 +4,9 @@ import App from './App.vue'
 import router from './router'
 import './style.css'
 
+// 🍎 导入全局消息系统（会自动挂载到 window）
+import './utils/message.js'
+
 // 1. 導入你的組件
 import PanelManager from "./components/result/PanelManager.vue"
 

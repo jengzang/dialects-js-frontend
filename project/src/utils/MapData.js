@@ -1,4 +1,7 @@
-// 整理數據，用於地圖繪製
+// 整理數據,用於地圖繪製
+import { queryStore, mapStore, resultCache, userStore } from './store.js'
+import { api } from './auth.js'
+
 export async function func_mergeData(resultData = null, mapData = null) {
     // 1) 数据来源：优先参数，否则 fallback 到 window
     const latestResults = resultData ?? window.latestResults;
@@ -116,8 +119,8 @@ export async function func_mergeData(resultData = null, mapData = null) {
         }
     }
 
-    const locations = window.locationList;
-    const regions = window.regionList;
+    const locations = queryStore.locations;
+    const regions = queryStore.regions;
     const uniqueFeatures = [...new Set(latestResults.map(result => result.特徵值))];
 
     // 创建请求参数
@@ -130,30 +133,25 @@ export async function func_mergeData(resultData = null, mapData = null) {
     let shouldContinue = true;
     let result = null;
     try {
-        const token = localStorage.getItem("ACCESS_TOKEN")
-        // 如果没有 token，直接返回，表示用户未登录
-        if (!token) {
+        // 如果用户未登录，直接返回，不查询个人数据
+        if (!userStore.isAuthenticated || userStore.role === 'anonymous') {
             shouldContinue = false;
-            throw "用戶未登錄，不查詢個人數據";
+            console.log('用戶未登錄，不查詢個人數據');
+            throw new Error('用戶未登錄');
         }
+
         // 用 URLSearchParams 拼接到 GET URL
         const queryString = new URLSearchParams(queryParams).toString();
-        const response = await fetch(`${window.API_BASE}/get_custom?${queryString}`, {
+
+        // 使用统一的 api 函数
+        result = await api(`/api/get_custom?${queryString}`, {
             method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                ...(token ? { Authorization: `Bearer ${token}` } : {})
-            }
+            showError: false  // 不自动显示错误，由下方逻辑处理
         });
 
-        if (!response.ok) {
-            shouldContinue = false; // 标记不要继续往下处理
-        }else {
-            result = await response.json();
-        }
-        // result = shouldContinue ? await response.json() : null;
     } catch (error) {
         shouldContinue = false;
+        console.log('查詢個人數據失敗:', error.message || error);
     }
     if (shouldContinue && Array.isArray(result)) {
         mergeBackendData(result, mergedData,
@@ -165,9 +163,7 @@ export async function func_mergeData(resultData = null, mapData = null) {
     }
 
     assignColorToMergedData(mergedData);
-    // 4) 保险：写入全局（如果你要一致行为）
-    window.mergedData = mergedData;
-    // 5) ✅ 返回值
+    mapStore.mergedData = mergedData;
     return mergedData;
 }
 
@@ -175,9 +171,16 @@ export async function func_mergeData(resultData = null, mapData = null) {
 // 對用戶自定義數據進行處理
 function mergeBackendData(result, mergedData, defaultZoom, defaultCenter) {
     result.forEach(row => {
+        const featureType = row["聲韻調"];  // "声母"/"韵母"/"声调"
+
+        // ✅ 前端过滤：只有当后端返回的聲韻調在 resultCache.features 中时才显示
+        if (!resultCache.features || !resultCache.features.includes(featureType)) {
+            return; // 跳过这条数据
+        }
+
         const newCoordinate = row["經緯度"];
         const newLocation = row["簡稱"];
-        const newFeature = row["特徵"];
+        const newFeature = row["特徵"];  // 如 "舌尖"
         const created_at = row["created_at"] || null;
 
         const locationIndex = mergedData.findIndex(item =>
@@ -290,7 +293,7 @@ export function generateCharsMergedData(resultData, locationsData) {
     });
 
     assignColorToMergedData(mergedData);
-    window.mergedData = mergedData;
+    mapStore.mergedData = mergedData;
     return mergedData;
 }
 
@@ -379,11 +382,8 @@ export function generateTonesMergedData(resultData, locationsData) {
     // 4) 一次性分配颜色
     assignColorToMergedData(mergedData);
 
-    // 5) 多重保险：写全局 + 返回
-    window.mergedData = mergedData;
-    // 6) 再保险：提供只读快照（可选，但很实用）
-    // 防止其他地方不小心 push/改字段导致地图状态“幽灵变化”
-    // window.mergedDataSnapshot = mergedData.slice();
+    // 5) 写入 mapStore 并返回
+    mapStore.mergedData = mergedData;
     return mergedData;
 }
 

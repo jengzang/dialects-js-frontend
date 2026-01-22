@@ -1,4 +1,7 @@
-// utils/phonology.js
+// utils/ResultTable.js
+import { api } from './auth.js'
+import { API_CONFIG } from './constants.js'
+import { resultCache } from './store.js'
 
 // 假设 column_values 是全局变量，如果不是，需要作为参数传入
 export function buildReverseMap() {
@@ -120,7 +123,7 @@ export async function get_detail(location, feature_value, bool=false, vue=false,
     let pho_values = [""];
     let regions = [""];
 
-    let mode_raw = window._resultPageCache?.mode || '';
+    let mode_raw = resultCache.mode || '';
     let mode = '';
 
     // 基礎模式判斷
@@ -128,7 +131,7 @@ export async function get_detail(location, feature_value, bool=false, vue=false,
     if (mode_raw === '查中古') mode = 's2p';
 
 
-    const features = window._resultPageCache?.features || [];
+    const features = resultCache.features || [];
     const locations = Array.isArray(location) ? location : [location];
     const region_mode = window.regionusing || 'yindian'; // 防止報錯，給個默認值
 
@@ -168,22 +171,15 @@ export async function get_detail(location, feature_value, bool=false, vue=false,
         region_mode
     };
     try {
-        // === 2. API 請求 (保持不變) ===
-        const token = localStorage.getItem("ACCESS_TOKEN");
-        const res = await window.fetch(`${window.API_BASE}/phonology`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                ...(token ? { Authorization: `Bearer ${token}` } : {})
-            },
-            body: JSON.stringify(payload)
+        // ✅ 使用统一的 api 函数（替代 window.fetch）
+        const result = await api('/api/phonology', {
+            method: 'POST',
+            body: JSON.stringify(payload),
+            timeout: API_CONFIG.LONG_TIMEOUT  // 使用长超时时间（60秒）
         });
 
-        if (res.ok && token && typeof update_userdatas_bytoken === 'function') {
-            await update_userdatas_bytoken(token);
-        }
-
-        const result = await res.json();
+        // 不需要手动解析 JSON 和检查状态，api 函数已经处理
+        // 也不需要手动更新 token，api 函数会自动处理 401
 
         // === 3. 處理數據 ===
         if (!result.results) {
@@ -193,10 +189,10 @@ export async function get_detail(location, feature_value, bool=false, vue=false,
         const data = result.results;
         // 清除字數為0的數據
         const validData = data.filter(item => item.字數 !== 0);
-        window.latestdetailResults = validData; // 更新全局緩存(可選)
+        resultCache.latestResults = validData;
 
         if (validData.length === 0) {
-            alert("未查詢到相關詳情");
+            window.showWarningToast("未查詢到相關詳情");
             return;
         }
 
@@ -206,7 +202,7 @@ export async function get_detail(location, feature_value, bool=false, vue=false,
         // ============================================
         if (typeof window.updatePanel === 'function' && tempPanelId) {
             if (validData.length === 0) {
-                alert("未查詢到相關詳情");
+                window.showWarningToast("未查詢到相關詳情");
                 // 如果沒數據，把那個轉圈圈的窗口關掉
                 window.removePanel(tempPanelId);
             } else {
@@ -218,9 +214,9 @@ export async function get_detail(location, feature_value, bool=false, vue=false,
     } catch (error) {
         console.error("分析失敗", error);
         if (error.response && error.response.detail) {
-            alert("❌ 錯誤信息：" + error.response.detail);
+            window.showErrorToast("錯誤信息：" + error.response.detail);
         } else {
-            alert("❌ 請求後端錯誤：" + error.message);
+            window.showErrorToast("請求後端錯誤：" + error.message);
         }
     }
 }
