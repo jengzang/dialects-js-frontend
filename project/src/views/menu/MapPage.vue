@@ -51,17 +51,28 @@
 
     <div class="tab-content" style="justify-items: center; position: relative;">
 
+      <!-- 使用 v-show 代替 v-if，保持组件状态 -->
       <MapLibre
-          v-if="currentTab === 'map'"
+          v-show="currentTab === 'map'"
           :active-feature="selectedFeature"
           :is-custom="true"
           :dot-level="selectedLevel"
+          @map-click="handleMapClick"
       />
       <DivideTab
-          v-if="currentTab === 'divide'"
+          v-show="currentTab === 'divide'"
           @region-selected="(val) => selectedLevel = val"
       />
-      <CustomTab v-else-if="currentTab === 'custom'" />
+      <CustomTab
+          v-show="currentTab === 'custom'"
+      />
+      <!-- 自定義數據提交面板（只在 map tab 顯示） -->
+      <CustomDataPanel
+          v-if="currentTab === 'map'"
+          :map-click-coordinates="mapClickCoordinates"
+          :selected-feature="selectedFeature"
+          @submit-success="handleSubmitSuccess"
+      />
 
     </div>
   </div>
@@ -70,14 +81,21 @@
 <script setup>
 import { computed, ref, reactive, nextTick, onMounted, onBeforeUnmount, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { mapStore } from '@/utils/store.js' // 引入 Store 獲取數據
+import { mapStore, resultCache } from '@/utils/store.js' // 引入 Store 獲取數據
 
 import DivideTab from "@/components/map/DivideTab.vue";
 import CustomTab from '@/components/map/CustomTab.vue'
 import MapLibre from "@/components/map/MapLibre.vue";
+import CustomDataPanel from '@/components/map/CustomDataPanel.vue'
+import { showSuccess, showError } from '@/utils/message.js'
+import { func_mergeData, addCustomFeatureData } from '@/utils/MapData.js'
+
 const selectedLevel = ref(3)
 const router = useRouter()
 const route = useRoute()
+
+// 地圖點擊坐標
+const mapClickCoordinates = ref(null)
 
 // Tab 邏輯
 const currentTab = computed(() => {
@@ -89,6 +107,28 @@ const tabs = [
   { name: 'divide', label: '分區圖' },
   { name: 'custom', label: '自定義' }
 ]
+
+// 處理地圖點擊事件
+const handleMapClick = (coordinates) => {
+  mapClickCoordinates.value = coordinates
+}
+
+// 處理提交成功事件
+const handleSubmitSuccess = async (response) => {
+  showSuccess('自定義數據提交成功！')
+  console.log('提交成功:', response)
+
+  // 自动打开自定义数据开关
+  mapStore.showCustomData = true;
+
+  // 重新加載合併數據
+  try {
+    await func_mergeData(resultCache.latestResults, mapStore.mapData)
+    console.log('✅ 數據已刷新')
+  } catch (error) {
+    console.error('❌ 刷新數據失敗:', error)
+  }
+}
 
 // --- ✨ 特徵選擇邏輯 (復刻你提供的邏輯) ---
 
@@ -127,15 +167,15 @@ watch(availableFeatures, (newVal) => {
     if (!isCurrentValid) {
       // 選中新列表的第一個
       selectedFeature.value = firstFeature;
-      // 同步給 Store，觸發地圖繪製
-      // mapStore.activeFeature = firstFeature;
+      // 同步給 Store
+      mapStore.selectedFeature = firstFeature;
     }
     // 如果 isCurrentValid 為 true，說明用戶選的特徵在新數據裡也有，那就保持不動，體驗更絲滑
   }
   else {
     // 如果新數據為空，清空狀態
     selectedFeature.value = '';
-    // mapStore.activeFeature = '';
+    mapStore.selectedFeature = '';
   }
 }, { immediate: true });
 
@@ -160,8 +200,8 @@ const toggleDropdown = (type) => {
 const selectFeature = (val) => {
   selectedFeature.value = val
   dropdownOpen.value = null
-  // 如果需要同步到 Store
-  // mapStore.activeFeature = val
+  // 同步到 Store
+  mapStore.selectedFeature = val
 }
 
 // 點擊外部關閉 (完全復刻)
@@ -173,6 +213,62 @@ const onClickOutside = (event) => {
 
 onMounted(() => document.addEventListener('click', onClickOutside))
 onBeforeUnmount(() => document.removeEventListener('click', onClickOutside))
+
+// 监听路由参数，自动加载自定义特征
+watch(
+  () => route.query.feature,
+  async (newFeature, oldFeature) => {
+    // 防止重复触发
+    if (!newFeature || newFeature === oldFeature) return
+
+    // 只在 map tab 中触发
+    if (route.query.sub !== 'map') return
+
+    // console.log('检测到特征参数，开始加载:', newFeature)
+
+    try {
+      // 提取路由参数
+      const locations = route.query.locations?.split(',').filter(Boolean) || []
+      const regions = route.query.regions?.split(',').filter(Boolean) || []
+      const regionMode = route.query.regionMode || 'map'
+
+      // console.log('加载参数:', { feature: newFeature, locations, regions, regionMode })
+
+      // 调用 addCustomFeatureData 加载数据
+      await addCustomFeatureData([newFeature], locations, regions, regionMode)
+
+      // 自动选中该特征
+      selectedFeature.value = newFeature
+      mapStore.selectedFeature = newFeature
+
+      // 自动开启自定义数据显示
+      mapStore.showCustomData = true
+
+      // 自动切换到 feature 模式（关闭"查看地名"开关）
+      mapStore.mode = 'feature'
+
+      showSuccess(`已加载特征：${newFeature}`)
+
+      // console.log('✅ 特征加载成功')
+
+      // 清除路由参数（避免刷新重复加载）
+      await router.replace({
+        query: {
+          ...route.query,
+          feature: undefined,
+          locations: undefined,
+          regions: undefined,
+          regionMode: undefined
+        }
+      })
+    } catch (error) {
+      console.error('❌ 加载特征失败:', error)
+      showError('加载特征失败：' + (error.message || error))
+    }
+  },
+  { immediate: true } // 立即执行一次，检查初始路由参数
+)
+
 </script>
 
 <style scoped>

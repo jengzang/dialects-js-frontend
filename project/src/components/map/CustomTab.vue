@@ -1,116 +1,635 @@
 <template>
   <div>
-    <div class="page">
       <div class="page-content-stack">
-        <p>该功能尚不完善！使用旧版网站才能添加个人数据</p>
       <div class="page-footer">
-
-        <small class="hint">
-          🧩 您可以自由添加點、設置該點對應的特徵<br>
-          🖌️ 網站會根據特徵自動分配顏色
-        </small>
+        <h3 style="margin:0">搜索自定義特徵</h3>
+        <div class="button-row" v-if="!userStore.isAuthenticated">
+          <button class="enter-btn" @click="handleLogin">🔐 登錄</button>
+        </div>
       </div>
 
-      <div class="button-row">
-        <button class="enter-btn" @click="handleLogin">🔐 登錄</button>
+        <!-- LocationAndRegionInput 组件 -->
+        <LocationAndRegionInput
+          v-model="locationData"
+          style="margin-top: 12px;"
+        />
+
+        <!-- 特征搜索输入框 -->
+        <div class="feature-search-container">
+          <label for="featureSearch" class="query-label">特徵搜索</label>
+          <div class="search-input-wrapper">
+            <input
+              id="featureSearch"
+              v-model="featureSearchInput"
+              type="text"
+              placeholder="請輸入特徵關鍵詞..."
+              @input="handleFeatureInput"
+              @focus="handleInputFocus"
+              class="feature-search-input"
+            />
+            <span v-if="isSearching" class="loading-icon">⏳</span>
+          </div>
+
+          <!-- Dropdown 下拉列表 (使用 Teleport) -->
+          <Teleport to="body">
+            <div
+              v-if="showSuggestions && featureSuggestions.length > 0"
+              class="dropdown-panel"
+              :style="dropdownStyle"
+              ref="featureDropdownEl"
+            >
+              <div
+                class="dropdown-item"
+                v-for="feature in featureSuggestions"
+                :key="feature"
+                @mousedown.prevent="selectFeature(feature)"
+              >
+                {{ feature }}
+              </div>
+            </div>
+          </Teleport>
+        </div>
+
+        <!-- 已选择的特征显示 -->
+        <div v-if="selectedFeature" class="selected-feature">
+          ✅ 已選擇：<strong>{{ selectedFeature }}</strong>
+        </div>
+
+        <!-- 运行查询按钮 -->
+        <div class="button-group">
+          <button
+            class="action-btn primary-btn"
+            @click="handleRunQuery"
+            :disabled="!selectedFeature || isRunning"
+          >
+            <span v-if="isRunning">🔄 運行中...</span>
+            <span v-else>🚀 運行查詢</span>
+          </button>
+        </div>
+
+        <!-- 分隔线 -->
+        <div class="divider">
+          <span>添加新的自定義數據</span>
+        </div>
+
+        <!-- 使用说明链接 -->
+        <div class="help-trigger-wrapper">
+          <span class="help-trigger" @click="openHelpModal">
+            不知道如何添加數據❓點此查看使用說明
+          </span>
+        </div>
+
+        <!-- 添加按钮 -->
+        <div class="button-group">
+          <button class="action-btn add-single-btn" @click="handleAddSingle">
+            📝 逐條添加
+          </button>
+          <button class="action-btn add-batch-btn" @click="handleAddBatch">
+            📋 批量添加
+          </button>
+        </div>
       </div>
+    <!-- 帮助弹窗 -->
+    <Teleport to="body">
+      <Transition name="fade-scale">
+        <div v-if="isHelpModalOpen" class="glass-modal-overlay" @click.self="closeHelpModal">
+          <div class="glass-card help-modal">
+            <button class="close-btn" @click="closeHelpModal">&times;</button>
+            <h3 class="modal-title">自定義數據使用說明</h3>
 
-      <div class="page-footer">
-        <small class="hint">
-          👤 您將創建的是僅屬於您的數據，故需要登錄<br>
-          🤝 本站承諾：不會洩漏您的個人數據
-        </small>
-      </div>
-    </div>
-    </div>
+            <div class="help-content">
+              <div class="help-section">
+                <h4 class="section-title">📋 功能說明</h4>
+                <ul class="help-list">
+                  <li>🧩 您可以自由添加點、設置該點對應的特徵</li>
+                  <li>🖌️ 網站會根據特徵自動分配顏色</li>
+                  <li>👤 您將創建的是僅屬於您的數據，故需要登錄</li>
+                  <li>🤝 本站承諾：不會洩漏您的個人數據</li>
+                </ul>
+              </div>
 
-    <LocationAndRegionInput ref="locationRef" />
-
-    <div class="list-wrapper">
-      <ul class="explain-list">
-        <li>請在上方填入您將添加的地點或其所屬分區</li>
-        <li><strong>點擊下方按鈕</strong> 右側將彈出一個面板</li>
-        <li>您需在面板中填入簡稱、分區、特徵、值</li>
-        <li>“特徵”是指分析的類別，例如“流攝"</li>
-        <li>“值”是顯示在地圖上的，例如“iu"</li>
-        <li>點擊地圖即可自動填入經緯度</li>
-      </ul>
-    </div>
-
-    <div class="fancy-run-container">
-      <button
-          class="fancy-run-btn"
-          @click="runAction"
-          :disabled="isRunning">
-        <span v-if="isRunning">🔄 運行中...</span>
-        <span v-else>🚀 添加個人數據</span>
-      </button>
-    </div>
+              <div class="help-section">
+                <h4 class="section-title">📝 添加數據步驟</h4>
+                <ul class="help-list">
+                  <li><strong>點擊下方按鈕</strong> 右側將彈出一個面板</li>
+                  <li>您需在面板中填入簡稱、分區、聲韻調、特徵、值</li>
+                  <li>"聲韻調"是指分析的"聲母/韻母/聲調"</li>
+                  <li>"特徵"是指分析的類別，例如"流攝"</li>
+                  <li>"值"是顯示在地圖上的，例如"iu"</li>
+                  <li>點擊地圖即可自動填入經緯度</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
-import LocationAndRegionInput from "@/components/query/LocationAndRegionInput.vue";
+import { ref, reactive, nextTick, onMounted, onBeforeUnmount } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
+import LocationAndRegionInput from '@/components/query/LocationAndRegionInput.vue'
+import { api } from '@/utils/auth.js'
+import { userStore } from '@/utils/store.js'
+import { showSuccess, showError, showWarning, showInfo } from '@/utils/message.js'
 
 const router = useRouter()
-const locationRef = ref(null)
-const isRunning = ref(false)
+const route = useRoute()
 
+// 地点和分区数据
+const locationData = ref({
+  locations: [],
+  regions: [],
+  regionUsing: 'map'
+})
+
+// 特征搜索相关状态
+const featureSearchInput = ref('')
+const featureSuggestions = ref([])
+const selectedFeature = ref('')
+const isSearching = ref(false)
+const isRunning = ref(false)
+const showSuggestions = ref(false)
+const featureDropdownEl = ref(null)
+
+// 帮助弹窗状态
+const isHelpModalOpen = ref(false)
+
+// Dropdown 样式（动态计算位置）
+const dropdownStyle = reactive({
+  position: 'absolute',
+  top: '0px',
+  left: '0px',
+  minWidth: '200px',
+  zIndex: 99999
+})
+
+// 防抖计时器
+let featureDebounceTimer = null
+
+// 打开/关闭帮助弹窗
+const openHelpModal = () => {
+  isHelpModalOpen.value = true
+}
+
+const closeHelpModal = () => {
+  isHelpModalOpen.value = false
+}
+
+// 登录
 const handleLogin = () => {
   router.push('/auth')
 }
 
-// 運行邏輯 (複製並簡化)
-function getLocation() {
-  if (!locationRef.value?.selectedValue ||
-      (Array.isArray(locationRef.value?.selectedValue) && locationRef.value.selectedValue.every(item => item === ''))) {
-    return locationRef.value?.inputValue || '廣州';
-  } else {
-    return locationRef.value?.inputValue ;
+// 处理输入事件（防抖搜索）
+const handleFeatureInput = () => {
+  clearTimeout(featureDebounceTimer)
+
+  // 允许空搜索，后端会返回所有特征
+  featureDebounceTimer = setTimeout(() => {
+    searchCustomFeatures()
+  }, 300)
+}
+
+// 处理输入框聚焦事件
+const handleInputFocus = () => {
+  if (featureSuggestions.value.length > 0) {
+    showSuggestions.value = true
+    updateDropdownPosition()
   }
 }
 
-const runAction = () => {
-  isRunning.value = true;
-  const data = {
-    mode: 'custom',
-    location: getLocation(),
-    region: locationRef.value?.selectedValue,
-    region_source: locationRef.value?.regionUsing
+// 搜索自定义特征
+const searchCustomFeatures = async () => {
+  const word = featureSearchInput.value.trim()
+
+  isSearching.value = true
+
+  try {
+    // 构建查询参数
+    const params = new URLSearchParams()
+
+// 添加地点
+    if (locationData.value.locations && locationData.value.locations.length > 0) {
+      locationData.value.locations.forEach(loc => {
+        if (loc) params.append('locations', loc)
+      })
+    } else {
+      params.append('locations', '')  // 确保传递空值
+    }
+
+// 添加分区
+    if (locationData.value.regions && locationData.value.regions.length > 0) {
+      locationData.value.regions.forEach(reg => {
+        if (reg) params.append('regions', reg)
+      })
+    } else {
+      params.append('regions', '')  // 确保传递空值
+    }
+
+
+    // 添加搜索词（允许空字符串，后端会返回所有特征）
+    params.set('word', word)
+
+    // 调用 API
+    const response = await api(`/api/get_custom_feature?${params.toString()}`)
+
+    if (Array.isArray(response) && response.length > 0) {
+      // 后端返回的是对象数组: { "簡稱": "test", "聲韻調": "", "特徵": "流" }
+      // 只提取 "特徵" 字段并去重
+      featureSuggestions.value = [...new Set(response.map(item => item.特徵).filter(Boolean))]
+      showSuggestions.value = true
+
+      // 更新下拉列表位置
+      nextTick(() => {
+        updateDropdownPosition()
+      })
+    } else {
+      featureSuggestions.value = []
+      showSuggestions.value = false
+      showInfo('未找到匹配的特征')
+    }
+  } catch (error) {
+    console.error('搜索特征失败:', error)
+    showError('搜索失败：' + error.message)
+    featureSuggestions.value = []
+    showSuggestions.value = false
+  } finally {
+    isSearching.value = false
+  }
+}
+
+// 更新下拉列表位置
+const updateDropdownPosition = () => {
+  const inputEl = document.getElementById('featureSearch')
+  if (inputEl) {
+    const rect = inputEl.getBoundingClientRect()
+    dropdownStyle.position = 'absolute'
+    dropdownStyle.top = `${rect.bottom + window.scrollY}px`
+    dropdownStyle.left = `${rect.left + window.scrollX}px`
+    dropdownStyle.minWidth = `${rect.width}px`
+    dropdownStyle.zIndex = 99999
+  }
+}
+
+// 选择特征
+const selectFeature = (feature) => {
+  selectedFeature.value = feature
+  featureSearchInput.value = feature
+  showSuggestions.value = false
+}
+
+// 点击外部关闭下拉列表
+const onClickOutside = (event) => {
+  const inputEl = document.getElementById('featureSearch')
+  const dropdownEl = featureDropdownEl.value
+
+  const isInsideInput = inputEl?.contains(event.target)
+  const isInsideDropdown = dropdownEl?.contains(event.target)
+
+  if (!isInsideInput && !isInsideDropdown) {
+    showSuggestions.value = false
+  }
+}
+
+onMounted(() => {
+  document.addEventListener('click', onClickOutside)
+})
+
+onBeforeUnmount(() => {
+  document.removeEventListener('click', onClickOutside)
+  clearTimeout(featureDebounceTimer)
+})
+
+// 运行查询
+const handleRunQuery = () => {
+  if (!selectedFeature.value) {
+    showWarning('请先选择一个特征')
+    return
   }
 
-  sessionStorage.setItem('vueToNativeData', JSON.stringify(data))
-  window.location.replace(window.WEB_BASE + '/detail/');
+  isRunning.value = true
+
+  try {
+    // 构建查询参数
+    const query = {
+      tab: 'map',
+      sub: 'map',
+      feature: selectedFeature.value
+    }
+
+    // 添加地点参数
+    if (locationData.value.locations && locationData.value.locations.length > 0) {
+      query.locations = locationData.value.locations.join(',')
+    }
+
+    // 添加分区参数
+    if (locationData.value.regions && locationData.value.regions.length > 0) {
+      query.regions = locationData.value.regions.join(',')
+    }
+
+    // 添加分区模式
+    query.regionMode = locationData.value.regionUsing || 'map'
+
+    // 跳转到地图页面
+    router.replace({ query })
+
+    showSuccess('正在加载特征数据...')
+
+    // 延迟重置运行状态（跳转后组件不会被销毁，需要手动重置）
+    setTimeout(() => {
+      isRunning.value = false
+    }, 1000)
+  } catch (error) {
+    console.error('跳转失败:', error)
+    showError('操作失败：' + error.message)
+    isRunning.value = false
+  }
+}
+
+// 逐条添加：跳转到 map 页面并打开面板
+const handleAddSingle = () => {
+  router.replace({ query: { tab: 'map', sub: 'map', openPanel: 'true' } })
+}
+
+// 批量添加：显示提示信息
+const handleAddBatch = () => {
+  showInfo('该功能尚未面向普通用户开放')
 }
 </script>
 
 <style scoped>
-.button-row {
-  display: flex;
-  justify-content: center;
+/* 特征搜索容器 */
+.feature-search-container {
   width: 100%;
+  max-width: 400px;
+  margin: 10px auto 0;
+  position: relative;
+}
+
+.query-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 6px;
+  text-align: center;
+}
+
+/* 搜索输入框包装器 */
+.search-input-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.feature-search-input {
+  width: 100%;
+  padding: 10px 40px 10px 12px;
+  font-size: 14px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  outline: none;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+}
+
+.feature-search-input:focus {
+  border-color: #007aff;
+  box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+}
+
+/* 加载图标 */
+.loading-icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 16px;
+}
+
+/* 已选择特征显示 */
+.selected-feature {
+  text-align: center;
   margin-top: 12px;
+  padding: 8px 12px;
+  background: #e6f7ff;
+  border-radius: 8px;
+  color: #0050b3;
+  font-size: 14px;
 }
-.list-wrapper {
-  width: 100%;
+
+.selected-feature strong {
+  color: #003a8c;
+}
+
+/* 按钮组容器 */
+.button-group {
   display: flex;
   justify-content: center;
+  gap: 12px;
+  margin-top: 10px;
+  flex-wrap: wrap;
 }
-.explain-list {
-  list-style-type: disc;
-  padding-left: 1.5rem;
-  margin:  0;
-  color: #555;
+
+/* 通用按钮样式（非悬浮） */
+.action-btn {
+  padding: 10px 20px;
+  font-size: 15px;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.action-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.action-btn:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.action-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* 主要按钮（运行查询） */
+.primary-btn {
+  background: linear-gradient(135deg, #007aff, #0051d5);
+  color: white;
+}
+
+.primary-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #0051d5, #003db3);
+}
+
+/* 逐条添加按钮 */
+.add-single-btn {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+}
+
+.add-single-btn:hover {
+  background: linear-gradient(135deg, #5568d3, #5f3d8a);
+}
+
+/* 批量添加按钮 */
+.add-batch-btn {
+  background: linear-gradient(135deg, #f093fb, #f5576c);
+  color: white;
+}
+
+.add-batch-btn:hover {
+  background: linear-gradient(135deg, #d87ae6, #d94357);
+}
+
+/* 使用说明触发器 */
+.divider {
+  margin: 40px 0 12px;
+  text-align: center;
+  position: relative;
+}
+
+.divider::before,
+.divider::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 35%;
+  height: 1px;
+  background: linear-gradient(to right, transparent, #7c7575, transparent);
+}
+
+.divider::before {
+  left: 0;
+}
+
+.divider::after {
+  right: 0;
+}
+
+.divider span {
+  display: inline-block;
+  padding: 0 12px;
+  color: #353535;
+  font-weight: bold;
+  font-size: 17px;
+  background: white;
+  position: relative;
+  z-index: 1;
+}
+
+/* 使用说明触发器 */
+.help-trigger-wrapper {
+  text-align: center;
+  margin: 12px 0;
+}
+
+.help-trigger {
+  font-size: 13px;
+  color: #007aff;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  text-decoration: none;
+}
+
+.help-trigger:hover {
+  opacity: 0.7;
+  text-decoration: underline;
+}
+
+/* 帮助弹窗样式 */
+.help-modal {
+  position: relative;
+  width: 90%;
+  max-width: 500px;
+  max-height: 80vh;
+  overflow-y: auto;
+  padding: 30px;
+}
+
+.modal-title {
+  margin: 0 0 20px 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: #333;
+  text-align: center;
+}
+
+.help-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.help-section {
+  background: rgba(255, 255, 255, 0.5);
+  padding: 15px;
+  border-radius: 10px;
+}
+
+.section-title {
+  margin: 0 0 12px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #007aff;
+}
+
+.help-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.help-list li {
+  padding: 8px 0;
   font-size: 14px;
   line-height: 1.6;
-  text-align: left;
-  max-width: 360px;
+  color: #555;
 }
-.explain-list li {
-  white-space: nowrap;
-  margin-bottom: 4px;
+
+.help-list li strong {
+  color: #333;
+  font-weight: 600;
 }
-/* 假設 fancy-run-btn 是全站通用的，這裡如果沒有全局樣式，你需要複製它的CSS */
+
+/* 过渡动画 */
+.fade-scale-enter-active,
+.fade-scale-leave-active {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.fade-scale-enter-from,
+.fade-scale-leave-to {
+  opacity: 0;
+  transform: scale(0.9);
+}
+
+/* 移动端适配 */
+@media (max-width: 480px) {
+  .button-group {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .action-btn {
+    width: 100%;
+  }
+
+  .feature-search-container {
+    max-width: 90%;
+  }
+
+  .help-modal {
+    padding: 20px;
+  }
+}
 </style>

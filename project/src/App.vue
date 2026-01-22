@@ -4,6 +4,12 @@
     <component :is="layoutComponent" />
 
   <PanelManager />
+
+  <!-- 🍎 全局 Toast 提示 -->
+  <GlobalToast />
+
+  <!-- 🍎 全局确认对话框 -->
+  <GlobalConfirm />
 </template>
 
 <script>
@@ -12,6 +18,8 @@ import { useRoute } from 'vue-router'
 
 import IntroLayout from './layouts/IntroLayout.vue'
 import MenuLayout from './layouts/MenuLayout.vue'
+import GlobalToast from './components/GlobalToast.vue'
+import GlobalConfirm from './components/GlobalConfirm.vue'
 
 // 🌉 建立 bridge 用於跨組件共享 iframe 狀態
 const nativeFrame = ref(null)
@@ -26,6 +34,10 @@ export function getNativeBridge() {
 }
 
 export default {
+  components: {
+    GlobalToast,
+    GlobalConfirm
+  },
   setup() {
     const route = useRoute()
 

@@ -28,15 +28,13 @@
 <script setup>
 import { computed, onMounted, onUnmounted } from 'vue';
 import { parseFeatureString } from '@/utils/ResultTable.js';
+import { resultCache } from '@/utils/store.js'
 
 const props = defineProps(['visible', 'data', 'position']);
 const emit = defineEmits(['close', 'confirm']);
 
 const checkedFeatures = computed(() => {
-  // 從 window 讀取，如果沒有則為空數組
-  const features = window._resultPageCache?.features || [];
-  // 因為存進去的就是純字符串數組 ['韻母']，直接 join 即可
-  // 如果存的是對象，則需要 .map(x => x.value)
+  const features = resultCache.features || [];
   return features.length > 0 ? features.join('·') : '（無）';
 });
 
