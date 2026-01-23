@@ -13,6 +13,7 @@ import SourcePage from "@/views/menu/SourcePage.vue";
 import PrivacyPage from "@/views/menu/PrivacyPage.vue";
 import SettingPage from "@/views/menu/SettingPage.vue";
 import MenuEntry from "@/views/MenuEntry.vue";
+import ExploreEntry from "@/views/ExploreEntry.vue";
 
 const routes = [
     // ✅ 根路由 → 直接導到 /menu?tab=query
@@ -27,6 +28,11 @@ const routes = [
         component: MenuEntry
     },
 
+    // ✅ /explore 探索页面（使用 SimpleLayout）
+    {
+        path: '/explore',
+        component: ExploreEntry
+    },
 
     // 其他頁面
     {

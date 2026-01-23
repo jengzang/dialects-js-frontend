@@ -18,7 +18,8 @@
           <span class="icon">＋</span> <span class="btn-text">新增</span>
         </button>
         <button
-          class="glass-btn edit-mode"
+          class="glass-btn"
+          style="background: darkgoldenrod"
           :class="{ 'edit-mode': isEditMode }"
           @click="toggleEditMode"
         >
@@ -101,9 +102,104 @@
 
     <div class="pagination">
       <button class="page-btn" @click="changePage(-1)" :disabled="currentPage === 1">←</button>
-      <span class="page-info">{{ currentPage }} / {{ Math.ceil(total / TABLE_CONFIG.PAGE_SIZE) || 1 }}</span>
-      <button class="page-btn" @click="changePage(1)">→</button>
+      <span class="page-info">{{ currentPage }} / {{ totalPages }}</span>
+      <button class="page-btn" @click="changePage(1)" :disabled="currentPage >= totalPages">→</button>
+      <button class="fullscreen-toggle-btn" @click="toggleFullscreen">
+        {{ isFullscreen ? '退出' : '⛶ 全屏' }}
+      </button>
     </div>
+
+    <!-- 全屏模式 -->
+    <Teleport to="body">
+      <transition name="fade-scale">
+        <div v-if="isFullscreen" class="table-fullscreen-overlay">
+          <div class="fullscreen-container glass-container">
+            <div class="toolbar">
+              <div class="search-wrapper">
+                <span class="search-icon">🔍</span>
+                <input
+                    v-model="searchText"
+                    @input="handleSearch"
+                    placeholder="搜索..."
+                    class="search-input"
+                />
+              </div>
+            </div>
+
+            <div class="table-scroll-area">
+              <div v-if="isLoading" class="loading-overlay">
+                <div class="spinner"></div>
+                <span>數據加載中...</span>
+              </div>
+
+              <div v-else-if="tableData.length === 0" class="empty-state">
+                <span>📭 暫無數據</span>
+              </div>
+              <table>
+                <colgroup>
+                  <col
+                      v-for="col in columns"
+                      :key="col.key"
+                      :style="{ width: ((Number(col.width) || 1) / totalRatio * 100) + '%' }"
+                  />
+                  <col style="width: 60px; min-width: 50px;" />
+                </colgroup>
+
+                <thead>
+                <tr>
+                  <th v-for="(col, index) in columns" :key="col.key">
+                    <div class="header-content">
+                      <div
+                          class="header-text-wrapper"
+                          :class="{ 'clickable': col.filterable, 'filtering': filterState[col.key]?.length > 0 }"
+                          @click.stop="col.filterable ? openFilter(col.key, $event) : null"
+                      >
+                        <span class="header-text">{{ col.label }}</span>
+                        <span v-if="col.filterable" class="filter-hint-icon">⑆</span>
+                      </div>
+
+                      <div class="sort-controls">
+                        <span @click.stop="toggleSort(col.key, false)" class="sort-arrow up" :class="{active: sortCol===col.key && !sortDesc}">▲</span>
+                        <span @click.stop="toggleSort(col.key, true)" class="sort-arrow down" :class="{active: sortCol===col.key && sortDesc}">▼</span>
+                      </div>
+                    </div>
+                  </th>
+                  <th class="action-th">操作</th>
+                </tr>
+                </thead>
+
+                <tbody :class="{ 'blur-content': isLoading }">
+                <tr v-for="row in tableData" :key="row.rowid">
+                  <td
+                    v-for="col in columns"
+                    :key="col.key"
+                    :contenteditable="isEditMode"
+                    :class="{ 'editable-cell': isEditMode, 'cell-changed': isCellChanged(row.rowid, col.key) }"
+                    @input="handleCellEdit(row.rowid, col.key, $event)"
+                    @blur="handleCellBlur(row.rowid, col.key, $event)"
+                  >
+                    {{ row[col.key] }}
+                  </td>
+                  <td class="action-td">
+                    <button class="icon-action-btn delete" @click="handleDelete(row)">✕</button>
+                  </td>
+                </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="pagination">
+              <button class="page-btn" @click="changePage(-1)" :disabled="currentPage === 1">←</button>
+              <span class="page-info">{{ currentPage }} / {{ totalPages }}</span>
+              <button class="page-btn" @click="changePage(1)" :disabled="currentPage >= totalPages">→</button>
+              <button class="fullscreen-toggle-btn exit-btn" @click="toggleFullscreen">
+                退出
+              </button>
+            </div>
+          </div>
+        </div>
+      </transition>
+    </Teleport>
 
     <Teleport to="body">
       <transition name="fade-scale">
@@ -209,6 +305,7 @@ const currentPage = ref(1);
 const searchText = ref('');
 const sortCol = ref(null);
 const sortDesc = ref(false);
+const isFullscreen = ref(false);
 
 // 編輯模式相關狀態
 const isEditMode = ref(false);
@@ -228,6 +325,11 @@ const isLoading = ref(false);
 // 計算總寬度比例
 const totalRatio = computed(() => {
   return props.columns.reduce((sum, col) => sum + (Number(col.width) || 1), 0);
+});
+
+// 計算總頁數
+const totalPages = computed(() => {
+  return Math.ceil(total.value / TABLE_CONFIG.PAGE_SIZE) || 1;
 });
 
 // 初始化篩選狀態
@@ -432,6 +534,18 @@ const exportToExcel = () => {
 const changePage = (delta) => {
   currentPage.value += delta;
   fetchData();
+};
+
+// 切換全屏模式
+const toggleFullscreen = () => {
+  isFullscreen.value = !isFullscreen.value;
+
+  // 全屏時鎖定背景滾動
+  if (isFullscreen.value) {
+    document.body.style.overflow = 'hidden';
+  } else {
+    document.body.style.overflow = '';
+  }
 };
 
 // ========================================
@@ -679,6 +793,8 @@ onMounted(() => {
 onUnmounted(() => {
   // 組件銷毀時移除監聽，防止內存洩漏
   document.removeEventListener('click', handleGlobalClick);
+  // 恢復背景滾動
+  document.body.style.overflow = '';
 });
 </script>
 
@@ -698,12 +814,12 @@ onUnmounted(() => {
   border-radius: var(--radius-xl);
   border: 1px solid var(--glass-border);
   box-shadow: var(--shadow-md);
-  padding: 24px;
+  padding: 12px;
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   color: var(--text-primary);
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 6px;
   height: 85dvh;
   width: 100%;
   overflow: hidden;
@@ -715,7 +831,7 @@ onUnmounted(() => {
   justify-content: space-between;
   align-items: center;
   border-bottom: 1px solid var(--border-light);
-  gap: 12px;
+  gap: 6px;
   flex-wrap: wrap;
 }
 
@@ -1110,7 +1226,7 @@ td.cell-changed::after {
 /* Mobile Responsiveness */
 @media (max-width: 768px) {
   .glass-container {
-    padding: 16px;
+    padding: 8px;
     border-radius: 0;
     height: 85dvh;
     border: none;
@@ -1225,7 +1341,6 @@ td.cell-changed::after {
   justify-content: center;
   align-items: center;
   gap: 16px;
-  padding-top: 8px;
 }
 
 .page-btn {
@@ -1332,17 +1447,21 @@ td.cell-changed::after {
 
 .form-field {
   display: flex;
-  flex-direction: column;
-  gap: 6px;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
 }
 
 .field-label {
   font-size: 14px;
   font-weight: 600;
   color: var(--text-secondary);
+  white-space: nowrap;
+  min-width: 60px;
 }
 
 .field-input {
+  flex: 1;
   padding: 10px 12px;
   border-radius: var(--radius-md);
   border: 1px solid var(--border-medium);
@@ -1400,6 +1519,7 @@ td.cell-changed::after {
     width: 95%;
     max-width: none;
     padding: 20px;
+    max-height: 70dvh;
   }
 
   .form-content {
@@ -1412,6 +1532,76 @@ td.cell-changed::after {
 
   .modal-btn {
     width: 100%;
+  }
+}
+
+/* ========================================
+   全屏模式样式
+   ======================================== */
+
+.fullscreen-toggle-btn {
+  padding: 8px 16px;
+  margin-left: 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-medium);
+  background: var(--color-primary);
+  color: white;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.fullscreen-toggle-btn:hover {
+  background: var(--color-primary-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
+}
+
+.fullscreen-toggle-btn.exit-btn {
+  background: #ff3b30;
+}
+
+.fullscreen-toggle-btn.exit-btn:hover {
+  background: #ff6259;
+}
+
+.table-fullscreen-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.9);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.table-fullscreen-overlay .fullscreen-container {
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  border-radius: 0;
+  box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
+}
+
+.table-fullscreen-overlay .glass-container {
+  height: 100%;
+}
+
+/* 移动端全屏适配 */
+@media (max-width: 768px) {
+  .table-fullscreen-overlay {
+    padding: 0;
+  }
+
+  .fullscreen-toggle-btn {
+    padding: 8px 12px;
+    font-size: 12px;
   }
 }
 </style>

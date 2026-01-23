@@ -5,12 +5,11 @@
 <template>
   <div class="page-root">
   <h2 class="tabs-title">🔐️ 隱私政策</h2>
-  <div class="coming-soon-container">
     <div class="coming-soon-message">
       <p>该页面待完善</p>
     </div>
   </div>
-  </div>
+
 </template>
 
 <style scoped>

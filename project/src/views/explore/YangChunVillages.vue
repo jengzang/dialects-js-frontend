@@ -135,7 +135,7 @@ const displayData = computed(() => {
 /* 父容器樣式 */
 .glass-container {
   width: 60dvw;
-  height: 80dvh;
+  height: 95%;
   max-width: 400px;
   margin: 20px auto;
   border-radius: 30px;
@@ -150,7 +150,7 @@ const displayData = computed(() => {
 }
 @media (max-aspect-ratio: 1/1){
   .glass-container{
-    height: 70dvh;
+    height: 90%;
     width: 90dvw;
   }
 
@@ -163,7 +163,7 @@ const displayData = computed(() => {
 }
 
 .header-section p{
-  margin: 0 0 16px 0;
+  margin: 0 0 12px 0;
   color: dimgrey;
   font-size: 14px;
 }
