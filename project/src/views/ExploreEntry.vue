@@ -10,6 +10,9 @@ import { useRoute } from 'vue-router'
 
 // 引入 explore 相关的页面组件
 import YangChunVillages from "./explore/YangChunVillages.vue";
+import CheckTool from "./explore/CheckTool.vue";
+import Jyut2IpaTool from "./explore/Jyut2IpaTool.vue";
+import MergeTool from "./explore/MergeTool.vue";
 
 const route = useRoute()
 
@@ -18,6 +21,9 @@ const activeComponent = computed(() => {
   const page = route.query.page
   const pageMap = {
     ycVillages: YangChunVillages,
+    check: CheckTool,
+    jyut2ipa: Jyut2IpaTool,
+    merge: MergeTool,
   }
   return pageMap[page] || YangChunVillages
 })

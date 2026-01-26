@@ -169,6 +169,9 @@ const goToPrivacyPolicy = () => {
   router.push({ path: '/menu', query: { tab: 'privacy' } });
   closeSidebar();
 };
+const goToTools = () => {router.push({ path: '/menu',
+  query: { tab: 'tools'}})  /* 跳转到工具页面 */
+  closeSidebar();}
 
 // 获取访问统计数据
 async function fetchVisitStats() {

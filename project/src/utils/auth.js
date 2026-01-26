@@ -32,9 +32,10 @@ export const clearToken = () => {
  * @param {Object} options - 请求选项
  * @param {string} options.method - HTTP 方法（默认 'GET'）
  * @param {Object} options.headers - 请求头（会自动添加 Authorization 和 Content-Type）
- * @param {any} options.body - 请求体（如果是对象会自动 JSON.stringify）
+ * @param {any} options.body - 请求体（如果是对象会自动 JSON.stringify，FormData会直接传递）
  * @param {number} options.timeout - 超时时间（ms，默认 30000）
  * @param {boolean} options.showError - 是否自动显示错误提示（默认 true）
+ * @param {string} options.responseType - 响应类型（'json'|'text'|'blob'，默认自动检测）
  * @returns {Promise<any>} - 解析后的响应数据
  */
 export async function api(path, options = {}) {
@@ -42,8 +43,9 @@ export async function api(path, options = {}) {
         method = 'GET',
         headers = {},
         body = null,
-        timeout = 30000,      // 默认30秒超时
-        showError = true      // 是否自动显示错误
+        timeout = 300000,      // 默认300秒超时
+        showError = true,      // 是否自动显示错误
+        responseType = 'auto'  // 响应类型
     } = options;
 
     const token = getToken();
@@ -54,9 +56,27 @@ export async function api(path, options = {}) {
         headers['Authorization'] = `Bearer ${token}`;
     }
 
+    // 处理请求体
+    let finalBody = body;
+
     // 自动添加 Content-Type（如果有 body 且未指定）
     if (body && !headers['Content-Type']) {
-        headers['Content-Type'] = 'application/json';
+        // 如果是 FormData，不设置 Content-Type，让浏览器自动处理（包括 boundary）
+        if (body instanceof FormData) {
+            finalBody = body;
+        } else if (typeof body === 'object') {
+            // 如果是普通对象，转换为 JSON
+            headers['Content-Type'] = 'application/json';
+            finalBody = JSON.stringify(body);
+        } else {
+            // 字符串或其他类型直接传递
+            finalBody = body;
+        }
+    } else if (body && typeof body === 'object' && !(body instanceof FormData)) {
+        // 如果已设置 Content-Type 但 body 是对象，仍需 stringify
+        if (headers['Content-Type'] === 'application/json') {
+            finalBody = JSON.stringify(body);
+        }
     }
 
     // 添加超时控制
@@ -67,7 +87,7 @@ export async function api(path, options = {}) {
         const res = await fetch(WEB_BASE + path, {
             method,
             headers,
-            body,
+            body: finalBody,
             signal: controller.signal
         });
 
@@ -83,8 +103,23 @@ export async function api(path, options = {}) {
         }
 
         // 自动解析响应
-        const ct = res.headers.get('content-type') || '';
-        return ct.includes('application/json') ? res.json() : res.text();
+        if (responseType === 'blob') {
+            return res.blob();
+        } else if (responseType === 'text') {
+            return res.text();
+        } else if (responseType === 'json') {
+            return res.json();
+        } else {
+            // 自动检测
+            const ct = res.headers.get('content-type') || '';
+            if (ct.includes('application/json')) {
+                return res.json();
+            } else if (ct.includes('application/octet-stream') || ct.includes('application/vnd.openxmlformats')) {
+                return res.blob();
+            } else {
+                return res.text();
+            }
+        }
 
     } catch (err) {
         // 超时错误处理

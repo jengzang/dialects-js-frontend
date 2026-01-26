@@ -46,8 +46,8 @@ const isSidebarOpen = ref(false);
 }
 
 .content-area {
-  width: 100%;
-  height: 90dvh;
+  width: 95%;
+  height: 88dvh;
   display: flex;
   justify-content: center;
   padding: 10px 6px;

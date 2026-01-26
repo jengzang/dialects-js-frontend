@@ -389,30 +389,6 @@ function handleInputBlur(key) {
   }, 200)
 }
 
-// 繁简转换函数
-function convertToTraditional(text) {
-  // 简单的繁简对照表（仅包含常用字，实际项目建议使用完整的繁简转换库）
-  const s2tMap = {
-    '摄': '攝', '韵': '韻', '等': '等', '呼': '呼', '系': '系',
-    '组': '組', '母': '母', '声': '聲', '调': '調', '入': '入',
-    '开': '開', '合': '合', '齐': '齊', '撮': '撮',
-    '流': '流', '咸': '咸', '深': '深', '山': '山', '宕': '宕',
-    '江': '江', '曾': '曾', '梗': '梗', '通': '通', '臻': '臻',
-    '效': '效', '果': '果', '假': '假', '遇': '遇', '蟹': '蟹',
-    '止': '止', '舌': '舌', '齿': '齒', '牙': '牙', '喉': '喉',
-    '唇': '唇', '尖': '尖', '面': '面', '后': '後', '前': '前',
-    '清': '清', '浊': '濁', '次': '次', '全': '全', '帮': '幫',
-    '滂': '滂', '并': '並', '明': '明', '端': '端', '透': '透',
-    '定': '定', '泥': '泥', '来': '來', '精': '精',
-    '从': '從', '心': '心', '邪': '邪', '庄': '莊', '初': '初',
-    '崇': '崇', '生': '生', '俟': '俟', '章': '章', '昌': '昌',
-    '常': '常', '书': '書', '船': '船', '日': '日', '见': '見',
-    '溪': '溪', '群': '群', '疑': '疑', '晓': '曉', '匣': '匣',
-    '影': '影', '云': '云', '以': '以', '知': '知', '彻': '徹',
-    '澄': '澄', '娘': '娘', '照': '照'
-  }
-  return text.split('').map(char => s2tMap[char] || char).join('')
-}
 
 // 处理输入框输入
 function handleDropdownInput(event, key) {
@@ -435,21 +411,23 @@ function handleDropdownInput(event, key) {
 
 // 获取过滤后的选项
 function getFilteredOptions(key) {
-  const inputValue = dropdownInputs.value[key] || ''
-  const allOptions = keyValueMap[key] || []
+  const rawInput = (dropdownInputs.value[key] || '').trim();
+  const allOptions = keyValueMap[key] || [];
 
-  if (!inputValue.trim()) {
-    return allOptions
-  }
+  if (!rawInput) return allOptions;
 
-  // 繁简转换
-  const traditionalInput = convertToTraditional(inputValue.trim())
+  // 將輸入字串拆解，並嘗試尋找每個字的對應字
+  // 例如輸入「齐」，transformedInput 會變成 「齊」
+  const transformedInput = rawInput.split('').map(char => {
+    return S2T_T2S_MAPPING[char] || char;
+  }).join('');
 
-  // 过滤选项（支持繁简匹配）
-  return allOptions.filter(opt =>
-    opt.includes(inputValue) || opt.includes(traditionalInput)
-  )
+  // 執行過濾：原樣匹配 OR 轉換後匹配
+  return allOptions.filter(opt => {
+    return opt.includes(rawInput) || opt.includes(transformedInput);
+  });
 }
+
 const locationModel = ref({
   locations: [],
   regions: [],

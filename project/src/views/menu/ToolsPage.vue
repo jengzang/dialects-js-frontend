@@ -1,13 +1,12 @@
 <template>
   <div class="tools-page">
-    <div class="tools-container glass-container">
       <h2 class="page-title">工具箱</h2>
 
       <div class="tools-grid">
         <button class="tool-btn" @click="handleDataCheck">
           <div class="tool-icon">🔍</div>
-          <div class="tool-name">數據檢查</div>
-          <div class="tool-desc">檢查數據完整性和格式</div>
+          <div class="tool-name">字表檢查</div>
+          <div class="tool-desc">檢查字表正確性和格式</div>
         </button>
 
         <button class="tool-btn" @click="handleJyutpingToIpa">
@@ -22,39 +21,40 @@
           <div class="tool-desc">合併多個字表數據</div>
         </button>
       </div>
-    </div>
   </div>
 </template>
 
 <script setup>
-// 点击逻辑暂时为空
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+
+// 跳转到对应的工具页面
 const handleDataCheck = () => {
-  console.log('數據檢查');
+  router.push('/explore?page=check')
 };
 
 const handleJyutpingToIpa = () => {
-  console.log('粵拼轉IPA');
+  router.push('/explore?page=jyut2ipa')
 };
 
 const handleMergeTables = () => {
-  console.log('字表合併');
+  router.push('/explore?page=merge')
 };
 </script>
 
 <style scoped>
 .tools-page {
-  width: 100%;
+  min-width: 80dvw;
   display: flex;
   justify-content: center;
+
+  flex-direction: column;
   align-items: center;
   padding: 20px;
+  min-height: 70dvh;
 }
 
-.tools-container {
-  width: 100%;
-  max-width: 900px;
-  padding: 40px;
-}
 
 .page-title {
   margin: 0 0 40px 0;
@@ -72,7 +72,7 @@ const handleMergeTables = () => {
 }
 
 .tool-btn {
-  padding: 32px 24px;
+  padding: 24px 16px;
   border: 2px solid rgba(255, 255, 255, 0.4);
   border-radius: 20px;
   background: linear-gradient(145deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.15));
@@ -118,13 +118,10 @@ const handleMergeTables = () => {
 
 /* 移动端适配 */
 @media (max-aspect-ratio: 1/1) {
-  .tools-container {
-    padding: 20px;
-  }
 
   .page-title {
     font-size: 24px;
-    margin-bottom: 30px;
+    margin-bottom: 15px;
   }
 
   .tools-grid {
@@ -133,11 +130,11 @@ const handleMergeTables = () => {
   }
 
   .tool-btn {
-    padding: 24px 20px;
+    padding: 12px 12px;
   }
 
   .tool-icon {
-    font-size: 40px;
+    font-size: 30px;
   }
 
   .tool-name {
