@@ -324,9 +324,13 @@
 
 <script setup>
 import { ref, reactive, computed } from 'vue'
+import { useRouter } from 'vue-router'
 import * as XLSX from 'xlsx'
 import { api } from '@/utils/auth.js'
+import { userStore } from '@/utils/store.js'
 import { showSuccess, showError, showWarning, showConfirm } from '@/utils/message.js'
+
+const router = useRouter()
 
 const currentStep = ref(1)
 const referenceFile = ref(null)
@@ -395,6 +399,13 @@ const handleRefDrop = (event) => {
 }
 
 const setReferenceFile = async (file) => {
+  // 检查登录状态
+  if (!userStore.isAuthenticated) {
+    showWarning('請先登錄')
+    router.push('/auth')
+    return
+  }
+
   if (!file.name.match(/\.(xlsx|xls)$/)) {
     showError('請上傳Excel文件（.xlsx或.xls格式）')
     return

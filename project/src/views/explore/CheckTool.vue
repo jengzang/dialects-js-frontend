@@ -5,7 +5,7 @@
       <div class="glass-container welcome-card">
         <div class="welcome-icon">📋</div>
         <h2 class="title">方言字表檢查工具</h2>
-        <p class="subtitle">上傳Excel文件開始檢查和編輯</p>
+<!--        <p class="subtitle">上傳文件開始檢查和編輯</p>-->
 
         <div class="welcome-features">
           <div class="feature-item">
@@ -23,7 +23,12 @@
         </div>
 
         <div class="format-selector">
-          <label class="format-label">文件格式：</label>
+          <div class="format-label-row">
+            <label class="format-label">文件格式：</label>
+            <button class="glass-button small" @click="showFormatHelpModal = true">
+              📋 說明
+            </button>
+          </div>
           <div class="format-options">
             <label class="format-option">
               <input type="radio" name="format" value="音典" v-model="selectedFormat" />
@@ -34,7 +39,7 @@
               <span>跳跳老鼠</span>
             </label>
             <label class="format-option">
-              <input type="radio" name="format" value="县志" v-model="selectedFormat" />
+              <input type="radio" name="format" value="縣志" v-model="selectedFormat" />
               <span>縣志</span>
             </label>
           </div>
@@ -49,15 +54,22 @@
         />
         <div
           class="upload-zone-drop"
-          :class="{ 'drag-over': isDragOver }"
-          @click="$refs.fileInput.click()"
-          @dragover.prevent="isDragOver = true"
+          :class="{ 'drag-over': isDragOver, 'uploading': isUploading }"
+          @click="!isUploading && $refs.fileInput.click()"
+          @dragover.prevent="!isUploading && (isDragOver = true)"
           @dragleave.prevent="isDragOver = false"
-          @drop.prevent="handleDrop"
+          @drop.prevent="!isUploading && handleDrop($event)"
         >
-          <div class="upload-icon-large">📄</div>
-          <h3 class="upload-text">點擊或拖拽文件到此處</h3>
-          <p class="hint-text">支持 .xlsx, .xls, .doc, .docx, .tsv 格式</p>
+          <template v-if="!isUploading">
+            <div class="upload-icon-large">📄</div>
+            <h3 class="upload-text">點擊或拖拽文件到此處</h3>
+            <p class="hint-text">支持 .xlsx, .xls, .doc, .docx, .tsv 格式</p>
+          </template>
+          <template v-else>
+            <div class="loading-spinner"></div>
+            <h3 class="upload-text">上傳中...</h3>
+            <p class="hint-text">請稍候，正在處理文件</p>
+          </template>
         </div>
       </div>
     </div>
@@ -65,7 +77,7 @@
     <!-- 工作区域 -->
     <div v-else class="work-area">
       <!-- 侧边栏 -->
-      <aside class="sidebar glass-panel" :class="{ collapsed: sidebarCollapsed }">
+      <aside v-if="!isPortrait" class="sidebar glass-panel" :class="{ collapsed: sidebarCollapsed }">
         <div class="sidebar-header">
           <h3>📋 邊欄</h3>
           <button class="collapse-btn" @click="toggleSidebar">
@@ -183,6 +195,55 @@
               </div>
             </div>
           </div>
+
+          <!-- 声韵统计卡片 -->
+          <div class="sidebar-section" :class="{ collapsed: !onsetRimeStatsExpanded }">
+            <div class="section-header" @click="toggleOnsetRimeStats">
+              <span class="section-title">🔤 聲韻統計</span>
+              <span class="toggle-icon">{{ onsetRimeStatsExpanded ? '▼' : '▶' }}</span>
+            </div>
+
+            <div v-show="onsetRimeStatsExpanded" class="section-content">
+              <div v-if="onsetStats.length > 0 || rimeStats.length > 0" class="onset-rime-stats-content">
+                <!-- 声母统计 -->
+                <div v-if="onsetStats.length > 0" class="onset-rime-section">
+                  <div class="onset-rime-section-title">聲母</div>
+                  <div class="onset-rime-items">
+                    <div
+                      v-for="(item, index) in onsetStats"
+                      :key="'onset-' + index"
+                      class="onset-rime-item"
+                      :class="{ 'filtered': isOnsetFiltered(item.value) }"
+                      @click="filterByOnset(item.value)"
+                    >
+                      <span class="onset-rime-value">{{ item.value || '(空)' }}</span>
+                      <span class="onset-rime-count">{{ item.count }}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 韵母统计 -->
+                <div v-if="rimeStats.length > 0" class="onset-rime-section">
+                  <div class="onset-rime-section-title">韻母</div>
+                  <div class="onset-rime-items">
+                    <div
+                      v-for="(item, index) in rimeStats"
+                      :key="'rime-' + index"
+                      class="onset-rime-item"
+                      :class="{ 'filtered': isRimeFiltered(item.value) }"
+                      @click="filterByRime(item.value)"
+                    >
+                      <span class="onset-rime-value">{{ item.value || '(空)' }}</span>
+                      <span class="onset-rime-count">{{ item.count }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div v-else class="empty-state">
+                暫無聲韻統計
+              </div>
+            </div>
+          </div>
         </div>
       </aside>
 
@@ -194,8 +255,8 @@
             <span class="file-name">📁 {{ fileName }}</span>
             <span class="file-rows">{{ totalRows }} 行</span>
           </div>
-          <button class="glass-button secondary small" @click="resetUpload">更換文件</button>
-          <button class="glass-button small" @click="showHelpModal = true">
+          <button v-if="!isPortrait" class="glass-button secondary small" @click="resetUpload">更換文件</button>
+          <button v-if="!isPortrait" class="glass-button small" @click="showHelpModal = true">
             ❓ 幫助
           </button>
           <!-- 模式切换 -->
@@ -268,10 +329,33 @@
             <table class="data-table">
               <thead>
                 <tr>
-                  <th width="60">行</th>
-                  <th width="100">漢字</th>
-                  <th width="200">音標</th>
-                  <th width="80">聲調</th>
+                  <th width="50">行</th>
+                  <th width="70">漢字</th>
+                  <th width="80">音標</th>
+                  <th 
+                    width="50" 
+                    class="filterable-header"
+                    @click="openFilterModal('onset')"
+                    :class="{ 'filtered': filterOnset.size > 0 }"
+                  >
+                    聲母{{ getFilterDisplayText('onset') }}
+                  </th>
+                  <th 
+                    width="60" 
+                    class="filterable-header"
+                    @click="openFilterModal('rime')"
+                    :class="{ 'filtered': filterRime.size > 0 }"
+                  >
+                    韻母{{ getFilterDisplayText('rime') }}
+                  </th>
+                  <th 
+                    width="40" 
+                    class="filterable-header"
+                    @click="openFilterModal('tone')"
+                    :class="{ 'filtered': filterTone.size > 0 }"
+                  >
+                    聲調{{ getFilterDisplayText('tone') }}
+                  </th>
                   <th>解釋</th>
                   <th v-if="isEditMode" width="80">操作</th>
                 </tr>
@@ -306,6 +390,24 @@
                   >
                     {{ getPendingValue(row.row, 'ipa') || row.ipa || '' }}
                     <span v-if="row.errors?.includes('invalidIpa')" class="error-indicator">⚠️</span>
+                  </td>
+                  <td
+                      :class="{
+                      'error-cell': row.errors?.includes('invalidIpa'),
+                      'editable-cell': isEditMode
+                    }"
+                      @dblclick="isEditMode && editCell($event.target, row.row, 'onset')"
+                  >
+                    {{ getPendingValue(row.row, 'onset') || row.onset || '' }}
+                  </td>
+                  <td
+                      :class="{
+                      'error-cell': row.errors?.includes('invalidIpa'),
+                      'editable-cell': isEditMode
+                    }"
+                      @dblclick="isEditMode && editCell($event.target, row.row, 'rime')"
+                  >
+                    {{ getPendingValue(row.row, 'rime') || row.rime || '' }}
                   </td>
                   <td
                     :class="{
@@ -344,7 +446,7 @@
           <div class="command-panel glass-panel">
             <div class="command-header">
               <h3>💻 指令輸入</h3>
-              <button class="glass-button small" @click="showHelpModal = true">
+              <button v-if="!isPortrait" class="glass-button small" @click="showHelpModal = true">
                 ❓ 指令說明
               </button>
             </div>
@@ -354,15 +456,15 @@
               class="command-textarea custom-scrollbar"
               placeholder="輸入指令，每行一條或用分號分隔
 
-示例：
-c-帥-好
-i-帥-jat4
-p-'-ʰ
-r5>3
-s22>33
+                示例：
+                c-帥-好
+                i-帥-jat4
+                p-'-ʰ
+                r5>3
+                s22>33
 
-多條指令用分號分隔：
-c-帥-好; i-帥-jat4"
+                多條指令用分號分隔：
+                c-帥-好; i-帥-jat4"
             ></textarea>
 
             <div class="command-actions">
@@ -405,9 +507,9 @@ c-帥-好; i-帥-jat4"
             <div class="form-group">
               <label>替換類型</label>
               <select v-model="replaceType" class="glass-input">
-                <option value="p">全表音標替換 (p-)</option>
-                <option value="r">入聲調替換 (r*)</option>
-                <option value="s">舒聲調替換 (s*)</option>
+                <option value="p">全表音標(ipa)替換</option>
+                <option value="r">入聲調替換</option>
+                <option value="s">舒聲調替換</option>
               </select>
             </div>
 
@@ -438,8 +540,8 @@ c-帥-好; i-帥-jat4"
               <strong>{{ replaceType === 'r' ? '入聲調：' : '舒聲調：' }}</strong>
               {{
                 replaceType === 'r'
-                  ? '只替換以塞音結尾的音標（p, t, k, ʔ, b, d, g）'
-                  : '只替換不以塞音結尾的音標'
+                  ? '只替換以塞音結尾的調值（p, t, k, ʔ, b, d, g）'
+                  : '只替換舒聲的調值'
               }}
             </div>
 
@@ -545,6 +647,86 @@ c-帥-好; i-帥-jat4"
       </div>
     </teleport>
 
+    <!-- 文件格式说明对话框 -->
+    <teleport to="body">
+      <div v-if="showFormatHelpModal" class="modal-overlay" @click.self="showFormatHelpModal = false">
+        <div class="modal-content glass-panel help-modal">
+          <div class="modal-header">
+            <h3>📋 文件格式說明</h3>
+            <button class="close-btn" @click="showFormatHelpModal = false">×</button>
+          </div>
+
+          <div class="modal-body help-content custom-scrollbar">
+            <!-- 音典格式 -->
+            <div class="help-section">
+              <h4>1. 音典</h4>
+              <div class="format-details">
+                <p><strong>文件要求：</strong>Excel (.xlsx, .xls)。</p>
+                <p><strong>必須包含三列：</strong></p>
+                <ul>
+                  <li><strong>漢字列：</strong>列名可以是「單字」、「#漢字」、「单字」、「漢字」、「phrase」、「汉字」</li>
+                  <li><strong>音標列：</strong>列名可以是「IPA」、「ipa」、「音標」、「syllable」</li>
+                  <li><strong>解釋列：</strong>列名可以是「注释」、「注釋」、「解釋」、「notes」</li>
+                </ul>
+                <p><strong>特點：</strong>系統會自動識別列名，支持多種列名變體。</p>
+              </div>
+            </div>
+
+            <!-- 跳跳老鼠格式 -->
+            <div class="help-section">
+              <h4>2. 跳跳老鼠</h4>
+              <p>適用於簡單的「一音對多字」Excel 清單。</p>
+              <div class="format-details">
+                <p><strong>文件要求：</strong>Excel (.xlsx, .xls)。</p>
+                <p><strong>欄位排版：</strong></p>
+                <ul>
+                  <li>第一欄 (A)：音節（如：ka1）。</li>
+                  <li>第二欄 (B)：漢字組，支持註釋（如：家{住所} 加[增加] 佳）。</li>
+                </ul>
+                <p><strong>特點：</strong>系統會自動拆分第二欄的每個字，並配上第一欄的音標。</p>
+              </div>
+            </div>
+
+            <!-- 縣志格式 -->
+            <div class="help-section">
+              <h4>3. 縣志</h4>
+              
+              <div class="format-subsection">
+                <h5>Excel 格式：</h5>
+                <div class="format-details">
+                  <p><strong>文件要求：</strong>Excel 或純文本 (.txt, .tsv)。</p>
+                  <p><strong>內容規則：</strong></p>
+                  <ul>
+                    <li>行首：聲母+韻母（如：pan）。</li>
+                    <li>後續內容：必須包含「方括號調號」，格式為 [調號]漢字{註釋}。</li>
+                    <li>範例：pan [1]班{班級} [2]板 [3]拌。</li>
+                  </ul>
+                  <p><strong>特點：</strong>自動識別 [ ] 或 ［ ］ 內的調號並與行首拼音組合成完整音標。</p>
+                </div>
+              </div>
+
+              <div class="format-subsection">
+                <h5>Word 格式：</h5>
+                <div class="format-details">
+                  <p><strong>文件要求：</strong>Word (.docx) 或 結構化文本。</p>
+                  <p><strong>層級規則：</strong></p>
+                  <ul>
+                    <li>韻母層：以 # 開頭（如：#ang）。</li>
+                    <li>內容行：聲母 [調號]漢字{註釋}。</li>
+                  </ul>
+                  <p><strong>特點：</strong>支持複雜匹配。若一項中有多個字或多個音標（用 ; 或 / 分隔），系統會自動進行交叉匹配（笛卡爾積）。</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button class="glass-button primary" @click="showFormatHelpModal = false">知道了</button>
+          </div>
+        </div>
+      </div>
+    </teleport>
+
     <!-- 调值字符显示对话框 -->
     <teleport to="body">
       <div v-if="showToneCharsModal" class="modal-overlay" @click.self="showToneCharsModal = false">
@@ -566,13 +748,66 @@ c-帥-好; i-帥-jat4"
         </div>
       </div>
     </teleport>
+
+    <!-- 列筛选对话框 -->
+    <teleport to="body">
+      <div v-if="showFilterModal" class="modal-overlay" @click.self="showFilterModal = false">
+        <div class="modal-content glass-panel filter-modal">
+          <div class="modal-header">
+            <h3>
+              🔍 篩選
+              <span v-if="filterColumnType === 'onset'">聲母</span>
+              <span v-else-if="filterColumnType === 'rime'">韻母</span>
+              <span v-else-if="filterColumnType === 'tone'">聲調</span>
+            </h3>
+            <button class="close-btn" @click="showFilterModal = false">×</button>
+          </div>
+
+          <div class="modal-body filter-modal-body">
+            <div class="filter-actions">
+              <button class="glass-button small" @click="toggleSelectAll">
+                {{ isAllSelected ? '全消' : '全選' }}
+              </button>
+              <button class="glass-button small secondary" @click="invertSelection">
+                反選
+              </button>
+            </div>
+            
+            <div class="filter-values-list custom-scrollbar">
+              <div
+                v-for="value in getUniqueValues(filterColumnType)"
+                :key="value"
+                class="filter-value-item"
+                :class="{ 'selected': getCurrentFilterSet().has(value) }"
+                @click="toggleFilterValue(value)"
+              >
+                <span class="checkbox">{{ getCurrentFilterSet().has(value) ? '✓' : '' }}</span>
+                <span class="value-text">{{ value || '(空)' }}</span>
+                <span class="value-count">
+                  {{ getValueCount(filterColumnType, value) }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button class="glass-button secondary" @click="showFilterModal = false">關閉</button>
+            <button class="glass-button primary" @click="showFilterModal = false">確定</button>
+          </div>
+        </div>
+      </div>
+    </teleport>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, watch, nextTick } from 'vue'
+import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { api } from '@/utils/auth.js'
+import { userStore } from '@/utils/store.js'
 import { showSuccess, showError, showWarning, showConfirm } from '@/utils/message.js'
+
+const router = useRouter()
 
 // 基本状态
 const fileInput = ref(null)
@@ -582,6 +817,7 @@ const totalRows = ref(0)
 const taskId = ref(null)
 const isDragOver = ref(false)
 const selectedFormat = ref('') // 文件格式类型
+const isUploading = ref(false) // 上传加载状态
 
 // 数据
 const allData = ref([])
@@ -596,6 +832,7 @@ const showingAll = ref(false)
 const searchQuery = ref('')
 const currentFilter = ref(null)
 const errorStatsExpanded = ref(true)  // 错误列表展开状态
+const isPortrait = ref(false) // 竖屏检测
 
 // 编辑状态
 const isEditMode = ref(false)
@@ -618,7 +855,10 @@ const errorStatsConfig = {
 
 // 调值统计
 const toneStats = ref(null)
-const toneStatsExpanded = ref(true)
+const toneStatsExpanded = ref(false)
+
+// 声韵统计
+const onsetRimeStatsExpanded = ref(false)
 
 // 指令模式
 const commandInput = ref('')
@@ -630,6 +870,14 @@ const showHelpModal = ref(false)
 const showToneCharsModal = ref(false)
 const toneCharsModalTitle = ref('')
 const toneCharsModalContent = ref('')
+const showFilterModal = ref(false)
+const filterColumnType = ref(null) // 'onset', 'rime', 'tone'
+const showFormatHelpModal = ref(false)
+
+// 筛选状态
+const filterOnset = ref(new Set())
+const filterRime = ref(new Set())
+const filterTone = ref(new Set())
 
 // 批量替换
 const replaceType = ref('p')
@@ -659,10 +907,71 @@ const displayedErrors = computed(() => {
 })
 
 const displayedTableData = computed(() => {
-  return showingAll.value
-    ? (currentFilter.value ? filteredData.value : allData.value)
-    : (currentFilter.value ? filteredData.value : errorData.value)
+  let data = showingAll.value
+    ? (currentFilter.value ? (filteredData.value || []) : (allData.value || []))
+    : (currentFilter.value ? (filteredData.value || []) : (errorData.value || []))
+  
+  // 应用列筛选
+  if (filterOnset.value.size > 0) {
+    data = (data || []).filter(row => {
+      if (!row) return false
+      const value = getPendingValue(row.row, 'onset') || row.onset || ''
+      return filterOnset.value.has(value)
+    })
+  }
+  if (filterRime.value.size > 0) {
+    data = (data || []).filter(row => {
+      if (!row) return false
+      const value = getPendingValue(row.row, 'rime') || row.rime || ''
+      return filterRime.value.has(value)
+    })
+  }
+  if (filterTone.value.size > 0) {
+    data = (data || []).filter(row => {
+      if (!row) return false
+      const value = getPendingValue(row.row, 'tone') || row.tone || ''
+      return filterTone.value.has(value)
+    })
+  }
+  
+  return data || []
 })
+
+// 获取唯一值列表
+const getUniqueValues = (columnType) => {
+  // 从所有数据中获取唯一值（包括全部数据和错误数据）
+  const allDataForFilter = [...(allData.value || []), ...(errorData.value || [])]
+  const values = new Set()
+  
+  allDataForFilter.forEach(row => {
+    if (!row) return
+    let value = ''
+    if (columnType === 'onset') {
+      value = getPendingValue(row.row, 'onset') || row.onset || ''
+    } else if (columnType === 'rime') {
+      value = getPendingValue(row.row, 'rime') || row.rime || ''
+    } else if (columnType === 'tone') {
+      value = getPendingValue(row.row, 'tone') || row.tone || ''
+    }
+    // 包括空值
+    values.add(value || '')
+  })
+  
+  return Array.from(values).sort((a, b) => {
+    // 空值排在最后
+    if (!a) return 1
+    if (!b) return -1
+    return a.localeCompare(b)
+  })
+}
+
+// 获取当前筛选的选中状态
+const getCurrentFilterSet = () => {
+  if (filterColumnType.value === 'onset') return filterOnset.value
+  if (filterColumnType.value === 'rime') return filterRime.value
+  if (filterColumnType.value === 'tone') return filterTone.value
+  return new Set()
+}
 
 const sortedRuTones = computed(() => {
   if (!toneStats.value?.ru_tones) return []
@@ -672,6 +981,48 @@ const sortedRuTones = computed(() => {
 const sortedShuTones = computed(() => {
   if (!toneStats.value?.shu_tones) return []
   return Object.entries(toneStats.value.shu_tones).sort((a, b) => a[0].localeCompare(b[0]))
+})
+
+// 声母统计
+const onsetStats = computed(() => {
+  const data = showingAll.value ? (allData.value || []) : (errorData.value || [])
+  const stats = new Map()
+  
+  data.forEach(row => {
+    if (!row) return
+    const value = getPendingValue(row.row, 'onset') || row.onset || ''
+    const count = stats.get(value) || 0
+    stats.set(value, count + 1)
+  })
+  
+  return Array.from(stats.entries())
+    .map(([value, count]) => ({ value, count }))
+    .sort((a, b) => {
+      if (!a.value) return 1
+      if (!b.value) return -1
+      return a.value.localeCompare(b.value)
+    })
+})
+
+// 韵母统计
+const rimeStats = computed(() => {
+  const data = showingAll.value ? (allData.value || []) : (errorData.value || [])
+  const stats = new Map()
+  
+  data.forEach(row => {
+    if (!row) return
+    const value = getPendingValue(row.row, 'rime') || row.rime || ''
+    const count = stats.get(value) || 0
+    stats.set(value, count + 1)
+  })
+  
+  return Array.from(stats.entries())
+    .map(([value, count]) => ({ value, count }))
+    .sort((a, b) => {
+      if (!a.value) return 1
+      if (!b.value) return -1
+      return a.value.localeCompare(b.value)
+    })
 })
 
 const commandPreview = computed(() => {
@@ -704,6 +1055,13 @@ const handleFileUpload = (event) => {
 }
 
 const uploadFile = async (file) => {
+  // 检查登录状态
+  if (!userStore.isAuthenticated) {
+    showWarning('請先登錄')
+    router.push('/auth')
+    return
+  }
+
   const allowedExts = ['.xlsx', '.xls', '.doc', '.docx', '.tsv']
   const ext = file.name.substring(file.name.lastIndexOf('.')).toLowerCase()
 
@@ -718,6 +1076,7 @@ const uploadFile = async (file) => {
   }
 
   try {
+    isUploading.value = true
     fileName.value = file.name
 
     const formData = new FormData()
@@ -740,6 +1099,8 @@ const uploadFile = async (file) => {
     await analyzeFile()
   } catch (error) {
     showError('上傳失敗: ' + error.message)
+  } finally {
+    isUploading.value = false
   }
 }
 
@@ -866,6 +1227,7 @@ const resetUpload = async () => {
     pendingChanges.value.clear()
     rowsToDelete.value.clear()
     isEditMode.value = false
+    clearAllColumnFilters()
     if (fileInput.value) {
       fileInput.value.value = ''
     }
@@ -885,11 +1247,67 @@ const toggleShowAll = () => {
 }
 
 const toggleToneStats = () => {
-  toneStatsExpanded.value = !toneStatsExpanded.value
+  const newValue = !toneStatsExpanded.value
+  // 互斥展开：展开当前时收起其他两个
+  if (newValue) {
+    errorStatsExpanded.value = false
+    onsetRimeStatsExpanded.value = false
+  }
+  toneStatsExpanded.value = newValue
+}
+
+const toggleOnsetRimeStats = () => {
+  const newValue = !onsetRimeStatsExpanded.value
+  // 互斥展开：展开当前时收起其他两个
+  if (newValue) {
+    errorStatsExpanded.value = false
+    toneStatsExpanded.value = false
+  }
+  onsetRimeStatsExpanded.value = newValue
+}
+
+// 检查是否被筛选
+const isOnsetFiltered = (value) => {
+  return filterOnset.value && filterOnset.value.has(value)
+}
+
+const isRimeFiltered = (value) => {
+  return filterRime.value && filterRime.value.has(value)
+}
+
+// 点击声母/韵母进行筛选
+const filterByOnset = (onset) => {
+  if (!filterOnset.value) {
+    filterOnset.value = new Set()
+  }
+  filterOnset.value.clear()
+  filterOnset.value.add(onset)
+  // 点击韵母时自动取消声母筛选
+  if (filterRime.value) {
+    filterRime.value.clear()
+  }
+}
+
+const filterByRime = (rime) => {
+  if (!filterRime.value) {
+    filterRime.value = new Set()
+  }
+  filterRime.value.clear()
+  filterRime.value.add(rime)
+  // 点击韵母时自动取消声母筛选
+  if (filterOnset.value) {
+    filterOnset.value.clear()
+  }
 }
 
 const toggleErrorStats = () => {
-  errorStatsExpanded.value = !errorStatsExpanded.value
+  const newValue = !errorStatsExpanded.value
+  // 互斥展开：展开当前时收起其他两个
+  if (newValue) {
+    toneStatsExpanded.value = false
+    onsetRimeStatsExpanded.value = false
+  }
+  errorStatsExpanded.value = newValue
 }
 
 // 筛选功能
@@ -903,6 +1321,105 @@ const filterErrors = (errorType) => {
       row.errors?.includes(errorType)
     )
   }
+}
+
+// 打开列筛选弹窗
+const openFilterModal = (columnType) => {
+  filterColumnType.value = columnType
+  showFilterModal.value = true
+}
+
+// 切换筛选值
+const toggleFilterValue = (value) => {
+  const filterSet = getCurrentFilterSet()
+  if (filterSet.has(value)) {
+    filterSet.delete(value)
+  } else {
+    filterSet.add(value)
+  }
+}
+
+// 清除当前列的筛选
+const clearColumnFilter = () => {
+  if (filterColumnType.value === 'onset') {
+    filterOnset.value.clear()
+  } else if (filterColumnType.value === 'rime') {
+    filterRime.value.clear()
+  } else if (filterColumnType.value === 'tone') {
+    filterTone.value.clear()
+  }
+}
+
+// 清除所有列筛选
+const clearAllColumnFilters = () => {
+  filterOnset.value.clear()
+  filterRime.value.clear()
+  filterTone.value.clear()
+}
+
+// 检查是否全部选中
+const isAllSelected = computed(() => {
+  if (!filterColumnType.value) return false
+  const uniqueValues = getUniqueValues(filterColumnType.value)
+  const currentFilterSet = getCurrentFilterSet()
+  return uniqueValues.length > 0 && uniqueValues.every(value => currentFilterSet.has(value))
+})
+
+// 全選/全消
+const toggleSelectAll = () => {
+  if (!filterColumnType.value) return
+  const uniqueValues = getUniqueValues(filterColumnType.value)
+  const currentFilterSet = getCurrentFilterSet()
+  
+  if (isAllSelected.value) {
+    // 全消
+    currentFilterSet.clear()
+  } else {
+    // 全選
+    uniqueValues.forEach(value => {
+      currentFilterSet.add(value)
+    })
+  }
+}
+
+// 反選
+const invertSelection = () => {
+  if (!filterColumnType.value) return
+  const uniqueValues = getUniqueValues(filterColumnType.value)
+  const currentFilterSet = getCurrentFilterSet()
+  
+  uniqueValues.forEach(value => {
+    if (currentFilterSet.has(value)) {
+      currentFilterSet.delete(value)
+    } else {
+      currentFilterSet.add(value)
+    }
+  })
+}
+
+// 获取列筛选的显示文本
+const getFilterDisplayText = (columnType) => {
+  let filterSet
+  if (columnType === 'onset') filterSet = filterOnset.value
+  else if (columnType === 'rime') filterSet = filterRime.value
+  else if (columnType === 'tone') filterSet = filterTone.value
+  else return ''
+  
+  if (filterSet.size === 0) return ''
+  return ` (${filterSet.size})`
+}
+
+// 获取某个值在数据中的出现次数
+const getValueCount = (columnType, value) => {
+  const data = showingAll.value ? (allData.value || []) : (errorData.value || [])
+  return data.filter(row => {
+    const rowValue = columnType === 'onset' 
+      ? (getPendingValue(row.row, 'onset') || row.onset || '')
+      : columnType === 'rime'
+      ? (getPendingValue(row.row, 'rime') || row.rime || '')
+      : (getPendingValue(row.row, 'tone') || row.tone || '')
+    return rowValue === value
+  }).length
 }
 
 const handleSearch = () => {
@@ -1210,6 +1727,22 @@ const getErrorTypeLabel = (type) => {
   }
   return labels[type] || type
 }
+
+// 竖屏检测
+const checkPortrait = () => {
+  isPortrait.value = window.matchMedia('(max-aspect-ratio: 1/1)').matches
+}
+
+onMounted(() => {
+  checkPortrait()
+  window.addEventListener('resize', checkPortrait)
+  window.addEventListener('orientationchange', checkPortrait)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', checkPortrait)
+  window.removeEventListener('orientationchange', checkPortrait)
+})
 </script>
 
 <style scoped>
@@ -1317,12 +1850,18 @@ const getErrorTypeLabel = (type) => {
   text-align: left;
 }
 
+.format-label-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
 .format-label {
-  display: block;
   font-size: 14px;
   font-weight: 600;
   color: #0b2540;
-  margin-bottom: 12px;
+  margin: 0;
 }
 
 .format-options {
@@ -1415,7 +1954,7 @@ const getErrorTypeLabel = (type) => {
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 6px;
 }
 
 /* 侧边栏分区 */
@@ -1606,6 +2145,70 @@ const getErrorTypeLabel = (type) => {
   line-height: 1.4;
 }
 
+/* 声韵统计 */
+.onset-rime-stats-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow-y: auto;
+}
+
+.onset-rime-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.onset-rime-section-title {
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 4px;
+  flex-shrink: 0;
+  color: #007aff;
+}
+
+.onset-rime-items {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.onset-rime-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 8px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 12px;
+}
+
+.onset-rime-item:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.onset-rime-item.filtered {
+  background: rgba(0, 122, 255, 0.2);
+  border: 1px solid rgba(0, 122, 255, 0.4);
+}
+
+.onset-rime-value {
+  font-weight: 500;
+  flex: 1;
+}
+
+.onset-rime-count {
+  color: #666;
+  font-size: 11px;
+  background: rgba(0, 0, 0, 0.05);
+  padding: 2px 6px;
+  border-radius: 10px;
+  min-width: 24px;
+  text-align: center;
+}
+
 /* 筛选 */
 .filter-section {
   display: flex;
@@ -1713,6 +2316,7 @@ const getErrorTypeLabel = (type) => {
   display: flex;
   align-items: center;
   flex-direction: column;
+  max-width: 150px;
 }
 
 .file-name {
@@ -1735,7 +2339,7 @@ const getErrorTypeLabel = (type) => {
 
 .tab-btn {
   flex: 1;
-  padding: 10px 20px;
+  padding: 10px 8px;
   background: transparent;
   border: 1px solid transparent;
   border-radius: 10px;
@@ -1848,6 +2452,27 @@ const getErrorTypeLabel = (type) => {
 .data-table th {
   font-weight: 600;
   color: #0b2540;
+}
+
+.filterable-header {
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.filterable-header:hover {
+  background: rgba(0, 122, 255, 0.1);
+}
+
+.filterable-header.filtered {
+  background: rgba(0, 122, 255, 0.15);
+  color: #007aff;
+}
+
+.filter-indicator {
+  margin-left: 4px;
+  font-size: 12px;
 }
 
 .data-table tbody tr {
@@ -1963,7 +2588,7 @@ const getErrorTypeLabel = (type) => {
 }
 
 .command-textarea {
-  min-height: 200px;
+  min-height: 300px;
   padding: 16px;
   background: rgba(255, 255, 255, 0.5);
   backdrop-filter: blur(10px);
@@ -2147,6 +2772,28 @@ const getErrorTypeLabel = (type) => {
   transform: scale(1.02);
 }
 
+.upload-zone-drop.uploading {
+  cursor: not-allowed;
+  background: rgba(0, 122, 255, 0.03);
+  border-color: rgba(0, 122, 255, 0.2);
+  pointer-events: none;
+}
+
+.loading-spinner {
+  width: 60px;
+  height: 60px;
+  border: 4px solid rgba(0, 122, 255, 0.1);
+  border-top-color: #007aff;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .upload-icon-large {
   font-size: 48px;
   animation: float 3s ease-in-out infinite;
@@ -2247,6 +2894,9 @@ const getErrorTypeLabel = (type) => {
 
 .form-group {
   margin-bottom: 16px;
+  align-items: center;
+  display: flex;
+  flex-direction: column;
 }
 
 .form-group label {
@@ -2293,6 +2943,42 @@ const getErrorTypeLabel = (type) => {
   line-height: 1.8;
 }
 
+.help-section p {
+  margin: 8px 0;
+  font-size: 13px;
+  line-height: 1.6;
+  color: rgba(11, 37, 64, 0.8);
+}
+
+.format-details {
+  margin-top: 8px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+}
+
+.format-details p {
+  margin: 6px 0;
+}
+
+.format-details ul {
+  margin: 8px 0;
+  padding-left: 24px;
+}
+
+.format-subsection {
+  margin-top: 16px;
+  padding-left: 16px;
+  border-left: 3px solid rgba(0, 122, 255, 0.3);
+}
+
+.format-subsection h5 {
+  margin: 0 0 8px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #007aff;
+}
+
 .help-table {
   width: 100%;
   border-collapse: collapse;
@@ -2329,6 +3015,88 @@ const getErrorTypeLabel = (type) => {
   font-size: 16px;
   line-height: 2;
   word-break: break-all;
+}
+
+/* 筛选弹窗 */
+.filter-modal {
+  width: min(90vw, 500px);
+}
+
+.filter-modal-body {
+  max-height: 60vh;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.filter-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.filter-values-list {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 400px;
+}
+
+.filter-value-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.filter-value-item:hover {
+  background: rgba(255, 255, 255, 0.97);
+}
+
+.filter-value-item.selected {
+  background: rgba(0, 122, 255, 0.2);
+  border: 1px solid rgba(0, 122, 255, 0.4);
+}
+
+.filter-value-item .checkbox {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.5);
+  border: 2px solid rgba(0, 122, 255, 0.3);
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #007aff;
+  flex-shrink: 0;
+}
+
+.filter-value-item.selected .checkbox {
+  background: rgba(0, 122, 255, 0.2);
+  border-color: #007aff;
+}
+
+.filter-value-item .value-text {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.filter-value-item .value-count {
+  font-size: 12px;
+  color: #666;
+  background: rgba(0, 0, 0, 0.05);
+  padding: 2px 8px;
+  border-radius: 12px;
+  flex-shrink: 0;
 }
 
 /* 滚动条 */

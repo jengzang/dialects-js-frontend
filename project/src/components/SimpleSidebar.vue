@@ -119,13 +119,15 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { api } from '@/utils/auth.js';
+import {api, clearToken, getToken} from '@/utils/auth.js';
+import {userStore} from "@/utils/store.js";
 
 const router = useRouter();
 const props = defineProps({
   isOpen: Boolean
 });
-
+const user = ref({}) // 存储用户信息
+const mode = ref('login') // 存储登录状态
 const emit = defineEmits(['close']);
 
 // 访问统计相关
@@ -234,8 +236,74 @@ async function fetchVisitHistory() {
     loadingStats.value = false;
   }
 }
+async function initUserByToken({ console_log = false } = {}) {
+  const token = getToken();
+
+  // 默认未登录态
+  userStore.id = null;
+  userStore.username = null;
+  userStore.role = 'anonymous';
+  userStore.isAuthenticated = false;
+  user.value = {}
+  mode.value = "login"
+
+  if (!token) {
+    console.log("anonymous")
+    return {
+      user: null,
+      role: "anonymous"
+    }
+  }
+
+  try {
+    const res = await api('/auth/me')
+    // console.log(res)
+    if (!res) {
+      userStore.role = 'anonymous';
+      return {
+        user: null,
+        role: "anonymous"
+      }
+    }
+
+    userStore.id = res.id;
+    userStore.username = res.username;
+    userStore.role = res?.role === "admin" ? "admin" : "user";
+    userStore.isAuthenticated = true;
+    user.value = res || {}
+    mode.value = "normal"
+
+    if (console_log) {
+      console.log("✅ 用户信息已初始化", res)
+    }
+    // console.log(res)
+    return {
+      user: res,
+      role: userStore.role
+    }
+
+  } catch (err) {
+    if (console_log) {
+      console.error("❌ 用户初始化失败，token 已失效", err)
+    }
+
+    clearToken()
+    userStore.id = null;
+    userStore.username = null;
+    userStore.role = "anonymous";
+    userStore.isAuthenticated = false;
+    user.value = {}
+    mode.value = "login"
+
+    return {
+      user: null,
+      role: "anonymous"
+    }
+  }
+}
 
 onMounted(async () => {
+  await initUserByToken();
   await fetchVisitStats();
 });
 </script>

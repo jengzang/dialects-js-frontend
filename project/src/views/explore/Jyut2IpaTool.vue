@@ -82,20 +82,20 @@
         <h3 class="complete-title">轉換完成！</h3>
         <p class="complete-text">文件已成功處理，可以下載結果</p>
 
-        <div class="result-stats">
-          <div class="result-card">
-            <div class="result-number">{{ stats.total }}</div>
-            <div class="result-label">總行數</div>
-          </div>
-          <div class="result-card">
-            <div class="result-number success">{{ stats.success }}</div>
-            <div class="result-label">成功轉換</div>
-          </div>
-          <div class="result-card" v-if="stats.failed > 0">
-            <div class="result-number error">{{ stats.failed }}</div>
-            <div class="result-label">失敗</div>
-          </div>
-        </div>
+<!--        <div class="result-stats">-->
+<!--          <div class="result-card">-->
+<!--            <div class="result-number">{{ stats.total }}</div>-->
+<!--            <div class="result-label">總行數</div>-->
+<!--          </div>-->
+<!--          <div class="result-card">-->
+<!--            <div class="result-number success">{{ stats.success }}</div>-->
+<!--            <div class="result-label">成功轉換</div>-->
+<!--          </div>-->
+<!--          <div class="result-card" v-if="stats.failed > 0">-->
+<!--            <div class="result-number error">{{ stats.failed }}</div>-->
+<!--            <div class="result-label">失敗</div>-->
+<!--          </div>-->
+<!--        </div>-->
 
         <div class="action-buttons">
           <button class="glass-button primary large" @click="downloadResult">
@@ -255,8 +255,12 @@
 
 <script setup>
 import { ref, reactive, computed } from 'vue'
+import { useRouter } from 'vue-router'
 import { api } from '@/utils/auth.js'
+import { userStore } from '@/utils/store.js'
 import { showSuccess, showError, showWarning, showConfirm } from '@/utils/message.js'
+
+const router = useRouter()
 
 const fileInput = ref(null)
 const importInput = ref(null)
@@ -458,6 +462,13 @@ const handleDrop = (event) => {
 }
 
 const processFile = async (file) => {
+  // 检查登录状态
+  if (!userStore.isAuthenticated) {
+    showWarning('請先登錄')
+    router.push('/auth')
+    return
+  }
+
   if (!file.name.match(/\.(xlsx|xls)$/)) {
     showError('請上傳Excel文件（.xlsx或.xls格式）')
     return
@@ -1144,7 +1155,7 @@ loadConfig()
 }
 
 .config-tab {
-  padding: 10px 20px;
+  padding: 10px 12px;
   background: transparent;
   border: none;
   border-bottom: 3px solid transparent;
@@ -1153,6 +1164,7 @@ loadConfig()
   color: rgba(11, 37, 64, 0.6);
   font-weight: 500;
   transition: all 0.2s ease;
+  white-space: nowrap;
 }
 
 .config-tab:hover {
@@ -1237,6 +1249,7 @@ loadConfig()
   border-radius: 6px;
   font-size: 11px;
   font-weight: 600;
+  white-space: nowrap;
 }
 
 .category-badge.cat-wf {
