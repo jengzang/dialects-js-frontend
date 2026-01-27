@@ -67,8 +67,8 @@ export const POLLING_CONFIG = {
 // API 配置
 // ========================================
 export const API_CONFIG = {
-    DEFAULT_TIMEOUT: 30000,          // 默认超时时间(ms)
-    LONG_TIMEOUT: 60000              // 长请求超时时间(ms)
+    DEFAULT_TIMEOUT: 300000,          // 默认超时时间(ms)
+    LONG_TIMEOUT: 600000              // 长请求超时时间(ms)
 }
 
 // ========================================

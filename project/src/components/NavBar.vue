@@ -39,62 +39,66 @@
     </div>
 
     <!-- 左侧边栏 -->
-    <div class="sidebar" v-if="isSidebarVisible">
-      <div class="sidebar-content">
-        <ul>
-          <li @click="goToOldWebsite">
-            <span role="img" aria-label="old-website">🕰️</span> 舊版網站
-          </li>
-          <li @click="goToYCVillages">
-            <span role="img" aria-label="ycVillages">🏠</span> 陽春自然村
-          </li>
-          <li @click="goToGDVillages">
-            <span role="img" aria-label="gdVillages">🏘</span> 全粵村情
-          </li>
-          <li @click="goToSpoken">
-            <span role="img" aria-label="spoken">🗣</span> 陽春口語詞
-          </li>
-          <li @click="goToSuggestions">
-            <span role="img" aria-label="suggestions">💡</span> 提出建議
-          </li>
-          <li @click="goToFavoriteAuthors">
-            <span role="img" aria-label="favorite-authors">❤️</span> 喜歡作者
-          </li>
-          <li @click="goToSource">
-            <span role="img" aria-label="source">📚</span> 資料來源
-          </li>
-          <li @click="refreshPage">
-            <span role="img" aria-label="refresh">🔄</span> 刷新
-          </li>
-<!--          <li @click="goToPrivacyPolicy">-->
-<!--            <span role="img" aria-label="privacy-policy">🔐</span> 隱私政策-->
+    <Transition name="slide-fade">
+      <div class="sidebar" v-if="isSidebarVisible">
+        <div class="sidebar-content">
+          <ul>
+            <li @click="goToOldWebsite">
+              <span role="img" aria-label="old-website">🕰️</span> 舊版網站
+            </li>
+            <li @click="goToTools">
+              <span role="img" aria-label="tools">🧰</span> 字表工具
+            </li>
+            <li @click="goToGDVillages">
+              <span role="img" aria-label="gdVillages">🏠</span> 全粵村情
+            </li>
+            <li @click="goToSpoken">
+              <span role="img" aria-label="spoken">💬</span> 陽春口語詞
+            </li>
+<!--          <li @click="goToSuggestions">-->
+<!--            <span role="img" aria-label="suggestions">💡</span> 提出建議-->
 <!--          </li>-->
+<!--          <li @click="goToFavoriteAuthors">-->
+<!--            <span role="img" aria-label="favorite-authors">❤️</span> 喜歡作者-->
+<!--          </li>-->
+            <li @click="goToSource">
+              <span role="img" aria-label="source">📚</span> 資料來源
+            </li>
+<!--          <li @click="refreshPage">-->
+<!--            <span role="img" aria-label="refresh">🔄</span> 刷新-->
+<!--          </li>-->
+            <li @click="goToPrivacyPolicy">
+              <span role="img" aria-label="privacy-policy">🔐</span> 隱私政策
+            </li>
 
-        </ul>
+          </ul>
 
-        <!-- 访问统计区域 -->
-        <div class="visit-stats">
-          <div class="stats-summary">
-            <div class="stat-item">
-              <span class="stat-label">今日</span>
-              <span class="stat-value">{{ todayVisits }}</span>
+          <!-- 访问统计区域 -->
+          <div class="visit-stats">
+            <div class="stats-summary">
+              <div class="stat-item">
+                <span class="stat-label">今日</span>
+                <span class="stat-value">{{ todayVisits }}</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-label">總訪問</span>
+                <span class="stat-value">{{ totalVisits }}</span>
+              </div>
+              <button class="expand-btn" @click="toggleStatsPanel">
+                📊
+              </button>
             </div>
-            <div class="stat-item">
-              <span class="stat-label">總訪問</span>
-              <span class="stat-value">{{ totalVisits }}</span>
-            </div>
-            <button class="expand-btn" @click="toggleStatsPanel">
-              📊
-            </button>
           </div>
-        </div>
 
-        <div class="icp-number">粤ICP备2025466875号-1</div>
+          <div class="icp-number">粤ICP备2025466875号-1</div>
+        </div>
       </div>
-    </div>
+    </Transition>
 
     <!-- 遮罩层 -->
-    <div class="overlay" v-if="isSidebarVisible" @click="toggleSidebar"></div>
+    <Transition name="fade">
+      <div class="overlay" v-if="isSidebarVisible" @click="toggleSidebar"></div>
+    </Transition>
 
     <!-- 访问历史弹窗 -->
     <Teleport to="body">
@@ -402,8 +406,9 @@ const refreshPage = () => {
   });
   toggleSidebar();
 }
-const goToYCVillages = () => {router.push({ path: '/menu',
-  query: { tab: 'ycVillages'}})  /* 跳转到设置页面 */
+
+const goToTools = () => {router.push({ path: '/menu',
+  query: { tab: 'tools'}})  /* 跳转到工具页面 */
   toggleSidebar(); }
 const goToSuggestions = () => {router.push({ path: '/menu',
   query: { tab: 'about', sub: 'suggestion' }}) /* 跳转到喜欢作者页面 */
@@ -418,10 +423,10 @@ const goToPrivacyPolicy = () =>  {router.push({ path: '/menu',
   query: { tab: 'privacy'}}) /* 跳转到隐私政策页面 */
   toggleSidebar(); }
 const goToGDVillages = () =>  {router.push({ path: '/menu',
-  query: { tab: 'gdVillages'}}) /* 跳转到隐私政策页面 */
+  query: { tab: 'gdVillages'}}) /* 跳转到廣東自然村页面 */
   toggleSidebar(); }
 const goToSpoken = () =>  {router.push({ path: '/menu',
-  query: { tab: 'ycSpoken'}}) /* 跳转到隐私政策页面 */
+  query: { tab: 'ycSpoken'}}) /* 跳转到陽春口語詞页面 */
   toggleSidebar(); }
 </script>
 
@@ -676,12 +681,11 @@ const goToSpoken = () =>  {router.push({ path: '/menu',
   background:
       radial-gradient(1200px 800px at 10% -10%, rgba(223, 241, 255, 0.5) 0%, rgba(223, 241, 255, 0) 60%), /* 半透明 */
       radial-gradient(1000px 700px at 110% 10%, rgba(207, 231, 255, 0.5) 0%, rgba(207, 231, 255, 0) 60%), /* 半透明 */
-      linear-gradient(180deg, rgba(234, 245, 255, 0.7), rgba(215, 236, 255, 0.7)); /* 半透明 */
+      linear-gradient(180deg, rgba(234, 245, 255, 0.7), rgba(215, 236, 255, 0.9)); /* 半透明 */
 
   border: 1px solid rgba(255, 255, 255, 0.35);
   backdrop-filter: blur(8px) saturate(180%);
   -webkit-backdrop-filter: blur(12px) saturate(160%);
-  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
   z-index: 1001;
   display: flex;
   flex-direction: column;
@@ -829,7 +833,7 @@ const goToSpoken = () =>  {router.push({ path: '/menu',
 .stats-modal-card {
   max-width: 700px;
   width: 90%;
-  max-height: 85dvh;
+  max-height: 80dvh;
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -874,7 +878,7 @@ const goToSpoken = () =>  {router.push({ path: '/menu',
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 18px;
+  padding: 12px;
   background: rgba(255, 255, 255, 0.4);
   border-radius: 16px;
   border: 1px solid rgba(255, 255, 255, 0.6);
@@ -1025,6 +1029,36 @@ const goToSpoken = () =>  {router.push({ path: '/menu',
 .fade-scale-leave-to {
   opacity: 0;
   transform: scale(0.95);
+}
+
+/* Sidebar 滑动动画 */
+.slide-fade-enter-active {
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.slide-fade-leave-active {
+  transition: all 0.25s cubic-bezier(0.5, 0, 0.75, 0);
+}
+
+.slide-fade-enter-from {
+  transform: translateX(-100%);
+  opacity: 0;
+}
+
+.slide-fade-leave-to {
+  transform: translateX(-100%);
+  opacity: 0;
+}
+
+/* Overlay 淡入淡出动画 */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 
 /* 遮罩层样式 */
