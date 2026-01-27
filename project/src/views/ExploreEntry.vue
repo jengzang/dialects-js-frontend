@@ -1,0 +1,30 @@
+<template>
+  <keep-alive>
+    <component :is="activeComponent" :key="route.query.page" />
+  </keep-alive>
+</template>
+
+<script setup>
+import { computed } from 'vue'
+import { useRoute } from 'vue-router'
+
+// 引入 explore 相关的页面组件
+import YangChunVillages from "./explore/YangChunVillages.vue";
+import CheckTool from "./explore/CheckTool.vue";
+import Jyut2IpaTool from "./explore/Jyut2IpaTool.vue";
+import MergeTool from "./explore/MergeTool.vue";
+
+const route = useRoute()
+
+// 根据 query.page 映射组件
+const activeComponent = computed(() => {
+  const page = route.query.page
+  const pageMap = {
+    ycVillages: YangChunVillages,
+    check: CheckTool,
+    jyut2ipa: Jyut2IpaTool,
+    merge: MergeTool,
+  }
+  return pageMap[page] || YangChunVillages
+})
+</script>
