@@ -176,7 +176,7 @@ const leave = (el) => {
 .children-container {
   padding-left: 20px;
   border-left: 2px solid rgba(0, 122, 255, 0.1);
-  margin-left: 10px;
+  margin-left: 20px;
   transition: height 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
@@ -248,6 +248,7 @@ const leave = (el) => {
   font-weight: 700;
   color: #007AFF;
   text-align: center;
+  margin-top: 1px;
 }
 
 .char-annotation-item .annotation {
@@ -266,6 +267,18 @@ const leave = (el) => {
 
 /* Responsive Design */
 @media (max-aspect-ratio: 1/1) {
+  /* Reduce indentation on small screens */
+  .children-container {
+    padding-left: 10px;
+    margin-left: 5px;
+  }
+
+  /* Break out of children-container padding for leaf content on small screens */
+  .leaf-content {
+    margin-left: -10px;
+    margin-right: -10px;
+  }
+
   .char-annotation-item {
     grid-template-columns: 32px 1fr;
     gap: 8px;

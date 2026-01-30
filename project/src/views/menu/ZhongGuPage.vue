@@ -9,7 +9,7 @@
             :class="{ 'active': showAnnotations }"
             @click="toggleAnnotations"
         >
-          {{ showAnnotations ? '顯示注釋' : '隱藏注釋' }}
+          {{ showAnnotations ? '顯示釋義' : '隱藏釋義' }}
         </button>
       </div>
 
@@ -260,17 +260,22 @@ const normalizeTreeData = (rawTree) => {
 
 /**
  * Filter Tree based on Search Query
+ * Supports multi-character search: each character is searched independently
  */
 const filterTree = (nodes, query) => {
   if (!nodes || nodes.length === 0) {
     return [];
   }
 
+  // Split query into individual characters for independent matching
+  const queryChars = query.split('');
+
   return nodes.reduce((acc, node) => {
     // Leaf node: search in character array
     if (node.isLeaf) {
+      // Check if any character in the node matches any character in the query
       const hasMatch = node.chars.some(char =>
-        char.includes(query)
+        queryChars.some(queryChar => char.includes(queryChar))
       );
       if (hasMatch) {
         acc.push({ ...node, _autoExpand: false });

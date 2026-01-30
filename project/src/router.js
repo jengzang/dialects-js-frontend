@@ -68,13 +68,14 @@ const MenuTitleMap = {
     ycSpoken: '方音圖鑑 - 陽春口語詞',
     source:'方音圖鑑 - 資料來源',
     privacy:'方音圖鑑 - 隱私',
-    Zhonggu:'方音圖鑑 - 中古漢字地位'
+    ZhongGu:'方音圖鑑 - 中古漢字地位'
 };
 const ExploreTitleMap = {
     ycVillages: '方音圖鑑 - 陽春自然村',
     check: '方音圖鑑 - 字表檢查',
     jyut2ipa: '方音圖鑑 - 粵拼轉ipa',
     merge:'方音圖鑑 - 字表合併',
+    gdVillages:'方音圖鑑 - 廣東自然村樹狀圖'
 };
 
 // 全局导航守卫

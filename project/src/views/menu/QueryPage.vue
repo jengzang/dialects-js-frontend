@@ -355,10 +355,10 @@ const dropdownOpen = ref(null)
 // ✨ 過濾器相關狀態
 const excludeOptions = [
   { value: '多地位標記', label: '所有多地位' },
-  { value: '多等', label: '多等' },
-  { value: '多韻', label: '多韻' },
-  { value: '多聲母', label: '多聲母' },
-  { value: '多調', label: '多調' }
+  { value: '多等', label: '排除多等' },
+  { value: '多韻', label: '排除多韻' },
+  { value: '多聲母', label: '排除多聲母' },
+  { value: '多調', label: '排除多調' }
 ]
 const excludeFilterTriggerRef = reactive({ tab2: null, tab3: null })
 const excludeDropdownOpen = ref(null) // 'tab2' 或 'tab3' 或 null
@@ -774,7 +774,6 @@ function toggleExcludeOption(value, tab) {
   } else {
     list.push(value)
   }
-  excludeDropdownOpen.value = null
 }
 
 const isRunning = ref(false); // 控制運行中的狀態

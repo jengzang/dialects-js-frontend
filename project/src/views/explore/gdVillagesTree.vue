@@ -80,22 +80,31 @@
             <div v-if="getFilteredCityData(city).length === 0" class="empty-state">
               {{ searchQuery ? '沒有找到匹配的結果' : '暫無數據' }}
             </div>
-            <TreeItem
+            <VillagesTreeItem
                 v-for="item in getFilteredCityData(city)"
                 :key="item.id"
                 :node="item"
                 :search-query="searchQuery"
+                @open-map="openMapPopup"
             />
           </div>
         </div>
       </div>
     </div>
+
+    <!-- Village Map Popup -->
+    <VillageMapPopup
+        :visible="mapPopupVisible"
+        :villages="mapPopupVillages"
+        @close="closeMapPopup"
+    />
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import TreeItem from '@/components/TreeItem.vue';
+import VillagesTreeItem from '@/components/VillagesTreeItem.vue';
+import VillageMapPopup from '@/components/map/VillageMapPopup.vue';
 import { api } from '@/utils/auth.js';
 import { useRouter } from 'vue-router';
 const router = useRouter();
@@ -116,6 +125,10 @@ const loadingStates = ref({});
 const isInitialLoading = ref(false);
 const initialLoadError = ref(null);
 const cityLoadErrors = ref({});
+
+// Map popup state
+const mapPopupVisible = ref(false);
+const mapPopupVillages = ref([]);
 
 // ID Generator
 let idCounter = 0;
@@ -218,6 +231,8 @@ const normalizeTreeData = (rawData, cityName) => {
       return {
         id: generateId(),
         name: formattedName,
+        rawName: name,
+        rawData: data,
         children: []
       };
     }
@@ -241,6 +256,7 @@ const normalizeTreeData = (rawData, cityName) => {
     return {
       id: generateId(),
       name: name,
+      rawName: name,
       children: children
     };
   };
@@ -263,14 +279,14 @@ const normalizeTreeData = (rawData, cityName) => {
  * Format leaf node with data fields
  */
 const formatLeafNode = (name, data) => {
-  const dialect = data['方言分布']?.[0] || '無';
+  const dialect = data['方言分布']?.[0] || '';
   const lng = data['longitude']?.[0] || '';
   const lat = data['latitude']?.[0] || '';
 
   if (lng && lat) {
-    return `${name} 📍 ${dialect} | ${lng}, ${lat}`;
+    return `${name}  ${dialect} (${lng},${lat})`;
   }
-  return `${name} 📍 ${dialect}`;
+  return `${name}  ${dialect}`;
 };
 
 /**
@@ -333,6 +349,23 @@ const getFilteredCityData = (cityName) => {
 const goToYCVillages = () => {
   router.push({ path: '/explore', query: { page: 'ycVillages' } });
 };
+
+/**
+ * Open map popup with villages data
+ */
+const openMapPopup = (villages) => {
+  mapPopupVillages.value = villages;
+  mapPopupVisible.value = true;
+};
+
+/**
+ * Close map popup
+ */
+const closeMapPopup = () => {
+  mapPopupVisible.value = false;
+  mapPopupVillages.value = [];
+};
+
 // Initialize on mount
 onMounted(() => {
   loadInitialCities();
@@ -464,7 +497,7 @@ onMounted(() => {
 /* Cities Grid */
 .cities-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  grid-template-columns: 1fr;
   gap: 20px;
 }
 
@@ -477,6 +510,7 @@ onMounted(() => {
   padding: 20px;
   transition: all 0.3s ease;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+  overflow-x: auto;
 }
 
 .city-card:hover {
@@ -637,7 +671,7 @@ onMounted(() => {
 /* Responsive Design */
 @media (max-aspect-ratio: 1/1) {
   .glass-container {
-    width: 95%;
+    width: 100%;
     height: 90dvh;
     border-radius: 20px;
   }
