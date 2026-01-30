@@ -70,9 +70,9 @@
 <!--          <li @click="refreshPage">-->
 <!--            <span role="img" aria-label="refresh">🔄</span> 刷新-->
 <!--          </li>-->
-            <li @click="goToPrivacyPolicy">
-              <span role="img" aria-label="privacy-policy">🔐</span> 隱私政策
-            </li>
+<!--            <li @click="goToPrivacyPolicy">-->
+<!--              <span role="img" aria-label="privacy-policy">🔐</span> 隱私政策-->
+<!--            </li>-->
 
           </ul>
 

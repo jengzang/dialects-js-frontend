@@ -92,7 +92,7 @@
 
 <script setup>
 import { ref, computed } from 'vue';
-import CharTreeItem from '@/components/CharTreeItem.vue';
+import CharTreeItem from '@/components/TableAndTree/CharTreeItem.vue';
 import { api } from '@/utils/auth.js';
 
 // Classification Types Configuration

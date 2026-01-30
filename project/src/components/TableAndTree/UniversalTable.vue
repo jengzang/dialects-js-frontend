@@ -28,6 +28,15 @@
         </button>
         <button
           v-if="isEditMode"
+          class="glass-btn secondary"
+          @click="openBatchReplaceModal"
+          title="批量查找替換"
+        >
+          <span class="icon">🔄</span>
+          <span class="btn-text">批量替換</span>
+        </button>
+        <button
+          v-if="isEditMode"
           class="glass-btn primary submit-btn"
           @click="submitBatchEdit"
           :disabled="Object.keys(changedCells).length === 0"
@@ -280,6 +289,140 @@
         </div>
       </transition>
     </Teleport>
+
+    <!-- 批量替换对话框 -->
+    <Teleport to="body">
+      <Transition name="modal-fade">
+        <div v-if="showBatchReplaceModal" class="modal-overlay" @click.self="closeBatchReplaceModal">
+          <div class="batch-replace-modal glass-container">
+            <!-- 标题栏 -->
+            <div class="modal-header">
+              <h3>批量查找替換</h3>
+              <button class="close-btn" @click="closeBatchReplaceModal">✕</button>
+            </div>
+
+            <!-- 主体内容 -->
+            <div class="modal-body">
+              <!-- 列选择器 -->
+              <div class="form-group">
+                <label>選擇要替換的列：</label>
+                <div class="column-selector">
+                  <label
+                    v-for="col in editableColumns"
+                    :key="col.key"
+                    class="column-checkbox-item"
+                  >
+                    <input
+                      type="checkbox"
+                      :value="col.key"
+                      v-model="batchReplace.selectedColumns"
+                    />
+                    <span class="custom-checkbox"></span>
+                    <span class="label-text">{{ col.label }}</span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- 查找内容 -->
+              <div class="form-group">
+                <label>查找內容：</label>
+                <input
+                  type="text"
+                  v-model="batchReplace.findText"
+                  placeholder="輸入要查找的內容"
+                  class="glass-input"
+                />
+              </div>
+
+              <!-- 替换内容 -->
+              <div class="form-group">
+                <label>替換為：</label>
+                <input
+                  type="text"
+                  v-model="batchReplace.replaceText"
+                  placeholder="輸入替換後的內容"
+                  class="glass-input"
+                />
+              </div>
+
+              <!-- 匹配模式 -->
+              <div class="form-group">
+                <label>匹配模式：</label>
+                <div class="radio-group">
+                  <label class="radio-item">
+                    <input
+                      type="radio"
+                      value="exact"
+                      v-model="batchReplace.matchMode"
+                    />
+                    <span>完全匹配</span>
+                  </label>
+                  <label class="radio-item">
+                    <input
+                      type="radio"
+                      value="contains"
+                      v-model="batchReplace.matchMode"
+                    />
+                    <span>包含匹配</span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- 预览结果 -->
+              <div v-if="batchReplace.previewResults.length > 0" class="preview-section">
+                <h4>預覽將被替換的內容（共 {{ batchReplace.previewResults.length }} 處）：</h4>
+                <div class="preview-list custom-scrollbar">
+                  <div
+                    v-for="(item, index) in batchReplace.previewResults.slice(0, 50)"
+                    :key="index"
+                    class="preview-item"
+                  >
+                    <div class="preview-row">
+                      <span class="row-label">行 {{ item.rowIndex + 1 }}</span>
+                      <span class="col-label">{{ item.columnLabel }}</span>
+                    </div>
+                    <div class="preview-change">
+                      <span class="old-value">{{ item.oldValue }}</span>
+                      <span class="arrow">→</span>
+                      <span class="new-value">{{ item.newValue }}</span>
+                    </div>
+                  </div>
+                  <div v-if="batchReplace.previewResults.length > 50" class="preview-more">
+                    ... 還有 {{ batchReplace.previewResults.length - 50 }} 處變更
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 底部按钮 -->
+            <div class="modal-footer">
+              <button
+                class="glass-btn secondary"
+                @click="previewBatchReplace"
+                :disabled="!canPreview"
+              >
+                <span class="icon">👁️</span>
+                <span>預覽</span>
+              </button>
+              <button
+                class="glass-btn primary"
+                @click="executeBatchReplace"
+                :disabled="batchReplace.previewResults.length === 0"
+              >
+                <span class="icon">✓</span>
+                <span>執行替換 ({{ batchReplace.previewResults.length }})</span>
+              </button>
+              <button
+                class="glass-btn"
+                @click="closeBatchReplaceModal"
+              >
+                <span>取消</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
   </div>
 </template>
 
@@ -296,6 +439,7 @@ const props = defineProps({
   dbKey: { type: String, required: true },
   tableName: { type: String, required: true },
   columns: { type: Array, required: true },
+  defaultFilter: { type: Object, default: null }, // 新增：默认筛选 { columnKey: value }
 });
 
 // 狀態定義
@@ -315,6 +459,27 @@ const originalData = ref([]); // 保存進入編輯模式時的原始數據
 // 新增記錄相關狀態
 const showAddModal = ref(false);
 const newRecordData = reactive({});
+
+// 批量替换相关状态
+const showBatchReplaceModal = ref(false)
+const batchReplace = reactive({
+  selectedColumns: [],      // 选中的列 keys
+  findText: '',             // 查找内容
+  replaceText: '',          // 替换内容
+  matchMode: 'contains',    // 匹配模式：'exact' | 'contains'
+  previewResults: []        // 预览结果 [{ rowId, rowIndex, columnKey, columnLabel, oldValue, newValue }]
+})
+
+// 可编辑的列（排除 rowid）
+const editableColumns = computed(() => {
+  return props.columns.filter(col => col.key !== 'rowid')
+})
+
+// 是否可以预览
+const canPreview = computed(() => {
+  return batchReplace.selectedColumns.length > 0 &&
+         batchReplace.findText.trim() !== ''
+})
 
 // 篩選相關狀態
 const activeFilterCol = ref(null); // 當前激活的篩選列 Key
@@ -336,6 +501,23 @@ const totalPages = computed(() => {
 props.columns.forEach(col => {
   if (col.filterable) filterState[col.key] = [];
 });
+
+// 應用默認篩選
+if (props.defaultFilter) {
+  Object.keys(props.defaultFilter).forEach(key => {
+    const value = props.defaultFilter[key];
+    // 如果该列不在 filterState 中，初始化它
+    if (!filterState[key]) {
+      filterState[key] = [];
+    }
+    // 将默认值添加到筛选状态（确保是数组形式）
+    if (Array.isArray(value)) {
+      filterState[key] = [...value];
+    } else {
+      filterState[key] = [value];
+    }
+  });
+}
 
 // 獲取數據
 const fetchData = async () => {
@@ -779,6 +961,150 @@ const submitNewRecord = async () => {
     showError('新增失敗: ' + error.message);
   }
 };
+
+// ========================================
+// 批量替换相关函数
+// ========================================
+
+/**
+ * 打开批量替换对话框
+ */
+const openBatchReplaceModal = () => {
+  if (!checkAdminPermission()) return
+
+  // 重置状态
+  batchReplace.selectedColumns = []
+  batchReplace.findText = ''
+  batchReplace.replaceText = ''
+  batchReplace.matchMode = 'contains'
+  batchReplace.previewResults = []
+
+  showBatchReplaceModal.value = true
+}
+
+/**
+ * 关闭批量替换对话框
+ */
+const closeBatchReplaceModal = () => {
+  showBatchReplaceModal.value = false
+}
+
+/**
+ * 预览批量替换
+ */
+const previewBatchReplace = () => {
+  if (!canPreview.value) return
+
+  const results = []
+  const findText = batchReplace.findText.trim()
+  const matchMode = batchReplace.matchMode
+
+  // console.log('=== 批量替换预览 ===')
+  // console.log('查找内容:', `"${findText}"`)
+  // console.log('匹配模式:', matchMode)
+  // console.log('选中的列:', batchReplace.selectedColumns)
+  // console.log('表格数据行数:', tableData.value.length)
+
+  // 遍历所有数据行
+  tableData.value.forEach((row, rowIndex) => {
+    const rowId = row.rowid
+
+    // 遍历选中的列
+    batchReplace.selectedColumns.forEach(colKey => {
+      const oldValue = String(row[colKey] || '')
+      let shouldReplace = false
+
+      // 判断是否匹配
+      if (matchMode === 'exact') {
+        shouldReplace = oldValue === findText
+      } else {
+        shouldReplace = oldValue.includes(findText)
+      }
+
+      // // 调试：输出前3个不匹配的例子
+      // if (!shouldReplace && results.length < 3) {
+      //   console.log(`行${rowIndex + 1} [${colKey}]: "${oldValue}" ${matchMode === 'exact' ? '不等于' : '不包含'} "${findText}"`)
+      // }
+
+      if (shouldReplace) {
+        // 计算新值
+        let newValue
+        if (matchMode === 'exact') {
+          newValue = batchReplace.replaceText
+        } else {
+          newValue = oldValue.replaceAll(findText, batchReplace.replaceText)
+        }
+
+        // 查找列标签
+        const column = props.columns.find(c => c.key === colKey)
+        const columnLabel = column ? column.label : colKey
+
+        results.push({
+          rowId,
+          rowIndex,
+          columnKey: colKey,
+          columnLabel,
+          oldValue,
+          newValue
+        })
+
+        // console.log(`✓ 匹配: 行${rowIndex + 1} [${columnLabel}]: "${oldValue}" → "${newValue}"`)
+      }
+    })
+  })
+
+  batchReplace.previewResults = results
+
+  // console.log('匹配结果数:', results.length)
+  // console.log('===================')
+
+  if (results.length === 0) {
+    showWarning('未找到匹配的內容')
+  } else {
+    showSuccess(`找到 ${results.length} 處匹配`)
+  }
+}
+
+/**
+ * 执行批量替换
+ */
+const executeBatchReplace = async () => {
+  if (batchReplace.previewResults.length === 0) return
+
+  // 确认对话框
+  const confirmed = await showConfirm(
+    `確定要替換 ${batchReplace.previewResults.length} 處內容嗎？\n\n此操作將記錄為待提交的變更，點擊"提交"按鈕後才會保存到數據庫。`,
+    {
+      title: '確認批量替換',
+      confirmText: '確定',
+      cancelText: '取消'
+    }
+  )
+
+  if (!confirmed) return
+
+  // 将变更写入 changedCells
+  batchReplace.previewResults.forEach(item => {
+    const { rowId, columnKey, newValue } = item
+
+    // 初始化行记录
+    if (!changedCells[rowId]) {
+      changedCells[rowId] = {}
+    }
+
+    // 记录变更
+    changedCells[rowId][columnKey] = newValue
+
+    // 更新 tableData 显示
+    const row = tableData.value.find(r => r.rowid === rowId)
+    if (row) {
+      row[columnKey] = newValue
+    }
+  })
+
+  showSuccess(`批量替換完成！已記錄 ${batchReplace.previewResults.length} 處變更，請點擊"提交"按鈕保存。`)
+  closeBatchReplaceModal()
+}
 
 const handleGlobalClick = () => {
   if (activeFilterCol.value) {
@@ -1604,6 +1930,366 @@ td.cell-changed::after {
   .fullscreen-toggle-btn {
     padding: 8px 12px;
     font-size: 12px;
+  }
+}
+
+/* ==========================================
+   批量替换对话框样式
+   ========================================== */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+}
+
+.modal-fade-enter-active,
+.modal-fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.modal-fade-enter-from,
+.modal-fade-leave-to {
+  opacity: 0;
+}
+
+.batch-replace-modal {
+  width: 90%;
+  max-width: 700px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.batch-replace-modal .modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.batch-replace-modal .modal-header h3 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: #1d1d1f;
+}
+
+.batch-replace-modal .close-btn {
+  background: transparent;
+  border: none;
+  font-size: 24px;
+  color: #666;
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s;
+}
+
+.batch-replace-modal .close-btn:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.batch-replace-modal .modal-body {
+  flex: 1;
+  padding: 24px;
+  overflow-y: auto;
+}
+
+.batch-replace-modal .form-group {
+  margin-bottom: 20px;
+}
+
+.batch-replace-modal .form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+}
+
+.batch-replace-modal .glass-input {
+  width: 80%;
+  padding: 10px 14px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.6);
+  font-size: 14px;
+  outline: none;
+  transition: all 0.2s;
+}
+
+.batch-replace-modal .glass-input:focus {
+  border-color: #007aff;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+}
+
+/* 列选择器 */
+.column-selector {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 10px;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.02);
+  border-radius: 10px;
+  overflow-y: auto;
+}
+
+.column-checkbox-item {
+  display: flex!important;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: white;
+  border: 2px solid rgba(0, 0, 0, 0.08);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.column-checkbox-item:hover {
+  background: rgba(0, 122, 255, 0.05);
+  border-color: rgba(0, 122, 255, 0.3);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 122, 255, 0.15);
+}
+
+.column-checkbox-item input[type="checkbox"] {
+  display: none;
+}
+
+.column-checkbox-item .custom-checkbox {
+  width: 20px;
+  height: 20px;
+  border-radius: 5px;
+  border: 2px solid #d1d5db;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background: white;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.column-checkbox-item input:checked + .custom-checkbox {
+  background: linear-gradient(135deg, #007aff, #0051d5);
+  border-color: #007aff;
+  transform: scale(1.1);
+  box-shadow: 0 2px 8px rgba(0, 122, 255, 0.4);
+}
+
+.column-checkbox-item input:checked + .custom-checkbox::after {
+  content: '✓';
+  color: white;
+  font-size: 14px;
+  font-weight: bold;
+  line-height: 1;
+  display: block;
+  animation: checkmark 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes checkmark {
+  0% {
+    transform: scale(0) rotate(-45deg);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2) rotate(0deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+.column-checkbox-item input:checked ~ .label-text {
+  color: #007aff;
+  font-weight: 600;
+}
+
+.column-checkbox-item .label-text {
+  font-size: 13px;
+  color: #333;
+  transition: all 0.2s;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+  min-width: 0;
+}
+
+/* 单选按钮组 */
+.radio-group {
+  display: flex;
+  gap: 16px;
+}
+
+.radio-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.radio-item input[type="radio"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.radio-item span {
+  font-size: 14px;
+  color: #333;
+  user-select: none;
+}
+
+/* 预览区域 */
+.preview-section {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 2px dashed rgba(0, 0, 0, 0.1);
+}
+
+.preview-section h4 {
+  margin: 0 0 12px 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: #007aff;
+}
+
+.preview-list {
+  max-height: 300px;
+  overflow-y: auto;
+  background: rgba(0, 122, 255, 0.03);
+  border-radius: 10px;
+  padding: 12px;
+}
+
+.preview-item {
+  padding: 10px;
+  margin-bottom: 8px;
+  background: white;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.preview-row {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 6px;
+  font-size: 12px;
+}
+
+.row-label {
+  padding: 2px 8px;
+  background: rgba(0, 122, 255, 0.1);
+  color: #007aff;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.col-label {
+  padding: 2px 8px;
+  background: rgba(52, 199, 89, 0.1);
+  color: #34c759;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.preview-change {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.old-value {
+  color: #d32f2f;
+  text-decoration: line-through;
+  opacity: 0.7;
+}
+
+.arrow {
+  color: #666;
+  font-weight: bold;
+}
+
+.new-value {
+  color: #34c759;
+  font-weight: 600;
+}
+
+.preview-more {
+  text-align: center;
+  padding: 8px;
+  color: #666;
+  font-size: 12px;
+  font-style: italic;
+}
+
+/* 底部按钮栏 */
+.batch-replace-modal .modal-footer {
+  display: flex;
+  gap: 12px;
+  padding: 16px 24px;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.batch-replace-modal .modal-footer .glass-btn {
+  flex: 1;
+}
+
+.batch-replace-modal .glass-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.batch-replace-modal .glass-btn.secondary {
+  background: rgba(108, 117, 125, 0.1);
+  color: #495057;
+  border: 1px solid rgba(108, 117, 125, 0.2);
+}
+
+.batch-replace-modal .glass-btn.secondary:hover:not(:disabled) {
+  background: rgba(108, 117, 125, 0.2);
+}
+
+/* 响应式 */
+@media (max-width: 768px) {
+  .batch-replace-modal {
+    width: 95%;
+    max-height: 90vh;
+  }
+
+  .column-selector {
+    grid-template-columns: 1fr;
+  }
+
+  .batch-replace-modal .modal-footer {
+    flex-direction: column;
   }
 }
 </style>

@@ -39,9 +39,9 @@
           <li @click="goToSource">
             <span role="img" aria-label="source">📚</span> 資料來源
           </li>
-          <li @click="goToPrivacyPolicy">
-            <span role="img" aria-label="privacy-policy">🔐</span> 隱私政策
-          </li>
+<!--          <li @click="goToPrivacyPolicy">-->
+<!--            <span role="img" aria-label="privacy-policy">🔐</span> 隱私政策-->
+<!--          </li>-->
         </ul>
 
         <!-- 访问统计区域 -->

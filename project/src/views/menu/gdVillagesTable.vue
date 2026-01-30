@@ -15,7 +15,7 @@
 </template>
 
 <script setup>
-import UniversalTable from '@/components/UniversalTable.vue';
+import UniversalTable from '@/components/TableAndTree/UniversalTable.vue';
 import { useRouter } from 'vue-router';
 const router = useRouter();
 

@@ -103,7 +103,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import VillagesTreeItem from '@/components/VillagesTreeItem.vue';
+import VillagesTreeItem from '@/components/TableAndTree/VillagesTreeItem.vue';
 import VillageMapPopup from '@/components/map/VillageMapPopup.vue';
 import { api } from '@/utils/auth.js';
 import { useRouter } from 'vue-router';
