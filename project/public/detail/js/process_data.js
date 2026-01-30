@@ -695,6 +695,7 @@ function mergeBackendData(result, mergedData, defaultZoom, defaultCenter) {
     result.forEach(row => {
         const newCoordinate = row["經緯度"];
         const newLocation = row["簡稱"];
+        const newPhonology = row["聲韻調"];
         const newFeature = row["特徵"];
         const created_at = row["created_at"] || null;
 
@@ -706,6 +707,7 @@ function mergeBackendData(result, mergedData, defaultZoom, defaultCenter) {
         if (locationIndex === -1) {
             mergedData.push({
                 location: newLocation,
+                phonology: newPhonology,
                 feature: newFeature,
                 value: row["值"],
                 coordinate: newCoordinate,
@@ -723,10 +725,12 @@ function mergeBackendData(result, mergedData, defaultZoom, defaultCenter) {
                 existingItem.value += "║" + row["值"];
                 existingItem.maxValue += "║" + row["maxValue"];
                 existingItem.notes += "║" + row["說明"];
+                existingItem.phonology += "║" + newPhonology;
                 existingItem.iscustoms = 1;
             } else {
                 mergedData.push({
                     location: newLocation,
+                    phonology: newPhonology,
                     feature: newFeature,
                     value: row["值"],
                     coordinate: newCoordinate,

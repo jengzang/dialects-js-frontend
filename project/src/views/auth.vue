@@ -106,7 +106,10 @@
       </div>
 
       <div class="form-row" style="display: flex; justify-content: center;">
-        <button class="btn-search" @click="login" :disabled="loading">登入</button>
+        <button class="btn-search" @click="login" :disabled="loading">
+          <span v-if="loading" class="login-spinner"></span>
+          <span v-else>登入</span>
+        </button>
       </div>
       <p v-if="error" class="err" v-html="error"></p>
       <p><a href="#" @click.prevent="mode='register'">沒有帳號？註冊一個</a></p>
@@ -776,11 +779,35 @@ export default defineComponent({
   border: none;
   cursor: pointer;
   transition: background-color 0.3s, transform 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
-.btn-search:hover {
+.btn-search:hover:not(:disabled) {
   background-color: #0056b3;
   transform: scale(1.04);
+}
+
+.btn-search:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.login-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .err {

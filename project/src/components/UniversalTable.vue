@@ -487,13 +487,15 @@ const closeFilter = () => {
 };
 
 // 搜索
-let timeout;
+let timeout = null;
 const handleSearch = () => {
-  clearTimeout(timeout);
+  // 这样才能访问到“上一次”的定时器 ID
+  if (timeout) clearTimeout(timeout);
+
   timeout = setTimeout(() => {
     currentPage.value = 1;
     fetchData();
-  }, TABLE_CONFIG.SEARCH_DEBOUNCE); // ✅ 使用 constants 配置
+  }, TABLE_CONFIG.SEARCH_DEBOUNCE);
 };
 // --- 新增逻辑：全选/反选 ---
 

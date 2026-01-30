@@ -13,6 +13,7 @@ import YangChunVillages from "./explore/YangChunVillages.vue";
 import CheckTool from "./explore/CheckTool.vue";
 import Jyut2IpaTool from "./explore/Jyut2IpaTool.vue";
 import MergeTool from "./explore/MergeTool.vue";
+import gdVillages from "./explore/gdVillagesTree.vue";
 
 const route = useRoute()
 
@@ -24,6 +25,7 @@ const activeComponent = computed(() => {
     check: CheckTool,
     jyut2ipa: Jyut2IpaTool,
     merge: MergeTool,
+    gdVillages:gdVillages,
   }
   return pageMap[page] || YangChunVillages
 })

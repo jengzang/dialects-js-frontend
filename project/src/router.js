@@ -37,7 +37,8 @@ const routes = [
     // 其他頁面
     {
         path: '/auth',
-        component: Auth
+        component: Auth,
+        meta: { title: '方音圖鑑 - 登錄' }
     },
 
     // 可選：兜底導回首頁（避免 404）
@@ -57,6 +58,49 @@ const router = createRouter({
         return { top: 0 }
     }
 })
+const MenuTitleMap = {
+    query: '方音圖鑑 - 查詢',
+    result: '方音圖鑑 - 結果',
+    map: '方音圖鑑 - 地圖',
+    about:'方音圖鑑 - 關於網站',
+    tools:'方音圖鑑 - 工具',
+    gdVillages: '方音圖鑑 - 廣東自然村',
+    ycSpoken: '方音圖鑑 - 陽春口語詞',
+    source:'方音圖鑑 - 資料來源',
+    privacy:'方音圖鑑 - 隱私',
+    Zhonggu:'方音圖鑑 - 中古漢字地位'
+};
+const ExploreTitleMap = {
+    ycVillages: '方音圖鑑 - 陽春自然村',
+    check: '方音圖鑑 - 字表檢查',
+    jyut2ipa: '方音圖鑑 - 粵拼轉ipa',
+    merge:'方音圖鑑 - 字表合併',
+};
+
+// 全局导航守卫
+router.beforeEach((to, from, next) => {
+    let title = '方音圖鑑'; // 默认标题
+
+    if (to.meta.title) {
+        title = to.meta.title;
+    }
+
+    // 如果是 /menu 页面，检查查询参数
+    if (to.path === '/menu') {
+        const tab = to.query.tab; // 获取 `tab` 参数
+        title = MenuTitleMap[tab] || '方音圖鑑'; // 根据 `tab` 获取对应的标题，如果没有匹配到则使用默认标题
+    }
+    if (to.path === '/explore') {
+        const tab = to.query.page; // 获取 `tab` 参数
+        title = ExploreTitleMap[tab] || '方音圖鑑'; // 根据 `tab` 获取对应的标题，如果没有匹配到则使用默认标题
+    }
+
+    // 设置页面标题
+    document.title = title;
+
+    // 继续导航
+    next();
+});
 
 // ✅ 根據 query.tab 動態切換組件（/intro 與 /menu 各自映射）
 // router.beforeEach((to, from, next) => {

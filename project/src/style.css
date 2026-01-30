@@ -541,6 +541,7 @@ textarea:focus {
   min-width: 80px;
   margin: auto;
   transition: all 0.2s;
+  white-space: nowrap;
 }
 
 .dropdown:hover {

@@ -42,6 +42,14 @@
               <input type="radio" name="format" value="縣志" v-model="selectedFormat" />
               <span>縣志</span>
             </label>
+            <label class="format-option">
+              <input type="radio" name="script" :value="false" v-model="isSimplified" />
+              <span>繁體(推薦)</span>
+            </label>
+            <label class="format-option">
+              <input type="radio" name="script" :value="true" v-model="isSimplified" />
+              <span>简体(簡轉繁,會更改字表)</span>
+            </label>
           </div>
         </div>
 
@@ -80,6 +88,9 @@
       <aside v-if="!isPortrait" class="sidebar glass-panel" :class="{ collapsed: sidebarCollapsed }">
         <div class="sidebar-header">
           <h3>📋 邊欄</h3>
+          <button class="glass-button small" @click="toggleShowAll">
+            {{ showingAll ? '👁️ 只顯示錯誤' : '👁️ 顯示全部' }}
+          </button>
           <button class="collapse-btn" @click="toggleSidebar">
             {{ sidebarCollapsed ? '▶' : '◀' }}
           </button>
@@ -287,7 +298,7 @@
             <div class="table-stats">
               <span>錯誤數：<strong>{{ errorStats.total }}</strong></span>
               <span class="ml-2">待保存：<strong>{{ totalPendingChanges }}</strong></span>
-              <span v-if="isEditMode" class="edit-hint">💡 雙擊單元格編輯</span>
+              <span v-if="isEditMode" class="edit-hint">💡 單擊單元格編輯</span>
             </div>
             <div class="table-actions">
               <button
@@ -315,9 +326,6 @@
               <button v-show="!isEditMode" class="glass-button small" @click="showBatchReplaceModal = true">
                 🔄 批量替換
               </button>
-              <button class="glass-button small" @click="toggleShowAll">
-                {{ showingAll ? '👁️ 只顯示錯誤' : '👁️ 顯示全部' }}
-              </button>
               <button v-show="!isEditMode" class="glass-button small" @click="downloadFile">
                 ⬇️ 下載
               </button>
@@ -325,15 +333,19 @@
           </div>
 
           <!-- 表格 -->
-          <div class="table-container glass-panel custom-scrollbar">
+          <div class="table-container glass-panel custom-scrollbar" :class="{ 'loading': isLoadingTable || isEditModeLoading }">
+            <div v-if="isLoadingTable || isEditModeLoading " class="table-loading-overlay">
+              <div class="table-loading-spinner"></div>
+              <div class="table-loading-text">加載中...</div>
+            </div>
             <table class="data-table">
               <thead>
                 <tr>
                   <th width="50">行</th>
-                  <th width="70">漢字</th>
-                  <th width="80">音標</th>
+                  <th width="80">漢字</th>
+                  <th width="90">音標</th>
                   <th 
-                    width="50" 
+                    width="45"
                     class="filterable-header"
                     @click="openFilterModal('onset')"
                     :class="{ 'filtered': filterOnset.size > 0 }"
@@ -341,7 +353,7 @@
                     聲母{{ getFilterDisplayText('onset') }}
                   </th>
                   <th 
-                    width="60" 
+                    width="55"
                     class="filterable-header"
                     @click="openFilterModal('rime')"
                     :class="{ 'filtered': filterRime.size > 0 }"
@@ -349,7 +361,7 @@
                     韻母{{ getFilterDisplayText('rime') }}
                   </th>
                   <th 
-                    width="40" 
+                    width="40"
                     class="filterable-header"
                     @click="openFilterModal('tone')"
                     :class="{ 'filtered': filterTone.size > 0 }"
@@ -360,82 +372,162 @@
                   <th v-if="isEditMode" width="80">操作</th>
                 </tr>
               </thead>
-              <tbody>
-                <tr
+              <tbody >
+              <tr
                   v-for="row in displayedTableData"
                   :key="row.row"
                   :data-row="row.row"
                   :class="{
-                    'modified-row': pendingChanges.has(row.row),
-                    'marked-for-delete': rowsToDelete.has(row.row)
-                  }"
-                >
-                  <td>{{ row.row }}</td>
-                  <td
+      'modified-row': pendingChanges.has(row.row),
+      'marked-for-delete': rowsToDelete.has(row.row)
+    }"
+              >
+                <td>{{ row.row }}</td>
+
+                <td
                     :class="{
-                      'error-cell': row.errors?.includes('nonSingleChar'),
-                      'editable-cell': isEditMode
-                    }"
-                    @dblclick="isEditMode && editCell($event.target, row.row, 'char')"
-                  >
+        'error-cell': row.errors?.includes('nonSingleChar'),
+        'editable-cell': isEditMode
+      }"
+                    @click="isEditMode && startEditing(row.row, 'char')"
+                >
+                  <input
+                      v-if="editingCell.row === row.row && editingCell.field === 'char'"
+                      :id="`edit-input-${row.row}-char`"
+                      type="text"
+                      class="glass-input row-input"
+                      :value="getPendingValue(row.row, 'char') ?? row.char ?? ''"
+                      @blur="finishEditing(row, 'char', $event.target.value)"
+                      @keydown.enter.prevent="$event.target.blur()"
+                      @keydown.esc.prevent="editingCell = { row: null, field: null }"
+                      @click.stop
+                  />
+                  <template v-else>
                     {{ getPendingValue(row.row, 'char') || row.char || '' }}
                     <span v-if="row.errors?.includes('nonSingleChar')" class="error-indicator">❌</span>
-                  </td>
-                  <td
+                  </template>
+                </td>
+
+                <td
                     :class="{
-                      'error-cell': row.errors?.includes('invalidIpa'),
-                      'editable-cell': isEditMode
-                    }"
-                    @dblclick="isEditMode && editCell($event.target, row.row, 'ipa')"
-                  >
+        'error-cell': row.errors?.includes('invalidIpa'),
+        'editable-cell': isEditMode
+      }"
+                    @click="isEditMode && startEditing(row.row, 'ipa')"
+                >
+                  <input
+                      v-if="editingCell.row === row.row && editingCell.field === 'ipa'"
+                      :id="`edit-input-${row.row}-ipa`"
+                      type="text"
+                      class="glass-input row-input"
+                      :value="getPendingValue(row.row, 'ipa') ?? row.ipa ?? ''"
+                      @blur="finishEditing(row, 'ipa', $event.target.value)"
+                      @keydown.enter.prevent="$event.target.blur()"
+                      @keydown.esc.prevent="editingCell = { row: null, field: null }"
+                      @click.stop
+                  />
+                  <template v-else>
                     {{ getPendingValue(row.row, 'ipa') || row.ipa || '' }}
                     <span v-if="row.errors?.includes('invalidIpa')" class="error-indicator">⚠️</span>
-                  </td>
-                  <td
-                      :class="{
-                      'error-cell': row.errors?.includes('invalidIpa'),
-                      'editable-cell': isEditMode
-                    }"
-                      @dblclick="isEditMode && editCell($event.target, row.row, 'onset')"
-                  >
+                  </template>
+                </td>
+
+                <td
+                    :class="{ 'editable-cell': isEditMode }"
+                    @click="isEditMode && startEditing(row.row, 'onset')"
+                >
+                  <input
+                      v-if="editingCell.row === row.row && editingCell.field === 'onset'"
+                      :id="`edit-input-${row.row}-onset`"
+                      type="text"
+                      class="glass-input row-input"
+                      :value="getPendingValue(row.row, 'onset') ?? row.onset ?? ''"
+                      @blur="finishEditing(row, 'onset', $event.target.value)"
+                      @keydown.enter.prevent="$event.target.blur()"
+                      @keydown.esc.prevent="editingCell = { row: null, field: null }"
+                      @click.stop
+                  />
+                  <template v-else>
                     {{ getPendingValue(row.row, 'onset') || row.onset || '' }}
-                  </td>
-                  <td
-                      :class="{
-                      'error-cell': row.errors?.includes('invalidIpa'),
-                      'editable-cell': isEditMode
-                    }"
-                      @dblclick="isEditMode && editCell($event.target, row.row, 'rime')"
-                  >
+                  </template>
+                </td>
+
+                <td
+                    :class="{ 'editable-cell': isEditMode }"
+                    @click="isEditMode && startEditing(row.row, 'rime')"
+                >
+                  <input
+                      v-if="editingCell.row === row.row && editingCell.field === 'rime'"
+                      :id="`edit-input-${row.row}-rime`"
+                      type="text"
+                      class="glass-input row-input"
+                      :value="getPendingValue(row.row, 'rime') ?? row.rime ?? ''"
+                      @blur="finishEditing(row, 'rime', $event.target.value)"
+                      @keydown.enter.prevent="$event.target.blur()"
+                      @keydown.esc.prevent="editingCell = { row: null, field: null }"
+                      @click.stop
+                  />
+                  <template v-else>
                     {{ getPendingValue(row.row, 'rime') || row.rime || '' }}
-                  </td>
-                  <td
+                  </template>
+                </td>
+
+                <td
                     :class="{
-                      'error-cell': row.errors?.includes('missingTone'),
-                      'editable-cell': isEditMode
-                    }"
-                    @dblclick="isEditMode && editCell($event.target, row.row, 'tone')"
-                  >
+        'error-cell': row.errors?.includes('missingTone'),
+        'editable-cell': isEditMode
+      }"
+                    @click="isEditMode && startEditing(row.row, 'tone')"
+                >
+                  <input
+                      v-if="editingCell.row === row.row && editingCell.field === 'tone'"
+                      :id="`edit-input-${row.row}-tone`"
+                      type="text"
+                      class="glass-input row-input"
+                      :value="getPendingValue(row.row, 'tone') ?? row.tone ?? ''"
+                      @blur="finishEditing(row, 'tone', $event.target.value)"
+                      @keydown.enter.prevent="$event.target.blur()"
+                      @keydown.esc.prevent="editingCell = { row: null, field: null }"
+                      @click.stop
+                  />
+                  <template v-else>
                     {{ getPendingValue(row.row, 'tone') || row.tone || '' }}
                     <span v-if="row.errors?.includes('missingTone')" class="error-indicator">🔍</span>
-                  </td>
-                  <td
+                  </template>
+                </td>
+
+                <td
                     :class="{ 'editable-cell': isEditMode }"
-                    @dblclick="isEditMode && editCell($event.target, row.row, 'note')"
-                  >
+                    @click="isEditMode && startEditing(row.row, 'note')"
+                >
+                  <input
+                      v-if="editingCell.row === row.row && editingCell.field === 'note'"
+                      :id="`edit-input-${row.row}-note`"
+                      type="text"
+                      class="glass-input row-input"
+                      style="text-align: left;"
+                      :value="getPendingValue(row.row, 'note') ?? row.note ?? ''"
+                      @blur="finishEditing(row, 'note', $event.target.value)"
+                      @keydown.enter.prevent="$event.target.blur()"
+                      @keydown.esc.prevent="editingCell = { row: null, field: null }"
+                      @click.stop
+                  />
+                  <template v-else>
                     {{ getPendingValue(row.row, 'note') || row.note || '' }}
-                  </td>
-                  <td v-if="isEditMode" class="action-cell">
-                    <button
+                  </template>
+                </td>
+
+                <td v-if="isEditMode" class="action-cell">
+                  <button
                       class="delete-btn-icon"
                       :class="{ 'delete-active': rowsToDelete.has(row.row) }"
                       @click="markForDelete(row.row)"
                       :title="rowsToDelete.has(row.row) ? '取消刪除' : '標記刪除'"
-                    >
-                      {{ rowsToDelete.has(row.row) ? '↩️' : '🗑️' }}
-                    </button>
-                  </td>
-                </tr>
+                  >
+                    {{ rowsToDelete.has(row.row) ? '↩️' : '🗑️' }}
+                  </button>
+                </td>
+              </tr>
               </tbody>
             </table>
           </div>
@@ -569,15 +661,15 @@
           </div>
 
           <div class="modal-body help-content custom-scrollbar">
-            <div class="help-section">
-              <h4>📋 文件要求</h4>
-              <ul>
-                <li>支持 .xlsx 和 .xls 格式</li>
-                <li>必須包含"漢字"或"單字"列</li>
-                <li>必須包含"音標"或"IPA"列</li>
-                <li>可選包含"解釋"或"注釋"列</li>
-              </ul>
-            </div>
+<!--            <div class="help-section">-->
+<!--              <h4>📋 文件要求</h4>-->
+<!--              <ul>-->
+<!--                <li>支持 .xlsx 和 .xls 格式</li>-->
+<!--                <li>必須包含"漢字"或"單字"列</li>-->
+<!--                <li>必須包含"音標"或"IPA"列</li>-->
+<!--                <li>可選包含"解釋"或"注釋"列</li>-->
+<!--              </ul>-->
+<!--            </div>-->
 
             <div class="help-section">
               <h4>🔍 檢查項目</h4>
@@ -664,8 +756,8 @@
                 <p><strong>文件要求：</strong>Excel (.xlsx, .xls)。</p>
                 <p><strong>必須包含三列：</strong></p>
                 <ul>
-                  <li><strong>漢字列：</strong>列名可以是「單字」、「#漢字」、「单字」、「漢字」、「phrase」、「汉字」</li>
-                  <li><strong>音標列：</strong>列名可以是「IPA」、「ipa」、「音標」、「syllable」</li>
+                  <li><strong>漢字列：</strong>列名可以是「單字」、「phrase」、「单字」、「漢字」、「汉字」</li>
+                  <li><strong>音標列：</strong>列名可以是「IPA」、「ipa」、「音標」、「音标」、「syllable」</li>
                   <li><strong>解釋列：</strong>列名可以是「注释」、「注釋」、「解釋」、「notes」</li>
                 </ul>
                 <p><strong>特點：</strong>系統會自動識別列名，支持多種列名變體。</p>
@@ -675,7 +767,7 @@
             <!-- 跳跳老鼠格式 -->
             <div class="help-section">
               <h4>2. 跳跳老鼠</h4>
-              <p>適用於簡單的「一音對多字」Excel 清單。</p>
+              <p>「一音對多字」</p>
               <div class="format-details">
                 <p><strong>文件要求：</strong>Excel (.xlsx, .xls)。</p>
                 <p><strong>欄位排版：</strong></p>
@@ -694,7 +786,7 @@
               <div class="format-subsection">
                 <h5>Excel 格式：</h5>
                 <div class="format-details">
-                  <p><strong>文件要求：</strong>Excel 或純文本 (.txt, .tsv)。</p>
+                  <p><strong>文件要求：</strong>Excel (.xlsx, .xls)。</p>
                   <p><strong>內容規則：</strong></p>
                   <ul>
                     <li>行首：聲母+韻母（如：pan）。</li>
@@ -708,7 +800,7 @@
               <div class="format-subsection">
                 <h5>Word 格式：</h5>
                 <div class="format-details">
-                  <p><strong>文件要求：</strong>Word (.docx) 或 結構化文本。</p>
+                  <p><strong>文件要求：</strong>Word (.docx)</p>
                   <p><strong>層級規則：</strong></p>
                   <ul>
                     <li>韻母層：以 # 開頭（如：#ang）。</li>
@@ -817,6 +909,7 @@ const totalRows = ref(0)
 const taskId = ref(null)
 const isDragOver = ref(false)
 const selectedFormat = ref('') // 文件格式类型
+const isSimplified = ref(false) // 新增：默认为 false (繁体)
 const isUploading = ref(false) // 上传加载状态
 
 // 数据
@@ -833,9 +926,11 @@ const searchQuery = ref('')
 const currentFilter = ref(null)
 const errorStatsExpanded = ref(true)  // 错误列表展开状态
 const isPortrait = ref(false) // 竖屏检测
+const isLoadingTable = ref(false) // 表格加载状态
 
 // 编辑状态
 const isEditMode = ref(false)
+const isEditModeLoading = ref(false) // 编辑模式加载状态
 const pendingChanges = ref(new Map())
 const rowsToDelete = ref(new Set())
 
@@ -1086,7 +1181,8 @@ const uploadFile = async (file) => {
     if (selectedFormat.value) {
       formData.append('format_type', selectedFormat.value)
     }
-
+    // 繁体(false) -> '0', 简体(true) -> '1'
+    formData.append('level', isSimplified.value ? '1' : '0')
     const data = await api('/api/tools/check/upload', {
       method: 'POST',
       body: formData
@@ -1106,6 +1202,7 @@ const uploadFile = async (file) => {
 
 const analyzeFile = async () => {
   try {
+    isLoadingTable.value = true
     const data = await api(`/api/tools/check/analyze?task_id=${taskId.value}`, {
       method: 'POST'
     })
@@ -1120,7 +1217,7 @@ const analyzeFile = async () => {
       missingTone: data.error_stats?.missingTone || 0,
       total: Object.values(data.error_stats || {}).reduce((a, b) => a + b, 0)
     }
-
+    showingAll.value = errorStats.value.total === 0
     // 加载调值统计
     await loadToneStats()
 
@@ -1129,6 +1226,7 @@ const analyzeFile = async () => {
 
     // 加载错误行的完整数据（用于表格显示）
     await loadErrorRowsData(errorMetadata)
+    isLoadingTable.value = false
   } catch (error) {
     showError('分析失敗: ' + error.message)
   }
@@ -1154,6 +1252,7 @@ const loadToneStats = async () => {
 
 const loadAllData = async () => {
   try {
+    isLoadingTable.value = true
     const data = await api('/api/tools/check/get_data', {
       method: 'POST',
       body: {
@@ -1167,11 +1266,14 @@ const loadAllData = async () => {
     }
   } catch (error) {
     console.error('加載全部數據失敗:', error)
+  } finally {
+    isLoadingTable.value = false
   }
 }
 
 const loadErrorRowsData = async (errors) => {
   try {
+    isLoadingTable.value = true
     // 保存错误元数据用于侧边栏
     errorMetadata.value = errors
 
@@ -1201,12 +1303,13 @@ const loadErrorRowsData = async (errors) => {
       rowData.forEach(row => {
         row.errors = errorsByRow[row.row] || []
       })
-
       errorData.value = rowData
       filteredData.value = rowData
     }
   } catch (error) {
     console.error('加載錯誤行數據失敗:', error)
+  } finally {
+    isLoadingTable.value = false
   }
 }
 
@@ -1455,50 +1558,81 @@ const jumpToRow = (rowNumber) => {
 }
 
 // 编辑功能
-const toggleEditMode = () => {
-  isEditMode.value = !isEditMode.value
+const toggleEditMode = async () => {
   if (!isEditMode.value) {
+    // 进入编辑模式
+    isEditMode.value = true
+    isEditModeLoading.value = true
+    // 等待 DOM 更新完成
+    await nextTick()
+    // 等待一小段时间确保所有 DOM 元素都已渲染
+    setTimeout(() => {
+      isEditModeLoading.value = false
+    }, 100)
+  } else {
+    // 退出编辑模式
+    isEditMode.value = false
     pendingChanges.value.clear()
     rowsToDelete.value.clear()
   }
 }
 
-const editCell = (target, row, field) => {
-  if (target.querySelector('input')) return
+// 记录当前正在编辑的单元格位置
+const editingCell = ref({ row: null, field: null })
 
-  const originalValue = target.textContent.trim().replace(/[❌⚠️🔍]/g, '')
-  const actualValue = getPendingValue(row, field) || originalValue
+// 激活编辑状态（替代原来的 editCell）
+const startEditing = (rowId, field) => {
+  editingCell.value = { row: rowId, field: field }
+  // 下一帧自动聚焦输入框
+  nextTick(() => {
+    const inputId = `edit-input-${rowId}-${field}`
+    const el = document.getElementById(inputId)
+    if (el) el.focus()
+  })
+}
 
-  const input = document.createElement('input')
-  input.type = 'text'
-  input.className = 'glass-input'
-  input.value = actualValue
-  input.style.cssText = 'width: 100%; padding: 4px 8px;'
+// 结束编辑（保存或取消）
+// 3. 修改后的：结束编辑
+const finishEditing = (rowObj, field, value) => {
+  // 1. 数据清洗：转为字符串并去除首尾空格（防止用户误输空格被当成修改）
+  const newValue = String(value ?? '').trim()
 
-  target.innerHTML = ''
-  target.appendChild(input)
-  input.focus()
-  input.select()
+  // 2. 获取该字段在文件里的最原始值
+  const originalFileValue = String(rowObj[field] ?? '').trim()
 
-  const save = () => {
-    const newValue = input.value.trim()
-    if (newValue !== actualValue) {
-      if (!pendingChanges.value.has(row)) {
-        pendingChanges.value.set(row, {})
-      }
-      pendingChanges.value.get(row)[field] = newValue
-    }
-    target.textContent = newValue
+  // 3. 获取编辑前一刻显示的值（可能是还没保存的 Pending 值，也可能是原始值）
+  const currentPending = pendingChanges.value.get(rowObj.row)?.[field]
+  const displayedValue = currentPending !== undefined
+      ? String(currentPending).trim()
+      : originalFileValue
+
+  // 4. 【关键判断】如果新值和刚才显示的值一样，说明用户点开没改，或者改了又改回去了
+  if (newValue === displayedValue) {
+    editingCell.value = { row: null, field: null }
+    return // 直接退出，不标记为修改
   }
 
-  input.addEventListener('blur', save)
-  input.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') {
-      save()
-    } else if (e.key === 'Escape') {
-      target.textContent = actualValue
+  // 5. 准备写入修改
+  if (!pendingChanges.value.has(rowObj.row)) {
+    pendingChanges.value.set(rowObj.row, {})
+  }
+
+  // 6. 【进阶优化】如果新值等于“最原始的文件值”，说明用户把改过的数据又改回去了
+  if (newValue === originalFileValue) {
+    // 删除这个字段的 pending 记录
+    delete pendingChanges.value.get(rowObj.row)[field]
+
+    // 如果这一行没有其他修改了，把整行从 pending map 中删掉（去掉黄色高亮）
+    if (Object.keys(pendingChanges.value.get(rowObj.row)).length === 0) {
+      pendingChanges.value.delete(rowObj.row)
     }
-  })
+  } else {
+    // 确实是新的修改，记录下来
+    pendingChanges.value.get(rowObj.row)[field] = newValue
+  }
+
+  // 退出编辑状态
+  editingCell.value = { row: null, field: null }
 }
 
 const markForDelete = (row) => {
@@ -1708,7 +1842,10 @@ const downloadFile = async () => {
     const url = window.URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = 'checked_' + fileName.value
+    const originalName = fileName.value
+    const nameWithoutExt = originalName.substring(0, originalName.lastIndexOf('.')) || originalName
+    // 2. 强制加上 .xlsx 后缀
+    a.download = '方音圖鑑_' + nameWithoutExt + '.xlsx'
     document.body.appendChild(a)
     a.click()
     window.URL.revokeObjectURL(url)
@@ -1874,7 +2011,7 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 16px;
+  padding: 6px 6px;
   background: rgba(255, 255, 255, 0.5);
   border-radius: 10px;
   cursor: pointer;
@@ -1927,7 +2064,6 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 16px;
 }
 
 .sidebar-header h3 {
@@ -2426,6 +2562,42 @@ onUnmounted(() => {
   flex: 1;
   overflow: auto;
   -webkit-overflow-scrolling: touch;
+  position: relative;
+}
+
+.table-container.loading {
+  pointer-events: none;
+}
+
+.table-loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(4px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  z-index: 100;
+}
+
+.table-loading-spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid rgba(0, 122, 255, 0.1);
+  border-top-color: #007aff;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.table-loading-text {
+  font-size: 14px;
+  color: #007aff;
+  font-weight: 500;
 }
 
 .data-table {
@@ -2445,7 +2617,7 @@ onUnmounted(() => {
 .data-table th,
 .data-table td {
   padding: 10px 12px;
-  text-align: left;
+  text-align: center; /* <--- 改成 center 即可 */
   border-bottom: 1px solid rgba(255, 255, 255, 0.3);
 }
 
@@ -3652,5 +3824,20 @@ onUnmounted(() => {
     padding: 6px 12px;
   }
 }
+/* 表格行内编辑输入框样式 */
+.row-input {
+  width: 100%;
+  height: 100%;
+  padding: 4px;
+  text-align: center; /* 让文字居中 */
+  border: none;
+  background: rgba(255, 255, 255, 0.5); /* 稍微明显的背景 */
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,0.1);
+  box-sizing: border-box;
+}
 
+.row-input:focus {
+  background: white;
+  box-shadow: inset 0 0 0 2px #4a90e2;
+}
 </style>

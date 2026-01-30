@@ -17,8 +17,9 @@ import SourcePage from "@/views/menu/SourcePage.vue";
 import PrivacyPage from "@/views/menu/PrivacyPage.vue";
 import SettingPage from "@/views/menu/SettingPage.vue";
 import YangChunSpoken from "@/views/menu/YangChunSpoken.vue";
-import GuangDongVillages from "@/views/menu/GuangDongVillages.vue";
+import GuangDongVillages from "@/views/menu/gdVillagesTable.vue";
 import ToolsPage from "@/views/menu/ToolsPage.vue";
+import ZhongGu from "@/views/menu/ZhongGuPage.vue"
 // ... 其他组件引入
 
 const route = useRoute()
@@ -36,7 +37,8 @@ const activeComponent = computed(() => {
     about: AboutPage,
     ycSpoken:YangChunSpoken,
     gdVillages:GuangDongVillages,
-    tools: ToolsPage
+    tools: ToolsPage,
+    ZhongGu: ZhongGu,
     // ... 其他映射
   }
   return tabMap[tab] || QueryPage

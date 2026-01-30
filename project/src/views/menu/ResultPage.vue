@@ -242,7 +242,10 @@ watch(
           const response = await api('/api/ZhongGu', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload.value)
+            body: JSON.stringify({
+              ...payload.value,
+              exclude_columns: payload.value.exclude_columns || []  // ✨ 新增
+            })
           });
 
           if (seq !== requestSeq) return;
@@ -273,7 +276,10 @@ watch(
           const response = await api('/api/YinWei', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload.value)
+            body: JSON.stringify({
+              ...payload.value,
+              exclude_columns: payload.value.exclude_columns || []  // ✨ 新增
+            })
           });
 
           if (seq !== requestSeq) return;

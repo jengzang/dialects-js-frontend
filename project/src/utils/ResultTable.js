@@ -174,12 +174,9 @@ export async function get_detail(location, feature_value, bool=false, vue=false,
         // ✅ 使用统一的 api 函数（替代 window.fetch）
         const result = await api('/api/phonology', {
             method: 'POST',
-            body: JSON.stringify(payload),
+            body: payload,
             timeout: API_CONFIG.LONG_TIMEOUT  // 使用长超时时间（60秒）
         });
-
-        // 不需要手动解析 JSON 和检查状态，api 函数已经处理
-        // 也不需要手动更新 token，api 函数会自动处理 401
 
         // === 3. 處理數據 ===
         if (!result.results) {

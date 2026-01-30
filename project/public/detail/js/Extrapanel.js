@@ -159,12 +159,13 @@ document.getElementById("infoForm").addEventListener("submit", async function (e
         const location_submit = document.getElementById("location-input").value.trim();
         const region_submit = document.getElementById("region-input").value.trim();
         const coordinates = document.getElementById("coordinates-input").value.trim();
+        const phonology = document.getElementById("phonology-input").value.trim();
         const feature = document.getElementById("feature-input").value.trim();
         const value = document.getElementById("value-input").value.trim();
         const description = document.getElementById("description-input").value.trim();
 
         // 表單驗證
-        if (!location_submit || !region_submit || !coordinates || !feature || !value) {
+        if (!location_submit || !region_submit || !coordinates || !phonology || !feature || !value) {
             showToast("❌ 所有字段（除說明）必須填寫！",'darkred');
             return;  // 如果有空的字段，則不提交
         }
@@ -174,6 +175,7 @@ document.getElementById("infoForm").addEventListener("submit", async function (e
             location: location_submit,
             region: region_submit,
             coordinates: coordinates,
+            phonology: phonology,
             feature: feature,
             value: value,
             description: description || null // 如果說明為空，設置為 null
