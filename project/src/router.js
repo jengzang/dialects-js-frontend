@@ -75,7 +75,8 @@ const ExploreTitleMap = {
     check: '方音圖鑑 - 字表檢查',
     jyut2ipa: '方音圖鑑 - 粵拼轉ipa',
     merge:'方音圖鑑 - 字表合併',
-    gdVillages:'方音圖鑑 - 廣東自然村樹狀圖'
+    gdVillages:'方音圖鑑 - 廣東自然村樹狀圖',
+    manage: '方音圖鑑 - 表格管理'
 };
 
 // 全局导航守卫

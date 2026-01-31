@@ -11,7 +11,7 @@
         />
       </div>
       <div class="action-buttons">
-        <button class="glass-btn" style="padding:8px 6px " @click="exportToExcel">
+        <button v-if="!isEditMode" class="glass-btn" style="padding:8px 6px " @click="exportToExcel">
           <span class="icon">📤</span><span class="btn-text">Excel</span>
         </button>
         <button class="glass-btn primary" @click="openAddModal">
@@ -1142,7 +1142,7 @@ onUnmounted(() => {
   border-radius: var(--radius-xl);
   border: 1px solid var(--glass-border);
   box-shadow: var(--shadow-md);
-  padding: 12px;
+  padding: 12px 4px;
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   color: var(--text-primary);
   display: flex;
@@ -1554,8 +1554,8 @@ td.cell-changed::after {
 /* Mobile Responsiveness */
 @media (max-width: 768px) {
   .glass-container {
-    padding: 8px;
-    border-radius: 0;
+    padding: 8px 2px;
+    border-radius: 20px;
     height: 85dvh;
     border: none;
   }
@@ -1580,6 +1580,7 @@ td.cell-changed::after {
   .action-buttons .glass-btn {
     flex: 1;
     justify-content: center;
+    padding: 8px;
   }
 
   table {

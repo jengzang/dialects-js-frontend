@@ -216,6 +216,14 @@
         <button v-if="user?.role === 'admin'" class="btn-action success" @click="goToAdminPanel">
           🧑‍💻 後台管理
         </button>
+
+        <button
+          v-if="user?.role === 'admin'"
+          class="btn-action warning"
+          @click="goToTableManager"
+        >
+          📊 表格管理
+        </button>
       </div>
 
 
@@ -305,6 +313,7 @@ import { ref, defineComponent, onMounted, watch, computed } from 'vue'
 import {
   api,
   getToken,
+  getRefreshToken,
   saveToken,
   clearToken,
   getUserRole,
@@ -312,10 +321,12 @@ import {
   update_userdatas_bytoken
 } from '../utils/auth.js'
 import { userStore } from '../utils/store.js'
+import { useRouter } from 'vue-router';
 
 export default defineComponent({
   name: 'AuthPopup',
   setup() {
+    const router = useRouter(); // 必须在 setup 内部调用
     const mode = ref('login') // login | register | profile
     const username = ref('')
     const password = ref('')
@@ -362,14 +373,16 @@ export default defineComponent({
           headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
           body: form,
         })
-        saveToken(res.access_token)
+
+        // 保存新的三个值
+        saveToken(res.access_token, res.refresh_token, res.expires_in)
         await fetchUser()
         await getUserRole();
         console.log(userStore.role)
-        error.value = '✅ 登錄成功<br>即將跳轉個人信息界面'
+        error.value = '✅ 登錄成功<br>即將刷新頁面'
         setTimeout(() => {
-          mode.value = 'profile'
-          error.value = ''
+          // 刷新页面以确保所有状态正确加载
+          window.location.reload()
         }, 1000)
       } catch (e) {
         let msg = '未知錯誤';
@@ -438,9 +451,16 @@ export default defineComponent({
     }
 
     const logout = async () => {
+      const refreshToken = getRefreshToken()
+
       try {
-        await api('/auth/logout', { method: 'POST' })
+        await api('/auth/logout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: { refresh_token: refreshToken }
+        })
       } catch {}
+
       clearToken()
       userStore.role = 'anonymous';
       userStore.isAuthenticated = false;
@@ -609,6 +629,10 @@ export default defineComponent({
       window.location.href = window.WEB_BASE + '/admin';
     };
 
+    const goToTableManager = () => {
+      router.push({ path: '/explore', query: { page: 'manage' } });
+    };
+
     watch(mode, () => {
       error.value = ''
     })
@@ -617,7 +641,7 @@ export default defineComponent({
       username, password, email, error, loading, savePassword, saveUsername, modeType,
       user, mode, login, register, logout, fmt, loginMode,
       newPassword, newUsername, currentPassword, formatOnlineTime,
-      showPassword, queryStats, goToAdminPanel
+      showPassword, queryStats, goToAdminPanel, goToTableManager
     }
   }
 })
@@ -754,6 +778,15 @@ export default defineComponent({
 }
 .btn-action.primary:hover {
   background-color: #005fcc;
+}
+/* Warning 状态效果 - 深黄色/琥珀色 */
+.btn-action.warning {
+  background-color: #f39c12; /* 更深、更饱和的警示黄 */
+  color: #ffffff;           /* 颜色加深后，白色文字对比度也足够了 */
+}
+
+.btn-action.warning:hover {
+  background-color: #e67e22; /* 悬停时转为深橙色，增强交互感 */
 }
 
 .btn-action.success {

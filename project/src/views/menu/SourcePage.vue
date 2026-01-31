@@ -58,12 +58,6 @@ const goToPrivacy = () => {
 </template>
 
 <style scoped>
-/* 头部行样式 */
-.header-row {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-}
 
 .privacy-link {
   font-size: 14px;
@@ -81,13 +75,17 @@ const goToPrivacy = () => {
   background: rgba(0, 122, 255, 0.1);
   text-decoration: underline;
 }
+.header-row {
+  display: flex;
+  align-items: center; /* 垂直居中對齊 */
+  gap: 15px;           /* 標題和下拉框之間的間距 */
+  justify-content: center;
+}
 
 /* 响应式：移动端换行 */
 @media (max-width: 768px) {
   .header-row {
-    flex-direction: column;
     gap: 8px;
-    align-items: flex-start;
   }
 
   .privacy-link {

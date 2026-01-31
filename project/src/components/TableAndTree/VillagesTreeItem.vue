@@ -134,9 +134,9 @@ const handleMapClick = () => {
   if (hasChildren.value) {
     // Branch node: collect all leaf nodes
     const leafNodes = collectLeafNodes(props.node);
-    console.log(`=== ${props.node.name} - 所有下級村落 ===`);
-    console.log(`總數: ${leafNodes.length}`);
-    console.table(leafNodes);
+    // console.log(`=== ${props.node.name} - 所有下級村落 ===`);
+    // console.log(`總數: ${leafNodes.length}`);
+    // console.table(leafNodes);
 
     // Emit to parent component
     emit('open-map', leafNodes);
@@ -146,13 +146,13 @@ const handleMapClick = () => {
     const lng = props.node.rawData?.['longitude']?.[0] || '';
     const lat = props.node.rawData?.['latitude']?.[0] || '';
 
-    console.log(`=== ${props.node.rawName || props.node.name} ===`);
-    console.log({
-      name: props.node.rawName || props.node.name,
-      dialect: dialect,
-      longitude: lng,
-      latitude: lat
-    });
+    // console.log(`=== ${props.node.rawName || props.node.name} ===`);
+    // console.log({
+    //   name: props.node.rawName || props.node.name,
+    //   dialect: dialect,
+    //   longitude: lng,
+    //   latitude: lat
+    // });
 
     // Emit to parent component
     emit('open-map', [{

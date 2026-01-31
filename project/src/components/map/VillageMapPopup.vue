@@ -13,7 +13,7 @@
           <!-- 地图容器 -->
           <div ref="mapContainer" class="map-content">
             <!-- 控制面板 -->
-            <div class="map-controls">
+            <div v-if="!isFullscreen" class="map-controls">
               <select v-model="currentStyle" @change="changeMapStyle">
                 <option
                   v-for="(name, key) in mapStyleConfig"
@@ -222,7 +222,7 @@ const renderWithClustering = (geojsonData) => {
     type: 'geojson',
     data: geojsonData,
     cluster: true,
-    clusterMaxZoom: 18,
+    clusterMaxZoom: 20,
     clusterRadius: 30
   })
 
@@ -280,7 +280,7 @@ const renderWithClustering = (geojsonData) => {
     source: 'villages',
     filter: ['!', ['has', 'point_count']],
     paint: {
-      'circle-radius': 18,
+      'circle-radius': 17,
       'circle-color': ['get', 'bgColor'],
       'circle-opacity': 0.9,
       'circle-stroke-width': 1.5,
