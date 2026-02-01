@@ -259,7 +259,7 @@ watch(
 
             // ✅ 修复：func_mergeData 是 async，必须 await
             mergedData = await func_mergeData(latestResults.value, MapData);
-            console.log(mergedData)
+            // console.log(mergedData)
             if (seq !== requestSeq) return;
 
             mapStore.mapData = MapData;

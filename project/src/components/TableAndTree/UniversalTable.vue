@@ -47,7 +47,12 @@
       </div>
     </div>
 
-    <div class="table-scroll-area">
+    <div
+      class="table-scroll-area"
+      @touchstart="handleTouchStart"
+      @touchmove="handleTouchMove"
+      @touchend="handleTouchEnd"
+    >
       <div v-if="isLoading" class="loading-overlay">
         <div class="spinner"></div>
         <span>數據加載中...</span>
@@ -111,7 +116,24 @@
 
     <div class="pagination">
       <button class="page-btn" @click="changePage(-1)" :disabled="currentPage === 1">←</button>
-      <span class="page-info">{{ currentPage }} / {{ totalPages }}</span>
+      <div class="page-info-wrapper">
+        <span v-if="!isEditingPageNumber" class="page-info clickable" @click="startEditPageNumber">
+          {{ currentPage }} / {{ totalPages }}
+        </span>
+        <div v-else class="page-input-wrapper">
+          <input
+            ref="pageInputRef"
+            v-model.number="inputPageNumber"
+            type="number"
+            class="page-input"
+            :min="1"
+            :max="totalPages"
+            @keyup.enter="confirmPageJump"
+            @blur="confirmPageJump"
+          />
+          <span class="page-total">/ {{ totalPages }}</span>
+        </div>
+      </div>
       <button class="page-btn" @click="changePage(1)" :disabled="currentPage >= totalPages">→</button>
       <button class="fullscreen-toggle-btn" @click="toggleFullscreen">
         {{ isFullscreen ? '退出' : '⛶ 全屏' }}
@@ -122,20 +144,13 @@
     <Teleport to="body">
       <transition name="fade-scale">
         <div v-if="isFullscreen" class="table-fullscreen-overlay">
-          <div class="fullscreen-container glass-container">
-            <div class="toolbar">
-              <div class="search-wrapper">
-                <span class="search-icon">🔍</span>
-                <input
-                    v-model="searchText"
-                    @input="handleSearch"
-                    placeholder="搜索..."
-                    class="search-input"
-                />
-              </div>
-            </div>
-
-            <div class="table-scroll-area">
+          <div class="fullscreen-container">
+            <div
+              class="table-scroll-area fullscreen-table"
+              @touchstart="handleTouchStart"
+              @touchmove="handleTouchMove"
+              @touchend="handleTouchEnd"
+            >
               <div v-if="isLoading" class="loading-overlay">
                 <div class="spinner"></div>
                 <span>數據加載中...</span>
@@ -197,12 +212,29 @@
               </table>
             </div>
 
-            <div class="pagination">
+            <div class="pagination fullscreen-pagination">
               <button class="page-btn" @click="changePage(-1)" :disabled="currentPage === 1">←</button>
-              <span class="page-info">{{ currentPage }} / {{ totalPages }}</span>
+              <div class="page-info-wrapper">
+                <span v-if="!isEditingPageNumber" class="page-info clickable" @click="startEditPageNumber">
+                  {{ currentPage }} / {{ totalPages }}
+                </span>
+                <div v-else class="page-input-wrapper">
+                  <input
+                    ref="pageInputRefFullscreen"
+                    v-model.number="inputPageNumber"
+                    type="number"
+                    class="page-input"
+                    :min="1"
+                    :max="totalPages"
+                    @keyup.enter="confirmPageJump"
+                    @blur="confirmPageJump"
+                  />
+                  <span class="page-total">/ {{ totalPages }}</span>
+                </div>
+              </div>
               <button class="page-btn" @click="changePage(1)" :disabled="currentPage >= totalPages">→</button>
               <button class="fullscreen-toggle-btn exit-btn" @click="toggleFullscreen">
-                退出
+                退出全屏
               </button>
             </div>
           </div>
@@ -427,7 +459,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, computed, onUnmounted } from 'vue';
+import { ref, reactive, onMounted, computed, onUnmounted, nextTick } from 'vue';
 import * as XLSX from 'xlsx';
 import { api } from "@/utils/auth.js";
 import { userStore } from '@/utils/store.js';
@@ -451,6 +483,12 @@ const sortCol = ref(null);
 const sortDesc = ref(false);
 const isFullscreen = ref(false);
 
+// 页码输入相关状态
+const isEditingPageNumber = ref(false);
+const inputPageNumber = ref(1);
+const pageInputRef = ref(null);
+const pageInputRefFullscreen = ref(null);
+
 // 編輯模式相關狀態
 const isEditMode = ref(false);
 const changedCells = reactive({}); // { rowId: { colKey: newValue } }
@@ -469,6 +507,14 @@ const batchReplace = reactive({
   matchMode: 'contains',    // 匹配模式：'exact' | 'contains'
   previewResults: []        // 预览结果 [{ rowId, rowIndex, columnKey, columnLabel, oldValue, newValue }]
 })
+
+// ========================================
+// 移动端滚动锁定相关状态
+// ========================================
+const touchStartX = ref(0)
+const touchStartY = ref(0)
+const scrollDirection = ref(null) // 'horizontal' | 'vertical' | null
+const isScrollLocked = ref(false)
 
 // 可编辑的列（排除 rowid）
 const editableColumns = computed(() => {
@@ -717,6 +763,43 @@ const exportToExcel = () => {
 // 翻頁
 const changePage = (delta) => {
   currentPage.value += delta;
+  fetchData();
+};
+
+// 页码输入相关函数
+const startEditPageNumber = () => {
+  isEditingPageNumber.value = true;
+  inputPageNumber.value = currentPage.value;
+  // 使用 nextTick 确保输入框已渲染
+  nextTick(() => {
+    const inputEl = pageInputRef.value || pageInputRefFullscreen.value;
+    if (inputEl) {
+      inputEl.focus();
+      inputEl.select();
+    }
+  });
+};
+
+const confirmPageJump = () => {
+  const targetPage = inputPageNumber.value;
+
+  // 关闭编辑模式
+  isEditingPageNumber.value = false;
+
+  // 如果页码没变化，不需要跳转
+  if (targetPage === currentPage.value) {
+    return;
+  }
+
+  // 验证页码范围
+  if (!targetPage || targetPage < 1 || targetPage > totalPages.value) {
+    showWarning(`請輸入 1 到 ${totalPages.value} 之間的頁碼`);
+    inputPageNumber.value = currentPage.value;
+    return;
+  }
+
+  // 跳转到目标页
+  currentPage.value = targetPage;
   fetchData();
 };
 
@@ -1104,6 +1187,59 @@ const executeBatchReplace = async () => {
 
   showSuccess(`批量替換完成！已記錄 ${batchReplace.previewResults.length} 處變更，請點擊"提交"按鈕保存。`)
   closeBatchReplaceModal()
+}
+
+// ========================================
+// 移动端触摸滚动锁定函数
+// ========================================
+
+/**
+ * 处理触摸开始事件
+ */
+const handleTouchStart = (e) => {
+  touchStartX.value = e.touches[0].clientX
+  touchStartY.value = e.touches[0].clientY
+  scrollDirection.value = null
+  isScrollLocked.value = false
+}
+
+/**
+ * 处理触摸移动事件
+ */
+const handleTouchMove = (e) => {
+  if (isScrollLocked.value) {
+    return // 已经锁定方向，不需要重新计算
+  }
+
+  const deltaX = Math.abs(e.touches[0].clientX - touchStartX.value)
+  const deltaY = Math.abs(e.touches[0].clientY - touchStartY.value)
+
+  // 阈值：移动距离超过 10px 才判断方向
+  if (deltaX > 10 || deltaY > 10) {
+    scrollDirection.value = deltaX > deltaY ? 'horizontal' : 'vertical'
+    isScrollLocked.value = true
+
+    // 根据方向动态设置 overflow
+    const scrollArea = e.currentTarget
+    if (scrollDirection.value === 'horizontal') {
+      scrollArea.style.overflowY = 'hidden'
+      scrollArea.style.overflowX = 'auto'
+    } else {
+      scrollArea.style.overflowX = 'hidden'
+      scrollArea.style.overflowY = 'auto'
+    }
+  }
+}
+
+/**
+ * 处理触摸结束事件
+ */
+const handleTouchEnd = (e) => {
+  const scrollArea = e.currentTarget
+  scrollArea.style.overflowX = 'auto'
+  scrollArea.style.overflowY = 'auto'
+  scrollDirection.value = null
+  isScrollLocked.value = false
 }
 
 const handleGlobalClick = () => {
@@ -1672,6 +1808,70 @@ td.cell-changed::after {
   gap: 16px;
 }
 
+.page-info-wrapper {
+  min-width: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.page-info {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  padding: 8px 12px;
+  border-radius: var(--radius-md);
+  transition: all 0.2s;
+}
+
+.page-info.clickable {
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.5);
+  border: 1px solid var(--border-light);
+}
+
+.page-info.clickable:hover {
+  background: var(--color-primary-light);
+  border-color: var(--color-primary);
+  transform: translateY(-1px);
+}
+
+.page-input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.page-input {
+  width: 50px;
+  padding: 6px 8px;
+  border: 2px solid var(--color-primary);
+  border-radius: var(--radius-md);
+  background: white;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: center;
+  outline: none;
+  transition: all 0.2s;
+  -moz-appearance: textfield;
+}
+
+.page-input::-webkit-outer-spin-button,
+.page-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.page-input:focus {
+  box-shadow: 0 0 0 3px var(--color-primary-light);
+}
+
+.page-total {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
 .page-btn {
   width: 36px;
   height: 36px;
@@ -1890,6 +2090,7 @@ td.cell-changed::after {
 
 .fullscreen-toggle-btn.exit-btn {
   background: #ff3b30;
+  margin-left: auto;
 }
 
 .fullscreen-toggle-btn.exit-btn:hover {
@@ -1899,38 +2100,46 @@ td.cell-changed::after {
 .table-fullscreen-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.9);
+  background: rgba(0, 0, 0, 0.95);
   z-index: 9999;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 20px;
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
 }
 
-.table-fullscreen-overlay .fullscreen-container {
+.fullscreen-container {
   width: 100%;
   height: 100%;
-  max-width: 100%;
-  max-height: 100%;
-  border-radius: 0;
-  box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  background: rgba(255, 255, 255, 0.5);
 }
 
-.table-fullscreen-overlay .glass-container {
-  height: 100%;
+.fullscreen-table {
+  flex: 1;
+  margin: 0;
+  border-radius: 0;
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.fullscreen-pagination {
+  flex-shrink: 0;
+  padding: 2px 12px;
+  border-top: 2px solid var(--border-light);
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.05);
 }
 
 /* 移动端全屏适配 */
 @media (max-width: 768px) {
-  .table-fullscreen-overlay {
-    padding: 0;
-  }
-
   .fullscreen-toggle-btn {
     padding: 8px 12px;
     font-size: 12px;
+  }
+
+  .fullscreen-pagination {
+    padding: 2px 8px;
   }
 }
 

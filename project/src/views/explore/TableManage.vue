@@ -485,23 +485,23 @@ const clearSavedConfig = () => {
 
 // 生命周期
 onMounted(async () => {
-  console.log('[TableManage] 组件开始加载')
+  // console.log('[TableManage] 组件开始加载')
 
   try {
     // 先确保用户已认证并获取角色信息
-    console.log('[TableManage] 开始权限验证...')
+    // console.log('[TableManage] 开始权限验证...')
     await ensureAuthenticated()
-    console.log('[TableManage] ensureAuthenticated 完成')
+    // console.log('[TableManage] ensureAuthenticated 完成')
 
     await getUserRole()
-    console.log('[TableManage] getUserRole 完成，当前角色:', userStore.role)
+    // console.log('[TableManage] getUserRole 完成，当前角色:', userStore.role)
 
     // 权限验证完成
     authLoading.value = false
 
     // 如果不是管理员，3秒后跳转首页
     if (!isAdmin.value) {
-      console.log('[TableManage] 非管理员，准备跳转')
+      // console.log('[TableManage] 非管理员，准备跳转')
       if (window.showWarningToast) {
         window.showWarningToast('此页面仅限管理员访问')
       }

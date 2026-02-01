@@ -731,7 +731,7 @@ onBeforeUnmount(() => {
 /* 全屏退出按钮 */
 .exit-fullscreen-btn {
   position: absolute;
-  top: 16px;
+  top: 32px;
   right: 16px;
   z-index: 10;
   padding: 10px 20px;
