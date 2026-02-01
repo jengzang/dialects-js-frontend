@@ -14,7 +14,7 @@
           </div>
           <div class="feature-item">
             <span class="feature-icon">✓</span>
-            <span>支持指令批量編輯（c-/i-/p-/r/s）</span>
+            <span>支持批量編輯以及指令編輯</span>
           </div>
           <div class="feature-item">
             <span class="feature-icon">✓</span>
@@ -32,7 +32,7 @@
           <div class="format-options">
             <label class="format-option">
               <input type="radio" name="format" value="音典" v-model="selectedFormat" />
-              <span>音典</span>
+              <span>一字一音(音典)</span>
             </label>
             <label class="format-option">
               <input type="radio" name="format" value="跳跳老鼠" v-model="selectedFormat" />

@@ -30,6 +30,9 @@
           <li @click="goToZhongGu">
             <span role="img" aria-label="ZhongGu">✍️</span> 中古地位
           </li>
+          <li @click="goToYuBao">
+            <span role="img" aria-label="yubao">📖</span> 詞彙語法
+          </li>
           <li @click="goToGDVillages">
             <span role="img" aria-label="gdVillages">🏠</span> 全粵村情
           </li>
@@ -180,6 +183,10 @@ const goToTools = () => {router.push({ path: '/menu',
 
 const goToZhongGu = () =>  {router.push({ path: '/menu',
   query: { tab: 'ZhongGu'}}) /* 跳转到陽春口語詞页面 */
+  closeSidebar();}
+
+const goToYuBao = () =>  {router.push({ path: '/menu',
+  query: { tab: 'YuBao'}}) /* 跳转到陽春口語詞页面 */
   closeSidebar();}
 
 // 获取访问统计数据

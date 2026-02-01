@@ -284,6 +284,25 @@ const onTableChange = async () => {
   customTableMode.value = selectedTable.value === '__custom__'
   if (selectedTable.value && selectedTable.value !== '__custom__') {
     await fetchColumns()
+
+    // ✅ 新增：切换表后自动尝试加载该表的配置
+    const configKey = getConfigKey(selectedDbKey.value, selectedTable.value)
+    const saved = localStorage.getItem(configKey)
+
+    if (saved) {
+      try {
+        const config = JSON.parse(saved)
+        selectedColumns.value = config.selectedColumns || {}
+        columnWidths.value = config.columnWidths || {}
+        filterableColumns.value = config.filterableColumns || {}
+        defaultFilters.value = config.defaultFilters || {}
+        console.log(`✅ 自动加载配置: ${selectedDbKey.value}/${selectedTable.value}`)
+      } catch (err) {
+        console.error('自动加载配置失败:', err)
+      }
+    } else {
+      console.log(`ℹ️ 该表没有保存的配置，使用默认配置`)
+    }
   }
 }
 
@@ -394,6 +413,10 @@ const showTable = () => {
     }
     return
   }
+
+  // ✅ 显示表格时保存最后使用的表
+  saveLastUsedTable(selectedDbKey.value, selectedTable.value)
+
   showUniversalTable.value = true
   showConfigPanel.value = false  // 显示表格后自动折叠配置面板
 }
@@ -406,8 +429,30 @@ const toggleFilterConfig = () => {
   showFilterConfig.value = !showFilterConfig.value
 }
 
+// ✅ 记住最后使用的表
+const LAST_USED_TABLE_KEY = 'table_manage_last_used'
+
+const saveLastUsedTable = (dbKey, tableName) => {
+  localStorage.setItem(LAST_USED_TABLE_KEY, JSON.stringify({ dbKey, tableName }))
+}
+
+const getLastUsedTable = () => {
+  const saved = localStorage.getItem(LAST_USED_TABLE_KEY)
+  if (saved) {
+    try {
+      return JSON.parse(saved)
+    } catch {
+      return null
+    }
+  }
+  return null
+}
+
 // 配置保存/加载
-const CONFIG_STORAGE_KEY = 'table_manage_config'
+// ✅ 改为基于表的配置键（每个表单独保存）
+const getConfigKey = (dbKey, tableName) => {
+  return `table_config_${dbKey}_${tableName}`
+}
 
 const saveCurrentConfig = () => {
   if (!selectedDbKey.value || !selectedTable.value) {
@@ -427,44 +472,52 @@ const saveCurrentConfig = () => {
     timestamp: Date.now()
   }
 
-  localStorage.setItem(CONFIG_STORAGE_KEY, JSON.stringify(config))
+  // ✅ 使用表专属的配置键
+  const configKey = getConfigKey(selectedDbKey.value, selectedTable.value)
+  localStorage.setItem(configKey, JSON.stringify(config))
+
+  // ✅ 保存最后使用的表
+  saveLastUsedTable(selectedDbKey.value, selectedTable.value)
 
   if (window.showSuccessToast) {
-    window.showSuccessToast('配置已保存')
+    window.showSuccessToast(`配置已保存: ${selectedDbKey.value}/${selectedTable.value}`)
   } else {
     alert('配置已保存')
   }
 }
 
 const loadSavedConfig = async () => {
-  const saved = localStorage.getItem(CONFIG_STORAGE_KEY)
+  if (!selectedDbKey.value || !selectedTable.value) {
+    if (window.showWarningToast) {
+      window.showWarningToast('请先选择数据库和表')
+    }
+    return
+  }
+
+  // ✅ 使用表专属的配置键
+  const configKey = getConfigKey(selectedDbKey.value, selectedTable.value)
+  const saved = localStorage.getItem(configKey)
+
   if (!saved) {
     if (window.showWarningToast) {
-      window.showWarningToast('没有已保存的配置')
+      window.showWarningToast(`该表没有已保存的配置: ${selectedDbKey.value}/${selectedTable.value}`)
     }
     return
   }
 
   try {
     const config = JSON.parse(saved)
-    selectedDbKey.value = config.selectedDbKey || ''
-    selectedTable.value = config.selectedTable || ''
 
-    // 先获取列信息
-    if (selectedDbKey.value && selectedTable.value) {
-      await fetchColumns()
+    // 恢复配置（无需重新 fetchColumns，因为已经选择了表）
+    selectedColumns.value = config.selectedColumns || {}
+    columnWidths.value = config.columnWidths || {}
+    filterableColumns.value = config.filterableColumns || {}
+    defaultFilters.value = config.defaultFilters || {}
 
-      // 恢复配置
-      selectedColumns.value = config.selectedColumns || {}
-      columnWidths.value = config.columnWidths || {}
-      filterableColumns.value = config.filterableColumns || {}
-      defaultFilters.value = config.defaultFilters || {}
-
-      if (window.showSuccessToast) {
-        window.showSuccessToast('配置已加载')
-      } else {
-        alert('配置已加载')
-      }
+    if (window.showSuccessToast) {
+      window.showSuccessToast(`配置已加载: ${selectedDbKey.value}/${selectedTable.value}`)
+    } else {
+      alert('配置已加载')
     }
   } catch (err) {
     console.error('加载配置失败:', err)
@@ -475,9 +528,19 @@ const loadSavedConfig = async () => {
 }
 
 const clearSavedConfig = () => {
-  localStorage.removeItem(CONFIG_STORAGE_KEY)
+  if (!selectedDbKey.value || !selectedTable.value) {
+    if (window.showWarningToast) {
+      window.showWarningToast('请先选择数据库和表')
+    }
+    return
+  }
+
+  // ✅ 清除表专属的配置
+  const configKey = getConfigKey(selectedDbKey.value, selectedTable.value)
+  localStorage.removeItem(configKey)
+
   if (window.showSuccessToast) {
-    window.showSuccessToast('配置已清除')
+    window.showSuccessToast(`配置已清除: ${selectedDbKey.value}/${selectedTable.value}`)
   } else {
     alert('配置已清除')
   }
@@ -511,36 +574,38 @@ onMounted(async () => {
     } else {
       console.log('[TableManage] 管理员身份验证成功')
 
-      // 如果是管理员，尝试自动加载已保存的配置
-      const saved = localStorage.getItem(CONFIG_STORAGE_KEY)
-      if (saved) {
+      // ✅ 如果是管理员，尝试自动加载最后使用的表
+      const lastUsed = getLastUsedTable()
+      if (lastUsed && lastUsed.dbKey && lastUsed.tableName) {
+        console.log('[TableManage] 自动加载最后使用的表:', lastUsed.dbKey, lastUsed.tableName)
+
+        // 静默加载
+        selectedDbKey.value = lastUsed.dbKey
+        selectedTable.value = lastUsed.tableName
+
+        // 尝试获取列信息，如果失败不影响页面加载
         try {
-          const config = JSON.parse(saved)
-          if (config.selectedDbKey && config.selectedTable) {
-            console.log('[TableManage] 自动加载配置:', config.selectedDbKey, config.selectedTable)
+          await fetchColumns()
 
-            // 静默加载，不显示提示
-            selectedDbKey.value = config.selectedDbKey
-            selectedTable.value = config.selectedTable
+          // 尝试加载该表的配置
+          const configKey = getConfigKey(lastUsed.dbKey, lastUsed.tableName)
+          const saved = localStorage.getItem(configKey)
 
-            // 尝试获取列信息，如果失败不影响页面加载
-            try {
-              await fetchColumns()
-              selectedColumns.value = config.selectedColumns || {}
-              columnWidths.value = config.columnWidths || {}
-              filterableColumns.value = config.filterableColumns || {}
-              defaultFilters.value = config.defaultFilters || {}
-              console.log('[TableManage] 配置加载完成')
-            } catch (fetchErr) {
-              console.error('[TableManage] 自动加载列信息失败:', fetchErr)
-              // 失败了也没关系，用户可以手动重新选择
-            }
+          if (saved) {
+            const config = JSON.parse(saved)
+            selectedColumns.value = config.selectedColumns || {}
+            columnWidths.value = config.columnWidths || {}
+            filterableColumns.value = config.filterableColumns || {}
+            defaultFilters.value = config.defaultFilters || {}
+            console.log('[TableManage] 配置加载完成')
+          } else {
+            console.log('[TableManage] 该表没有保存的配置，使用默认配置')
           }
-        } catch (err) {
-          console.error('[TableManage] 自动加载配置失败:', err)
+        } catch (fetchErr) {
+          console.error('[TableManage] 自动加载列信息失败:', fetchErr)
         }
       } else {
-        console.log('[TableManage] 没有保存的配置')
+        console.log('[TableManage] 没有最后使用的表记录')
       }
     }
   } catch (err) {

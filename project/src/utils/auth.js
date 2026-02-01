@@ -136,7 +136,31 @@ export async function api(path, options = {}) {
     const WEB_BASE = window.WEB_BASE || 'http://localhost:5000';
 
     let token = getToken();
+
+    // ===== 主动刷新：在token过期前10分钟或已过期时主动刷新 =====
     if (token) {
+        const expiresAt = getTokenExpiresAt();
+        const now = Date.now();
+
+        // 检查是否需要刷新（3种情况）
+        const needRefresh =
+            !expiresAt ||                           // 1. 没有过期时间记录（可能是旧版本登录）
+            (expiresAt <= now) ||                   // 2. 已经过期
+            (expiresAt - now < 10 * 60 * 1000);     // 3. 10分钟内过期
+
+        if (needRefresh) {
+            const reason = !expiresAt ? '无过期记录' :
+                          (expiresAt <= now) ? '已过期' :
+                          '即将过期';
+            // console.log(`🔄 主动刷新token (${reason})`);
+
+            const newToken = await refreshAccessToken();
+            if (newToken) {
+                token = newToken;
+            }
+            // 如果刷新失败，token保持原值，后续401会再次尝试刷新
+        }
+
         headers['Authorization'] = `Bearer ${token}`;
     }
 
@@ -179,7 +203,7 @@ export async function api(path, options = {}) {
 
         // ===== 核心改动：401 时尝试刷新并重试 =====
         if (res.status === 401) {
-            console.log('收到 401，尝试刷新 token...');
+            // console.log('收到 401，尝试刷新 token...');
             const newToken = await refreshAccessToken();
 
             if (newToken) {
@@ -198,10 +222,7 @@ export async function api(path, options = {}) {
 
                 clearTimeout(retryTimeoutId);
             } else {
-                // refresh token 也失效了，跳转登录
-                if (typeof showAuthPopup === 'function') {
-                    showAuthPopup();
-                }
+                console.log("token已過期")
             }
         }
         // =========================================
@@ -242,9 +263,10 @@ export async function api(path, options = {}) {
             throw new Error('請求超時，請稍後重試');
         }
 
-        // 如果最终还是 401，清除 token
+        // 如果最终还是 401，清除 token（但不显示错误Toast，因为已经显示登录弹窗）
         if (err.status === 401) {
             clearToken();
+            throw err;
         }
 
         // 可选：自动显示错误提示（如果项目中有全局提示函数）

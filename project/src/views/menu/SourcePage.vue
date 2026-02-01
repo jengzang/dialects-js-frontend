@@ -37,10 +37,12 @@ const goToPrivacy = () => {
 <template>
   <div style="width: 100%;justify-content: center;align-items:center;display: flex;flex-direction: column">
     <div class="header-row">
+
       <h2 class="tabs-title">📚 資料來源</h2>
       <a class="privacy-link" @click="goToPrivacy">
-        想要引用？了解隱私政策？
+        想要引用?了解隱私政策?
       </a>
+
     </div>
 <!--    <UniversalTable-->
 <!--        db-key="query"-->
@@ -54,6 +56,7 @@ const goToPrivacy = () => {
         :columns="dataColumns"
         :default-filter="defaultFilter"
     />
+    <p>截至2025.9</p>
   </div>
 </template>
 

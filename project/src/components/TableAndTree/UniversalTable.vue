@@ -95,14 +95,14 @@
         </thead>
 
         <tbody :class="{ 'blur-content': isLoading }">
-        <tr v-for="row in tableData" :key="row.rowid">
+        <tr v-for="row in tableData" :key="getRowPrimaryKey(row)">
           <td
             v-for="col in columns"
             :key="col.key"
             :contenteditable="isEditMode"
-            :class="{ 'editable-cell': isEditMode, 'cell-changed': isCellChanged(row.rowid, col.key) }"
-            @input="handleCellEdit(row.rowid, col.key, $event)"
-            @blur="handleCellBlur(row.rowid, col.key, $event)"
+            :class="{ 'editable-cell': isEditMode, 'cell-changed': isCellChanged(getRowPrimaryKey(row), col.key) }"
+            @input="handleCellEdit(getRowPrimaryKey(row), col.key, $event)"
+            @blur="handleCellBlur(getRowPrimaryKey(row), col.key, $event)"
           >
             {{ row[col.key] }}
           </td>
@@ -193,14 +193,14 @@
                 </thead>
 
                 <tbody :class="{ 'blur-content': isLoading }">
-                <tr v-for="row in tableData" :key="row.rowid">
+                <tr v-for="row in tableData" :key="getRowPrimaryKey(row)">
                   <td
                     v-for="col in columns"
                     :key="col.key"
                     :contenteditable="isEditMode"
-                    :class="{ 'editable-cell': isEditMode, 'cell-changed': isCellChanged(row.rowid, col.key) }"
-                    @input="handleCellEdit(row.rowid, col.key, $event)"
-                    @blur="handleCellBlur(row.rowid, col.key, $event)"
+                    :class="{ 'editable-cell': isEditMode, 'cell-changed': isCellChanged(getRowPrimaryKey(row), col.key) }"
+                    @input="handleCellEdit(getRowPrimaryKey(row), col.key, $event)"
+                    @blur="handleCellBlur(getRowPrimaryKey(row), col.key, $event)"
                   >
                     {{ row[col.key] }}
                   </td>
@@ -361,9 +361,12 @@
                 <input
                   type="text"
                   v-model="batchReplace.findText"
-                  placeholder="輸入要查找的內容"
+                  placeholder="留空表示匹配空單元格"
                   class="glass-input"
                 />
+                <small v-if="batchReplace.findText.trim() === ''" class="help-text">
+                  ℹ️ 查找內容為空時，將匹配所有空單元格（null、空字符串）
+                </small>
               </div>
 
               <!-- 替换内容 -->
@@ -400,27 +403,78 @@
                 </div>
               </div>
 
+              <!-- ✅ 新增：替换范围选项 -->
+              <div class="form-group">
+                <label>替換範圍：</label>
+                <div class="radio-group">
+                  <label class="radio-item">
+                    <input
+                      type="radio"
+                      :value="false"
+                      v-model="batchReplace.replaceAllPages"
+                    />
+                    <span>僅當前頁</span>
+                  </label>
+                  <label class="radio-item highlight-option">
+                    <input
+                      type="radio"
+                      :value="true"
+                      v-model="batchReplace.replaceAllPages"
+                    />
+                    <span>全表替換（所有分頁）</span>
+                  </label>
+                </div>
+                <small v-if="batchReplace.replaceAllPages" class="help-text warning-help">
+                  ⚠️ 將替換所有符合條件的記錄（尊重當前篩選），不僅限於當前頁
+                </small>
+              </div>
+
               <!-- 预览结果 -->
-              <div v-if="batchReplace.previewResults.length > 0" class="preview-section">
-                <h4>預覽將被替換的內容（共 {{ batchReplace.previewResults.length }} 處）：</h4>
-                <div class="preview-list custom-scrollbar">
-                  <div
-                    v-for="(item, index) in batchReplace.previewResults.slice(0, 50)"
-                    :key="index"
-                    class="preview-item"
-                  >
-                    <div class="preview-row">
-                      <span class="row-label">行 {{ item.rowIndex + 1 }}</span>
-                      <span class="col-label">{{ item.columnLabel }}</span>
-                    </div>
-                    <div class="preview-change">
-                      <span class="old-value">{{ item.oldValue }}</span>
-                      <span class="arrow">→</span>
-                      <span class="new-value">{{ item.newValue }}</span>
-                    </div>
+              <div v-if="batchReplace.previewResults.length > 0 || batchReplace.totalMatches > 0" class="preview-section">
+                <!-- ✅ 全表模式：仅显示统计 -->
+                <div v-if="batchReplace.replaceAllPages && batchReplace.totalMatches > 0" class="all-pages-preview">
+                  <h4>全表預覽統計</h4>
+                  <div class="stats-box">
+                    <p class="stats-item">
+                      <span class="label">匹配數量：</span>
+                      <span class="value">{{ batchReplace.totalMatches }} 處</span>
+                    </p>
+                    <p class="stats-item">
+                      <span class="label">替換範圍：</span>
+                      <span class="value">全表（所有分頁）</span>
+                    </p>
+                    <p class="stats-item">
+                      <span class="label">篩選條件：</span>
+                      <span class="value">{{ Object.keys(filterState).length > 0 ? '已應用' : '無' }}</span>
+                    </p>
                   </div>
-                  <div v-if="batchReplace.previewResults.length > 50" class="preview-more">
-                    ... 還有 {{ batchReplace.previewResults.length - 50 }} 處變更
+                  <p class="warning-text">
+                    ⚠️ 執行後將立即更新數據庫，請謹慎操作
+                  </p>
+                </div>
+
+                <!-- 原有的当前页预览列表 -->
+                <div v-else-if="batchReplace.previewResults.length > 0">
+                  <h4>預覽將被替換的內容（共 {{ batchReplace.previewResults.length }} 處）：</h4>
+                  <div class="preview-list custom-scrollbar">
+                    <div
+                      v-for="(item, index) in batchReplace.previewResults.slice(0, 50)"
+                      :key="index"
+                      class="preview-item"
+                    >
+                      <div class="preview-row">
+                        <span class="row-label">行 {{ item.rowIndex + 1 }}</span>
+                        <span class="col-label">{{ item.columnLabel }}</span>
+                      </div>
+                      <div class="preview-change">
+                        <span class="old-value">{{ item.oldValue }}</span>
+                        <span class="arrow">→</span>
+                        <span class="new-value">{{ item.newValue }}</span>
+                      </div>
+                    </div>
+                    <div v-if="batchReplace.previewResults.length > 50" class="preview-more">
+                      ... 還有 {{ batchReplace.previewResults.length - 50 }} 處變更
+                    </div>
                   </div>
                 </div>
               </div>
@@ -439,10 +493,10 @@
               <button
                 class="glass-btn primary"
                 @click="executeBatchReplace"
-                :disabled="batchReplace.previewResults.length === 0"
+                :disabled="batchReplace.replaceAllPages ? batchReplace.totalMatches === 0 : batchReplace.previewResults.length === 0"
               >
                 <span class="icon">✓</span>
-                <span>執行替換 ({{ batchReplace.previewResults.length }})</span>
+                <span>執行替換 ({{ batchReplace.replaceAllPages ? batchReplace.totalMatches : batchReplace.previewResults.length }})</span>
               </button>
               <button
                 class="glass-btn"
@@ -472,6 +526,8 @@ const props = defineProps({
   tableName: { type: String, required: true },
   columns: { type: Array, required: true },
   defaultFilter: { type: Object, default: null }, // 新增：默认筛选 { columnKey: value }
+  // ✅ 新增：可选的主键字段名
+  primaryKey: { type: String, default: null }
 });
 
 // 狀態定義
@@ -482,6 +538,9 @@ const searchText = ref('');
 const sortCol = ref(null);
 const sortDesc = ref(false);
 const isFullscreen = ref(false);
+
+// ✅ 新增：主键字段名（自动检测或使用 props）
+const primaryKeyField = ref('rowid');
 
 // 页码输入相关状态
 const isEditingPageNumber = ref(false);
@@ -505,7 +564,9 @@ const batchReplace = reactive({
   findText: '',             // 查找内容
   replaceText: '',          // 替换内容
   matchMode: 'contains',    // 匹配模式：'exact' | 'contains'
-  previewResults: []        // 预览结果 [{ rowId, rowIndex, columnKey, columnLabel, oldValue, newValue }]
+  previewResults: [],       // 预览结果 [{ rowId, rowIndex, columnKey, columnLabel, oldValue, newValue }]
+  replaceAllPages: false,   // ✅ 新增：是否全表替换
+  totalMatches: 0           // ✅ 新增：全表匹配数量统计
 })
 
 // ========================================
@@ -516,15 +577,15 @@ const touchStartY = ref(0)
 const scrollDirection = ref(null) // 'horizontal' | 'vertical' | null
 const isScrollLocked = ref(false)
 
-// 可编辑的列（排除 rowid）
+// ✅ 可编辑的列（排除主键字段）
 const editableColumns = computed(() => {
-  return props.columns.filter(col => col.key !== 'rowid')
+  return props.columns.filter(col => col.key !== primaryKeyField.value)
 })
 
 // 是否可以预览
 const canPreview = computed(() => {
-  return batchReplace.selectedColumns.length > 0 &&
-         batchReplace.findText.trim() !== ''
+  return batchReplace.selectedColumns.length > 0
+  // 移除查找文本非空限制，允许空值查找
 })
 
 // 篩選相關狀態
@@ -587,13 +648,117 @@ const fetchData = async () => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     });
+
     tableData.value = response.data;
     total.value = response.total;
+
+    // ✅ 新增：智能主键字段检测
+    if (tableData.value.length > 0) {
+      const firstRow = tableData.value[0];
+
+      // 优先级 1: 使用 props 指定的主键
+      if (props.primaryKey && props.primaryKey in firstRow) {
+        primaryKeyField.value = props.primaryKey;
+        console.log(`✅ 使用 props 指定的主键: ${primaryKeyField.value}`);
+      }
+      // 优先级 2: 使用后端返回的主键信息
+      else if (response.primary_key && response.primary_key in firstRow) {
+        primaryKeyField.value = response.primary_key;
+        console.log(`✅ 使用后端返回的主键: ${primaryKeyField.value}`);
+      }
+      // 优先级 3: 自动检测常见主键名
+      else {
+        const commonPKNames = ['rowid', 'id', '_id', 'pk', 'ID', 'Id'];
+        let detected = false;
+
+        for (const pkName of commonPKNames) {
+          if (pkName in firstRow && firstRow[pkName] != null) {
+            primaryKeyField.value = pkName;
+            // console.log(`✅ 自动检测到主键字段: ${primaryKeyField.value}`);
+            detected = true;
+            break;
+          }
+        }
+
+        // 优先级 4: 查找第一个看起来像主键的字段（唯一的整数字段）
+        if (!detected) {
+          const potentialPK = detectPrimaryKeyField(tableData.value);
+          if (potentialPK) {
+            primaryKeyField.value = potentialPK;
+            console.log(`✅ 检测到可能的主键字段: ${primaryKeyField.value}`);
+          } else {
+            // Fallback: 使用第一个非 null 字段
+            const firstNonNullField = Object.keys(firstRow).find(
+              key => firstRow[key] != null
+            );
+            primaryKeyField.value = firstNonNullField || 'rowid';
+            console.warn(
+              `⚠️ 表 ${props.tableName} 未找到明确的主键字段，使用: ${primaryKeyField.value}`
+            );
+          }
+        }
+      }
+    }
   } catch (e) {
     console.error("Data Load Error:", e);
   }finally {
     isLoading.value = false; // 請求結束（無論成功失敗）都關閉
   }
+};
+
+/**
+ * 检测主键字段（查找唯一的整数或UUID字段）
+ * @param {Array} data - 表格数据
+ * @returns {string|null} 主键字段名或 null
+ */
+const detectPrimaryKeyField = (data) => {
+  if (data.length === 0) return null;
+
+  const firstRow = data[0];
+  const fields = Object.keys(firstRow);
+
+  for (const field of fields) {
+    const values = data.map(row => row[field]);
+
+    // 检查唯一性
+    const uniqueValues = new Set(values);
+    if (uniqueValues.size !== values.length) {
+      continue; // 不唯一，跳过
+    }
+
+    // 检查是否有 null 值
+    if (values.some(v => v == null)) {
+      continue; // 有 null，跳过
+    }
+
+    // 检查是否是整数
+    const isInteger = values.every(v => Number.isInteger(v) || typeof v === 'number');
+    if (isInteger) {
+      return field; // 找到唯一的整数字段
+    }
+
+    // 检查是否是 UUID 格式（简单判断）
+    const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    const isUUID = values.every(v => typeof v === 'string' && uuidPattern.test(v));
+    if (isUUID) {
+      return field; // 找到 UUID 字段
+    }
+  }
+
+  return null; // 未找到合适的主键
+};
+
+// ========================================
+// 主键字段辅助函数
+// ========================================
+
+/**
+ * 获取行的主键值
+ * @param {Object} row - 数据行对象
+ * @returns {any} 主键值（rowid 或 id）
+ */
+const getRowPrimaryKey = (row) => {
+  return row[primaryKeyField.value];
 };
 
 // 排序切換
@@ -855,8 +1020,8 @@ const handleCellEdit = (rowId, colKey, event) => {
     changedCells[rowId] = {};
   }
 
-  // 查找原始值
-  const originalRow = originalData.value.find(r => r.rowid === rowId);
+  // ✅ 使用动态主键字段
+  const originalRow = originalData.value.find(r => r[primaryKeyField.value] === rowId);
   const originalValue = originalRow ? originalRow[colKey] : '';
 
   // 如果值改變了，記錄；如果改回原值，刪除記錄
@@ -874,7 +1039,8 @@ const handleCellEdit = (rowId, colKey, event) => {
 // 處理單元格失焦（更新 tableData）
 const handleCellBlur = (rowId, colKey, event) => {
   const newValue = event.target.innerText.trim();
-  const row = tableData.value.find(r => r.rowid === rowId);
+  // ✅ 使用动态主键字段
+  const row = tableData.value.find(r => r[primaryKeyField.value] === rowId);
   if (row) {
     row[colKey] = newValue;
   }
@@ -909,7 +1075,8 @@ const submitBatchEdit = async () => {
     // 構建批量更新數據
     const updateData = Object.keys(changedCells).map(rowId => {
       return {
-        rowid: rowId,
+        // ✅ 使用动态主键字段名
+        [primaryKeyField.value]: rowId,
         ...changedCells[rowId]
       };
     });
@@ -918,7 +1085,7 @@ const submitBatchEdit = async () => {
       db_key: props.dbKey,
       table_name: props.tableName,
       action: 'batch_update',
-      pk_column: 'rowid',
+      pk_column: primaryKeyField.value,  // ✅ 动态主键列名
       update_data: updateData
     };
 
@@ -957,7 +1124,7 @@ const submitBatchEdit = async () => {
 const handleDelete = async (row) => {
   if (!checkAdminPermission()) return;
 
-  const confirmed = await showConfirm(`確定刪除 ${row.自然村}?`, {
+  const confirmed = await showConfirm(`確定刪除 ${row.自然村 || row.name || '此記錄'}?`, {
     title: '刪除確認',
     confirmText: '刪除',
     cancelText: '取消'
@@ -970,8 +1137,8 @@ const handleDelete = async (row) => {
       db_key: props.dbKey,
       table_name: props.tableName,
       action: 'delete',
-      pk_column: 'rowid',
-      pk_value: row.rowid
+      pk_column: primaryKeyField.value,  // ✅ 动态主键列名
+      pk_value: row[primaryKeyField.value]  // ✅ 动态主键值
     };
 
     await api('/sql/mutate', {
@@ -1061,6 +1228,8 @@ const openBatchReplaceModal = () => {
   batchReplace.replaceText = ''
   batchReplace.matchMode = 'contains'
   batchReplace.previewResults = []
+  batchReplace.replaceAllPages = false  // ✅ 新增：重置全表替换选项
+  batchReplace.totalMatches = 0         // ✅ 新增：重置匹配统计
 
   showBatchReplaceModal.value = true
 }
@@ -1075,12 +1244,23 @@ const closeBatchReplaceModal = () => {
 /**
  * 预览批量替换
  */
-const previewBatchReplace = () => {
+const previewBatchReplace = async () => {
   if (!canPreview.value) return
 
-  const results = []
   const findText = batchReplace.findText.trim()
   const matchMode = batchReplace.matchMode
+
+  // 判断是否为空值查找
+  const isEmptySearch = findText === ''
+
+  // ✅ 新增：全表预览模式
+  if (batchReplace.replaceAllPages) {
+    await previewAllPagesReplace(findText, matchMode, isEmptySearch)
+    return
+  }
+
+  // 原有的当前页预览逻辑
+  const results = []
 
   // console.log('=== 批量替换预览 ===')
   // console.log('查找内容:', `"${findText}"`)
@@ -1090,18 +1270,27 @@ const previewBatchReplace = () => {
 
   // 遍历所有数据行
   tableData.value.forEach((row, rowIndex) => {
-    const rowId = row.rowid
+    // ✅ 使用动态主键
+    const rowId = row[primaryKeyField.value]
 
     // 遍历选中的列
     batchReplace.selectedColumns.forEach(colKey => {
-      const oldValue = String(row[colKey] || '')
+      const rawValue = row[colKey]
+      const oldValue = String(rawValue ?? '')  // 使用 ?? 更明确地处理 null/undefined
       let shouldReplace = false
 
-      // 判断是否匹配
-      if (matchMode === 'exact') {
-        shouldReplace = oldValue === findText
-      } else {
-        shouldReplace = oldValue.includes(findText)
+      // 空值查找特殊处理
+      if (isEmptySearch) {
+        // 查找文本为空：匹配空单元格（null、undefined、空字符串）
+        shouldReplace = rawValue == null || rawValue === ''
+      }
+      // 正常查找逻辑
+      else {
+        if (matchMode === 'exact') {
+          shouldReplace = oldValue === findText
+        } else {
+          shouldReplace = oldValue.includes(findText)
+        }
       }
 
       // // 调试：输出前3个不匹配的例子
@@ -1112,9 +1301,11 @@ const previewBatchReplace = () => {
       if (shouldReplace) {
         // 计算新值
         let newValue
-        if (matchMode === 'exact') {
+        if (isEmptySearch || matchMode === 'exact') {
+          // 空值查找或完全匹配：直接替换为 replaceText
           newValue = batchReplace.replaceText
         } else {
+          // 包含匹配：替换所有出现的 findText
           newValue = oldValue.replaceAll(findText, batchReplace.replaceText)
         }
 
@@ -1127,7 +1318,7 @@ const previewBatchReplace = () => {
           rowIndex,
           columnKey: colKey,
           columnLabel,
-          oldValue,
+          oldValue: oldValue || '(空)',  // UI 显示优化
           newValue
         })
 
@@ -1144,7 +1335,46 @@ const previewBatchReplace = () => {
   if (results.length === 0) {
     showWarning('未找到匹配的內容')
   } else {
-    showSuccess(`找到 ${results.length} 處匹配`)
+    // 提示优化
+    const matchTypeMsg = isEmptySearch ? '空單元格' : '處匹配'
+    showSuccess(`找到 ${results.length} ${matchTypeMsg}`)
+  }
+}
+
+/**
+ * ✅ 新增：全表预览（仅统计数量）
+ */
+const previewAllPagesReplace = async (findText, matchMode, isEmptySearch) => {
+  try {
+    const payload = {
+      db_key: props.dbKey,
+      table_name: props.tableName,
+      columns: batchReplace.selectedColumns,
+      find_text: findText,
+      match_mode: matchMode,
+      is_empty_search: isEmptySearch,
+      filters: filterState,         // 尊重筛选条件
+      search_text: searchText.value  // 尊重搜索条件
+    }
+
+    const response = await api('/sql/batch-replace-preview', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+
+    batchReplace.totalMatches = response.total_matches
+    batchReplace.previewResults = []  // 全表模式不显示详细列表
+
+    if (response.total_matches === 0) {
+      showWarning('未找到匹配的內容')
+    } else {
+      const matchTypeMsg = isEmptySearch ? '空單元格' : '處匹配'
+      showSuccess(`全表共找到 ${response.total_matches} ${matchTypeMsg}`)
+    }
+  } catch (error) {
+    console.error('全表预览失败:', error)
+    showError('全表預覽失敗，請稍後重試')
   }
 }
 
@@ -1152,6 +1382,13 @@ const previewBatchReplace = () => {
  * 执行批量替换
  */
 const executeBatchReplace = async () => {
+  // ✅ 新增：全表替换模式
+  if (batchReplace.replaceAllPages) {
+    await executeAllPagesReplace()
+    return
+  }
+
+  // 原有的当前页替换逻辑
   if (batchReplace.previewResults.length === 0) return
 
   // 确认对话框
@@ -1179,7 +1416,8 @@ const executeBatchReplace = async () => {
     changedCells[rowId][columnKey] = newValue
 
     // 更新 tableData 显示
-    const row = tableData.value.find(r => r.rowid === rowId)
+    // ✅ 使用动态主键查找行
+    const row = tableData.value.find(r => r[primaryKeyField.value] === rowId)
     if (row) {
       row[columnKey] = newValue
     }
@@ -1188,6 +1426,65 @@ const executeBatchReplace = async () => {
   showSuccess(`批量替換完成！已記錄 ${batchReplace.previewResults.length} 處變更，請點擊"提交"按鈕保存。`)
   closeBatchReplaceModal()
 }
+
+/**
+ * ✅ 新增：执行全表替换
+ */
+const executeAllPagesReplace = async () => {
+  if (batchReplace.totalMatches === 0) {
+    showWarning('沒有匹配項可替換')
+    return
+  }
+
+  // 二次确认
+  const confirmMsg = `確定要在全表中替換 ${batchReplace.totalMatches} 處匹配項嗎？此操作將立即生效且不可撤銷。`
+  const confirmed = await showConfirm(confirmMsg, {
+    title: '確認全表替換',
+    confirmText: '確定執行',
+    cancelText: '取消'
+  })
+
+  if (!confirmed) return
+
+  try {
+    const findText = batchReplace.findText.trim()
+    const isEmptySearch = findText === ''
+
+    const payload = {
+      db_key: props.dbKey,
+      table_name: props.tableName,
+      pk_column: primaryKeyField.value,
+      columns: batchReplace.selectedColumns,
+      find_text: findText,
+      replace_text: batchReplace.replaceText,
+      match_mode: batchReplace.matchMode,
+      is_empty_search: isEmptySearch,
+      filters: filterState,         // 尊重筛选条件
+      search_text: searchText.value  // 尊重搜索条件
+    }
+
+    const response = await api('/sql/batch-replace-execute', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+
+    if (response.status === 'success') {
+      showSuccess(`全表替換完成！共更新 ${response.affected_rows} 筆記錄`)
+
+      // 刷新当前页数据
+      await fetchData()
+
+      closeBatchReplaceModal()
+    } else {
+      showError('替換失敗：' + (response.message || '未知錯誤'))
+    }
+  } catch (error) {
+    console.error('全表替换失败:', error)
+    showError('全表替換失敗，請稍後重試')
+  }
+}
+
 
 // ========================================
 // 移动端触摸滚动锁定函数
@@ -2375,6 +2672,15 @@ td.cell-changed::after {
   user-select: none;
 }
 
+/* 帮助文本 */
+.help-text {
+  display: block;
+  margin-top: 6px;
+  font-size: 12px;
+  color: #88bffb;
+  font-weight: 500;
+}
+
 /* 预览区域 */
 .preview-section {
   margin-top: 24px;
@@ -2458,6 +2764,86 @@ td.cell-changed::after {
   font-size: 12px;
   font-style: italic;
 }
+
+/* ✅ 新增：全表预览统计样式 */
+.all-pages-preview {
+  padding: 16px;
+  background: rgba(255, 152, 0, 0.05);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 152, 0, 0.2);
+}
+
+.all-pages-preview h4 {
+  margin: 0 0 12px 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: #ff9800;
+}
+
+.stats-box {
+  background: white;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 12px;
+}
+
+.stats-item {
+  margin: 8px 0;
+  font-size: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.stats-item .label {
+  color: #666;
+  font-weight: 500;
+}
+
+.stats-item .value {
+  color: #ff9800;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.warning-text {
+  margin: 12px 0 0 0;
+  padding: 10px;
+  background: rgba(255, 152, 0, 0.1);
+  border-radius: 6px;
+  color: #ff6f00;
+  font-size: 13px;
+  font-weight: 500;
+  text-align: center;
+}
+
+/* ✅ 新增：高亮全表替换选项 */
+.radio-item.highlight-option {
+  border: 2px solid rgba(255, 152, 0, 0.3);
+  background: rgba(255, 152, 0, 0.05);
+}
+
+.radio-item.highlight-option:hover {
+  background: rgba(255, 152, 0, 0.1);
+  border-color: rgba(255, 152, 0, 0.5);
+}
+
+.radio-item.highlight-option input[type="radio"]:checked + span {
+  color: #ff9800;
+  font-weight: 600;
+}
+
+.help-text.warning-help {
+  color: #ff6f00;
+  background: rgba(255, 152, 0, 0.1);
+  padding: 8px 12px;
+  border-radius: 6px;
+  margin-top: 8px;
+  display: block;
+  font-weight: 500;
+}
+
+
 
 /* 底部按钮栏 */
 .batch-replace-modal .modal-footer {

@@ -186,6 +186,7 @@ body {
   margin-top: 0.5rem;
   letter-spacing: 0.03em;
   text-align: center;
+  white-space: nowrap;
 }
 
 /* ========================================
