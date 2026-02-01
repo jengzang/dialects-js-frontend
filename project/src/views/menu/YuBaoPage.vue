@@ -177,64 +177,78 @@
     <div v-else class="content-area">
       <!-- 卡片模式 -->
       <div v-if="viewMode === 'card'" class="card-mode">
-        <!-- 加载状态 -->
+
         <div v-if="isLoadingCards" class="cards-loading">
           <div class="spinner"></div>
           <span>加載卡片中...</span>
         </div>
 
-        <!-- 卡片列表 -->
-        <div v-else-if="cardData.length > 0" class="cards-grid">
-          <!-- 词汇卡片 -->
-          <template v-if="activeTab === 'vocabulary'">
-            <div v-for="(item, idx) in cardData" :key="idx" class="card vocabulary-card">
-              <!-- 第1行：地理位置 + 分类 -->
-              <div class="card-row row-1">
+        <template v-else-if="cardData.length > 0">
+
+          <div class="local-filter-bar">
+            <div class="filter-input-wrapper">
+              <svg class="filter-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+              <input
+                  v-model="localFilterQuery"
+                  type="text"
+                  placeholder="在此結果中二次篩選..."
+                  class="local-filter-input"
+              />
+              <button v-if="localFilterQuery" @click="localFilterQuery = ''" class="clear-filter-btn">×</button>
+            </div>
+            <span class="filter-count" v-if="localFilterQuery">
+        顯示 {{ filteredCardData.length }} / {{ cardData.length }} 條
+      </span>
+          </div>
+          <div class="cards-grid">
+            <template v-if="activeTab === 'vocabulary'">
+              <div v-for="(item, idx) in filteredCardData" :key="idx" class="card vocabulary-card">
+                <div class="card-row row-1">
                 <span class="location-chain">
                   {{ [item.province, item.city, item.county, item.village, item.location].filter(Boolean).join('-') || '-' }}
                 </span>
-                <span v-if="item.lang_cat1 || item.lang_cat2 || item.lang_cat3" class="category-chain">
+                  <span v-if="item.lang_cat1 || item.lang_cat2 || item.lang_cat3" class="category-chain">
                   {{ [item.lang_cat1, item.lang_cat2, item.lang_cat3].filter(Boolean).join('-') }}
                 </span>
-              </div>
-
-              <!-- 第2行：词汇 + 发音（注释） -->
-              <div class="card-row row-2">
-                <span class="word-text">{{ item.note2 || item.word || '-' }}</span>
-                <span class="pronunciation-text">
-                  {{ item.pronunciation || '-' }}{{ item.note1 ? `（${item.note1}）` : '' }}
+                </div>
+                <div class="card-row row-2">
+                  <span class="word-text">{{ item.pronunciation || '-' }}</span>
+                  <span class="pronunciation-text">
+                  {{ item.note2 || item.word || '-' }} {{ item.note1 ? `（${item.note1}）` : '' }}
                 </span>
+                </div>
               </div>
-            </div>
-          </template>
+            </template>
 
-          <!-- 语法卡片 -->
-          <template v-else>
-            <div v-for="(item, idx) in cardData" :key="idx" class="card grammar-card">
-              <!-- 第1行：形式 + 分类 -->
-              <div class="card-row row-1">
+            <template v-else>
+              <div v-for="(item, idx) in filteredCardData" :key="idx" class="card grammar-card">
+                <div class="card-row row-1">
                 <span class="forms-chain">
                   {{ [item.form_a, item.form_b, item.form_c, item.form_d, item.form_e].filter(Boolean).join('-') || '-' }}
                 </span>
-                <span v-if="item.lang_cat1 || item.lang_cat2 || item.lang_cat3" class="category-chain">
+                  <span v-if="item.lang_cat1 || item.lang_cat2 || item.lang_cat3" class="category-chain">
                   {{ [item.lang_cat1, item.lang_cat2, item.lang_cat3].filter(Boolean).join('-') }}
                 </span>
+                </div>
+                <div class="card-row row-2">
+                  <span class="phonetic-text">{{ item.phonetic || '-' }}</span>
+                </div>
+                <div class="card-row row-3">
+                  <span class="memo-text">{{ item.memo || '-' }}</span>
+                </div>
               </div>
+            </template>
+          </div>
 
-              <!-- 第2行：发音 -->
-              <div class="card-row row-2">
-                <span class="phonetic-text">{{ item.phonetic || '-' }}</span>
-              </div>
+          <div v-if="filteredCardData.length === 0" class="empty-state">
+            <p>沒有匹配 "{{ localFilterQuery }}" 的結果</p>
+          </div>
 
-              <!-- 第3行：注释 -->
-              <div class="card-row row-3">
-                <span class="memo-text">{{ item.memo || '-' }}</span>
-              </div>
-            </div>
-          </template>
-        </div>
+        </template>
 
-        <!-- 空状态 -->
         <div v-else class="empty-state">
           <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
             <circle cx="12" cy="12" r="10"/>
@@ -244,13 +258,6 @@
           <p v-if="!vocabularyInput.trim() && !grammarInput.trim()">請輸入搜索內容</p>
           <p v-else-if="!isValidInput">請從建議列表中選擇</p>
           <p v-else>沒有找到相關數據</p>
-          <small v-if="!vocabularyInput.trim() && !grammarInput.trim()">
-            在上方輸入框中輸入{{ activeTab === 'vocabulary' ? '詞彙' : '語法句式' }}進行查詢
-          </small>
-          <small v-else-if="!isValidInput">
-            輸入內容後點擊下拉建議中的選項
-          </small>
-          <small v-else>請嘗試調整搜索條件</small>
         </div>
       </div>
 
@@ -412,43 +419,25 @@ const viewMode = ref('card')  // 默认卡片模式
 // 卡片模式数据
 const cardData = ref([])
 const isLoadingCards = ref(false)
-const viewModes = [
-  {
-    key: 'table',
-    label: '表格',
-    icon: {
-      template: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <rect x="3" y="3" width="18" height="18" rx="2"/>
-        <line x1="3" y1="9" x2="21" y2="9"/>
-        <line x1="3" y1="15" x2="21" y2="15"/>
-        <line x1="9" y1="9" x2="9" y2="21"/>
-        <line x1="15" y1="9" x2="15" y2="21"/>
-      </svg>`
-    }
-  },
-  {
-    key: 'card',
-    label: '卡片',
-    icon: {
-      template: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <rect x="3" y="3" width="7" height="7" rx="1"/>
-        <rect x="14" y="3" width="7" height="7" rx="1"/>
-        <rect x="3" y="14" width="7" height="7" rx="1"/>
-        <rect x="14" y="14" width="7" height="7" rx="1"/>
-      </svg>`
-    }
-  },
-  {
-    key: 'map',
-    label: '地圖',
-    icon: {
-      template: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
-        <circle cx="12" cy="10" r="3"/>
-      </svg>`
-    }
-  }
-]
+// --- 新增開始：本地二次篩選邏輯 ---
+const localFilterQuery = ref('') // 存儲二次篩選的關鍵詞
+
+// 計算屬性：根據關鍵詞過濾 cardData
+// 計算屬性：根據關鍵詞過濾 cardData
+const filteredCardData = computed(() => {
+  if (!cardData.value.length) return []
+  if (!localFilterQuery.value.trim()) return cardData.value
+
+  // 修改 1：搜索詞轉簡體 + 轉小寫
+  const query = converter(localFilterQuery.value).toLowerCase().trim()
+
+  return cardData.value.filter(item => {
+    return Object.values(item).some(val => {
+      // 修改 2：數據內容轉簡體 + 轉小寫 + 包含判斷
+      return converter(String(val || '')).toLowerCase().includes(query)
+    })
+  })
+})
 
 // 防抖定时器
 let vocabularyDebounceTimer = null
@@ -726,12 +715,17 @@ async function loadCardsPage() {
 }
 
 
-// 監聽輸入是否有效，一旦有效立即加載卡片數據
-watch(isValidInput, (valid) => {
-  if (valid && viewMode.value === 'card') {
-    loadCardsPage()
-  } else if (!valid) {
-    // 如果輸入被清空或無效，清空卡片
+// 監聽具體的輸入內容變化，而不僅僅是有效性狀態
+watch([vocabularyInput, grammarInput], () => {
+  // 每次輸入變化時，檢查當前是否有效
+  if (isValidInput.value) {
+    // 如果是有效輸入，且在卡片模式，立即加載
+    if (viewMode.value === 'card') {
+      // 建議這裡加一個簡單的防抖，或者直接調用（因爲 isValidInput 已經是很嚴格的過濾了）
+      loadCardsPage()
+    }
+  } else {
+    // 如果輸入變成了無效內容（比如刪除了一半），清空卡片
     cardData.value = []
   }
 })
@@ -1486,5 +1480,83 @@ onMounted(async () => {
     font-size: 11px;
   }
 }
+/* ... 原有樣式 ... */
 
+/* === 新增：本地篩選框樣式 === */
+.local-filter-bar {
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 4px;
+}
+
+.filter-input-wrapper {
+  position: relative;
+  flex: 1;
+  max-width: 300px; /* 控制搜索框寬度 */
+}
+
+.filter-icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #6e6e73;
+  pointer-events: none;
+}
+
+.local-filter-input {
+  width: 100%;
+  padding: 8px 32px 8px 32px; /* 留出圖標和清除按鈕的位置 */
+  border-radius: 8px;
+  border: 1px solid rgba(0,0,0,0.1);
+  background: rgba(255,255,255,0.8);
+  font-size: 14px;
+  outline: none;
+  transition: all 0.2s;
+}
+
+.local-filter-input:focus {
+  background: #fff;
+  border-color: #0071e3;
+  box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.1);
+}
+
+.clear-filter-btn {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: none;
+  background: rgba(0,0,0,0.1);
+  color: #fff;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.clear-filter-btn:hover {
+  background: rgba(0,0,0,0.2);
+}
+
+.filter-count {
+  font-size: 13px;
+  color: #6e6e73;
+  font-weight: 500;
+}
+
+/* 響應式調整 */
+@media (max-width: 480px) {
+  .filter-input-wrapper {
+    max-width: 100%;
+  }
+}
 </style>

@@ -1791,7 +1791,6 @@ const showAllChars = async (tone, info, toneType) => {
   if (info.count === info.chars.length) {
     return
   }
-
   try {
     const data = await api('/api/tools/check/get_data', {
       method: 'POST',
@@ -1806,16 +1805,32 @@ const showAllChars = async (tone, info, toneType) => {
       const chars = []
 
       for (const row of data.data) {
-        const ipa = row.ipa
+        // 1. 获取 IPA 并去除空白
+        const ipa = row.ipa ? row.ipa.trim() : ''
         if (!ipa) continue
 
-        const match = ipa.match(/[⁰¹²³⁴⁵⁶⁷⁸⁹]+$/)
+        // -----------------------------------------------------------
+        // 【核心修改】兼容普通数字(0-9) 和 上标数字(⁰-⁹)
+        // -----------------------------------------------------------
+        const match = ipa.match(/[0-9⁰¹²³⁴⁵⁶⁷⁸⁹]+$/)
+
         if (!match) continue
 
-        const normalizedTone = match[0].replace(/[⁰¹²³⁴⁵⁶⁷⁸⁹]/g, m => '⁰¹²³⁴⁵⁶⁷⁸⁹'.indexOf(m).toString())
-        if (normalizedTone !== tone) continue
+        // 2. 标准化调值（如果是普通数字，这里不做改变；如果是上标，转为普通数字）
+        const rawToneStr = match[0]
+        const normalizedTone = rawToneStr.replace(/[⁰¹²³⁴⁵⁶⁷⁸⁹]/g, m =>
+            '0123456789'['⁰¹²³⁴⁵⁶⁷⁸⁹'.indexOf(m)]
+        )
 
-        const lastChar = ipa[ipa.length - match[0].length - 1]
+        // 3. 比较调值 (强制转字符串比较，防止类型错误)
+        if (String(normalizedTone) !== String(tone)) continue
+
+        // 4. 判断是否入声 (查找数字前面的那个字符)
+        // 例如 "tɔ33" -> 去掉 "33" -> 剩 "tɔ" -> 取最后字符 "ɔ"
+        // 例如 "tap55" -> 去掉 "55" -> 剩 "tap" -> 取最后字符 "p"
+        const phoneticPart = ipa.substring(0, ipa.length - rawToneStr.length)
+        const lastChar = phoneticPart.slice(-1) // 取最后一个字
+
         const isRu = RU_FINALS.has(lastChar)
 
         if ((toneType === '入声' && isRu) || (toneType === '舒声' && !isRu)) {

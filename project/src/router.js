@@ -69,7 +69,7 @@ const MenuTitleMap = {
     source:'方音圖鑑 - 資料來源',
     privacy:'方音圖鑑 - 隱私',
     ZhongGu:'方音圖鑑 - 中古漢字地位',
-    yubao:'方音圖鑑 - 語保資料'
+    YuBao:'方音圖鑑 - 語保資料'
 };
 const ExploreTitleMap = {
     ycVillages: '方音圖鑑 - 陽春自然村',
