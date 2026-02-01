@@ -179,8 +179,8 @@
                 <thead>
                   <tr>
                     <th width="50">序號</th>
-                    <th width="150">原字符</th>
-                    <th width="150">替換字符</th>
+                    <th width="150">原粵拼</th>
+                    <th width="150">ipa</th>
                     <th width="100">分類</th>
                     <th width="80">啟用</th>
                     <th width="100">操作</th>
@@ -261,7 +261,7 @@ import { userStore } from '@/utils/store.js'
 import { showSuccess, showError, showWarning, showConfirm } from '@/utils/message.js'
 
 const router = useRouter()
-
+const fileName = ref('')
 const fileInput = ref(null)
 const importInput = ref(null)
 const isDragOver = ref(false)
@@ -485,7 +485,7 @@ const processFile = async (file) => {
   stats.processed = 0
   stats.success = 0
   stats.failed = 0
-
+  fileName.value = file.name
   try {
     // 上传文件
     processingText.value = '正在上傳文件...'
@@ -573,7 +573,7 @@ const downloadResult = async () => {
     const url = window.URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = `jyut2ipa_result_${Date.now()}.xlsx`
+    a.download = `方音圖鑒_`+ fileName.value
     document.body.appendChild(a)
     a.click()
     window.URL.revokeObjectURL(url)
@@ -731,6 +731,7 @@ loadConfig()
   font-weight: 500;
   color: #0b2540;
   margin: 0;
+  white-space: nowrap;
 }
 
 .upload-hint {
@@ -1213,6 +1214,7 @@ loadConfig()
   font-weight: 600;
   color: #0b2540;
   border-bottom: 2px solid rgba(0, 122, 255, 0.1);
+  white-space: nowrap;
 }
 
 .rules-table td {
@@ -1666,7 +1668,7 @@ loadConfig()
 
   .rules-table th,
   .rules-table td {
-    padding: 8px 10px;
+    padding: 8px 6px;
   }
 
   .toggle-switch {

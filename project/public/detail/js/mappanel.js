@@ -563,6 +563,7 @@ async function triggerDrawingFunction() {
                 const color = dataItem.color;
                 const detailContent = dataItem.detailContent; // 假设你有一个 detailContent 数组
                 const feature = dataItem.feature;
+                const phonology = dataItem.phonology;  // 获取聲韻調字段
 
                 // console.log("处理:", locationName);
                 if (!value || value.trim() === '') {
@@ -715,10 +716,17 @@ async function triggerDrawingFunction() {
                                 // 确保获取到正确的元素
                                 const locationNameEl = document.getElementById("location-name");
                                 const featureEl = document.getElementById("feature");
+                                const phonologyEl = document.getElementById("phonology");
                                 const notesEl = document.getElementById("notes1");  // 使用 notes 代替 detailContent
 
                                 locationNameEl.textContent = ` ${locationName}`;
                                 featureEl.textContent = ` ${feature} • ${value}`;
+                                if (phonology && phonology !== 'undefined') {
+                                    phonologyEl.textContent = `聲韻調: ${phonology}`;
+                                    phonologyEl.style.display = 'block';
+                                } else {
+                                    phonologyEl.style.display = 'none';
+                                }
                                 notesEl.textContent = `說明: ${notes}`;  // 直接显示 notes 文本内容
 
                                 document.getElementById("mini-btn").style.display = "none";

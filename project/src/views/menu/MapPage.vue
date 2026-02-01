@@ -116,7 +116,7 @@ const handleMapClick = (coordinates) => {
 // 處理提交成功事件
 const handleSubmitSuccess = async (response) => {
   showSuccess('自定義數據提交成功！')
-  console.log('提交成功:', response)
+  // console.log('提交成功:', response)
 
   // 自动打开自定义数据开关
   mapStore.showCustomData = true;

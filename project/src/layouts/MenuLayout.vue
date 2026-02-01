@@ -20,7 +20,7 @@
 // import MenuTabs from '@/components/MenuTabs.vue'
 // import TabControls from "@/components/TabControls.vue";
 // import FloatingHeader from '@/components/FloatingHeader.vue'
-import { useRoute } from 'vue-router'
+// import { useRoute } from 'vue-router'
 // import { computed } from 'vue'
 import NavBar from "@/components/NavBar.vue";
 

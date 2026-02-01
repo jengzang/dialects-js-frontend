@@ -9,7 +9,7 @@
     >
       <button class="close-btn" @click="removePanel(panel.id)">×</button>
 
-      <div class="result-panel-vue" style="height: 100%; overflow-y: auto; display: flex; flex-direction: column;">
+      <div class="result-panel-vue" style="height: 100%; overflow-y: auto; display: flex; flex-direction: column;margin-bottom: 10px">
 
         <div v-if="panel.loading" class="loading-container">
           <div class="spinner"></div>
@@ -87,9 +87,9 @@ let gridOverlays = [];
 // === 3. 核心布局算法 (保持不變) ===
 function getLayoutSpec() {
   const w = window.innerWidth;
-  if (w >= 1200) return { cols: 4, widthPct: 24, gapPct: 1 };
-  if (w >= 768)  return { cols: 2, widthPct: 49, gapPct: 1 };
-  return            { cols: 1, widthPct: 99, gapPct: 0 };
+  if (w >= 1200) return { cols: 4, widthPct: 23, gapPct: 1 };
+  if (w >= 768)  return { cols: 2, widthPct: 48, gapPct: 1 };
+  return            { cols: 1, widthPct: 94, gapPct: 0 };
 }
 function getCurrentCols() { return getLayoutSpec().cols; }
 

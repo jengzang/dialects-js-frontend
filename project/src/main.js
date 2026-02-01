@@ -1,4 +1,7 @@
 // src/main.js
+// ⚠️ 必须在最开头导入环境配置
+import './env-config.js'
+
 import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'

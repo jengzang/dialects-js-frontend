@@ -17,10 +17,6 @@ import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue'
 const glassRef = ref(null)
 const buttonRef = ref(null)
 
-const onEnterClick = () => {
-  console.log('進入網站')
-}
-
 // 核心計算函數
 const updateButtonPosition = () => {
   const glass = glassRef.value
