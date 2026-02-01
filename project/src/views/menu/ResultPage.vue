@@ -227,6 +227,9 @@ watch(
 
             mapStore.mapData = MapData;
             mapStore.mergedData = mergedData;
+            if (response && response.tones_result) {
+              tone_for_chars.value = response.tones_result;
+            }
           } else {
             console.warn("Tab1 Error:", response);
           }
@@ -242,7 +245,10 @@ watch(
           const response = await api('/api/ZhongGu', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload.value)
+            body: JSON.stringify({
+              ...payload.value,
+              exclude_columns: payload.value.exclude_columns || []  // ✨ 新增
+            })
           });
 
           if (seq !== requestSeq) return;
@@ -253,7 +259,7 @@ watch(
 
             // ✅ 修复：func_mergeData 是 async，必须 await
             mergedData = await func_mergeData(latestResults.value, MapData);
-            console.log(mergedData)
+            // console.log(mergedData)
             if (seq !== requestSeq) return;
 
             mapStore.mapData = MapData;
@@ -273,7 +279,10 @@ watch(
           const response = await api('/api/YinWei', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload.value)
+            body: JSON.stringify({
+              ...payload.value,
+              exclude_columns: payload.value.exclude_columns || []  // ✨ 新增
+            })
           });
 
           if (seq !== requestSeq) return;
@@ -331,23 +340,6 @@ watch(
         console.error("❌ 請求失敗:", error);
       } finally {
         stopTimer();
-        if (sourceTab === 'tab1'){
-          const params = new URLSearchParams();
-          params.append("locations", newPayload.locations || "");
-          if (Array.isArray(newPayload.regions)) {
-            newPayload.regions.forEach(r => params.append("regions", r));
-          } else {
-            params.append("regions", newPayload.regions || "");
-          }
-          params.append("region_mode", newPayload.region_mode || 'yindian');
-          const res = await api(`/api/search_tones/?${params.toString()}`, {
-            method: 'GET',
-          });
-          if (res && res.tones_result) {
-            tone_for_chars.value = res.tones_result;
-            // console.log(tone_for_chars.value)
-          }
-        }
 
         // ✅ finally 里拷贝加保护，避免这里再抛错
         try {
@@ -558,11 +550,5 @@ const handleClickOutside = (e) => {
   transform: translateY(1px);
 }
 
-.header-row {
-  display: flex;
-  align-items: center; /* 垂直居中對齊 */
-  gap: 15px;           /* 標題和下拉框之間的間距 */
-  margin-bottom: 20px; /* 整個頭部與下方內容的間距 */
-  justify-content: center;
-}
+
 </style>

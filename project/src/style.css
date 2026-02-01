@@ -186,6 +186,7 @@ body {
   margin-top: 0.5rem;
   letter-spacing: 0.03em;
   text-align: center;
+  white-space: nowrap;
 }
 
 /* ========================================
@@ -541,6 +542,7 @@ textarea:focus {
   min-width: 80px;
   margin: auto;
   transition: all 0.2s;
+  white-space: nowrap;
 }
 
 .dropdown:hover {

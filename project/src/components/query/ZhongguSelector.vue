@@ -86,7 +86,8 @@ const props = defineProps({
   activeKeys: { type: Array, default: () => [] },
   valueMap: { type: Object, default: () => ({}) },
   isDropdownOpen: { type: Boolean, default: false },
-  selectedCard: { type: String, default: '結果' }
+  selectedCard: { type: String, default: '結果' },
+  excludeColumns: { type: Array, default: () => [] }  // ✨ 新增
 })
 
 const loading = ref(false)
@@ -163,6 +164,28 @@ watch(() => props.isDropdownOpen, (isOpen) => {
   }
 })
 
+// ✨ 监听 excludeColumns 变化，重新调用 API
+watch(() => props.excludeColumns, (newVal, oldVal) => {
+
+  // 只有在有选择的情况下才触发
+  if (!hasSelection.value) return
+  // console.log("watch1")
+  // // 比较新旧值，避免不必要的请求
+  // if (JSON.stringify(newVal) === JSON.stringify(oldVal)) return
+  // console.log("watch2")
+  // 防抖处理
+  if (debounceTimer) clearTimeout(debounceTimer)
+
+  // ✨ 过滤器变化时立即触发，不受 isDropdownOpen 影响
+  debounceTimer = setTimeout(() => {
+    if (!props.isDropdownOpen) {
+      fetchData(combinations.value)
+    } else {
+      pendingQuery.value = true  // 等待下拉框关闭
+    }
+  }, QUERY_CONFIG.DEBOUNCE_DELAY)
+}, { deep: true })
+
 // 3. API 请求逻辑 (🔴 修改：加入后置拦截)
 async function fetchData(pathStrings) {
   loading.value = true
@@ -173,7 +196,11 @@ async function fetchData(pathStrings) {
     const data = await api('/api/charlist', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ path_strings: pathStrings, combine_query: false })
+      body: JSON.stringify({
+        path_strings: pathStrings,
+        combine_query: false,
+        exclude_columns: props.excludeColumns  // ✨ 新增
+      })
     })
     results.value = Array.isArray(data) ? data : []
 

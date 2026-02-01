@@ -67,7 +67,9 @@ function showAuthPopup() {
                         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                         body: form,
                     })
-                    saveToken(res.access_token)
+
+                    // 保存新的三个值
+                    saveToken(res.access_token, res.refresh_token, res.expires_in)
                     await fetchUser()
                     window.userRole = undefined;
                     window.userRole = await getUserRole();
@@ -152,17 +154,23 @@ function showAuthPopup() {
             }
 
             const logout = async () => {
+                const refreshToken = getRefreshToken()
+
                 try {
-                    await api('/auth/logout', { method: 'POST' })
+                    await api('/auth/logout', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ refresh_token: refreshToken })
+                    })
                 } catch {}
+
                 clearToken()
                 window.userRole = undefined;
-                // error.value = '✅ 退出成功<br> ⏳ 兩秒後將自動跳轉到登錄頁面。'
                 updateLoginUI(false);
                 setTimeout(async () => {
                     mode.value = 'login'
                     error.value = ''
-                }, 100);  // 延時 2 秒（2000 毫秒）
+                }, 100);
             }
 
             const fetchUser = async () => {
@@ -687,15 +695,28 @@ window.showAuthPopup = showAuthPopup
 
 //登錄請求api
 const getToken = () => {
-    // 先從 localStorage 中讀取 Token
-    let token = localStorage.getItem('ACCESS_TOKEN');
-
-    // 如果 localStorage 中沒有 Token，再從 Cookie 中讀取
+    let token = localStorage.getItem('access_token');
     if (!token) {
-        token = getCookie('ACCESS_TOKEN');
+        token = getCookie('access_token');
     }
+    // 兼容旧版本
+    if (!token) {
+        token = localStorage.getItem('ACCESS_TOKEN');
+    }
+    return token;
+}
 
-    return token;  // 返回 Token（如果找不到則返回 null）
+const getRefreshToken = () => {
+    let token = localStorage.getItem('refresh_token');
+    if (!token) {
+        token = getCookie('refresh_token');
+    }
+    return token;
+}
+
+const getTokenExpiresAt = () => {
+    const expiresAt = localStorage.getItem('token_expires_at');
+    return expiresAt ? parseInt(expiresAt) : null;
 }
 
 // 讀取 Cookie 函數
@@ -707,28 +728,116 @@ const getCookie = (name) => {
 };
 
 
-const saveToken = (token) => {
-    localStorage.setItem('ACCESS_TOKEN', token);
-    document.cookie = `ACCESS_TOKEN=${token}; path=/; secure; samesite=None`;
+const saveToken = (accessToken, refreshToken = null, expiresIn = 1800) => {
+    if (!refreshToken) {
+        // 旧版本调用，只传一个参数
+        localStorage.setItem('access_token', accessToken);
+        localStorage.setItem('ACCESS_TOKEN', accessToken);  // 兼容
+        document.cookie = `access_token=${accessToken}; path=/; secure; samesite=None`;
+        document.cookie = `ACCESS_TOKEN=${accessToken}; path=/; secure; samesite=None`;
+        return;
+    }
+
+    // 存储 access token
+    localStorage.setItem('access_token', accessToken);
+
+    // 存储 refresh token
+    localStorage.setItem('refresh_token', refreshToken);
+
+    // 存储过期时间戳（当前时间 + expiresIn秒）
+    const expiresAt = Date.now() + expiresIn * 1000;
+    localStorage.setItem('token_expires_at', expiresAt.toString());
+
+    // 同时存到 Cookie（可选，保持兼容）
+    document.cookie = `access_token=${accessToken}; path=/; secure; samesite=None`;
+    document.cookie = `refresh_token=${refreshToken}; path=/; secure; samesite=None`;
 }
 
 const clearToken = () => {
-    // 删除 localStorage 中的 token
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
+    localStorage.removeItem('token_expires_at');
+
+    // 清除旧版本的 key（兼容）
     localStorage.removeItem('ACCESS_TOKEN');
     localStorage.removeItem('TOKEN_EXP');
 
     // 删除 cookie 中的 token（需要和设置时的 path 一致）
+    document.cookie = 'access_token=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; secure; samesite=None';
     document.cookie = 'ACCESS_TOKEN=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; secure; samesite=None';
+    document.cookie = 'refresh_token=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; secure; samesite=None';
     document.cookie = 'TOKEN_EXP=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; secure; samesite=None';
 }
 
-async function api(path, { method = 'GET', headers = {}, body = null } = {}) {
-    try {
-        const token = getToken()
-        const WEB_BASE = window.WEB_BASE || 'http://localhost:5000'
-        if (token) headers['Authorization'] = `Bearer ${token}`
+/**
+ * 刷新 Access Token
+ * @returns {Promise<string|null>} 新的 access token，失败返回 null
+ */
+async function refreshAccessToken() {
+    const refreshToken = getRefreshToken();
 
-        const res = await fetch(WEB_BASE + path, { method, headers, body })
+    if (!refreshToken) {
+        console.warn('没有 refresh token，无法刷新');
+        return null;
+    }
+
+    try {
+        const WEB_BASE = window.WEB_BASE || 'http://localhost:5000';
+
+        const res = await fetch(WEB_BASE + '/auth/refresh', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ refresh_token: refreshToken })
+        });
+
+        if (!res.ok) {
+            // refresh token 过期或无效
+            console.error('刷新 token 失败:', res.status);
+            clearToken();
+            return null;
+        }
+
+        const data = await res.json();
+
+        // 保存新的 tokens
+        saveToken(data.access_token, data.refresh_token, data.expires_in);
+
+        console.log('✅ Token 刷新成功');
+        return data.access_token;
+
+    } catch (error) {
+        console.error('刷新 token 异常:', error);
+        clearToken();
+        return null;
+    }
+}
+
+async function api(path, { method = 'GET', headers = {}, body = null } = {}) {
+    const WEB_BASE = window.WEB_BASE || 'http://localhost:5000'
+
+    let token = getToken()
+    if (token) headers['Authorization'] = `Bearer ${token}`
+
+    try {
+        let res = await fetch(WEB_BASE + path, { method, headers, body })
+
+        // ===== 核心改动：401 时尝试刷新并重试 =====
+        if (res.status === 401) {
+            console.log('收到 401，尝试刷新 token...');
+            const newToken = await refreshAccessToken();
+
+            if (newToken) {
+                // 用新 token 重试请求
+                headers['Authorization'] = `Bearer ${newToken}`;
+                res = await fetch(WEB_BASE + path, { method, headers, body });
+            } else {
+                // refresh token 也失效了，跳转登录
+                if (typeof showAuthPopup === 'function') {
+                    showAuthPopup();
+                }
+            }
+        }
+        // =========================================
 
         if (!res.ok) {
             const text = await res.text()
@@ -739,8 +848,11 @@ async function api(path, { method = 'GET', headers = {}, body = null } = {}) {
         return ct.includes('application/json') ? res.json() : res.text()
 
     } catch (error) {
-        // console.error("API请求出错:", error)  // 捕获并打印错误
-        throw error  // 重新抛出错误，供调用方继续处理
+        // 如果最终还是 401，清除 token
+        if (error.status === 401) {
+            clearToken();
+        }
+        throw error
     }
 }
 

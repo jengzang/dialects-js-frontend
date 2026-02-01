@@ -27,18 +27,24 @@
           <li @click="goToTools">
             <span role="img" aria-label="tools">🧰</span> 字表工具
           </li>
+          <li @click="goToZhongGu">
+            <span role="img" aria-label="ZhongGu">✍️</span> 中古地位
+          </li>
+          <li @click="goToYuBao">
+            <span role="img" aria-label="yubao">📖</span> 詞彙語法
+          </li>
           <li @click="goToGDVillages">
-            <span role="img" aria-label="gdVillages">🏘</span> 全粵村情
+            <span role="img" aria-label="gdVillages">🏠</span> 全粵村情
           </li>
           <li @click="goToSpoken">
-            <span role="img" aria-label="spoken">🗣</span> 陽春口語詞
+            <span role="img" aria-label="spoken">💬</span> 陽春口語詞
           </li>
           <li @click="goToSource">
             <span role="img" aria-label="source">📚</span> 資料來源
           </li>
-          <li @click="goToPrivacyPolicy">
-            <span role="img" aria-label="privacy-policy">🔐</span> 隱私政策
-          </li>
+<!--          <li @click="goToPrivacyPolicy">-->
+<!--            <span role="img" aria-label="privacy-policy">🔐</span> 隱私政策-->
+<!--          </li>-->
         </ul>
 
         <!-- 访问统计区域 -->
@@ -175,6 +181,14 @@ const goToTools = () => {router.push({ path: '/menu',
   query: { tab: 'tools'}})  /* 跳转到工具页面 */
   closeSidebar();}
 
+const goToZhongGu = () =>  {router.push({ path: '/menu',
+  query: { tab: 'ZhongGu'}}) /* 跳转到陽春口語詞页面 */
+  closeSidebar();}
+
+const goToYuBao = () =>  {router.push({ path: '/menu',
+  query: { tab: 'YuBao'}}) /* 跳转到陽春口語詞页面 */
+  closeSidebar();}
+
 // 获取访问统计数据
 async function fetchVisitStats() {
   try {
@@ -216,7 +230,7 @@ async function fetchVisitHistory() {
     const start_date = startDate.toISOString().split('T')[0];
     const end_date = endDate.toISOString().split('T')[0];
 
-    const data = await api(`/logs/visits/history?start_date=${start_date}&end_date=${end_date}&limit=999`);
+    const data = await api(`/logs/visits/history?start_date=${start_date}&end_date=${end_date}&limit=9999`);
 
     const dateMap = new Map();
     data?.data?.forEach(item => {

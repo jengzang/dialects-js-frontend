@@ -50,6 +50,36 @@
                   {{ item }}
                 </div>
               </div>
+
+                <div class="dropdown"
+                     :ref="(el) => excludeFilterTriggerRef.tab2 = el"
+                     @click="toggleExcludeDropdown('tab2')"
+                     style="margin: 0;padding: 8px 10px;min-width: 60px;max-height:30px "
+                     :class="{ disabled: isRunning }"
+                >
+                  {{ getExcludeDisplayText('tab2') || '不排除' }}
+                  <span class="arrow">▾</span>
+                </div>
+
+                <Teleport to="body">
+                  <div
+                      v-if="excludeDropdownOpen === 'tab2'"
+                      class="dropdown-panel"
+                      :style="excludeDropdownStyle"
+                  >
+                    <div
+                        class="dropdown-item"
+                        v-for="option in excludeOptions"
+                        :key="option.value"
+                        :class="{ active: isExcludeSelected(option.value, 'tab2') }"
+                        @click="toggleExcludeOption(option.value, 'tab2')"
+                    >
+                      <span class="check-icon">{{ isExcludeSelected(option.value, 'tab2') ? '✓' : '' }}</span>
+                      {{ option.label }}
+                    </div>
+                  </div>
+                </Teleport>
+
             </div>
 
             <!-- ✅ 鍵名 + 鍵值：同一行，用容器包 -->
@@ -126,8 +156,9 @@
             <ZhongguSelector
                 :active-keys="tabStates.tab2.keys"
                 :value-map="tabStates.tab2.valueMap"
-                :is-dropdown-open="!!dropdownOpen"
+                :is-dropdown-open="!!dropdownOpen || excludeDropdownOpen === 'tab2'"
                 :selected-card="tabStates.tab2.card"
+                :exclude-columns="tabStates.tab2.excludeColumns"
                 @update:runDisabled="tabContentDisabled.tab2 = $event"
                 ref="ZhongguRef"
             />
@@ -157,6 +188,40 @@
                   {{ item }}
                 </div>
               </div>
+
+              <!-- ✨ 過濾器下拉框 -->
+
+                <div
+                    class="dropdown"
+                    :ref="(el) => excludeFilterTriggerRef.tab3 = el"
+                    @click="toggleExcludeDropdown('tab3')"
+                    style="margin: 0;padding: 8px 10px;min-width: 60px;max-height:30px "
+                    :class="{ disabled: isRunning }"
+                >
+                  {{ getExcludeDisplayText('tab3') || '不排除' }}
+                  <span class="arrow">▾</span>
+                </div>
+
+                <Teleport to="body">
+                  <div
+                      v-if="excludeDropdownOpen === 'tab3'"
+                      class="dropdown-panel"
+                      :style="excludeDropdownStyle"
+                  >
+
+                    <div
+                        class="dropdown-item"
+                        v-for="option in excludeOptions"
+                        :key="option.value"
+                        :class="{ active: isExcludeSelected(option.value, 'tab3') }"
+                        @click="toggleExcludeOption(option.value, 'tab3')"
+                    >
+                      <span class="check-icon">{{ isExcludeSelected(option.value, 'tab3') ? '✓' : '' }}</span>
+                      {{ option.label }}
+                    </div>
+                  </div>
+                </Teleport>
+
             </div>
 
             <div class="dropdown-row">
@@ -287,15 +352,34 @@ const hanziInput = ref('')
 
 const dropdownOpen = ref(null)
 
+// ✨ 過濾器相關狀態
+const excludeOptions = [
+  { value: '多地位標記', label: '所有多地位' },
+  { value: '多等', label: '排除多等' },
+  { value: '多韻', label: '排除多韻' },
+  { value: '多聲母', label: '排除多聲母' },
+  { value: '多調', label: '排除多調' }
+]
+const excludeFilterTriggerRef = reactive({ tab2: null, tab3: null })
+const excludeDropdownOpen = ref(null) // 'tab2' 或 'tab3' 或 null
+const excludeDropdownStyle = ref({
+  position: 'absolute',
+  top: '0px',
+  left: '0px',
+  zIndex: 99999
+})
+
 const tabStates = reactive({
   tab2: {
     card: '韻母',
     keys: ['攝'],
-    valueMap: {} // Tab2 专用的下拉菜单选择值
+    valueMap: {}, // Tab2 专用的下拉菜单选择值
+    excludeColumns: [] // ✨ 新增：多音字过滤选项
   },
   tab3: {
     card: '韻母',
     keys: ['攝'], // Tab3 专用的键名
+    excludeColumns: [] // ✨ 新增：多音字过滤选项
     // Tab3 似乎没有 valueMap 下拉框，如果有也放在这
   }
 })
@@ -493,7 +577,10 @@ function onClickOutside(event) {
     keyTriggerEl.value,
     tab3KeyTriggerEl.value,
     // 检查动态的 triggers
-    ...Object.values(triggerRefs.value)
+    ...Object.values(triggerRefs.value),
+    // ✨ 检查过滤器 triggers
+    excludeFilterTriggerRef.tab2,
+    excludeFilterTriggerRef.tab3
   ].some(el => el?.contains(event.target))
 
   const isInsidePanel = event.target.closest('.dropdown-panel')
@@ -501,11 +588,8 @@ function onClickOutside(event) {
   if (!isInsideTrigger && !isInsidePanel) {
     dropdownOpen.value = null
     currentActiveKey.value = null
+    excludeDropdownOpen.value = null // ✨ 关闭过滤器下拉框
   }
-  // const isInsideAny = targets.some(el => el?.contains(event.target))
-  // if (!isInsideAny) {
-  //   dropdownOpen.value = null
-  // }
 }
 
 // 切换键名的选择状态
@@ -631,6 +715,67 @@ function getDisplayText(key) {
   return list.join(', ')
 }
 
+// ✨ 過濾器相關函數
+// 獲取過濾器顯示文本
+function getExcludeDisplayText(tab) {
+  const list = tabStates[tab]?.excludeColumns || []
+  if (list.length === 0) return ''
+
+  // ✨ 新增：将 value 转换为 label
+  const labels = list.map(value => {
+    const option = excludeOptions.find(opt => opt.value === value)
+    return option ? option.label : value  // 找不到就用原值
+  })
+
+  if (labels.length > 2) {
+    return `${labels.slice(0, 1).join(', ')}...`
+  }
+  return labels.join(', ')
+}
+
+
+
+// 判斷單項是否選中
+function isExcludeSelected(value, tab) {
+  const list = tabStates[tab]?.excludeColumns || []
+  return list.includes(value)
+}
+
+// 切換過濾器下拉框
+function toggleExcludeDropdown(tab) {
+  if (isRunning.value) return
+
+  if (excludeDropdownOpen.value === tab) {
+    excludeDropdownOpen.value = null
+  } else {
+    excludeDropdownOpen.value = tab
+    nextTick(() => {
+      const triggerEl = excludeFilterTriggerRef[tab]
+      if (triggerEl) {
+        const rect = triggerEl.getBoundingClientRect()
+        excludeDropdownStyle.value = {
+          position: 'absolute',
+          top: `${rect.top + rect.height + window.scrollY}px`,
+          left: `${rect.left + window.scrollX}px`,
+          zIndex: 99999
+        }
+      }
+    })
+  }
+}
+
+// 切換單個選項
+function toggleExcludeOption(value, tab) {
+  const list = tabStates[tab].excludeColumns
+  const index = list.indexOf(value)
+
+  if (index > -1) {
+    list.splice(index, 1)
+  } else {
+    list.push(value)
+  }
+}
+
 const isRunning = ref(false); // 控制運行中的狀態
 const ZhongguRef = ref(null);
 // 點擊按鈕行為
@@ -684,7 +829,8 @@ const runAction = async () => {
     // 1. 准备要发送的数据
     const finalPayload = {
       ...payload,           // 原本的数据 (path_strings, locations 等)
-      _sourceTab: 'tab2'    // 👈 手动加上当前的 Tab 标记
+      _sourceTab: 'tab2',    // 👈 手动加上当前的 Tab 标记
+      exclude_columns: tabStates.tab2.excludeColumns  // ✨ 新增
     }
 
     // 2. 存入全局仓库
@@ -708,7 +854,8 @@ const runAction = async () => {
     // 1. 准备要发送的数据
     const finalPayload = {
       ...payload,           // 原本的数据 (path_strings, locations 等)
-      _sourceTab: 'tab3'    // 👈 手动加上当前的 Tab 标记
+      _sourceTab: 'tab3',    // 👈 手动加上当前的 Tab 标记
+      exclude_columns: tabStates.tab3.excludeColumns  // ✨ 新增
     }
 
     // 2. 存入全局仓库
@@ -931,7 +1078,16 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap:20px;
+  gap: 20px;
+  flex-wrap: wrap; /* ✨ 支持自动换行 */
+}
+@media (max-aspect-ratio: 1/1) {
+  .card-row{
+    gap:0;
+  }
+  .card-group-item{
+    padding:12px 12px;
+  }
 }
 
 .dropdown-row {

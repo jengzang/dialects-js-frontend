@@ -29,8 +29,11 @@ const router = useRouter();
 
 defineEmits(['toggle-sidebar']);
 
+// const goToHome = () => {
+//   router.push({ path: '/menu', query: { tab: 'query' } });
+// };
 const goToHome = () => {
-  router.push({ path: '/menu', query: { tab: 'query' } });
+  router.back();
 };
 </script>
 

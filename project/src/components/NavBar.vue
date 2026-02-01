@@ -3,7 +3,7 @@
     <!-- 桌面端的布局 -->
     <div class="navbar-desktop">
       <div class="navbar-item logo-and-title" :style="{ zIndex: isSidebarVisible ? '1100' : '999' }">
-        <div class="logo-container" @click="toggleSidebar">
+        <div class="logo-container" style="min-width: 6dvh;width: 6dvh;" @click="toggleSidebar">
           <img class="logo" src="@/assets/favicon.ico" alt="Logo" />
         </div>
         <div class="title">
@@ -49,6 +49,12 @@
             <li @click="goToTools">
               <span role="img" aria-label="tools">🧰</span> 字表工具
             </li>
+            <li @click="goToZhongGu">
+              <span role="img" aria-label="ZhongGu">✍️</span> 中古地位
+            </li>
+            <li @click="goToYuBao">
+              <span role="img" aria-label="yubao">📖</span> 詞彙語法
+            </li>
             <li @click="goToGDVillages">
               <span role="img" aria-label="gdVillages">🏠</span> 全粵村情
             </li>
@@ -67,9 +73,9 @@
 <!--          <li @click="refreshPage">-->
 <!--            <span role="img" aria-label="refresh">🔄</span> 刷新-->
 <!--          </li>-->
-            <li @click="goToPrivacyPolicy">
-              <span role="img" aria-label="privacy-policy">🔐</span> 隱私政策
-            </li>
+<!--            <li @click="goToPrivacyPolicy">-->
+<!--              <span role="img" aria-label="privacy-policy">🔐</span> 隱私政策-->
+<!--            </li>-->
 
           </ul>
 
@@ -156,7 +162,7 @@
       <!-- 第一行: Logo、标题和登录按钮 -->
       <div class="navbar-top">
         <div class="navbar-item logo-and-title" :style="{ zIndex: isSidebarVisible ? '1100' : '999' }">
-          <div class="logo-container" style="width: 6dvh" @click="toggleSidebar">
+          <div class="logo-container" style="width: 6dvh;min-width: 6dvh" @click="toggleSidebar">
             <img class="logo" src="@/assets/favicon.ico" alt="Logo" />
           </div>
           <div class="title">
@@ -350,7 +356,7 @@ async function fetchVisitHistory() {
     const start_date = startDate.toISOString().split('T')[0];  // 格式化为 'YYYY-MM-DD'
     const end_date = endDate.toISOString().split('T')[0];      // 格式化为 'YYYY-MM-DD'
 
-    const data = await api(`/logs/visits/history?start_date=${start_date}&end_date=${end_date}&limit=999`);
+    const data = await api(`/logs/visits/history?start_date=${start_date}&end_date=${end_date}&limit=9999`);
 
 
     // 按日期汇总数据
@@ -428,6 +434,12 @@ const goToGDVillages = () =>  {router.push({ path: '/menu',
 const goToSpoken = () =>  {router.push({ path: '/menu',
   query: { tab: 'ycSpoken'}}) /* 跳转到陽春口語詞页面 */
   toggleSidebar(); }
+const goToZhongGu = () =>  {router.push({ path: '/menu',
+  query: { tab: 'ZhongGu'}}) /* 跳转到陽春口語詞页面 */
+  toggleSidebar(); }
+const goToYuBao = () =>  {router.push({ path: '/menu',
+  query: { tab: 'YuBao'}}) /* 跳转到陽春口語詞页面 */
+  toggleSidebar(); }
 </script>
 
 
@@ -501,9 +513,9 @@ const goToSpoken = () =>  {router.push({ path: '/menu',
 
 /* 圆形logo背景 */
 .logo-container {
-  width: 6dvh; /* 宽度可以调整 */
+  width: 9dvh; /* 宽度可以调整 */
   max-width: 15dvh;
-  min-width: 6dvh;
+  min-width: 9dvh;
   height: 6dvh; /* 高度可以调整 */
   border-radius: 50%;
   backdrop-filter: blur(15px) saturate(150%); /* 玻璃效果 */

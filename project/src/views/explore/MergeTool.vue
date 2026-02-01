@@ -99,7 +99,17 @@
         <!-- 步骤2: 上传待合并文件 -->
         <div class="step-content" v-show="currentStep === 2">
           <h3 class="step-title">上傳待合併文件</h3>
-          <p class="step-desc">可以選擇多份字表進行合併</p>
+          <p class="step-desc">
+            僅支持「一字一音」的格式，如需格式轉換，可使用
+            <button
+                class="glass-button small"
+                style="display: inline-block; padding: 2px 8px; margin: 0 2px; vertical-align: middle;background: #007aff;color:white"
+                @click="$router.push('/explore?page=check')"
+            >
+              字表檢查
+            </button>
+            工具
+          </p>
 
           <div
             class="upload-zone multiple"
@@ -188,13 +198,13 @@
 <!--            <p class="complete-text">所有文件已成功合併</p>-->
 
             <div class="result-summary">
-              <div class="summary-card">
-                <div class="summary-icon">📊</div>
-                <div class="summary-content">
-                  <div class="summary-number">{{ mergeStats.totalRows }}</div>
-                  <div class="summary-label">總行數</div>
-                </div>
-              </div>
+<!--              <div class="summary-card">-->
+<!--                <div class="summary-icon">📊</div>-->
+<!--                <div class="summary-content">-->
+<!--                  <div class="summary-number">{{ mergeStats.totalRows }}</div>-->
+<!--                  <div class="summary-label">總行數</div>-->
+<!--                </div>-->
+<!--              </div>-->
               <div class="summary-card">
                 <div class="summary-icon">📁</div>
                 <div class="summary-content">
@@ -202,13 +212,13 @@
                   <div class="summary-label">合併文件數</div>
                 </div>
               </div>
-              <div class="summary-card">
-                <div class="summary-icon">📋</div>
-                <div class="summary-content">
-                  <div class="summary-number">{{ mergeStats.totalColumns }}</div>
-                  <div class="summary-label">總列數</div>
-                </div>
-              </div>
+<!--              <div class="summary-card">-->
+<!--                <div class="summary-icon">📋</div>-->
+<!--                <div class="summary-content">-->
+<!--                  <div class="summary-number">{{ mergeStats.totalColumns }}</div>-->
+<!--                  <div class="summary-label">總列數</div>-->
+<!--                </div>-->
+<!--              </div>-->
             </div>
 
             <div class="result-actions">
@@ -599,7 +609,7 @@ const downloadMerged = async () => {
     const url = window.URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = 'merge.xlsx'
+    a.download = '方音圖鑑_合併字表.xlsx'
     document.body.appendChild(a)
     a.click()
     window.URL.revokeObjectURL(url)

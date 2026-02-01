@@ -1,18 +1,101 @@
 <script setup>
-// 在此部分，你可以添加你所需要的逻辑
+import { useRouter } from 'vue-router'
+import UniversalTable from "@/components/TableAndTree/UniversalTable.vue";
+
+const router = useRouter()
+
+const dataColumns = [
+  {key: '簡稱', label: '方言點', filterable: false, width: 1},
+  {key: '地圖集二分區', label: '地圖集分區', filterable: true, width: 1.5},
+  {key: '音典分區', label: '音典分區', filterable: true, width: 1.5},
+  {key: '字表來源（母本）', label: '字表來源', filterable: false, width: 3},
+  {key: '省', label: '省', filterable: true, width: 0.8},
+  {key: '市', label: '市', filterable: true, width: 0.8},
+  {key: '縣', label: '縣', filterable: true, width: 0.8},
+  {key: '鎮', label: '鎮', filterable: true, width: 0.8},
+  // {key: '經緯度', label: '經緯度', filterable: false, width: 2},
+];
+
+// 默认筛选配置（可选）
+// 示例1：筛选"存儲標記"为1的数据（该列不在显示列中）
+const defaultFilter = { '存儲標記': 1 }
+
+// 示例2：筛选显示列中的数据，例如只显示"省"为"廣東"的数据
+// const defaultFilter = { '省': '廣東' }
+
+// 示例3：多列筛选
+// const defaultFilter = { '省': '廣東', '市': '陽江' }
+
+// 示例4：筛选多个值（数组形式）
+// const defaultFilter = { '省': ['廣東', '廣西'] }
+
+const goToPrivacy = () => {
+  router.push({ path: '/menu', query: { tab: 'privacy' } })
+}
 </script>
 
 <template>
-  <div class="page-root">
-    <h2 class="tabs-title">📚 資料來源</h2>
-      <div class="coming-soon-message">
-        <p>该页面待完善</p>
-        <p>資料截至2025.9</p>
-      </div>
+  <div style="width: 100%;justify-content: center;align-items:center;display: flex;flex-direction: column">
+    <div class="header-row">
+
+      <h2 class="tabs-title">📚 資料來源</h2>
+      <a class="privacy-link" @click="goToPrivacy">
+        想要引用?了解隱私政策?
+      </a>
+
+    </div>
+<!--    <UniversalTable-->
+<!--        db-key="query"-->
+<!--        table-name="dialects"-->
+<!--        :columns="dataColumns"-->
+<!--    />-->
+    <!-- 如果需要默认筛选，取消下面的注释并定义 defaultFilter 变量 -->
+    <UniversalTable
+        db-key="query"
+        table-name="dialects"
+        :columns="dataColumns"
+        :default-filter="defaultFilter"
+    />
+    <p>截至2025.9</p>
   </div>
 </template>
 
 <style scoped>
+
+.privacy-link {
+  font-size: 14px;
+  color: #007aff;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s;
+  white-space: nowrap;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.privacy-link:hover {
+  color: #0051d5;
+  background: rgba(0, 122, 255, 0.1);
+  text-decoration: underline;
+}
+.header-row {
+  display: flex;
+  align-items: center; /* 垂直居中對齊 */
+  gap: 15px;           /* 標題和下拉框之間的間距 */
+  justify-content: center;
+}
+
+/* 响应式：移动端换行 */
+@media (max-width: 768px) {
+  .header-row {
+    gap: 8px;
+  }
+
+  .privacy-link {
+    font-size: 13px;
+  }
+}
+
 /* 背景设置 */
 .coming-soon-container {
   position: absolute;

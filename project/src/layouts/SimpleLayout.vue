@@ -1,4 +1,4 @@
-<!-- SimpleLayout.vue - 简化布局，无 navbar，只有悬浮按钮 -->
+<!-- TableManage.vue - 简化布局，无 navbar，只有悬浮按钮 -->
 <template>
   <div class="simple-layout">
     <!-- 内容区域 -->

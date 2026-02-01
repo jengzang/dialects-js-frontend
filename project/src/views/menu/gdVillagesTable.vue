@@ -1,14 +1,14 @@
 <template>
   <div style="width: 100%;justify-content: center;align-items:center;display: flex;flex-direction: column">
     <div class="title-row">
-      <h2 style="margin: 0;">陽春口語詞</h2>
-      <button class="village-link-btn" @click="goToYCVillages">
-        <span role="img" aria-label="ycVillages">🏠</span> 陽春自然村
+      <h2 style="margin: 0;">全粵村情</h2>
+      <button class="village-link-btn" @click="goToGDVillages">
+        <span role="img" aria-label="ycVillages">🏠</span> 樹狀圖
       </button>
     </div>
     <UniversalTable
-        db-key="spoken"
-        table-name="口语字"
+        db-key="village"
+        table-name="广东省自然村"
         :columns="spokenColumns"
     />
   </div>
@@ -17,27 +17,26 @@
 <script setup>
 import UniversalTable from '@/components/TableAndTree/UniversalTable.vue';
 import { useRouter } from 'vue-router';
-
 const router = useRouter();
 
 const spokenColumns = [
-  { key: '本字考', label: '字', filterable: false,width:1 },
-  { key: 'IPA', label: 'IPA', filterable: false,width:0.8 },
-  { key: '粤拼', label: '粵拼', filterable: false,width:0.8 },
-  { key: '来源', label: '來源', filterable: true,width:0.8 },
-  { key: '声母', label: '聲', filterable: true,width:0.5},
-  { key: '韵母', label: '韻', filterable: true,width:0.8},
-  { key: '音调', label: '調', filterable: true,width:0.5},
-  { key: '词性', label: '詞性', filterable: true,width:1},
-  { key: '释义', label: '釋義', filterable: false,width:2 },
-  { key: '例词例句', label: '例詞例句', filterable: false,width:2 },
-  { key: '待校及说明', label: '待校', filterable: true ,width:0.8},
+  {key: '市级', label: '地级', filterable: true, width: 0.8},
+  {key: '区县级', label: '縣級', filterable: true, width: 0.8},
+  {key: '乡镇级', label: '鎮級', filterable: true, width: 0.8},
+  {key: '行政村', label: '行政村', filterable: true, width: 0.8},
+  {key: '自然村', label: '自然村', filterable: false, width: 1.5},
+  {key: '方言分布', label: '方言', filterable: true, width: 1},
+  {key: 'longitude', label: '經度', filterable: false, width: 1},
+  {key: 'latitude', label: '緯度', filterable: false, width: 1},
+
 ];
 
-const goToYCVillages = () => {
-  router.push({ path: '/explore', query: { page: 'ycVillages' } });
+const goToGDVillages = () => {
+  router.push({ path: '/explore', query: { page: 'gdVillages' } });
 };
+
 </script>
+
 
 <style scoped>
 .title-row {
@@ -46,7 +45,6 @@ const goToYCVillages = () => {
   gap: 16px;
   margin: 0;
 }
-
 .village-link-btn {
   padding: 8px 16px;
   border-radius: 25px;
