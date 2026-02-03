@@ -204,34 +204,37 @@
       </span>
           </div>
           <div class="cards-grid">
-            <template v-if="activeTab === 'vocabulary'">
-              <div v-for="(item, idx) in filteredCardData" :key="idx" class="card vocabulary-card">
+            <div
+                v-for="(item, idx) in visibleCards"
+                :key="activeTab + idx"
+                class="card"
+                :class="activeTab === 'vocabulary' ? 'vocabulary-card' : 'grammar-card'"
+            >
+              <template v-if="activeTab === 'vocabulary'">
                 <div class="card-row row-1">
-                <span class="location-chain">
-                  {{ [item.province, item.city, item.county, item.village, item.location].filter(Boolean).join('-') || '-' }}
-                </span>
+        <span class="location-chain">
+          {{ [item.province, item.city, item.county, item.village, item.location].filter(Boolean).join('-') || '-' }}
+        </span>
                   <span v-if="item.lang_cat1 || item.lang_cat2 || item.lang_cat3" class="category-chain">
-                  {{ [item.lang_cat1, item.lang_cat2, item.lang_cat3].filter(Boolean).join('-') }}
-                </span>
+          {{ [item.lang_cat1, item.lang_cat2, item.lang_cat3].filter(Boolean).join('-') }}
+        </span>
                 </div>
                 <div class="card-row row-2">
                   <span class="word-text">{{ item.pronunciation || '-' }}</span>
                   <span class="pronunciation-text">
-                  {{ item.note2 || item.word || '-' }} {{ item.note1 ? `（${item.note1}）` : '' }}
-                </span>
+          {{ item.note2 || item.word || '-' }} {{ item.note1 ? `（${item.note1}）` : '' }}
+        </span>
                 </div>
-              </div>
-            </template>
+              </template>
 
-            <template v-else>
-              <div v-for="(item, idx) in filteredCardData" :key="idx" class="card grammar-card">
+              <template v-else>
                 <div class="card-row row-1">
-                <span class="forms-chain">
-                  {{ [item.form_a, item.form_b, item.form_c, item.form_d, item.form_e].filter(Boolean).join('-') || '-' }}
-                </span>
+        <span class="forms-chain">
+          {{ [item.form_a, item.form_b, item.form_c, item.form_d, item.form_e].filter(Boolean).join('-') || '-' }}
+        </span>
                   <span v-if="item.lang_cat1 || item.lang_cat2 || item.lang_cat3" class="category-chain">
-                  {{ [item.lang_cat1, item.lang_cat2, item.lang_cat3].filter(Boolean).join('-') }}
-                </span>
+          {{ [item.lang_cat1, item.lang_cat2, item.lang_cat3].filter(Boolean).join('-') }}
+        </span>
                 </div>
                 <div class="card-row row-2">
                   <span class="phonetic-text">{{ item.phonetic || '-' }}</span>
@@ -239,8 +242,15 @@
                 <div class="card-row row-3">
                   <span class="memo-text">{{ item.memo || '-' }}</span>
                 </div>
-              </div>
-            </template>
+              </template>
+            </div>
+          </div>
+          <div ref="loadMoreTrigger" class="load-more-trigger">
+            <div v-if="hasMore" class="loading-status">
+              <div class="mini-spinner"></div>
+              <span>正在加载更多...</span>
+            </div>
+            <span v-else-if="filteredCardData.length > 0" class="no-more">—— 已加载全部数据 ——</span>
           </div>
 
           <div v-if="filteredCardData.length === 0" class="empty-state">
@@ -309,19 +319,45 @@
 </template>
 
 <script setup>
-import { ref, nextTick, onMounted, watch, computed } from 'vue'
+import { ref, nextTick, onMounted, watch, computed, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { api } from '@/utils/auth.js'
 import * as OpenCC from 'opencc-js'
 import UniversalTable from '@/components/TableAndTree/UniversalTable.vue'
+import { watchDebounced } from '@vueuse/core'
 
 const route = useRoute()
 const router = useRouter()
-
-// 创建繁简转换器（繁体转简体）
 const converter = OpenCC.Converter({ from: 'tw', to: 'cn' })
 
-// 词汇表格列配置
+// --- 基础状态 ---
+const activeTab = ref(route.query.sub || 'vocabulary')
+const vocabularyInput = ref('')
+const grammarInput = ref('')
+const vocabularyInputEl = ref(null)
+const grammarInputEl = ref(null)
+const vocabularySuggestions = ref([])
+const grammarSuggestions = ref([])
+const vocabularySuggestionStyle = ref({})
+const grammarSuggestionStyle = ref({})
+const allVocabulary = ref([])
+const allGrammar = ref([])
+const isLoading = ref(false)
+const showAllModal = ref(false)
+const modalSearchQuery = ref('')
+const viewMode = ref('card')
+const cardData = ref([])
+const isLoadingCards = ref(false)
+const localFilterQuery = ref('')
+
+// --- 无限滚动控制变量 (必须放在 initObserver 之前) ---
+const displayCount = ref(50)
+const step = 30
+const loadMoreTrigger = ref(null)
+let observer = null; // ✅ 修正：必须在这里显式声明 observer
+const isInternalLoading = ref(false); // 内部锁
+
+// --- 表格配置 ---
 const vocabularyColumns = [
   { key: 'province', label: '省', filterable: true, width: 0.8 },
   { key: 'city', label: '市', filterable: true, width: 0.8 },
@@ -335,20 +371,20 @@ const vocabularyColumns = [
   { key: 'lang_cat2', label: '分區2', filterable: true, width: 1 },
   { key: 'lang_cat3', label: '分區3', filterable: true, width: 1 },
 ]
-
-// 语法表格列配置
 const grammarColumns = [
-  { key: 'form_a', label: '省', filterable: true,width:1 },
-  { key: 'form_b', label: '市', filterable: true,width:1 },
-  { key: 'form_c', label: '縣', filterable: true,width:1 },
-  { key: 'form_d', label: '鎮', filterable: true,width:1 },
-  { key: 'form_e', label: '村', filterable: true,width:1},
-  { key: 'memo', label: '注釋', filterable: false,width:3},
-  { key: 'phonetic', label: '發音', filterable: false,width:4},
-  { key: 'lang_cat1', label: '分區1', filterable: true,width:1 },
-  { key: 'lang_cat2', label: '分區2', filterable: true,width:1 },
-  { key: 'lang_cat3', label: '分區3', filterable: true ,width:1},
-];
+  { key: 'form_a', label: '省', filterable: true, width: 1 },
+  { key: 'form_b', label: '市', filterable: true, width: 1 },
+  { key: 'form_c', label: '縣', filterable: true, width: 1 },
+  { key: 'form_d', label: '鎮', filterable: true, width: 1 },
+  { key: 'form_e', label: '村', filterable: true, width: 1 },
+  { key: 'memo', label: '注釋', filterable: false, width: 3 },
+  { key: 'phonetic', label: '發音', filterable: false, width: 4 },
+  { key: 'lang_cat1', label: '分區1', filterable: true, width: 1 },
+  { key: 'lang_cat2', label: '分區2', filterable: true, width: 1 },
+  { key: 'lang_cat3', label: '分區3', filterable: true, width: 1 },
+]
+
+// --- 计算属性 ---
 
 // 计算属性：当前表格列配置
 const currentColumns = computed(() => {
@@ -388,41 +424,6 @@ const tabs = [
   { key: 'grammar', label: '語保語法' }
 ]
 
-// 当前激活的 tab
-const activeTab = ref(route.query.sub || 'vocabulary')
-
-// 输入框和建议
-const vocabularyInput = ref('')
-const grammarInput = ref('')
-
-const vocabularyInputEl = ref(null)
-const grammarInputEl = ref(null)
-
-const vocabularySuggestions = ref([])
-const grammarSuggestions = ref([])
-
-const vocabularySuggestionStyle = ref({})
-const grammarSuggestionStyle = ref({})
-
-// 存储所有数据（进入时加载一次）
-const allVocabulary = ref([])
-const allGrammar = ref([])
-const isLoading = ref(false)
-
-// 查看全部弹窗
-const showAllModal = ref(false)
-const modalSearchQuery = ref('')
-
-// 视图模式
-const viewMode = ref('card')  // 默认卡片模式
-
-// 卡片模式数据
-const cardData = ref([])
-const isLoadingCards = ref(false)
-// --- 新增開始：本地二次篩選邏輯 ---
-const localFilterQuery = ref('') // 存儲二次篩選的關鍵詞
-
-// 計算屬性：根據關鍵詞過濾 cardData
 // 計算屬性：根據關鍵詞過濾 cardData
 const filteredCardData = computed(() => {
   if (!cardData.value.length) return []
@@ -716,19 +717,31 @@ async function loadCardsPage() {
 
 
 // 監聽具體的輸入內容變化，而不僅僅是有效性狀態
-watch([vocabularyInput, grammarInput], () => {
-  // 每次輸入變化時，檢查當前是否有效
-  if (isValidInput.value) {
-    // 如果是有效輸入，且在卡片模式，立即加載
-    if (viewMode.value === 'card') {
-      // 建議這裡加一個簡單的防抖，或者直接調用（因爲 isValidInput 已經是很嚴格的過濾了）
-      loadCardsPage()
-    }
-  } else {
-    // 如果輸入變成了無效內容（比如刪除了一半），清空卡片
-    cardData.value = []
-  }
-})
+// 将原有的 watch 改为带防抖的 watch
+watchDebounced(
+    [vocabularyInput, grammarInput],
+    () => {
+      if (isValidInput.value) {
+        if (viewMode.value === 'card') {
+          loadCardsPage()
+        }
+      }
+    },
+    { debounce: 300 } // 只有输入停顿 300ms 且匹配成功才发 SQL 请求
+)
+// watch([vocabularyInput, grammarInput], () => {
+//   // 每次輸入變化時，檢查當前是否有效
+//   if (isValidInput.value) {
+//     // 如果是有效輸入，且在卡片模式，立即加載
+//     if (viewMode.value === 'card') {
+//       // 建議這裡加一個簡單的防抖，或者直接調用（因爲 isValidInput 已經是很嚴格的過濾了）
+//       loadCardsPage()
+//     }
+//   } else {
+//     // 如果輸入變成了無效內容（比如刪除了一半），清空卡片
+//     cardData.value = []
+//   }
+// })
 
 
 onMounted(async () => {
@@ -753,6 +766,68 @@ onMounted(async () => {
     await loadCardsPage(1)
   }
 })
+
+// 2. 计算属性：真正渲染的数据
+const visibleCards = computed(() => {
+  return filteredCardData.value.slice(0, displayCount.value);
+});
+
+// 3. 计算属性：是否还有更多没显示
+const hasMore = computed(() => {
+  return displayCount.value < filteredCardData.value.length;
+});
+
+// 4. 定义加载更多的方法
+const loadMore = () => {
+  if (hasMore.value && !isInternalLoading.value) {
+    isInternalLoading.value = true;
+
+    // 增加一个微小的延迟，等待 Vue 完成上一次的 DOM 渲染
+    setTimeout(() => {
+      displayCount.value += step;
+      // console.log('✅ 懒加载生效，当前条数:', displayCount.value);
+      isInternalLoading.value = false;
+    }, 100); // 100ms 的渲染缓冲
+  }
+};
+
+const initObserver = () => {
+  if (observer) observer.disconnect(); // 清理旧监听
+
+  observer = new IntersectionObserver((entries) => {
+    // console.log('👀 探测器状态:', entries[0].isIntersecting ? '可见' : '不可见');
+    if (entries[0].isIntersecting && hasMore.value && !isLoadingCards.value) {
+      loadMore();
+    }
+  }, {
+    rootMargin: '200px', // 提前触发，体验更好
+  });
+
+  if (loadMoreTrigger.value) {
+    observer.observe(loadMoreTrigger.value);
+    // console.log('✅ 探测器已成功挂载');
+  } else {
+    console.warn('❌ 挂载失败：DOM 节点尚未渲染');
+  }
+};
+// 5. 设置监听器
+// 监听数据变化
+watch(cardData, async (newVal) => {
+  if (newVal.length > 0) {
+    // 关键：等待 Vue 完成 DOM 更新（让红条真正出现在页面上）
+    await nextTick();
+    initObserver();
+  }
+}, { immediate: true });
+
+// 监听视图切换（防止从表格切回卡片时监听失效）
+watch(viewMode, async (newMode) => {
+  if (newMode === 'card' && cardData.value.length > 0) {
+    await nextTick();
+    initObserver();
+  }
+});
+
 </script>
 
 <style scoped>
@@ -1305,6 +1380,7 @@ onMounted(async () => {
   grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
   gap: 16px;
   padding: 4px;
+  min-height: 100px; /* 给个保底高度 */
 }
 
 /* 卡片基础样式 - Apple 液态玻璃风格 */
@@ -1323,6 +1399,7 @@ onMounted(async () => {
   gap: 14px;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   overflow: hidden;
+
 }
 
 .card:hover {
@@ -1558,5 +1635,37 @@ onMounted(async () => {
   .filter-input-wrapper {
     max-width: 100%;
   }
+}
+
+.load-more-trigger {
+  grid-column: 1 / -1; /* 跨越 Grid 的所有列 */
+  padding: 30px 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 50px;
+}
+
+.loading-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #6e6e73;
+  font-size: 14px;
+}
+
+.mini-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(0, 113, 227, 0.2);
+  border-top-color: #0071e3;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.no-more {
+  color: #999;
+  font-size: 13px;
+  letter-spacing: 1px;
 }
 </style>

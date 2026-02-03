@@ -1,6 +1,36 @@
 // utils/auth.js
 import { userStore } from './store.js'
 
+// ==========================================
+// 1. 用户信息缓存管理 (新增)
+// ==========================================
+const USER_CACHE_KEY = 'user_info_cache';
+
+export const saveUserCache = (userData) => {
+    try {
+        localStorage.setItem(USER_CACHE_KEY, JSON.stringify(userData));
+    } catch (e) {
+        console.error('缓存用户信息失败', e);
+    }
+};
+
+export const getUserCache = () => {
+    try {
+        const data = localStorage.getItem(USER_CACHE_KEY);
+        return data ? JSON.parse(data) : null;
+    } catch (e) {
+        return null;
+    }
+};
+
+export const clearUserCache = () => {
+    localStorage.removeItem(USER_CACHE_KEY);
+};
+
+
+// ==========================================
+// 2. Token 管理
+// ==========================================
 export const getToken = () => {
     let token = localStorage.getItem('access_token');
     if (!token) {
@@ -58,15 +88,96 @@ export const saveToken = (accessToken, refreshToken = null, expiresIn = 1800) =>
     document.cookie = `refresh_token=${refreshToken}; path=/; secure; samesite=None`;
 };
 
+// 修改 clearToken，使其同时清理用户信息
 export const clearToken = () => {
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
     localStorage.removeItem('token_expires_at');
 
-    // 清除旧版本的 key（兼容）
+    // 兼容旧版
     localStorage.removeItem('ACCESS_TOKEN');
     localStorage.removeItem('TOKEN_EXP');
+
+    // 【新增】同时清理用户信息缓存
+    clearUserCache();
 };
+
+// ==========================================
+// 3. 核心：全局初始化函数 (重构版)
+// ==========================================
+
+/**
+ * 初始化用户信息
+ * 策略：优先读取本地缓存 -> 无缓存则请求 API -> 失败则重置为匿名
+ * @param {Object} options
+ * @param {boolean} options.forceRefresh - 是否强制请求 API（忽略缓存）
+ * @param {boolean} options.console_log - 是否打印日志
+ */
+export async function initUserByToken({ forceRefresh = false, console_log = false } = {}) {
+    const token = getToken();
+
+    // 1. 并没有 Token：直接处理为匿名
+    if (!token) {
+        resetStoreToAnonymous();
+        return { user: null, role: 'anonymous' };
+    }
+
+    // 2. 尝试读取本地缓存 (如果未强制刷新)
+    if (!forceRefresh) {
+        const cachedUser = getUserCache();
+        if (cachedUser) {
+            if (console_log) console.log('⚡️ 命中本地用户缓存', cachedUser);
+
+            // 更新 Store
+            updateUserStore(cachedUser);
+
+            // 返回缓存数据
+            return { user: cachedUser, role: cachedUser.role || 'user' };
+        }
+    }
+
+    // 3. 缓存未命中或强制刷新：请求 API
+    try {
+        const res = await api('/auth/me'); // 你的 API 请求
+
+        if (!res) {
+            throw new Error("API 返回空数据");
+        }
+
+        // 成功：存入缓存 + 更新 Store
+        saveUserCache(res);
+        updateUserStore(res);
+
+        if (console_log) console.log('✅ 远程获取用户信息成功', res);
+
+        return { user: res, role: res.role || 'user' };
+
+    } catch (err) {
+        if (console_log) console.error("❌ 初始化失败，Token 可能失效", err);
+
+        // 失败处理：清空 Token 和 缓存
+        clearToken();
+        resetStoreToAnonymous();
+
+        return { user: null, role: 'anonymous' };
+    }
+}
+
+// --- 内部辅助函数 ---
+
+function updateUserStore(userData) {
+    userStore.id = userData.id;
+    userStore.username = userData.username;
+    userStore.role = userData.role || 'user'; // 默认 user
+    userStore.isAuthenticated = true;
+}
+
+function resetStoreToAnonymous() {
+    userStore.id = null;
+    userStore.username = null;
+    userStore.role = 'anonymous';
+    userStore.isAuthenticated = false;
+}
 
 /**
  * 刷新 Access Token
@@ -163,6 +274,22 @@ export async function api(path, options = {}) {
 
         headers['Authorization'] = `Bearer ${token}`;
     }
+
+    // 添加标准请求头（如果未设置）
+    if (!headers['Accept']) {
+        // 根据 responseType 设置 Accept 头
+        if (responseType === 'json') {
+            headers['Accept'] = 'application/json';
+        } else if (responseType === 'blob') {
+            headers['Accept'] = 'application/octet-stream';
+        } else {
+            // 默认接受 JSON，但也接受其他格式
+            headers['Accept'] = 'application/json, text/plain, */*';
+        }
+    }
+
+    // 注意：Accept-Encoding 由浏览器自动添加，不需要手动设置
+    // 浏览器会自动添加: Accept-Encoding: gzip, deflate, br
 
     // 处理请求体
     let finalBody = body;
@@ -278,7 +405,7 @@ export async function api(path, options = {}) {
     }
 }
 
-export async function ensureAuthenticated(e, popup_bool = true) {
+export async function ensureAuthenticated(e) {
     try {
         const res = await api('/auth/me');
         if (res && res.id && res.username) {
@@ -292,9 +419,6 @@ export async function ensureAuthenticated(e, popup_bool = true) {
     if (e) {
         e.preventDefault();
         e.stopPropagation();
-    }
-    if (popup_bool && typeof showAuthPopup === 'function') {
-        showAuthPopup();
     }
     return false;
 }
@@ -365,5 +489,47 @@ export async function getUserRole() {
         userStore.role = 'anonymous';
         userStore.isAuthenticated = false;
         return 'anonymous';
+    }
+}
+
+/**
+ * 上报在线时长
+ * @param {number} duration - 在线时长（秒）
+ * @returns {Promise<boolean>} - 是否上报成功
+ */
+export async function reportOnlineTime(duration) {
+    // console.log('📊 [在线时长] 准备上报:', duration, '秒');
+
+    const token = getToken();
+
+    if (!token) {
+        // console.log('⚠️ [在线时长] 未登录，跳过上报');
+        return false;
+    }
+
+    if (duration <= 0) {
+        // console.log('⚠️ [在线时长] 时长为0，跳过上报');
+        return false;
+    }
+
+    // 后端限制：1秒到3600秒（1小时）
+    const seconds = Math.max(1, Math.min(3600, Math.floor(duration)));
+
+    // if (seconds !== duration) {
+    //     console.log(`⚠️ [在线时长] 时长已调整: ${duration} -> ${seconds} 秒（后端限制1-3600秒）`);
+    // }
+
+    try {
+        await api('/auth/report-online-time', {
+            method: 'POST',
+            body: { seconds },  // ✅ 修复：使用 seconds 而不是 duration
+            showError: false
+        });
+
+        // console.log('✅ [在线时长] 上报成功:', seconds, '秒');
+        return true;
+    } catch (err) {
+        // console.error('❌ [在线时长] 上报失败:', err);
+        return false;
     }
 }

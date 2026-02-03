@@ -1,69 +1,129 @@
 <template>
-  <div  >
-    <!-- 登錄介面 -->
-    <div v-if="mode === 'login'" style="padding: 12px; text-align: center;">
-      <h3>登錄</h3>
+  <div>
+    <div v-if="isInitLoading" style="padding: 40px; text-align: center;">
+      <div class="login-spinner" style="width: 40px; height: 40px; border-width: 4px; margin: 0 auto 20px;"></div>
+      <p style="color: #666;">正在同步數據...</p>
+    </div>
 
-      <!-- Tab 切換 -->
-      <div class="login-tabs">
-        <button
-            @click="loginMode = 'email'"
-            :class="{ active: loginMode === 'email' }"
-        >📧 使用郵箱
-        </button>
+    <div v-else>
+      <!-- 登錄介面 -->
+      <div v-if="mode === 'login'" style="padding: 12px; text-align: center;">
+        <h3>登錄</h3>
 
-        <button
-            @click="loginMode = 'username'"
-            :class="{ active: loginMode === 'username' }"
-        >👤 使用用戶名
-        </button>
-      </div>
+        <!-- Tab 切換 -->
+        <div class="login-tabs">
+          <button
+              @click="loginMode = 'email'"
+              :class="{ active: loginMode === 'email' }"
+          >📧 使用郵箱
+          </button>
 
-      <!-- 郵箱登入 -->
-      <div v-if="loginMode === 'email'">
+          <button
+              @click="loginMode = 'username'"
+              :class="{ active: loginMode === 'username' }"
+          >👤 使用用戶名
+          </button>
+        </div>
+
+        <!-- 郵箱登入 -->
+        <div v-if="loginMode === 'email'">
+          <div class="form-row" style="display: flex; justify-content: center;">
+            <input
+                v-model="email"
+                placeholder="郵箱"
+                style="padding-right: 2em;"
+            />
+            <span
+                style="
+                    position: absolute;
+                    right: 15px;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    color: transparent;
+                    font-size: 16px;
+                    pointer-events: none;
+                  "
+            >📧</span>
+          </div>
+          <div class="form-row" style="display: flex; justify-content: center;position: relative">
+            <input
+                v-model="password"
+                :type="showPassword ? 'text' : 'password'"
+                placeholder="密碼"
+                style="padding-right: 2em;"
+            />
+            <span
+                @click="showPassword = !showPassword"
+                style="
+                    position: absolute;
+                    right: 15px;  /* 🎯 調整這個來精準對齊 input 內右邊 */
+                    top: 50%;
+                    transform: translateY(-50%);
+                    cursor: pointer;
+                    user-select: none;
+                    font-size: 16px;
+                  ">
+                  {{ showPassword ? '👁️' : '🙈' }}
+                </span>
+          </div>
+        </div>
+
+        <!-- 用戶名登入 -->
+        <div v-else>
+          <div class="form-row" style="display: flex; justify-content: center;">
+            <input
+                v-model="username"
+                placeholder="用戶名"
+                style="padding-right: 2em;"
+            />
+            <span
+                style="
+                    position: absolute;
+                    right: 15px;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    color: transparent;
+                    font-size: 16px;
+                    pointer-events: none;
+                  "
+            >👤</span>
+          </div>
+          <div class="form-row" style="display: flex; justify-content: center; position: relative;">
+            <input
+                v-model="password"
+                :type="showPassword ? 'text' : 'password'"
+                placeholder="密碼"
+                style="padding-right: 2em;"
+            />
+            <span
+                @click="showPassword = !showPassword"
+                style="
+                            position: absolute;
+                            right: 15px;  /* 🎯 調整這個來精準對齊 input 內右邊 */
+                            top: 50%;
+                            transform: translateY(-50%);
+                            cursor: pointer;
+                            user-select: none;
+                            font-size: 16px;
+                          ">
+                          {{ showPassword ? '👁️' : '🙈' }}
+                    </span>
+          </div>
+        </div>
+
         <div class="form-row" style="display: flex; justify-content: center;">
-          <input
-              v-model="email"
-              placeholder="郵箱"
-              style="padding-right: 2em;"
-          />
-          <span
-              style="
-                  position: absolute;
-                  right: 15px;
-                  top: 50%;
-                  transform: translateY(-50%);
-                  color: transparent;
-                  font-size: 16px;
-                  pointer-events: none;
-                "
-          >📧</span>
+          <button class="btn-search" @click="login" :disabled="loading">
+            <span v-if="loading" class="login-spinner"></span>
+            <span v-else>登入</span>
+          </button>
         </div>
-        <div class="form-row" style="display: flex; justify-content: center;position: relative">
-          <input
-              v-model="password"
-              :type="showPassword ? 'text' : 'password'"
-              placeholder="密碼"
-              style="padding-right: 2em;"
-          />
-          <span
-              @click="showPassword = !showPassword"
-              style="
-                  position: absolute;
-                  right: 15px;  /* 🎯 調整這個來精準對齊 input 內右邊 */
-                  top: 50%;
-                  transform: translateY(-50%);
-                  cursor: pointer;
-                  user-select: none;
-                  font-size: 16px;
-                ">
-                {{ showPassword ? '👁️' : '🙈' }}
-              </span>
-        </div>
+        <p v-if="error" class="err" v-html="error"></p>
+        <p><a href="#" @click.prevent="mode='register'">沒有帳號？註冊一個</a></p>
       </div>
 
-      <!-- 用戶名登入 -->
-      <div v-else>
+      <!-- 註冊介面 -->
+      <div v-else-if="mode === 'register'" style="padding: 12px; text-align: center;">
+        <h3>註冊</h3>
         <div class="form-row" style="display: flex; justify-content: center;">
           <input
               v-model="username"
@@ -72,15 +132,33 @@
           />
           <span
               style="
-                  position: absolute;
-                  right: 15px;
-                  top: 50%;
-                  transform: translateY(-50%);
-                  color: transparent;
-                  font-size: 16px;
-                  pointer-events: none;
-                "
+                    position: absolute;
+                    right: 15px;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    color: transparent;
+                    font-size: 16px;
+                    pointer-events: none;
+                  "
           >👤</span>
+        </div>
+        <div class="form-row" style="display: flex; justify-content: center;">
+          <input
+              v-model="email"
+              placeholder="郵箱"
+              style="padding-right: 2em;"
+          />
+          <span
+              style="
+                    position: absolute;
+                    right: 15px;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    color: transparent;
+                    font-size: 16px;
+                    pointer-events: none;
+                  "
+          >📧</span>
         </div>
         <div class="form-row" style="display: flex; justify-content: center; position: relative;">
           <input
@@ -92,217 +170,146 @@
           <span
               @click="showPassword = !showPassword"
               style="
-                          position: absolute;
-                          right: 15px;  /* 🎯 調整這個來精準對齊 input 內右邊 */
-                          top: 50%;
-                          transform: translateY(-50%);
-                          cursor: pointer;
-                          user-select: none;
-                          font-size: 16px;
-                        ">
-                        {{ showPassword ? '👁️' : '🙈' }}
-                  </span>
-        </div>
-      </div>
-
-      <div class="form-row" style="display: flex; justify-content: center;">
-        <button class="btn-search" @click="login" :disabled="loading">
-          <span v-if="loading" class="login-spinner"></span>
-          <span v-else>登入</span>
-        </button>
-      </div>
-      <p v-if="error" class="err" v-html="error"></p>
-      <p><a href="#" @click.prevent="mode='register'">沒有帳號？註冊一個</a></p>
-    </div>
-
-    <!-- 註冊介面 -->
-    <div v-else-if="mode === 'register'" style="padding: 12px; text-align: center;">
-      <h3>註冊</h3>
-      <div class="form-row" style="display: flex; justify-content: center;">
-        <input
-            v-model="username"
-            placeholder="用戶名"
-            style="padding-right: 2em;"
-        />
-        <span
-            style="
-                  position: absolute;
-                  right: 15px;
-                  top: 50%;
-                  transform: translateY(-50%);
-                  color: transparent;
-                  font-size: 16px;
-                  pointer-events: none;
-                "
-        >👤</span>
-      </div>
-      <div class="form-row" style="display: flex; justify-content: center;">
-        <input
-            v-model="email"
-            placeholder="郵箱"
-            style="padding-right: 2em;"
-        />
-        <span
-            style="
-                  position: absolute;
-                  right: 15px;
-                  top: 50%;
-                  transform: translateY(-50%);
-                  color: transparent;
-                  font-size: 16px;
-                  pointer-events: none;
-                "
-        >📧</span>
-      </div>
-      <div class="form-row" style="display: flex; justify-content: center; position: relative;">
-        <input
-            v-model="password"
-            :type="showPassword ? 'text' : 'password'"
-            placeholder="密碼"
-            style="padding-right: 2em;"
-        />
-        <span
-            @click="showPassword = !showPassword"
-            style="
-                  position: absolute;
-                  right: 15px;  /* 🎯 調整這個來精準對齊 input 內右邊 */
-                  top: 50%;
-                  transform: translateY(-50%);
-                  cursor: pointer;
-                  user-select: none;
-                  font-size: 16px;
-                ">
-                {{ showPassword ? '👁️' : '🙈' }}
-              </span>
-      </div>
-      <div class="form-row" style="display: flex; justify-content: center;">
-        <button class="btn-search" @click="register" :disabled="loading">註冊</button>
-      </div>
-      <p v-if="error" class="err" v-html="error"></p>
-      <p><a href="#" @click.prevent="mode='login'">已有帳號？登錄</a></p>
-    </div>
-
-    <!-- 🎉 Profile 歡迎彈窗 -->
-    <div
-        v-if="mode === 'profile' && user"
-        style="text-align: center;padding:30px"
-
-    >
-      <h3 id="login-title" style="font-size: 30px; white-space: nowrap">👋{{ user.username }} 歡迎回來✨</h3>
-      <p id="login-info" style="font-size: 20px">
-        {{ user?.role === 'admin' ? '🛡️ 您是管理員' : '👤 您是普通用戶' }}
-      </p>
-      <p id="login-info" style="font-size: 20px">🗓️ 註冊時間：{{ fmt(user.created_at) }}</p>
-      <p id="login-info" style="font-size: 20px">⏱️ 總在線時長：
-        {{ formatOnlineTime(user.total_online_seconds) }}</p>
-      <p id="login-info" style=" font-size: 20px;">
-        📊 總查詢次數：<span style="color: #cd0b0b;margin-bottom: 0;">{{ queryStats.total }}</span> 次
-      </p>
-      <ul class="api-log-list">
-        <li
-            v-for="item in queryStats.items"
-            :key="item.label"
-            class="api-log-item"
-        >
-          -- {{ item.label }}：{{ item.count }} 次
-        </li>
-      </ul>
-      <!-- Action 按鈕們 -->
-      <div class="action-buttons">
-        <button class="btn-action danger" @click="logout">🚪 退出登錄</button>
-
-        <button class="btn-action primary" @click="mode = 'modifyProfile'">🛠 修改資料</button>
-
-        <button v-if="user?.role === 'admin'" class="btn-action success" @click="goToAdminPanel">
-          🧑‍💻 後台管理
-        </button>
-
-        <button
-          v-if="user?.role === 'admin'"
-          class="btn-action warning"
-          @click="goToTableManager"
-        >
-          📊 表格管理
-        </button>
-      </div>
-
-
-    </div>
-
-    <!-- 修改资料界面 -->
-    <div v-else-if="mode === 'modifyProfile'" style="padding: 12px; text-align: center;">
-      <h3>欢迎 {{ user.username }}! 🎉😊</h3> <!-- 欢迎信息，加入 emoji -->
-
-      <!-- Tab 切换部分 -->
-      <div class="login-tabs">
-        <button
-            @click="modeType = 'username'" :disabled="loading"
-            :class="{ active: modeType === 'username' }"
-        >👤 修改用戶名</button>
-
-        <button
-            @click="modeType = 'password'" :disabled="loading"
-            :class="{ active: modeType === 'password' }"
-        >🔒 修改密碼</button>
-      </div>
-
-      <!-- 修改用户名部分 -->
-      <div  v-if="modeType === 'username'">
-        <div class="form-row" style="display: flex; justify-content: center;">
-          <input
-              v-model="newUsername"
-              :placeholder="'請輸入新用戶名'"
-              style="padding-right: 2em;"
-          />
-          <span
-              style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: transparent; font-size: 16px; pointer-events: none;">
-                      👤
-                    </span>
-        </div>
-        <div class="form-row" style="display: flex; justify-content: center;">
-          <!-- 保存用户名按钮 -->
-          <button class="btn-search" @click="saveUsername" :disabled="loading">保存用戶名</button>
-        </div>
-      </div>
-
-      <!-- 修改密码部分 -->
-      <div v-if="modeType === 'password'">
-        <!-- 验证原密码 -->
-        <div class="form-row" style="display: flex; justify-content: center;">
-          <input
-              v-model="currentPassword"
-              :type="showPassword ? 'text' : 'password'"
-              placeholder="請輸入當前密碼"
-              style="padding-right: 2em;"
-          />
-        </div>
-
-        <!-- 修改密码 -->
-        <div class="form-row" style="display: flex; justify-content: center;">
-          <input
-              v-model="newPassword"
-              :type="showPassword ? 'text' : 'password'"
-              placeholder="請輸入新密碼（至少6個字符）"
-              style="padding-right: 2em;"
-          />
-        </div>
-
-        <span
-            @click="showPassword = !showPassword"
-            style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; user-select: none; font-size: 16px;">
-                    {{ showPassword ? '👁️' : '🙈' }}
+                    position: absolute;
+                    right: 15px;  /* 🎯 調整這個來精準對齊 input 內右邊 */
+                    top: 50%;
+                    transform: translateY(-50%);
+                    cursor: pointer;
+                    user-select: none;
+                    font-size: 16px;
+                  ">
+                  {{ showPassword ? '👁️' : '🙈' }}
                 </span>
-
-        <div v-if="modeType === 'password'" class="form-row" style="display: flex; justify-content: center;">
-          <!-- 保存密码按钮 -->
-          <button class="btn-search" @click="savePassword" :disabled="loading">保存新密碼</button>
         </div>
+        <div class="form-row" style="display: flex; justify-content: center;">
+          <button class="btn-search" @click="register" :disabled="loading">註冊</button>
+        </div>
+        <p v-if="error" class="err" v-html="error"></p>
+        <p><a href="#" @click.prevent="mode='login'">已有帳號？登錄</a></p>
       </div>
 
-      <p v-if="error" class="err" v-html="error"></p>
-      <!-- 返回按钮 -->
-      <div class="form-row" style="justify-content: center; margin-top: 10px;">
-        <button class="btn-search" @click="mode = 'profile'" style="background: darkgoldenrod">返回</button>
+      <!-- 🎉 Profile 歡迎彈窗 -->
+      <div
+          v-if="mode === 'profile' && user"
+          style="text-align: center;padding:30px"
+
+      >
+        <h3 id="login-title" style="font-size: 30px; white-space: nowrap">👋{{ user.username }} 歡迎回來✨</h3>
+        <p id="login-info" style="font-size: 20px">
+          {{ user?.role === 'admin' ? '🛡️ 您是管理員' : '👤 您是普通用戶' }}
+        </p>
+        <p id="login-info" style="font-size: 20px">🗓️ 註冊時間：{{ fmt(user.created_at) }}</p>
+        <p id="login-info" style="font-size: 20px">⏱️ 總在線時長：
+          {{ formatOnlineTime(user.total_online_seconds) }}</p>
+        <p id="login-info" style=" font-size: 20px;">
+          📊 總查詢次數：<span style="color: #cd0b0b;margin-bottom: 0;">{{ queryStats.total }}</span> 次
+        </p>
+        <ul class="api-log-list">
+          <li
+              v-for="item in queryStats.items"
+              :key="item.label"
+              class="api-log-item"
+          >
+            -- {{ item.label }}：{{ item.count }} 次
+          </li>
+        </ul>
+        <!-- Action 按鈕們 -->
+        <div class="action-buttons">
+          <button class="btn-action danger" @click="logout">🚪 退出登錄</button>
+
+          <button class="btn-action primary" @click="mode = 'modifyProfile'">🛠 修改資料</button>
+
+          <button v-if="user?.role === 'admin'" class="btn-action success" @click="goToAdminPanel">
+            🧑‍💻 後台管理
+          </button>
+
+          <button
+            v-if="user?.role === 'admin'"
+            class="btn-action warning"
+            @click="goToTableManager"
+          >
+            📊 表格管理
+          </button>
+        </div>
+
+
+      </div>
+
+      <!-- 修改资料界面 -->
+      <div v-else-if="mode === 'modifyProfile'" style="padding: 12px; text-align: center;">
+        <h3>欢迎 {{ user.username }}! 🎉😊</h3> <!-- 欢迎信息，加入 emoji -->
+
+        <!-- Tab 切换部分 -->
+        <div class="login-tabs">
+          <button
+              @click="modeType = 'username'" :disabled="loading"
+              :class="{ active: modeType === 'username' }"
+          >👤 修改用戶名</button>
+
+          <button
+              @click="modeType = 'password'" :disabled="loading"
+              :class="{ active: modeType === 'password' }"
+          >🔒 修改密碼</button>
+        </div>
+
+        <!-- 修改用户名部分 -->
+        <div  v-if="modeType === 'username'">
+          <div class="form-row" style="display: flex; justify-content: center;">
+            <input
+                v-model="newUsername"
+                :placeholder="'請輸入新用戶名'"
+                style="padding-right: 2em;"
+            />
+            <span
+                style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: transparent; font-size: 16px; pointer-events: none;">
+                        👤
+                      </span>
+          </div>
+          <div class="form-row" style="display: flex; justify-content: center;">
+            <!-- 保存用户名按钮 -->
+            <button class="btn-search" @click="saveUsername" :disabled="loading">保存用戶名</button>
+          </div>
+        </div>
+
+        <!-- 修改密码部分 -->
+        <div v-if="modeType === 'password'">
+          <!-- 验证原密码 -->
+          <div class="form-row" style="display: flex; justify-content: center;">
+            <input
+                v-model="currentPassword"
+                :type="showPassword ? 'text' : 'password'"
+                placeholder="請輸入當前密碼"
+                style="padding-right: 2em;"
+            />
+          </div>
+
+          <!-- 修改密码 -->
+          <div class="form-row" style="display: flex; justify-content: center;">
+            <input
+                v-model="newPassword"
+                :type="showPassword ? 'text' : 'password'"
+                placeholder="請輸入新密碼（至少6個字符）"
+                style="padding-right: 2em;"
+            />
+          </div>
+
+          <span
+              @click="showPassword = !showPassword"
+              style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; user-select: none; font-size: 16px;">
+                      {{ showPassword ? '👁️' : '🙈' }}
+                  </span>
+
+          <div v-if="modeType === 'password'" class="form-row" style="display: flex; justify-content: center;">
+            <!-- 保存密码按钮 -->
+            <button class="btn-search" @click="savePassword" :disabled="loading">保存新密碼</button>
+          </div>
+        </div>
+
+        <p v-if="error" class="err" v-html="error"></p>
+        <!-- 返回按钮 -->
+        <div class="form-row" style="justify-content: center; margin-top: 10px;">
+          <button class="btn-search" @click="mode = 'profile'" style="background: darkgoldenrod">返回</button>
+        </div>
       </div>
     </div>
   </div>
@@ -322,12 +329,14 @@ import {
 } from '../utils/auth.js'
 import { userStore } from '../utils/store.js'
 import { useRouter } from 'vue-router';
+import { manualReport } from '../utils/onlineTimeTracker.js'
 
 export default defineComponent({
   name: 'AuthPopup',
   setup() {
     const router = useRouter(); // 必须在 setup 内部调用
     const mode = ref('login') // login | register | profile
+    const isInitLoading = ref(false)
     const username = ref('')
     const password = ref('')
     const email = ref('')
@@ -378,7 +387,7 @@ export default defineComponent({
         saveToken(res.access_token, res.refresh_token, res.expires_in)
         await fetchUser()
         await getUserRole();
-        console.log(userStore.role)
+        // console.log(userStore.role)
         error.value = '✅ 登錄成功<br>即將刷新頁面'
         setTimeout(() => {
           // 刷新页面以确保所有状态正确加载
@@ -451,6 +460,11 @@ export default defineComponent({
     }
 
     const logout = async () => {
+      console.log('🚪 [登出] 用户登出，先上报在线时长');
+
+      // 先上报在线时长
+      await manualReport();
+
       const refreshToken = getRefreshToken()
 
       try {
@@ -468,16 +482,30 @@ export default defineComponent({
         mode.value = 'login'
         error.value = ''
       }, 100);
+
+      console.log('✅ [登出] 登出完成');
     }
 
+
     const fetchUser = async () => {
+      isInitLoading.value = true;
       try {
         const res = await api('/auth/me')
+        // 直接更新全局 store
+        userStore.id = res.id
+        userStore.username = res.username
+        userStore.role = res.role
+        userStore.isAuthenticated = true
+
+        // 让本地 user 引用 store 里的数据
         user.value = res
-        const isLoggedIn = res && res.id && res.username;
-      } catch {
+        isInitLoading.value = false;
+      } catch (e) {
         clearToken()
+        userStore.isAuthenticated = false
+        userStore.role = 'anonymous'
         mode.value = 'login'
+        isInitLoading.value = false;
       }
     }
 
@@ -641,7 +669,7 @@ export default defineComponent({
       username, password, email, error, loading, savePassword, saveUsername, modeType,
       user, mode, login, register, logout, fmt, loginMode,
       newPassword, newUsername, currentPassword, formatOnlineTime,
-      showPassword, queryStats, goToAdminPanel, goToTableManager
+      showPassword, queryStats, goToAdminPanel, goToTableManager,isInitLoading, // 记得导出
     }
   }
 })
@@ -943,6 +971,22 @@ h3 {
   transform: translateY(-2px);
   text-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
   color: #005fcc;
+}
+/* 简单的转圈动画 */
+.login-spinner {
+  border: 3px solid #f3f3f3; /* Light grey */
+  border-top: 3px solid #3498db; /* Blue */
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  animation: spin 1s linear infinite;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 </style>
 
