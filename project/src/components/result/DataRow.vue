@@ -95,7 +95,6 @@ const handleMouseEnter = (e, charNode) => {
 const handleMouseLeave = () => {
   tooltip.value.visible = false;
 };
-// -----------------------------
 </script>
 
 <style>

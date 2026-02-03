@@ -64,7 +64,7 @@
           </div>
         </div>
 
-        <div class="icp-number">粤ICP备2025466875号-1</div>
+        <div class="icp-number">粤ICP备2025466875号</div>
       </div>
     </div>
   </Transition>
@@ -291,7 +291,7 @@ onMounted(async () => {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  padding: 20px 20px 40px;
+  padding: 0px 20px 0px;
 }
 
 /* 标题区域 */
@@ -299,7 +299,7 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  padding: 10px 0;
+  padding: 15px 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.3);
 }
 
@@ -321,13 +321,16 @@ onMounted(async () => {
 
 .sidebar-content ul {
   list-style-type: none;
-  padding: 0;
+  padding:  0 0 10px;
   margin: 0;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  gap: 15px;
+  gap: 12px;
+  width: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 @media (max-aspect-ratio: 1/1) {
@@ -614,6 +617,25 @@ onMounted(async () => {
 }
 
 .history-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 95, 211, 0.5);
+}
+
+/* 侧边栏按钮列表滚动条 */
+.sidebar-content ul::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sidebar-content ul::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 3px;
+}
+
+.sidebar-content ul::-webkit-scrollbar-thumb {
+  background: rgba(0, 95, 211, 0.3);
+  border-radius: 3px;
+}
+
+.sidebar-content ul::-webkit-scrollbar-thumb:hover {
   background: rgba(0, 95, 211, 0.5);
 }
 

@@ -1036,13 +1036,16 @@ watch(viewMode, async (newMode) => {
   .yubao-page {
     padding: 16px;
   }
+  .top-controls {
+    margin-bottom: 8px;
+  }
 
   .header-container {
     width: 100%;
+    justify-content: center;
   }
 
   .tab-container {
-    flex: 1;
     justify-content: center;
   }
 }
@@ -1585,7 +1588,6 @@ watch(viewMode, async (newMode) => {
 }
 
 .local-filter-input {
-  width: 100%;
   padding: 8px 32px 8px 32px; /* 留出圖標和清除按鈕的位置 */
   border-radius: 8px;
   border: 1px solid rgba(0,0,0,0.1);

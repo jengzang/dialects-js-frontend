@@ -1,8 +1,12 @@
 <script setup>
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import UniversalTable from "@/components/TableAndTree/UniversalTable.vue";
 
 const router = useRouter()
+
+// ✅ 存储总记录数
+const totalRecords = ref(0)
 
 const dataColumns = [
   {key: '簡稱', label: '方言點', filterable: false, width: 1},
@@ -32,6 +36,11 @@ const defaultFilter = { '存儲標記': 1 }
 const goToPrivacy = () => {
   router.push({ path: '/menu', query: { tab: 'privacy' } })
 }
+
+// ✅ 处理总数更新
+const handleTotalUpdate = (total) => {
+  totalRecords.value = total
+}
 </script>
 
 <template>
@@ -55,8 +64,9 @@ const goToPrivacy = () => {
         table-name="dialects"
         :columns="dataColumns"
         :default-filter="defaultFilter"
+        @update:total="handleTotalUpdate"
     />
-    <p>截至2025.9</p>
+    <p>截至2025.9，共 {{ totalRecords }} 份字表</p>
   </div>
 </template>
 

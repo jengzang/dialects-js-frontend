@@ -41,6 +41,7 @@
     <!-- 左侧边栏 -->
     <Transition name="slide-fade">
       <div class="sidebar" v-if="isSidebarVisible">
+        <div class="sidebar-empty"></div>
         <div class="sidebar-content">
           <ul>
             <li @click="goToOldWebsite">
@@ -96,7 +97,7 @@
             </div>
           </div>
 
-          <div class="icp-number">粤ICP备2025466875号-1</div>
+          <div class="icp-number">粤ICP备2025466875号</div>
         </div>
       </div>
     </Transition>
@@ -641,8 +642,16 @@ const goToYuBao = () =>  {router.push({ path: '/menu',
   justify-content: flex-end; /* 保证内容和底部对齐 */
   gap: 20px;
   /* 给底部留出空间 */
-  padding: 20px 20px 40px;
+  padding: 0px 20px 0px;
 
+}
+.sidebar-empty{
+  height: 8dvh;
+}
+@media (max-aspect-ratio: 1/1){
+  .sidebar-empty{
+    height: 8dvh;
+  }
 }
 
 /* 内容部分居中显示 */
@@ -661,20 +670,23 @@ const goToYuBao = () =>  {router.push({ path: '/menu',
 
 .sidebar-content ul {
   list-style-type: none;
-  padding: 0;
   margin: 0;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   gap: 15px;
+  width: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0 0 10px;
 }
 @media (max-aspect-ratio: 1/1) {
   .sidebar-content{
     gap:15px;
   }
   .sidebar-content ul{
-    gap: 10px;
+    gap: 12px;
   }
 }
 
@@ -965,6 +977,25 @@ const goToYuBao = () =>  {router.push({ path: '/menu',
 }
 
 .stats-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 95, 211, 0.5);
+}
+
+/* 侧边栏按钮列表滚动条 */
+.sidebar-content ul::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sidebar-content ul::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 3px;
+}
+
+.sidebar-content ul::-webkit-scrollbar-thumb {
+  background: rgba(0, 95, 211, 0.3);
+  border-radius: 3px;
+}
+
+.sidebar-content ul::-webkit-scrollbar-thumb:hover {
   background: rgba(0, 95, 211, 0.5);
 }
 
