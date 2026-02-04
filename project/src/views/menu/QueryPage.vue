@@ -380,7 +380,7 @@ const tabStates = reactive({
     card: '韻母',
     keys: ['攝'], // Tab3 专用的键名
     excludeColumns: [] // ✨ 新增：多音字过滤选项
-    // Tab3 似乎没有 valueMap 下拉框，如果有也放在这
+    // Tab3 没有 valueMap 下拉框，如果有也放在这
   }
 })
 

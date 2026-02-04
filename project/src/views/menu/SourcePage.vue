@@ -66,7 +66,7 @@ const handleTotalUpdate = (total) => {
         :default-filter="defaultFilter"
         @update:total="handleTotalUpdate"
     />
-    <p>截至2025.9，共 {{ totalRecords }} 份字表</p>
+    <p>截至2026.2，共 {{ totalRecords }} 份字表</p>
   </div>
 </template>
 

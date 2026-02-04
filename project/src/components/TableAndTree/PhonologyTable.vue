@@ -2,8 +2,8 @@
   <div class="phonology-matrix">
     <div v-if="location" class="location-header">
       <div class="location-title">{{ location }}</div>
-      <button class="tone-search-btn" @click="handleCheckTones" :disabled="isLoading">
-        {{ isLoading ? '查詢中...' : '查聲調' }}
+      <button class="tone-search-btn" @click="handleShowDetails" :disabled="isLoading">
+        {{ isLoading ? '查詢中...' : '詳情' }}
       </button>
     </div>
 
@@ -11,21 +11,68 @@
       <div v-if="showModal" class="modal-overlay" @click="closeModal">
         <div class="modal-content" @click.stop>
           <div class="modal-header">
-            <h3>聲調信息</h3>
+            <h3>📍 {{ location }}</h3>
             <button class="close-btn" @click="closeModal">&times;</button>
           </div>
 
-          <div class="modal-body">
-            <div v-if="tonesData.length > 0" class="tones-list">
-              <div
-                v-for="(item, index) in tonesData"
-                :key="index"
-                class="tone-item"
-              >
-                {{ item }}
+          <div v-if="isLoading" class="modal-body">
+            <div class="popup-loading">
+              <div class="mini-spinner"></div>
+              <span>加載中...</span>
+            </div>
+          </div>
+
+          <div v-else-if="locationData && locationData.data && locationData.data.length > 0" class="modal-body">
+            <div class="info-section">
+              <div class="info-title">{{ locationData.data[0].語言 }}</div>
+
+              <div class="info-item">
+                <span class="info-label">地圖集二分區：</span>
+                <span class="info-value">{{ locationData.data[0].地圖集二分區 || '無' }}</span>
+              </div>
+
+              <div class="info-item">
+                <span class="info-label">音典分區：</span>
+                <span class="info-value">{{ locationData.data[0].音典分區 || '無' }}</span>
+              </div>
+
+              <div class="info-item">
+                <span class="info-label">字表來源：</span>
+                <span class="info-value">{{ locationData.data[0]['字表來源（母本）'] || '無' }}</span>
+              </div>
+
+              <div class="info-item">
+                <span class="info-label">經緯度：</span>
+                <span class="info-value">{{ formatCoordinates(locationData.data[0].經緯度) }}</span>
+              </div>
+
+              <div class="info-item">
+                <span class="info-label">行政區劃：</span>
+                <span class="info-value">{{ formatAdministrativeRegion(locationData.data[0]) }}</span>
               </div>
             </div>
-            <div v-else class="no-data">暫無數據</div>
+
+            <div class="tone-section" v-if="getToneData(locationData.data[0]).length > 0">
+              <div class="section-title">調值信息</div>
+              <table class="tone-mini-table">
+                <thead>
+                  <tr>
+                    <th>調類</th>
+                    <th>調值</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="(tone, index) in getToneData(locationData.data[0])" :key="index">
+                    <td>{{ tone.label }}</td>
+                    <td>{{ tone.value }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div v-else class="modal-body">
+            <div class="popup-no-data">暫無數據</div>
           </div>
 
           <div class="modal-footer">
@@ -39,7 +86,7 @@
       <table class="matrix-table">
         <thead>
         <tr>
-          <th class="corner-cell">聲母\韻母</th>
+          <th class="corner-cell" style="white-space: nowrap">分類特徵</th>
           <th v-for="initial in initials" :key="initial" class="initial-header">
             {{ initial || '零聲母' }}
           </th>
@@ -110,65 +157,98 @@ const getCellData = (initial, final) => {
   return props.matrix[initial]?.[final] || null
 }
 
-const tonesData = ref([]);
+const locationData = ref(null);
 const showModal = ref(false);
 const isLoading = ref(false);
-let requestSeq = 0;
 
-const handleCheckTones = async () => {
-  // 修正：使用 props.location 或 computed 的 .value
+const handleShowDetails = async () => {
   if (!location.value) return;
 
-  const params = new URLSearchParams();
-  params.append('locations', location.value);
-  params.append("regions","");
-  params.append("region_mode", 'yindian');
-
-  requestSeq++;
-  const seq = requestSeq;
-
+  showModal.value = true;
   isLoading.value = true;
+  locationData.value = null;
 
   try {
-    const response = await api(`/api/search_tones/?${params.toString()}`, {
-      method: 'GET',
+    const payload = {
+      db_key: "query",
+      table_name: "dialects",
+      page: 1,
+      page_size: 50,
+      sort_by: null,
+      sort_desc: false,
+      search_columns: [],
+      search_text: "",
+      filters: {
+        簡稱: [location.value]
+      }
+    };
+
+    const response = await api('/sql/query', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
     });
 
-    if (seq !== requestSeq) return;
-
-    if (response && response.tones_result) {
-      // 處理 tones_result，提取總數據並過濾空行
-      const result = response.tones_result;
-
-      // 如果 result 是數組，取第一個元素的總數據
-      if (Array.isArray(result) && result.length > 0 && result[0]['總數據']) {
-        tonesData.value = result[0]['總數據'].filter(item => item && item.trim() !== '');
-      }
-      // 如果 result 是對象，直接取總數據
-      else if (result['總數據']) {
-        tonesData.value = result['總數據'].filter(item => item && item.trim() !== '');
-      }
-      // 否則設為空數組
-      else {
-        tonesData.value = [];
-      }
-
-      showModal.value = true;
-    } else {
-      // 修正：替換未定義的函數為 alert
-      alert('未找到相關聲調信息');
-    }
-
+    locationData.value = response;
   } catch (error) {
-    console.error(error);
-    if (seq === requestSeq) alert('查詢失敗，請稍後重試');
+    console.error('查詢地名數據失敗:', error);
+    alert('查詢失敗，請稍後重試');
   } finally {
-    if (seq === requestSeq) isLoading.value = false;
+    isLoading.value = false;
   }
 };
 
 const closeModal = () => {
   showModal.value = false;
+};
+
+// 格式化行政區劃
+const formatAdministrativeRegion = (data) => {
+  const parts = [];
+  if (data.省) parts.push(data.省);
+  if (data.市) parts.push(data.市);
+  if (data.縣) parts.push(data.縣);
+  if (data.鎮) parts.push(data.鎮);
+  if (data.行政村) parts.push(data.行政村);
+  if (data.自然村) parts.push(data.自然村);
+  return parts.length > 0 ? parts.join('-') : ' ';
+};
+
+// 格式化經緯度（保留6位小數）
+const formatCoordinates = (coords) => {
+  if (!coords) return '無';
+  const parts = coords.split(',');
+  if (parts.length !== 2) return coords;
+
+  const lng = parseFloat(parts[0]);
+  const lat = parseFloat(parts[1]);
+
+  if (isNaN(lng) || isNaN(lat)) return coords;
+
+  return `${lng.toFixed(6)}, ${lat.toFixed(6)}`;
+};
+
+// 提取調值數據
+const getToneData = (data) => {
+  const tones = [
+    { key: 'T1陰平', label: 'T1' },
+    { key: 'T2陽平', label: 'T2' },
+    { key: 'T3陰上', label: 'T3' },
+    { key: 'T4陽上', label: 'T4' },
+    { key: 'T5陰去', label: 'T5' },
+    { key: 'T6陽去', label: 'T6' },
+    { key: 'T7陰入', label: 'T7' },
+    { key: 'T8陽入', label: 'T8' },
+    { key: 'T9其他調', label: 'T9' },
+    { key: 'T10輕聲', label: 'T10' }
+  ];
+
+  return tones
+    .map(tone => ({
+      label: tone.label,
+      value: data[tone.key] || '無'
+    }))
+    .filter(tone => tone.value !== '無');
 };
 </script>
 
@@ -346,37 +426,56 @@ const closeModal = () => {
   }
 }
 
-/* 按鈕和彈窗樣式 */
-.matrix-header {
+/* 標題和按鈕區域 */
+.location-header {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 12px;
-  margin-bottom: 12px;
+  margin-bottom: 16px;
+}
+
+.location-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-dark-light);
+  margin: 0;
 }
 
 .tone-search-btn {
-  padding: 6px 16px;
-  background: var(--glass-medium2);
-  border: 1px solid var(--border-gray-light);
-  border-radius: 8px;
-  color: var(--text-dark);
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  color: #007aff;
   font-size: 14px;
+  font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s ease;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08),
+              inset 0 1px 0 rgba(255, 255, 255, 0.5);
 }
 
 .tone-search-btn:hover:not(:disabled) {
-  background: var(--glass-light2);
-  border-color: var(--color-primary);
-  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.8);
+  border-color: rgba(0, 122, 255, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 122, 255, 0.15),
+              inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.tone-search-btn:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1),
+              inset 0 1px 0 rgba(255, 255, 255, 0.4);
 }
 
 .tone-search-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+  transform: none;
 }
 
 .modal-overlay {
@@ -481,38 +580,6 @@ const closeModal = () => {
   flex: 1;
 }
 
-.tones-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.tone-item {
-  padding: 6px 16px;
-  background: rgba(255, 255, 255, 0.6);
-  border: 1px solid rgba(0, 0, 0, 0.06);
-  border-radius: 12px;
-  font-size: 15px;
-  color: #1d1d1f;
-  line-height: 1.5;
-  transition: all 0.2s ease;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-}
-
-.tone-item:hover {
-  background: rgba(255, 255, 255, 0.8);
-  border-color: rgba(0, 0, 0, 0.1);
-  transform: translateX(2px);
-}
-
-.no-data {
-  text-align: center;
-  padding: 40px 20px;
-  color: #86868b;
-  font-size: 15px;
-}
-
 .modal-footer {
   padding: 16px 24px;
   border-top: 1px solid rgba(0, 0, 0, 0.08);
@@ -545,132 +612,103 @@ const closeModal = () => {
   transform: translateY(0);
 }
 
-.tones-table {
-  width: 100%;
-  border-collapse: separate;
-  border-spacing: 0;
-  background: var(--glass-very-light2);
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-.tones-table th,
-.tones-table td {
-  padding: 12px 16px;
-  text-align: left;
-  border-bottom: 1px solid var(--border-gray-lighter);
-}
-
-.tones-table th {
-  background: var(--glass-lighter2);
-  font-weight: 600;
-  color: var(--text-dark);
-}
-
-.tones-table td {
-  color: var(--text-dark);
-}
-
-.tones-table tr:last-child td {
-  border-bottom: none;
-}
-
-.no-data {
-  text-align: center;
-  padding: 40px;
-  color: var(--text-dark-light);
-}
-/* --- 標題區域樣式 --- */
-.location-header {
+/* LocationDetailPopup 樣式 */
+.popup-loading {
   display: flex;
-  align-items: center; /* 垂直居中 */
-  justify-content: center;
-  gap: 12px;           /* 標題與按鈕的間距 */
-}
-
-.location-title {
-  font-size: 1.5rem;
-  font-weight: bold;
-}
-
-.tone-btn {
-  padding: 4px 12px;
-  font-size: 0.9rem;
-  cursor: pointer;
-  background-color: #f0f0f0;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-.tone-btn:disabled {
-  color: #999;
-  cursor: not-allowed;
-}
-
-/* --- 彈窗樣式 --- */
-.modal-mask {
-  position: fixed;
-  z-index: 9998;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5); /* 半透明黑色背景 */
-  display: flex;
-  justify-content: center;
   align-items: center;
-  transition: opacity 0.3s ease;
-}
-
-.modal-container {
-  width: 300px; /* 彈窗寬度，可按需調整 */
-  max-width: 90%;
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33);
+  gap: 8px;
   padding: 20px;
-  transition: all 0.3s ease;
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
+  color: #666;
+  font-size: 13px;
+  justify-content: center;
 }
 
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 1px solid #eee;
-  padding-bottom: 10px;
-  margin: 0;
+.mini-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #f3f3f3;
+  border-top: 2px solid #007bff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
 }
 
-.modal-header h3 {
-  margin: 0;
-  font-size: 1.1rem;
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
-.close-icon {
-  cursor: pointer;
-  font-size: 1.5rem;
-  color: #999;
+.info-section {
+  margin-bottom: 16px;
 }
 
-.modal-body {
-  font-size: 1rem;
-  line-height: 1.6;
+.info-title {
+  font-size: 15px;
+  font-weight: 600;
   color: #333;
-  /* 如果內容很多，可以加 max-height 和 overflow-y: auto */
+  margin-bottom: 10px;
 }
 
-.modal-footer {
-  text-align: right;
+.info-item {
+  padding: 6px 0;
+  line-height: 1.6;
+  display: flex;
+  align-items: baseline;
+  font-size: 16px;
 }
 
-.modal-btn {
-  padding: 6px 16px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
+.info-label {
+  color: #666;
+  font-weight: 700;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.info-value {
+  color: #333;
+  margin-left: 4px;
+  white-space: nowrap;
+}
+
+.tone-section {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #eee;
+}
+
+.section-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.tone-mini-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.tone-mini-table th,
+.tone-mini-table td {
+  padding: 6px 8px;
+  text-align: left;
+  border: 1px solid #ddd;
+}
+
+.tone-mini-table th {
+  background: #f5f5f5;
+  font-weight: 600;
+  color: #555;
+}
+
+.tone-mini-table tbody tr:hover {
+  background: #f9f9f9;
+}
+
+.popup-no-data {
+  padding: 20px;
+  text-align: center;
+  color: #999;
+  font-size: 13px;
 }
 </style>

@@ -1184,7 +1184,11 @@ onBeforeUnmount(() => {
   );
   transform: translateX(4px);
 }
-
+@media (max-aspect-ratio: 1/1) {
+  .submenu-item{
+    padding:8px 12px;
+  }
+}
 .submenu-icon {
   font-size: 18px;
   flex-shrink: 0;

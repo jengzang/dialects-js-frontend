@@ -3,13 +3,52 @@
     <div class="page-header">
       <h2 class="page-title">📐 音素查詢</h2>
     </div>
-
+    <!-- 特徵選擇 Tab -->
+    <div class="feature-tabs">
+      <div
+          v-for="feature in features"
+          :key="feature"
+          :class="['feature-tab', { active: selectedFeature === feature }]"
+          @click="selectedFeature = feature"
+      >
+        {{ feature }}
+      </div>
+    </div>
     <!-- 地点输入组件 -->
     <div class="input-section">
       <LocationMultiInput
           v-model="queryStrings"
           @update:matchedLocations="handleMatchedLocations"
       />
+      <!-- 分類欄位選擇 -->
+      <div class="column-selectors">
+        <div class="selector-group">
+          <label>橫向分類</label>
+          <select v-model="horizontalColumn">
+            <option v-for="col in columnOptions" :key="col" :value="col">
+              {{ col }}
+            </option>
+          </select>
+        </div>
+
+        <div class="selector-group">
+          <label>縱向分類</label>
+          <select v-model="verticalColumn">
+            <option v-for="col in columnOptions" :key="col" :value="col">
+              {{ col }}
+            </option>
+          </select>
+        </div>
+
+        <div class="selector-group">
+          <label>單元格分行</label>
+          <select v-model="cellRowColumn">
+            <option v-for="col in columnOptions" :key="col" :value="col">
+              {{ col }}
+            </option>
+          </select>
+        </div>
+      </div>
       <button
           class="load-btn"
           @click="loadData"
@@ -18,6 +57,7 @@
         {{ loading ? '加載中...' : '查詢' }}
       </button>
     </div>
+
 
     <div v-if="loading" class="loading">
       <div class="spinner"></div>
@@ -34,10 +74,10 @@
           v-for="location in displayLocations"
           :key="location"
           :location="location"
-          :initials="matrixData[location].initials"
-          :finals="matrixData[location].finals"
-          :tones="matrixData[location].tones"
-          :matrix="matrixData[location].matrix"
+          :initials="matrixData.initials"
+          :finals="matrixData.finals"
+          :tones="matrixData.tones"
+          :matrix="matrixData.matrix"
       />
     </div>
 
@@ -48,7 +88,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { api } from '@/utils/auth.js'
 import PhonologyMatrix from '@/components/TableAndTree/PhonologyTable.vue'
 import LocationMultiInput from '@/components/LocationMultiInput.vue'
@@ -59,14 +99,107 @@ const matrixData = ref(null)
 const queryStrings = ref([])
 const matchedLocations = ref([])
 
+// 特徵選擇（聲母/韻母/聲調）
+const features = ['聲母', '韻母', '聲調']
+
+// 每個特徵的默認分類欄位配置（可根據需要修改）
+const featureDefaults = {
+  '聲母': {
+    horizontal: '清濁',
+    vertical: '部位',
+    cellRow: '母'
+  },
+  '韻母': {
+    horizontal: '等',
+    vertical: '攝',
+    cellRow: '入'
+  },
+  '聲調': {
+    horizontal: '清濁',
+    vertical: '調',
+    cellRow: '組'
+  }
+}
+
+// 從 URL 查詢參數讀取初始特徵，如果沒有則默認為聲母
+const getInitialFeature = () => {
+  const params = new URLSearchParams(window.location.search)
+  const feature = params.get('feature')
+  return features.includes(feature) ? feature : '聲母'
+}
+
+const selectedFeature = ref(getInitialFeature())
+
+// 分類欄位選擇（根據當前特徵的默認值初始化）
+const horizontalColumn = ref(featureDefaults[selectedFeature.value].horizontal)
+const verticalColumn = ref(featureDefaults[selectedFeature.value].vertical)
+const cellRowColumn = ref(featureDefaults[selectedFeature.value].cellRow)
+
+// 可選的分類欄位（硬編碼）
+const columnOptions = ['攝', '韻', '等', '呼', '入', '清濁', '系', '組', '母', '調', '部位', '方式']
+
 const displayLocations = computed(() => {
   if (!matrixData.value) return []
-  return Object.keys(matrixData.value)
+  return matrixData.value.locations || []
 })
 
 // 处理匹配到的地点列表
 const handleMatchedLocations = (locations) => {
   matchedLocations.value = locations
+}
+
+// 監聽特徵選擇變化，自動清空表格並更新默認值
+watch(selectedFeature, (newFeature) => {
+  // 更新 URL 查詢參數
+  const url = new URL(window.location.href)
+  url.searchParams.set('feature', newFeature)
+  window.history.pushState({}, '', url)
+
+  // 清空表格和錯誤信息
+  matrixData.value = null
+  error.value = null
+
+  // 更新分類欄位為新特徵的默認值
+  horizontalColumn.value = featureDefaults[newFeature].horizontal
+  verticalColumn.value = featureDefaults[newFeature].vertical
+  cellRowColumn.value = featureDefaults[newFeature].cellRow
+})
+
+// 數據轉換函數：將 API 返回的數據轉換為 PhonologyMatrix 組件需要的格式
+const transformMatrixData = (apiData) => {
+  // 驗證數據結構
+  if (!apiData) {
+    throw new Error('API 返回的數據為空')
+  }
+
+  if (!apiData.matrix) {
+    console.error('API 數據結構:', apiData)
+    throw new Error('API 返回的數據缺少 matrix 屬性')
+  }
+
+  // 轉換 matrix：提取 feature_value 的 keys 並附加字數
+  const transformedMatrix = {}
+
+  for (const h in apiData.matrix) {
+    transformedMatrix[h] = {}
+    for (const v in apiData.matrix[h]) {
+      transformedMatrix[h][v] = {}
+      for (const c in apiData.matrix[h][v]) {
+        // 提取 keys 並附加字數，格式：["p (5)", "pʰ (3)"]
+        transformedMatrix[h][v][c] = Object.entries(apiData.matrix[h][v][c]).map(
+          ([key, chars]) => `${key}[${chars.length}]`
+        )
+      }
+    }
+  }
+
+  return {
+    locations: apiData.locations,
+    initials: apiData.horizontal_values,
+    finals: apiData.vertical_values,
+    tones: apiData.cell_row_values,
+    matrix: transformedMatrix
+  }
 }
 
 const loadData = async () => {
@@ -80,10 +213,14 @@ const loadData = async () => {
 
   try {
     const requestBody = {
-      locations: matchedLocations.value
+      locations: matchedLocations.value,
+      feature: selectedFeature.value,
+      horizontal_column: horizontalColumn.value,
+      vertical_column: verticalColumn.value,
+      cell_row_column: cellRowColumn.value
     }
 
-    const result = await api('/api/phonology_matrix', {
+    const result = await api('/api/phonology_classification_matrix', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -91,8 +228,15 @@ const loadData = async () => {
       body: JSON.stringify(requestBody)
     })
 
-    // api() 函数已经返回了 JSON 数据
-    matrixData.value = result.data
+    // 調試：查看返回的數據結構
+    console.log('API result:', result)
+
+    // api() 函數可能直接返回數據，或者包裝在 data 屬性中
+    const responseData = result.data || result
+
+    // 轉換數據格式
+    matrixData.value = transformMatrixData(responseData)
+
   } catch (err) {
     console.error('加載音韻矩陣失敗:', err)
     error.value = err.message || '加載數據時發生錯誤'
@@ -129,6 +273,82 @@ const loadData = async () => {
   gap: 5px;
   justify-content: center;
   align-items: center;
+}
+
+.feature-tabs {
+  display: flex;
+  gap: 8px;
+  margin: 20px auto;
+  justify-content: center;
+  max-width: 400px;
+}
+
+.feature-tab {
+  flex: 1;
+  padding: 10px 20px;
+  background: var(--glass-light2);
+  border: 1px solid var(--border-gray-light);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  text-align: center;
+}
+
+.feature-tab.active {
+  background: var(--color-primary);
+  color: var(--text-white);
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-md);
+}
+
+.feature-tab:hover:not(.active) {
+  background: var(--glass-medium2);
+  transform: translateY(-1px);
+}
+
+.column-selectors {
+  display: flex;
+  gap: 16px;
+  margin: 10px auto 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+  max-width: 600px;
+}
+
+.selector-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 150px;
+}
+
+.selector-group label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-dark);
+  text-align: center;
+}
+
+.selector-group select {
+  padding: 10px 12px;
+  border: 1px solid var(--border-gray-light);
+  border-radius: var(--radius-md);
+  background: var(--glass-light2);
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.selector-group select:hover {
+  border-color: var(--color-primary);
+  background: var(--glass-medium2);
+}
+
+.selector-group select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
 }
 
 .load-btn {
@@ -235,7 +455,6 @@ const loadData = async () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 50vh;
   color: var(--text-secondary);
   font-size: 16px;
 }
