@@ -1,7 +1,7 @@
 <template>
   <div class="phonology-matrix-page">
     <div class="page-header">
-      <h2 class="page-title">音韻矩陣</h2>
+      <h2 class="page-title">🔍️ 音系查詢</h2>
     </div>
 
     <!-- 地点输入组件 -->
@@ -50,7 +50,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { api } from '@/utils/auth.js'
-import PhonologyMatrix from '@/components/TableAndTree/PhonologyMatrix.vue'
+import PhonologyMatrix from '@/components/TableAndTree/PhonologyTable.vue'
 import LocationMultiInput from '@/components/LocationMultiInput.vue'
 
 const loading = ref(false)
@@ -126,7 +126,7 @@ const loadData = async () => {
   margin: 0 auto 30px;
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 5px;
   justify-content: center;
   align-items: center;
 }

@@ -17,7 +17,7 @@ import SourcePage from "@/views/menu/SourcePage.vue";
 import PrivacyPage from "@/views/menu/PrivacyPage.vue";
 import SettingPage from "@/views/menu/SettingPage.vue";
 import ToolsPage from "@/views/menu/ToolsPage.vue";
-import DataPage from "@/views/menu/DataPage.vue";
+import PhoPage from "@/views/menu/PhoPage.vue";
 import WordsPage from "@/views/menu/WordsPage.vue";
 import VillagesPage from "@/views/menu/VillagesPage.vue";
 // ... 其他组件引入
@@ -39,7 +39,7 @@ const activeComponent = computed(() => {
     setting:SettingPage,
     about: AboutPage,
     tools: ToolsPage,
-    data: DataPage,
+    pho: PhoPage,
     words: WordsPage,
     villages: VillagesPage,
     // ... 其他映射

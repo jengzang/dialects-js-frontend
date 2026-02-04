@@ -71,7 +71,7 @@ const MenuTitleMap = {
     map: '方音圖鑑 - 地圖',
     about:'方音圖鑑 - 關於網站',
     tools:'方音圖鑑 - 工具',
-    data:'方音圖鑑 - 音系',
+    pho:'方音圖鑑 - 音系',
     words:'方音圖鑑 - 詞彙',
     villages:'方音圖鑑 - 自然村',
     source:'方音圖鑑 - 資料來源',
@@ -89,7 +89,10 @@ const ExploreTitleMap = {
     ycSpoken: '方音圖鑑 - 陽春口語詞',
     YuBao:'方音圖鑑 - 語保資料',
     gdVillagesTable: '方音圖鑑 - 廣東自然村表格',
-    phonologyMatrix: '方音圖鑑 - 音韻矩陣',
+    phonologyMatrix: '方音圖鑑 - 音系統計',
+    phonologyCustom: '方音圖鑑 - 自定義音素表',
+    Countphos: '方音圖鑑 - 音節統計'
+
 };
 
 // 全局导航守卫

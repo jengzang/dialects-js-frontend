@@ -3,17 +3,30 @@
       <h2 class="page-title">音系</h2>
 
       <div class="data-grid">
+        <button class="data-btn" @click="handlePhonologyMatrix">
+          <div class="data-icon">🔍️</div>
+          <div class="data-name">音系查詢</div>
+          <div class="data-desc">聲母韻母聲調-對照表</div>
+        </button>
+
+        <button class="data-btn" @click="handleCount">
+          <div class="data-icon">📐</div>
+          <div class="data-name">音素查詢</div>
+          <div class="data-desc">根據不同的特徵項自定義查詢聲韻調</div>
+        </button>
+
+        <button class="data-btn" @click="handleCount">
+          <div class="data-icon">🧮</div>
+          <div class="data-name">音節統計</div>
+          <div class="data-desc">統計所查方言點的聲韻調數目</div>
+        </button>
+
         <button class="data-btn" @click="handleZhongGu">
           <div class="data-icon">✍️</div>
           <div class="data-name">中古地位</div>
           <div class="data-desc">查看漢字中古地位信息</div>
         </button>
 
-        <button class="data-btn" @click="handlePhonologyMatrix">
-          <div class="data-icon">📊</div>
-          <div class="data-name">音韻矩陣</div>
-          <div class="data-desc">聲母韻母聲調交叉表</div>
-        </button>
       </div>
   </div>
 </template>
@@ -30,6 +43,13 @@ const handleZhongGu = () => {
 const handlePhonologyMatrix = () => {
   router.push('/explore?page=phonologyMatrix')
 };
+
+const handleCount = () => {
+  router.push('/explore?page=Countphos')
+};
+const handlePhoCustom = () =>{
+  router.push('/explore?page=phonologyCustom')
+}
 </script>
 
 <style scoped>

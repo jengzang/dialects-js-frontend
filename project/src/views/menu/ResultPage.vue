@@ -203,7 +203,7 @@ watch(
             if (typeof rawChars === 'string') rawChars = rawChars.split('');
             if (Array.isArray(rawChars)) rawChars.forEach(c => params.append("chars", c));
           }
-// 這裡加個 || "" 只是為了防止變量不存在時出現 "undefined" 字樣，其他情況都直接添加
+            // 這裡加個 || "" 只是為了防止變量不存在時出現 "undefined" 字樣，其他情況都直接添加
           params.append("locations", newPayload.locations || "");
           // ✅ 如果想传数组，要这样写：
           if (Array.isArray(newPayload.regions)) {

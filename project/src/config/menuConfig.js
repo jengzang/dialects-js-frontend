@@ -16,17 +16,27 @@ export const menuConfig = {
   'data': {
     label: '音系',
     icon: '✍️',
-    path: '/menu?tab=data',
+    path: '/menu?tab=pho',
     children: [
+      {
+        label: '音系查詢',
+        icon: '🔍️',
+        path: '/explore?page=phonologyMatrix'
+      },
+      {
+        label: '音素查詢',
+        icon: '📐',
+        path: '/explore?page=phonologyCustom'
+      },
+      {
+        label: '音節統計',
+        icon: '🧮',
+        path: '/explore?page=Countphos'
+      },
       {
         label: '中古地位',
         icon: '✍️',
         path: '/explore?page=ZhongGu'
-      },
-      {
-        label: '音韻矩陣',
-        icon: '📊',
-        path: '/explore?page=phonologyMatrix'
       },
     ]
   },
