@@ -879,6 +879,10 @@ const resetView = () => {
 };
 </script>
 
+<style>
+@import '@/components/result/ResultTable.css';
+</style>
+
 <style scoped>
 .map-page-container {
   width: 90vw;
@@ -1351,6 +1355,3 @@ const resetView = () => {
 }
 </style>
 
-<style scoped>
-@import '@/components/result/ResultTable.css';
-</style>

@@ -219,6 +219,8 @@
 
           <button class="btn-action primary" @click="mode = 'modifyProfile'">🛠 修改資料</button>
 
+          <button class="btn-action info" @click="goToUserData">📊 個人數據</button>
+
           <button v-if="user?.role === 'admin'" class="btn-action success" @click="goToAdminPanel">
             🧑‍💻 後台管理
           </button>
@@ -661,6 +663,13 @@ export default defineComponent({
       router.push({ path: '/explore', query: { page: 'manage' } });
     };
 
+    const goToUserData = () => {
+      router.push({
+        path: '/auth/data',
+        query: { username: user.value.username }
+      });
+    };
+
     watch(mode, () => {
       error.value = ''
     })
@@ -669,7 +678,7 @@ export default defineComponent({
       username, password, email, error, loading, savePassword, saveUsername, modeType,
       user, mode, login, register, logout, fmt, loginMode,
       newPassword, newUsername, currentPassword, formatOnlineTime,
-      showPassword, queryStats, goToAdminPanel, goToTableManager,isInitLoading, // 记得导出
+      showPassword, queryStats, goToAdminPanel, goToTableManager, goToUserData, isInitLoading, // 记得导出
     }
   }
 })
@@ -829,6 +838,13 @@ export default defineComponent({
 }
 .btn-action.danger:hover {
   background-color: #a91f1f;
+}
+
+.btn-action.info {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+}
+.btn-action.info:hover {
+  background: linear-gradient(135deg, #5568d3, #5f3d8a);
 }
 
 .btn-search {

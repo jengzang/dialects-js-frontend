@@ -5,6 +5,7 @@ import Suggestions from './views/intro/Suggestions.vue'
 import Thanks from './views/intro/Thanks.vue'
 import Source from "@/views/intro/Source.vue";
 import Auth from './views/Auth.vue'
+import UserDataPage from './views/UserDataPage.vue'
 import QueryPage from './views/menu/QueryPage.vue'
 import MapPage from './views/menu/MapPage.vue'
 import ResultPage from './views/menu/ResultPage.vue'
@@ -39,6 +40,12 @@ const routes = [
         path: '/auth',
         component: Auth,
         meta: { title: '方音圖鑑 - 登錄' }
+    },
+
+    {
+        path: '/auth/data',
+        component: UserDataPage,
+        meta: { title: '方音圖鑑 - 個人數據管理' }
     },
 
     // 可選：兜底導回首頁（避免 404）

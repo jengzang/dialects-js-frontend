@@ -36,7 +36,8 @@
       </div>
 
         <!-- ✅ 分區選擇區 -->
-      <div class="region-input" style="flex: 1;">
+      <!-- OLD MODE: Cascader with tabs (default) -->
+      <div v-if="!useInputMode" class="region-input" style="flex: 1;">
         <div class="region-header"
              style="display: flex; align-items: center; justify-content: center; margin-bottom: 6px; white-space: nowrap; gap: 4px;">
 
@@ -70,11 +71,56 @@
         />
 
       </div>
+
+      <!-- NEW MODE: Textarea input (for CustomTab) -->
+      <div v-else class="region-input-section">
+        <div class="region-input-header">
+          <label class="region-label">分區</label>
+          <button
+              class="info-btn"
+              @click="openPartitionInfoModal"
+              title="查看分區詳情"
+          >
+            <span class="icon">ℹ️</span>
+          </button>
+        </div>
+
+        <div class="region-input-wrapper">
+          <textarea
+              ref="regionTextareaEl"
+              v-model="regionInputValue"
+              @input="onRegionInput"
+              @blur="onRegionBlur"
+              placeholder="輸入分區名稱，空格分隔（如：客家話 閩南片）"
+              class="region-textarea"
+              rows="3"
+          ></textarea>
+
+          <!-- Suggestions dropdown -->
+          <Teleport to="body">
+            <div
+                v-if="showRegionSuggestions && regionSuggestions.length > 0"
+                class="suggestions-dropdown"
+                :style="regionSuggestionStyle"
+            >
+              <div
+                  v-for="(suggestion, index) in regionSuggestions"
+                  :key="index"
+                  class="suggestion-item"
+                  @mousedown.prevent="selectRegionSuggestion(suggestion)"
+              >
+                <span class="suggestion-text">{{ suggestion.display }}</span>
+                <span class="suggestion-source">{{ suggestion.source === 'map' ? '地圖集' : '音典' }}</span>
+              </div>
+            </div>
+          </Teleport>
+        </div>
+      </div>
     </div>
     <!-- ✅ 底部提示欄：已選擇地點數 -->
     <div class="bottom-hint" >
       <div class="hint-main">
-        您已選擇 <span class="hint-num">{{ selectedCount }}</span> 個地點
+        您已選擇 <span class="hint-num">{{ totalCount }}</span> 個地點
       </div>
       <!-- ✅ 新增：深灰色預覽行（最多顯示 4 個 + 省略號 + 展開） -->
       <div v-if="locationsResult.length" class="hint-preview">
@@ -86,6 +132,21 @@
             class="expand-btn"
             type="button"
             @click="openModal"
+        >
+          展開
+        </button>
+      </div>
+      <!-- 🔥 自定義特徵地點預覽（僅輸入模式） -->
+      <div v-if="useInputMode && customFeatureLocations.length" class="hint-preview custom-preview">
+        <span class="preview-label">自定義地點：</span>
+        <span class="preview-text">
+          {{ customPreviewText }}
+        </span>
+        <button
+            v-if="customFeatureLocations.length > 4"
+            class="expand-btn"
+            type="button"
+            @click="openCustomModal"
         >
           展開
         </button>
@@ -121,6 +182,34 @@
         </div>
       </Teleport>
     </div>
+
+    <!-- 自定義地點彈窗 -->
+    <Teleport to="body">
+      <div
+          v-if="showCustomModal"
+          class="glass-overlay"
+          @mousedown.self="closeCustomModal"
+      >
+        <div class="glass-modal" role="dialog" aria-modal="true">
+          <div class="modal-header">
+            <div class="modal-title">自定義地點（{{ customFeatureLocations.length }}）</div>
+            <button class="modal-close" type="button" @click="closeCustomModal">×</button>
+          </div>
+
+          <div class="modal-body">
+            <div class="locations-list">
+            <span
+                v-for="(loc, idx) in customFeatureLocations"
+                :key="loc + '_' + idx"
+                class="loc-chip custom-chip"
+            >
+              {{ loc }}
+            </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Teleport>
 
     <!-- 分区详情弹窗 -->
     <Teleport to="body">
@@ -186,20 +275,39 @@ const props = defineProps({
   modelValue: {
     type: Object,
     default: () => ({ locations: [], regions: [] ,regionUsing:'map'})  // 默认值
+  },
+  useInputMode: {
+    type: Boolean,
+    default: false
   }
 })
 
 const inputValue = ref(props.modelValue.locations.join(' '))  // 初始化地點
 const selectedValue = ref(props.modelValue.regions)            // 初始化分區
 const regionUsing = ref(props.modelValue.regionUsing)
+
+// Region input mode state
+const regionInputValue = ref('')  // Textarea content for regions
+const regionSuggestions = ref([])  // Autocomplete suggestions
+const showRegionSuggestions = ref(false)  // Show/hide suggestions dropdown
+const regionMatchLoading = ref(false)  // Loading state for matching
+const regionSuggestionStyle = ref({
+  left: '0px',
+  top: '0px',
+  position: 'absolute',
+  zIndex: 99999
+})
 // watch 外部传入的值
 watch(() => props.modelValue, (newVal) => {
   if (!newVal) return
 
-  // 為了防止光標跳動或死循環，可以加一個判斷：只有值真的不一樣才更新
-  const newStr = Array.isArray(newVal.locations) ? newVal.locations.join(' ') : ''
-  if (inputValue.value !== newStr) {
-    inputValue.value = newStr
+  // 比較解析後的數組，而不是字符串，避免空格被移除
+  const currentLocations = (inputValue.value ?? '').trim().split(/\s+/).filter(Boolean)
+  const newLocations = Array.isArray(newVal.locations) ? newVal.locations : []
+
+  // 只有當解析後的數組真的不同時才更新
+  if (JSON.stringify(currentLocations) !== JSON.stringify(newLocations)) {
+    inputValue.value = newLocations.join(' ')
   }
 
   if (JSON.stringify(selectedValue.value) !== JSON.stringify(newVal.regions)) {
@@ -257,7 +365,7 @@ function getQueryStart() {
 
 function onKeyup() {
   clearTimeout(debounceTimer)
-  debounceTimer = setTimeout(fetchSuggestion, 300)
+  debounceTimer = setTimeout(fetchSuggestion, 200)
 }
 
 function onBlur() {
@@ -328,6 +436,152 @@ function applySuggestion(item) {
     suggestions.value = []
     successMessage.value = ''
   })
+}
+
+/* ========== Region Input Mode Logic ========== */
+
+// Flatten tree structure to get all matchable region names
+const flattenRegionTree = (tree, parentPath = []) => {
+  const results = []
+
+  for (const [key, value] of Object.entries(tree)) {
+    const currentPath = [...parentPath, key]
+
+    // Add current level
+    results.push({
+      name: key,
+      path: currentPath.join('-'),
+      display: currentPath.join(' > ')
+    })
+
+    if (typeof value === 'object' && !Array.isArray(value)) {
+      // Recurse into nested object
+      results.push(...flattenRegionTree(value, currentPath))
+    } else if (Array.isArray(value)) {
+      // Add array items as leaf nodes
+      value.forEach(item => {
+        if (item) {
+          const leafPath = [...currentPath, item]
+          results.push({
+            name: item,
+            path: leafPath.join('-'),
+            display: leafPath.join(' > ')
+          })
+        }
+      })
+    }
+  }
+
+  return results
+}
+
+// Get flattened regions from both trees with source tagging
+const getFlattenedRegions = () => {
+  const results = []
+
+  // Add map tree regions
+  try {
+    if (typeof STATIC_REGION_TREE !== 'undefined' && STATIC_REGION_TREE) {
+      const mapRegions = flattenRegionTree(STATIC_REGION_TREE)
+      mapRegions.forEach(region => {
+        results.push({ ...region, source: 'map' })
+      })
+    }
+  } catch (e) {
+    console.warn('STATIC_REGION_TREE not available:', e)
+  }
+
+  // Add yindian tree regions
+  const cachedTree = sessionStorage.getItem('__YINDIAN_TREE_CACHE__')
+  if (cachedTree) {
+    try {
+      const tree = JSON.parse(cachedTree)
+      const yindianRegions = flattenRegionTree(tree)
+      yindianRegions.forEach(region => {
+        results.push({ ...region, source: 'yindian' })
+      })
+    } catch (e) {
+      console.error('Failed to parse yindian tree cache:', e)
+    }
+  }
+
+  return results
+}
+
+// Match region input against flattened tree
+const matchRegions = (input) => {
+  const flatRegions = getFlattenedRegions()
+  const query = input.trim().toLowerCase()
+
+  if (!query) return []
+
+  // Find matches
+  const matches = flatRegions.filter(region =>
+    region.name.toLowerCase().includes(query) ||
+    region.path.toLowerCase().includes(query)
+  )
+
+  // Limit to top 10 matches
+  return matches.slice(0, 10)
+}
+
+// Debounced region input handler
+let regionInputTimeout = null
+const regionTextareaEl = ref(null)
+
+const onRegionInput = () => {
+  clearTimeout(regionInputTimeout)
+
+  regionInputTimeout = setTimeout(() => {
+    const lastWord = regionInputValue.value.split(/\s+/).pop()
+
+    if (lastWord && lastWord.length > 0) {
+      regionMatchLoading.value = true
+      const matches = matchRegions(lastWord)
+      regionSuggestions.value = matches
+      showRegionSuggestions.value = matches.length > 0
+      regionMatchLoading.value = false
+
+      // Update suggestion position
+      if (matches.length > 0) {
+        nextTick(() => {
+          const el = regionTextareaEl.value
+          if (el) {
+            const rect = el.getBoundingClientRect()
+            regionSuggestionStyle.value = {
+              position: 'absolute',
+              left: `${rect.left + window.scrollX}px`,
+              top: `${rect.top + rect.height + 6 + window.scrollY}px`,
+              zIndex: 99999,
+              minWidth: `${el.offsetWidth}px`
+            }
+          }
+        })
+      }
+    } else {
+      showRegionSuggestions.value = false
+    }
+  }, 200)
+}
+
+const onRegionBlur = () => {
+  setTimeout(() => {
+    showRegionSuggestions.value = false
+  }, 200)
+}
+
+// Select a suggestion and auto-detect region mode
+const selectRegionSuggestion = (suggestion) => {
+  const words = regionInputValue.value.split(/\s+/)
+  // Only insert the leaf level name, not the full path
+  words[words.length - 1] = suggestion.name
+  regionInputValue.value = words.join(' ')
+  showRegionSuggestions.value = false
+
+  // Auto-detect and update regionUsing based on suggestion source
+  if (suggestion.source) {
+    regionUsing.value = suggestion.source
+  }
 }
 
 /* ========== 分區選擇邏輯 ========== */
@@ -528,6 +782,12 @@ async function fetchLocationsResult() {
     }
 
     // ✅ 若你後面還有「正常處理」，從這裡往下接
+
+    // 🔥 如果是輸入模式，額外調用 get_custom_feature
+    if (props.useInputMode) {
+      await fetchCustomFeatureLocations(locations, regions)
+    }
+
     return data
 
   } catch (err) {
@@ -535,21 +795,75 @@ async function fetchLocationsResult() {
     limitHint.value = err.message || '地點查詢失敗，請稍後再試'
     selectedCount.value = null
     locationsResult.value = []
+    customFeatureLocations.value = []
     emit('update:runDisabled', true)  // ⭐ 錯誤時禁用按鈕
+  }
+}
+
+// 獲取自定義特徵地點列表
+async function fetchCustomFeatureLocations(locations, regions) {
+  try {
+    const params = new URLSearchParams()
+
+    // 添加地点
+    if (locations && locations.length > 0) {
+      locations.forEach(loc => {
+        if (loc) params.append('locations', loc)
+      })
+    } else {
+      params.append('locations', '')
+    }
+
+    // 添加分区
+    if (regions && regions.length > 0) {
+      regions.forEach(reg => {
+        if (reg) params.append('regions', reg)
+      })
+    } else {
+      params.append('regions', '')
+    }
+
+    // word 設置為空
+    params.set('word', '')
+
+    // 调用 API
+    const response = await api(`/api/get_custom_feature?${params.toString()}`)
+
+    // 提取所有的「簡稱」
+    if (Array.isArray(response)) {
+      customFeatureLocations.value = response
+        .map(item => item['簡稱'])
+        .filter(Boolean)
+    } else {
+      customFeatureLocations.value = []
+    }
+  } catch (err) {
+    console.error('❌ 獲取自定義特徵失敗:', err)
+    customFeatureLocations.value = []
   }
 }
 let debounceTimer2 = null
 
 watch(
-    [inputValue, selectedValue, regionUsing],
-    ([newInput, newSelected, newMode]) => {
+    [inputValue, selectedValue, regionUsing, regionInputValue],
+    ([newInput, newSelected, newMode, newRegionInput]) => {
       // 1. 立即通知父組件更新數據 (實現雙向綁定)
       const locationsArr = (newInput ?? '').trim().split(/\s+/).filter(Boolean)
+
+      // 根據模式決定使用哪個數據源
+      let regionsArr
+      if (props.useInputMode) {
+        // 新模式：從 regionInputValue 解析
+        regionsArr = (newRegionInput ?? '').trim().split(/\s+/).filter(Boolean)
+      } else {
+        // 舊模式：使用 selectedValue
+        regionsArr = newSelected
+      }
 
       // 🔥 發射事件！這行代碼讓父組件知道數據變了
       emit('update:modelValue', {
         locations: locationsArr,
-        regions: newSelected,
+        regions: regionsArr,
         regionUsing: newMode
       })
 
@@ -557,18 +871,49 @@ watch(
       if (debounceTimer2) clearTimeout(debounceTimer2)
       debounceTimer2 = setTimeout(async () => {
         await fetchLocationsResult()
-      }, 500)
+      }, 300)
     },
     { deep: true }
 )
+
+// Initialize regionInputValue from modelValue
+watch(() => props.modelValue.regions, (newRegions) => {
+  if (props.useInputMode && Array.isArray(newRegions)) {
+    // 比較解析後的數組，而不是字符串
+    const currentRegions = (regionInputValue.value ?? '').trim().split(/\s+/).filter(Boolean)
+
+    // 只有當解析後的數組真的不同時才更新
+    if (JSON.stringify(currentRegions) !== JSON.stringify(newRegions)) {
+      regionInputValue.value = newRegions.join(' ')
+    }
+  }
+}, { immediate: true })
 // ✅ 保存服務端返回的 locations_result
 const locationsResult = ref([])
 
+// ✅ 保存自定義特徵的地點列表（僅輸入模式）
+const customFeatureLocations = ref([])
+
 // ✅ 彈層開關
 const showLocationsModal = ref(false)
+const showCustomModal = ref(false)
+
+// 計算總地點數（包含自定義地點）
+const totalCount = computed(() => {
+  const regularCount = selectedCount.value || 0
+  const customCount = props.useInputMode ? (customFeatureLocations.value?.length || 0) : 0
+  return regularCount + customCount
+})
 
 const previewText = computed(() => {
   const arr = locationsResult.value || []
+  if (!arr.length) return ''
+  const first4 = arr.slice(0, 4).join('、')
+  return arr.length > 4 ? `${first4}…` : first4
+})
+
+const customPreviewText = computed(() => {
+  const arr = customFeatureLocations.value || []
   if (!arr.length) return ''
   const first4 = arr.slice(0, 4).join('、')
   return arr.length > 4 ? `${first4}…` : first4
@@ -580,6 +925,14 @@ function openModal() {
 
 function closeModal() {
   showLocationsModal.value = false
+}
+
+function openCustomModal() {
+  showCustomModal.value = true
+}
+
+function closeCustomModal() {
+  showCustomModal.value = false
 }
 function reset() {
   inputValue.value = ''
@@ -907,7 +1260,7 @@ defineExpose({
   align-items: center;
   justify-content: center; /* 居中子元素內容 */
   max-width: 600px;        /* 限定總寬度 */
-  margin: 3dvh  auto 1dvh auto ;          /* 水平置中 */
+  margin: 1dvh  auto 1dvh auto ;          /* 水平置中 */
   width: 90%;
 }
 
@@ -1076,6 +1429,23 @@ defineExpose({
   background: var(--glass-lighter3);
   border: 1px solid var(--border-gray-light2);
   box-shadow: var(--shadow-sm2);
+}
+
+.custom-chip {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+  border: 1px solid rgba(102, 126, 234, 0.3);
+  color: #667eea;
+}
+
+.custom-preview {
+  border-top: 1px solid var(--border-gray-lightest);
+}
+
+.preview-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #667eea;
+  margin-right: 6px;
 }
 
 /* =====================================
@@ -1359,6 +1729,110 @@ defineExpose({
   .partition-tree-container :deep(.leaf-list) {
     grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
   }
+}
+
+/* =====================================
+   Region Input Mode Styles
+   ===================================== */
+
+.region-input-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.region-input-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.region-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+}
+
+.region-input-wrapper {
+  position: relative;
+  flex: 1;
+}
+
+.region-textarea {
+  width: 100%;
+  min-height: 60px;
+  padding: 8px 12px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  font-size: 14px;
+  resize: vertical;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.region-textarea:focus {
+  outline: none;
+  border-color: #007aff;
+  box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+}
+
+/* Suggestions dropdown for region input */
+.suggestions-dropdown {
+  position: absolute !important;
+  background: var(--glass-medium2) !important;
+  border: 1px solid var(--border-gray-light) !important;
+  box-shadow: var(--shadow-lg2);
+  padding: 8px 12px;
+  border-radius: 12px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  white-space: pre-line;
+  font-size: 14px;
+  color: var(--text-dark);
+  max-width: 400px;
+  width: fit-content;
+  z-index: 99999 !important;
+  pointer-events: auto !important;
+  max-height: 30dvh;
+  overflow-y: auto;
+  transition: background-color 0.2s ease;
+}
+
+.suggestion-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 8px;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background-color 0.2s ease;
+  gap: 12px;
+}
+
+.suggestion-item:hover {
+  background-color: var(--bg-blue-hover);
+}
+
+.suggestion-text {
+  flex: 1;
+  font-size: 14px;
+  color: var(--text-dark);
+}
+
+.suggestion-source {
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(0, 122, 255, 0.1);
+  color: #007aff;
+  margin-left: 8px;
+  white-space: nowrap;
+  font-weight: 600;
 }
 
 

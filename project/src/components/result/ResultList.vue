@@ -24,7 +24,27 @@
 
     <div id="stickyContextBar" class="sticky-label2" style="display: block;" v-if="hasData">
       <div class="sticky-bar-inner">
-        <span id="stickyContextText">📍 {{ currentStickyLocation }}</span>
+        <!-- Display mode -->
+        <span
+          v-if="!isEditingLocation"
+          id="stickyContextText"
+          @click="startEditingLocation"
+          style="cursor: pointer;"
+        >
+          📍 {{ currentStickyLocation }}
+        </span>
+
+        <!-- Edit mode -->
+        <input
+          v-else
+          ref="locationInputRef"
+          v-model="editLocationInput"
+          @blur="submitLocationEdit"
+          @keyup.enter="submitLocationEdit"
+          @keyup.esc="cancelLocationEdit"
+          class="location-edit-input"
+          placeholder="輸入地點名稱..."
+        />
 
         <div class="stickybar-filter-wrapper" ref="filterWrapperRef">
           <div class="stickybar-filter-trigger" @click.stop="isFilterOpen = !isFilterOpen">
@@ -87,6 +107,9 @@ const visibleRows = ref(30);
 const scrollContainerRef = ref(null);
 const isCondensedMode = ref(props.isCondensed);
 const currentStickyLocation = ref('');
+const isEditingLocation = ref(false);
+const editLocationInput = ref('');
+const locationInputRef = ref(null);
 const isFilterOpen = ref(false);
 const filterWrapperRef = ref(null);
 const selectedValues = ref([]);
@@ -253,6 +276,71 @@ const handleFeatureConfirm = ({ location, feature, field }) => {
       const newFeature = `${feature.replace(/·/g, '')}-${field}`;
       get_detail(location, newFeature, false, true);
     }
+  }
+};
+
+// Start editing location
+const startEditingLocation = () => {
+  isEditingLocation.value = true;
+  editLocationInput.value = currentStickyLocation.value;
+  nextTick(() => {
+    locationInputRef.value?.focus();
+    locationInputRef.value?.select();
+  });
+};
+
+// Cancel editing
+const cancelLocationEdit = () => {
+  isEditingLocation.value = false;
+  editLocationInput.value = '';
+};
+
+// Submit location edit
+const submitLocationEdit = () => {
+  const targetLocation = editLocationInput.value.trim();
+
+  if (!targetLocation || targetLocation === currentStickyLocation.value) {
+    // No change or empty input - just cancel
+    cancelLocationEdit();
+    return;
+  }
+
+  // Find matching location in data
+  const matchingIndex = sortedData.value.findIndex(
+    item => item.地點 === targetLocation
+  );
+
+  if (matchingIndex === -1) {
+    // No match found - revert to original
+    cancelLocationEdit();
+    return;
+  }
+
+  // Match found - scroll to that location
+  scrollToLocation(targetLocation, matchingIndex);
+  cancelLocationEdit();
+};
+
+// Scroll to specific location
+const scrollToLocation = (locationName, dataIndex) => {
+  const content = scrollContainerRef.value;
+  if (!content) return;
+
+  // Find the location element in DOM
+  const locationElements = [...content.querySelectorAll('.locations-vue')];
+  const targetElement = locationElements.find(
+    el => el.textContent.trim() === locationName
+  );
+
+  if (targetElement) {
+    // Scroll to the element
+    targetElement.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start'
+    });
+
+    // Update current location
+    currentStickyLocation.value = locationName;
   }
 };
 
