@@ -431,7 +431,7 @@ const validBatchEditRows = computed(() => {
 const fetchData = async () => {
   loading.value = true
   try {
-    const response = await api('/api/user/custom/all')
+    const response = await api('/user/custom/all')
     dataList.value = response.data || []
     totalCount.value = response.total || 0
     showSuccess('數據加載成功')
@@ -476,7 +476,7 @@ const closeEditModal = () => {
 
 const submitEdit = async () => {
   try {
-    await api('/api/user/custom/edit', {
+    await api('/user/custom/edit', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(editingRecord.value)
@@ -569,7 +569,7 @@ const submitBatchCreate = async () => {
   }
 
   try {
-    const response = await api('/api/user/custom/batch-create', {
+    const response = await api('/user/custom/batch-create', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
@@ -627,7 +627,7 @@ const submitBatchEdit = async () => {
   try {
     // 第一步：删除原记录
     const deleteIds = batchEditRows.value.map(row => row.created_at)
-    await api('/api/user/custom/batch-delete', {
+    await api('/user/custom/batch-delete', {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -647,7 +647,7 @@ const submitBatchEdit = async () => {
       username: userStore.username
     }))
 
-    await api('/api/user/custom/batch-create', {
+    await api('/user/custom/batch-create', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(newData)
@@ -672,7 +672,7 @@ const handleBatchDelete = async () => {
   if (!confirmed) return
 
   try {
-    const response = await api('/api/user/custom/batch-delete', {
+    const response = await api('/user/custom/batch-delete', {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

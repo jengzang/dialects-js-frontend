@@ -4,9 +4,9 @@
     <div class="header-section">
       <div class="title-row">
         <h2 style="margin: 0;">廣東自然村樹狀圖</h2>
-        <button class="village-link-btn" @click="goToYCVillages">
-          <span role="img" aria-label="ycVillages">🏠</span> 陽春自然村
-        </button>
+<!--        <button class="village-link-btn" @click="goToYCVillages">-->
+<!--          <span role="img" aria-label="ycVillages">🏠</span> 陽春自然村-->
+<!--        </button>-->
       </div>
       <p class="subtitle">點擊「加載」按鈕展開城市資料</p>
       <div class="search-wrapper">

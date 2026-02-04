@@ -71,12 +71,11 @@ const MenuTitleMap = {
     map: '方音圖鑑 - 地圖',
     about:'方音圖鑑 - 關於網站',
     tools:'方音圖鑑 - 工具',
-    gdVillages: '方音圖鑑 - 廣東自然村',
-    ycSpoken: '方音圖鑑 - 陽春口語詞',
+    data:'方音圖鑑 - 音系',
+    words:'方音圖鑑 - 詞彙',
+    villages:'方音圖鑑 - 自然村',
     source:'方音圖鑑 - 資料來源',
     privacy:'方音圖鑑 - 隱私',
-    ZhongGu:'方音圖鑑 - 中古漢字地位',
-    YuBao:'方音圖鑑 - 語保資料'
 };
 const ExploreTitleMap = {
     ycVillages: '方音圖鑑 - 陽春自然村',
@@ -84,7 +83,13 @@ const ExploreTitleMap = {
     jyut2ipa: '方音圖鑑 - 粵拼轉ipa',
     merge:'方音圖鑑 - 字表合併',
     gdVillages:'方音圖鑑 - 廣東自然村樹狀圖',
-    manage: '方音圖鑑 - 表格管理'
+    manage: '方音圖鑑 - 表格管理',
+    // 从 menu 迁移过来的页面
+    ZhongGu:'方音圖鑑 - 中古漢字地位',
+    ycSpoken: '方音圖鑑 - 陽春口語詞',
+    YuBao:'方音圖鑑 - 語保資料',
+    gdVillagesTable: '方音圖鑑 - 廣東自然村表格',
+    phonologyMatrix: '方音圖鑑 - 音韻矩陣',
 };
 
 // 全局导航守卫

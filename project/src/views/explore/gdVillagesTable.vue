@@ -2,9 +2,9 @@
   <div style="width: 100%;justify-content: center;align-items:center;display: flex;flex-direction: column">
     <div class="title-row">
       <h2 style="margin: 0;">全粵村情</h2>
-      <button class="village-link-btn" @click="goToGDVillages">
-        <span role="img" aria-label="ycVillages">🏠</span> 樹狀圖
-      </button>
+<!--      <button class="village-link-btn" @click="goToGDVillages">-->
+<!--        <span role="img" aria-label="ycVillages">🏠</span> 樹狀圖-->
+<!--      </button>-->
     </div>
     <UniversalTable
         db-key="village"

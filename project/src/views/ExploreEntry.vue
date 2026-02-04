@@ -15,6 +15,12 @@ import Jyut2IpaTool from "./explore/Jyut2IpaTool.vue";
 import MergeTool from "./explore/MergeTool.vue";
 import gdVillages from "./explore/gdVillagesTree.vue";
 import SimpleLayout from "./explore/TableManage.vue";
+// 从 menu 迁移过来的页面
+import ZhongGuPage from "./explore/ZhongGuPage.vue";
+import YangChunSpoken from "./explore/YangChunSpoken.vue";
+import YuBaoPage from "./explore/YuBaoPage.vue";
+import gdVillagesTable from "./explore/gdVillagesTable.vue";
+import PhonologyMatrixPage from "./explore/PhonologyMatrixPage.vue";
 
 const route = useRoute()
 
@@ -28,6 +34,12 @@ const activeComponent = computed(() => {
     merge: MergeTool,
     gdVillages:gdVillages,
     manage: SimpleLayout,
+    // 从 menu 迁移过来的页面
+    ZhongGu: ZhongGuPage,
+    ycSpoken: YangChunSpoken,
+    YuBao: YuBaoPage,
+    gdVillagesTable: gdVillagesTable,
+    phonologyMatrix: PhonologyMatrixPage,
   }
   return pageMap[page] || gdVillages
 })

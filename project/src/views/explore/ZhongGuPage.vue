@@ -332,7 +332,6 @@ const getDisplayData = computed(() => {
 .glass-container {
   width: 80dvw;
   max-width: 1200px;
-  height: 82dvh;
   margin: 10px auto;
   border-radius: 30px;
   background: rgba(255, 255, 255, 0.65);
@@ -626,7 +625,6 @@ const getDisplayData = computed(() => {
 @media (max-aspect-ratio: 1/1) {
   .glass-container {
     width: 95%;
-    height: 72dvh;
     border-radius: 20px;
   }
 

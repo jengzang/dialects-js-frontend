@@ -16,11 +16,10 @@ import AboutPage from "@/views/menu/AboutPage.vue";
 import SourcePage from "@/views/menu/SourcePage.vue";
 import PrivacyPage from "@/views/menu/PrivacyPage.vue";
 import SettingPage from "@/views/menu/SettingPage.vue";
-import YangChunSpoken from "@/views/menu/YangChunSpoken.vue";
-import GuangDongVillages from "@/views/menu/gdVillagesTable.vue";
 import ToolsPage from "@/views/menu/ToolsPage.vue";
-import ZhongGu from "@/views/menu/ZhongGuPage.vue"
-import YuBao from "@/views/menu/YuBaoPage.vue";
+import DataPage from "@/views/menu/DataPage.vue";
+import WordsPage from "@/views/menu/WordsPage.vue";
+import VillagesPage from "@/views/menu/VillagesPage.vue";
 // ... 其他组件引入
 
 const route = useRoute()
@@ -39,11 +38,10 @@ const activeComponent = computed(() => {
     privacy: PrivacyPage,
     setting:SettingPage,
     about: AboutPage,
-    ycSpoken:YangChunSpoken,
-    gdVillages:GuangDongVillages,
     tools: ToolsPage,
-    ZhongGu: ZhongGu,
-    YuBao: YuBao,  // 改成小写
+    data: DataPage,
+    words: WordsPage,
+    villages: VillagesPage,
     // ... 其他映射
   }
 

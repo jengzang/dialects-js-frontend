@@ -532,7 +532,7 @@ import * as XLSX from 'xlsx';
 import { api } from "@/utils/auth.js";
 import { userStore } from '@/utils/store.js';
 import { useVirtualList } from '@vueuse/core';
-import { TABLE_CONFIG } from '@/utils/constants.js';
+import { TABLE_CONFIG } from '@/config/constants.js';
 import { showSuccess, showWarning, showInfo, showConfirm, showError } from '@/utils/message.js';
 
 // ✅ 定义事件

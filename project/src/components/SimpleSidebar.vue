@@ -15,36 +15,20 @@
 
       <div class="sidebar-content">
         <ul>
-          <!-- 返回查询按钮 -->
-          <li @click="goToQuery">
-            <span role="img" aria-label="query">📊</span> 返回查詢
+          <!-- Dynamic menu items from config (includes 返回查詢 for SimpleSidebar) -->
+          <li
+            v-for="(item, key) in filteredMenuConfig"
+            :key="key"
+            @click="handleMainClick(item, key)"
+          >
+            <span role="img" :aria-label="key">{{ item.icon }}</span>
+            {{ item.label }}
+            <span
+              v-if="item.children"
+              class="menu-arrow"
+              @click.stop="handleArrowClick(item, key, $event)"
+            >▶</span>
           </li>
-
-          <!-- navbar 的所有链接 -->
-          <li @click="goToOldWebsite">
-            <span role="img" aria-label="old-website">🕰️</span> 舊版網站
-          </li>
-          <li @click="goToTools">
-            <span role="img" aria-label="tools">🧰</span> 字表工具
-          </li>
-          <li @click="goToZhongGu">
-            <span role="img" aria-label="ZhongGu">✍️</span> 中古地位
-          </li>
-          <li @click="goToYuBao">
-            <span role="img" aria-label="yubao">📖</span> 詞彙語法
-          </li>
-          <li @click="goToGDVillages">
-            <span role="img" aria-label="gdVillages">🏠</span> 全粵村情
-          </li>
-          <li @click="goToSpoken">
-            <span role="img" aria-label="spoken">💬</span> 陽春口語詞
-          </li>
-          <li @click="goToSource">
-            <span role="img" aria-label="source">📚</span> 資料來源
-          </li>
-<!--          <li @click="goToPrivacyPolicy">-->
-<!--            <span role="img" aria-label="privacy-policy">🔐</span> 隱私政策-->
-<!--          </li>-->
         </ul>
 
         <!-- 访问统计区域 -->
@@ -120,13 +104,39 @@
       </div>
     </Transition>
   </Teleport>
+
+  <!-- Submenu panel (liquid glass style) -->
+  <Teleport to="body">
+    <Transition name="submenu-fade">
+      <div
+        v-if="activeSubmenu"
+        class="submenu-panel"
+        :style="{
+          top: submenuPosition.top + 'px',
+          left: submenuPosition.left + 'px'
+        }"
+        @click.stop
+      >
+        <div
+          v-for="(child, index) in menuConfig[activeSubmenu]?.children"
+          :key="index"
+          class="submenu-item"
+          @click="handleSubmenuClick(child)"
+        >
+          <span class="submenu-icon">{{ child.icon }}</span>
+          <span class="submenu-label">{{ child.label }}</span>
+        </div>
+      </div>
+    </Transition>
+  </Teleport>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, onBeforeUnmount, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import {api, clearToken, getToken, initUserByToken} from '@/utils/auth.js';
 import {userStore} from "@/utils/store.js";
+import { menuConfig } from '@/config/menuConfig.js';
 
 const router = useRouter();
 const props = defineProps({
@@ -135,6 +145,23 @@ const props = defineProps({
 const user = ref({}) // 存储用户信息
 const mode = ref('login') // 存储登录状态
 const emit = defineEmits(['close']);
+
+// Submenu state management
+const activeSubmenu = ref(null)  // Currently open submenu key
+const submenuPosition = ref({ top: 0, left: 0 })  // Position for submenu panel
+
+// Filter menu items for SimpleSidebar (exclude items that should only show in NavBar)
+const filteredMenuConfig = computed(() => {
+  const filtered = {}
+  for (const [key, item] of Object.entries(menuConfig)) {
+    // If showIn is not specified, show in all components
+    // If showIn is specified, only show if 'SimpleSidebar' is in the array
+    if (!item.showIn || item.showIn.includes('SimpleSidebar')) {
+      filtered[key] = item
+    }
+  }
+  return filtered
+})
 
 // 访问统计相关
 const todayVisits = ref(0);
@@ -146,48 +173,69 @@ const loadingStats = ref(false);
 // 导航方法
 const closeSidebar = () => {
   emit('close');
+  activeSubmenu.value = null;
 };
 
-const goToQuery = () => {
-  router.push({ path: '/menu', query: { tab: 'query' } });
-  closeSidebar();
-};
+// 主按鈕點擊處理 - 直接導航
+const handleMainClick = (item, key) => {
+  if (item.path) {
+    // 有路徑就導航
+    if (item.external) {
+      window.location.href = window.WEB_BASE + '/detail/'
+    } else {
+      router.push(item.path)
+      closeSidebar()
+    }
+  } else {
+    // 沒有路徑就console
+    console.log('按鈕點擊 - 需要設置導航路徑:', key, item)
+  }
+  activeSubmenu.value = null
+}
 
-const goToOldWebsite = () => {
-  window.location.href = window.WEB_BASE + '/detail/';
-  closeSidebar();
-};
+// 箭頭點擊處理 - 展開子菜單
+const handleArrowClick = (item, key, event) => {
+  if (item.children) {
+    const rect = event.currentTarget.parentElement.getBoundingClientRect()
+    const viewportWidth = window.innerWidth
+    const submenuWidth = 250 // 預估子菜單寬度
 
-const goToGDVillages = () => {
-  router.push({ path: '/menu', query: { tab: 'gdVillages' } });
-  closeSidebar();
-};
+    // 計算是否有足夠空間在右側顯示
+    const spaceOnRight = viewportWidth - rect.right
+    const hasSpaceOnRight = spaceOnRight > submenuWidth + 20
 
-const goToSpoken = () => {
-  router.push({ path: '/menu', query: { tab: 'ycSpoken' } });
-  closeSidebar();
-};
+    if (hasSpaceOnRight) {
+      // 右側有空間，顯示在右側
+      submenuPosition.value = {
+        top: rect.top,
+        left: rect.right + 10
+      }
+    } else {
+      // 右側空間不足，顯示在按鈕下方
+      submenuPosition.value = {
+        top: rect.bottom + 5,
+        left: Math.max(10, rect.left) // 確保不會超出左邊界
+      }
+    }
 
-const goToSource = () => {
-  router.push({ path: '/menu', query: { tab: 'source' } });
-  closeSidebar();
-};
+    activeSubmenu.value = activeSubmenu.value === key ? null : key // Toggle
+  }
+}
 
-const goToPrivacyPolicy = () => {
-  router.push({ path: '/menu', query: { tab: 'privacy' } });
-  closeSidebar();
-};
-const goToTools = () => {router.push({ path: '/menu',
-  query: { tab: 'tools'}})  /* 跳转到工具页面 */
-  closeSidebar();}
+// Submenu item click handler
+const handleSubmenuClick = (child) => {
+  if (child.external) {
+    window.open(child.path, '_blank')
+  } else {
+    router.push(child.path)
+  }
+  closeSidebar()
+}
 
-const goToZhongGu = () =>  {router.push({ path: '/menu',
-  query: { tab: 'ZhongGu'}}) /* 跳转到陽春口語詞页面 */
-  closeSidebar();}
-
-const goToYuBao = () =>  {router.push({ path: '/menu',
-  query: { tab: 'YuBao'}}) /* 跳转到陽春口語詞页面 */
-  closeSidebar();}
+// Close submenu when clicking outside
+const closeSubmenu = () => {
+  activeSubmenu.value = null;
+}
 
 // 获取访问统计数据
 async function fetchVisitStats() {
@@ -254,6 +302,11 @@ async function fetchVisitHistory() {
 onMounted(async () => {
   await initUserByToken();
   await fetchVisitStats();
+  document.addEventListener('click', closeSubmenu);
+});
+
+onBeforeUnmount(() => {
+  document.removeEventListener('click', closeSubmenu);
 });
 </script>
 
@@ -365,10 +418,11 @@ onMounted(async () => {
   min-width: 0;
   text-align: center;
   text-decoration: none;
-  gap: 1px;
+  gap: 8px;
   cursor: pointer;
   user-select: none;
   background: rgba(255, 255, 255, 0.7);
+  position: relative;
 }
 
 .sidebar-content li:hover {
@@ -684,6 +738,121 @@ onMounted(async () => {
 @media (max-aspect-ratio: 1/1) {
   .sidebar-content li {
     font-size: 1.1rem;
+  }
+}
+
+/* Arrow indicator for expandable items */
+.menu-arrow {
+  font-size: 20px;
+  font-weight: bold;
+  color: #007aff;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: rgba(0, 122, 255, 0.15);
+  border-radius: 50%;
+  flex-shrink: 0;
+  cursor: pointer;
+  position: relative;
+}
+
+.menu-arrow:hover {
+  transform: scale(1.15);
+  background: rgba(0, 122, 255, 0.3);
+  box-shadow: 0 2px 8px rgba(0, 122, 255, 0.3);
+}
+
+.menu-arrow:active {
+  transform: scale(1.05);
+}
+
+/* Submenu panel - liquid glass style */
+.submenu-panel {
+  position: fixed;
+  width: auto; /* 讓內容自然撐開 */
+  max-width: min(300px, calc(100vw - 20px)); /* 確保不會超出螢幕 */
+  z-index: 10001;
+
+  /* Liquid glass effect */
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.95),
+    rgba(255, 255, 255, 0.85)
+  );
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+
+  /* Border and shadow */
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 16px;
+  box-shadow:
+    inset 0 0 0.5px rgba(255, 255, 255, 0.3),
+    0 12px 40px rgba(0, 0, 0, 0.2),
+    0 0 0 0.5px rgba(255, 255, 255, 0.1);
+
+  /* Padding and overflow */
+  padding: 8px;
+  overflow: hidden;
+}
+
+.submenu-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+
+  /* Text styling */
+  font-size: 15px;
+  font-weight: 500;
+  color: #333;
+}
+
+.submenu-item:hover {
+  background: linear-gradient(
+    145deg,
+    rgba(0, 122, 255, 0.15),
+    rgba(0, 122, 255, 0.08)
+  );
+  transform: translateX(4px);
+}
+
+.submenu-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.submenu-label {
+  flex: 1;
+  white-space: nowrap;
+}
+
+/* Submenu fade transition */
+.submenu-fade-enter-active,
+.submenu-fade-leave-active {
+  transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.submenu-fade-enter-from {
+  opacity: 0;
+  transform: translateX(-10px) scale(0.95);
+}
+
+.submenu-fade-leave-to {
+  opacity: 0;
+  transform: translateX(-10px) scale(0.95);
+}
+
+/* Mobile responsive submenu */
+@media (max-width: 768px) {
+  .submenu-panel {
+    /* 在移動設備上確保不會超出螢幕 */
+    max-width: calc(100vw - 20px);
   }
 }
 </style>

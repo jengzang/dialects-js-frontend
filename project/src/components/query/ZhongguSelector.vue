@@ -77,7 +77,7 @@
 import { ref, computed, watch } from 'vue'
 import { api } from '@/utils/auth.js'
 import { userStore } from '@/utils/store.js'
-import { ROLE_LIMITS, QUERY_CONFIG } from '@/utils/constants.js'
+import { ROLE_LIMITS, QUERY_CONFIG } from '@/config/constants.js'
 
 // 定义事件，用于通知父组件禁用/启用按钮
 const emit = defineEmits(['update:runDisabled'])
