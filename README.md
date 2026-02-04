@@ -13,6 +13,10 @@
 - 方言数据地理可视化（基于 MapLibre）
 - 用户自定义数据注记
 - 多方言点对比分析
+- 音系统计和音韵矩阵可视化
+- 音节统计和音素分布分析
+- 自定义音素分类表生成
+- 批量数据管理和表格操作
 
 ## 功能特点
 
@@ -22,21 +26,27 @@
 - **查音位**：分析音位的中古来源，探究多音字根源
 - **查调**：查询各方言点的调类、调值信息
 
-### 2. 地图可视化
+### 2. 音系分析工具
+- **音系统计**：生成方言点的音韵矩阵，展示声母、韵母、声调的完整音系
+- **音节统计**：统计各方言点的音素分布，支持声母、韵母、声调的数量统计和地点对比
+- **自定义音素表**：根据中古音分类（清浊、部位、方式等）生成自定义音素分类矩阵
+- **批量数据管理**：管理员可批量添加、编辑、删除方言数据（支持 Excel 导入导出）
+
+### 3. 地图可视化
 - 基于 MapLibre GL 的高性能地图渲染
 - 支持多种地图样式（街道、卫星、地形）
 - 智能颜色分配算法（最大化视觉区分度）
 - 自定义数据标注和绘图
 - 响应式设计，支持移动端
 
-### 3. 用户体验
+### 4. 用户体验
 - 现代化毛玻璃（Glassmorphism）UI 设计
 - 流畅的页面切换动画
 - 统一的 Toast 提示和确认对话框
 - 状态保留和浏览器历史支持
 - 响应式布局（桌面/平板/手机）
 
-### 4. 技术特性
+### 5. 技术特性
 - Vue 3 Composition API + `<script setup>` 语法
 - 响应式状态管理（无需 Vuex/Pinia）
 - Promise 化的 API 请求层
@@ -52,6 +62,10 @@
 
 ### 地图可视化
 - **MapLibre GL** - 开源地图库
+
+### 数据处理
+- **opencc-js** - 简繁体中文转换
+- **xlsx** - Excel 文件读写和数据导入导出
 
 ### 样式和设计
 - **CSS 3** - 毛玻璃效果、渐变、动画
@@ -77,6 +91,7 @@ project/
 │   │
 │   ├── views/                  # 页面组件
 │   │   ├── MenuEntry.vue       # 菜单入口（动态 Tab 加载）
+│   │   ├── ExploreEntry.vue    # 探索工具入口
 │   │   └── menu/               # 各个功能页面
 │   │       ├── QueryPage.vue       # 查询页面
 │   │       ├── ResultPage.vue      # 结果页面
@@ -84,16 +99,32 @@ project/
 │   │       ├── AboutPage.vue       # 关于页面
 │   │       ├── SourcePage.vue      # 资料来源
 │   │       ├── PrivacyPage.vue     # 隐私政策
-│   │       ├── SettingPage.vue     # 设置页面
-│   │       ├── YangChunVillages.vue    # 阳春自然村
-│   │       ├── YangChunSpoken.vue      # 阳春口语词
-│   │       └── GuangDongVillages.vue   # 全粤村情
+│   │       └── SettingPage.vue     # 设置页面
+│   │
+│   │   └── explore/            # 探索工具页面
+│   │       ├── PhonologyPage.vue      # 音系统计
+│   │       ├── Countphos.vue          # 音节统计
+│   │       ├── PhonologyCustom.vue    # 自定义音素表
+│   │       ├── TableManage.vue        # 表格管理
+│   │       ├── YangChunVillages.vue   # 阳春自然村
+│   │       ├── YangChunSpoken.vue     # 阳春口语词
+│   │       ├── gdVillagesTree.vue     # 广东自然村树状图
+│   │       ├── gdVillagesTable.vue    # 广东自然村表格
+│   │       ├── ZhongGuPage.vue        # 中古汉字地位
+│   │       ├── YuBaoPage.vue          # 语保资料
+│   │       ├── CheckTool.vue          # 字表检查
+│   │       ├── Jyut2IpaTool.vue       # 粤拼转IPA
+│   │       └── MergeTool.vue          # 字表合并
 │   │
 │   ├── components/             # 可复用组件
 │   │   ├── NavBar.vue          # 顶部导航栏
 │   │   ├── GlobalToast.vue     # 全局提示系统
 │   │   ├── GlobalConfirm.vue   # 全局确认对话框
 │   │   ├── UniversalTable.vue  # 通用表格组件
+│   │   ├── LocationMultiInput.vue  # 地点多选输入
+│   │   │
+│   │   ├── TableAndTree/       # 表格和树形组件
+│   │   │   └── PhonologyTable.vue  # 音韵矩阵表格
 │   │   │
 │   │   ├── map/                # 地图相关组件
 │   │   │   ├── MapLibre.vue    # MapLibre 地图主体
@@ -198,7 +229,27 @@ npm run preview
 4. 点击方言点查看详细信息
 5. 使用「自定义」Tab 添加自己的标注
 
-### 3. 用户认证
+### 3. 音系分析工具
+
+#### 音系统计
+1. 访问「探索」→「音系统计」
+2. 输入要查询的方言点
+3. 点击「查询」生成音韵矩阵
+4. 查看声母、韵母、声调的完整音系表
+
+#### 音节统计
+1. 访问「探索」→「音节统计」
+2. 输入多个方言点进行对比
+3. 查看汇总统计和各地点详情
+4. 分析音素分布和地点差异
+
+#### 自定义音素表
+1. 访问「探索」→「自定义音素表」
+2. 选择特征类型（声母/韵母/声调）
+3. 配置横向、纵向、单元格分类
+4. 生成自定义音素分类矩阵
+
+### 4. 用户认证
 
 - 匿名用户：有查询次数限制
 - 注册用户：更高的查询权限
@@ -214,6 +265,9 @@ npm run preview
 |------|------|------|------|
 | `/auth/me` | GET | 获取当前用户信息 | Headers: Authorization |
 | `/phonology` | POST | 查询音韵数据 | Body: Payload 对象 |
+| `/phonology_matrix` | POST | 获取音韵矩阵 | Body: { locations: string[] } |
+| `/phonology_classification_matrix` | POST | 获取自定义音素分类矩阵 | Body: { locations, feature, horizontal_column, vertical_column, cell_row_column } |
+| `/feature_counts` | GET | 获取音节统计数据 | Query: locations[] |
 | `/get_custom` | GET | 获取用户自定义数据 | Query: user_id |
 
 ### Payload 结构
@@ -393,6 +447,16 @@ ISC License
 - Issues: https://github.com/jengzang/dialects-js-frontend/issues
 
 ## 更新日志
+
+### 1.1.0 (2026-02-05)
+- 新增音系统计功能，支持音韵矩阵可视化
+- 新增音节统计功能，支持音素分布分析和地点对比
+- 新增自定义音素表功能，支持按中古音分类生成音素矩阵
+- 新增表格管理功能，支持批量数据操作（管理员）
+- 新增 /explore 探索工具路由
+- 集成 opencc-js 支持简繁体转换
+- 集成 xlsx 支持 Excel 数据导入导出
+- 优化项目结构，分离 menu 和 explore 页面
 
 ### 1.0.0 (2026-01-20)
 - 完成核心查询功能（查字、查中古、查音位、查调）
