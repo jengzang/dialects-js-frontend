@@ -328,6 +328,6 @@ onUnmounted(() => {
 
 </style>
 
-<style>
+<style scoped>
 @import 'ResultTable.css';
 </style>

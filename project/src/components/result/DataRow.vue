@@ -1,6 +1,6 @@
 <template>
   <div class="data-row-vue">
-    <p v-if="showLocation" class="locations-vue">
+    <p v-if="showLocation" class="locations-vue" @click="handleLocationClick" style="cursor: pointer;">
       {{ item.地點 }}
     </p>
 
@@ -48,12 +48,22 @@
         {{ tooltip.content }}
       </div>
     </Teleport>
+
+    <LocationDetailPopup
+        :visible="locationPopup.visible"
+        :location-name="locationPopup.locationName"
+        :data="locationPopup.data"
+        :loading="locationPopup.loading"
+        @close="locationPopup.visible = false"
+    />
   </div>
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'; // 引入 ref
-import { getCorrespondingCharacters } from '@/utils/ResultTable.js'
+import { computed, ref } from 'vue';
+import { getCorrespondingCharacters } from '@/utils/ResultTable.js';
+import { api } from '@/utils/auth.js';
+import LocationDetailPopup from './LocationDetailPopup.vue';
 
 const props = defineProps({
   item: { type: Object, required: true },
@@ -95,9 +105,55 @@ const handleMouseEnter = (e, charNode) => {
 const handleMouseLeave = () => {
   tooltip.value.visible = false;
 };
+
+// --- 地名點擊彈窗邏輯 ---
+const locationPopup = ref({
+  visible: false,
+  locationName: '',
+  data: null,
+  loading: false
+});
+
+const handleLocationClick = async (e) => {
+  const locationName = props.item.地點;
+  if (!locationName) return;
+
+  locationPopup.value.visible = true;
+  locationPopup.value.locationName = locationName;
+  locationPopup.value.loading = true;
+  locationPopup.value.data = null;
+
+  try {
+    const payload = {
+      db_key: "query",
+      table_name: "dialects",
+      page: 1,
+      page_size: 50,
+      sort_by: null,
+      sort_desc: false,
+      search_columns: [],
+      search_text: "",
+      filters: {
+        簡稱: [locationName]
+      }
+    };
+
+    const response = await api('/sql/query', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    locationPopup.value.data = response;
+  } catch (error) {
+    console.error('查詢地名數據失敗:', error);
+  } finally {
+    locationPopup.value.loading = false;
+  }
+};
 </script>
 
-<style>
+<style scoped>
 @import 'ResultTable.css';
 
 /* 這是傳送到 body 的彈窗樣式，不受小容器限制 */

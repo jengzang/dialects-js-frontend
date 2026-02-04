@@ -75,7 +75,7 @@ const emit = defineEmits(['close'])
 // 状态管理
 const mapContainer = ref(null)
 const map = shallowRef(null)
-const currentStyle = ref('maptiler_streets')
+const currentStyle = ref('gaode')
 const displayMode = ref('name') // 'name' | 'dialect'
 const isFullscreen = ref(false)
 let currentMarkers = []

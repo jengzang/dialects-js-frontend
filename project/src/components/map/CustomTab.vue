@@ -132,7 +132,7 @@ import { ref, reactive, nextTick, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import LocationAndRegionInput from '@/components/query/LocationAndRegionInput.vue'
 import { api } from '@/utils/auth.js'
-import { userStore } from '@/utils/store.js'
+import { userStore, resultCache, mapStore } from '@/utils/store.js'
 import { showSuccess, showError, showWarning, showInfo } from '@/utils/message.js'
 
 const router = useRouter()
@@ -351,6 +351,18 @@ const handleRunQuery = () => {
 
 // 逐条添加：跳转到 map 页面并打开面板
 const handleAddSingle = () => {
+  // 如果当前不是查中古或查音位模式，清空地图数据
+  const currentMode = resultCache.mode || ''
+  if (currentMode !== '查中古' && currentMode !== '查音位') {
+    // 清空地图绘图数据
+    mapStore.mergedData = []
+    resultCache.latestResults = []
+    mapStore.selectedFeature = ''
+    resultCache.features = []
+  }
+
+  // 设置查询模式为"查中古"，确保面板能够显示
+  resultCache.mode = '查中古'
   router.replace({ query: { tab: 'map', sub: 'map', openPanel: 'true' } })
 }
 

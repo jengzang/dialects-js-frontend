@@ -120,6 +120,6 @@ onMounted(() => document.addEventListener('click', handleGlobalClick));
 onUnmounted(() => document.removeEventListener('click', handleGlobalClick));
 </script>
 
-<style>
+<style scoped>
 @import 'ResultTable.css';
 </style>

@@ -33,6 +33,10 @@
             </div>
 
         </div>
+
+        <div v-else-if="shouldShowChar(index) || index === 0" class="no-data-warning">
+          當前字表暫無該字
+        </div>
       </template>
     </div>
 
@@ -334,7 +338,6 @@ onUnmounted(() => window.removeEventListener('click', handleGlobalClick));
 </script>
 
 <style>
-@import "ExtraPanel.css";
 .chartonepage{
   max-width: 85dvw;
   min-width: 60dvw;
@@ -362,6 +365,6 @@ onUnmounted(() => window.removeEventListener('click', handleGlobalClick));
 
 </style>
 
-<style>
+<style scoped>
 @import "ExtraPanel.css";
 </style>

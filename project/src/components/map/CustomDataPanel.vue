@@ -59,7 +59,7 @@
             />
           </div>
 
-          <!-- 特征类型输入框（只读，用于显示） -->
+          <!-- 特征类型输入框（自动填充时只读） -->
           <div class="form-group">
             <label for="feature-type-input">聲/韻/調<span class="required">*</span></label>
             <input
@@ -68,10 +68,11 @@
                 type="text"
                 placeholder="如：聲母、韻母、聲調"
                 autocomplete="off"
+                :readonly="formData.featureType.trim() !== ''"
             />
           </div>
 
-          <!-- 特征子字段输入框（必填） -->
+          <!-- 特征子字段输入框（自动填充时只读） -->
           <div class="form-group">
             <label for="feature-field-input">當前查詢<span class="required">*</span></label>
             <input
@@ -79,6 +80,7 @@
                 v-model="formData.featureField"
                 type="text"
                 placeholder="如：流攝、一等、開..."
+                :readonly="formData.featureField.trim() !== ''"
             />
           </div>
 
@@ -141,9 +143,17 @@ const emit = defineEmits(['submit-success', 'panel-toggle'])
 // 面板状态
 const isPanelOpen = ref(false)
 
-// 计算是否应该显示按钮和面板（只在 tab=map 且 sub=map 时显示）
+// 计算是否应该显示按钮和面板（只在从查中古/查音位跳转过来时显示）
 const shouldShowPanel = computed(() => {
-  return route.query.tab === 'map' && (route.query.sub === 'map' || !route.query.sub)
+  // 必须在 map tab 的 map sub-tab
+  const isMapTab = route.query.tab === 'map' && (route.query.sub === 'map' || !route.query.sub)
+  if (!isMapTab) return false
+
+  // 必须有查询上下文（从查中古或查音位跳转过来）
+  const queryMode = resultCache.mode || ''
+  const hasQueryContext = queryMode === '查中古' || queryMode === '查音位'
+
+  return hasQueryContext
 })
 
 // 表单数据
@@ -459,6 +469,12 @@ const resetForm = () => {
   font-size: 14px;
   background: rgba(255, 255, 255, 0.8);
   transition: all 0.3s ease;
+}
+
+.form-group input[readonly] {
+  background: rgba(240, 240, 240, 0.8);
+  cursor: not-allowed;
+  color: #666;
 }
 
 .form-group input:focus,

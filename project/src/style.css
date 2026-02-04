@@ -528,7 +528,7 @@ textarea:focus {
 }
 
 .dropdown {
-  padding: 12px;
+  padding: 6px 12px;
   border-radius: var(--radius-md);
   background: var(--glass-light);
   backdrop-filter: blur(10px);

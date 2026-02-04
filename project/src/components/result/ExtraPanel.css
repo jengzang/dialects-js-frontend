@@ -60,6 +60,7 @@
 .annotation {
     color: #888;
     font-size: 0.85em;
+    max-width: 200px;
 }
 
 /* 3. 分隔符 */
@@ -87,6 +88,19 @@
     display: inline-block; /* 设置为 inline-block */
     margin-right: 15px;     /* 增加右侧间距 */
     white-space: nowrap;
+}
+
+/* 无数据警告样式 */
+.no-data-warning {
+    text-align: center;
+    padding: 12px 20px;
+    margin: 10px 0;
+    background: rgba(255, 59, 48, 0.1);
+    border: 1px solid rgba(255, 59, 48, 0.3);
+    border-radius: 8px;
+    color: #d32f2f;
+    font-size: 14px;
+    font-weight: 600;
 }
 
 

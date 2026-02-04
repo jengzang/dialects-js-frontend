@@ -65,6 +65,67 @@
       <div class="spinner"></div>
       <span>地圖渲染中...</span>
     </div>
+
+    <!-- 地名點擊彈窗 -->
+    <Teleport to="body">
+      <div v-if="locationPopup.visible" class="location-popup-overlay" @click="closeLocationPopup">
+        <div class="location-popup-content" @click.stop>
+          <div class="location-popup-header">
+            <h3>{{ locationPopup.locationName }} - 詳細信息</h3>
+            <button class="close-btn" @click="closeLocationPopup">✕</button>
+          </div>
+          <div class="location-popup-body">
+            <div v-if="locationPopup.loading" class="popup-loading">
+              <div class="spinner"></div>
+              <span>加載中...</span>
+            </div>
+            <div v-else-if="locationPopup.data && locationPopup.data.data && locationPopup.data.data.length > 0" class="data-display">
+              <div class="dialect-info">
+                <div class="info-line title-line">
+                  {{ locationPopup.data.data[0].語言 }}
+                </div>
+                <div class="info-line">
+                  <strong>地圖集二分區：</strong>{{ locationPopup.data.data[0].地圖集二分區 || '無' }}
+                </div>
+                <div class="info-line">
+                  <strong>音典分區：</strong>{{ locationPopup.data.data[0].音典分區 || '無' }}
+                </div>
+                <div class="info-line">
+                  <strong>字表來源：</strong>{{ locationPopup.data.data[0]['字表來源（母本）'] || '無' }}
+                </div>
+                <div class="info-line">
+                  <strong>經緯度：</strong>{{ formatCoordinates(locationPopup.data.data[0].經緯度) }}
+                </div>
+                <div class="info-line">
+                  <strong>行政區劃：</strong>{{ formatAdministrativeRegion(locationPopup.data.data[0]) }}
+                </div>
+
+                <!-- 調值表格 -->
+                <div class="tone-table-container">
+                  <table class="tone-table">
+                    <thead>
+                      <tr>
+                        <th>調類</th>
+                        <th>調值</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-for="(tone, index) in getToneData(locationPopup.data.data[0])" :key="index">
+                        <td>{{ tone.label }}</td>
+                        <td>{{ tone.value }}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+            <div v-else class="no-data">
+              暫無數據
+            </div>
+          </div>
+        </div>
+      </div>
+    </Teleport>
   </div>
 </template>
 
@@ -102,7 +163,7 @@ const emit = defineEmits(['map-click']);
 
 const mapContainer = ref(null);
 const map = shallowRef(null);
-const currentStyleKey = ref('maptiler_streets');
+const currentStyleKey = ref('gaode');
 const loading = ref(false);
 const isFullScreen = ref(false);
 // showCustomData 改为使用 mapStore 中的状态
@@ -147,6 +208,105 @@ const toggleBaseMode = (e) => {
 // 管理所有的 Marker 實例，用於清除
 let currentMarkers = [];
 
+// 地名點擊彈窗狀態
+const locationPopup = ref({
+  visible: false,
+  locationName: '',
+  data: null,
+  loading: false
+});
+
+// 處理地名點擊事件
+const handleLocationClick = async (locationName) => {
+  locationPopup.value.visible = true;
+  locationPopup.value.locationName = locationName;
+  locationPopup.value.loading = true;
+  locationPopup.value.data = null;
+
+  try {
+    const payload = {
+      db_key: "query",
+      table_name: "dialects",
+      page: 1,
+      page_size: 50,
+      sort_by: null,
+      sort_desc: false,
+      search_columns: [],
+      search_text: "",
+      filters: {
+        簡稱: [locationName]
+      }
+    };
+
+    const response = await api('/sql/query', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    locationPopup.value.data = response;
+  } catch (error) {
+    console.error('查詢地名數據失敗:', error);
+    showError('查詢失敗：' + error.message);
+  } finally {
+    locationPopup.value.loading = false;
+  }
+};
+
+// 關閉地名彈窗
+const closeLocationPopup = () => {
+  locationPopup.value.visible = false;
+};
+
+// 格式化行政區劃
+const formatAdministrativeRegion = (data) => {
+  const parts = [];
+  if (data.省) parts.push(data.省);
+  if (data.市) parts.push(data.市);
+  if (data.縣) parts.push(data.縣);
+  if (data.鎮) parts.push(data.鎮);
+  if (data.行政村) parts.push(data.行政村);
+  if (data.自然村) parts.push(data.自然村);
+  return parts.length > 0 ? parts.join('-') : ' ';
+};
+
+// 格式化經緯度（保留6位小數）
+const formatCoordinates = (coords) => {
+  if (!coords) return '無';
+  const parts = coords.split(',');
+  if (parts.length !== 2) return coords;
+
+  const lng = parseFloat(parts[0]);
+  const lat = parseFloat(parts[1]);
+
+  if (isNaN(lng) || isNaN(lat)) return coords;
+
+  return `${lng.toFixed(6)}, ${lat.toFixed(6)}`;
+};
+
+// 提取調值數據
+const getToneData = (data) => {
+  const tones = [
+    { key: 'T1陰平', label: 'T1' },
+    { key: 'T2陽平', label: 'T2' },
+    { key: 'T3陰上', label: 'T3' },
+    { key: 'T4陽上', label: 'T4' },
+    { key: 'T5陰去', label: 'T5' },
+    { key: 'T6陽去', label: 'T6' },
+    { key: 'T7陰入', label: 'T7' },
+    { key: 'T8陽入', label: 'T8' },
+    { key: 'T9其他調', label: 'T9' },
+    { key: 'T10輕聲', label: 'T10' }
+  ];
+
+  return tones
+    .map(tone => ({
+      label: tone.label,
+      value: data[tone.key] || '無'
+    }))
+    .filter(tone => tone.value !== '無'); // 只顯示有值的調類
+};
+
 // 20色盤 (來自 create_dot_all)
 const colorPalette = [
   "#e6194b", "#3cb44b", "#ffe119", "#4363d8", "#f58231",
@@ -169,16 +329,30 @@ onBeforeUnmount(() => {
 });
 
 // --- 監聽數據變化，自動重繪 ---
+// 追蹤上一次的數據，用於判斷是否需要重置視角
+const prevMapData = ref(null);
+const prevMergedData = ref(null);
+
 watch(
     // 監聽源改成 store 裡的數據
     [() => mapStore.mapData, () => mapStore.mergedData, () => mapStore.mode, () => props.activeFeature],
-    () => {
-      renderMapContent();
+    ([newMapData, newMergedData, newMode]) => {
+      // 判斷是否只是模式切換（數據沒變）
+      const isOnlyModeChange =
+        prevMapData.value === newMapData &&
+        prevMergedData.value === newMergedData;
+
+      // 更新追蹤值
+      prevMapData.value = newMapData;
+      prevMergedData.value = newMergedData;
+
+      // 渲染地圖，傳入是否需要重置視角的標誌
+      renderMapContent(!isOnlyModeChange);
     },
     { deep: true }
 );
 watch(() => mapStore.showCustomData, () => {
-  renderMapContent();
+  renderMapContent(false); // 切換自定義數據顯示時不重置視角
 });
 
 // 監聽 resultCache.mode 變化，更新 isMiddleChineseMode
@@ -235,36 +409,38 @@ const initMap = () => {
 };
 
 // --- 核心渲染入口 ---
-const renderMapContent = async () => {
+const renderMapContent = async (shouldResetView = true) => {
   if (!map.value) return;
 
   // 清除舊標記
   clearMarkers();
 
-  // 根據數據調整視角
-  let centerCoord = null;
-  let zoomLevel = 8;
+  // 根據數據調整視角（僅在需要時）
+  if (shouldResetView) {
+    let centerCoord = null;
+    let zoomLevel = 8;
 
-  // 优先使用 mapStore.mapData（基础地图数据）
-  if (mapStore.mapData && mapStore.mapData.center_coordinate) {
-    centerCoord = mapStore.mapData.center_coordinate;
-    zoomLevel = mapStore.mapData.zoom_level || 8;
-  }
-  // 如果没有 mapData，或者在 feature 模式且有 mergedData，则从 mergedData 中提取
-  else if (mapStore.mergedData && mapStore.mergedData.length > 0) {
-    const firstItem = mapStore.mergedData[0];
-    if (firstItem.centerCoordinate) {
-      centerCoord = firstItem.centerCoordinate;
-      zoomLevel = firstItem.zoomLevel || 8;
+    // 优先使用 mapStore.mapData（基础地图数据）
+    if (mapStore.mapData && mapStore.mapData.center_coordinate) {
+      centerCoord = mapStore.mapData.center_coordinate;
+      zoomLevel = mapStore.mapData.zoom_level || 8;
     }
-  }
+    // 如果没有 mapData，或者在 feature 模式且有 mergedData，则从 mergedData 中提取
+    else if (mapStore.mergedData && mapStore.mergedData.length > 0) {
+      const firstItem = mapStore.mergedData[0];
+      if (firstItem.centerCoordinate) {
+        centerCoord = firstItem.centerCoordinate;
+        zoomLevel = firstItem.zoomLevel || 8;
+      }
+    }
 
-  // 应用视角调整
-  if (centerCoord && Array.isArray(centerCoord) && centerCoord.length >= 2) {
-    map.value.flyTo({
-      center: centerCoord,
-      zoom: zoomLevel
-    });
+    // 应用视角调整
+    if (centerCoord && Array.isArray(centerCoord) && centerCoord.length >= 2) {
+      map.value.flyTo({
+        center: centerCoord,
+        zoom: zoomLevel
+      });
+    }
   }
 
   // 根據模式分發邏輯
@@ -318,6 +494,12 @@ const drawBaseMap = () => {
     el.className = 'marker-text-base'; // 樣式見下方 style
     el.innerText = locationName;
     el.style.fontSize = fontSize;
+    el.style.cursor = 'pointer'; // 添加指針樣式
+
+    // 添加點擊事件
+    el.addEventListener('click', () => {
+      handleLocationClick(locationName);
+    });
 
     // 添加 Marker
     const marker = new maplibregl.Marker({ element: el, anchor: 'center' })
@@ -1015,8 +1197,160 @@ const resetView = () => {
   /* 確保它是相對定位，參與正常排版 */
   position: relative; /* 改回相對定位 */
 }
+
+/* 地名點擊彈窗樣式 */
+.location-popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+}
+
+.location-popup-content {
+  background: white;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 800px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+.location-popup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border-bottom: 1px solid #eee;
+}
+
+.location-popup-header h3 {
+  margin: 0;
+  font-size: 18px;
+  color: #333;
+}
+
+.close-btn {
+  background: #f0f0f0;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: #666;
+  padding: 4px;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.close-btn:hover {
+  background: #e0e0e0;
+  color: #333;
+  transform: scale(1.1);
+}
+
+.location-popup-body {
+  padding: 20px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.popup-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  color: #666;
+}
+
+.dialect-info {
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+.info-line {
+  padding: 8px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.info-line:last-of-type {
+  border-bottom: none;
+  margin-bottom: 20px;
+}
+
+.title-line {
+  font-size: 20px;
+  font-weight: bold;
+  color: #333;
+  padding: 12px 0;
+  border-bottom: 2px solid #007bff;
+  margin-bottom: 16px;
+}
+
+.info-line strong {
+  color: #555;
+  margin-right: 8px;
+}
+
+.tone-table-container {
+  margin-top: 20px;
+}
+
+.tone-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.tone-table th,
+.tone-table td {
+  padding: 10px;
+  text-align: left;
+  border: 1px solid #ddd;
+}
+
+.tone-table th {
+  background: #f5f5f5;
+  font-weight: 600;
+  color: #333;
+}
+
+.tone-table tbody tr:hover {
+  background: #f9f9f9;
+}
+
+.data-display pre {
+  background: #f5f5f5;
+  padding: 16px;
+  border-radius: 8px;
+  overflow-x: auto;
+  font-size: 13px;
+  line-height: 1.6;
+  margin: 0;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.no-data {
+  text-align: center;
+  padding: 40px;
+  color: #999;
+  font-size: 16px;
+}
 </style>
 
-<style>
+<style scoped>
 @import '@/components/result/ResultTable.css';
 </style>

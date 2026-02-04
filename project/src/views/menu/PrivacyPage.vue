@@ -50,7 +50,7 @@ const toggleLang = () => {
           </p>
           <ul>
             <li><strong>最小化資料收集</strong>：本網站僅收集必要的技術資訊（如訪問日誌、瀏覽器類型）以維護網站正常運行和改善用戶體驗。</li>
-            <li><strong>無個人身份資訊</strong>：我們不主動收集可識別個人身份的資訊（如姓名、電子郵件地址、電話號碼等）。</li>
+            <li><strong>無個人身份資訊</strong>：我們不主動收集可識別個人身份的資訊（如姓名、電話號碼、出生年月等）。</li>
             <li><strong>數據安全</strong>：所有收集的資料均採用業界標準的安全措施進行保護，防止未經授權的訪問、披露、修改或破壞。</li>
           </ul>
 
@@ -144,7 +144,7 @@ const toggleLang = () => {
           </p>
           <ul>
             <li><strong>Minimal Data Collection</strong>: This website only collects necessary technical information (such as access logs, browser type) to maintain normal website operation and improve user experience.</li>
-            <li><strong>No Personal Identification Information</strong>: We do not actively collect personally identifiable information (such as name, email address, phone number, etc.).</li>
+            <li><strong>No Personal Identification Information</strong>: We do not actively collect personally identifiable information (such as name, phone number, birthday, etc.).</li>
             <li><strong>Data Security</strong>: All collected data is protected using industry-standard security measures to prevent unauthorized access, disclosure, modification, or destruction.</li>
           </ul>
 

@@ -192,6 +192,9 @@ async function fetchData(pathStrings) {
   limitHint.value = ''
   results.value = []
 
+  // ✅ 在 API 请求开始时禁用按钮
+  emit('update:runDisabled', true)
+
   try {
     const data = await api('/api/charlist', {
       method: 'POST',
@@ -211,6 +214,8 @@ async function fetchData(pathStrings) {
     console.error('Fetch error:', e)
     limitHint.value = '數據查詢失敗，請稍後重試'
     results.value = []
+    // ✅ 请求失败时保持按钮禁用状态（因为没有有效的charlist数据）
+    emit('update:runDisabled', true)
   } finally {
     loading.value = false
   }

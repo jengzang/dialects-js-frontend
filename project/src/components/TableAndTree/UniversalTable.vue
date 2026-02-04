@@ -10,7 +10,7 @@
             class="search-input"
         />
       </div>
-      <div class="action-buttons">
+      <div v-if="userStore.role === 'admin'" class="action-buttons">
         <button v-if="!isEditMode" class="glass-btn" style="padding:8px 6px " @click="exportToExcel">
           <span class="icon">📤</span><span class="btn-text">Excel</span>
         </button>
@@ -75,7 +75,7 @@
               :key="col.key"
               :style="{ width: ((Number(col.width) || 1) / totalRatio * 100) + '%' }"
           />
-          <col style="width: 60px; min-width: 50px;" />
+          <col v-if="userStore.role === 'admin'" style="width: 60px; min-width: 50px;" />
         </colgroup>
 
         <thead>
@@ -97,7 +97,7 @@
               </div>
             </div>
           </th>
-          <th class="action-th">操作</th>
+          <th v-if="userStore.role === 'admin'" class="action-th">操作</th>
         </tr>
         </thead>
 
@@ -113,7 +113,7 @@
           >
             {{ row[col.key] }}
           </td>
-          <td class="action-td">
+          <td v-if="userStore.role === 'admin'" class="action-td">
             <button class="icon-action-btn delete" @click="handleDelete(row)">✕</button>
           </td>
         </tr>
@@ -180,7 +180,7 @@
                       :key="col.key"
                       :style="{ width: ((Number(col.width) || 1) / totalRatio * 100) + '%' }"
                   />
-                  <col style="width: 60px; min-width: 50px;" />
+                  <col v-if="userStore.role === 'admin'" style="width: 60px; min-width: 50px;" />
                 </colgroup>
 
                 <thead>
@@ -202,7 +202,7 @@
                       </div>
                     </div>
                   </th>
-                  <th class="action-th">操作</th>
+                  <th v-if="userStore.role === 'admin'" class="action-th">操作</th>
                 </tr>
                 </thead>
 
@@ -218,7 +218,7 @@
                   >
                     {{ row[col.key] }}
                   </td>
-                  <td class="action-td">
+                  <td v-if="userStore.role === 'admin'" class="action-td">
                     <button class="icon-action-btn delete" @click="handleDelete(row)">✕</button>
                   </td>
                 </tr>
@@ -510,7 +510,7 @@
                 :disabled="batchReplace.replaceAllPages ? batchReplace.totalMatches === 0 : batchReplace.previewResults.length === 0"
               >
                 <span class="icon">✓</span>
-                <span>執行替換 ({{ batchReplace.replaceAllPages ? batchReplace.totalMatches : batchReplace.previewResults.length }})</span>
+                <span>替換 ({{ batchReplace.replaceAllPages ? batchReplace.totalMatches : batchReplace.previewResults.length }})</span>
               </button>
               <button
                 class="glass-btn"
@@ -2913,10 +2913,7 @@ td.cell-changed::after {
 
   .column-selector {
     grid-template-columns: 1fr;
-  }
-
-  .batch-replace-modal .modal-footer {
-    flex-direction: column;
+    gap:1px
   }
 }
 </style>
