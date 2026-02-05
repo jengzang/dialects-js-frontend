@@ -17,7 +17,6 @@
   "dependencies": {
     "@vueuse/core": "^14.1.0",
     "maplibre-gl": "^5.16.0",
-    "naive-ui": "^2.42.0",
     "opencc-js": "^1.0.5",
     "vue-router": "^4.5.1",
     "xlsx": "^0.18.5"

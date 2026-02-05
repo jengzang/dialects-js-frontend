@@ -116,6 +116,7 @@ const calculateAggregatedData = (data) => {
       <LocationMultiInput
           v-model="queryStrings"
           @update:matchedLocations="handleMatchedLocations"
+          :max-locations="100"
       />
       <button
           class="load-btn"
@@ -531,5 +532,13 @@ const calculateAggregatedData = (data) => {
   background: rgba(0, 0, 0, 0.05);
   padding: 2px 6px;
   border-radius: 4px;
+}
+.empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 50vh;
+  color: var(--text-secondary);
+  font-size: 16px;
 }
 </style>

@@ -16,6 +16,9 @@
           </button>
         </div>
       </div>
+      <div v-if="warningMessage" class="warning-message">
+        ⚠️ {{ warningMessage }}
+      </div>
       <textarea
         id="location-input"
         ref="inputEl"
@@ -86,6 +89,10 @@ const props = defineProps({
   modelValue: {
     type: Array,
     default: () => []
+  },
+  maxLocations: {
+    type: Number,
+    default: 10
   }
 })
 
@@ -98,6 +105,7 @@ const suggestions = ref([])
 const successMessage = ref('')
 const matchedLocations = ref([])
 const showModal = ref(false)
+const warningMessage = ref('')
 const suggestionStyle = ref({
   left: '0px',
   top: '0px',
@@ -253,6 +261,7 @@ function applySuggestion(item) {
 async function fetchMatchedLocations(queries) {
   if (!queries.length) {
     matchedLocations.value = []
+    warningMessage.value = ''
     emit('update:matchedLocations', [])
     return
   }
@@ -271,11 +280,24 @@ async function fetchMatchedLocations(queries) {
       }
     )
 
-    matchedLocations.value = Array.isArray(data?.locations_result) ? data.locations_result : []
+    // 对返回的地点列表去重
+    const locations = Array.isArray(data?.locations_result) ? data.locations_result : []
+    const uniqueLocations = [...new Set(locations)]
+
+    // 检查是否超过最大限制
+    if (uniqueLocations.length > props.maxLocations) {
+      warningMessage.value = `匹配到${uniqueLocations.length}个地点，已自动截取前${props.maxLocations}个`
+      matchedLocations.value = uniqueLocations.slice(0, props.maxLocations)
+    } else {
+      warningMessage.value = ''
+      matchedLocations.value = uniqueLocations
+    }
+
     emit('update:matchedLocations', matchedLocations.value)
   } catch (err) {
     console.error('获取匹配地点失败:', err)
     matchedLocations.value = []
+    warningMessage.value = ''
     emit('update:matchedLocations', [])
   }
 }
@@ -357,6 +379,16 @@ async function fetchMatchedLocations(queries) {
 
 .expand-btn-inline:hover {
   background: var(--color-primary-light2);
+}
+
+.warning-message {
+  font-size: 13px;
+  color: #ff9800;
+  background: rgba(255, 152, 0, 0.1);
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  border-left: 3px solid #ff9800;
+  font-weight: 500;
 }
 
 .input-section textarea {

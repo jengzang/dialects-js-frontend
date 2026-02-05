@@ -75,9 +75,9 @@ const showQRCodes = ref(false)
 
 const projects = [
   {
-    name: 'dialects-js-frontend',
-    url: 'https://github.com/jengzang/dialects-js-frontend',
-    description: '前端倉庫 - 使用原生js和vue開發'
+    name: 'dialects-vue-frontend',
+    url: 'https://github.com/jengzang/dialects-vue-frontend',
+    description: '前端倉庫 - 使用vue框架和原生js開發'
   },
   {
     name: 'dialects-backend',
@@ -87,7 +87,7 @@ const projects = [
   {
     name: 'dialects-build',
     url: 'https://github.com/jengzang/dialects-build',
-    description: '字表預處理倉庫 - 提取各種格式字表的聲韻調'
+    description: '字表預處理倉庫 - 提取字表的聲韻調'
   },
 ]
 function followClicked() {

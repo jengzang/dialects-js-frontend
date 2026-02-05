@@ -3,18 +3,30 @@ import {createRouter, createWebHashHistory, createWebHistory} from 'vue-router'
 import LikeAuthor from './views/intro/LikeAuthor.vue'
 import Suggestions from './views/intro/Suggestions.vue'
 import Thanks from './views/intro/Thanks.vue'
-import Source from "@/views/intro/Source.vue";
 import Auth from './views/Auth.vue'
 import UserDataPage from './views/UserDataPage.vue'
-import QueryPage from './views/menu/QueryPage.vue'
-import MapPage from './views/menu/MapPage.vue'
-import ResultPage from './views/menu/ResultPage.vue'
-import AboutPage from "@/views/menu/AboutPage.vue";
-import SourcePage from "@/views/menu/SourcePage.vue";
-import PrivacyPage from "@/views/menu/PrivacyPage.vue";
-import SettingPage from "@/views/menu/SettingPage.vue";
 import MenuEntry from "@/views/MenuEntry.vue";
 import ExploreEntry from "@/views/ExploreEntry.vue";
+import IntroLayout from "@/layouts/IntroLayout.vue";
+import { h, computed } from 'vue'
+import { useRoute } from 'vue-router'
+
+// 内联定义 intro 动态组件
+const IntroEntry = {
+    setup() {
+        const route = useRoute()
+        const activeComponent = computed(() => {
+            const tab = route.query.tab
+            const tabMap = {
+                like: LikeAuthor,
+                suggestions: Suggestions,
+                thanks: Thanks
+            }
+            return tabMap[tab] || LikeAuthor
+        })
+        return () => h(activeComponent.value)
+    }
+}
 
 const routes = [
     // ✅ 根路由 → 直接導到 /menu?tab=query
@@ -33,6 +45,16 @@ const routes = [
     {
         path: '/explore',
         component: ExploreEntry
+    },
+    {
+        path: '/intro',
+        component: IntroLayout,
+        children: [
+            {
+                path: '',
+                component: IntroEntry
+            }
+        ]
     },
 
     // 其他頁面
