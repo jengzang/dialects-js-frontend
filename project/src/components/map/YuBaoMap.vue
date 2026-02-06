@@ -149,9 +149,9 @@ const map = shallowRef(null)
 const currentStyleKey = ref('gaode')
 const displayMode = ref('pronunciation')
 const isFullScreen = ref(false)
-const currentMarkers = []
 const popupData = ref(null)
 const showPopup = ref(false)
+const mapLoaded = ref(false)  // 跟踪地图是否已加载
 
 // --- Functions ---
 
@@ -208,17 +208,21 @@ const getMarkerText = (item) => {
 
   // 检查值是否为空的辅助函数
   const isEmpty = (val) => {
-    return !val || val === '（空）' || val === '(空)' || val.trim() === ''
+    return !val || val === '（空）' || val === '(空)' || val.trim() === ''|| val === '(无)'|| val === '（无）'
   }
 
   if (displayMode.value === 'location') {
     // 地名模式
     if (props.activeTab === 'vocabulary') {
-      // 如果 county 为空，使用 village 作为后备
-      text = isEmpty(item.county) ? item.village : item.county
+      // 優先順序: county -> village -> city
+      text = isEmpty(item.county)
+          ? (isEmpty(item.village) ? item.city : item.village)
+          : item.county
     } else {
-      // 如果 form_c 为空，使用 form_d 作为后备
-      text = isEmpty(item.form_c) ? item.form_d : item.form_c
+      // 優先順序: form_c -> form_d -> form_b
+      text = isEmpty(item.form_c)
+          ? (isEmpty(item.form_d) ? item.form_b : item.form_d)
+          : item.form_c
     }
   } else if (displayMode.value === 'pronunciation') {
     // 语音模式
@@ -249,13 +253,71 @@ const getLocationText = (item) => {
   }
 }
 
-// 清除标记
-const clearMarkers = () => {
-  currentMarkers.forEach(marker => marker.remove())
-  currentMarkers.length = 0
+// 转换数据为 GeoJSON 格式
+const convertToGeoJSON = (data) => {
+  if (!data || data.length === 0) {
+    return {
+      type: 'FeatureCollection',
+      features: []
+    }
+  }
+
+  const features = data
+    .filter(item => {
+      const lng = parseFloat(item.longitude)
+      const lat = parseFloat(item.latitude)
+      return Number.isFinite(lng) && Number.isFinite(lat)
+    })
+    .map(item => {
+      const lng = parseFloat(item.longitude)
+      const lat = parseFloat(item.latitude)
+      const text = getMarkerText(item)
+
+      if (!text || text === '-') return null
+
+      // 计算颜色
+      let bgColor, textColor
+      if (displayMode.value === 'location') {
+        bgColor = '#1b2e2b'
+        textColor = '#a6ffdc'
+      } else {
+        bgColor = assignColor(text)
+        textColor = '#1d1d1f'
+      }
+
+      return {
+        type: 'Feature',
+        geometry: {
+          type: 'Point',
+          coordinates: [lng, lat]
+        },
+        properties: {
+          label: text,
+          bgColor: bgColor,
+          textColor: textColor,
+          // 保留原始数据用于弹窗
+          locationChain: getLocationText(item),
+          pronunciation: item.pronunciation || '',
+          phonetic: item.phonetic || '',
+          word: item.note2 || item.word || '',
+          note1: item.note1 || '',
+          memo: item.memo || '',
+          sentence: item.sentence || '',
+          category: [item.lang_cat1, item.lang_cat2, item.lang_cat3]
+            .filter(Boolean)
+            .join('-') || '-'
+        }
+      }
+    })
+    .filter(Boolean)
+
+  return {
+    type: 'FeatureCollection',
+    features
+  }
 }
 
-// 渲染标记
+// 渲染标记（使用 GeoJSON + Symbol Layer）
 const renderMarkers = () => {
   if (!map.value || !props.mapData || props.mapData.length === 0) {
     console.log('❌ renderMarkers: 无法渲染', {
@@ -266,81 +328,33 @@ const renderMarkers = () => {
     return
   }
 
-  console.log('🗺️ 开始渲染标记', {
-    dataCount: props.mapData.length,
-    displayMode: displayMode.value,
-    activeTab: props.activeTab
-  })
+  // console.log('🗺️ 开始渲染标记', {
+  //   dataCount: props.mapData.length,
+  //   displayMode: displayMode.value,
+  //   activeTab: props.activeTab
+  // })
 
-  clearMarkers()
+  const geojsonData = convertToGeoJSON(props.mapData)
+  // console.log('✅ GeoJSON features:', geojsonData.features.length)
 
-  let validCount = 0
-  let invalidCount = 0
-
-  props.mapData.forEach(item => {
-    // 修复：使用正确的字段名 longitude 和 latitude
-    const lng = parseFloat(item.longitude)
-    const lat = parseFloat(item.latitude)
-
-    if (!Number.isFinite(lng) || !Number.isFinite(lat)) {
-      invalidCount++
-      return
-    }
-
-    const coord = [lng, lat]
-
-    const text = getMarkerText(item)
-    if (!text || text === '-') return
-
-    const el = document.createElement('div')
-    el.className = 'yubao-marker'
-    el.innerText = text
-    el.style.cursor = 'pointer'
-
-    // 根据显示模式调整样式和颜色
-    if (displayMode.value === 'location') {
-      // 地名模式：固定颜色
-      el.style.backgroundColor = '#1b2e2b'
-      el.style.color = '#a6ffdc'
-    } else if (displayMode.value === 'pronunciation') {
-      // 语音模式：根据发音分配颜色
-      const bgColor = assignColor(text)
-      el.style.backgroundColor = bgColor
-      el.style.color = '#1d1d1f'  // 深黑色文字
-      el.style.fontWeight = '600'
-    } else {
-      // 释义模式：根据释义分配颜色
-      const bgColor = assignColor(text)
-      el.style.backgroundColor = bgColor
-      el.style.color = '#1d1d1f'  // 深黑色文字
-      el.style.fontWeight = '600'
-    }
-
-    el.addEventListener('click', () => handleMarkerClick(item))
-
-    const marker = new maplibregl.Marker({ element: el, anchor: 'center' })
-      .setLngLat(coord)
-      .addTo(map.value)
-
-    currentMarkers.push(marker)
-  })
+  // 更新 source 数据
+  const source = map.value.getSource('yubao-markers')
+  if (source) {
+    source.setData(geojsonData)
+  }
 }
 
-// 处理标记点击
-const handleMarkerClick = (item) => {
-  const categoryChain = [item.lang_cat1, item.lang_cat2, item.lang_cat3]
-    .filter(Boolean)
-    .join('-') || '-'
-
+// 处理标记点击（接受 GeoJSON properties）
+const handleMarkerClick = (properties) => {
   popupData.value = {
-    locationChain: getLocationText(item),
-    pronunciation: item.pronunciation || '',
-    phonetic: item.phonetic || '',
-    word: item.note2 || item.word || '',
-    note1: item.note1 || '',
-    memo: item.memo || '',
-    sentence: item.sentence || '',
-    category: categoryChain
+    locationChain: properties.locationChain,
+    pronunciation: properties.pronunciation,
+    phonetic: properties.phonetic,
+    word: properties.word,
+    note1: properties.note1,
+    memo: properties.memo,
+    sentence: properties.sentence,
+    category: properties.category
   }
   showPopup.value = true
 }
@@ -380,7 +394,101 @@ const toggleFullScreen = async () => {
 const handleStyleChange = () => {
   if (!map.value) return
   const newStyle = mapStyle(currentStyleKey.value)
+
+  // 保存当前数据
+  const currentData = map.value.getSource('yubao-markers')?._data
+
   map.value.setStyle(newStyle)
+
+  // 样式加载完成后重新添加 layers
+  map.value.once('styledata', () => {
+    if (!currentData) return
+
+    // 重新添加 source
+    map.value.addSource('yubao-markers', {
+      type: 'geojson',
+      data: currentData,
+      cluster: true,
+      clusterMaxZoom: 14,
+      clusterRadius: 50
+    })
+
+    // 重新添加所有 layers（复用 initMap 中的代码）
+    map.value.addLayer({
+      id: 'yubao-clusters',
+      type: 'circle',
+      source: 'yubao-markers',
+      filter: ['has', 'point_count'],
+      paint: {
+        'circle-color': [
+          'step',
+          ['get', 'point_count'],
+          '#51bbd6',
+          100,
+          '#f1f075',
+          750,
+          '#f28cb1'
+        ],
+        'circle-radius': [
+          'step',
+          ['get', 'point_count'],
+          20,
+          100,
+          30,
+          750,
+          40
+        ],
+        'circle-opacity': 0.85,
+        'circle-stroke-width': 2,
+        'circle-stroke-color': '#fff'
+      }
+    })
+
+    map.value.addLayer({
+      id: 'yubao-cluster-count',
+      type: 'symbol',
+      source: 'yubao-markers',
+      filter: ['has', 'point_count'],
+      layout: {
+        'text-field': '{point_count_abbreviated}',
+        'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
+        'text-size': 14
+      },
+      paint: {
+        'text-color': '#ffffff'
+      }
+    })
+
+    map.value.addLayer({
+      id: 'yubao-unclustered-bg',
+      type: 'circle',
+      source: 'yubao-markers',
+      filter: ['!', ['has', 'point_count']],
+      paint: {
+        'circle-radius': 17,
+        'circle-color': ['get', 'bgColor'],
+        'circle-opacity': 0.9,
+        'circle-stroke-width': 1.5,
+        'circle-stroke-color': 'rgba(255, 255, 255, 0.8)'
+      }
+    })
+
+    map.value.addLayer({
+      id: 'yubao-unclustered-text',
+      type: 'symbol',
+      source: 'yubao-markers',
+      filter: ['!', ['has', 'point_count']],
+      layout: {
+        'text-field': ['get', 'label'],
+        'text-size': 12,
+        'text-font': ['Open Sans Regular', 'Arial Unicode MS Regular'],
+        'text-anchor': 'center'
+      },
+      paint: {
+        'text-color': ['get', 'textColor']
+      }
+    })
+  })
 }
 
 // 初始化地图
@@ -400,7 +508,145 @@ const initMap = () => {
   map.value.addControl(new maplibregl.NavigationControl(), 'top-left')
 
   map.value.on('load', () => {
-    renderMarkers()
+    // 添加 GeoJSON source（带聚类）
+    const geojsonData = convertToGeoJSON(props.mapData)
+
+    map.value.addSource('yubao-markers', {
+      type: 'geojson',
+      data: geojsonData,
+      cluster: true,
+      clusterMaxZoom: 14,
+      clusterRadius: 50
+    })
+
+    // 1. 聚类圆圈图层
+    map.value.addLayer({
+      id: 'yubao-clusters',
+      type: 'circle',
+      source: 'yubao-markers',
+      filter: ['has', 'point_count'],
+      paint: {
+        'circle-color': [
+          'step',
+          ['get', 'point_count'],
+          '#51bbd6',
+          100,
+          '#f1f075',
+          750,
+          '#f28cb1'
+        ],
+        'circle-radius': [
+          'step',
+          ['get', 'point_count'],
+          20,
+          100,
+          30,
+          750,
+          40
+        ],
+        'circle-opacity': 0.85,
+        'circle-stroke-width': 2,
+        'circle-stroke-color': '#fff'
+      }
+    })
+
+    // 2. 聚类数量文字图层
+    map.value.addLayer({
+      id: 'yubao-cluster-count',
+      type: 'symbol',
+      source: 'yubao-markers',
+      filter: ['has', 'point_count'],
+      layout: {
+        'text-field': '{point_count_abbreviated}',
+        'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
+        'text-size': 14
+      },
+      paint: {
+        'text-color': '#ffffff'
+      }
+    })
+
+    // 3. 未聚类点的背景圆形
+    map.value.addLayer({
+      id: 'yubao-unclustered-bg',
+      type: 'circle',
+      source: 'yubao-markers',
+      filter: ['!', ['has', 'point_count']],
+      paint: {
+        'circle-radius': 17,
+        'circle-color': ['get', 'bgColor'],
+        'circle-opacity': 0.9,
+        'circle-stroke-width': 1.5,
+        'circle-stroke-color': 'rgba(255, 255, 255, 0.8)'
+      }
+    })
+
+    // 4. 未聚类点的文字
+    map.value.addLayer({
+      id: 'yubao-unclustered-text',
+      type: 'symbol',
+      source: 'yubao-markers',
+      filter: ['!', ['has', 'point_count']],
+      layout: {
+        'text-field': ['get', 'label'],
+        'text-size': 12,
+        'text-font': ['Open Sans Regular', 'Arial Unicode MS Regular'],
+        'text-anchor': 'center'
+      },
+      paint: {
+        'text-color': ['get', 'textColor']
+      }
+    })
+
+    // 点击聚类时放大
+    map.value.on('click', 'yubao-clusters', (e) => {
+      const features = map.value.queryRenderedFeatures(e.point, {
+        layers: ['yubao-clusters']
+      })
+
+      if (!features.length) return
+
+      const clusterId = features[0].properties.cluster_id
+      map.value.getSource('yubao-markers').getClusterExpansionZoom(
+        clusterId,
+        (err, zoom) => {
+          if (err) return
+
+          map.value.easeTo({
+            center: features[0].geometry.coordinates,
+            zoom: zoom + 0.5
+          })
+        }
+      )
+    })
+
+    // 点击未聚类点时显示弹窗
+    map.value.on('click', 'yubao-unclustered-bg', (e) => {
+      if (e.features.length > 0) {
+        const properties = e.features[0].properties
+        handleMarkerClick(properties)
+      }
+    })
+
+    // Hover 效果 - 聚类
+    map.value.on('mouseenter', 'yubao-clusters', () => {
+      map.value.getCanvas().style.cursor = 'pointer'
+    })
+
+    map.value.on('mouseleave', 'yubao-clusters', () => {
+      map.value.getCanvas().style.cursor = ''
+    })
+
+    // Hover 效果 - 未聚类点
+    map.value.on('mouseenter', 'yubao-unclustered-bg', () => {
+      map.value.getCanvas().style.cursor = 'pointer'
+    })
+
+    map.value.on('mouseleave', 'yubao-unclustered-bg', () => {
+      map.value.getCanvas().style.cursor = ''
+    })
+
+    console.log('✅ Symbol layers 已添加')
   })
 }
 
@@ -410,7 +656,6 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
-  clearMarkers()
   if (map.value) {
     map.value.remove()
     map.value = null
@@ -632,10 +877,7 @@ watch(() => props.activeTab, () => {
   border: 1px solid rgba(0, 0, 0, 0.1);
 }
 
-.yubao-marker:hover {
-  transform: scale(1.1);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-}
+/* Hover effect removed for performance optimization */
 
 /* 弹窗样式 */
 .yubao-popup-overlay {
