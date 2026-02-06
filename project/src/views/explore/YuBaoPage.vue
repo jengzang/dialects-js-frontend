@@ -174,9 +174,9 @@
     </div>
 
     <!-- 卡片/地图模式 -->
-    <div v-else class="content-area">
+    <div v-else-if="viewMode === 'card'" class="content-area">
       <!-- 卡片模式 -->
-      <div v-if="viewMode === 'card'" class="card-mode">
+      <div class="card-mode">
 
         <div v-if="isLoadingCards" class="cards-loading">
           <div class="spinner"></div>
@@ -271,14 +271,28 @@
         </div>
       </div>
 
-      <!-- 地图模式 -->
-      <div v-else-if="viewMode === 'map'" class="map-mode">
-        <p style="text-align: center; color: #6e6e73; padding: 40px 20px;">
-          地圖模式開發中...
-          <br>
-          <small>（請先使用表格或卡片模式）</small>
-        </p>
+    </div>
+
+    <!-- 地图模式 -->
+    <div v-else-if="viewMode === 'map'" class="map-mode">
+      <div v-if="!isValidInput || cardData.length === 0" class="empty-state">
+        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="12"/>
+          <line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        <p v-if="!vocabularyInput.trim() && !grammarInput.trim()">請輸入搜索內容</p>
+        <p v-else-if="!isValidInput">請從建議列表中選擇</p>
+        <p v-else>沒有找到相關數據</p>
+        <small v-if="!vocabularyInput.trim() && !grammarInput.trim()">
+          在上方輸入框中輸入{{ activeTab === 'vocabulary' ? '詞彙' : '語法句式' }}進行查詢
+        </small>
       </div>
+      <YuBaoMap
+          v-else
+          :map-data="cardData"
+          :active-tab="activeTab"
+      />
     </div>
 
     <!-- 查看全部弹窗 -->
@@ -325,6 +339,7 @@ import { api } from '@/utils/auth.js'
 import * as OpenCC from 'opencc-js'
 import UniversalTable from '@/components/TableAndTree/UniversalTable.vue'
 import { watchDebounced } from '@vueuse/core'
+import YuBaoMap from '@/components/map/YuBaoMap.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -346,7 +361,13 @@ const isLoading = ref(false)
 const showAllModal = ref(false)
 const modalSearchQuery = ref('')
 const viewMode = ref('card')
-const cardData = ref([])
+// 为每个 tab 维护独立的卡片数据
+const vocabularyCardData = ref([])
+const grammarCardData = ref([])
+// 计算属性：根据当前 tab 返回对应的数据
+const cardData = computed(() => {
+  return activeTab.value === 'vocabulary' ? vocabularyCardData.value : grammarCardData.value
+})
 const isLoadingCards = ref(false)
 const localFilterQuery = ref('')
 
@@ -363,7 +384,7 @@ const vocabularyColumns = [
   { key: 'city', label: '市', filterable: true, width: 0.8 },
   { key: 'county', label: '縣', filterable: true, width: 0.8 },
   { key: 'village', label: '鎮', filterable: true, width: 0.8 },
-  { key: 'location', label: '村', filterable: true, width: 1.2 },
+  { key: 'location', label: '村', filterable: false, width: 1.2 },
   { key: 'note2', label: '字', filterable: true, width: 1.2 },
   { key: 'pronunciation', label: '發音', filterable: false, width: 1.5 },
   { key: 'note1', label: '注釋', filterable: false, width: 1.5 },
@@ -376,7 +397,7 @@ const grammarColumns = [
   { key: 'form_b', label: '市', filterable: true, width: 1 },
   { key: 'form_c', label: '縣', filterable: true, width: 1 },
   { key: 'form_d', label: '鎮', filterable: true, width: 1 },
-  { key: 'form_e', label: '村', filterable: true, width: 1 },
+  { key: 'form_e', label: '村', filterable: false, width: 1 },
   { key: 'memo', label: '注釋', filterable: false, width: 3 },
   { key: 'phonetic', label: '發音', filterable: false, width: 4 },
   { key: 'lang_cat1', label: '分區1', filterable: true, width: 1 },
@@ -457,8 +478,8 @@ const filteredAllItems = computed(() => {
 function switchTab(tabKey) {
   activeTab.value = tabKey
   router.push({
-    path: '/menu',
-    query: { tab: 'YuBao', sub: tabKey }
+    path: '/explore',
+    query: { page: 'YuBao', sub: tabKey }
   })
 }
 
@@ -668,7 +689,12 @@ function selectFromModal(item) {
 async function loadCardsPage() {
   // 只有当输入有效（在数据列表中完全匹配）时才请求API
   if (!isValidInput.value) {
-    cardData.value = []
+    // 清空当前 tab 的数据，不影响另一个 tab
+    if (activeTab.value === 'vocabulary') {
+      vocabularyCardData.value = []
+    } else {
+      grammarCardData.value = []
+    }
     isLoadingCards.value = false
     return
   }
@@ -701,15 +727,30 @@ async function loadCardsPage() {
     // console.log('📦 卡片数据响应:', response)
 
     if (response && response.data) {
-      cardData.value = response.data
-      console.log('✅ 加载了', cardData.value.length, '条卡片数据')
+      // console.log(response.data)
+      // 更新对应 tab 的数据
+      if (activeTab.value === 'vocabulary') {
+        vocabularyCardData.value = response.data
+
+      } else {
+        grammarCardData.value = response.data
+      }
+      console.log('✅ 加载了', response.data.length, '条卡片数据')
     } else {
-      cardData.value = []
+      if (activeTab.value === 'vocabulary') {
+        vocabularyCardData.value = []
+      } else {
+        grammarCardData.value = []
+      }
       console.warn('⚠️ 响应格式不正确:', response)
     }
   } catch (error) {
     console.error('加载卡片数据失败:', error)
-    cardData.value = []
+    if (activeTab.value === 'vocabulary') {
+      vocabularyCardData.value = []
+    } else {
+      grammarCardData.value = []
+    }
   } finally {
     isLoadingCards.value = false
   }
@@ -723,6 +764,9 @@ watchDebounced(
     () => {
       if (isValidInput.value) {
         if (viewMode.value === 'card') {
+          loadCardsPage()
+        } else if (viewMode.value === 'map') {
+          // 地图模式下也需要加载数据
           loadCardsPage()
         }
       }
@@ -825,8 +869,14 @@ watch(viewMode, async (newMode) => {
   if (newMode === 'card' && cardData.value.length > 0) {
     await nextTick();
     initObserver();
+  } else if (newMode === 'map') {
+    // 切换到地图模式时，确保数据已加载
+    if (isValidInput.value && cardData.value.length === 0) {
+      await loadCardsPage()
+    }
   }
 });
+
 
 </script>
 
@@ -835,7 +885,7 @@ watch(viewMode, async (newMode) => {
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 24px;
+  padding: 12px;
 }
 
 /* 顶部控制栏 */
@@ -1034,7 +1084,7 @@ watch(viewMode, async (newMode) => {
 
 @media (max-width: 640px) {
   .yubao-page {
-    padding: 16px;
+    padding: 4px;
   }
   .top-controls {
     margin-bottom: 8px;
@@ -1230,6 +1280,8 @@ watch(viewMode, async (newMode) => {
   box-shadow: var(--shadow-md);
   padding: 32px;
   min-height: 300px;
+  max-height: 70dvh;
+  overflow: auto;
 }
 
 .tab-content {
@@ -1346,7 +1398,7 @@ watch(viewMode, async (newMode) => {
 /* 响应式 */
 @media (max-width: 768px) {
   .yubao-page {
-    padding: 16px;
+    padding: 4px;
   }
 
   .content-area {
@@ -1669,5 +1721,19 @@ watch(viewMode, async (newMode) => {
   color: #999;
   font-size: 13px;
   letter-spacing: 1px;
+}
+
+/* ===== 地图模式样式 ===== */
+.map-mode {
+  min-height: 500px;
+  height: 70vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.map-mode .yubao-map-container {
+  width: 100%;
+  height: 100%;
 }
 </style>

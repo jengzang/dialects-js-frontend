@@ -1,7 +1,7 @@
 <template>
   <div class="phonology-matrix-page">
     <div class="page-header">
-      <h2 class="page-title">📐 音素查詢</h2>
+      <h2 class="page-title">📐 音素分類</h2>
     </div>
     <!-- 特徵選擇 Tab -->
     <div class="feature-tabs">
@@ -19,6 +19,7 @@
       <LocationMultiInput
           v-model="queryStrings"
           @update:matchedLocations="handleMatchedLocations"
+          @update:isMatching="handleIsMatching"
       />
       <!-- 分類欄位選擇 -->
       <div class="column-selectors">
@@ -52,9 +53,11 @@
       <button
           class="load-btn"
           @click="loadData"
-          :disabled="matchedLocations.length === 0 || loading"
+          :disabled="matchedLocations.length === 0 || loading || isMatching"
       >
-        {{ loading ? '加載中...' : '查詢' }}
+        <span v-if="isMatching" class="btn-spinner"></span>
+        <span v-else-if="loading">加載中...</span>
+        <span v-else>查詢</span>
       </button>
     </div>
 
@@ -98,6 +101,7 @@ const error = ref(null)
 const matrixData = ref(null)
 const queryStrings = ref([])
 const matchedLocations = ref([])
+const isMatching = ref(false) // 添加匹配状态
 
 // 特徵選擇（聲母/韻母/聲調）
 const features = ['聲母', '韻母', '聲調']
@@ -146,6 +150,11 @@ const displayLocations = computed(() => {
 // 处理匹配到的地点列表
 const handleMatchedLocations = (locations) => {
   matchedLocations.value = locations
+}
+
+// 处理匹配状态
+const handleIsMatching = (matching) => {
+  isMatching.value = matching
 }
 
 // 監聽特徵選擇變化，自動清空表格並更新默認值
@@ -364,6 +373,10 @@ const loadData = async () => {
   cursor: pointer;
   transition: all 0.3s ease;
   box-shadow: 0 4px 12px var(--color-primary-shadow), 0 2px 4px rgba(0, 0, 0, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
 .load-btn:hover:not(:disabled) {
@@ -381,6 +394,16 @@ const loadData = async () => {
   color: var(--text-secondary);
   cursor: not-allowed;
   box-shadow: none;
+}
+
+/* 按钮内的小旋转器 */
+.btn-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
 }
 
 .loading {

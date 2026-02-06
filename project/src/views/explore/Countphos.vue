@@ -8,10 +8,20 @@ const error = ref(null)
 const matrixData = ref(null)
 const queryStrings = ref([])
 const matchedLocations = ref([])
+const isMatching = ref(false) // 添加匹配状态
 
 // 音節統計數據
 const featureData = ref({})  // 存儲每個地點的原始數據
 const aggregatedData = ref({}) // 存儲匯總統計數據
+
+// 弹窗状态
+const showLocationModal = ref(false)
+const modalData = ref({
+  syllable: '',
+  featureType: '',
+  locations: [],
+  totalCount: 0
+})
 
 const displayLocations = computed(() => {
   if (!matrixData.value) return []
@@ -21,6 +31,11 @@ const displayLocations = computed(() => {
 // 处理匹配到的地点列表
 const handleMatchedLocations = (locations) => {
   matchedLocations.value = locations
+}
+
+// 处理匹配状态
+const handleIsMatching = (matching) => {
+  isMatching.value = matching
 }
 
 const loadData = async () => {
@@ -103,6 +118,22 @@ const calculateAggregatedData = (data) => {
 
   return aggregated
 }
+
+// 打开地点详情弹窗
+const openLocationModal = (syllable, featureType, stats) => {
+  modalData.value = {
+    syllable,
+    featureType,
+    locations: stats.locations,
+    totalCount: stats.totalCount
+  }
+  showLocationModal.value = true
+}
+
+// 关闭弹窗
+const closeLocationModal = () => {
+  showLocationModal.value = false
+}
 </script>
 
 <template>
@@ -116,14 +147,17 @@ const calculateAggregatedData = (data) => {
       <LocationMultiInput
           v-model="queryStrings"
           @update:matchedLocations="handleMatchedLocations"
+          @update:isMatching="handleIsMatching"
           :max-locations="100"
       />
       <button
           class="load-btn"
           @click="loadData"
-          :disabled="matchedLocations.length === 0 || loading"
+          :disabled="matchedLocations.length === 0 || loading || isMatching"
       >
-        {{ loading ? '加載中...' : '查詢' }}
+        <span v-if="isMatching" class="btn-spinner"></span>
+        <span v-else-if="loading">加載中...</span>
+        <span v-else>查詢</span>
       </button>
     </div>
 
@@ -167,13 +201,22 @@ const calculateAggregatedData = (data) => {
                 </span>
               </div>
               <div class="location-tags">
+                <!-- 显示前10个地点 -->
                 <span
-                    v-for="loc in stats.locations"
+                    v-for="loc in stats.locations.slice(0, 10)"
                     :key="loc"
                     class="location-tag"
                 >
                   {{ loc }}
                 </span>
+                <!-- 如果超过10个，显示展开按钮 -->
+                <button
+                    v-if="stats.locations.length > 10"
+                    class="expand-btn"
+                    @click="openLocationModal(syllable, featureType, stats)"
+                >
+                  +{{ stats.locations.length - 10 }} 更多
+                </button>
               </div>
             </div>
           </div>
@@ -216,6 +259,45 @@ const calculateAggregatedData = (data) => {
     <div v-else class="empty">
       <p>請輸入地點並點擊查詢</p>
     </div>
+
+    <!-- 地点详情弹窗 -->
+    <Teleport to="body">
+      <div v-if="showLocationModal" class="glass-overlay" @mousedown.self="closeLocationModal">
+        <div class="glass-modal" role="dialog" aria-modal="true">
+          <!-- 头部 -->
+          <div class="modal-header">
+            <div class="modal-title">
+              📍 {{ modalData.featureType }} - {{ modalData.syllable }}
+            </div>
+            <button class="modal-close" type="button" @click="closeLocationModal">×</button>
+          </div>
+
+          <!-- 主体 -->
+          <div class="modal-body">
+            <div class="modal-stats">
+              <span class="modal-stat-item">
+                <span class="modal-stat-label">總數:</span>
+                <span class="modal-stat-value">{{ modalData.totalCount }}</span>
+              </span>
+              <span class="modal-stat-item">
+                <span class="modal-stat-label">地點數:</span>
+                <span class="modal-stat-value">{{ modalData.locations.length }}</span>
+              </span>
+            </div>
+
+            <div class="modal-locations-list">
+              <span
+                  v-for="(loc, index) in modalData.locations"
+                  :key="index"
+                  class="modal-location-chip"
+              >
+                {{ loc }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Teleport>
   </div>
 </template>
 
@@ -260,6 +342,10 @@ const calculateAggregatedData = (data) => {
   cursor: pointer;
   transition: all 0.3s ease;
   box-shadow: 0 4px 12px var(--color-primary-shadow), 0 2px 4px rgba(0, 0, 0, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
 .load-btn:hover:not(:disabled) {
@@ -277,6 +363,16 @@ const calculateAggregatedData = (data) => {
   color: var(--text-secondary);
   cursor: not-allowed;
   box-shadow: none;
+}
+
+/* 按钮内的小旋转器 */
+.btn-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
 }
 
 .loading {
@@ -540,5 +636,150 @@ const calculateAggregatedData = (data) => {
   min-height: 50vh;
   color: var(--text-secondary);
   font-size: 16px;
+}
+
+/* 展开按钮样式 */
+.expand-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  background: linear-gradient(135deg, #007aff, #0051d5);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 6px rgba(0, 122, 255, 0.3);
+}
+
+.expand-btn:hover {
+  background: linear-gradient(135deg, #0051d5, #003d9e);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 122, 255, 0.4);
+}
+
+.expand-btn:active {
+  transform: translateY(0);
+}
+
+/* 弹窗样式 - 参考 LocationAndRegionInput */
+.glass-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 20000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 18px;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(7px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.glass-modal {
+  width: min(720px, 94vw);
+  max-height: min(70vh, 640px);
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 18px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(18px) saturate(160%);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.modal-title {
+  font-size: 18px;
+  font-weight: 650;
+  color: #333;
+}
+
+.modal-close {
+  appearance: none;
+  border: none;
+  background: rgba(142, 142, 147, 0.2);
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 24px;
+  line-height: 32px;
+  color: #666;
+  transition: all 0.2s ease;
+}
+
+.modal-close:hover {
+  background: rgba(142, 142, 147, 0.3);
+  transform: scale(1.05);
+}
+
+.modal-body {
+  padding: 20px;
+  overflow: auto;
+  max-height: calc(min(70vh, 640px) - 80px);
+}
+
+.modal-stats {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 20px;
+  padding: 16px;
+  background: rgba(0, 122, 255, 0.08);
+  border-radius: 12px;
+}
+
+.modal-stat-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.modal-stat-label {
+  font-size: 14px;
+  color: #666;
+  font-weight: 500;
+}
+
+.modal-stat-value {
+  font-size: 18px;
+  font-weight: 700;
+  color: #007aff;
+}
+
+.modal-locations-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.modal-location-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 14px;
+  color: #333;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+}
+
+.modal-location-chip:hover {
+  background: white;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
 }
 </style>

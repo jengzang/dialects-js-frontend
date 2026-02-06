@@ -1,6 +1,6 @@
 <template>
   <div class="words-page">
-      <h2 class="page-title">詞彙</h2>
+      <h2 class="page-title">詞彙與語法</h2>
 
       <div class="words-grid">
         <button class="word-btn" @click="handleYcSpoken">

@@ -96,7 +96,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['update:modelValue', 'update:matchedLocations'])
+const emit = defineEmits(['update:modelValue', 'update:matchedLocations', 'update:isMatching'])
 
 const inputEl = ref(null)
 const suggestionEl = ref(null)
@@ -106,6 +106,7 @@ const successMessage = ref('')
 const matchedLocations = ref([])
 const showModal = ref(false)
 const warningMessage = ref('')
+const isMatching = ref(false) // 添加匹配中的状态
 const suggestionStyle = ref({
   left: '0px',
   top: '0px',
@@ -262,9 +263,14 @@ async function fetchMatchedLocations(queries) {
   if (!queries.length) {
     matchedLocations.value = []
     warningMessage.value = ''
+    isMatching.value = false
     emit('update:matchedLocations', [])
+    emit('update:isMatching', false)
     return
   }
+
+  isMatching.value = true
+  emit('update:isMatching', true)
 
   try {
     const query = new URLSearchParams()
@@ -299,6 +305,9 @@ async function fetchMatchedLocations(queries) {
     matchedLocations.value = []
     warningMessage.value = ''
     emit('update:matchedLocations', [])
+  } finally {
+    isMatching.value = false
+    emit('update:isMatching', false)
   }
 }
 </script>

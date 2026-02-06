@@ -11,7 +11,7 @@
 
         <button class="data-btn" @click="handleCount">
           <div class="data-icon">📐</div>
-          <div class="data-name">音素查詢</div>
+          <div class="data-name">音素分類</div>
           <div class="data-desc">根據不同的特徵項自定義查詢聲韻調</div>
         </button>
 

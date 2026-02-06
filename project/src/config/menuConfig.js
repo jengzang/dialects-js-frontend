@@ -24,7 +24,7 @@ export const menuConfig = {
         path: '/explore?page=phonologyMatrix'
       },
       {
-        label: '音素查詢',
+        label: '音素分類',
         icon: '📐',
         path: '/explore?page=phonologyCustom'
       },

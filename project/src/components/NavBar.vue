@@ -192,6 +192,7 @@
             v-slot="{ href, navigate, isActive }"
         >
           <a
+              v-if="t.tab !== 'tools'"
               :href="href"
               class="menu-item"
               :class="[{ active: isActiveComputed(t.tab, isActive) }, { small: t.tab === 'about' }]"
@@ -247,6 +248,7 @@ const loadingStats = ref(false)
 
 // 更新tabs，增加 "结果" 页面并控制字体大小
 const tabs = [
+  { tab: 'tools', label: '工具集', icon: '🛠️', weight: 1, fontSize: 1.3, isPseudo: true },
   { tab: 'about', label: '關於網站', icon: '🌐', weight: 0.6, fontSize: 1 },
   { tab: 'query', label: '查詢', icon: '📊', weight: 1, fontSize: 1.3 },
   { tab: 'result', label: '結果', icon: '📈', weight: 1, fontSize: 1.3 },
@@ -255,10 +257,20 @@ const tabs = [
 
 // 根据当前 query.tab 判断
 const currentTab = () => route.query.tab || 'query'
-const isActiveComputed = (tabName) => route.path === '/menu' && currentTab() === tabName
+const isActiveComputed = (tabName) => {
+  // 工具集伪 tab 永远不显示为激活状态
+  if (tabName === 'tools') return false
+  return route.path === '/menu' && currentTab() === tabName
+}
 
 // 頂部導航欄的點擊處理
 const onClick = async (tabName, navigate) => {
+  // 如果是"工具集"伪 tab，打开 sidebar
+  if (tabName === 'tools') {
+    toggleSidebar()
+    return
+  }
+
   if (route.path === '/menu' && currentTab() === tabName) return
   await router.replace({ path: '/menu', query: { tab: tabName } })
 }
@@ -548,7 +560,6 @@ onBeforeUnmount(() => {
 
 .menu-item:hover {
   background: rgba(0, 122, 255, 0.12);
-  margin: 15px;
   height: 90%;
   color: #007aff;
 }
