@@ -275,6 +275,8 @@ const getToneData = (data) => {
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   box-shadow: var(--shadow-md2);
+  max-height: 90dvh;
+  margin-bottom:15px ;
 }
 
 /* 自定义滚动条样式 */
@@ -304,6 +306,7 @@ const getToneData = (data) => {
 
 .matrix-table {
   width: 100%;
+
   border-collapse: collapse;
   font-size: 14px;
 }
@@ -370,7 +373,6 @@ const getToneData = (data) => {
 }
 
 .cell-content {
-  display: flex;
   flex-direction: column;
   gap: 4px;
 }

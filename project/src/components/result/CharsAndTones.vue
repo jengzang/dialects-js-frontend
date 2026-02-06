@@ -363,7 +363,6 @@ onUnmounted(() => window.removeEventListener('click', handleGlobalClick));
 
   display: flex;
   margin: 0 auto;
-  width: 90%;
 
 }
 @media (max-aspect-ratio: 1/1) {

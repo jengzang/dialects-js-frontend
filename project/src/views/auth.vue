@@ -609,27 +609,46 @@ export default defineComponent({
       const stats = user.value?.usage_summary || []
 
       const labelMap = {
-        '/api/ZhongGu': '🔍 查中古',   // 新增：也映射为查中古
-        '/api/YinWei': '🗣🔍 查音位',    // 新增：查音位
-        '/api/phonology': '🔍 查地位', // 修改：原查地位改为查中古
+        '/api/ZhongGu': '📖 查中古',
+        '/api/YinWei': '🗣 查音位',
         '/api/search_chars/': '🔤 查字',
         '/api/search_tones/': '🎶 查調',
+        '/api/phonology_matrix': '📈 查音系',
+        '/api/phonology_classification_matrix': '📈 查音系',
+        '/api/phonology': '🔍 查地位',
       }
 
       let total = 0
-      const filtered = stats
-          .filter(stat => Object.keys(labelMap).includes(stat.path))
-          .map(stat => {
-            total += stat.count
-            return {
-              label: labelMap[stat.path],
-              count: stat.count
-            }
-          })
+      // 1. 建立一個物件來暫存合併後的數據
+      const mergedCounts = {}
+
+      stats.forEach(stat => {
+        // 獲取對應的 label
+        const label = labelMap[stat.path]
+
+        // 如果這個 path 在我們的名單內
+        if (label) {
+          // 累加總數
+          total += stat.count
+
+          // 2. 針對 Label 進行累加 (去重核心邏輯)
+          if (mergedCounts[label]) {
+            mergedCounts[label] += stat.count
+          } else {
+            mergedCounts[label] = stat.count
+          }
+        }
+      })
+
+      // 3. 將合併後的物件轉換回原本需要的陣列格式
+      const items = Object.keys(mergedCounts).map(label => ({
+        label: label,
+        count: mergedCounts[label]
+      }))
 
       return {
         total,
-        items: filtered
+        items
       }
     })
 
