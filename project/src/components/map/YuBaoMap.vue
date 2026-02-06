@@ -79,6 +79,16 @@
             <button class="close-btn" @click="closePopup">✕</button>
           </div>
           <div class="popup-body">
+            <!-- 聚合提示 -->
+            <div v-if="popupData.itemCount && popupData.itemCount > 1" class="aggregation-notice">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="16" x2="12" y2="12"/>
+                <line x1="12" y1="8" x2="12.01" y2="8"/>
+              </svg>
+              <span>此位置聚合了 {{ popupData.itemCount }} 個數據點</span>
+            </div>
+
             <!-- 词汇 tab -->
             <template v-if="activeTab === 'vocabulary'">
               <div class="info-row">
@@ -304,58 +314,133 @@ const convertToGeoJSON = (data) => {
     }
   }
 
-  const features = data
-    .filter(item => {
-      const lng = parseFloat(item.longitude)
-      const lat = parseFloat(item.latitude)
-      return Number.isFinite(lng) && Number.isFinite(lat)
-    })
-    .map(item => {
-      const lng = parseFloat(item.longitude)
-      const lat = parseFloat(item.latitude)
+  // 第一步：过滤有效坐标
+  const validItems = data.filter(item => {
+    const lng = parseFloat(item.longitude)
+    const lat = parseFloat(item.latitude)
+    return Number.isFinite(lng) && Number.isFinite(lat)
+  })
+
+  // 第二步：按经纬度分组，合并相同坐标的不同文字
+  const coordinatesMap = new Map()
+
+  for (const item of validItems) {
+    const lng = parseFloat(item.longitude)
+    const lat = parseFloat(item.latitude)
+    const coordKey = `${lng},${lat}`
+
+    if (!coordinatesMap.has(coordKey)) {
+      coordinatesMap.set(coordKey, {
+        lng,
+        lat,
+        items: []
+      })
+    }
+    coordinatesMap.get(coordKey).items.push(item)
+  }
+
+  // 第三步：对每个坐标位置，合并不同的显示文字
+  const deduplicatedFeatures = []
+
+  for (const [coordKey, coordData] of coordinatesMap) {
+    const { lng, lat, items } = coordData
+
+    // 收集所有不同的显示文字
+    const textSet = new Set()
+    const textToItem = new Map() // 记录每个文字对应的第一个数据项
+
+    for (const item of items) {
       const text = getMarkerText(item)
-
-      if (!text || text === '-') return null
-
-      // 计算颜色
-      let bgColor, textColor
-      if (displayMode.value === 'location') {
-        bgColor = '#1b2e2b'
-        textColor = '#a6ffdc'
-      } else {
-        bgColor = assignColor(text)
-        textColor = '#1d1d1f'
-      }
-
-      return {
-        type: 'Feature',
-        geometry: {
-          type: 'Point',
-          coordinates: [lng, lat]
-        },
-        properties: {
-          label: text,
-          bgColor: bgColor,
-          textColor: textColor,
-          // 保留原始数据用于弹窗
-          locationChain: getLocationText(item),
-          pronunciation: item.pronunciation || '',
-          phonetic: item.phonetic || '',
-          word: item.note2 || item.word || '',
-          note1: item.note1 || '',
-          memo: item.memo || '',
-          sentence: item.sentence || '',
-          category: [item.lang_cat1, item.lang_cat2, item.lang_cat3]
-            .filter(Boolean)
-            .join('-') || '-'
+      if (text && text !== '-') {
+        if (!textSet.has(text)) {
+          textSet.add(text)
+          textToItem.set(text, item)
         }
       }
+    }
+
+    // 如果没有有效文字，跳过
+    if (textSet.size === 0) continue
+
+    // 合并文字（用 / 分隔）
+    const mergedText = Array.from(textSet).join(' / ')
+
+    // 聚合所有数据项的信息用于弹窗
+    const aggregateField = (fieldGetter) => {
+      const values = new Set()
+      for (const item of items) {
+        const value = fieldGetter(item)
+        if (value && value !== '-' && value.trim() !== '') {
+          values.add(value)
+        }
+      }
+      return values.size > 0 ? Array.from(values).join(' / ') : '-'
+    }
+
+    // 聚合各个字段
+    const aggregatedData = {
+      locationChain: aggregateField(item => getLocationText(item)),
+      pronunciation: aggregateField(item => item.pronunciation),
+      phonetic: aggregateField(item => item.phonetic),
+      word: aggregateField(item => item.note2 || item.word),
+      note1: aggregateField(item => item.note1),
+      memo: aggregateField(item => item.memo),
+      sentence: aggregateField(item => item.sentence),
+      category: aggregateField(item => {
+        const cats = [item.lang_cat1, item.lang_cat2, item.lang_cat3].filter(Boolean)
+        return cats.length > 0 ? cats.join('-') : ''
+      })
+    }
+
+    // 计算颜色（基于合并后的文字）
+    let bgColor, textColor
+    if (displayMode.value === 'location') {
+      bgColor = '#1b2e2b'
+      textColor = '#a6ffdc'
+    } else {
+      bgColor = assignColor(mergedText)
+      textColor = '#1d1d1f'
+    }
+
+    deduplicatedFeatures.push({
+      type: 'Feature',
+      geometry: {
+        type: 'Point',
+        coordinates: [lng, lat]
+      },
+      properties: {
+        label: mergedText,
+        bgColor: bgColor,
+        textColor: textColor,
+        // 使用聚合后的数据用于弹窗
+        locationChain: aggregatedData.locationChain,
+        pronunciation: aggregatedData.pronunciation,
+        phonetic: aggregatedData.phonetic,
+        word: aggregatedData.word,
+        note1: aggregatedData.note1,
+        memo: aggregatedData.memo,
+        sentence: aggregatedData.sentence,
+        category: aggregatedData.category,
+        // 添加额外信息：此位置的数据点数量
+        itemCount: items.length,
+        uniqueTextCount: textSet.size
+      }
     })
-    .filter(Boolean)
+  }
+
+  console.log(`📍 原始数据: ${validItems.length} 个点, 去重后: ${deduplicatedFeatures.length} 个位置`)
+
+  // 统计聚合信息
+  const aggregatedCount = deduplicatedFeatures.filter(f => f.properties.itemCount > 1).length
+  const totalAggregatedItems = deduplicatedFeatures.reduce((sum, f) => sum + (f.properties.itemCount - 1), 0)
+
+  if (aggregatedCount > 0) {
+    console.log(`🔗 聚合统计: ${aggregatedCount} 个位置包含多个数据点, 共聚合了 ${totalAggregatedItems} 个重复点`)
+  }
 
   return {
     type: 'FeatureCollection',
-    features
+    features: deduplicatedFeatures
   }
 }
 
@@ -1072,6 +1157,26 @@ watch(() => props.activeTab, () => {
   padding: 20px;
   overflow-y: auto;
   flex: 1;
+}
+
+/* 聚合提示样式 */
+.aggregation-notice {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  margin-bottom: 16px;
+  background: rgba(0, 113, 227, 0.08);
+  border-left: 3px solid #0071e3;
+  border-radius: 6px;
+  font-size: 13px;
+  color: #0071e3;
+  font-weight: 500;
+}
+
+.aggregation-notice svg {
+  flex-shrink: 0;
+  opacity: 0.8;
 }
 
 /* 信息行样式 */
