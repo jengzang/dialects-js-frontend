@@ -2,6 +2,14 @@
   <div class="yubao-map-container" :class="{ 'is-fullscreen': isFullScreen }">
     <!-- 地图容器 -->
     <div ref="mapContainer" class="map-container">
+      <!-- 加载动画覆盖层 -->
+      <div v-if="isLoadingMarkers" class="map-loading-overlay">
+        <div class="loading-content">
+          <div class="loading-spinner"></div>
+          <span class="loading-text">加載地圖數據中...</span>
+        </div>
+      </div>
+
       <!-- 地图控制面板 -->
       <div class="map-controls" v-if="!isFullScreen">
         <!-- 地图样式选择器 -->
@@ -77,19 +85,19 @@
                 <span class="label">地點：</span>
                 <span class="value">{{ popupData.locationChain }}</span>
               </div>
-              <div class="info-row">
+              <div class="info-row pronunciation-row">
                 <span class="label">發音：</span>
                 <span class="value">{{ popupData.pronunciation || '-' }}</span>
               </div>
               <div class="info-row">
                 <span class="label">字：</span>
-                <span class="value">{{ popupData.word || '-' }}</span>
+                <span class="value word-value">{{ popupData.word || '-' }}</span>
               </div>
               <div class="info-row" v-if="popupData.note1">
                 <span class="label">注釋：</span>
                 <span class="value">{{ popupData.note1 }}</span>
               </div>
-              <div class="info-row" v-if="popupData.category && popupData.category !== '-'">
+              <div class="info-row category-row" v-if="popupData.category && popupData.category !== '-'">
                 <span class="label">分區：</span>
                 <span class="value">{{ popupData.category }}</span>
               </div>
@@ -101,7 +109,7 @@
                 <span class="label">地點：</span>
                 <span class="value">{{ popupData.locationChain }}</span>
               </div>
-              <div class="info-row">
+              <div class="info-row pronunciation-row">
                 <span class="label">發音：</span>
                 <span class="value">{{ popupData.phonetic || '-' }}</span>
               </div>
@@ -113,7 +121,7 @@
                 <span class="label">句式：</span>
                 <span class="value">{{ popupData.sentence }}</span>
               </div>
-              <div class="info-row" v-if="popupData.category && popupData.category !== '-'">
+              <div class="info-row category-row" v-if="popupData.category && popupData.category !== '-'">
                 <span class="label">分區：</span>
                 <span class="value">{{ popupData.category }}</span>
               </div>
@@ -152,6 +160,7 @@ const isFullScreen = ref(false)
 const popupData = ref(null)
 const showPopup = ref(false)
 const mapLoaded = ref(false)  // 跟踪地图是否已加载
+const isLoadingMarkers = ref(false)  // 跟踪标记是否正在加载
 
 // --- Functions ---
 
@@ -202,6 +211,39 @@ const calculateMapView = (data) => {
   return calculateDenseMapCenterAndZoom(coordinates)
 }
 
+// 智能截断文字（区分汉字和非汉字）
+const truncateText = (text, maxLength = 6) => {
+  if (!text) return ''
+
+  let currentLength = 0
+  let truncatedText = ''
+
+  for (let i = 0; i < text.length; i++) {
+    const char = text[i]
+    const code = char.charCodeAt(0)
+
+    // 判断是否为汉字（CJK 统一表意文字）
+    const isHanzi = (
+      (code >= 0x4E00 && code <= 0x9FFF) ||   // CJK 统一表意文字
+      (code >= 0x3400 && code <= 0x4DBF) ||   // CJK 扩展 A
+      (code >= 0x20000 && code <= 0x2A6DF) || // CJK 扩展 B
+      (code >= 0xF900 && code <= 0xFAFF) ||   // CJK 兼容表意文字
+      (code >= 0x2F800 && code <= 0x2FA1F)    // CJK 兼容表意文字补充
+    )
+
+    const charLength = isHanzi ? 1 : 0.5
+
+    if (currentLength + charLength > maxLength) {
+      return truncatedText + '...'
+    }
+
+    truncatedText += char
+    currentLength += charLength
+  }
+
+  return truncatedText
+}
+
 // 获取标记文本
 const getMarkerText = (item) => {
   let text = ''
@@ -232,9 +274,9 @@ const getMarkerText = (item) => {
     text = props.activeTab === 'vocabulary' ? item.note2 : item.memo
   }
 
-  // 文字截断（超过 6 字符）
-  if (text && text.length > 6) {
-    text = text.substring(0, 6) + '...'
+  // 智能截断（使用新的截断函数）
+  if (text) {
+    text = truncateText(text, 6)  // 6 个"汉字等效长度"
   }
 
   return text || '-'
@@ -318,15 +360,18 @@ const convertToGeoJSON = (data) => {
 }
 
 // 渲染标记（使用 GeoJSON + Symbol Layer）
-const renderMarkers = () => {
+const renderMarkers = async () => {
   if (!map.value || !props.mapData || props.mapData.length === 0) {
     console.log('❌ renderMarkers: 无法渲染', {
       hasMap: !!map.value,
       hasData: !!props.mapData,
       dataLength: props.mapData?.length
     })
+    isLoadingMarkers.value = false
     return
   }
+
+  await nextTick()  // 确保加载动画显示
 
   // console.log('🗺️ 开始渲染标记', {
   //   dataCount: props.mapData.length,
@@ -342,7 +387,13 @@ const renderMarkers = () => {
   if (source) {
     source.setData(geojsonData)
   }
+
+  // 等待地图渲染完成后隐藏加载动画
+  setTimeout(() => {
+    isLoadingMarkers.value = false
+  }, 300)  // 给地图一些时间来渲染标记
 }
+
 
 // 处理标记点击（接受 GeoJSON properties）
 const handleMarkerClick = (properties) => {
@@ -409,8 +460,8 @@ const handleStyleChange = () => {
       type: 'geojson',
       data: currentData,
       cluster: true,
-      clusterMaxZoom: 14,
-      clusterRadius: 50
+      clusterMaxZoom: 12,
+      clusterRadius: 30
     })
 
     // 重新添加所有 layers（复用 initMap 中的代码）
@@ -465,7 +516,7 @@ const handleStyleChange = () => {
       source: 'yubao-markers',
       filter: ['!', ['has', 'point_count']],
       paint: {
-        'circle-radius': 17,
+        'circle-radius': 18,
         'circle-color': ['get', 'bgColor'],
         'circle-opacity': 0.9,
         'circle-stroke-width': 1.5,
@@ -481,19 +532,27 @@ const handleStyleChange = () => {
       layout: {
         'text-field': ['get', 'label'],
         'text-size': 12,
-        'text-font': ['Open Sans Regular', 'Arial Unicode MS Regular'],
+        'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
         'text-anchor': 'center'
       },
       paint: {
         'text-color': ['get', 'textColor']
       }
     })
+
+    // 标记地图已重新加载完成
+    mapLoaded.value = true
+    console.log('✅ 地图样式切换完成，layers 已重新添加')
   })
 }
 
 // 初始化地图
 const initMap = () => {
   if (!mapContainer.value) return
+
+  // 设置初始加载状态
+  isLoadingMarkers.value = true
+  mapLoaded.value = false
 
   const { center, zoom } = calculateMapView(props.mapData)
 
@@ -566,14 +625,14 @@ const initMap = () => {
       }
     })
 
-    // 3. 未聚类点的背景圆形
+    // 3. 未聚类点的圆形背景
     map.value.addLayer({
       id: 'yubao-unclustered-bg',
       type: 'circle',
       source: 'yubao-markers',
       filter: ['!', ['has', 'point_count']],
       paint: {
-        'circle-radius': 17,
+        'circle-radius': 18,
         'circle-color': ['get', 'bgColor'],
         'circle-opacity': 0.9,
         'circle-stroke-width': 1.5,
@@ -590,7 +649,7 @@ const initMap = () => {
       layout: {
         'text-field': ['get', 'label'],
         'text-size': 12,
-        'text-font': ['Open Sans Regular', 'Arial Unicode MS Regular'],
+        'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
         'text-anchor': 'center'
       },
       paint: {
@@ -646,7 +705,10 @@ const initMap = () => {
       map.value.getCanvas().style.cursor = ''
     })
 
-    console.log('✅ Symbol layers 已添加')
+    // 标记地图已加载完成
+    mapLoaded.value = true
+    isLoadingMarkers.value = false  // 隐藏加载动画
+    console.log('✅ Symbol layers 已添加，地图加载完成')
   })
 }
 
@@ -665,6 +727,8 @@ onBeforeUnmount(() => {
 // --- Watchers ---
 watch(() => props.mapData, () => {
   if (map.value) {
+    // 显示加载动画
+    isLoadingMarkers.value = true
     const { center, zoom } = calculateMapView(props.mapData)
     map.value.flyTo({ center, zoom })
     renderMarkers()
@@ -672,6 +736,8 @@ watch(() => props.mapData, () => {
 }, { deep: true })
 
 watch(() => props.activeTab, () => {
+  // 显示加载动画
+  isLoadingMarkers.value = true
   renderMarkers()
 })
 </script>
@@ -700,6 +766,62 @@ watch(() => props.activeTab, () => {
 .map-container {
   width: 100%;
   height: 100%;
+  position: relative;
+}
+
+/* 加载动画覆盖层 */
+.map-loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.loading-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.loading-spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid rgba(0, 113, 227, 0.2);
+  border-top-color: #0071e3;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loading-text {
+  font-size: 15px;
+  font-weight: 500;
+  color: #1d1d1f;
+  letter-spacing: 0.3px;
 }
 
 /* 地图控制面板 */
@@ -950,6 +1072,72 @@ watch(() => props.activeTab, () => {
   padding: 20px;
   overflow-y: auto;
   flex: 1;
+}
+
+/* 信息行样式 */
+.info-row {
+  display: flex;
+  align-items: flex-start;
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  gap: 12px;
+  transition: background-color 0.2s;
+}
+
+.info-row:last-child {
+  border-bottom: none;
+}
+
+.info-row:hover {
+  background-color: rgba(0, 113, 227, 0.02);
+  margin: 0 -12px;
+  padding-left: 12px;
+  padding-right: 12px;
+  border-radius: 8px;
+}
+
+/* 标签样式 */
+.info-row .label {
+  flex-shrink: 0;
+  min-width: 60px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #6e6e73;
+  letter-spacing: 0.3px;
+  line-height: 1.6;
+}
+
+/* 值样式 */
+.info-row .value {
+  flex: 1;
+  font-size: 15px;
+  font-weight: 500;
+  color: #1d1d1f;
+  line-height: 1.6;
+  word-break: break-word;
+}
+
+/* 发音行特殊样式 */
+.pronunciation-row .value {
+  font-family: 'Courier New', 'Monaco', monospace;
+  color: #0071e3;
+  letter-spacing: 0.5px;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+/* 字/词汇特殊样式 */
+.word-value {
+  font-size: 17px;
+  font-weight: 600;
+  color: #1d1d1f;
+}
+
+/* 分区行特殊样式 */
+.category-row .value {
+  color: #af52de;
+  font-weight: 600;
+  font-size: 14px;
 }
 
 .info-line {

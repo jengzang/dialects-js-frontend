@@ -759,16 +759,12 @@ async function loadCardsPage() {
 
 // 監聽具體的輸入內容變化，而不僅僅是有效性狀態
 // 将原有的 watch 改为带防抖的 watch
+// 修复：无论当前在哪个视图模式，只要输入有效就加载数据（地图和卡片都需要这份数据）
 watchDebounced(
     [vocabularyInput, grammarInput],
     () => {
       if (isValidInput.value) {
-        if (viewMode.value === 'card') {
-          loadCardsPage()
-        } else if (viewMode.value === 'map') {
-          // 地图模式下也需要加载数据
-          loadCardsPage()
-        }
+        loadCardsPage()  // 移除 viewMode 检查，始终加载数据
       }
     },
     { debounce: 300 } // 只有输入停顿 300ms 且匹配成功才发 SQL 请求
