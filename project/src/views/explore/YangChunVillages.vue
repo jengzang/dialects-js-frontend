@@ -3,9 +3,9 @@
     <div class="header-section">
       <div class="title-row">
         <h2 style="margin: 0;">陽春行政規劃</h2>
-        <button class="village-link-btn" @click="goToGDVillages">
-          <span role="img" aria-label="ycVillages">🏠</span> 廣東自然村
-        </button>
+<!--        <button class="village-link-btn" @click="goToGDVillages">-->
+<!--          <span role="img" aria-label="ycVillages">🏠</span> 廣東自然村-->
+<!--        </button>-->
       </div>
       <p>數據源：《陽春縣志》(1996)</p>
       <div class="search-wrapper">

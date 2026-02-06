@@ -802,4 +802,31 @@
     transform: scale(1.2);
 }
 
+/* Location edit input styling */
+.location-edit-input {
+    background: rgba(255, 255, 255, 0.9);
+    border: 2px solid #007bff;
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: 14px;
+    font-weight: 600;
+    outline: none;
+    min-width: 150px;
+    color: #333;
+}
+
+.location-edit-input:focus {
+    border-color: #0056b3;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+#stickyContextText {
+    transition: background 0.2s;
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+#stickyContextText:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
 

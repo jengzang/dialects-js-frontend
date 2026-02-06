@@ -11,6 +11,7 @@
         <!-- LocationAndRegionInput 组件 -->
         <LocationAndRegionInput
           v-model="locationData"
+          :useInputMode="true"
           style="margin-top: 12px;"
         />
 
@@ -132,7 +133,7 @@ import { ref, reactive, nextTick, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import LocationAndRegionInput from '@/components/query/LocationAndRegionInput.vue'
 import { api } from '@/utils/auth.js'
-import { userStore } from '@/utils/store.js'
+import { userStore, resultCache, mapStore } from '@/utils/store.js'
 import { showSuccess, showError, showWarning, showInfo } from '@/utils/message.js'
 
 const router = useRouter()
@@ -313,6 +314,13 @@ const handleRunQuery = () => {
   isRunning.value = true
 
   try {
+    // 清空地图数据
+    mapStore.mergedData = []
+    resultCache.latestResults = []
+    mapStore.selectedFeature = ''
+    resultCache.features = []
+    mapStore.mapData = null
+
     // 构建查询参数
     const query = {
       tab: 'map',
@@ -338,6 +346,10 @@ const handleRunQuery = () => {
 
     showSuccess('正在加载特征数据...')
 
+    // 清空選中的特徵
+    selectedFeature.value = ''
+    featureSearchInput.value = ''
+
     // 延迟重置运行状态（跳转后组件不会被销毁，需要手动重置）
     setTimeout(() => {
       isRunning.value = false
@@ -351,12 +363,35 @@ const handleRunQuery = () => {
 
 // 逐条添加：跳转到 map 页面并打开面板
 const handleAddSingle = () => {
+  // 如果当前不是查中古或查音位模式，清空地图数据
+  const currentMode = resultCache.mode || ''
+  if (currentMode !== '查中古' && currentMode !== '查音位') {
+    // 清空地图绘图数据
+    mapStore.mergedData = []
+    resultCache.latestResults = []
+    mapStore.selectedFeature = ''
+    resultCache.features = []
+  }
+
+  // 设置查询模式为"查中古"，确保面板能够显示
+  resultCache.mode = '查中古'
   router.replace({ query: { tab: 'map', sub: 'map', openPanel: 'true' } })
 }
 
-// 批量添加：显示提示信息
+// 批量添加：跳转到个人数据管理页面
 const handleAddBatch = () => {
-  showInfo('该功能尚未面向普通用户开放')
+  // 检查是否已登录
+  if (!userStore.isAuthenticated) {
+    showWarning('請先登錄')
+    router.push('/auth')
+    return
+  }
+
+  // 跳转到个人数据管理页面
+  router.push({
+    path: '/auth/data',
+    query: { username: userStore.username }
+  })
 }
 </script>
 
@@ -473,22 +508,24 @@ const handleAddBatch = () => {
 
 /* 逐条添加按钮 */
 .add-single-btn {
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: linear-gradient(135deg, #499f4c, #2c813b);
   color: white;
 }
 
 .add-single-btn:hover {
-  background: linear-gradient(135deg, #5568d3, #5f3d8a);
+  background: linear-gradient(135deg, #5EDE68, #34C759);
 }
 
 /* 批量添加按钮 */
 .add-batch-btn {
-  background: linear-gradient(135deg, #f093fb, #f5576c);
+  background: linear-gradient(135deg, #667eea, #764ba2);
   color: white;
+
 }
 
 .add-batch-btn:hover {
-  background: linear-gradient(135deg, #d87ae6, #d94357);
+  background: linear-gradient(135deg, #5568d3, #5f3d8a);
+
 }
 
 /* 使用说明触发器 */

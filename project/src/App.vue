@@ -13,7 +13,7 @@
 </template>
 
 <script>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useRoute } from 'vue-router'
 
 import IntroLayout from './layouts/IntroLayout.vue'
@@ -22,6 +22,8 @@ import SimpleLayout from './layouts/SimpleLayout.vue'
 import GlobalToast from './components/GlobalToast.vue'
 import GlobalConfirm from './components/GlobalConfirm.vue'
 import PanelManager from './components/result/PanelManager.vue'
+import { initOnlineTimeTracker, stopOnlineTimeTracker } from './utils/onlineTimeTracker.js'
+import { getToken } from './utils/auth.js'
 
 // // 🌉 建立 bridge 用於跨組件共享 iframe 狀態
 // const nativeFrame = ref(null)
@@ -57,6 +59,22 @@ export default {
 
       // 其他使用 MenuLayout（带 navbar）
       return MenuLayout
+    })
+
+    // 初始化在线时长统计
+    onMounted(() => {
+      const token = getToken()
+      if (token) {
+        console.log('🎯 [App.vue] 检测到用户已登录，启动在线时长统计')
+        initOnlineTimeTracker()
+      } else {
+        console.log('ℹ️ [App.vue] 用户未登录，不启动在线时长统计')
+      }
+    })
+
+    // 组件卸载时停止统计
+    onBeforeUnmount(() => {
+      stopOnlineTimeTracker()
     })
 
     // // 🔁 輪詢 iframe 是否掛上 window.receiveFromVue()

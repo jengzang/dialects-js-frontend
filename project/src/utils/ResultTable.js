@@ -1,6 +1,6 @@
 // utils/ResultTable.js
 import { api } from './auth.js'
-import { API_CONFIG } from './constants.js'
+import { API_CONFIG } from '../config/constants.js'
 import { resultCache } from './store.js'
 
 // 假设 column_values 是全局变量，如果不是，需要作为参数传入

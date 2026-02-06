@@ -178,7 +178,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { userStore } from '@/utils/store.js'
 import { api, getUserRole, ensureAuthenticated } from '@/utils/auth.js'
@@ -417,8 +417,14 @@ const showTable = () => {
   // ✅ 显示表格时保存最后使用的表
   saveLastUsedTable(selectedDbKey.value, selectedTable.value)
 
-  showUniversalTable.value = true
-  showConfigPanel.value = false  // 显示表格后自动折叠配置面板
+  // ✅ 强制重新挂载 UniversalTable 组件
+  // 先卸载组件，然后在下一个 tick 重新挂载
+  // 这样可以确保所有状态（filterState、sortCol 等）都重新初始化
+  showUniversalTable.value = false
+  nextTick(() => {
+    showUniversalTable.value = true
+    showConfigPanel.value = false  // 显示表格后自动折叠配置面板
+  })
 }
 
 const toggleConfigPanel = () => {
@@ -756,6 +762,7 @@ onMounted(async () => {
   font-weight: 600;
   box-shadow: 0 4px 16px rgba(0, 122, 255, 0.3);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  white-space: nowrap;
 }
 
 .btn-toggle:hover {
