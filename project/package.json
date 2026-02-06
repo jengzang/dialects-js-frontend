@@ -7,7 +7,9 @@
     "dev": "vite",
     "dev:web": "vite --mode web",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "deploy": "npm run build && bash deploy.sh",
+    "deploy:ps": "npm run build && powershell -ExecutionPolicy Bypass -File deploy.ps1"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^6.0.1",

@@ -48,6 +48,14 @@
 
     <!-- Data table -->
     <div class="table-container">
+      <!-- Loading overlay -->
+      <div v-if="loading" class="loading-overlay">
+        <div class="loading-spinner">
+          <div class="spinner-ring"></div>
+          <div class="loading-text">加載中...</div>
+        </div>
+      </div>
+
       <table class="data-table">
         <thead>
           <tr>
@@ -157,7 +165,7 @@
                   <tr>
                     <th style="width: 50px">#</th>
                     <th style="width: 100px">簡稱 *</th>
-                    <th style="width: 120px">音典分區 *</th>
+                    <th style="width: 120px">分區 *</th>
                     <th style="width: 120px">經緯度 *</th>
                     <th style="width: 100px">聲韻調</th>
                     <th style="width: 120px">特徵 *</th>
@@ -169,11 +177,11 @@
                   <tr v-for="(row, index) in batchEditRows" :key="index">
                     <td>{{ index + 1 }}</td>
                     <td><input v-model="row.簡稱" placeholder="簡稱" /></td>
-                    <td><input v-model="row.音典分區" placeholder="音典分區" /></td>
+                    <td><input v-model="row.音典分區" placeholder="分區(集合)" /></td>
                     <td><input v-model="row.經緯度" placeholder="23.13,113.26" /></td>
-                    <td><input v-model="row.聲韻調" placeholder="聲韻調" /></td>
-                    <td><input v-model="row.特徵" placeholder="特徵" /></td>
-                    <td><input v-model="row.值" placeholder="值" /></td>
+                    <td><input v-model="row.聲韻調" placeholder="聲母/韻母/聲調" /></td>
+                    <td><input v-model="row.特徵" placeholder="山摄" /></td>
+                    <td><input v-model="row.值" placeholder="an" /></td>
                     <td><input v-model="row.說明" placeholder="說明" /></td>
                   </tr>
                 </tbody>
@@ -213,7 +221,7 @@
                   <tr>
                     <th style="width: 50px">#</th>
                     <th style="width: 100px">簡稱 *</th>
-                    <th style="width: 120px">音典分區 *</th>
+                    <th style="width: 120px">分區 *</th>
                     <th style="width: 120px">經緯度 *</th>
                     <th style="width: 100px">聲韻調</th>
                     <th style="width: 120px">特徵 *</th>
@@ -226,11 +234,11 @@
                   <tr v-for="(row, index) in batchRows" :key="index">
                     <td>{{ index + 1 }}</td>
                     <td><input v-model="row.簡稱" placeholder="簡稱" /></td>
-                    <td><input v-model="row.音典分區" placeholder="音典分區" /></td>
+                    <td><input v-model="row.音典分區" placeholder="分區(集合)" /></td>
                     <td><input v-model="row.經緯度" placeholder="23.13,113.26" /></td>
-                    <td><input v-model="row.聲韻調" placeholder="聲韻調" /></td>
-                    <td><input v-model="row.特徵" placeholder="特徵" /></td>
-                    <td><input v-model="row.值" placeholder="值" /></td>
+                    <td><input v-model="row.聲韻調" placeholder="聲母/韻母/聲調" /></td>
+                    <td><input v-model="row.特徵" placeholder="山摄" /></td>
+                    <td><input v-model="row.值" placeholder="an" /></td>
                     <td><input v-model="row.說明" placeholder="說明" /></td>
                     <td>
                       <button @click="removeBatchRow(index)" class="btn-remove">×</button>
@@ -816,7 +824,7 @@ onMounted(() => {
   box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
 }
 
-.toolbar button {
+.toolbar button,.modal-footer button {
   padding: 10px 20px;
   border: none;
   border-radius: 12px;
@@ -870,6 +878,56 @@ onMounted(() => {
   overflow-y: visible;
   -webkit-overflow-scrolling: touch;
   width: 97%;
+  position: relative; /* 为 loading overlay 提供定位上下文 */
+}
+
+/* Loading overlay styles */
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
+  border-radius: 18px;
+}
+
+.loading-spinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.spinner-ring {
+  width: 60px;
+  height: 60px;
+  border: 4px solid rgba(0, 122, 255, 0.1);
+  border-top-color: #007aff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.loading-text {
+  font-size: 16px;
+  font-weight: 600;
+  color: #007aff;
+  letter-spacing: 0.5px;
 }
 
 .data-table {

@@ -1,11 +1,11 @@
 <template>
-  <div>
+  <div >
     <div v-if="isInitLoading" style="padding: 40px; text-align: center;">
       <div class="login-spinner" style="width: 40px; height: 40px; border-width: 4px; margin: 0 auto 20px;"></div>
       <p style="color: #666;">正在同步數據...</p>
     </div>
 
-    <div v-else>
+    <div v-else style="min-height: 80dvh;align-items: center;display: flex">
       <!-- 登錄介面 -->
       <div v-if="mode === 'login'" style="padding: 12px; text-align: center;">
         <h3>登錄</h3>
@@ -191,13 +191,13 @@
       <!-- 🎉 Profile 歡迎彈窗 -->
       <div
           v-if="mode === 'profile' && user"
-          style="text-align: center;padding:30px"
+          style="text-align: center"
 
       >
         <h3 id="login-title" style="font-size: 30px; white-space: nowrap">👋{{ user.username }} 歡迎回來✨</h3>
-        <p id="login-info" style="font-size: 20px">
-          {{ user?.role === 'admin' ? '🛡️ 您是管理員' : '👤 您是普通用戶' }}
-        </p>
+<!--        <p id="login-info" style="font-size: 20px">-->
+<!--          {{ user?.role === 'admin' ? '🛡️ 您是管理員' : '👤 您是普通用戶' }}-->
+<!--        </p>-->
         <p id="login-info" style="font-size: 20px">🗓️ 註冊時間：{{ fmt(user.created_at) }}</p>
         <p id="login-info" style="font-size: 20px">⏱️ 總在線時長：
           {{ formatOnlineTime(user.total_online_seconds) }}</p>
@@ -230,7 +230,7 @@
             class="btn-action warning"
             @click="goToTableManager"
           >
-            📊 表格管理
+            📈 表格管理
           </button>
         </div>
 
@@ -804,13 +804,13 @@ export default defineComponent({
 
 .action-buttons {
   display: flex;
-  flex-direction: column;
   gap: 12px;
   margin-top: 16px;
   width: 100%;
-  max-width: 320px;
+  max-width: 500px;
   margin-left: auto;
   margin-right: auto;
+  flex-wrap: wrap;
 }
 
 .btn-action {
@@ -822,7 +822,6 @@ export default defineComponent({
   cursor: pointer;
   color: white;
   transition: all 0.3s ease;
-  width: 100%;
   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
   max-width: 180px;
   justify-content: center;
@@ -946,6 +945,9 @@ export default defineComponent({
     max-width: 350px;       /* 控制在大屏不太宽 */
   }
 
+  .action-buttons{
+    flex-direction: column;
+  }
   .btn-search {
     width: 100%;
     padding: 16px;
@@ -964,7 +966,7 @@ export default defineComponent({
 
   .btn-action {
     font-size: 18px;
-    padding: 16px;
+    padding: 12px 20px;
   }
 
   .err {
@@ -989,7 +991,7 @@ h3 {
 }
 #login-title{
   font-weight: 600;
-  margin-bottom: 12px;
+  margin: 12px;
   transition: all 0.3s ease;
 }
 #login-title:hover {

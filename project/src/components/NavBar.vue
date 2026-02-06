@@ -2,8 +2,8 @@
   <div class="navbar">
     <!-- 桌面端的布局 -->
     <div class="navbar-desktop">
-      <div class="navbar-item logo-and-title" :style="{ zIndex: isSidebarVisible ? '1100' : '999' }">
-        <div class="logo-container" style="min-width: 6dvh;width: 6dvh;" @click="toggleSidebar">
+      <div  @click="toggleSidebar" class="navbar-item logo-and-title" :style="{ zIndex: isSidebarVisible ? '1100' : '999' }">
+        <div class="logo-container" style="min-width: 6dvh;width: 6dvh;">
           <img class="logo" src="@/assets/favicon.ico" alt="Logo" />
         </div>
         <div class="title">
@@ -166,8 +166,8 @@
     <div class="navbar-content">
       <!-- 第一行: Logo、标题和登录按钮 -->
       <div class="navbar-top">
-        <div class="navbar-item logo-and-title" :style="{ zIndex: isSidebarVisible ? '1100' : '999' }">
-          <div class="logo-container" style="width: 6dvh;min-width: 6dvh" @click="toggleSidebar">
+        <div @click="toggleSidebar" class="navbar-item logo-and-title" :style="{ zIndex: isSidebarVisible ? '1100' : '999' }">
+          <div class="logo-container" style="width: 6dvh;min-width: 6dvh" >
             <img class="logo" src="@/assets/favicon.ico" alt="Logo" />
           </div>
           <div class="title">
@@ -481,6 +481,7 @@ onBeforeUnmount(() => {
   display: flex;
   align-items: center;
   gap: 10px;
+  cursor: pointer;
 }
 
 .ico img {
@@ -547,7 +548,6 @@ onBeforeUnmount(() => {
 
 .menu-item:hover {
   background: rgba(0, 122, 255, 0.12);
-  transform: translateY(-1px);
   margin: 15px;
   height: 90%;
   color: #007aff;

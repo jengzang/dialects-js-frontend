@@ -1267,7 +1267,7 @@ defineExpose({
 .bottom-hint {
   margin:  0 1dvw 3dvh  ;
   max-width: 500px;
-  width: 90%;
+  min-width: 80%;
   padding: 6px 20px;
   justify-self: center;
   /* liquid glass */
@@ -1520,7 +1520,7 @@ defineExpose({
 .partition-tabs {
   display: flex;
   gap: 10px;
-  padding: 20px 24px;
+  padding: 12px 24px;
   border-bottom: 1px solid rgba(0, 0, 0, 0.05);
   background: rgba(255, 255, 255, 0.4);
 }
@@ -1695,7 +1695,7 @@ defineExpose({
   }
 
   .partition-tabs {
-    padding: 16px;
+    padding: 12px;
   }
 
   .partition-info-modal .modal-body {
