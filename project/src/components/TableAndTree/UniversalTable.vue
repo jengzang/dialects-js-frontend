@@ -10,7 +10,7 @@
             class="search-input"
         />
       </div>
-      <div class="action-buttons">
+      <div v-if="userStore.role === 'admin'" class="action-buttons">
         <button v-if="!isEditMode" class="glass-btn" style="padding:8px 6px " @click="exportToExcel">
           <span class="icon">📤</span><span class="btn-text">Excel</span>
         </button>
@@ -48,7 +48,14 @@
     </div>
 
     <div
-      class="table-scroll-area"
+      ref="scrollAreaRef"
+      :class="[
+        'table-scroll-area',
+        {
+          'scroll-lock-horizontal': scrollDirection === 'horizontal',
+          'scroll-lock-vertical': scrollDirection === 'vertical'
+        }
+      ]"
       @touchstart="handleTouchStart"
       @touchmove="handleTouchMove"
       @touchend="handleTouchEnd"
@@ -68,7 +75,7 @@
               :key="col.key"
               :style="{ width: ((Number(col.width) || 1) / totalRatio * 100) + '%' }"
           />
-          <col style="width: 60px; min-width: 50px;" />
+          <col v-if="userStore.role === 'admin'" style="width: 60px; min-width: 50px;" />
         </colgroup>
 
         <thead>
@@ -90,7 +97,7 @@
               </div>
             </div>
           </th>
-          <th class="action-th">操作</th>
+          <th v-if="userStore.role === 'admin'" class="action-th">操作</th>
         </tr>
         </thead>
 
@@ -106,7 +113,7 @@
           >
             {{ row[col.key] }}
           </td>
-          <td class="action-td">
+          <td v-if="userStore.role === 'admin'" class="action-td">
             <button class="icon-action-btn delete" @click="handleDelete(row)">✕</button>
           </td>
         </tr>
@@ -146,7 +153,14 @@
         <div v-if="isFullscreen" class="table-fullscreen-overlay">
           <div class="fullscreen-container">
             <div
-              class="table-scroll-area fullscreen-table"
+              ref="scrollAreaRefFullscreen"
+              :class="[
+                'table-scroll-area fullscreen-table',
+                {
+                  'scroll-lock-horizontal': scrollDirection === 'horizontal',
+                  'scroll-lock-vertical': scrollDirection === 'vertical'
+                }
+              ]"
               @touchstart="handleTouchStart"
               @touchmove="handleTouchMove"
               @touchend="handleTouchEnd"
@@ -166,7 +180,7 @@
                       :key="col.key"
                       :style="{ width: ((Number(col.width) || 1) / totalRatio * 100) + '%' }"
                   />
-                  <col style="width: 60px; min-width: 50px;" />
+                  <col v-if="userStore.role === 'admin'" style="width: 60px; min-width: 50px;" />
                 </colgroup>
 
                 <thead>
@@ -188,7 +202,7 @@
                       </div>
                     </div>
                   </th>
-                  <th class="action-th">操作</th>
+                  <th v-if="userStore.role === 'admin'" class="action-th">操作</th>
                 </tr>
                 </thead>
 
@@ -204,7 +218,7 @@
                   >
                     {{ row[col.key] }}
                   </td>
-                  <td class="action-td">
+                  <td v-if="userStore.role === 'admin'" class="action-td">
                     <button class="icon-action-btn delete" @click="handleDelete(row)">✕</button>
                   </td>
                 </tr>
@@ -496,7 +510,7 @@
                 :disabled="batchReplace.replaceAllPages ? batchReplace.totalMatches === 0 : batchReplace.previewResults.length === 0"
               >
                 <span class="icon">✓</span>
-                <span>執行替換 ({{ batchReplace.replaceAllPages ? batchReplace.totalMatches : batchReplace.previewResults.length }})</span>
+                <span>替換 ({{ batchReplace.replaceAllPages ? batchReplace.totalMatches : batchReplace.previewResults.length }})</span>
               </button>
               <button
                 class="glass-btn"
@@ -518,8 +532,11 @@ import * as XLSX from 'xlsx';
 import { api } from "@/utils/auth.js";
 import { userStore } from '@/utils/store.js';
 import { useVirtualList } from '@vueuse/core';
-import { TABLE_CONFIG } from '@/utils/constants.js';
+import { TABLE_CONFIG } from '@/config/constants.js';
 import { showSuccess, showWarning, showInfo, showConfirm, showError } from '@/utils/message.js';
+
+// ✅ 定义事件
+const emit = defineEmits(['update:total', 'data-loaded'])
 
 const props = defineProps({
   dbKey: { type: String, required: true },
@@ -572,6 +589,10 @@ const batchReplace = reactive({
 // ========================================
 // 移动端滚动锁定相关状态
 // ========================================
+// 滚动容器 ref
+const scrollAreaRef = ref(null)
+const scrollAreaRefFullscreen = ref(null)
+
 const touchStartX = ref(0)
 const touchStartY = ref(0)
 const scrollDirection = ref(null) // 'horizontal' | 'vertical' | null
@@ -651,6 +672,10 @@ const fetchData = async () => {
 
     tableData.value = response.data;
     total.value = response.total;
+
+    // ✅ 发出事件，让父组件可以获取 total
+    emit('update:total', response.total)
+    emit('data-loaded', { total: response.total, data: response.data })
 
     // ✅ 新增：智能主键字段检测
     if (tableData.value.length > 0) {
@@ -1511,20 +1536,13 @@ const handleTouchMove = (e) => {
   const deltaX = Math.abs(e.touches[0].clientX - touchStartX.value)
   const deltaY = Math.abs(e.touches[0].clientY - touchStartY.value)
 
-  // 阈值：移动距离超过 10px 才判断方向
+  // ✅ 使用 10px 阈值检测滚动方向
   if (deltaX > 10 || deltaY > 10) {
     scrollDirection.value = deltaX > deltaY ? 'horizontal' : 'vertical'
     isScrollLocked.value = true
 
-    // 根据方向动态设置 overflow
-    const scrollArea = e.currentTarget
-    if (scrollDirection.value === 'horizontal') {
-      scrollArea.style.overflowY = 'hidden'
-      scrollArea.style.overflowX = 'auto'
-    } else {
-      scrollArea.style.overflowX = 'hidden'
-      scrollArea.style.overflowY = 'auto'
-    }
+    // ✅ CSS 类会通过 :class 绑定自动应用
+    // touch-action 属性会控制触摸行为
   }
 }
 
@@ -1532,9 +1550,8 @@ const handleTouchMove = (e) => {
  * 处理触摸结束事件
  */
 const handleTouchEnd = (e) => {
-  const scrollArea = e.currentTarget
-  scrollArea.style.overflowX = 'auto'
-  scrollArea.style.overflowY = 'auto'
+  // ✅ 简化逻辑，只重置状态
+  // CSS 类会自动移除，overflow 恢复正常
   scrollDirection.value = null
   isScrollLocked.value = false
 }
@@ -1696,7 +1713,21 @@ onUnmounted(() => {
   border-radius: var(--radius-md);
   background: var(--glass-light);
   min-height: 200px;
-  -webkit-overflow-scrolling: touch;
+  /* ✅ 使用 touch-action 控制触摸行为 */
+  touch-action: pan-x pan-y;
+}
+
+/* ✅ 新增：滾動方向鎖定類 */
+.table-scroll-area.scroll-lock-horizontal {
+  overflow-y: hidden !important;
+  overflow-x: auto;
+  touch-action: pan-x; /* 只允许水平滚动 */
+}
+
+.table-scroll-area.scroll-lock-vertical {
+  overflow-x: hidden !important;
+  overflow-y: auto;
+  touch-action: pan-y; /* 只允许垂直滚动 */
 }
 
 table {
@@ -2882,10 +2913,7 @@ td.cell-changed::after {
 
   .column-selector {
     grid-template-columns: 1fr;
-  }
-
-  .batch-replace-modal .modal-footer {
-    flex-direction: column;
+    gap:1px
   }
 }
 </style>

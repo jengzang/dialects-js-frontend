@@ -83,7 +83,7 @@
               <p>✔ 注2：點擊 <span class="example-input">分區 ▼</span> 按鈕，會出分區彈窗，用戶可<span class="example-desc">單擊</span>選擇所需分區。如要顯示下一級分區:<br>
                 ※ <span class="example-desc">電腦端</span>只需將<span class="example-desc">光標</span>移到對應分區上即可；<br>
                 ※ <span class="example-desc">移動端</span>則需要<span class="example-desc">點擊箭頭⌵</span>對應分區</p>
-              <p>更詳細的使用說明，可點擊屏幕上方 <span class="example-input"> ❓使用說明 </span> 按鈕，點擊後會跳轉至詳細教程文章</p>
+<!--              <p>更詳細的使用說明，可點擊屏幕上方 <span class="example-input"> ❓使用說明 </span> 按鈕，點擊後會跳轉至詳細教程文章</p>-->
               <p>點擊🎲 可隨機生成分析示例</p>
             </div>
           </div>

@@ -3,17 +3,30 @@ import {createRouter, createWebHashHistory, createWebHistory} from 'vue-router'
 import LikeAuthor from './views/intro/LikeAuthor.vue'
 import Suggestions from './views/intro/Suggestions.vue'
 import Thanks from './views/intro/Thanks.vue'
-import Source from "@/views/intro/Source.vue";
 import Auth from './views/Auth.vue'
-import QueryPage from './views/menu/QueryPage.vue'
-import MapPage from './views/menu/MapPage.vue'
-import ResultPage from './views/menu/ResultPage.vue'
-import AboutPage from "@/views/menu/AboutPage.vue";
-import SourcePage from "@/views/menu/SourcePage.vue";
-import PrivacyPage from "@/views/menu/PrivacyPage.vue";
-import SettingPage from "@/views/menu/SettingPage.vue";
+import UserDataPage from './views/UserDataPage.vue'
 import MenuEntry from "@/views/MenuEntry.vue";
 import ExploreEntry from "@/views/ExploreEntry.vue";
+import IntroLayout from "@/layouts/IntroLayout.vue";
+import { h, computed } from 'vue'
+import { useRoute } from 'vue-router'
+
+// 内联定义 intro 动态组件
+const IntroEntry = {
+    setup() {
+        const route = useRoute()
+        const activeComponent = computed(() => {
+            const tab = route.query.tab
+            const tabMap = {
+                like: LikeAuthor,
+                suggestions: Suggestions,
+                thanks: Thanks
+            }
+            return tabMap[tab] || LikeAuthor
+        })
+        return () => h(activeComponent.value)
+    }
+}
 
 const routes = [
     // ✅ 根路由 → 直接導到 /menu?tab=query
@@ -33,12 +46,28 @@ const routes = [
         path: '/explore',
         component: ExploreEntry
     },
+    {
+        path: '/intro',
+        component: IntroLayout,
+        children: [
+            {
+                path: '',
+                component: IntroEntry
+            }
+        ]
+    },
 
     // 其他頁面
     {
         path: '/auth',
         component: Auth,
         meta: { title: '方音圖鑑 - 登錄' }
+    },
+
+    {
+        path: '/auth/data',
+        component: UserDataPage,
+        meta: { title: '方音圖鑑 - 個人數據管理' }
     },
 
     // 可選：兜底導回首頁（避免 404）
@@ -64,12 +93,11 @@ const MenuTitleMap = {
     map: '方音圖鑑 - 地圖',
     about:'方音圖鑑 - 關於網站',
     tools:'方音圖鑑 - 工具',
-    gdVillages: '方音圖鑑 - 廣東自然村',
-    ycSpoken: '方音圖鑑 - 陽春口語詞',
+    pho:'方音圖鑑 - 音系',
+    words:'方音圖鑑 - 詞彙',
+    villages:'方音圖鑑 - 自然村',
     source:'方音圖鑑 - 資料來源',
     privacy:'方音圖鑑 - 隱私',
-    ZhongGu:'方音圖鑑 - 中古漢字地位',
-    YuBao:'方音圖鑑 - 語保資料'
 };
 const ExploreTitleMap = {
     ycVillages: '方音圖鑑 - 陽春自然村',
@@ -77,7 +105,16 @@ const ExploreTitleMap = {
     jyut2ipa: '方音圖鑑 - 粵拼轉ipa',
     merge:'方音圖鑑 - 字表合併',
     gdVillages:'方音圖鑑 - 廣東自然村樹狀圖',
-    manage: '方音圖鑑 - 表格管理'
+    manage: '方音圖鑑 - 表格管理',
+    // 从 menu 迁移过来的页面
+    ZhongGu:'方音圖鑑 - 中古漢字地位',
+    ycSpoken: '方音圖鑑 - 陽春口語詞',
+    YuBao:'方音圖鑑 - 語保資料',
+    gdVillagesTable: '方音圖鑑 - 廣東自然村表格',
+    phonologyMatrix: '方音圖鑑 - 音系統計',
+    phonologyCustom: '方音圖鑑 - 自定義音素表',
+    Countphos: '方音圖鑑 - 音節統計'
+
 };
 
 // 全局导航守卫

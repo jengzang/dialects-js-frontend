@@ -2,8 +2,8 @@
   <div class="navbar">
     <!-- 桌面端的布局 -->
     <div class="navbar-desktop">
-      <div class="navbar-item logo-and-title" :style="{ zIndex: isSidebarVisible ? '1100' : '999' }">
-        <div class="logo-container" style="min-width: 6dvh;width: 6dvh;" @click="toggleSidebar">
+      <div  @click="toggleSidebar" class="navbar-item logo-and-title" :style="{ zIndex: isSidebarVisible ? '1100' : '999' }">
+        <div class="logo-container" style="min-width: 6dvh;width: 6dvh;">
           <img class="logo" src="@/assets/favicon.ico" alt="Logo" />
         </div>
         <div class="title">
@@ -41,42 +41,22 @@
     <!-- 左侧边栏 -->
     <Transition name="slide-fade">
       <div class="sidebar" v-if="isSidebarVisible">
+        <div class="sidebar-empty"></div>
         <div class="sidebar-content">
           <ul>
-            <li @click="goToOldWebsite">
-              <span role="img" aria-label="old-website">🕰️</span> 舊版網站
+            <li
+              v-for="(item, key) in filteredMenuConfig"
+              :key="key"
+              @click="handleMainClick(item, key)"
+            >
+              <span role="img" :aria-label="key">{{ item.icon }}</span>
+              {{ item.label }}
+              <span
+                v-if="item.children"
+                class="menu-arrow"
+                @click.stop="handleArrowClick(item, key, $event)"
+              >▶</span>
             </li>
-            <li @click="goToTools">
-              <span role="img" aria-label="tools">🧰</span> 字表工具
-            </li>
-            <li @click="goToZhongGu">
-              <span role="img" aria-label="ZhongGu">✍️</span> 中古地位
-            </li>
-            <li @click="goToYuBao">
-              <span role="img" aria-label="yubao">📖</span> 詞彙語法
-            </li>
-            <li @click="goToGDVillages">
-              <span role="img" aria-label="gdVillages">🏠</span> 全粵村情
-            </li>
-            <li @click="goToSpoken">
-              <span role="img" aria-label="spoken">💬</span> 陽春口語詞
-            </li>
-<!--          <li @click="goToSuggestions">-->
-<!--            <span role="img" aria-label="suggestions">💡</span> 提出建議-->
-<!--          </li>-->
-<!--          <li @click="goToFavoriteAuthors">-->
-<!--            <span role="img" aria-label="favorite-authors">❤️</span> 喜歡作者-->
-<!--          </li>-->
-            <li @click="goToSource">
-              <span role="img" aria-label="source">📚</span> 資料來源
-            </li>
-<!--          <li @click="refreshPage">-->
-<!--            <span role="img" aria-label="refresh">🔄</span> 刷新-->
-<!--          </li>-->
-<!--            <li @click="goToPrivacyPolicy">-->
-<!--              <span role="img" aria-label="privacy-policy">🔐</span> 隱私政策-->
-<!--            </li>-->
-
           </ul>
 
           <!-- 访问统计区域 -->
@@ -96,7 +76,7 @@
             </div>
           </div>
 
-          <div class="icp-number">粤ICP备2025466875号-1</div>
+          <div class="icp-number">粤ICP备2025466875号</div>
         </div>
       </div>
     </Transition>
@@ -105,6 +85,31 @@
     <Transition name="fade">
       <div class="overlay" v-if="isSidebarVisible" @click="toggleSidebar"></div>
     </Transition>
+
+    <!-- Submenu panel (liquid glass style) -->
+    <Teleport to="body">
+      <Transition name="submenu-fade">
+        <div
+          v-if="activeSubmenu"
+          class="submenu-panel"
+          :style="{
+            top: submenuPosition.top + 'px',
+            left: submenuPosition.left + 'px'
+          }"
+          @click.stop
+        >
+          <div
+            v-for="(child, index) in menuConfig[activeSubmenu]?.children"
+            :key="index"
+            class="submenu-item"
+            @click="handleSubmenuClick(child)"
+          >
+            <span class="submenu-icon">{{ child.icon }}</span>
+            <span class="submenu-label">{{ child.label }}</span>
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
 
     <!-- 访问历史弹窗 -->
     <Teleport to="body">
@@ -138,7 +143,7 @@
               </div>
 
               <div class="history-section">
-                <h4 class="section-title">歷史記錄（最近60天）</h4>
+                <h4 class="section-title">歷史記錄</h4>
                 <div class="history-list">
                   <div v-for="item in visitHistory" :key="item.date" class="history-item-modal">
                     <span class="history-date">{{ item.date }}</span>
@@ -161,8 +166,8 @@
     <div class="navbar-content">
       <!-- 第一行: Logo、标题和登录按钮 -->
       <div class="navbar-top">
-        <div class="navbar-item logo-and-title" :style="{ zIndex: isSidebarVisible ? '1100' : '999' }">
-          <div class="logo-container" style="width: 6dvh;min-width: 6dvh" @click="toggleSidebar">
+        <div @click="toggleSidebar" class="navbar-item logo-and-title" :style="{ zIndex: isSidebarVisible ? '1100' : '999' }">
+          <div class="logo-container" style="width: 6dvh;min-width: 6dvh" >
             <img class="logo" src="@/assets/favicon.ico" alt="Logo" />
           </div>
           <div class="title">
@@ -187,6 +192,7 @@
             v-slot="{ href, navigate, isActive }"
         >
           <a
+              v-if="t.tab !== 'tools'"
               :href="href"
               class="menu-item"
               :class="[{ active: isActiveComputed(t.tab, isActive) }, { small: t.tab === 'about' }]"
@@ -205,15 +211,33 @@
 
 
 <script setup>
-import { ref , onMounted} from 'vue'
+import { ref , onMounted, onBeforeUnmount, computed} from 'vue'
 import {useRoute, useRouter} from 'vue-router'
-import {api, clearToken,getToken,saveToken} from '../utils/auth.js'
-import { userStore } from '../utils/store.js'
+import {api, clearToken, getToken, initUserByToken, saveToken} from '../utils/auth.js'
+import { menuConfig } from '@/config/menuConfig.js'
+// import { userStore } from '../utils/store.js'
 const route = useRoute()
 const router = useRouter()
 const user = ref({}) // 存储用户信息
 const mode = ref('login') // 存储登录状态
 const isSidebarVisible = ref(false)  // 控制边栏显示
+
+// Submenu state management
+const activeSubmenu = ref(null)  // Currently open submenu key
+const submenuPosition = ref({ top: 0, left: 0 })  // Position for submenu panel
+
+// Filter menu items for NavBar (exclude items that should only show in SimpleSidebar)
+const filteredMenuConfig = computed(() => {
+  const filtered = {}
+  for (const [key, item] of Object.entries(menuConfig)) {
+    // If showIn is not specified, show in all components
+    // If showIn is specified, only show if 'NavBar' is in the array
+    if (!item.showIn || item.showIn.includes('NavBar')) {
+      filtered[key] = item
+    }
+  }
+  return filtered
+})
 
 // 访问统计相关
 const todayVisits = ref(0)
@@ -224,6 +248,7 @@ const loadingStats = ref(false)
 
 // 更新tabs，增加 "结果" 页面并控制字体大小
 const tabs = [
+  { tab: 'tools', label: '工具集', icon: '🛠️', weight: 1, fontSize: 1.3, isPseudo: true },
   { tab: 'about', label: '關於網站', icon: '🌐', weight: 0.6, fontSize: 1 },
   { tab: 'query', label: '查詢', icon: '📊', weight: 1, fontSize: 1.3 },
   { tab: 'result', label: '結果', icon: '📈', weight: 1, fontSize: 1.3 },
@@ -232,87 +257,27 @@ const tabs = [
 
 // 根据当前 query.tab 判断
 const currentTab = () => route.query.tab || 'query'
-const isActiveComputed = (tabName) => route.path === '/menu' && currentTab() === tabName
+const isActiveComputed = (tabName) => {
+  // 工具集伪 tab 永远不显示为激活状态
+  if (tabName === 'tools') return false
+  return route.path === '/menu' && currentTab() === tabName
+}
 
+// 頂部導航欄的點擊處理
 const onClick = async (tabName, navigate) => {
+  // 如果是"工具集"伪 tab，打开 sidebar
+  if (tabName === 'tools') {
+    toggleSidebar()
+    return
+  }
+
   if (route.path === '/menu' && currentTab() === tabName) return
   await router.replace({ path: '/menu', query: { tab: tabName } })
 }
-// goToAuthPage 方法，点击登录按钮后跳转到 /auth 页面
+
 const goToAuthPage = () => {
   router.push('/auth')
 }
-
-async function initUserByToken({ console_log = false } = {}) {
-  const token = getToken();
-
-  // 默认未登录态
-  userStore.id = null;
-  userStore.username = null;
-  userStore.role = 'anonymous';
-  userStore.isAuthenticated = false;
-  user.value = {}
-  mode.value = "login"
-
-  if (!token) {
-    console.log("anonymous")
-    return {
-      user: null,
-      role: "anonymous"
-    }
-  }
-
-  try {
-    const res = await api('/auth/me')
-    // console.log(res)
-    if (!res) {
-      userStore.role = 'anonymous';
-      return {
-        user: null,
-        role: "anonymous"
-      }
-    }
-
-    userStore.id = res.id;
-    userStore.username = res.username;
-    userStore.role = res?.role === "admin" ? "admin" : "user";
-    userStore.isAuthenticated = true;
-    user.value = res || {}
-    mode.value = "normal"
-
-    if (console_log) {
-      console.log("✅ 用户信息已初始化", res)
-    }
-    // console.log(res)
-    return {
-      user: res,
-      role: userStore.role
-    }
-
-  } catch (err) {
-    if (console_log) {
-      console.error("❌ 用户初始化失败，token 已失效", err)
-    }
-
-    clearToken()
-    userStore.id = null;
-    userStore.username = null;
-    userStore.role = "anonymous";
-    userStore.isAuthenticated = false;
-    user.value = {}
-    mode.value = "login"
-
-    return {
-      user: null,
-      role: "anonymous"
-    }
-  }
-}
-
-onMounted(async () => {
-  await initUserByToken();
-  await fetchVisitStats();
-})
 
 // 获取访问统计数据
 async function fetchVisitStats() {
@@ -384,62 +349,85 @@ async function fetchVisitHistory() {
 // 切换左侧边栏的显示与隐藏
 const toggleSidebar = () => {
   isSidebarVisible.value = !isSidebarVisible.value
+  // Close submenu when sidebar closes
+  if (!isSidebarVisible.value) {
+    activeSubmenu.value = null
+  }
 }
 
-// 按钮点击处理
-const goToOldWebsite = () => {  window.location.href = window.WEB_BASE + '/detail/'/* 跳转到旧版网站 */
-toggleSidebar()}
-const refreshPage = () => {
-  // 重新加載所有的 CSS
-  const styles = Array.from(document.querySelectorAll('link[rel="stylesheet"]'));
-  styles.forEach(style => {
-    if (style.href) {
-      const newStyle = style.cloneNode();
-      // 添加時間戳避免緩存
-      newStyle.href = `${style.href.split('?')[0]}?t=${new Date().getTime()}`;
-      style.parentNode.replaceChild(newStyle, style);
+// 主按鈕點擊處理 - 直接導航
+const handleMainClick = (item, key) => {
+  if (item.path) {
+    // 有路徑就導航
+    if (item.external) {
+      window.location.href = window.WEB_BASE + '/detail/'
+    } else {
+      router.push(item.path)
+      isSidebarVisible.value = false
     }
-  });
-  // 重新加載所有的 JS
-  const scripts = Array.from(document.querySelectorAll('script[src]'));
-  scripts.forEach(script => {
-    if (script.src) {
-      const newScript = script.cloneNode();
-      // 添加時間戳避免緩存
-      newScript.src = `${script.src.split('?')[0]}?t=${new Date().getTime()}`;
-      script.parentNode.replaceChild(newScript, script);
-    }
-  });
-  toggleSidebar();
+  } else {
+    // 沒有路徑就console
+    console.log('按鈕點擊 - 需要設置導航路徑:', key, item)
+  }
+  activeSubmenu.value = null
 }
 
-const goToTools = () => {router.push({ path: '/menu',
-  query: { tab: 'tools'}})  /* 跳转到工具页面 */
-  toggleSidebar(); }
-const goToSuggestions = () => {router.push({ path: '/menu',
-  query: { tab: 'about', sub: 'suggestion' }}) /* 跳转到喜欢作者页面 */
-  toggleSidebar(); /* 跳转到提出建议页面 */ }
-const goToFavoriteAuthors = () => {router.push({ path: '/menu',
-  query: { tab: 'about', sub: 'like' }}) /* 跳转到喜欢作者页面 */
-toggleSidebar();}
-const goToSource = () => {router.push({ path: '/menu',
-  query: { tab: 'source'}}) /* 跳转到资料来源页面 */
-  toggleSidebar(); }
-const goToPrivacyPolicy = () =>  {router.push({ path: '/menu',
-  query: { tab: 'privacy'}}) /* 跳转到隐私政策页面 */
-  toggleSidebar(); }
-const goToGDVillages = () =>  {router.push({ path: '/menu',
-  query: { tab: 'gdVillages'}}) /* 跳转到廣東自然村页面 */
-  toggleSidebar(); }
-const goToSpoken = () =>  {router.push({ path: '/menu',
-  query: { tab: 'ycSpoken'}}) /* 跳转到陽春口語詞页面 */
-  toggleSidebar(); }
-const goToZhongGu = () =>  {router.push({ path: '/menu',
-  query: { tab: 'ZhongGu'}}) /* 跳转到陽春口語詞页面 */
-  toggleSidebar(); }
-const goToYuBao = () =>  {router.push({ path: '/menu',
-  query: { tab: 'YuBao'}}) /* 跳转到陽春口語詞页面 */
-  toggleSidebar(); }
+// 箭頭點擊處理 - 展開子菜單
+const handleArrowClick = (item, key, event) => {
+  if (item.children) {
+    const rect = event.currentTarget.parentElement.getBoundingClientRect()
+    const viewportWidth = window.innerWidth
+    const submenuWidth = 250 // 預估子菜單寬度
+
+    // 計算是否有足夠空間在右側顯示
+    const spaceOnRight = viewportWidth - rect.right
+    const hasSpaceOnRight = spaceOnRight > submenuWidth + 20
+
+    if (hasSpaceOnRight) {
+      // 右側有空間，顯示在右側
+      submenuPosition.value = {
+        top: rect.top,
+        left: rect.right + 10
+      }
+    } else {
+      // 右側空間不足，顯示在按鈕下方
+      submenuPosition.value = {
+        top: rect.bottom + 5,
+        left: Math.max(10, rect.left) // 確保不會超出左邊界
+      }
+    }
+
+    activeSubmenu.value = activeSubmenu.value === key ? null : key // Toggle
+  }
+}
+
+// Submenu item click handler
+const handleSubmenuClick = (child) => {
+  if (child.external) {
+    window.open(child.path, '_blank')
+  } else {
+    router.push(child.path)
+  }
+  activeSubmenu.value = null
+  isSidebarVisible.value = false
+}
+
+// Close submenu when clicking outside
+const closeSubmenu = () => {
+  activeSubmenu.value = null
+}
+
+onMounted(async () => {
+  const res = await initUserByToken();
+  user.value = res.user || {};
+  mode.value = res.role !== 'anonymous' ? 'normal' : 'login';
+  await fetchVisitStats();
+  document.addEventListener('click', closeSubmenu)
+})
+
+onBeforeUnmount(() => {
+  document.removeEventListener('click', closeSubmenu)
+})
 </script>
 
 
@@ -505,6 +493,7 @@ const goToYuBao = () =>  {router.push({ path: '/menu',
   display: flex;
   align-items: center;
   gap: 10px;
+  cursor: pointer;
 }
 
 .ico img {
@@ -571,8 +560,6 @@ const goToYuBao = () =>  {router.push({ path: '/menu',
 
 .menu-item:hover {
   background: rgba(0, 122, 255, 0.12);
-  transform: translateY(-1px);
-  margin: 15px;
   height: 90%;
   color: #007aff;
 }
@@ -704,8 +691,16 @@ const goToYuBao = () =>  {router.push({ path: '/menu',
   justify-content: flex-end; /* 保证内容和底部对齐 */
   gap: 20px;
   /* 给底部留出空间 */
-  padding: 20px 20px 40px;
+  padding: 0px 20px 0px;
 
+}
+.sidebar-empty{
+  height: 8dvh;
+}
+@media (max-aspect-ratio: 1/1){
+  .sidebar-empty{
+    height: 8dvh;
+  }
 }
 
 /* 内容部分居中显示 */
@@ -724,20 +719,23 @@ const goToYuBao = () =>  {router.push({ path: '/menu',
 
 .sidebar-content ul {
   list-style-type: none;
-  padding: 0;
   margin: 0;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   gap: 15px;
+  width: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0 0 10px;
 }
 @media (max-aspect-ratio: 1/1) {
   .sidebar-content{
     gap:15px;
   }
   .sidebar-content ul{
-    gap: 10px;
+    gap: 12px;
   }
 }
 
@@ -760,10 +758,11 @@ const goToYuBao = () =>  {router.push({ path: '/menu',
   min-width: 0;
   text-align: center;
   text-decoration: none;
-  gap: 1px;
+  gap: 8px;
   cursor: pointer;
   user-select: none;
   background: rgba(255, 255, 255, 0.7);
+  position: relative;
 }
 
 .sidebar-content li:hover {
@@ -1031,6 +1030,25 @@ const goToYuBao = () =>  {router.push({ path: '/menu',
   background: rgba(0, 95, 211, 0.5);
 }
 
+/* 侧边栏按钮列表滚动条 */
+.sidebar-content ul::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sidebar-content ul::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 3px;
+}
+
+.sidebar-content ul::-webkit-scrollbar-thumb {
+  background: rgba(0, 95, 211, 0.3);
+  border-radius: 3px;
+}
+
+.sidebar-content ul::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 95, 211, 0.5);
+}
+
 /* 过渡动画 */
 .fade-scale-enter-active,
 .fade-scale-leave-active {
@@ -1094,6 +1112,125 @@ const goToYuBao = () =>  {router.push({ path: '/menu',
   }
   .sidebar-content li{
     font-size: 1.1rem;
+  }
+}
+
+/* Arrow indicator for expandable items */
+.menu-arrow {
+  font-size: 18px;
+  font-weight: bold;
+  color: #007aff;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: rgba(0, 122, 255, 0.15);
+  border-radius: 50%;
+  flex-shrink: 0;
+  cursor: pointer;
+  position: relative;
+}
+
+.menu-arrow:hover {
+  transform: scale(1.15);
+  background: rgba(0, 122, 255, 0.3);
+  box-shadow: 0 2px 8px rgba(0, 122, 255, 0.3);
+}
+
+.menu-arrow:active {
+  transform: scale(1.05);
+}
+
+/* Submenu panel - liquid glass style */
+.submenu-panel {
+  position: fixed;
+  width: auto; /* 讓內容自然撐開 */
+  max-width: min(300px, calc(100vw - 20px)); /* 確保不會超出螢幕 */
+  z-index: 10001;
+
+  /* Liquid glass effect */
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.95),
+    rgba(255, 255, 255, 0.85)
+  );
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+
+  /* Border and shadow */
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 16px;
+  box-shadow:
+    inset 0 0 0.5px rgba(255, 255, 255, 0.3),
+    0 12px 40px rgba(0, 0, 0, 0.2),
+    0 0 0 0.5px rgba(255, 255, 255, 0.1);
+
+  /* Padding and overflow */
+  padding: 8px;
+  overflow: hidden;
+}
+
+.submenu-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+
+  /* Text styling */
+  font-size: 15px;
+  font-weight: 500;
+  color: #333;
+}
+
+.submenu-item:hover {
+  background: linear-gradient(
+    145deg,
+    rgba(0, 122, 255, 0.15),
+    rgba(0, 122, 255, 0.08)
+  );
+  transform: translateX(4px);
+}
+@media (max-aspect-ratio: 1/1) {
+  .submenu-item{
+    padding:8px 12px;
+  }
+}
+.submenu-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.submenu-label {
+  flex: 1;
+  white-space: nowrap;
+}
+
+/* Submenu fade transition */
+.submenu-fade-enter-active,
+.submenu-fade-leave-active {
+  transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.submenu-fade-enter-from {
+  opacity: 0;
+  transform: translateX(-10px) scale(0.95);
+}
+
+.submenu-fade-leave-to {
+  opacity: 0;
+  transform: translateX(-10px) scale(0.95);
+}
+
+/* Mobile responsive submenu */
+@media (max-width: 768px) {
+  .submenu-panel {
+    /* 在移動設備上確保不會超出螢幕 */
+    max-width: calc(100vw - 20px);
   }
 }
 

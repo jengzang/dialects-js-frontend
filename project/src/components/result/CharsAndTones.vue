@@ -33,6 +33,10 @@
             </div>
 
         </div>
+
+        <div v-else-if="shouldShowChar(index) && !hasAnyDataForChar(index)" class="no-data-warning">
+          當前字表暫無該字
+        </div>
       </template>
     </div>
 
@@ -115,6 +119,15 @@ const shouldShowPositions = (index) => {
   const prev = processedData.value[index - 1];
   if (curr.char !== prev.char) return true;
   return JSON.stringify(curr.positions) !== JSON.stringify(prev.positions);
+};
+
+// 檢查某個字符在所有地點中是否有任何數據
+const hasAnyDataForChar = (index) => {
+  const currentChar = processedData.value[index].char;
+  // 遍歷所有數據，查找是否有任何地點有該字的音節數據
+  return processedData.value.some(item =>
+    item.char === currentChar && item.音节 && item.音节.length > 0
+  );
 };
 
 // 🌟 新增：檢查單個音節是否有對應的註釋
@@ -334,7 +347,6 @@ onUnmounted(() => window.removeEventListener('click', handleGlobalClick));
 </script>
 
 <style>
-@import "ExtraPanel.css";
 .chartonepage{
   max-width: 85dvw;
   min-width: 60dvw;
@@ -351,7 +363,6 @@ onUnmounted(() => window.removeEventListener('click', handleGlobalClick));
 
   display: flex;
   margin: 0 auto;
-  width: 90%;
 
 }
 @media (max-aspect-ratio: 1/1) {
@@ -362,6 +373,6 @@ onUnmounted(() => window.removeEventListener('click', handleGlobalClick));
 
 </style>
 
-<style>
+<style scoped>
 @import "ExtraPanel.css";
 </style>
