@@ -4,7 +4,7 @@
       <div class="page-content-stack">
         <div class="page-footer" style="flex-direction: column">
           <p style="margin:0">分區繪圖</p>
-          <small class="hint">按照不同分區等級，繪製方言分佈點圖<br>（程序自動分配顏色）</small>
+          <small class="hint">按照不同分區層級，繪製方言分佈點圖<br>程序自動分配不同顏色</small>
         </div>
 
         <div class="dropdown-row horizontal-dropdown" style="margin-top: 12px;">
@@ -44,6 +44,7 @@
         ref="locationRef"
         @update:runDisabled="uiStore.buttonStates.divide.isLocationDisabled = $event"
         v-model="locationModel"
+        limitContext="divide"
     />
 
     <div class="run-container">

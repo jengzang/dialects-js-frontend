@@ -267,6 +267,7 @@ import { ref, nextTick ,onMounted, onActivated, watch, computed,defineProps, def
 import {api} from '@/utils/auth.js'
 import RegionSelector from "@/components/query/RegionSelector.vue"
 import { userStore, setLocationDisabled } from '@/utils/store.js'
+import { LOCATION_LIMITS } from '@/config/constants.js'
 // const API_BASE = window.API_BASE;
 // const MAP_TREE = STATIC_REGION_TREE;
 // const YINDIAN_TREE = top_yindian;
@@ -279,6 +280,10 @@ const props = defineProps({
   useInputMode: {
     type: Boolean,
     default: false
+  },
+  limitContext: {
+    type: String,
+    default: 'default'
   }
 })
 
@@ -779,14 +784,12 @@ async function fetchLocationsResult() {
     selectedCount.value = count
 
     // 7️⃣ 對齊原來的限制邏輯（showToast 對應 bottom-hint）
-    const limit_anonymous = 200
-    const limit_users = 600
+    // Get limits for current context and user role
+    const contextLimits = LOCATION_LIMITS[props.limitContext] || LOCATION_LIMITS.default
+    const limits = contextLimits[userStore.role] || contextLimits.anonymous
 
-    if (userStore.role === 'anonymous' && count > limit_anonymous) {
-      limitHint.value = `未登錄用戶單次最多可查詢 ${limit_anonymous} 個地點`
-      updateDisabledState(true)
-    } else if (userStore.role === 'user' && count > limit_users) {
-      limitHint.value = `用戶單次最多可查詢 ${limit_users} 個地點`
+    if (count > limits.MAX_LOCATIONS) {
+      limitHint.value = limits.MESSAGE.replace('{limit}', limits.MAX_LOCATIONS)
       updateDisabledState(true)
     } else {
       limitHint.value = ''

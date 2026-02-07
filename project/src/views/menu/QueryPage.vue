@@ -260,6 +260,7 @@
           ref="locationRef"
           @update:runDisabled="uiStore.buttonStates.query.isLocationDisabled = $event"
           v-model="locationModel"
+          :limitContext="locationLimitContext"
       />
 
       <!-- ✅ 炫酷按鈕 -->
@@ -316,6 +317,12 @@ const tabs = [
   { name: 'tab3', label: '查音位' },
   { name: 'tab4', label: '查調' }
 ]
+
+// Compute limit context based on current tab
+const locationLimitContext = computed(() => {
+  return currentTab.value  // 'tab1', 'tab2', 'tab3', or 'tab4'
+})
+
 // 2. 监听路由变化（处理浏览器前进/后退，以及 Tab 点击切换）
 watch(
     () => route.query,
