@@ -2,9 +2,9 @@
   <div>
     <div class="page">
       <div class="page-content-stack">
-        <div class="page-footer">
-          <small class="hint">繪製所選方言點的分區圖<br>想輸入多個分區❓️ 點擊👉</small>
-          <button class="enter-btn" @click="handleEnter">進入網站</button>
+        <div class="page-footer" style="flex-direction: column">
+          <p style="margin:0">分區繪圖</p>
+          <small class="hint">按照不同分區等級，繪製方言分佈點圖（程序自動分配顏色）</small>
         </div>
 
         <div class="dropdown-row horizontal-dropdown" style="margin-top: 12px;">
@@ -181,7 +181,7 @@ const runAction = async () => {
     mapStore.mode = 'dot';
 
     // 切換回地圖 Tab
-    router.replace({ query: { ...route.query, sub: 'map' } });
+    await router.replace({query: {...route.query, sub: 'map'}});
 
   } catch (error) {
     console.error(error);
@@ -228,6 +228,7 @@ const runAction = async () => {
   transition: all 0.3s ease;
   white-space: nowrap;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2), 0 6px 20px rgba(0, 0, 0, 0.19);
+  pointer-events: auto; /* 恢復點擊事件，覆蓋父容器的 pointer-events: none */
 }
 
 .allmap-first:hover {

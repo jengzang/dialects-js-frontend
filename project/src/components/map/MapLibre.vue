@@ -902,7 +902,7 @@ const resetView = () => {
   top: 0; left: 0;
   width: 100vw; height: 100dvh;
   border-radius: 0;
-  z-index: 99999;
+  z-index: 9999!important;
   transform: none;
 }
 

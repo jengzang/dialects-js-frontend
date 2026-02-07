@@ -150,10 +150,12 @@ export async function get_detail(location, feature_value, bool=false, vue=false,
         }
     } else {
         if (mode === 's2p') {
-            if (!/^[\u4e00-\u9fa5\-\s]+$/.test(feature_value)) {
+            // 已加入 \u00b7 以支援中間點「·」
+            if (!/^[\u4e00-\u9fa5\-\s\u00b7]+$/.test(feature_value)) {
                 status_inputs = [];
             } else {
-                status_inputs = [feature_value];
+                const cleaned_value = feature_value.replace(/\u00b7/g, '');
+                status_inputs = [cleaned_value];
             }
         } else if (mode === 'p2s') {
             pho_values = [feature_value];
