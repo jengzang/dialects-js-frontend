@@ -275,24 +275,31 @@
 
     <!-- 地图模式 -->
     <div v-else-if="viewMode === 'map'" class="map-mode">
-      <div v-if="!isValidInput || cardData.length === 0" class="empty-state">
-        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <circle cx="12" cy="12" r="10"/>
-          <line x1="12" y1="8" x2="12" y2="12"/>
-          <line x1="12" y1="16" x2="12.01" y2="16"/>
-        </svg>
-        <p v-if="!vocabularyInput.trim() && !grammarInput.trim()">請輸入搜索內容</p>
-        <p v-else-if="!isValidInput">請從建議列表中選擇</p>
-        <p v-else>沒有找到相關數據</p>
-        <small v-if="!vocabularyInput.trim() && !grammarInput.trim()">
-          在上方輸入框中輸入{{ activeTab === 'vocabulary' ? '詞彙' : '語法句式' }}進行查詢
-        </small>
+      <div v-if="isLoadingCards" class="cards-loading">
+        <div class="spinner"></div>
+        <span>加載數據中...</span>
       </div>
-      <YuBaoMap
-          v-else
-          :map-data="cardData"
-          :active-tab="activeTab"
-      />
+      <template v-else>
+        <div v-if="!isValidInput || cardData.length === 0" class="empty-state">
+          <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="8" x2="12" y2="12"/>
+            <line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+          <p v-if="!vocabularyInput.trim() && !grammarInput.trim()">請輸入搜索內容</p>
+          <p v-else-if="!isValidInput">請從建議列表中選擇</p>
+          <p v-else>沒有找到相關數據</p>
+          <small v-if="!vocabularyInput.trim() && !grammarInput.trim()">
+            在上方輸入框中輸入{{ activeTab === 'vocabulary' ? '詞彙' : '語法句式' }}進行查詢
+          </small>
+        </div>
+        <YuBaoMap
+            v-else
+            :map-data="cardData"
+            :active-tab="activeTab"
+        />
+      </template>
+
     </div>
 
     <!-- 查看全部弹窗 -->
@@ -360,7 +367,8 @@ const allGrammar = ref([])
 const isLoading = ref(false)
 const showAllModal = ref(false)
 const modalSearchQuery = ref('')
-const viewMode = ref('card')
+// const viewMode = ref('card')
+const viewMode = ref(activeTab.value === 'vocabulary' ? 'map' : 'card')
 // 为每个 tab 维护独立的卡片数据
 const vocabularyCardData = ref([])
 const grammarCardData = ref([])

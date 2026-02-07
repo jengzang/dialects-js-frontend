@@ -37,7 +37,7 @@
         </div>
 
         <!-- 步骤 1: 选择数据库 -->
-        <div class="config-section">
+        <div class="config-section" style="gap:25px;display: flex;justify-content: center;">
           <label>1️⃣ 选择数据库：</label>
           <div class="input-group">
             <select v-model="selectedDbKey" @change="onDbKeyChange">
@@ -56,12 +56,8 @@
               @blur="applyCustomDbKey"
             />
           </div>
-        </div>
-
-        <!-- 步骤 2: 选择表 -->
-        <div v-if="selectedDbKey" class="config-section">
-          <label>2️⃣ 选择表：</label>
-          <div class="input-group">
+          <label v-if="selectedDbKey">2️⃣ 选择表：</label>
+          <div v-if="selectedDbKey" class="input-group">
             <select v-model="selectedTable" @change="onTableChange">
               <option value="">-- 请选择表 --</option>
               <option v-for="table in availableTables" :key="table" :value="table">
@@ -70,15 +66,16 @@
               <option value="__custom__">✏️ 手动输入...</option>
             </select>
             <input
-              v-if="selectedTable === '__custom__' || customTableMode"
-              v-model="customTable"
-              type="text"
-              placeholder="输入表名（如 dialects）"
-              class="custom-input"
-              @blur="applyCustomTable"
+                v-if="selectedTable === '__custom__' || customTableMode"
+                v-model="customTable"
+                type="text"
+                placeholder="输入表名（如 dialects）"
+                class="custom-input"
+                @blur="applyCustomTable"
             />
           </div>
         </div>
+
 
         <!-- 步骤 3: 配置列显示 -->
         <div v-if="selectedTable && allColumns.length > 0" class="config-section">
@@ -201,7 +198,7 @@ const DB_TABLE_MAPPING = {
   dialects_admin: ['dialects'],
   yubao: ['grammar', 'vocabulary'],
   logs: ['api_keyword_log', 'api_statistics', 'api_visit_log'],
-  auth: ['api_usage_logs', 'api_usage_summary', 'users', 'refresh_tokens']
+  auth: ['api_usage_logs', 'api_usage_summary', 'users', 'refresh_tokens', 'user_db_permissions']
 }
 
 // 预设配置（常用表的默认列配置）
@@ -215,7 +212,8 @@ const PRESET_CONFIGS = {
     columns: ['本字考', 'IPA', '粤拼', '来源', '声母', '韵母', '音调', '词性', '释义', '例词例句', '待校及说明'],
     widths: { '本字考': 1, 'IPA': 0.8, '粤拼': 0.8, '来源': 0.8, '声母': 0.5, '韵母': 0.8, '音调': 0.5, '词性': 1, '释义': 2, '例词例句': 2, '待校及说明': 0.8 },
     filterable: ['来源', '声母', '韵母', '音调', '词性', '待校及说明']
-  }
+  },
+
 }
 
 // 状态管理
@@ -860,6 +858,7 @@ onMounted(async () => {
 
 /* 配置区块 - 液态玻璃卡片 */
 .config-section {
+
   margin-bottom: 20px;
   padding: 20px;
   background: rgba(255, 255, 255, 0.7);
@@ -891,7 +890,7 @@ onMounted(async () => {
 
 .config-section label {
   display: block;
-  margin-bottom: 10px;
+  margin-top: 5px;
   font-weight: 600;
   color: #1c1c1e;
   font-size: 15px;
@@ -1226,6 +1225,8 @@ onMounted(async () => {
 
   .config-section {
     padding: 16px;
+    gap: 10px!important;
+    flex-direction: column;
   }
 
   .filter-grid {
@@ -1233,12 +1234,10 @@ onMounted(async () => {
   }
 
   .config-actions {
-    flex-direction: column;
     align-items: center;
   }
 
   .btn-action-small {
-    width: 100%;
     max-width: 320px;
   }
 
