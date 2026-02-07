@@ -61,9 +61,9 @@
           <button
             class="action-btn primary-btn"
             @click="handleRunQuery"
-            :disabled="!selectedFeature || isRunning"
+            :disabled="isDisabled"
           >
-            <span v-if="isRunning">🔄 運行中...</span>
+            <span v-if="buttonState.isRunning">🔄 運行中...</span>
             <span v-else>🚀 運行查詢</span>
           </button>
         </div>
@@ -129,11 +129,11 @@
 </template>
 
 <script setup>
-import { ref, reactive, nextTick, onMounted, onBeforeUnmount } from 'vue'
+import { ref, reactive, nextTick, onMounted, onBeforeUnmount, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import LocationAndRegionInput from '@/components/query/LocationAndRegionInput.vue'
 import { api } from '@/utils/auth.js'
-import { userStore, resultCache, mapStore } from '@/utils/store.js'
+import { userStore, resultCache, mapStore, uiStore, isCustomButtonDisabled, setRunning } from '@/utils/store.js'
 import { showSuccess, showError, showWarning, showInfo } from '@/utils/message.js'
 
 const router = useRouter()
@@ -151,9 +151,16 @@ const featureSearchInput = ref('')
 const featureSuggestions = ref([])
 const selectedFeature = ref('')
 const isSearching = ref(false)
-const isRunning = ref(false)
+// 使用 uiStore 中的按钮状态（不再定义本地 isRunning）
+const buttonState = uiStore.buttonStates.custom
+const isDisabled = isCustomButtonDisabled
 const showSuggestions = ref(false)
 const featureDropdownEl = ref(null)
+
+// 同步 selectedFeature 到 store
+watch(selectedFeature, (newVal) => {
+  uiStore.buttonStates.custom.hasSelectedFeature = !!newVal
+}, { immediate: true })
 
 // 帮助弹窗状态
 const isHelpModalOpen = ref(false)
@@ -311,7 +318,7 @@ const handleRunQuery = () => {
     return
   }
 
-  isRunning.value = true
+  setRunning('custom', true)
 
   try {
     // 清空地图数据
@@ -352,12 +359,12 @@ const handleRunQuery = () => {
 
     // 延迟重置运行状态（跳转后组件不会被销毁，需要手动重置）
     setTimeout(() => {
-      isRunning.value = false
+      setRunning('custom', false)
     }, 1000)
   } catch (error) {
     console.error('跳转失败:', error)
     showError('操作失败：' + error.message)
-    isRunning.value = false
+    setRunning('custom', false)
   }
 }
 

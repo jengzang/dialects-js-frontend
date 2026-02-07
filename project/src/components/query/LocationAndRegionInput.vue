@@ -266,7 +266,7 @@
 import { ref, nextTick ,onMounted, onActivated, watch, computed,defineProps, defineComponent, h} from 'vue'
 import {api} from '@/utils/auth.js'
 import RegionSelector from "@/components/query/RegionSelector.vue"
-import { userStore } from '@/utils/store.js'
+import { userStore, setLocationDisabled } from '@/utils/store.js'
 // const API_BASE = window.API_BASE;
 // const MAP_TREE = STATIC_REGION_TREE;
 // const YINDIAN_TREE = top_yindian;
@@ -337,6 +337,18 @@ const suggestionStyle = ref({
 const selectedCount = ref(null)
 // 定义事件，用于通知父组件禁用/启用按钮
 const emit = defineEmits(['update:runDisabled', 'update:modelValue'])
+
+// 辅助函数：同时更新 emit 和 store（向后兼容）
+function updateDisabledState(isDisabled) {
+  // 1. Emit to parent (backward compatible)
+  emit('update:runDisabled', isDisabled)
+
+  // 2. Update store for all pages that might use this component
+  setLocationDisabled('query', isDisabled)
+  setLocationDisabled('divide', isDisabled)
+  // Note: custom tab doesn't use location validation
+}
+
 // 底部提示欄的「限制提示文案」（對應 showToast）
 // 為空字串時不顯示
 const limitHint = ref('')
@@ -741,7 +753,7 @@ async function fetchLocationsResult() {
     limitHint.value = '請輸入地點或分區'
     selectedCount.value = null
     locationsResult.value = []
-    emit('update:runDisabled', true)  // ⭐ 禁用按鈕
+    updateDisabledState(true)  // ⭐ 禁用按鈕
     return
   }
 
@@ -772,13 +784,13 @@ async function fetchLocationsResult() {
 
     if (userStore.role === 'anonymous' && count > limit_anonymous) {
       limitHint.value = `未登錄用戶單次最多可查詢 ${limit_anonymous} 個地點`
-      emit('update:runDisabled', true)
+      updateDisabledState(true)
     } else if (userStore.role === 'user' && count > limit_users) {
       limitHint.value = `用戶單次最多可查詢 ${limit_users} 個地點`
-      emit('update:runDisabled', true)
+      updateDisabledState(true)
     } else {
       limitHint.value = ''
-      emit('update:runDisabled', false)
+      updateDisabledState(false)
     }
 
     // ✅ 若你後面還有「正常處理」，從這裡往下接
@@ -796,7 +808,7 @@ async function fetchLocationsResult() {
     selectedCount.value = null
     locationsResult.value = []
     customFeatureLocations.value = []
-    emit('update:runDisabled', true)  // ⭐ 錯誤時禁用按鈕
+    updateDisabledState(true)  // ⭐ 錯誤時禁用按鈕
   }
 }
 

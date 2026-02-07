@@ -87,7 +87,7 @@
 <script setup>
 import { ref, computed ,watch} from 'vue';
 import {api} from "@/utils/auth.js";
-import { userStore } from '@/utils/store.js'
+import { userStore, setTabContentDisabled } from '@/utils/store.js'
 
 // 1. 接收父組件傳入的 locationRef
 const props = defineProps({
@@ -102,13 +102,23 @@ const tab3KeyInput = ref('');
 const isHelpModalOpen = ref(false);
 
 const emit = defineEmits(['update:runDisabled']);
+
+// 辅助函数：同时更新 emit 和 store（向后兼容）
+function updateDisabledState(isDisabled) {
+  // 1. Emit to parent (backward compatible)
+  emit('update:runDisabled', isDisabled)
+
+  // 2. Update store for tab3 (音位查询)
+  setTabContentDisabled('query', 'tab3', isDisabled)
+}
+
 // ✅ 3. 修改後的監聽邏輯：
-// 僅當輸入框為空，或“只包含”空格和特定分隔符時，禁用按鈕
+// 僅當輸入框為空，或"只包含"空格和特定分隔符時，禁用按鈕
 watch(tab3KeyInput, (newVal) => {
   const isInvalid = !newVal || /^[\s,;，；、]*$/.test(newVal);
   if (userStore.role !== 'admin'){
-    emit('update:runDisabled', isInvalid);}
-  else {emit('update:runDisabled', false);}
+    updateDisabledState(isInvalid);}
+  else {updateDisabledState(false);}
 }, { immediate: true });
 
 // 狀態管理

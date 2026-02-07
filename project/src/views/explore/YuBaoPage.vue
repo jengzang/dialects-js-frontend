@@ -493,6 +493,22 @@ watch(() => route.query.sub, (newSub) => {
 // 加载所有词汇数据
 async function loadAllVocabulary() {
   try {
+    // 优先读取缓存
+    const cached = sessionStorage.getItem('yubao_vocabulary_all')
+    if (cached) {
+      try {
+        const response = JSON.parse(cached)
+        if (response && response.values && Array.isArray(response.values)) {
+          allVocabulary.value = response.values.filter(item => item && typeof item === 'string' && item.trim())
+          console.log(`✅ 从缓存加载 ${allVocabulary.value.length} 条词汇数据`)
+          return
+        }
+      } catch (e) {
+        console.warn('⚠️ 缓存数据解析失败，将重新请求', e)
+      }
+    }
+
+    // 缓存不存在或无效，请求 API
     const response = await api('/sql/distinct-query', {
       method: 'POST',
       body: {
@@ -507,7 +523,9 @@ async function loadAllVocabulary() {
 
     if (response && response.values && Array.isArray(response.values)) {
       allVocabulary.value = response.values.filter(item => item && typeof item === 'string' && item.trim())
-      console.log(`✅ 已加载 ${allVocabulary.value.length} 条词汇数据`)
+      // 存储到 sessionStorage
+      sessionStorage.setItem('yubao_vocabulary_all', JSON.stringify(response))
+      console.log(`✅ 从 API 加载 ${allVocabulary.value.length} 条词汇数据`)
     } else {
       console.error('❌ 词汇数据格式错误:', response)
     }
@@ -519,6 +537,22 @@ async function loadAllVocabulary() {
 // 加载所有语法数据
 async function loadAllGrammar() {
   try {
+    // 优先读取缓存
+    const cached = sessionStorage.getItem('yubao_grammar_all')
+    if (cached) {
+      try {
+        const response = JSON.parse(cached)
+        if (response && response.values && Array.isArray(response.values)) {
+          allGrammar.value = response.values.filter(item => item && typeof item === 'string' && item.trim())
+          console.log(`✅ 从缓存加载 ${allGrammar.value.length} 条语法数据`)
+          return
+        }
+      } catch (e) {
+        console.warn('⚠️ 缓存数据解析失败，将重新请求', e)
+      }
+    }
+
+    // 缓存不存在或无效，请求 API
     const response = await api('/sql/distinct-query', {
       method: 'POST',
       body: {
@@ -533,7 +567,9 @@ async function loadAllGrammar() {
 
     if (response && response.values && Array.isArray(response.values)) {
       allGrammar.value = response.values.filter(item => item && typeof item === 'string' && item.trim())
-      console.log(`✅ 已加载 ${allGrammar.value.length} 条语法数据`)
+      // 存储到 sessionStorage
+      sessionStorage.setItem('yubao_grammar_all', JSON.stringify(response))
+      console.log(`✅ 从 API 加载 ${allGrammar.value.length} 条语法数据`)
     } else {
       console.error('❌ 语法数据格式错误:', response)
     }

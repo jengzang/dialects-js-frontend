@@ -76,11 +76,20 @@
 <script setup>
 import { ref, computed, watch } from 'vue'
 import { api } from '@/utils/auth.js'
-import { userStore } from '@/utils/store.js'
+import { userStore, setTabContentDisabled } from '@/utils/store.js'
 import { ROLE_LIMITS, QUERY_CONFIG } from '@/config/constants.js'
 
 // 定义事件，用于通知父组件禁用/启用按钮
 const emit = defineEmits(['update:runDisabled'])
+
+// 辅助函数：同时更新 emit 和 store（向后兼容）
+function updateDisabledState(isDisabled) {
+  // 1. Emit to parent (backward compatible)
+  emit('update:runDisabled', isDisabled)
+
+  // 2. Update store for tab2 (中古查询)
+  setTabContentDisabled('query', 'tab2', isDisabled)
+}
 
 const props = defineProps({
   activeKeys: { type: Array, default: () => [] },
@@ -193,7 +202,7 @@ async function fetchData(pathStrings) {
   results.value = []
 
   // ✅ 在 API 请求开始时禁用按钮
-  emit('update:runDisabled', true)
+  updateDisabledState(true)
 
   try {
     const data = await api('/api/charlist', {
@@ -215,7 +224,7 @@ async function fetchData(pathStrings) {
     limitHint.value = '數據查詢失敗，請稍後重試'
     results.value = []
     // ✅ 请求失败时保持按钮禁用状态（因为没有有效的charlist数据）
-    emit('update:runDisabled', true)
+    updateDisabledState(true)
   } finally {
     loading.value = false
   }
@@ -231,11 +240,11 @@ function validateResultLimit(count) {
       : `查詢結果過多(${count}>${limits.MAX_RESULTS})，請減少組合`
 
     limitHint.value = hint
-    emit('update:runDisabled', true)
+    updateDisabledState(true)
   } else {
     // 通过检查
     limitHint.value = ''
-    emit('update:runDisabled', false)
+    updateDisabledState(false)
   }
 }
 

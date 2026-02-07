@@ -1,5 +1,5 @@
 // src/utils/store.js
-import { ref, reactive } from 'vue'
+import { ref, reactive, computed } from 'vue'
 
 // ========================================
 // 全局 Payload（用于跨组件传递查询数据）
@@ -46,3 +46,87 @@ export const resultCache = reactive({
     features: [],             // 特征列表
     latestResults: []         // 最新结果（替代 window.latestdetailResults）
 })
+
+// ========================================
+// UI 状态管理（按钮禁用状态和标签页跟踪）
+// ========================================
+export const uiStore = reactive({
+    // 按钮禁用状态
+    buttonStates: {
+        query: {
+            isRunning: false,
+            isLocationDisabled: false,
+            tabContentDisabled: {
+                tab1: true,  // hanzi input validation
+                tab2: true,  // zhonggu selector validation
+                tab3: true,  // yinwei selector validation
+                tab4: false  // no content validation needed
+            }
+        },
+        divide: {
+            isRunning: false,
+            isLocationDisabled: false
+        },
+        custom: {
+            isRunning: false,
+            hasSelectedFeature: false
+        }
+    },
+
+    // 标签页状态跟踪
+    currentPage: 'query',  // 'query' | 'result' | 'map' | 'about'
+    currentSubTab: {
+        query: 'tab2',  // 'tab1' | 'tab2' | 'tab3' | 'tab4'
+        map: 'map'      // 'map' | 'divide' | 'custom'
+    }
+})
+
+// ========================================
+// UI 状态计算属性
+// ========================================
+
+// Query 按钮禁用状态
+export const isQueryButtonDisabled = computed(() => {
+    const state = uiStore.buttonStates.query
+    const currentTab = uiStore.currentSubTab.query
+    return state.isRunning ||
+           state.isLocationDisabled ||
+           state.tabContentDisabled[currentTab]
+})
+
+// Divide 按钮禁用状态
+export const isDivideButtonDisabled = computed(() => {
+    const state = uiStore.buttonStates.divide
+    return state.isRunning || state.isLocationDisabled
+})
+
+// Custom 按钮禁用状态
+export const isCustomButtonDisabled = computed(() => {
+    const state = uiStore.buttonStates.custom
+    return state.isRunning || !state.hasSelectedFeature
+})
+
+// ========================================
+// UI 状态辅助函数
+// ========================================
+
+// 设置标签页内容禁用状态
+export function setTabContentDisabled(page, tab, isDisabled) {
+    if (uiStore.buttonStates[page]?.tabContentDisabled) {
+        uiStore.buttonStates[page].tabContentDisabled[tab] = isDisabled
+    }
+}
+
+// 设置地点禁用状态
+export function setLocationDisabled(page, isDisabled) {
+    if (uiStore.buttonStates[page]) {
+        uiStore.buttonStates[page].isLocationDisabled = isDisabled
+    }
+}
+
+// 设置运行状态
+export function setRunning(page, isRunning) {
+    if (uiStore.buttonStates[page]) {
+        uiStore.buttonStates[page].isRunning = isRunning
+    }
+}

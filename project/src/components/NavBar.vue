@@ -48,6 +48,7 @@
               v-for="(item, key) in filteredMenuConfig"
               :key="key"
               @click="handleMainClick(item, key)"
+              @mouseenter="!isMobile && item.children ? handleArrowClick(item, key, $event) : null"
             >
               <span role="img" :aria-label="key">{{ item.icon }}</span>
               {{ item.label }}
@@ -226,6 +227,13 @@ const isSidebarVisible = ref(false)  // 控制边栏显示
 const activeSubmenu = ref(null)  // Currently open submenu key
 const submenuPosition = ref({ top: 0, left: 0 })  // Position for submenu panel
 
+// Mobile detection
+const isMobile = ref(false)
+const checkMobile = () => {
+  isMobile.value = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+  console.log("ismobile")
+}
+
 // Filter menu items for NavBar (exclude items that should only show in SimpleSidebar)
 const filteredMenuConfig = computed(() => {
   const filtered = {}
@@ -375,7 +383,12 @@ const handleMainClick = (item, key) => {
 // 箭頭點擊處理 - 展開子菜單
 const handleArrowClick = (item, key, event) => {
   if (item.children) {
-    const rect = event.currentTarget.parentElement.getBoundingClientRect()
+    // 判斷事件來源：如果是箭頭點擊，需要取 parentElement；如果是 li hover，直接用 currentTarget
+    const targetElement = event.currentTarget.classList?.contains('menu-arrow')
+      ? event.currentTarget.parentElement
+      : event.currentTarget
+
+    const rect = targetElement.getBoundingClientRect()
     const viewportWidth = window.innerWidth
     const submenuWidth = 250 // 預估子菜單寬度
 
@@ -418,6 +431,7 @@ const closeSubmenu = () => {
 }
 
 onMounted(async () => {
+  checkMobile();
   const res = await initUserByToken();
   user.value = res.user || {};
   mode.value = res.role !== 'anonymous' ? 'normal' : 'login';

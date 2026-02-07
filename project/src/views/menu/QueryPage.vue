@@ -55,7 +55,7 @@
                      :ref="(el) => excludeFilterTriggerRef.tab2 = el"
                      @click="toggleExcludeDropdown('tab2')"
                      style="margin: 0;padding: 8px 10px;min-width: 60px;max-height:30px "
-                     :class="{ disabled: isRunning }"
+                     :class="{ disabled: buttonState.isRunning }"
                 >
                   {{ getExcludeDisplayText('tab2') || '不排除' }}
                   <span class="arrow">▾</span>
@@ -159,7 +159,7 @@
                 :is-dropdown-open="!!dropdownOpen || excludeDropdownOpen === 'tab2'"
                 :selected-card="tabStates.tab2.card"
                 :exclude-columns="tabStates.tab2.excludeColumns"
-                @update:runDisabled="tabContentDisabled.tab2 = $event"
+                @update:runDisabled="setTabContentDisabled('query', 'tab2', $event)"
                 ref="ZhongguRef"
             />
           </div>
@@ -196,7 +196,7 @@
                     :ref="(el) => excludeFilterTriggerRef.tab3 = el"
                     @click="toggleExcludeDropdown('tab3')"
                     style="margin: 0;padding: 8px 10px;min-width: 60px;max-height:30px "
-                    :class="{ disabled: isRunning }"
+                    :class="{ disabled: buttonState.isRunning }"
                 >
                   {{ getExcludeDisplayText('tab3') || '不排除' }}
                   <span class="arrow">▾</span>
@@ -248,7 +248,7 @@
               <YinweiSelector
                   ref="YinweiSelectorRef"
                   :locationRef="locationRef"
-                  @update:runDisabled="tabContentDisabled.tab3 = $event"
+                  @update:runDisabled="setTabContentDisabled('query', 'tab3', $event)"
               />
             </div>
           </div>
@@ -258,7 +258,7 @@
 
       <LocationAndRegionInput
           ref="locationRef"
-          @update:runDisabled="isLocationDisabled = $event"
+          @update:runDisabled="uiStore.buttonStates.query.isLocationDisabled = $event"
           v-model="locationModel"
       />
 
@@ -267,10 +267,10 @@
         <button
             class="run-btn"
             @click="runAction"
-            :disabled="isRunning || isRunDisabled"
+            :disabled="buttonState.isRunning || isRunDisabled"
             :class="{ disabled: isRunDisabled }"
         >
-          <span v-if="isRunning">🔄 運行中...</span>
+          <span v-if="buttonState.isRunning">🔄 運行中...</span>
           <span v-else-if="isRunDisabled">🚫 輸入不合規</span>
           <span v-else>🚀 單擊運行</span>
         </button>
@@ -303,7 +303,7 @@ import LocationAndRegionInput from "@/components/query/LocationAndRegionInput.vu
 import ZhongguSelector from "@/components/query/ZhongguSelector.vue";
 import YinweiSelector from "@/components/query/YinweiSelector.vue";
 import FloatingDice from "@/components/query/FloatingDice.vue";
-import { globalPayload, queryStore } from '@/utils/store.js'
+import { globalPayload, queryStore, uiStore, isQueryButtonDisabled, setRunning, setTabContentDisabled } from '@/utils/store.js'
 
 const locationRef = ref(null)
 const router = useRouter()
@@ -397,28 +397,23 @@ const tab3KeyTriggerEl = ref(null)
 const keyTriggerEl = ref(null)
 const YinweiSelectorRef = ref(null);
 
-// 1️⃣ 定義公共狀態 (地點組件)
-const isLocationDisabled = ref(false)
+// 1️⃣ 使用 uiStore 中的按钮状态（不再定义本地状态）
+// 直接从 store 获取状态引用
+const buttonState = uiStore.buttonStates.query
 
-// 2️⃣ 定義各個 Tab 的獨立內容狀態
-const tabContentDisabled = reactive({
-  tab1: true,  // 預設 true (因為一開始輸入框是空的)
-  tab2: true, // 預設 false (如果組件初始化時會自動驗證，這裏設為 true 也可以)
-  tab3: true,
-  tab4: false  // Tab4 只有地點，沒有額外內容，所以內容部分永遠是 false (不禁用)
-})
-
-// 3️⃣ 監聽 Tab 1 的輸入框內容 (因為它沒有子組件 emit 事件，需要手動監聽)
+// 2️⃣ 监听 Tab 1 的输入框内容 (因为它没有子组件 emit 事件，需要手动监听)
 watch(hanziInput, (newVal) => {
-  // 如果為空或只有空白，則禁用
-  tabContentDisabled.tab1 = !newVal || newVal.trim() === ''
+  // 如果为空或只有空白，则禁用
+  setTabContentDisabled('query', 'tab1', !newVal || newVal.trim() === '')
 }, { immediate: true })
 
-// 4️⃣ 🔥 最終計算屬性：控制按鈕是否禁用
-const isRunDisabled = computed(() => {
-  // 規則：如果「地點不合規」或者「當前 Tab 的內容不合規」，則禁用按鈕
-  return isLocationDisabled.value || tabContentDisabled[currentTab.value]
-})
+// 3️⃣ 同步当前 Tab 到 store
+watch(currentTab, (newTab) => {
+  uiStore.currentSubTab.query = newTab
+}, { immediate: true })
+
+// 4️⃣ 🔥 最终计算属性：控制按钮是否禁用（使用 store 的 computed helper）
+const isRunDisabled = isQueryButtonDisabled
 
 
 // 1. 新增：用来存储循环中 Trigger 元素的 Map
@@ -743,7 +738,7 @@ function isExcludeSelected(value, tab) {
 
 // 切換過濾器下拉框
 function toggleExcludeDropdown(tab) {
-  if (isRunning.value) return
+  if (buttonState.isRunning) return
 
   if (excludeDropdownOpen.value === tab) {
     excludeDropdownOpen.value = null
@@ -776,11 +771,11 @@ function toggleExcludeOption(value, tab) {
   }
 }
 
-const isRunning = ref(false); // 控制運行中的狀態
+// isRunning 状态已移至 uiStore，不再需要本地定义
 const ZhongguRef = ref(null);
 // 點擊按鈕行為
 const runAction = async () => {
-  isRunning.value = true;
+  setRunning('query', true);
 
   // 1. 獲取地點邏輯 (保持不變)
   function getLocation() {
@@ -900,7 +895,7 @@ const runAction = async () => {
     path: '/menu',
     query: { tab: 'result' }
   });
-  isRunning.value = false; // 請求結束，關閉 loading 狀態
+  setRunning('query', false); // 請求結束，關閉 loading 狀態
 }
 
 

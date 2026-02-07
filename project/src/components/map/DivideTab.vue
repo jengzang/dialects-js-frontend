@@ -1,10 +1,10 @@
 <template>
   <div>
-    <div class="page">
+    <div class="page" style="max-width: 90%;overflow: hidden">
       <div class="page-content-stack">
         <div class="page-footer" style="flex-direction: column">
           <p style="margin:0">分區繪圖</p>
-          <small class="hint">按照不同分區等級，繪製方言分佈點圖（程序自動分配顏色）</small>
+          <small class="hint">按照不同分區等級，繪製方言分佈點圖<br>（程序自動分配顏色）</small>
         </div>
 
         <div class="dropdown-row horizontal-dropdown" style="margin-top: 12px;">
@@ -42,7 +42,7 @@
 
     <LocationAndRegionInput
         ref="locationRef"
-        @update:runDisabled="isLocationDisabled = $event"
+        @update:runDisabled="uiStore.buttonStates.divide.isLocationDisabled = $event"
         v-model="locationModel"
     />
 
@@ -51,10 +51,10 @@
           id="allmap-first"
           class="allmap-first"
           @click="runAction"
-          :disabled="isRunning || isLocationDisabled"
-          :class="{ 'disabled-style': isLocationDisabled }"
+          :disabled="buttonState.isRunning || isDisabled"
+          :class="{ 'disabled-style': isDisabled }"
       >
-        <span v-if="isRunning">🔄 運行中...</span>
+        <span v-if="buttonState.isRunning">🔄 運行中...</span>
         <span v-else>🌍繪圖</span>
       </button>
     </div>
@@ -65,7 +65,7 @@
 import { ref, reactive, nextTick, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter, useRoute } from 'vue-router' // ✨ 1. 引入路由
 import LocationAndRegionInput from "@/components/query/LocationAndRegionInput.vue";
-import { mapStore } from "@/utils/store.js";
+import { mapStore, uiStore, isDivideButtonDisabled, setRunning } from "@/utils/store.js";
 import { api } from "@/utils/auth.js";
 import { showError } from '@/utils/message.js';
 
@@ -74,7 +74,9 @@ const router = useRouter()
 const route = useRoute()
 
 const locationRef = ref(null)
-const isRunning = ref(false)
+// 使用 uiStore 中的按钮状态（不再定义本地状态）
+const buttonState = uiStore.buttonStates.divide
+const isDisabled = isDivideButtonDisabled
 const selectedRegion = ref('')
 const dropdownOpen = ref(null)
 const regionTriggerEl = ref(null)
@@ -85,9 +87,7 @@ const locationModel = ref({
   regionUsing: 'map'
 })
 
-
-// ✨ 3. 定義禁用狀態變量 (默認為 true，防止未加載完成就點擊)
-const isLocationDisabled = ref(false)
+// isLocationDisabled 状态已移至 uiStore，不再需要本地定义
 
 const emit = defineEmits(['region-selected'])
 
@@ -138,7 +138,7 @@ function getLocation() {
 }
 
 const runAction = async () => {
-  isRunning.value = true;
+  setRunning('divide', true);
 
   // ✨ 4. 優化參數構造邏輯
   const params_geo = new URLSearchParams();
@@ -187,7 +187,7 @@ const runAction = async () => {
     console.error(error);
     showError("獲取數據失敗: " + error.message);
   } finally {
-    isRunning.value = false;
+    setRunning('divide', false);
   }
 }
 </script>
