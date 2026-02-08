@@ -22,6 +22,7 @@ import gdVillagesTable from "./explore/gdVillagesTable.vue";
 import PhonologyMatrixPage from "./explore/PhonologyPage.vue";
 import Countphos from "./explore/Countphos.vue";
 import PhonologyCustom from "./explore/PhonologyCustom.vue";
+import Praat from "@/views/explore/Praat.vue";
 
 const route = useRoute()
 
@@ -43,7 +44,8 @@ const activeComponent = computed(() => {
     phonologyMatrix: PhonologyMatrixPage,
     Countphos: Countphos,
     phonologyCustom:PhonologyCustom,
+    praat : Praat
   }
-  return pageMap[page] || gdVillages
+  return pageMap[page] || PhonologyMatrixPage
 })
 </script>

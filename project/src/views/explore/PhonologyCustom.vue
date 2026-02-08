@@ -91,22 +91,29 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { api } from '@/utils/auth.js'
 import PhonologyMatrix from '@/components/TableAndTree/PhonologyTable.vue'
 import LocationMultiInput from '@/components/LocationMultiInput.vue'
+import {
+  parsePhonologyCustomParams,
+  validatePhonologyParams
+} from '@/utils/urlParams.js'
+
+const route = useRoute()
+const router = useRouter()
 
 const loading = ref(false)
 const error = ref(null)
 const matrixData = ref(null)
-const queryStrings = ref([])
-const matchedLocations = ref([])
-const isMatching = ref(false) // 添加匹配状态
+const isMatching = ref(false)
+const shouldSyncUrl = ref(false)
 
 // 特徵選擇（聲母/韻母/聲調）
 const features = ['聲母', '韻母', '聲調']
 
-// 每個特徵的默認分類欄位配置（可根據需要修改）
+// 每個特徵的默認分類欄位配置
 const featureDefaults = {
   '聲母': {
     horizontal: '清濁',
@@ -125,22 +132,58 @@ const featureDefaults = {
   }
 }
 
-// 從 URL 查詢參數讀取初始特徵，如果沒有則默認為聲母
-const getInitialFeature = () => {
-  const params = new URLSearchParams(window.location.search)
-  const feature = params.get('feature')
-  return features.includes(feature) ? feature : '聲母'
+// 可選的分類欄位
+const columnOptions = ['攝', '韻', '等', '呼', '入', '清濁', '系', '組', '母', '調', '部位', '方式']
+
+// 解析 URL 参数
+const urlParams = parsePhonologyCustomParams(route)
+
+// 验证参数
+const validation = validatePhonologyParams(
+  urlParams,
+  features,
+  columnOptions
+)
+
+if (!validation.isValid) {
+  console.warn('Invalid URL parameters:', validation.errors)
 }
 
-const selectedFeature = ref(getInitialFeature())
+// 初始化特征
+const selectedFeature = ref(
+  features.includes(urlParams.feature) ? urlParams.feature : '聲母'
+)
 
-// 分類欄位選擇（根據當前特徵的默認值初始化）
-const horizontalColumn = ref(featureDefaults[selectedFeature.value].horizontal)
-const verticalColumn = ref(featureDefaults[selectedFeature.value].vertical)
-const cellRowColumn = ref(featureDefaults[selectedFeature.value].cellRow)
+// 初始化地点
+const queryStrings = ref(urlParams.locations)
+const matchedLocations = ref([])
 
-// 可選的分類欄位（硬編碼）
-const columnOptions = ['攝', '韻', '等', '呼', '入', '清濁', '系', '組', '母', '調', '部位', '方式']
+// 辅助函数：获取初始分类字段值
+const getInitialColumn = (urlValue, defaultValue) => {
+  return urlValue && columnOptions.includes(urlValue) ? urlValue : defaultValue
+}
+
+// 初始化分类字段
+const horizontalColumn = ref(
+  getInitialColumn(
+    urlParams.horizontalColumn,
+    featureDefaults[selectedFeature.value].horizontal
+  )
+)
+
+const verticalColumn = ref(
+  getInitialColumn(
+    urlParams.verticalColumn,
+    featureDefaults[selectedFeature.value].vertical
+  )
+)
+
+const cellRowColumn = ref(
+  getInitialColumn(
+    urlParams.cellRowColumn,
+    featureDefaults[selectedFeature.value].cellRow
+  )
+)
 
 const displayLocations = computed(() => {
   if (!matrixData.value) return []
@@ -157,12 +200,32 @@ const handleIsMatching = (matching) => {
   isMatching.value = matching
 }
 
-// 監聽特徵選擇變化，自動清空表格並更新默認值
+// 更新 URL 参数
+function updatePhonologyCustomUrl() {
+  const query = {
+    ...route.query,
+    feature: selectedFeature.value,
+    h: horizontalColumn.value,
+    v: verticalColumn.value,
+    c: cellRowColumn.value
+  }
+
+  if (matchedLocations.value.length > 0) {
+    query.loc = matchedLocations.value
+  } else {
+    delete query.loc
+  }
+
+  router.replace({ query })
+}
+
+// 監聽特徵選擇變化
 watch(selectedFeature, (newFeature) => {
-  // 更新 URL 查詢參數
-  const url = new URL(window.location.href)
-  url.searchParams.set('feature', newFeature)
-  window.history.pushState({}, '', url)
+  const query = {
+    ...route.query,
+    feature: newFeature
+  }
+  router.replace({ query })
 
   // 清空表格和錯誤信息
   matrixData.value = null
@@ -172,6 +235,13 @@ watch(selectedFeature, (newFeature) => {
   horizontalColumn.value = featureDefaults[newFeature].horizontal
   verticalColumn.value = featureDefaults[newFeature].vertical
   cellRowColumn.value = featureDefaults[newFeature].cellRow
+})
+
+// 監聽分類字段變化
+watch([horizontalColumn, verticalColumn, cellRowColumn], () => {
+  if (shouldSyncUrl.value) {
+    updatePhonologyCustomUrl()
+  }
 })
 
 // 數據轉換函數：將 API 返回的數據轉換為 PhonologyMatrix 組件需要的格式
@@ -246,6 +316,12 @@ const loadData = async () => {
     // 轉換數據格式
     matrixData.value = transformMatrixData(responseData)
 
+    // 首次查询成功后启用 URL 同步
+    shouldSyncUrl.value = true
+
+    // 更新 URL
+    updatePhonologyCustomUrl()
+
   } catch (err) {
     console.error('加載音韻矩陣失敗:', err)
     error.value = err.message || '加載數據時發生錯誤'
@@ -253,6 +329,58 @@ const loadData = async () => {
     loading.value = false
   }
 }
+
+// 页面加载时自动查询
+onMounted(() => {
+  const hasLocations = urlParams.locations.length > 0
+  const hasAllColumns = urlParams.horizontalColumn &&
+                        urlParams.verticalColumn &&
+                        urlParams.cellRowColumn
+
+  if (hasLocations && hasAllColumns && validation.isValid) {
+    const unwatch = watch(matchedLocations, (locations) => {
+      if (locations.length > 0) {
+        loadData()
+        unwatch()
+      }
+    })
+  }
+})
+
+// 处理浏览器前进/后退
+watch(() => route.query, (newQuery) => {
+  const newParams = parsePhonologyCustomParams(route)
+
+  // 更新特征
+  if (newParams.feature !== selectedFeature.value &&
+      features.includes(newParams.feature)) {
+    selectedFeature.value = newParams.feature
+  }
+
+  // 更新地点 - 只有当 URL 的地点和当前匹配的地点不同时，才清空数据
+  const newLocations = newParams.locations
+  if (JSON.stringify(newLocations) !== JSON.stringify(matchedLocations.value)) {
+    queryStrings.value = newLocations
+    matrixData.value = null
+    error.value = null
+  }
+
+  // 更新分类字段
+  if (newParams.horizontalColumn &&
+      columnOptions.includes(newParams.horizontalColumn)) {
+    horizontalColumn.value = newParams.horizontalColumn
+  }
+
+  if (newParams.verticalColumn &&
+      columnOptions.includes(newParams.verticalColumn)) {
+    verticalColumn.value = newParams.verticalColumn
+  }
+
+  if (newParams.cellRowColumn &&
+      columnOptions.includes(newParams.cellRowColumn)) {
+    cellRowColumn.value = newParams.cellRowColumn
+  }
+}, { deep: true })
 </script>
 
 <style scoped>

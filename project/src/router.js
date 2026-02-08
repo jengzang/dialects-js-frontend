@@ -113,9 +113,10 @@ const ExploreTitleMap = {
     ycSpoken: '方音圖鑑 - 陽春口語詞',
     YuBao:'方音圖鑑 - 語保資料',
     gdVillagesTable: '方音圖鑑 - 廣東自然村表格',
-    phonologyMatrix: '方音圖鑑 - 音系統計',
+    phonologyMatrix: '方音圖鑑 - 音系表',
     phonologyCustom: '方音圖鑑 - 自定義音素表',
-    Countphos: '方音圖鑑 - 音節統計'
+    Countphos: '方音圖鑑 - 音節統計',
+    praat: '方音圖鑒 - 實驗語音學'
 
 };
 

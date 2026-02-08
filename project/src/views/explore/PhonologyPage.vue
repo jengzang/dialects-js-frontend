@@ -51,17 +51,27 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { api } from '@/utils/auth.js'
 import PhonologyMatrix from '@/components/TableAndTree/PhonologyTable.vue'
 import LocationMultiInput from '@/components/LocationMultiInput.vue'
+import { parseLocationsFromUrl, updateUrlWithLocations } from '@/utils/urlParams.js'
+
+const route = useRoute()
+const router = useRouter()
 
 const loading = ref(false)
 const error = ref(null)
 const matrixData = ref(null)
-const queryStrings = ref([])
+
+// 从 URL 初始化地点
+const initialLocations = parseLocationsFromUrl(route)
+const queryStrings = ref(initialLocations)
+
 const matchedLocations = ref([])
 const isMatching = ref(false) // 添加匹配状态
+const shouldSyncUrl = ref(false) // 控制是否同步 URL
 
 const displayLocations = computed(() => {
   if (!matrixData.value) return []
@@ -102,6 +112,12 @@ const loadData = async () => {
 
     // api() 函数已经返回了 JSON 数据
     matrixData.value = result.data
+
+    // 首次查询成功后启用 URL 同步
+    shouldSyncUrl.value = true
+
+    // 更新 URL
+    updateUrlWithLocations(router, matchedLocations.value)
   } catch (err) {
     console.error('加載音韻矩陣失敗:', err)
     error.value = err.message || '加載數據時發生錯誤'
@@ -109,6 +125,32 @@ const loadData = async () => {
     loading.value = false
   }
 }
+
+// 页面加载时自动查询
+onMounted(() => {
+  if (initialLocations.length > 0) {
+    // 等待 LocationMultiInput 完成地点匹配
+    const unwatch = watch(matchedLocations, (locations) => {
+      if (locations.length > 0) {
+        loadData()
+        unwatch() // 只自动查询一次
+      }
+    })
+  }
+})
+
+// 处理浏览器前进/后退
+watch(() => route.query.loc, () => {
+  const urlLocations = parseLocationsFromUrl(route)
+
+  // 只有当 URL 的地点和当前匹配的地点不同时，才需要清空数据
+  // 这样可以避免在查询成功更新 URL 后误清空数据
+  if (JSON.stringify(urlLocations) !== JSON.stringify(matchedLocations.value)) {
+    queryStrings.value = urlLocations
+    matrixData.value = null
+    error.value = null
+  }
+})
 </script>
 
 <style scoped>
