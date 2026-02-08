@@ -69,11 +69,13 @@
 <!--          <div v-if="audioFile && !jobId" class="action-section">-->
           <div  class="action-section">
             <button
-              class="start-button glass-button"
-              @click="startAnalysis"
-              :disabled="isUploading"
+                class="start-button glass-button"
+                @click="startAnalysis"
+                :disabled="isUploading || !audioFile"
+                :class="{ 'disabled-state': !audioFile }"
             >
               <span v-if="isUploading">上傳中...</span>
+              <span v-else-if="!audioFile">請先選擇錄音</span>
               <span v-else>開始分析</span>
             </button>
           </div>
@@ -257,6 +259,7 @@ watch(settings, () => {
 let pollingInterval = null
 
 const handleFileSelected = (file, blob) => {
+  // console.log('🔴 父组件收到了文件:', file); // <--- 加上这一行！
   audioFile.value = file
   audioBlob.value = blob
   audioSegments.value = [] // Clear segments for single file
@@ -294,8 +297,14 @@ const handleSegmentsReady = (segments) => {
 
 const handleSegmentSelected = (segment) => {
   selectedSegment.value = segment
-  audioFile.value = segment.file
-  audioBlob.value = segment.blob
+  // 【修复】：加个判断，防止把已有的 file 覆盖成 undefined
+  if (segment.file) {
+    audioFile.value = segment.file
+  }
+  // blob 通常都有，可以照常更新
+  if (segment.blob) {
+    audioBlob.value = segment.blob
+  }
 }
 
 const startAnalysis = async () => {
@@ -589,8 +598,10 @@ if (typeof window !== 'undefined') {
 }
 
 .start-button:disabled {
-  opacity: 0.6;
+  opacity: 0.5;
   cursor: not-allowed;
+  filter: grayscale(0.8); /* 让颜色变灰，提示不可用 */
+  box-shadow: none;
 }
 
 /* Job Status Inline (in Tab 2) */

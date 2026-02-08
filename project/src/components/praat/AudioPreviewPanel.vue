@@ -1,31 +1,29 @@
 <template>
-  <div v-if="segments && segments.length > 0" class="audio-preview-panel">
+  <div v-if="effectiveSegments.length > 0" class="audio-preview-panel">
     <h3 class="panel-title">
       🎵 音頻預覽
-      <span v-if="segments.length > 1" class="segment-count">({{ segments.length }} 個片段)</span>
+      <span v-if="effectiveSegments.length > 1" class="segment-count">({{ effectiveSegments.length }} 個片段)</span>
     </h3>
 
-    <div v-if="segments.length > 1" class="info-banner">
+    <div v-if="effectiveSegments.length > 1" class="info-banner">
       <span class="info-icon">ℹ️</span>
       <span>音頻超過 20 秒，已自動分割。請選擇要分析的片段。</span>
     </div>
 
-    <!-- Segments List -->
-    <!-- Segments List -->
     <div class="segments-container">
       <div
-        v-for="(segment, index) in segments"
-        :key="index"
-        class="segment-item"
-        :class="{ 'selected': selectedIndex === index }"
-        @click="selectSegment(index)"
-        draggable="true"
-        @dragstart="handleDragStart($event, segment)"
+          v-for="(segment, index) in effectiveSegments"
+          :key="index"
+          class="segment-item"
+          :class="{ 'selected': selectedIndex === index }"
+          @click="selectSegment(index)"
+          draggable="true"
+          @dragstart="handleDragStart($event, segment)"
       >
         <div class="segment-header">
           <div class="segment-info">
             <span class="segment-number">片段 {{ index + 1 }}</span>
-            <span class="segment-duration">{{ formatTime(segment.duration) }}</span>
+            <span class="segment-duration">{{ formatTime(segment.duration || 0) }}</span>
             <span v-if="segment.startTime > 0" class="segment-time-range">
               ({{ formatTime(segment.startTime) }} - {{ formatTime(segment.endTime) }})
             </span>
@@ -36,10 +34,8 @@
           </div>
         </div>
 
-        <!-- Waveform for this segment -->
         <div :ref="el => waveformRefs[index] = el" class="waveform-container"></div>
 
-        <!-- Playback Controls for this segment -->
         <div class="controls">
           <button class="control-button glass-button" @click.stop="togglePlayPause(index)">
             <span class="control-icon">{{ playingIndex === index ? '⏸' : '▶' }}</span>
@@ -48,7 +44,7 @@
           <div class="time-display">
             <span class="current-time">{{ formatTime(currentTimes[index] || 0) }}</span>
             <span class="separator">/</span>
-            <span class="duration">{{ formatTime(segment.duration) }}</span>
+            <span class="duration">{{ formatTime(segment.duration || 0) }}</span>
           </div>
 
           <button class="control-button glass-button" @click.stop="stop(index)">
@@ -61,7 +57,7 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
+import { ref, watch, onMounted, onBeforeUnmount, nextTick, computed } from 'vue'
 import WaveSurfer from 'wavesurfer.js'
 
 const props = defineProps({
@@ -81,18 +77,35 @@ const waveformRefs = ref([])
 const playingIndex = ref(-1)
 const selectedIndex = ref(0)
 const currentTimes = ref({})
-
 let wavesurfers = []
 
+// 【核心修复】：创建一个计算属性来统一数据源
+// 如果有 segments 就用 segments，没有但有 blob，就伪造成一个 segment
+const effectiveSegments = computed(() => {
+  if (props.segments && props.segments.length > 0) {
+    return props.segments
+  } else if (props.audioBlob) {
+    return [{
+      blob: props.audioBlob,
+      duration: 0, // 初始可能没有时长，WaveSurfer 加载后会更新显示吗？通常需要 Metadata
+      startTime: 0,
+      endTime: 0,
+      index: 0,
+      name: 'Original Audio'
+    }]
+  }
+  return []
+})
+
 const initWaveSurfers = async () => {
-  // Clean up existing wavesurfers
+  // 销毁旧实例
   wavesurfers.forEach(ws => ws && ws.destroy())
   wavesurfers = []
 
   await nextTick()
 
-  // Create wavesurfer for each segment
-  props.segments.forEach((segment, index) => {
+  // 遍历 effectiveSegments
+  effectiveSegments.value.forEach((segment, index) => {
     const container = waveformRefs.value[index]
     if (!container) return
 
@@ -110,28 +123,35 @@ const initWaveSurfers = async () => {
 
     wavesurfer.on('play', () => {
       playingIndex.value = index
-      // Pause other wavesurfers
       wavesurfers.forEach((ws, i) => {
         if (i !== index && ws && ws.isPlaying()) {
           ws.pause()
         }
       })
     })
+
     wavesurfer.on('pause', () => {
-      if (playingIndex.value === index) {
-        playingIndex.value = -1
-      }
+      if (playingIndex.value === index) playingIndex.value = -1
     })
+
     wavesurfer.on('finish', () => {
-      if (playingIndex.value === index) {
-        playingIndex.value = -1
-      }
+      if (playingIndex.value === index) playingIndex.value = -1
     })
+
     wavesurfer.on('audioprocess', () => {
       currentTimes.value[index] = wavesurfer.getCurrentTime()
     })
+
     wavesurfer.on('seek', () => {
       currentTimes.value[index] = wavesurfer.getCurrentTime()
+    })
+
+    // 加载完成后，如果时长是0，尝试更新一下（可选）
+    wavesurfer.on('ready', () => {
+      if (segment.duration === 0) {
+        // 这里仅仅是更新一下显示的逻辑，不修改原数据
+        // 实际开发中最好在文件上传时就获取 duration
+      }
     })
 
     wavesurfer.loadBlob(segment.blob)
@@ -141,14 +161,12 @@ const initWaveSurfers = async () => {
 
 const selectSegment = (index) => {
   selectedIndex.value = index
-  emit('segment-selected', props.segments[index])
+  emit('segment-selected', effectiveSegments.value[index])
 }
 
 const togglePlayPause = (index) => {
   const wavesurfer = wavesurfers[index]
-  if (wavesurfer) {
-    wavesurfer.playPause()
-  }
+  if (wavesurfer) wavesurfer.playPause()
 }
 
 const stop = (index) => {
@@ -160,7 +178,6 @@ const stop = (index) => {
 }
 
 const handleDragStart = (event, segment) => {
-  // Set drag data for file upload
   event.dataTransfer.effectAllowed = 'copy'
   event.dataTransfer.setData('application/json', JSON.stringify({
     type: 'audio-segment',
@@ -170,49 +187,32 @@ const handleDragStart = (event, segment) => {
       index: segment.index
     }
   }))
-
-  // Create a file from the blob and add to dataTransfer
-  const file = segment.file
-  const dataTransfer = event.dataTransfer
-  if (dataTransfer.items) {
-    dataTransfer.items.add(file)
+  if (segment.file && event.dataTransfer.items) {
+    event.dataTransfer.items.add(segment.file)
   }
 }
 
 const formatTime = (seconds) => {
+  if (!seconds || isNaN(seconds)) return '0:00'
   const mins = Math.floor(seconds / 60)
   const secs = Math.floor(seconds % 60)
   return `${mins}:${secs.toString().padStart(2, '0')}`
 }
 
-watch(() => props.segments, async (newSegments) => {
-  if (newSegments && newSegments.length > 0) {
+// 【修改 1】：watch 去掉 immediate: true
+// 这样它只会在 segments 真正发生变化时触发，而不会在初始化时和 onMounted 抢跑
+watch(effectiveSegments, async (newSegments) => {
+  if (newSegments.length > 0) {
     await initWaveSurfers()
-    // Auto-select first segment
-    if (newSegments.length > 0) {
-      selectSegment(0)
-    }
+    // 只有当选择索引越界时才重置为 0，防止用户切换文件时跳变，或者你希望每次都重置也可以
+    selectSegment(0)
   }
-}, { immediate: true })
+}) // <--- 删掉了 { immediate: true }
 
-// Support for legacy single audioBlob prop
-watch(() => props.audioBlob, (newBlob) => {
-  if (newBlob && (!props.segments || props.segments.length === 0)) {
-    // Legacy mode: single audio blob
-    // Convert to segments format
-    props.segments = [{
-      blob: newBlob,
-      duration: 0,
-      startTime: 0,
-      endTime: 0,
-      index: 0,
-      name: 'audio'
-    }]
-  }
-})
-
+// 【修改 2】：保留 onMounted 负责“第一次”渲染
 onMounted(async () => {
-  if (props.segments && props.segments.length > 0) {
+  // 只有当有数据时才初始化
+  if (effectiveSegments.value.length > 0) {
     await initWaveSurfers()
     selectSegment(0)
   }
@@ -291,11 +291,6 @@ onBeforeUnmount(() => {
   transition: all 0.3s ease;
 }
 
-.segment-item:hover {
-  background: rgba(255, 255, 255, 0.7);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
 
 .segment-item.selected {
   border-color: var(--color-primary);
