@@ -271,6 +271,15 @@ onBeforeUnmount(() => {
   padding: 1.5rem;
   text-align: center;
 }
+@media (max-aspect-ratio: 1/1) {
+  .stat-card{
+    padding:0.8rem;
+  }
+  .chart-container{
+    width: 96%;
+  }
+
+}
 
 .stat-label {
   font-size: 0.9rem;
@@ -286,10 +295,13 @@ onBeforeUnmount(() => {
 
 .chart-section {
   margin-top: 2rem;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
 }
 
 .chart-container {
-  width: 97%;
+  width: 80%;
   height: 400px;
   background: var(--glass-light);
   border-radius: var(--radius-lg);

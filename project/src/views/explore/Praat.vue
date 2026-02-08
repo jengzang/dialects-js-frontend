@@ -66,7 +66,8 @@
           />
 
           <!-- Start Analysis Button -->
-          <div v-if="audioFile && !jobId" class="action-section">
+<!--          <div v-if="audioFile && !jobId" class="action-section">-->
+          <div  class="action-section">
             <button
               class="start-button glass-button"
               @click="startAnalysis"
@@ -129,7 +130,7 @@
         />
       </div>
     </Transition>
-<!--  </div>-->
+  </div>
 </template>
 
 <script setup>
@@ -525,7 +526,12 @@ if (typeof window !== 'undefined') {
 }
 
 
-/* Tab Fade Transition */
+/* Tab Hidden (for v-show keep-alive) */
+.tab-hidden {
+  display: none !important;
+}
+
+/* Tab Fade Transition - No longer used with v-show */
 .tab-fade-enter-active,
 .tab-fade-leave-active {
   transition: opacity 0.3s ease, transform 0.3s ease;

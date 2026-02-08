@@ -1,5 +1,5 @@
 <template>
-  <div v-if="jobId" class="job-status-panel glass-panel">
+  <div v-if="jobId && isVisible" class="job-status-panel glass-panel">
     <h2 class="panel-title">任務狀態</h2>
 
     <!-- Status Display -->
@@ -40,30 +40,37 @@
 </template>
 
 <script setup>
-defineProps({
-  jobId: {
-    type: String,
-    default: null
-  },
-  status: {
-    type: String,
-    default: 'queued'
-  },
-  progress: {
-    type: Number,
-    default: 0
-  },
-  stage: {
-    type: String,
-    default: null
-  },
-  error: {
-    type: String,
-    default: null
-  }
+import { ref, watch, onUnmounted } from "vue"; // 必须导入 ref 和 onUnmounted
+
+const props = defineProps({
+  jobId: { type: String, default: null },
+  status: { type: String, default: 'queued' },
+  progress: { type: Number, default: 0 },
+  stage: { type: String, default: null },
+  error: { type: String, default: null }
 })
 
 defineEmits(['cancel'])
+const isVisible = ref(true)
+let timer = null
+
+// 2. 这里的监听要更健壮
+watch(() => props.status, (newStatus) => {
+  if (newStatus === 'completed' || newStatus === 'done') {
+    if (timer) clearTimeout(timer)
+    timer = setTimeout(() => {
+      isVisible.value = false
+    }, 1000)
+  } else {
+    // 如果任务 ID 变化或状态重置，确保面板重新出现
+    isVisible.value = true
+  }
+}, { immediate: true })
+
+// 3. 重要：组件卸载时清理定时器，防止报错
+onUnmounted(() => {
+  if (timer) clearTimeout(timer)
+})
 
 const getStatusIcon = (status) => {
   const icons = {
@@ -101,6 +108,7 @@ const getStageText = (stage) => {
   }
   return stages[stage] || stage
 }
+
 </script>
 
 <style scoped>
