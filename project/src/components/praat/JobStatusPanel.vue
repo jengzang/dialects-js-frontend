@@ -70,6 +70,7 @@ const getStatusIcon = (status) => {
     queued: '⏳',
     running: '⚙️',
     completed: '✅',
+    done: '✅',
     error: '❌',
     canceled: '🚫'
   }
@@ -81,6 +82,7 @@ const getStatusText = (status) => {
     queued: '排隊中',
     running: '分析中',
     completed: '已完成',
+    done: '已完成',
     error: '失敗',
     canceled: '已取消'
   }
@@ -103,31 +105,32 @@ const getStageText = (stage) => {
 
 <style scoped>
 .job-status-panel {
-  padding: 2rem;
-  margin-bottom: 1.5rem;
+  padding: 0.5rem 1rem;
+  margin-bottom: 0;
 }
 
 .panel-title {
-  font-size: 1.5rem;
+  font-size: 1.1rem;
   font-weight: 600;
-  margin-bottom: 1.5rem;
+  margin-bottom: 0.75rem;
   color: var(--color-text-primary);
 }
 
 .status-display {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
 }
 
 .status-badge {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
+  gap: 0.4rem;
+  padding: 0.5rem 1rem;
   border-radius: var(--radius-full);
   font-weight: 600;
+  font-size: 0.9rem;
   width: fit-content;
 }
 
@@ -142,7 +145,8 @@ const getStageText = (stage) => {
   animation: pulse 2s ease-in-out infinite;
 }
 
-.status-completed {
+.status-completed,
+.status-done {
   background: rgba(52, 199, 89, 0.2);
   color: #34c759;
 }
@@ -177,7 +181,7 @@ const getStageText = (stage) => {
 }
 
 .progress-container {
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
 }
 
 .progress-bar {

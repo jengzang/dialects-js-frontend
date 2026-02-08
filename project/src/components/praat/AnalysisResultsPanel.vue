@@ -8,20 +8,20 @@
       <div class="stats-grid">
         <div class="stat-card glass-panel-inner">
           <div class="stat-label">音頻時長</div>
-          <div class="stat-value">{{ results.duration?.toFixed(2) }} 秒</div>
+          <div class="stat-value">{{ results.meta?.duration_s?.toFixed(2) }} 秒</div>
         </div>
         <div class="stat-card glass-panel-inner">
           <div class="stat-label">採樣率</div>
-          <div class="stat-value">{{ results.sample_rate }} Hz</div>
+          <div class="stat-value">{{ results.meta?.sample_rate }} Hz</div>
         </div>
-        <div v-if="results.pitch_summary" class="stat-card glass-panel-inner">
-          <div class="stat-label">平均基頻</div>
-          <div class="stat-value">{{ results.pitch_summary.f0_mean?.toFixed(1) }} Hz</div>
+        <div v-if="results.summary?.intensity" class="stat-card glass-panel-inner">
+          <div class="stat-label">平均強度</div>
+          <div class="stat-value">{{ results.summary.intensity.mean_db?.toFixed(1) }} dB</div>
         </div>
-        <div v-if="results.pitch_summary" class="stat-card glass-panel-inner">
-          <div class="stat-label">基頻範圍</div>
+        <div v-if="results.summary?.intensity" class="stat-card glass-panel-inner">
+          <div class="stat-label">強度範圍</div>
           <div class="stat-value">
-            {{ results.pitch_summary.f0_min?.toFixed(1) }} - {{ results.pitch_summary.f0_max?.toFixed(1) }} Hz
+            {{ results.summary.intensity.min_db?.toFixed(1) }} - {{ results.summary.intensity.max_db?.toFixed(1) }} dB
           </div>
         </div>
       </div>
@@ -73,7 +73,10 @@ const chartContainer = ref(null)
 let chart = null
 
 const hasTimeSeriesData = computed(() => {
-  return props.results?.pitch_timeseries || props.results?.intensity_timeseries || props.results?.formant_timeseries
+  const ts = props.results?.timeseries
+  return (ts?.pitch_hz && ts.pitch_hz.length > 0) ||
+         (ts?.intensity_db && ts.intensity_db.length > 0) ||
+         (ts?.formants && Object.keys(ts.formants).length > 0)
 })
 
 const initChart = () => {
@@ -83,12 +86,13 @@ const initChart = () => {
 
   const series = []
   const yAxis = []
+  const ts = props.results.timeseries
 
   // Pitch series
-  if (props.results.pitch_timeseries) {
-    const pitchData = props.results.pitch_timeseries.map((point, idx) => [
-      props.results.pitch_timeseries_times?.[idx] || idx * 0.01,
-      point
+  if (ts.pitch_hz && ts.pitch_hz.length > 0) {
+    const pitchData = ts.pitch_hz.map((value, idx) => [
+      ts.time?.[idx] || idx * 0.01,
+      value
     ])
 
     series.push({
@@ -110,10 +114,10 @@ const initChart = () => {
   }
 
   // Intensity series
-  if (props.results.intensity_timeseries) {
-    const intensityData = props.results.intensity_timeseries.map((point, idx) => [
-      props.results.intensity_timeseries_times?.[idx] || idx * 0.01,
-      point
+  if (ts.intensity_db && ts.intensity_db.length > 0) {
+    const intensityData = ts.intensity_db.map((value, idx) => [
+      ts.time?.[idx] || idx * 0.01,
+      value
     ])
 
     series.push({
@@ -134,27 +138,29 @@ const initChart = () => {
     })
   }
 
-  // Formant series
-  if (props.results.formant_timeseries) {
+  // Formant series (if available)
+  if (ts.formants && typeof ts.formants === 'object') {
     const formantColors = ['#34c759', '#ff9500', '#5856d6']
     const formantNames = ['F1', 'F2', 'F3']
 
-    for (let i = 0; i < Math.min(3, props.results.formant_timeseries[0]?.length || 0); i++) {
-      const formantData = props.results.formant_timeseries.map((point, idx) => [
-        props.results.formant_timeseries_times?.[idx] || idx * 0.01,
-        point[i]
-      ])
+    Object.keys(ts.formants).forEach((key, i) => {
+      if (i < 3 && ts.formants[key] && ts.formants[key].length > 0) {
+        const formantData = ts.formants[key].map((value, idx) => [
+          ts.time?.[idx] || idx * 0.01,
+          value
+        ])
 
-      series.push({
-        name: formantNames[i],
-        type: 'line',
-        yAxisIndex: 0,
-        data: formantData,
-        smooth: true,
-        lineStyle: { color: formantColors[i], width: 2 },
-        showSymbol: false
-      })
-    }
+        series.push({
+          name: formantNames[i],
+          type: 'line',
+          yAxisIndex: 0,
+          data: formantData,
+          smooth: true,
+          lineStyle: { color: formantColors[i], width: 2 },
+          showSymbol: false
+        })
+      }
+    })
 
     if (yAxis.length === 0) {
       yAxis.push({
@@ -232,8 +238,9 @@ onBeforeUnmount(() => {
 
 <style scoped>
 .analysis-results-panel {
-  padding: 2rem;
+  padding: 1rem;
   margin-bottom: 1.5rem;
+  width:95%;
 }
 
 .panel-title {
@@ -282,7 +289,7 @@ onBeforeUnmount(() => {
 }
 
 .chart-container {
-  width: 100%;
+  width: 97%;
   height: 400px;
   background: var(--glass-light);
   border-radius: var(--radius-lg);
