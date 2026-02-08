@@ -1,5 +1,6 @@
 // utils/onlineTimeTracker.js
 import { reportOnlineTime } from './auth.js';
+import { WEB_BASE } from '@/env-config.js';
 
 const REPORT_INTERVAL = 10 * 60 * 1000; // 10分钟
 const INVISIBLE_THRESHOLD = 5 * 60 * 1000; // 5分钟
@@ -122,7 +123,6 @@ function handleBeforeUnload() {
 
     // 上报
     if (accumulatedTime > 0) {
-        const WEB_BASE = window.WEB_BASE || 'http://localhost:5000';
         const token = localStorage.getItem('access_token');
 
         if (token) {

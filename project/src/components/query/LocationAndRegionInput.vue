@@ -268,6 +268,8 @@ import {api} from '@/utils/auth.js'
 import RegionSelector from "@/components/query/RegionSelector.vue"
 import { userStore, setLocationDisabled } from '@/utils/store.js'
 import { LOCATION_LIMITS } from '@/config/constants.js'
+import { API_BASE } from '@/env-config.js'
+import { STATIC_REGION_TREE, top_yindian } from '@/config'
 // const API_BASE = window.API_BASE;
 // const MAP_TREE = STATIC_REGION_TREE;
 // const YINDIAN_TREE = top_yindian;
@@ -403,7 +405,7 @@ function fetchSuggestion() {
 
   const token = localStorage.getItem('ACCESS_TOKEN')
 
-  fetch(`${window.API_BASE}/batch_match?input_string=${encodeURIComponent(query)}`, {
+  fetch(`${API_BASE}/batch_match?input_string=${encodeURIComponent(query)}`, {
     headers: {
       'Content-Type': 'application/json',
       ...(token ? { Authorization: `Bearer ${token}` } : {})
@@ -676,7 +678,7 @@ function loadTreeFor(mode) {
       return filtered
     }
     if (!sessionStorage.getItem(CACHE_KEY)) {
-      fetch(`${window.API_BASE}/partitions`)
+      fetch(`${API_BASE}/partitions`)
           .then(res => res.json())
           .then(tree => {
             const filteredTree = filterTopLevelKeys(tree)

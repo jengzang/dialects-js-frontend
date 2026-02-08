@@ -3,7 +3,7 @@
       <div class="page-content-stack">
       <div class="page-footer">
         <h3 style="margin:0">搜索自定義特徵</h3>
-        <div class="help-icon" @click="openHelpModal" title="查看使用說明">?</div>
+        <div class="help-icon-head" @click="openHelpModal" title="查看使用說明">?</div>
         <div class="button-row" v-if="!userStore.isAuthenticated">
           <button class="enter-btn" @click="handleLogin">🔐 登錄</button>
         </div>
@@ -184,7 +184,7 @@
                 <ul class="help-list" style="margin-top: 8px;">
                   <li>📁 <strong>「分區」即文件夾：</strong>比如填入 <code>我的探店地圖</code>（「聲韻調」可留空）。</li>
                   <li>🏷️ <strong>「特徵」即分類：</strong>比如填入 <code>咖啡館</code>、<code>火鍋店</code> 或 <code>燒烤攤</code>。</li>
-                  <li>📍 <strong>「值」即標記：</strong>可以填入評分（如 <code>9.0</code>）或店名簡稱。</li>
+                  <li>📍 <strong>「值」即標記：</strong>可以填入評分（如<code>9分</code>）或店名簡稱。</li>
                 </ul>
                 <p style="font-size: 13px; color: #666; margin-top: 8px; font-style: italic;">
                   ✨ 這樣操作後，您只需在分區框填入「我的探店地圖」，搜索框搜尋「咖啡館」，地圖就會精確展示您標註過的所有咖啡店分佈。
@@ -663,7 +663,7 @@ const handleAddBatch = () => {
 }
 
 /* 幫助圖標 - 蘋果液態玻璃風格 */
-.help-icon {
+.help-icon,.help-icon-head{
   width: 24px;
   height: 24px;
   border-radius: 50%;
@@ -695,7 +695,7 @@ const handleAddBatch = () => {
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.help-icon:hover {
+.help-icon:hover,.help-icon-head:hover{
   background: linear-gradient(
     145deg,
     rgba(255, 255, 255, 1),
@@ -708,7 +708,7 @@ const handleAddBatch = () => {
   transform: scale(1.1);
 }
 
-.help-icon:active {
+.help-icon:active,.help-icon-head:active{
   transform: scale(1.05);
   box-shadow:
     inset 0 0 0.5px rgba(255, 255, 255, 0.3),

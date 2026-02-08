@@ -332,6 +332,7 @@ import {
 import { userStore } from '../utils/store.js'
 import { useRouter } from 'vue-router';
 import { manualReport } from '../utils/onlineTimeTracker.js'
+import { WEB_BASE } from '@/env-config.js'
 
 export default defineComponent({
   name: 'AuthPopup',
@@ -675,7 +676,7 @@ export default defineComponent({
     }
 
     const goToAdminPanel = () => {
-      window.location.href = window.WEB_BASE + '/admin';
+      window.location.href = WEB_BASE + '/admin';
     };
 
     const goToTableManager = () => {

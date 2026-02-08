@@ -216,6 +216,7 @@ import { ref , onMounted, onBeforeUnmount, computed} from 'vue'
 import {useRoute, useRouter} from 'vue-router'
 import {api, clearToken, getToken, initUserByToken, saveToken} from '../utils/auth.js'
 import { menuConfig } from '@/config/menuConfig.js'
+import { WEB_BASE } from '@/env-config.js'
 // import { userStore } from '../utils/store.js'
 const route = useRoute()
 const router = useRouter()
@@ -368,7 +369,7 @@ const handleMainClick = (item, key) => {
   if (item.path) {
     // 有路徑就導航
     if (item.external) {
-      window.location.href = window.WEB_BASE + '/detail/'
+      window.location.href = WEB_BASE + '/detail/'
     } else {
       router.push(item.path)
       isSidebarVisible.value = false

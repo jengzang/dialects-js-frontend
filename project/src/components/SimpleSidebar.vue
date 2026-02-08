@@ -138,6 +138,7 @@ import { useRouter } from 'vue-router';
 import {api, clearToken, getToken, initUserByToken} from '@/utils/auth.js';
 import {userStore} from "@/utils/store.js";
 import { menuConfig } from '@/config/menuConfig.js';
+import { WEB_BASE } from '@/env-config.js';
 
 const router = useRouter();
 const props = defineProps({
@@ -188,7 +189,7 @@ const handleMainClick = (item, key) => {
   if (item.path) {
     // 有路徑就導航
     if (item.external) {
-      window.location.href = window.WEB_BASE + '/detail/'
+      window.location.href = WEB_BASE + '/detail/'
     } else {
       router.push(item.path)
       closeSidebar()

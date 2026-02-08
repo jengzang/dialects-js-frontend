@@ -84,6 +84,7 @@
 <script setup>
 import { ref, computed, watch, nextTick } from 'vue'
 import { api } from '@/utils/auth.js'
+import { API_BASE } from '@/env-config.js'
 
 const props = defineProps({
   modelValue: {
@@ -202,7 +203,7 @@ function fetchSuggestion() {
 
   const token = localStorage.getItem('ACCESS_TOKEN')
 
-  fetch(`${window.API_BASE}/batch_match?input_string=${encodeURIComponent(query)}`, {
+  fetch(`${API_BASE}/batch_match?input_string=${encodeURIComponent(query)}`, {
     headers: {
       'Content-Type': 'application/json',
       ...(token ? { Authorization: `Bearer ${token}` } : {})

@@ -2,12 +2,11 @@
 import { api } from './auth.js'
 import { API_CONFIG } from '../config/constants.js'
 import { resultCache } from './store.js'
+import { column_values } from '@/config'
 
-// 假设 column_values 是全局变量，如果不是，需要作为参数传入
 export function buildReverseMap() {
     const map = {};
     const conflictSet = new Set();
-    if (typeof column_values === 'undefined') return { map, conflictSet };
     for (const [field, values] of Object.entries(column_values)) {
         for (const val of values) {
             if (!map[val]) {
@@ -22,13 +21,11 @@ export function buildReverseMap() {
 }
 
 export function parseFeatureString(featureStr) {
-    // ... (保留原有的 parseFeatureString 完整逻辑)
-    // 注意：原函数依赖 column_values，这里假设它在 window 上或你可以改为传参
     const matched_fields = {};
     const usedChars = new Set();
     const { map: reverseMap } = buildReverseMap();
-    const allFieldNames = Object.keys(column_values || {});
-    const allValues = Object.values(column_values || {}).flat();
+    const allFieldNames = Object.keys(column_values);
+    const allValues = Object.values(column_values).flat();
 
     const hasAnyValue = allValues.some(val => featureStr.includes(val));
     if (!hasAnyValue) {

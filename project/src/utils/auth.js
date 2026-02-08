@@ -1,5 +1,6 @@
 // utils/auth.js
 import { userStore } from './store.js'
+import { WEB_BASE } from '@/env-config.js'
 
 // ==========================================
 // 1. 用户信息缓存管理 (新增)
@@ -192,8 +193,6 @@ export async function refreshAccessToken() {
     }
 
     try {
-        const WEB_BASE = window.WEB_BASE || 'http://localhost:5000';
-
         const res = await fetch(WEB_BASE + '/auth/refresh', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -243,8 +242,6 @@ export async function api(path, options = {}) {
         showError = true,      // 是否自动显示错误
         responseType = 'auto'  // 响应类型
     } = options;
-
-    const WEB_BASE = window.WEB_BASE || 'http://localhost:5000';
 
     let token = getToken();
 
