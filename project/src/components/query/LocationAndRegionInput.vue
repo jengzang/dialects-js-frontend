@@ -91,8 +91,8 @@
               v-model="regionInputValue"
               @input="onRegionInput"
               @blur="onRegionBlur"
-              placeholder="輸入分區名稱，空格分隔（如：客家話 閩南片）"
-              class="region-textarea"
+              placeholder="輸入分區名稱，空格分隔（如：粵語）"
+              class="textarea"
               rows="3"
           ></textarea>
 
@@ -468,7 +468,7 @@ const flattenRegionTree = (tree, parentPath = []) => {
     results.push({
       name: key,
       path: currentPath.join('-'),
-      display: currentPath.join(' > ')
+      display: currentPath.join('·')
     })
 
     if (typeof value === 'object' && !Array.isArray(value)) {
@@ -482,7 +482,7 @@ const flattenRegionTree = (tree, parentPath = []) => {
           results.push({
             name: item,
             path: leafPath.join('-'),
-            display: leafPath.join(' > ')
+            display: leafPath.join('·')
           })
         }
       })
@@ -1775,27 +1775,6 @@ defineExpose({
   flex: 1;
 }
 
-.region-textarea {
-  width: 100%;
-  min-height: 60px;
-  padding: 8px 12px;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
-  font-size: 14px;
-  resize: vertical;
-  background: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  transition: all 0.2s ease;
-  box-sizing: border-box;
-}
-
-.region-textarea:focus {
-  outline: none;
-  border-color: #007aff;
-  box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
-}
-
 /* Suggestions dropdown for region input */
 .suggestions-dropdown {
   position: absolute !important;
@@ -1826,7 +1805,7 @@ defineExpose({
   cursor: pointer;
   border-radius: 6px;
   transition: background-color 0.2s ease;
-  gap: 12px;
+  gap: 6px;
 }
 
 .suggestion-item:hover {

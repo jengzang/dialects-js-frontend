@@ -15,7 +15,7 @@
     <!-- Toolbar with batch operations -->
     <div class="toolbar">
       <div class="toolbar-left">
-        <button @click="showBatchCreateModal = true" class="btn-primary">
+        <button @click="openBatchCreateModal" class="btn-primary">
           ➕ 批量添加
         </button>
         <button
@@ -40,7 +40,7 @@
         <input
           v-model="searchQuery"
           @input="handleSearch"
-          placeholder="🔍 搜索（簡稱、音典分區、特徵、值...）"
+          placeholder="🔍 搜索（簡稱、分區、特徵、值...）"
           class="search-input"
         />
       </div>
@@ -67,7 +67,7 @@
               />
             </th>
             <th>簡稱</th>
-            <th>音典分區</th>
+            <th>分區</th>
             <th>經緯度</th>
             <th>聲韻調</th>
             <th>特徵</th>
@@ -209,7 +209,7 @@
             <button @click="closeBatchCreateModal" class="modal-close">×</button>
           </div>
           <div class="modal-body">
-            <p class="hint">💡 提示：可以直接從 Excel 複製粘貼到表格中（最多 50 條）</p>
+            <p class="hint">💡 提示：可以直接從Excel複製粘貼（單次最多50條）</p>
             <div class="batch-table-controls">
               <button @click="addBatchRow" class="btn-add-row">➕ 添加行</button>
               <button @click="clearBatchRows" class="btn-clear">🗑️ 清空</button>
@@ -274,7 +274,7 @@
               <input v-model="editingRecord.簡稱" />
             </div>
             <div class="form-group">
-              <label>音典分區 *</label>
+              <label>分區 *</label>
               <input v-model="editingRecord.音典分區" />
             </div>
             <div class="form-group">
@@ -440,11 +440,28 @@ const fetchData = async () => {
   loading.value = true
   try {
     const response = await api('/user/custom/all')
+
+    // 確保數據存在，否則給予空數組
     dataList.value = response.data || []
     totalCount.value = response.total || 0
-    showSuccess('數據加載成功')
+
+    // 💡 優化：只有在真的有數據時才提示成功，沒數據時保持靜默（由 UI 顯示“暫無數據”）
+    if (dataList.value.length > 0) {
+      showSuccess('數據加載成功')
+    }
+    else{
+      showWarning('當前用戶暫無數據，請先添加')
+    }
   } catch (error) {
+    // 發生錯誤時，清空列表以觸發 UI 的空狀態顯示
+    dataList.value = []
+    totalCount.value = 0
     showError('加載失敗：' + error.message)
+
+    // 如果是 401/403 等權限問題，自動跳回登錄頁
+    if (error.message.includes('401') || error.message.includes('登錄')) {
+      setTimeout(() => router.replace('/auth'), 1500)
+    }
   } finally {
     loading.value = false
   }
@@ -494,6 +511,14 @@ const submitEdit = async () => {
     await fetchData()
   } catch (error) {
     showError('更新失敗：' + error.message)
+  }
+}
+
+const openBatchCreateModal = () => {
+  showBatchCreateModal.value = true
+  // 添加一個默認行，讓用戶知道可以在哪裡粘貼數據
+  if (batchRows.value.length === 0) {
+    addBatchRow()
   }
 }
 
@@ -567,7 +592,7 @@ const submitBatchCreate = async () => {
   }))
 
   if (data.length === 0) {
-    showWarning('請輸入有效數據（必填項：簡稱、音典分區、經緯度、特徵、值）')
+    showWarning('請輸入有效數據（必填項：簡稱、分區、經緯度、特徵、值）')
     return
   }
 
@@ -625,7 +650,7 @@ const submitBatchEdit = async () => {
   const validRows = validBatchEditRows.value
 
   if (validRows.length === 0) {
-    showWarning('請輸入有效數據（必填項：簡稱、音典分區、經緯度、特徵、值）')
+    showWarning('請輸入有效數據（必填項：簡稱、分區、經緯度、特徵、值）')
     return
   }
 
@@ -1294,6 +1319,7 @@ onMounted(() => {
     padding: 16px;
     flex-direction: column;
     align-items: stretch;
+    gap:5px;
   }
 
   .header-left {
@@ -1327,7 +1353,6 @@ onMounted(() => {
     gap: 12px;
     width: 100%;
     font-size: 14px;
-    margin-top: 8px;
   }
 
   .toolbar {
@@ -1481,6 +1506,7 @@ onMounted(() => {
 
   .page-header {
     padding: 12px;
+    gap:5px;
   }
 
   .header-left {
@@ -1512,7 +1538,7 @@ onMounted(() => {
   }
 
   .toolbar-left button {
-    padding: 10px;
+    padding: 6px 10px;
     font-size: 12px;
   }
 

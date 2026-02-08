@@ -10,6 +10,7 @@ import ExploreEntry from "@/views/ExploreEntry.vue";
 import IntroLayout from "@/layouts/IntroLayout.vue";
 import { h, computed } from 'vue'
 import { useRoute } from 'vue-router'
+import {userStore} from "@/utils/store.js";
 
 // 内联定义 intro 动态组件
 const IntroEntry = {
@@ -67,7 +68,8 @@ const routes = [
     {
         path: '/auth/data',
         component: UserDataPage,
-        meta: { title: '方音圖鑑 - 個人數據管理' }
+        meta: { title: '方音圖鑑 - 個人數據管理' },
+
     },
 
     // 可選：兜底導回首頁（避免 404）
@@ -133,6 +135,15 @@ router.beforeEach((to, from, next) => {
     if (to.path === '/explore') {
         const tab = to.query.page; // 获取 `tab` 参数
         title = ExploreTitleMap[tab] || '方音圖鑑'; // 根据 `tab` 获取对应的标题，如果没有匹配到则使用默认标题
+    }
+
+    // 1. 登錄守衛邏輯
+    if (to.path === '/auth/data') {
+        // 如果未登錄，直接攔截並跳轉到登錄頁
+        if (!userStore.isAuthenticated) {
+            showWarningToast('未授權訪問，跳回登錄頁');
+            return next({ path: '/auth', replace: true });
+        }
     }
 
     // 设置页面标题

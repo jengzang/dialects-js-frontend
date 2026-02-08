@@ -3,6 +3,7 @@
       <div class="page-content-stack">
       <div class="page-footer">
         <h3 style="margin:0">搜索自定義特徵</h3>
+        <div class="help-icon" @click="openHelpModal" title="查看使用說明">?</div>
         <div class="button-row" v-if="!userStore.isAuthenticated">
           <button class="enter-btn" @click="handleLogin">🔐 登錄</button>
         </div>
@@ -17,7 +18,19 @@
 
         <!-- 特征搜索输入框 -->
         <div class="feature-search-container">
-          <label for="featureSearch" class="query-label">特徵搜索</label>
+          <div class="label-row">
+            <label for="featureSearch" class="query-label">特徵搜索</label>
+
+            <span v-if="!userStore.isAuthenticated" class="data-count-badge warning">
+              🔒 登錄用戶方可添加個人數據
+            </span>
+            <span v-else-if="userTotalCount === 0" class="data-count-badge hint">
+              📝 請先點擊下方按鈕添加數據
+            </span>
+            <span v-else class="data-count-badge success">
+              📊 您共有 {{ userTotalCount }} 條個人數據
+            </span>
+          </div>
           <div class="search-input-wrapper">
             <input
               id="featureSearch"
@@ -70,7 +83,7 @@
 
         <!-- 分隔线 -->
         <div class="divider">
-          <span>添加新的自定義數據</span>
+          <span> 添加新的自定義數據 </span>
         </div>
 
         <!-- 使用说明链接 -->
@@ -138,29 +151,52 @@
       <Transition name="fade-scale">
         <div v-if="isHelpModalOpen" class="glass-modal-overlay" @click.self="closeHelpModal">
           <div class="glass-card help-modal">
-            <button class="close-btn" @click="closeHelpModal">&times;</button>
+            <button class="close-btn" style="position: sticky;margin-left: auto" @click="closeHelpModal">&times;</button>
             <h3 class="modal-title">自定義數據使用說明</h3>
 
             <div class="help-content">
               <div class="help-section">
-                <h4 class="section-title">📋 功能說明</h4>
+                <h4 class="section-title">🌟 功能簡介</h4>
                 <ul class="help-list">
-                  <li>🧩 您可以自由添加點、設置該點對應的特徵</li>
-                  <li>🖌️ 網站會根據特徵自動分配顏色</li>
-                  <li>👤 您將創建的是僅屬於您的數據，故需要登錄</li>
-                  <li>🤝 本站承諾：不會洩漏您的個人數據</li>
+                  <li><strong>專屬空間：</strong> 這是您的私有數據庫，僅在登錄後可見，數據絕對保密。</li>
+                  <li><strong>智能繪圖：</strong> 系統會根據您填寫的「特徵」自動分類顏色，並將「值」標註在地圖點上。</li>
                 </ul>
               </div>
 
-              <div class="help-section">
-                <h4 class="section-title">📝 添加數據步驟</h4>
+              <div class="help-section" style=" border-left: 4px solid #007aff;">
+                <h4 class="section-title">🎨 地圖填寫指南</h4>
                 <ul class="help-list">
-                  <li><strong>點擊下方按鈕</strong> 右側將彈出一個面板</li>
-                  <li>您需在面板中填入簡稱、分區、聲韻調、特徵、值</li>
-                  <li>"聲韻調"是指分析的"聲母/韻母/聲調"</li>
-                  <li>"特徵"是指分析的類別，例如"流攝"</li>
-                  <li>"值"是顯示在地圖上的，例如"iu"</li>
-                  <li>點擊地圖即可自動填入經緯度</li>
+                  <li><strong>【特徵】</strong>：數據的<strong>分類方式</strong>（如：填入 `流攝`，搜索流攝時即可展示該點）。</li>
+                  <li><strong>【值】</strong>：在地圖圓點上顯示的<strong>符號</strong>（如：填入 `iu`，地圖點上就顯示 `iu`）。</li>
+                  <li><strong>【聲韻調】</strong>：值所屬的（聲/韻/調），用於基礎分類</li>
+                  <li><strong>【簡稱】</strong>：數據的<strong>地點名稱</strong>（如：`陽春`）。</li>
+                  <li><strong>【分區】</strong>：數據的<strong>方言分區</strong>（如：`粵語-高陽片`）。</li>
+<!--                  <li>💡 小貼士：如果你不是在做方言分區，可以把「分區」當作<strong>「文件夾」</strong>，「聲韻調」留空。比如「分區」填入"探店地圖",-->
+<!--                    「特徵」填入“咖啡館”“火鍋店”“燒烤攤”等，以後搜索即可分別展示“咖啡館”“火鍋店”“燒烤攤”的地圖分佈</li>-->
+                </ul>
+              </div>
+
+              <div class="help-section" style=" border-left: 4px solid #007aff;">
+                <h4 class="section-title">💡 進階小貼士：日常應用</h4>
+                <p style="font-size: 13px; line-height: 1.6; color: #444; margin: 0;">
+                  如果您不是在做方言研究，可以把這套系統當作您的<strong>「私人生活地圖」</strong>：
+                </p>
+                <ul class="help-list" style="margin-top: 8px;">
+                  <li>📁 <strong>「分區」即文件夾：</strong>比如填入 <code>我的探店地圖</code>（「聲韻調」可留空）。</li>
+                  <li>🏷️ <strong>「特徵」即分類：</strong>比如填入 <code>咖啡館</code>、<code>火鍋店</code> 或 <code>燒烤攤</code>。</li>
+                  <li>📍 <strong>「值」即標記：</strong>可以填入評分（如 <code>9.0</code>）或店名簡稱。</li>
+                </ul>
+                <p style="font-size: 13px; color: #666; margin-top: 8px; font-style: italic;">
+                  ✨ 這樣操作後，您只需在分區框填入「我的探店地圖」，搜索框搜尋「咖啡館」，地圖就會精確展示您標註過的所有咖啡店分佈。
+                </p>
+              </div>
+
+              <div class="help-section" style=" border-left: 4px solid #007aff;">
+                <h4 class="section-title">📍 添加數據步驟</h4>
+                <ul class="help-list">
+                  <li><strong>1. 選擇模式：</strong> 「逐條添加」適合精確輸入，「批量添加」支持從 Excel 直接複製粘貼。</li>
+                  <li><strong>2. 獲取坐標：</strong> 「逐條添加」無需手動查詢！在面板打開時，<strong>直接點擊地圖上的目標位置</strong>，經緯度會自動填充。</li>
+                  <li><strong>3. 提交保存：</strong> 填寫完畢後點擊提交，數據將永久保存至您的個人數據庫中。</li>
                 </ul>
               </div>
             </div>
@@ -199,6 +235,8 @@ const buttonState = uiStore.buttonStates.custom
 const isDisabled = isCustomButtonDisabled
 const showSuggestions = ref(false)
 const featureDropdownEl = ref(null)
+// 數據總量
+const userTotalCount = ref(0)
 
 // 同步 selectedFeature 到 store
 watch(selectedFeature, (newVal) => {
@@ -434,9 +472,23 @@ const onClickOutside = (event) => {
   }
 }
 
+const fetchUserTotalCount = async () => {
+  if (!userStore.isAuthenticated) return
+  try {
+    // 不帶任何參數請求，獲取所有個人記錄
+    const response = await api('/user/custom/all')
+    if (Array.isArray(response.data)) {
+      userTotalCount.value = response.data.length
+    }
+  } catch (error) {
+    console.error('獲取數據總量失敗:', error)
+  }
+}
+
 onMounted(() => {
   checkMobile()
   document.addEventListener('click', onClickOutside)
+  fetchUserTotalCount() // 進入頁面獲取總量
 })
 
 onBeforeUnmount(() => {
@@ -545,14 +597,6 @@ const handleAddBatch = () => {
   position: relative;
 }
 
-.query-label {
-  display: block;
-  font-size: 14px;
-  font-weight: 600;
-  color: #333;
-  margin-bottom: 6px;
-  text-align: center;
-}
 
 /* 搜索输入框包装器 */
 .search-input-wrapper {
@@ -804,7 +848,6 @@ const handleAddBatch = () => {
   color: #353535;
   font-weight: bold;
   font-size: 17px;
-  background: white;
   position: relative;
   z-index: 1;
 }
@@ -912,6 +955,58 @@ const handleAddBatch = () => {
 
   .help-modal {
     padding: 20px;
+  }
+}
+/* 新增：標籤行布局 */
+.label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+  padding: 0 4px;
+}
+
+.query-label {
+  margin-bottom: 0; /* 覆蓋原有 margin */
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+}
+
+/* 數據量徽章樣式 */
+.data-count-badge {
+  font-size: 11px;
+  padding: 2px 10px;
+  border-radius: 20px;
+  font-weight: 500;
+  border: 1px solid transparent;
+  transition: all 0.3s ease;
+}
+/* 未登錄：橘紅色系 */
+.data-count-badge.warning {
+  color: #ff9500;
+  background: rgba(255, 149, 0, 0.1);
+  border-color: rgba(255, 149, 0, 0.2);
+}
+
+/* 暫無數據：灰色系 */
+.data-count-badge.hint {
+  color: #8e8e93;
+  background: rgba(142, 142, 147, 0.1);
+  border-color: rgba(142, 142, 147, 0.2);
+}
+
+/* 有數據：藍色系 */
+.data-count-badge.success {
+  color: #007aff;
+  background: rgba(0, 122, 255, 0.1);
+  border-color: rgba(0, 122, 255, 0.2);
+}
+
+/* 適配移動端 */
+@media (max-aspect-ratio: 1/1) {
+  .label-row {
+    flex-direction: row; /* 移動端也保持一行，若文字太擁擠可改為 column */
   }
 }
 </style>
