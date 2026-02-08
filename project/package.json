@@ -18,9 +18,11 @@
   },
   "dependencies": {
     "@vueuse/core": "^14.1.0",
+    "echarts": "^5.6.0",
     "maplibre-gl": "^5.16.0",
     "opencc-js": "^1.0.5",
     "vue-router": "^4.5.1",
+    "wavesurfer.js": "^7.12.1",
     "xlsx": "^0.18.5"
   }
 }

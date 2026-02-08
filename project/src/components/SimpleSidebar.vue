@@ -366,7 +366,7 @@ onBeforeUnmount(() => {
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  padding: 15px 0;
+  padding: 15px 0 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.3);
 }
 
@@ -405,7 +405,7 @@ onBeforeUnmount(() => {
     gap: 15px;
   }
   .sidebar-content ul {
-    gap: 10px;
+    gap: 8px;
   }
   .title-img {
     height: 6dvh;
@@ -752,6 +752,7 @@ onBeforeUnmount(() => {
 @media (max-aspect-ratio: 1/1) {
   .sidebar-content li {
     font-size: 1.1rem;
+    padding: 3px 15px;
   }
 }
 

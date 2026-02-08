@@ -56,6 +56,10 @@
   --text-white: #fff;
   --text-gray: #575757;
 
+  /* Aliases for consistency */
+  --color-text-primary: #1d1d1f;
+  --color-text-secondary: #86868b;
+
   /* 背景色 */
   --bg-body: #e0e6f6;
   --bg-white: #ffffff;
@@ -843,6 +847,62 @@ textarea:focus {
 
 /* 过渡动画 */
 .transition { transition: all 0.2s ease; }
+
+/* ========================================
+   Glass Morphism Components
+   ======================================== */
+
+/* Glass Panel - Main container with glass effect */
+.glass-panel {
+  background: var(--glass-medium);
+  backdrop-filter: blur(40px) saturate(180%);
+  -webkit-backdrop-filter: blur(40px) saturate(180%);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-glass);
+  transition: all 0.3s ease;
+}
+
+.glass-panel:hover {
+  box-shadow: var(--shadow-glass-hover);
+}
+
+/* Glass Panel Inner - Nested glass effect */
+.glass-panel-inner {
+  background: var(--glass-light);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--glass-border-weak);
+  transition: all 0.3s ease;
+}
+
+/* Glass Button - Interactive button with glass effect */
+.glass-button {
+  background: var(--glass-light);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--glass-border-weak);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.glass-button:hover:not(:disabled) {
+  background: var(--glass-medium);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-glass-hover);
+}
+
+.glass-button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.glass-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .transition-fast { transition: all 0.15s ease; }
 .transition-slow { transition: all 0.3s ease; }
 

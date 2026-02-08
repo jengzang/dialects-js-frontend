@@ -750,7 +750,7 @@ onBeforeUnmount(() => {
     gap:15px;
   }
   .sidebar-content ul{
-    gap: 12px;
+    gap: 10px;
   }
 }
 
@@ -1127,6 +1127,7 @@ onBeforeUnmount(() => {
   }
   .sidebar-content li{
     font-size: 1.1rem;
+    padding: 4px 15px;
   }
 }
 
