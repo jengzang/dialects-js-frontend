@@ -40,6 +40,9 @@
         <button @click="clearAllRegions" class="btn-clear glass-button">
           🗑️ 清除全部
         </button>
+        <button v-if="manualRegions.length > 0" @click="resetToOriginal" class="btn-reset glass-button">
+          🔄 恢復原始
+        </button>
 <!--        <button @click="autoSegment" class="btn-auto glass-button">-->
 <!--          ✂️ 自動分段(10s)-->
 <!--        </button>-->
@@ -132,6 +135,9 @@
           <div class="segment-header">
             <div class="segment-info">
               <span class="segment-number">片段 {{ index + 1 }}</span>
+              <span class="segment-badge" :class="`badge-${segment.origin || 'unknown'}`">
+                {{ getSegmentBadgeText(segment.origin) }}
+              </span>
               <span class="segment-duration">
                 {{ formatTime(realDurations[index] || segment.duration || 0) }}
               </span>
@@ -230,6 +236,16 @@ const effectiveSegments = computed(() => {
   }
   return []
 })
+
+// Helper function to get segment badge text
+const getSegmentBadgeText = (origin) => {
+  const badges = {
+    'original': '原始音頻',
+    'auto-split': '自動分段',
+    'manual': '手動分段'
+  }
+  return badges[origin] || '未知'
+}
 
 // Helper to set region waveform refs
 const setRegionWaveformRef = (regionId, el) => {
@@ -634,6 +650,13 @@ const clearAllRegions = () => {
   emitManualSegments()
 }
 
+// Reset to original segments
+const resetToOriginal = () => {
+  clearAllRegions()
+  // This will trigger emitManualSegments with empty array
+  // which will restore original segments in parent
+}
+
 // Auto segment
 const autoSegment = () => {
   clearAllRegions()
@@ -676,7 +699,8 @@ const emitManualSegments = () => {
       startTime: region.start,
       endTime: region.end,
       index: index,
-      name: fileName
+      name: fileName,
+      origin: 'manual'  // Tag as manual segment
     }
   })
 
@@ -909,6 +933,30 @@ onBeforeUnmount(() => {
   font-size: 0.9rem;
 }
 
+.segment-badge {
+  padding: 0.15rem 0.4rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: white;
+}
+
+.badge-original {
+  background: #34c759;  /* Green */
+}
+
+.badge-auto-split {
+  background: #007aff;  /* Blue */
+}
+
+.badge-manual {
+  background: #ff9500;  /* Orange */
+}
+
+.badge-unknown {
+  background: #8e8e93;  /* Gray */
+}
+
 .segment-duration {
   font-size: 0.85rem;
   color: var(--color-primary);
@@ -1105,6 +1153,16 @@ onBeforeUnmount(() => {
 
 .btn-clear:hover {
   background: #cc0000;
+  transform: translateY(-2px);
+}
+
+.btn-reset {
+  background: var(--color-secondary);
+  color: white;
+}
+
+.btn-reset:hover {
+  background: #3da35d;
   transform: translateY(-2px);
 }
 

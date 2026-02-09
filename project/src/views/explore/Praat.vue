@@ -77,6 +77,7 @@
 
           <!-- Audio Input -->
           <AudioInputPanel
+            :selected-segment="selectedSegment"
             @file-selected="handleFileSelected"
             @segments-ready="handleSegmentsReady"
           />
@@ -255,6 +256,10 @@ const audioBlob = ref(null)
 const audioSegments = ref([])
 const selectedSegment = ref(null)
 
+// Segment preservation state
+const originalSegments = ref([])  // Store first uploaded segments
+const segmentOriginMode = ref(null)  // 'original' | 'auto-split' | null
+
 // Upload state
 const isUploading = ref(false)
 const uploadId = ref(null)
@@ -336,6 +341,19 @@ const handleFileSelected = (file, blob) => {
   selectedSegment.value = null
   showPreview.value = true
 
+  // Store as original segment (single file upload)
+  originalSegments.value = [{
+    file: file,
+    blob: blob,
+    duration: 0,  // Will be updated by WaveSurfer
+    startTime: 0,
+    endTime: 0,
+    index: 0,
+    name: file.name,
+    origin: 'original'
+  }]
+  segmentOriginMode.value = 'original'
+
   // Reset previous analysis
   jobId.value = null
   jobStatus.value = 'queued'
@@ -355,6 +373,10 @@ const handleSegmentsReady = (segments) => {
   selectedSegment.value = segments[0] // Auto-select first segment
   showPreview.value = true
 
+  // Store as original segments (auto-split)
+  originalSegments.value = [...segments]
+  segmentOriginMode.value = 'auto-split'
+
   // Reset previous analysis
   jobId.value = null
   jobStatus.value = 'queued'
@@ -369,17 +391,38 @@ const handleSegmentsReady = (segments) => {
 
 const handleManualSegmentsReady = (segments) => {
   if (segments.length === 0) {
-    // No segments, clear everything
-    audioSegments.value = []
-    audioFile.value = null
-    selectedSegment.value = null
+    // User cleared all manual segments - restore original
+    if (originalSegments.value.length > 0) {
+      audioSegments.value = [...originalSegments.value]
+      audioFile.value = originalSegments.value[0].file
+      selectedSegment.value = originalSegments.value[0]
+
+      // Restore audioBlob if it was a single file upload
+      if (segmentOriginMode.value === 'original') {
+        audioBlob.value = originalSegments.value[0].blob
+      }
+    } else {
+      audioSegments.value = []
+      audioFile.value = null
+      selectedSegment.value = null
+    }
     return
   }
 
-  // Update segments
-  audioSegments.value = segments
-  audioFile.value = segments[0].file // Set first segment as current file
-  selectedSegment.value = segments[0]
+  // Check if original should be preserved
+  const hasOriginalSegment = segmentOriginMode.value === 'original'
+
+  if (hasOriginalSegment) {
+    // Preserve original + add manual segments
+    const originalSeg = originalSegments.value[0]
+    audioSegments.value = [originalSeg, ...segments]
+  } else {
+    // Replace auto-split segments with manual segments
+    audioSegments.value = segments
+  }
+
+  audioFile.value = audioSegments.value[0].file
+  selectedSegment.value = audioSegments.value[0]
 
   // Reset previous analysis
   jobId.value = null

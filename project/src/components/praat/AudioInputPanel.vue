@@ -47,10 +47,10 @@
     </div>
 
     <!-- Selected File Info -->
-    <div v-if="selectedFile" class="file-info glass-panel-inner">
+    <div v-if="displayFile" class="file-info glass-panel-inner">
       <div class="file-details">
-        <span class="file-name">📁 {{ selectedFile.name }}</span>
-        <span class="file-size">{{ formatFileSize(selectedFile.size) }}</span>
+        <span class="file-name">📁 {{ displayFile.name }}</span>
+        <span class="file-size">{{ formatFileSize(displayFile.size) }}</span>
       </div>
       <button class="clear-button" @click="clearFile">✕</button>
     </div>
@@ -58,8 +58,15 @@
 </template>
 
 <script setup>
-import { ref, onBeforeUnmount } from 'vue'
+import { ref, computed, onBeforeUnmount } from 'vue'
 import { showError } from '@/utils/message.js'
+
+const props = defineProps({
+  selectedSegment: {
+    type: Object,
+    default: null
+  }
+})
 
 const emit = defineEmits(['file-selected', 'segments-ready'])
 
@@ -69,6 +76,14 @@ const isProcessing = ref(false)
 const selectedFile = ref(null)
 const recordingTime = ref(0)
 const fileInput = ref(null)
+
+// Computed property for display file (priority: selectedSegment > local selectedFile)
+const displayFile = computed(() => {
+  if (props.selectedSegment && props.selectedSegment.file) {
+    return props.selectedSegment.file
+  }
+  return selectedFile.value
+})
 
 let mediaRecorder = null
 let audioChunks = []
@@ -164,7 +179,8 @@ const checkAndSplitAudio = async (file) => {
             startTime: 0,
             endTime: duration,
             index: 0,
-            name: file.name
+            name: file.name,
+            origin: 'original'  // Tag as original segment
           }])
         } else {
           // Split into segments
@@ -229,7 +245,8 @@ const splitAudioBuffer = async (audioBuffer, originalFile) => {
       startTime: startTime,
       endTime: endTime,
       index: i,
-      name: fileName
+      name: fileName,
+      origin: 'auto-split'  // Tag as auto-split segment
     })
   }
 
