@@ -10,7 +10,7 @@
 
     <div class="page-header">
       <h1 class="page-title">Praat 聲學分析</h1>
-      <p class="page-description">（還沒開發完，可以先試試）上傳音頻或錄音，進行專業的聲學特徵分析</p>
+      <p class="page-description">上傳音頻或錄音，進行聲學特徵分析</p>
     </div>
 
     <!-- Tab Navigation -->
@@ -537,6 +537,12 @@ if (typeof window !== 'undefined') {
   font-size: 1.1rem;
   margin:0;
   color: var(--color-text-secondary);
+}
+/* 当设备处于竖屏状态时 */
+@media (orientation: portrait) {
+  .page-description {
+    display: none;
+  }
 }
 
 /* Tab Navigation - Floating Left */

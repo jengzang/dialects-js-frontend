@@ -28,24 +28,24 @@
     </div>
 
     <!-- Tone Features (Single Mode) -->
-    <div v-if="results.tone_features" class="summary-section">
+    <div v-if="results.units?.tone_features" class="summary-section">
       <h3 class="section-title">調值特徵</h3>
       <div class="stats-grid">
         <div class="stat-card glass-panel-inner">
           <div class="stat-label">起始基頻</div>
-          <div class="stat-value">{{ results.tone_features.f0_start?.toFixed(1) }} Hz</div>
+          <div class="stat-value">{{ results.units?.tone_features.f0_start?.toFixed(1) }} Hz</div>
         </div>
         <div class="stat-card glass-panel-inner">
           <div class="stat-label">結束基頻</div>
-          <div class="stat-value">{{ results.tone_features.f0_end?.toFixed(1) }} Hz</div>
+          <div class="stat-value">{{ results.units?.tone_features.f0_end?.toFixed(1) }} Hz</div>
         </div>
         <div class="stat-card glass-panel-inner">
           <div class="stat-label">基頻斜率</div>
-          <div class="stat-value">{{ results.tone_features.f0_slope?.toFixed(2) }}</div>
+          <div class="stat-value">{{ results.units?.tone_features.f0_slope?.toFixed(2) }}</div>
         </div>
         <div class="stat-card glass-panel-inner">
           <div class="stat-label">五度標調</div>
-          <div class="stat-value">{{ results.tone_features.contour_5pt || 'N/A' }}</div>
+          <div class="stat-value">{{ results.units?.tone_features.contour_5pt || 'N/A' }}</div>
         </div>
       </div>
     </div>
@@ -72,43 +72,43 @@
     </div>
 
     <!-- Voice Quality Section -->
-    <div v-if="results.voice_quality" class="voice-quality-section">
+    <div v-if="results.summary?.voice_quality" class="voice-quality-section">
       <h3 class="section-title">嗓音質量評估</h3>
       <div class="quality-grid">
         <!-- HNR Gauge -->
-        <div class="quality-card glass-panel-inner">
+        <div v-if="results.summary?.voice_quality.hnr" class="quality-card glass-panel-inner">
           <div class="quality-label">諧噪比 (HNR)</div>
-          <div class="quality-value" :class="getHnrClass(results.voice_quality.hnr_mean)">
-            {{ results.voice_quality.hnr_mean?.toFixed(1) }} dB
+          <div class="quality-value" :class="getHnrClass(results.summary?.voice_quality.hnr.mean_db)">
+            {{ results.summary?.voice_quality.hnr.mean_db?.toFixed(1) }} dB
           </div>
           <div class="quality-bar">
-            <div class="quality-fill" :style="getHnrBarStyle(results.voice_quality.hnr_mean)"></div>
+            <div class="quality-fill" :style="getHnrBarStyle(results.summary?.voice_quality.hnr.mean_db)"></div>
           </div>
-          <div class="quality-status">{{ getHnrStatus(results.voice_quality.hnr_mean) }}</div>
+          <div class="quality-status">{{ getHnrStatus(results.summary?.voice_quality.hnr.mean_db) }}</div>
         </div>
 
         <!-- Jitter -->
-        <div class="quality-card glass-panel-inner">
+        <div v-if="results.summary?.voice_quality.jitter" class="quality-card glass-panel-inner">
           <div class="quality-label">基頻微擾 (Jitter)</div>
-          <div class="quality-value" :class="getJitterClass(results.voice_quality.jitter_mean)">
-            {{ (results.voice_quality.jitter_mean * 100)?.toFixed(2) }}%
+          <div class="quality-value" :class="getJitterClass(results.summary?.voice_quality.jitter.mean)">
+            {{ (results.summary?.voice_quality.jitter.mean * 100)?.toFixed(2) }}%
           </div>
           <div class="quality-bar">
-            <div class="quality-fill" :style="getJitterBarStyle(results.voice_quality.jitter_mean)"></div>
+            <div class="quality-fill" :style="getJitterBarStyle(results.summary?.voice_quality.jitter.mean)"></div>
           </div>
-          <div class="quality-status">{{ getJitterStatus(results.voice_quality.jitter_mean) }}</div>
+          <div class="quality-status">{{ getJitterStatus(results.summary?.voice_quality.jitter.mean) }}</div>
         </div>
 
         <!-- Shimmer -->
-        <div class="quality-card glass-panel-inner">
+        <div v-if="results.summary?.voice_quality.shimmer" class="quality-card glass-panel-inner">
           <div class="quality-label">振幅微擾 (Shimmer)</div>
-          <div class="quality-value" :class="getShimmerClass(results.voice_quality.shimmer_mean)">
-            {{ (results.voice_quality.shimmer_mean * 100)?.toFixed(2) }}%
+          <div class="quality-value" :class="getShimmerClass(results.summary?.voice_quality.shimmer.mean)">
+            {{ (results.summary?.voice_quality.shimmer.mean * 100)?.toFixed(2) }}%
           </div>
           <div class="quality-bar">
-            <div class="quality-fill" :style="getShimmerBarStyle(results.voice_quality.shimmer_mean)"></div>
+            <div class="quality-fill" :style="getShimmerBarStyle(results.summary?.voice_quality.shimmer.mean)"></div>
           </div>
-          <div class="quality-status">{{ getShimmerStatus(results.voice_quality.shimmer_mean) }}</div>
+          <div class="quality-status">{{ getShimmerStatus(results.summary?.voice_quality.shimmer.mean) }}</div>
         </div>
       </div>
     </div>
