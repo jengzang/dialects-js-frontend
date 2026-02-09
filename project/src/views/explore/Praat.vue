@@ -39,6 +39,14 @@
         >
           元音空間
         </button>
+        <button
+          class="tab-btn"
+          :class="{ active: activeTab === 'pitchtone', disabled: !pitchtoneTabEnabled }"
+          :disabled="!pitchtoneTabEnabled"
+          @click="switchTab('pitchtone')"
+        >
+          基頻定調
+        </button>
       </div>
     </div>
 
@@ -117,6 +125,11 @@
       <div v-show="activeTab === 'vowelspace'" class="page-content" :class="{ 'tab-hidden': activeTab !== 'vowelspace' }">
         <VowelSpacePanel :results="analysisResults" />
       </div>
+
+      <!-- Tab 4: Pitch Tone - NEW -->
+      <div v-show="activeTab === 'pitchtone'" class="page-content" :class="{ 'tab-hidden': activeTab !== 'pitchtone' }">
+        <PitchTonePanel :results="analysisResults" />
+      </div>
 <!--    </div>-->
 
     <!-- Job Status (Left Floating Window) - REMOVED, now inline in Tab 2 -->
@@ -151,6 +164,7 @@
           :audio-blob="audioBlob"
           :segments="audioSegments"
           @segment-selected="handleSegmentSelected"
+          @manual-segments-ready="handleManualSegmentsReady"
         />
       </div>
     </Transition>
@@ -166,6 +180,7 @@ import SettingsPanel from '../../components/praat/SettingsPanel.vue'
 import JobStatusPanel from '../../components/praat/JobStatusPanel.vue'
 import AnalysisResultsPanel from '../../components/praat/AnalysisResultsPanel.vue'
 import VowelSpacePanel from '../../components/praat/VowelSpacePanel.vue'
+import PitchTonePanel from '../../components/praat/PitchTonePanel.vue'
 import { usePraatApi } from '@/api/praat'
 import { userStore } from '@/utils/store.js'
 import { showWarning, showError } from '@/utils/message.js'
@@ -182,7 +197,7 @@ const resultsTabEnabled = ref(false)
 
 // Watch router changes
 watch(() => route.query.tab, (newTab) => {
-  if (newTab && ['upload', 'results', 'vowelspace'].includes(newTab)) {
+  if (newTab && ['upload', 'results', 'vowelspace', 'pitchtone'].includes(newTab)) {
     activeTab.value = newTab
   }
 })
@@ -192,6 +207,13 @@ const vowelspaceTabEnabled = computed(() => {
   return analysisResults.value &&
          analysisResults.value.timeseries?.formants?.f1 &&
          analysisResults.value.timeseries?.formants?.f2
+})
+
+// Pitch tone tab enabled state
+const pitchtoneTabEnabled = computed(() => {
+  return analysisResults.value &&
+         analysisResults.value.timeseries?.pitch_hz &&
+         analysisResults.value.timeseries.pitch_hz.length > 0
 })
 
 // UI state
@@ -207,6 +229,7 @@ const goToLogin = () => {
 const switchTab = (tab) => {
   if (tab === 'results' && !resultsTabEnabled.value) return
   if (tab === 'vowelspace' && !vowelspaceTabEnabled.value) return
+  if (tab === 'pitchtone' && !pitchtoneTabEnabled.value) return
 
   // Update router query param
   router.push({
@@ -338,6 +361,32 @@ const handleSegmentsReady = (segments) => {
   analysisResults.value = null
   uploadId.value = null
   pollingFailCount.value = 0  // ✅ 重置失败计数
+
+  // Reset tab state
+  resultsTabEnabled.value = false
+  activeTab.value = 'upload'
+}
+
+const handleManualSegmentsReady = (segments) => {
+  if (segments.length === 0) {
+    // No segments, clear everything
+    audioSegments.value = []
+    audioFile.value = null
+    selectedSegment.value = null
+    return
+  }
+
+  // Update segments
+  audioSegments.value = segments
+  audioFile.value = segments[0].file // Set first segment as current file
+  selectedSegment.value = segments[0]
+
+  // Reset previous analysis
+  jobId.value = null
+  jobStatus.value = 'queued'
+  analysisResults.value = null
+  uploadId.value = null
+  pollingFailCount.value = 0
 
   // Reset tab state
   resultsTabEnabled.value = false
@@ -484,14 +533,14 @@ onBeforeUnmount(() => {
   }
 })
 
-// Cancel job on page unload
-if (typeof window !== 'undefined') {
-  window.addEventListener('beforeunload', () => {
-    if (jobId.value && (jobStatus.value === 'running' || jobStatus.value === 'queued')) {
-      navigator.sendBeacon(`/api/praat/jobs/${jobId.value}`, JSON.stringify({ _method: 'DELETE' }))
-    }
-  })
-}
+// // Cancel job on page unload
+// if (typeof window !== 'undefined') {
+//   window.addEventListener('beforeunload', () => {
+//     if (jobId.value && (jobStatus.value === 'running' || jobStatus.value === 'queued')) {
+//       navigator.sendBeacon(`/api/praat/jobs/${jobId.value}`, JSON.stringify({ _method: 'DELETE' }))
+//     }
+//   })
+// }
 </script>
 
 <style scoped>
@@ -907,7 +956,6 @@ if (typeof window !== 'undefined') {
 /* Audio Preview Floating Window */
 .audio-preview-float {
   position: fixed;
-  top: 140px;
   right: 2rem;
   width: 320px;
   max-width: calc(100vw - 4rem);
@@ -921,6 +969,7 @@ if (typeof window !== 'undefined') {
     inset 0 1px 0 rgba(255, 255, 255, 0.6);
   z-index: 100;
   overflow: hidden;
+  max-height: 95dvh;
 }
 
 .preview-close-button {
@@ -983,7 +1032,7 @@ if (typeof window !== 'undefined') {
     top: 1rem;
     left: 50%;
     transform: translateX(-50%);
-    width: auto;
+    width: 100%;
   }
 
   .tab-container {
@@ -994,7 +1043,7 @@ if (typeof window !== 'undefined') {
   .tab-btn {
     flex: 1;
     font-size: 13px;
-    padding: 10px 16px;
+    padding: 10px 8px;
     min-width: 90px;
   }
 

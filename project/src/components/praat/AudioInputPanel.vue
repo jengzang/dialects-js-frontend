@@ -77,7 +77,7 @@ let mediaStream = null
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024 // 50MB
 const MAX_RECORDING_TIME = 60 // 60 seconds
-const MAX_SEGMENT_DURATION = 20 // 20 seconds per segment
+const MAX_SEGMENT_DURATION = 10 // 10 seconds per segment
 const SUPPORTED_FORMATS = ['audio/wav', 'audio/mpeg', 'audio/mp3', 'audio/ogg', 'audio/webm', 'audio/m4a', 'audio/x-m4a', 'audio/flac', 'audio/aac', 'audio/x-aac']
 
 const validateFile = (file) => {
