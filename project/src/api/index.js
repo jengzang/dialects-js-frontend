@@ -18,12 +18,6 @@ export {
 
 // ==================== Praat 音频分析 ====================
 export {
-  uploadAudio,
-  createAnalysisJob,
-  getJobStatus,
-  cancelJob,
-  getJobResult,
-  pollUntilComplete,
   usePraatApi
 } from './praat/index.js'
 
