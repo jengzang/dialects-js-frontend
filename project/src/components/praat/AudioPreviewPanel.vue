@@ -23,7 +23,9 @@
         <div class="segment-header">
           <div class="segment-info">
             <span class="segment-number">片段 {{ index + 1 }}</span>
-            <span class="segment-duration">{{ formatTime(segment.duration || 0) }}</span>
+            <span class="segment-duration">
+              {{ formatTime(realDurations[index] || segment.duration || 0) }}
+            </span>
             <span v-if="segment.startTime > 0" class="segment-time-range">
               ({{ formatTime(segment.startTime) }} - {{ formatTime(segment.endTime) }})
             </span>
@@ -44,7 +46,9 @@
           <div class="time-display">
             <span class="current-time">{{ formatTime(currentTimes[index] || 0) }}</span>
             <span class="separator">/</span>
-            <span class="duration">{{ formatTime(segment.duration || 0) }}</span>
+            <span class="duration">
+              {{ formatTime(realDurations[index] || segment.duration || 0) }}
+            </span>
           </div>
 
           <button class="control-button glass-button" @click.stop="stop(index)">
@@ -77,6 +81,9 @@ const waveformRefs = ref([])
 const playingIndex = ref(-1)
 const selectedIndex = ref(0)
 const currentTimes = ref({})
+// 1. 新增：用來存儲 WaveSurfer 解析出的真實時長
+const realDurations = ref({})
+
 let wavesurfers = []
 
 // 【核心修复】：创建一个计算属性来统一数据源
@@ -146,13 +153,20 @@ const initWaveSurfers = async () => {
       currentTimes.value[index] = wavesurfer.getCurrentTime()
     })
 
-    // 加载完成后，如果时长是0，尝试更新一下（可选）
+// 2. 修改：在 ready 事件中獲取並更新時長
     wavesurfer.on('ready', () => {
-      if (segment.duration === 0) {
-        // 这里仅仅是更新一下显示的逻辑，不修改原数据
-        // 实际开发中最好在文件上传时就获取 duration
+      const duration = wavesurfer.getDuration()
+      // 將計算出的時長存入響應式對象中
+      realDurations.value[index] = duration
+
+      // 如果原始數據沒有時長，也可以順便更新一下內存中的對象（非響應式更新，但有助於邏輯一致）
+      if (!segment.duration) {
+        segment.duration = duration
       }
     })
+
+    wavesurfer.loadBlob(segment.blob)
+    wavesurfers[index] = wavesurfer
 
     wavesurfer.loadBlob(segment.blob)
     wavesurfers[index] = wavesurfer

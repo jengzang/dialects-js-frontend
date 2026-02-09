@@ -197,6 +197,8 @@ const jobStatus = ref('queued')
 const jobProgress = ref(0)
 const jobStage = ref(null)
 const jobError = ref(null)
+const pollingFailCount = ref(0)  // ✅ 添加失败计数器
+const MAX_POLLING_FAILURES = 5   // ✅ 最大失败次数
 
 // Results
 const analysisResults = ref(null)
@@ -271,6 +273,7 @@ const handleFileSelected = (file, blob) => {
   jobStatus.value = 'queued'
   analysisResults.value = null
   uploadId.value = null
+  pollingFailCount.value = 0  // ✅ 重置失败计数
 
   // Reset tab state
   resultsTabEnabled.value = false
@@ -289,6 +292,7 @@ const handleSegmentsReady = (segments) => {
   jobStatus.value = 'queued'
   analysisResults.value = null
   uploadId.value = null
+  pollingFailCount.value = 0  // ✅ 重置失败计数
 
   // Reset tab state
   resultsTabEnabled.value = false
@@ -324,7 +328,7 @@ const startAnalysis = async () => {
     // Upload audio
     isUploading.value = true
     const uploadResponse = await uploadAudio(audioFile.value)
-    uploadId.value = uploadResponse.upload_id
+    uploadId.value = uploadResponse.task_id  // ✅ 后端返回的是 task_id
     isUploading.value = false
 
     // Create job
@@ -345,9 +349,16 @@ const startPolling = () => {
     clearInterval(pollingInterval)
   }
 
+  // ✅ 重置失败计数
+  pollingFailCount.value = 0
+
   pollingInterval = setInterval(async () => {
     try {
       const status = await getJobStatus(jobId.value)
+
+      // ✅ 请求成功，重置失败计数
+      pollingFailCount.value = 0
+
       jobStatus.value = status.status
       jobProgress.value = status.progress || 0
       jobStage.value = status.stage
@@ -356,11 +367,23 @@ const startPolling = () => {
       if (status.status === 'completed' || status.status === 'done') {
         stopPolling()
         await fetchResults()
-      } else if (status.status === 'error' || status.status === 'canceled') {
+      } else if (status.status === 'failed' || status.status === 'error' || status.status === 'canceled') {
         stopPolling()
+        showError(status.error || '分析任務失敗')
       }
     } catch (error) {
       console.error('Polling error:', error)
+
+      // ✅ 增加失败计数
+      pollingFailCount.value++
+
+      // ✅ 连续失败5次后停止轮询
+      if (pollingFailCount.value >= MAX_POLLING_FAILURES) {
+        stopPolling()
+        jobStatus.value = 'error'
+        jobError.value = '連續查詢失敗，請檢查網絡連接或重試'
+        showError(`任務狀態查詢失敗 (${MAX_POLLING_FAILURES}次)，已停止輪詢`)
+      }
     }
   }, 2000)
 }

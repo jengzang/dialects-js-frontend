@@ -13,7 +13,7 @@
     >
       <div class="upload-icon">🎵</div>
       <p class="upload-text">拖拽音頻文件到此處或點擊選擇</p>
-      <p class="upload-hint">支持 WAV, MP3, OGG, WEBM, M4A 格式</p>
+      <p class="upload-hint">支持 WAV, MP3, M4A, WebM, OGG, FLAC, AAC 格式</p>
       <input
         ref="fileInput"
         type="file"
@@ -78,7 +78,7 @@ let mediaStream = null
 const MAX_FILE_SIZE = 5 * 1024 * 1024 // 50MB
 const MAX_RECORDING_TIME = 60 // 60 seconds
 const MAX_SEGMENT_DURATION = 20 // 20 seconds per segment
-const SUPPORTED_FORMATS = ['audio/wav', 'audio/mpeg', 'audio/mp3', 'audio/ogg', 'audio/webm', 'audio/m4a', 'audio/x-m4a']
+const SUPPORTED_FORMATS = ['audio/wav', 'audio/mpeg', 'audio/mp3', 'audio/ogg', 'audio/webm', 'audio/m4a', 'audio/x-m4a', 'audio/flac', 'audio/aac', 'audio/x-aac']
 
 const validateFile = (file) => {
   if (file.size > MAX_FILE_SIZE) {
@@ -89,10 +89,10 @@ const validateFile = (file) => {
   const fileType = file.type || ''
   const fileExt = file.name.split('.').pop().toLowerCase()
   const isSupported = SUPPORTED_FORMATS.some(format => fileType.includes(format.split('/')[1])) ||
-                      ['wav', 'mp3', 'ogg', 'webm', 'm4a'].includes(fileExt)
+                      ['wav', 'mp3', 'ogg', 'webm', 'm4a', 'flac', 'aac'].includes(fileExt)
 
   if (!isSupported) {
-    showError('不支持的音頻格式，請上傳 WAV, MP3, OGG, WEBM 或 M4A 文件')
+    showError('不支持的音頻格式，請上傳 WAV, MP3, M4A, WebM, OGG, FLAC 或 AAC 文件')
     return false
   }
 

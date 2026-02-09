@@ -160,11 +160,11 @@ export function usePraatApi() {
     try {
       return await api('/api/tools/praat/jobs', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+        body: {
           upload_id: uploadId,
           ...settings
-        })
+        }
+        // ✅ 不需要手动 JSON.stringify，api() 会自动处理
       })
     } catch (error) {
       console.error('Create job error:', error)

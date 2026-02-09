@@ -1,16 +1,16 @@
 <template>
   <div v-if="jobId && isVisible" class="job-status-panel glass-panel">
-    <h2 class="panel-title">任務狀態</h2>
+    <div class="panel-header">
+      <h2 class="panel-title">任務狀態</h2>
 
-    <!-- Status Display -->
-    <div class="status-display">
-      <div class="status-badge" :class="`status-${status}`">
-        <span class="status-icon">{{ getStatusIcon(status) }}</span>
-        <span class="status-text">{{ getStatusText(status) }}</span>
-      </div>
+      <div class="status-display">
+        <div class="status-badge" :class="`status-${status}`">
+          <span class="status-icon">{{ getStatusIcon(status) }}</span>
+          <span class="status-text">{{ getStatusText(status) }}</span>
+        </div>
 
-      <div v-if="stage && status === 'running'" class="stage-display">
-        當前階段: {{ getStageText(stage) }}
+        <div v-if="stage && status === 'running'" class="stage-display">
+          {{ getStageText(stage) }} </div>
       </div>
     </div>
 
@@ -117,26 +117,35 @@ const getStageText = (stage) => {
   margin-bottom: 0;
 }
 
+/* 新增：Header 樣式 */
+.panel-header {
+  display: flex;
+  justify-content: space-between; /* 標題靠左，狀態靠右 */
+  align-items: center;            /* 垂直置中 */
+  margin: 0.5rem;         /* 將原本 title 的 margin 移到這裡 */
+  gap:15px;
+}
+
 .panel-title {
   font-size: 1.1rem;
   font-weight: 600;
-  margin-bottom: 0.75rem;
+  margin: 0; /* 移除原本的 margin */
   color: var(--color-text-primary);
 }
 
 .status-display {
   display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  margin-bottom: 1rem;
+  flex-direction: row; /* 改為橫向排列 */
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0; /* 移除原本的 margin */
 }
-
 .status-badge {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
   padding: 0.5rem 1rem;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-2xl);
   font-weight: 600;
   font-size: 0.9rem;
   width: fit-content;
