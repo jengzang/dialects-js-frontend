@@ -1,5 +1,6 @@
 // api/sql/mutate.js - SQL修改操作 API
 import { api } from '../auth/auth.js'
+import { showError } from '@/utils/message.js'
 
 /**
  * @typedef {Object} MutateSingleParams
@@ -47,6 +48,7 @@ export async function mutateSingleRow(params) {
     })
   } catch (error) {
     console.error('Mutate single row error:', error)
+    showError(error.message || '修改數據失敗')
     throw new Error(error.message || '修改數據失敗')
   }
 }
@@ -74,6 +76,7 @@ export async function batchMutate(params) {
     })
   } catch (error) {
     console.error('Batch mutate error:', error)
+    showError(error.message || '批量修改失敗')
     throw new Error(error.message || '批量修改失敗')
   }
 }
@@ -100,6 +103,7 @@ export async function batchReplacePreview(params) {
     })
   } catch (error) {
     console.error('Batch replace preview error:', error)
+    showError(error.message || '批量替換預覽失敗')
     throw new Error(error.message || '批量替換預覽失敗')
   }
 }
@@ -126,6 +130,7 @@ export async function batchReplaceExecute(params) {
     })
   } catch (error) {
     console.error('Batch replace execute error:', error)
+    showError(error.message || '批量替換執行失敗')
     throw new Error(error.message || '批量替換執行失敗')
   }
 }

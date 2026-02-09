@@ -1,5 +1,6 @@
 // api/sql/tree.js - 树形数据查询 API
 import { api } from '../auth/auth.js'
+import { showError } from '@/utils/message.js'
 
 /**
  * @typedef {Object} TreeNode
@@ -48,6 +49,7 @@ export async function lazyLoadTree(params) {
     })
   } catch (error) {
     console.error('Lazy load tree error:', error)
+    showError(error.message || '懶加載樹形數據失敗')
     throw new Error(error.message || '懶加載樹形數據失敗')
   }
 }
@@ -71,6 +73,7 @@ export async function loadFullTree(params) {
     })
   } catch (error) {
     console.error('Load full tree error:', error)
+    showError(error.message || '加載完整樹形數據失敗')
     throw new Error(error.message || '加載完整樹形數據失敗')
   }
 }

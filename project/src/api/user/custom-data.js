@@ -1,5 +1,6 @@
 // api/user/custom-data.js - 用户自定义数据 API
 import { api } from '../auth/auth.js'
+import { showError } from '@/utils/message.js'
 
 /**
  * @typedef {Object} CustomDataRecord
@@ -25,6 +26,7 @@ export async function getAllCustomData() {
     return await api('/user/custom/all')
   } catch (error) {
     console.error('Get all custom data error:', error)
+    showError(error.message || '獲取自定義數據失敗')
     throw new Error(error.message || '獲取自定義數據失敗')
   }
 }
@@ -50,6 +52,7 @@ export async function editCustomData(record) {
     })
   } catch (error) {
     console.error('Edit custom data error:', error)
+    showError(error.message || '編輯自定義數據失敗')
     throw new Error(error.message || '編輯自定義數據失敗')
   }
 }
@@ -73,6 +76,7 @@ export async function batchCreateCustomData(records) {
     })
   } catch (error) {
     console.error('Batch create custom data error:', error)
+    showError(error.message || '批量創建自定義數據失敗')
     throw new Error(error.message || '批量創建自定義數據失敗')
   }
 }
@@ -96,6 +100,7 @@ export async function batchDeleteCustomData(createdAtList) {
     })
   } catch (error) {
     console.error('Batch delete custom data error:', error)
+    showError(error.message || '批量刪除自定義數據失敗')
     throw new Error(error.message || '批量刪除自定義數據失敗')
   }
 }

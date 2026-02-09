@@ -1,5 +1,6 @@
 // api/tools/jyut2ipa.js - 粤拼转IPA工具 API
 import { api } from '../auth/auth.js'
+import { showError } from '@/utils/message.js'
 
 /**
  * @typedef {Object} Jyut2IpaUploadResponse
@@ -37,6 +38,7 @@ export async function uploadJyutFile(file) {
     })
   } catch (error) {
     console.error('Upload jyut file error:', error)
+    showError(error.message || '粵拼文件上傳失敗')
     throw new Error(error.message || '粵拼文件上傳失敗')
   }
 }
@@ -57,6 +59,7 @@ export async function processJyut2Ipa(taskId) {
     })
   } catch (error) {
     console.error('Process jyut2ipa error:', error)
+    showError(error.message || '粵拼轉IPA處理失敗')
     throw new Error(error.message || '粵拼轉IPA處理失敗')
   }
 }
@@ -75,6 +78,7 @@ export async function getJyut2IpaProgress(taskId) {
     return await api(`/api/tools/jyut2ipa/progress/${taskId}`)
   } catch (error) {
     console.error('Get jyut2ipa progress error:', error)
+    showError(error.message || '獲取轉換進度失敗')
     throw new Error(error.message || '獲取轉換進度失敗')
   }
 }
@@ -99,6 +103,7 @@ export async function downloadJyut2IpaResult(taskId) {
     })
   } catch (error) {
     console.error('Download jyut2ipa result error:', error)
+    showError(error.message || '下載轉換結果失敗')
     throw new Error(error.message || '下載轉換結果失敗')
   }
 }

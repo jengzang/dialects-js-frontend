@@ -1,5 +1,6 @@
 // api/query/geo.js - 地理数据查询 API
 import { api } from '../auth/auth.js'
+import { showError } from '@/utils/message.js'
 
 /**
  * @typedef {Object} CoordinatesParams
@@ -43,6 +44,7 @@ export async function getCoordinates(params) {
     return await api(`/api/get_coordinates?${query.toString()}`)
   } catch (error) {
     console.error('Get coordinates error:', error)
+    showError(error.message || '獲取坐標數據失敗')
     throw new Error(error.message || '獲取坐標數據失敗')
   }
 }

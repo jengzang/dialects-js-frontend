@@ -1,5 +1,6 @@
 // api/tools/merge.js - 字表合并工具 API
 import { api } from '../auth/auth.js'
+import { showError } from '@/utils/message.js'
 
 /**
  * @typedef {Object} ReferenceUploadResponse
@@ -38,6 +39,7 @@ export async function uploadReference(file) {
     })
   } catch (error) {
     console.error('Upload reference error:', error)
+    showError(error.message || '參考字表上傳失敗')
     throw new Error(error.message || '參考字表上傳失敗')
   }
 }
@@ -65,6 +67,7 @@ export async function uploadFiles(taskId, files) {
     })
   } catch (error) {
     console.error('Upload files error:', error)
+    showError(error.message || '待合併文件上傳失敗')
     throw new Error(error.message || '待合併文件上傳失敗')
   }
 }
@@ -85,6 +88,7 @@ export async function executeMerge(taskId) {
     })
   } catch (error) {
     console.error('Execute merge error:', error)
+    showError(error.message || '合併執行失敗')
     throw new Error(error.message || '合併執行失敗')
   }
 }
@@ -103,6 +107,7 @@ export async function getMergeProgress(taskId) {
     return await api(`/api/tools/merge/progress/${taskId}`)
   } catch (error) {
     console.error('Get merge progress error:', error)
+    showError(error.message || '獲取合併進度失敗')
     throw new Error(error.message || '獲取合併進度失敗')
   }
 }
@@ -127,6 +132,7 @@ export async function downloadMerge(taskId) {
     })
   } catch (error) {
     console.error('Download merge error:', error)
+    showError(error.message || '下載合併結果失敗')
     throw new Error(error.message || '下載合併結果失敗')
   }
 }

@@ -1,5 +1,6 @@
 // api/sql/query.js - SQL查询操作 API
 import { api } from '../auth/auth.js'
+import { showError } from '@/utils/message.js'
 
 /**
  * @typedef {Object} SqlQueryParams
@@ -52,6 +53,7 @@ export async function sqlQuery(params) {
     })
   } catch (error) {
     console.error('SQL query error:', error)
+    showError(error.message || 'SQL查詢失敗')
     throw new Error(error.message || 'SQL查詢失敗')
   }
 }
@@ -76,6 +78,7 @@ export async function distinctQuery(params) {
     })
   } catch (error) {
     console.error('Distinct query error:', error)
+    showError(error.message || '去重查詢失敗')
     throw new Error(error.message || '去重查詢失敗')
   }
 }
@@ -96,6 +99,7 @@ export async function getTableColumns(dbKey, tableName) {
     return await api(url)
   } catch (error) {
     console.error('Get table columns error:', error)
+    showError(error.message || '獲取表列信息失敗')
     throw new Error(error.message || '獲取表列信息失敗')
   }
 }

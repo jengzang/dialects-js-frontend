@@ -1,5 +1,6 @@
 // api/user/custom.js - 自定义特征查询 API
 import { api } from '../auth/auth.js'
+import { showError } from '@/utils/message.js'
 
 /**
  * @typedef {Object} CustomDataParams
@@ -58,6 +59,7 @@ export async function getCustomData(params) {
     return await api(`/api/get_custom?${query.toString()}`)
   } catch (error) {
     console.error('Get custom data error:', error)
+    showError(error.message || '獲取自定義數據失敗')
     throw new Error(error.message || '獲取自定義數據失敗')
   }
 }
@@ -88,6 +90,7 @@ export async function getCustomFeature(params) {
     return await api(`/api/get_custom_feature?${query.toString()}`)
   } catch (error) {
     console.error('Get custom feature error:', error)
+    showError(error.message || '獲取自定義特徵失敗')
     throw new Error(error.message || '獲取自定義特徵失敗')
   }
 }
@@ -113,6 +116,7 @@ export async function submitCustomForm(data) {
     })
   } catch (error) {
     console.error('Submit custom form error:', error)
+    showError(error.message || '提交自定義表單失敗')
     throw new Error(error.message || '提交自定義表單失敗')
   }
 }
@@ -134,6 +138,7 @@ export async function deleteCustomForm(data) {
     })
   } catch (error) {
     console.error('Delete custom form error:', error)
+    showError(error.message || '刪除自定義表單失敗')
     throw new Error(error.message || '刪除自定義表單失敗')
   }
 }

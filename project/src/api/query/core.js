@@ -1,5 +1,6 @@
 // api/query/core.js - 核心查询 API
 import { api } from '../auth/auth.js'
+import { showError } from '@/utils/message.js'
 
 /**
  * @typedef {Object} ZhongGuQueryParams
@@ -43,6 +44,7 @@ export async function searchZhongGu(params) {
     })
   } catch (error) {
     console.error('Search ZhongGu error:', error)
+    showError(error.message || '中古音查詢失敗')
     throw new Error(error.message || '中古音查詢失敗')
   }
 }
@@ -66,6 +68,7 @@ export async function searchYinWei(params) {
     })
   } catch (error) {
     console.error('Search YinWei error:', error)
+    showError(error.message || '音位查詢失敗')
     throw new Error(error.message || '音位查詢失敗')
   }
 }
@@ -135,6 +138,7 @@ export async function searchChars(params) {
     return await api(`/api/search_chars/?${query.toString()}`)
   } catch (error) {
     console.error('Search chars error:', error)
+    showError(error.message || '字查詢失敗')
     throw new Error(error.message || '字查詢失敗')
   }
 }
@@ -181,6 +185,7 @@ export async function searchTones(params) {
     return await api(`/api/search_tones/?${query.toString()}`)
   } catch (error) {
     console.error('Search tones error:', error)
+    showError(error.message || '調查詢失敗')
     throw new Error(error.message || '調查詢失敗')
   }
 }
@@ -201,6 +206,7 @@ export async function getCharList(params) {
     })
   } catch (error) {
     console.error('Get char list error:', error)
+    showError(error.message || '獲取字符列表失敗')
     throw new Error(error.message || '獲取字符列表失敗')
   }
 }
@@ -232,6 +238,7 @@ export async function getFeatureCounts(params) {
     return await api(`/api/feature_counts?${query.toString()}`)
   } catch (error) {
     console.error('Get feature counts error:', error)
+    showError(error.message || '獲取音位特徵計數失敗')
     throw new Error(error.message || '獲取音位特徵計數失敗')
   }
 }

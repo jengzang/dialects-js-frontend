@@ -1246,7 +1246,7 @@ const loadToneStats = async () => {
 const loadAllData = async () => {
   try {
     isLoadingTable.value = true
-    const data = await getTableData(taskId.value, { page: 1, pageSize: 99999 })
+    const data = await getTableData(taskId.value, { includeAll: true })
 
     if (data.success) {
       allData.value = data.data || []
@@ -1265,7 +1265,7 @@ const loadErrorRowsData = async (errors) => {
     errorMetadata.value = errors
 
     // 获取错误行的完整数据
-    const data = await getTableData(taskId.value, { page: 1, pageSize: 99999 })
+    const data = await getTableData(taskId.value, { includeAll: true })
 
     if (data.success) {
       // 为每行添加错误信息
@@ -1754,7 +1754,7 @@ const showAllChars = async (tone, info, toneType) => {
     return
   }
   try {
-    const data = await getTableData(taskId.value, { page: 1, pageSize: 99999 })
+    const data = await getTableData(taskId.value, { includeAll: true })
 
     if (data.success) {
       const RU_FINALS = new Set('ptkʔˀᵖᵏᵗbdg')

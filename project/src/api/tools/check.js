@@ -1,5 +1,6 @@
 // api/tools/check.js - 字表检查工具 API
 import { api } from '../auth/auth.js'
+import { showError } from '@/utils/message.js'
 
 /**
  * @typedef {Object} CheckUploadResponse
@@ -25,18 +26,24 @@ import { api } from '../auth/auth.js'
 /**
  * 上传检查文件
  * @param {File} file - 字表文件
- * @param {'excel'|'text'} format - 文件格式
- * @param {boolean} isSimplified - 是否简体中文
+ * @param {string} [formatType] - 文件格式类型（'音典' | '跳跳老鼠' | '縣志' | undefined）
+ * @param {boolean} [isSimplified=false] - 是否简体中文
  * @returns {Promise<CheckUploadResponse>} 上传结果
  * @throws {Error} 上传失败
  * @example
- * const result = await uploadCheckFile(file, 'excel', false)
+ * const result = await uploadCheckFile(file, '音典', false)
  */
-export async function uploadCheckFile(file, format = 'excel', isSimplified = false) {
+export async function uploadCheckFile(file, formatType, isSimplified = false) {
   const formData = new FormData()
   formData.append('file', file)
-  formData.append('format', format)
-  formData.append('is_simplified', isSimplified.toString())
+
+  // 添加格式类型参数（如果提供了）
+  if (formatType) {
+    formData.append('format_type', formatType)
+  }
+
+  // 繁体(false) -> '0', 简体(true) -> '1'
+  formData.append('level', isSimplified ? '1' : '0')
 
   try {
     return await api('/api/tools/check/upload', {
@@ -45,6 +52,7 @@ export async function uploadCheckFile(file, format = 'excel', isSimplified = fal
     })
   } catch (error) {
     console.error('Upload check file error:', error)
+    showError(error.message || '字表上傳失敗')
     throw new Error(error.message || '字表上傳失敗')
   }
 }
@@ -64,6 +72,7 @@ export async function analyzeFile(taskId) {
     })
   } catch (error) {
     console.error('Analyze file error:', error)
+    showError(error.message || '文件分析失敗')
     throw new Error(error.message || '文件分析失敗')
   }
 }
@@ -81,10 +90,14 @@ export async function getToneStats(taskId) {
   try {
     return await api('/api/tools/check/get_tone_stats', {
       method: 'POST',
-      body: { task_id: taskId }
+      body: {
+        task_id: taskId,
+        include_all: true
+      }
     })
   } catch (error) {
     console.error('Get tone stats error:', error)
+    showError(error.message || '獲取聲調統計失敗')
     throw new Error(error.message || '獲取聲調統計失敗')
   }
 }
@@ -93,6 +106,7 @@ export async function getToneStats(taskId) {
  * 获取表格数据
  * @param {string} taskId - 任务ID
  * @param {Object} [options] - 查询选项
+ * @param {boolean} [options.includeAll] - 是否获取全部数据（不分页）
  * @param {number} [options.page=1] - 页码
  * @param {number} [options.pageSize=100] - 每页大小
  * @param {string} [options.toneFilter] - 声调过滤
@@ -100,29 +114,43 @@ export async function getToneStats(taskId) {
  * @returns {Promise<TableDataResponse>} 表格数据
  * @throws {Error} 获取失败
  * @example
+ * // 获取全部数据
+ * const allData = await getTableData(taskId, { includeAll: true })
+ * // 分页获取
  * const data = await getTableData(taskId, { page: 1, pageSize: 100 })
  */
 export async function getTableData(taskId, options = {}) {
   const {
+    includeAll = false,
     page = 1,
     pageSize = 100,
     toneFilter = null,
     searchQuery = null
   } = options
 
+  const body = {
+    task_id: taskId
+  }
+
+  // 如果是获取全部数据，只传 include_all
+  if (includeAll) {
+    body.include_all = true
+  } else {
+    // 分页模式
+    body.page = page
+    body.page_size = pageSize
+    if (toneFilter) body.tone_filter = toneFilter
+    if (searchQuery) body.search_query = searchQuery
+  }
+
   try {
     return await api('/api/tools/check/get_data', {
       method: 'POST',
-      body: {
-        task_id: taskId,
-        page,
-        page_size: pageSize,
-        tone_filter: toneFilter,
-        search_query: searchQuery
-      }
+      body
     })
   } catch (error) {
     console.error('Get table data error:', error)
+    showError(error.message || '獲取表格數據失敗')
     throw new Error(error.message || '獲取表格數據失敗')
   }
 }
@@ -130,25 +158,26 @@ export async function getTableData(taskId, options = {}) {
 /**
  * 更新行数据
  * @param {string} taskId - 任务ID
- * @param {number} index - 行索引
- * @param {Object} updates - 更新内容
+ * @param {number} row - 行号
+ * @param {Object} data - 更新的数据对象
  * @returns {Promise<{message: string}>} 更新结果
  * @throws {Error} 更新失败
  * @example
  * await updateRow(taskId, 5, { tone: '陰平', ipa: 'pa55' })
  */
-export async function updateRow(taskId, index, updates) {
+export async function updateRow(taskId, row, data) {
   try {
     return await api('/api/tools/check/update_row', {
       method: 'POST',
       body: {
         task_id: taskId,
-        index,
-        updates
+        row,
+        data
       }
     })
   } catch (error) {
     console.error('Update row error:', error)
+    showError(error.message || '更新行數據失敗')
     throw new Error(error.message || '更新行數據失敗')
   }
 }
@@ -156,23 +185,24 @@ export async function updateRow(taskId, index, updates) {
 /**
  * 批量删除行
  * @param {string} taskId - 任务ID
- * @param {number[]} indices - 要删除的行索引数组
+ * @param {number[]} rows - 要删除的行号数组
  * @returns {Promise<{message: string, deleted_count: number}>} 删除结果
  * @throws {Error} 删除失败
  * @example
  * await batchDelete(taskId, [3, 5, 7])
  */
-export async function batchDelete(taskId, indices) {
+export async function batchDelete(taskId, rows) {
   try {
     return await api('/api/tools/check/batch_delete', {
       method: 'POST',
       body: {
         task_id: taskId,
-        indices
+        rows
       }
     })
   } catch (error) {
     console.error('Batch delete error:', error)
+    showError(error.message || '批量刪除失敗')
     throw new Error(error.message || '批量刪除失敗')
   }
 }
@@ -181,27 +211,32 @@ export async function batchDelete(taskId, indices) {
  * 执行批量操作
  * @param {string} taskId - 任务ID
  * @param {Object} operation - 操作配置
- * @param {'delete'|'replace'|'update'} operation.type - 操作类型
- * @param {Object} operation.params - 操作参数
- * @returns {Promise<{message: string, affected_count: number}>} 操作结果
+ * @param {'command'|'replace'|'update'} operation.type - 操作类型
+ * @param {Object} operation.params - 操作参数（包含 commands 等字段）
+ * @returns {Promise<{message: string, affected_count: number, success: boolean}>} 操作结果
  * @throws {Error} 操作失败
  * @example
  * await executeBatchOperation(taskId, {
  *   type: 'replace',
- *   params: { find: 'old', replace: 'new', column: 'ipa' }
+ *   params: { commands: ['p-p-pt'] }
  * })
  */
 export async function executeBatchOperation(taskId, operation) {
   try {
+    // 解包 operation 对象，将 type 和 params 的内容展开到顶层
+    const body = {
+      task_id: taskId,
+      type: operation.type,
+      ...operation.params  // 展开 params（如 commands 数组）
+    }
+
     return await api('/api/tools/check/execute', {
       method: 'POST',
-      body: {
-        task_id: taskId,
-        operation
-      }
+      body
     })
   } catch (error) {
     console.error('Execute batch operation error:', error)
+    showError(error.message || '批量操作執行失敗')
     throw new Error(error.message || '批量操作執行失敗')
   }
 }
@@ -226,6 +261,7 @@ export async function downloadCheckResult(taskId) {
     })
   } catch (error) {
     console.error('Download check result error:', error)
+    showError(error.message || '下載檢查結果失敗')
     throw new Error(error.message || '下載檢查結果失敗')
   }
 }

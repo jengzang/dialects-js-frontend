@@ -1,5 +1,6 @@
 // api/query/LocationAndRegion.js - 地点查询 API
 import { api } from '../auth/auth.js'
+import { showError } from '@/utils/message.js'
 
 /**
  * @typedef {Object} GetLocationsParams
@@ -51,6 +52,7 @@ export async function getLocations(params = {}) {
     return await api(`/api/get_locs/?${query.toString()}`)
   } catch (error) {
     console.error('Get locations error:', error)
+    showError(error.message || '獲取地點列表失敗')
     throw new Error(error.message || '獲取地點列表失敗')
   }
 }
@@ -74,6 +76,7 @@ export async function batchMatch(inputString, filterValidAbbrs = false) {
     return await api(`/api/batch_match?${params.toString()}`)
   } catch (error) {
     console.error('Batch match error:', error)
+    showError(error.message || '批量匹配失敗')
     throw new Error(error.message || '批量匹配失敗')
   }
 }
@@ -91,6 +94,7 @@ export async function getPartitions() {
     return await api('/api/partitions')
   } catch (error) {
     console.error('Get partitions error:', error)
+    showError(error.message || '獲取分區樹失敗')
     throw new Error(error.message || '獲取分區樹失敗')
   }
 }
@@ -108,6 +112,7 @@ export async function getRegions(inputData) {
     return await api(`/api/get_regions?input_data=${encodeURIComponent(inputData)}`)
   } catch (error) {
     console.error('Get regions error:', error)
+    showError(error.message || '獲取區域信息失敗')
     throw new Error(error.message || '獲取區域信息失敗')
   }
 }

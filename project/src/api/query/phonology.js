@@ -1,5 +1,6 @@
 // api/query/phonology.js - 音系查询 API
 import { api } from '../auth/auth.js'
+import { showError } from '@/utils/message.js'
 
 /**
  * @typedef {Object} PhonologyMatrixParams
@@ -41,6 +42,7 @@ export async function getPhonologyMatrix(params) {
     })
   } catch (error) {
     console.error('Get phonology matrix error:', error)
+    showError(error.message || '獲取音系矩陣失敗')
     throw new Error(error.message || '獲取音系矩陣失敗')
   }
 }
@@ -64,6 +66,7 @@ export async function getPhonologyClassificationMatrix(params) {
     })
   } catch (error) {
     console.error('Get phonology classification matrix error:', error)
+    showError(error.message || '獲取音系分類矩陣失敗')
     throw new Error(error.message || '獲取音系分類矩陣失敗')
   }
 }
@@ -89,6 +92,7 @@ export async function queryPhonology(params) {
     })
   } catch (error) {
     console.error('Query phonology error:', error)
+    showError(error.message || '音韻地位查詢失敗')
     throw new Error(error.message || '音韻地位查詢失敗')
   }
 }

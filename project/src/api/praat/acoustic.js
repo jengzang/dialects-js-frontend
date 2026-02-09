@@ -1,5 +1,6 @@
 // api/praat/acoustic.js - Praat 音频分析 API
 import { api } from '../auth/auth.js'
+import { showError } from '@/utils/message.js'
 
 /**
  * @typedef {Object} UploadResponse
@@ -66,6 +67,7 @@ export async function uploadAudio(file) {
     })
   } catch (error) {
     console.error('Upload audio error:', error)
+    showError(error.message || '音頻上傳失敗，請重試')
     throw new Error(error.message || '音頻上傳失敗，請重試')
   }
 }
@@ -93,6 +95,7 @@ export async function createAnalysisJob(uploadId, settings) {
     })
   } catch (error) {
     console.error('Create analysis job error:', error)
+    showError(error.message || '創建分析任務失敗，請重試')
     throw new Error(error.message || '創建分析任務失敗，請重試')
   }
 }
@@ -111,6 +114,7 @@ export async function getJobStatus(jobId) {
     return await api(`/api/praat/jobs/${jobId}`)
   } catch (error) {
     console.error('Get job status error:', error)
+    showError(error.message || '獲取任務狀態失敗')
     throw new Error(error.message || '獲取任務狀態失敗')
   }
 }
@@ -130,6 +134,7 @@ export async function cancelJob(jobId) {
     })
   } catch (error) {
     console.error('Cancel job error:', error)
+    showError(error.message || '取消任務失敗')
     throw new Error(error.message || '取消任務失敗')
   }
 }
@@ -149,6 +154,7 @@ export async function getJobResult(jobId, view = 'full') {
     return await api(`/api/praat/jobs/${jobId}/result?view=${view}`)
   } catch (error) {
     console.error('Get job result error:', error)
+    showError(error.message || '獲取分析結果失敗')
     throw new Error(error.message || '獲取分析結果失敗')
   }
 }
