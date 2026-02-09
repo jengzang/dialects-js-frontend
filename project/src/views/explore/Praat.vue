@@ -18,8 +18,8 @@
       <div class="tab-container">
         <button
           class="tab-btn"
-          :class="{ active: activeTab === 'prepare' }"
-          @click="switchTab('prepare')"
+          :class="{ active: activeTab === 'upload' }"
+          @click="switchTab('upload')"
         >
           上傳錄音
         </button>
@@ -31,13 +31,21 @@
         >
           分析結果
         </button>
+        <button
+          class="tab-btn"
+          :class="{ active: activeTab === 'vowelspace', disabled: !vowelspaceTabEnabled }"
+          :disabled="!vowelspaceTabEnabled"
+          @click="switchTab('vowelspace')"
+        >
+          元音空間
+        </button>
       </div>
     </div>
 
 <!--    <div class="page-content">-->
       <!-- Tab Content (using v-show for keep-alive behavior) -->
       <!-- Tab 1: Prepare Analysis -->
-      <div v-show="activeTab === 'prepare'" class="page-content" :class="{ 'tab-hidden': activeTab !== 'prepare' }">
+      <div v-show="activeTab === 'upload'" class="page-content" :class="{ 'tab-hidden': activeTab !== 'upload' }">
           <!-- Settings Button and Mode Selector -->
           <div class="settings-trigger">
             <button class="settings-button glass-button" @click="showSettings = true">
@@ -98,6 +106,11 @@
           <!-- Analysis Results -->
           <AnalysisResultsPanel :results="analysisResults" />
         </div>
+
+      <!-- Tab 3: Vowel Space - NEW -->
+      <div v-show="activeTab === 'vowelspace'" class="page-content" :class="{ 'tab-hidden': activeTab !== 'vowelspace' }">
+        <VowelSpacePanel :results="analysisResults" />
+      </div>
 <!--    </div>-->
 
     <!-- Job Status (Left Floating Window) - REMOVED, now inline in Tab 2 -->
@@ -140,24 +153,40 @@
 
 <script setup>
 import { ref, reactive, onBeforeUnmount, watch, onMounted, computed } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import AudioInputPanel from '../../components/praat/AudioInputPanel.vue'
 import AudioPreviewPanel from '../../components/praat/AudioPreviewPanel.vue'
 import SettingsPanel from '../../components/praat/SettingsPanel.vue'
 import JobStatusPanel from '../../components/praat/JobStatusPanel.vue'
 import AnalysisResultsPanel from '../../components/praat/AnalysisResultsPanel.vue'
+import VowelSpacePanel from '../../components/praat/VowelSpacePanel.vue'
 import { usePraatApi } from '@/api/praat'
 import { userStore } from '@/utils/store.js'
 import { showWarning, showError } from '@/utils/message.js'
 
 const router = useRouter()
+const route = useRoute()
 const { uploadAudio, createJob, getJobStatus, getJobResult, cancelJob } = usePraatApi()
 
 const STORAGE_KEY = 'praat_analysis_settings'
 
-// Tab state
-const activeTab = ref('prepare') // 'prepare' | 'results'
+// Tab state - sync with router
+const activeTab = ref(route.query.tab || 'upload')
 const resultsTabEnabled = ref(false)
+
+// Watch router changes
+watch(() => route.query.tab, (newTab) => {
+  if (newTab && ['upload', 'results', 'vowelspace'].includes(newTab)) {
+    activeTab.value = newTab
+  }
+})
+
+// Vowel space tab enabled state
+const vowelspaceTabEnabled = computed(() => {
+  return analysisResults.value &&
+         analysisResults.value.timeseries?.formants?.f1 &&
+         analysisResults.value.timeseries?.formants?.f2
+})
 
 // UI state
 const showSettings = ref(false)
@@ -171,17 +200,24 @@ const goToLogin = () => {
 // Tab switching function
 const switchTab = (tab) => {
   if (tab === 'results' && !resultsTabEnabled.value) return
+  if (tab === 'vowelspace' && !vowelspaceTabEnabled.value) return
+
+  // Update router query param
+  router.push({
+    query: { ...route.query, tab }
+  })
+
   activeTab.value = tab
 
   // Auto-show preview when returning to Tab 1 if there's audio data
-  if (tab === 'prepare' && (audioBlob.value || audioSegments.value.length > 0)) {
+  if (tab === 'upload' && (audioBlob.value || audioSegments.value.length > 0)) {
     showPreview.value = true
   }
 }
 
 // Computed property for audio preview visibility
 const showAudioPreview = computed(() => {
-  return activeTab.value === 'prepare' && (audioBlob.value || audioSegments.value.length > 0) && showPreview.value
+  return activeTab.value === 'upload' && (audioBlob.value || audioSegments.value.length > 0) && showPreview.value
 })
 
 // Audio state
@@ -280,7 +316,7 @@ const handleFileSelected = (file, blob) => {
 
   // Reset tab state
   resultsTabEnabled.value = false
-  activeTab.value = 'prepare'
+  activeTab.value = 'upload'
 }
 
 const handleSegmentsReady = (segments) => {
@@ -299,7 +335,7 @@ const handleSegmentsReady = (segments) => {
 
   // Reset tab state
   resultsTabEnabled.value = false
-  activeTab.value = 'prepare'
+  activeTab.value = 'upload'
 }
 
 const handleSegmentSelected = (segment) => {
