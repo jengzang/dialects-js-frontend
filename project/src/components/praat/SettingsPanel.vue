@@ -100,10 +100,10 @@ const availableModules = [
   { value: 'segments', label: '音段分析' }
 ]
 
-const localSettings = reactive({ ...props.settings })
+const localSettings = reactive(JSON.parse(JSON.stringify(props.settings)))
 
 watch(localSettings, (newSettings) => {
-  emit('update:settings', { ...newSettings })
+  emit('update:settings', JSON.parse(JSON.stringify(newSettings)))
 }, { deep: true })
 </script>
 

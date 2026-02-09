@@ -114,7 +114,10 @@
           <button class="close-button" @click="showSettings = false">✕</button>
         </div>
         <div class="sidebar-content">
-          <SettingsPanel v-model:settings="settings" />
+          <SettingsPanel
+            :settings="settings"
+            @update:settings="newSettings => Object.assign(settings, newSettings)"
+          />
         </div>
       </div>
     </Transition>
@@ -232,12 +235,12 @@ const loadSettings = () => {
     const saved = localStorage.getItem(STORAGE_KEY)
     if (saved) {
       const parsed = JSON.parse(saved)
-      return { ...defaultSettings, ...parsed }
+      return JSON.parse(JSON.stringify({ ...defaultSettings, ...parsed }))
     }
   } catch (error) {
     console.error('Failed to load settings:', error)
   }
-  return defaultSettings
+  return JSON.parse(JSON.stringify(defaultSettings))
 }
 
 // Save settings to localStorage

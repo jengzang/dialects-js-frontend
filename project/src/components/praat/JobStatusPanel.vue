@@ -60,7 +60,7 @@ watch(() => props.status, (newStatus) => {
     if (timer) clearTimeout(timer)
     timer = setTimeout(() => {
       isVisible.value = false
-    }, 1000)
+    }, 3000)
   } else {
     // 如果任务 ID 变化或状态重置，确保面板重新出现
     isVisible.value = true

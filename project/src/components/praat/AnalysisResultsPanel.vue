@@ -115,10 +115,12 @@ const initChart = () => {
 
   // Intensity series
   if (ts.intensity_db && ts.intensity_db.length > 0) {
-    const intensityData = ts.intensity_db.map((value, idx) => [
-      ts.time?.[idx] || idx * 0.01,
-      value
-    ])
+    const intensityData = ts.intensity_db
+      .map((value, idx) => [
+        ts.time?.[idx] || idx * 0.01,
+        value
+      ])
+      .filter(([time, value]) => value > 0)  // Only show values > 0
 
     series.push({
       name: '強度',
