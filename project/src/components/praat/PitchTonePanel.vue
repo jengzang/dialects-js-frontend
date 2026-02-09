@@ -193,8 +193,9 @@ onMounted(() => {
 
     // 3. Setup ResizeObserver (在 nextTick 中确保容器已存在)
     resizeObserver = new ResizeObserver(() => {
-      pitchChart?.resize()
-      tValueChart?.resize()
+      // 使用 auto 参数强制重新计算宽度
+      pitchChart?.resize({ width: 'auto', height: 'auto' })
+      tValueChart?.resize({ width: 'auto', height: 'auto' })
     })
 
     if (pitchChartContainer.value) {
@@ -240,6 +241,18 @@ const initPitchChart = () => {
   }
 
   if (pitchChart) pitchChart.dispose()
+
+  // === 关键修复: 重新绑定 ResizeObserver ===
+  if (resizeObserver) {
+    // 先断开旧的监听，防止内存泄漏
+    resizeObserver.disconnect()
+    // 重新监听当前的 DOM 元素
+    resizeObserver.observe(pitchChartContainer.value)
+    // 如果 T 值图表容器存在，也加入监听
+    if (tValueChartContainer.value) {
+      resizeObserver.observe(tValueChartContainer.value)
+    }
+  }
 
   console.log('[PitchTone] Initializing ECharts...')
   pitchChart = echarts.init(pitchChartContainer.value)
@@ -321,6 +334,12 @@ const initPitchChart = () => {
   }
 
   pitchChart.setOption(option)
+
+  // 强制 resize 确保图表尺寸正确，使用 auto 参数
+  setTimeout(() => {
+    pitchChart?.resize({ width: 'auto', height: 'auto' })
+    console.log('[PitchTone] Chart resized with auto dimensions')
+  }, 100)
 
   // console.log('Pitch chart initialized, activating brush mode...')
 
@@ -514,6 +533,11 @@ const initTValueChart = () => {
   if (!tValueChartContainer.value) return
   if (tValueChart) tValueChart.dispose()
 
+  // === 重新绑定 ResizeObserver ===
+  if (resizeObserver && tValueChartContainer.value) {
+    resizeObserver.observe(tValueChartContainer.value)
+  }
+
   tValueChart = echarts.init(tValueChartContainer.value)
 
   const series = tValueResults.value.map(res => ({
@@ -549,6 +573,11 @@ const initTValueChart = () => {
   }
 
   tValueChart.setOption(option)
+
+  // 强制 resize 确保 T 值图表尺寸正确
+  setTimeout(() => {
+    tValueChart?.resize({ width: 'auto', height: 'auto' })
+  }, 100)
 }
 </script>
 
@@ -587,6 +616,8 @@ const initTValueChart = () => {
   flex-direction: column;
   gap: 1rem;
   width: 96%;
+  min-width: 0; /* 防止 Flex 子项坍塌 */
+  box-sizing: border-box;
 }
 
 .step-header {
@@ -638,6 +669,9 @@ const initTValueChart = () => {
   padding: 0.5rem;
   border: 1px solid rgba(0,0,0,0.05);
   box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  position: relative; /* 确保 ECharts 定位准确 */
+  overflow: hidden;   /* 防止内容溢出 */
+  box-sizing: border-box; /* 包含 padding */
 }
 
 .result-chart {
