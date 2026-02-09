@@ -1,9 +1,26 @@
 <template>
   <div class="vowel-space-panel glass-panel">
-    <h2 class="panel-title">F1-F2 元音空間（按語音段）</h2>
+    <div style="display: flex;align-items: center;flex-direction: column;justify-content: center;">
+      <h2 class="panel-title">F1-F2 元音空間</h2>
+      <!-- Control Buttons -->
+      <div class="control-buttons">
+        <button
+          class="control-btn glass-panel-inner"
+          :class="{ active: showSegmented }"
+          @click="showSegmented = !showSegmented">
+          {{ showSegmented ? '📊 分段顯示' : '⚫ 全部顯示' }}
+        </button>
+        <button
+          class="control-btn glass-panel-inner"
+          :class="{ active: showReferenceVowels }"
+          @click="showReferenceVowels = !showReferenceVowels">
+          {{ showReferenceVowels ? '🔤 隱藏參考元音' : '🔤 顯示參考元音' }}
+        </button>
+      </div>
+    </div>
 
-    <!-- Segment Selector Section -->
-    <div class="segment-selector-section">
+    <!-- Segment Selector Section (only show when segmented mode is on) -->
+    <div v-if="showSegmented" class="segment-selector-section">
       <h3 class="section-title">選擇語音段</h3>
 
       <div v-if="vowelSegments.length === 0" class="no-segments-message">
@@ -48,8 +65,8 @@
       <div ref="chartContainer" class="chart-container"></div>
     </div>
 
-    <!-- Statistics Section -->
-    <div class="stats-section">
+    <!-- Statistics Section (only show when segmented mode is on) -->
+    <div v-if="showSegmented" class="stats-section">
       <h3 class="section-title">統計信息</h3>
 
       <div v-if="selectedSegments.size === 0" class="no-selection-message">
@@ -89,7 +106,8 @@
       <p class="description-text">
         元音空間圖顯示 F1（第一共振峰）和 F2（第二共振峰）的分布。
         根據語音學慣例，兩個軸都是反向的（從高到低）。
-        連線顯示元音在時間上的軌跡變化，箭頭指示時間方向。
+        <span v-if="showSegmented">連線顯示元音在時間上的軌跡變化，箭頭指示時間方向。</span>
+        <span v-if="showReferenceVowels">灰色標記為 IPA 參考元音位置。</span>
       </p>
     </div>
   </div>
@@ -98,6 +116,7 @@
 <script setup>
 import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
 import * as echarts from 'echarts'
+import referenceVowelsData from '@/assets/vowels.json'
 
 const props = defineProps({
   results: {
@@ -110,9 +129,11 @@ const chartContainer = ref(null)
 let chart = null
 let resizeObserver = null
 
-// Reactive state for segment selection
+// Reactive state for segment selection and display modes
 const selectedSegments = ref(new Set())
 const showAll = ref(true)
+const showSegmented = ref(true)  // Toggle between segmented and scatter view
+const showReferenceVowels = ref(false)  // Toggle reference vowels
 
 // Color palette for segments
 const segmentColors = [
@@ -190,6 +211,16 @@ const segmentVowelData = computed(() => {
   })
 })
 
+// Compute all formant data (for scatter plot mode)
+const allVowelSpaceData = computed(() => {
+  const ts = props.results?.timeseries
+  if (!ts?.formants?.f1 || !ts?.formants?.f2) return []
+
+  return ts.formants.f1
+    .map((f1, idx) => [ts.formants.f2[idx], f1])
+    .filter(([f2, f1]) => f2 && f1 && f2 > 0 && f1 > 0)
+})
+
 // Initialize: select all segments by default
 watch(vowelSegments, (segments) => {
   if (segments.length > 0 && selectedSegments.value.size === 0) {
@@ -236,47 +267,105 @@ const initChart = () => {
 
   chart = echarts.init(chartContainer.value)
 
-  // Create series for each selected segment
-  const series = segmentVowelData.value
-    .filter(data => selectedSegments.value.has(data.segment.id))
-    .map(data => ({
-      name: data.segment.label,
-      type: 'line',  // Changed from 'scatter' to 'line'
-      data: data.points,
-      smooth: false,  // Keep angular to show actual trajectory
-      lineStyle: {
-        color: getSegmentColor(data.segment.id),
-        width: 2
-      },
-      itemStyle: {
-        color: getSegmentColor(data.segment.id)
-      },
+  let series = []
+
+  // Choose series based on display mode
+  if (showSegmented.value) {
+    // Segmented mode: line series with trajectories
+    series = segmentVowelData.value
+      .filter(data => selectedSegments.value.has(data.segment.id))
+      .map(data => ({
+        name: data.segment.label,
+        type: 'line',
+        data: data.points,
+        smooth: false,
+        lineStyle: {
+          color: getSegmentColor(data.segment.id),
+          width: 2
+        },
+        itemStyle: {
+          color: getSegmentColor(data.segment.id)
+        },
+        symbolSize: 6,
+        showSymbol: true,
+        endLabel: {
+          show: true,
+          formatter: '▶',
+          fontSize: 12,
+          color: getSegmentColor(data.segment.id),
+          distance: 5
+        },
+        emphasis: {
+          focus: 'series'
+        }
+      }))
+  } else {
+    // Scatter mode: all points together
+    series = [{
+      name: '所有數據點',
+      type: 'scatter',
+      data: allVowelSpaceData.value,
       symbolSize: 6,
-      showSymbol: true,  // Show points on the line
-      // Add arrow at the end to show direction
-      endLabel: {
+      itemStyle: {
+        color: '#34c759',
+        opacity: 0.6
+      }
+    }]
+  }
+
+  // Add reference vowels if enabled
+  if (showReferenceVowels.value) {
+    series.push({
+      name: 'IPA 參考元音',
+      type: 'scatter',
+      data: referenceVowelsData.map(v => [v.F2, v.F1]),
+      symbolSize: 10,
+      itemStyle: {
+        color: '#8e8e93',
+        opacity: 0.7,
+        borderColor: '#fff',
+        borderWidth: 1
+      },
+      label: {
         show: true,
-        formatter: '▶',  // Arrow symbol
+        formatter: (params) => {
+          const vowel = referenceVowelsData[params.dataIndex]
+          return vowel.symbol
+        },
+        position: 'top',
         fontSize: 12,
-        color: getSegmentColor(data.segment.id),
-        distance: 5
+        color: '#8e8e93',
+        fontWeight: 'bold'
       },
       emphasis: {
-        focus: 'series'
-      }
-    }))
+        label: {
+          show: true,
+          fontSize: 14
+        }
+      },
+      z: 10  // Ensure reference vowels are on top
+    })
+  }
 
   const option = {
     title: {
-      text: 'F1-F2 元音空間 (按語音段)',
+      text: showSegmented.value ? 'F1-F2 元音空間 (按語音段)' : 'F1-F2 元音空間 (全部數據)',
       left: 'center',
       top: 10
     },
     tooltip: {
       trigger: 'item',
       formatter: (params) => {
+        if (params.seriesName === 'IPA 參考元音') {
+          const vowel = referenceVowelsData[params.dataIndex]
+          return `${vowel.symbol}<br/>F1: ${vowel.F1} Hz<br/>F2: ${vowel.F2} Hz`
+        }
         const [f2, f1, time] = params.value
-        return `${params.seriesName}<br/>F1: ${f1.toFixed(0)} Hz<br/>F2: ${f2.toFixed(0)} Hz<br/>時間: ${time.toFixed(2)}s`
+        let result = `${params.seriesName}<br/>F1: ${f1.toFixed(0)} Hz<br/>F2: ${f2.toFixed(0)} Hz`
+        if (time !== undefined) {
+          result += `<br/>時間: ${time.toFixed(2)}s`
+        }
+        return result
       }
     },
     legend: {
@@ -355,9 +444,11 @@ const initChart = () => {
   resizeObserver.observe(chartContainer.value)
 }
 
-// Watch for segment selection changes
-watch([selectedSegments, () => props.results], () => {
-  if (segmentVowelData.value.length > 0) {
+// Watch for segment selection changes and display mode changes
+watch([selectedSegments, showSegmented, showReferenceVowels, () => props.results], () => {
+  if (showSegmented.value && segmentVowelData.value.length > 0) {
+    setTimeout(() => initChart(), 100)
+  } else if (!showSegmented.value && allVowelSpaceData.value.length > 0) {
     setTimeout(() => initChart(), 100)
   }
 }, { deep: true })
@@ -388,7 +479,7 @@ onBeforeUnmount(() => {
 .panel-title {
   font-size: 1.5rem;
   font-weight: 600;
-  margin-bottom: 1.5rem;
+  margin:1rem;
   color: var(--color-text-primary);
 }
 
@@ -397,6 +488,33 @@ onBeforeUnmount(() => {
   font-weight: 600;
   margin-bottom: 1rem;
   color: var(--color-text-primary);
+}
+
+/* Control Buttons */
+.control-buttons {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.control-btn {
+  padding: 0.75rem 1.5rem;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 500;
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
+}
+
+.control-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.control-btn.active {
+  border-color: #007aff;
+  background: rgba(0, 122, 255, 0.1);
 }
 
 /* Segment Selector Section */
@@ -517,7 +635,7 @@ onBeforeUnmount(() => {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
   padding-bottom: 0.75rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.2);
 }
