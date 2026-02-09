@@ -671,11 +671,8 @@ const submitBatchEdit = async () => {
       username: userStore.username
     }))
 
-    await api('/user/custom/batch-create', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(newData)
-    })
+    // ✅ 使用已导入的 batchCreateCustomData 函数
+    await batchCreateCustomData(newData)
 
     showSuccess(`批量編輯成功：${validRows.length} 條`)
     closeBatchEditModal()

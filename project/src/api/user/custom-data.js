@@ -72,7 +72,7 @@ export async function batchCreateCustomData(records) {
   try {
     return await api('/user/custom/batch-create', {
       method: 'POST',
-      body: { records }
+      body: records  // ✅ 直接发送数组，不包装在对象中
     })
   } catch (error) {
     console.error('Batch create custom data error:', error)
