@@ -484,6 +484,38 @@ const startAnalysis = async () => {
     uploadId.value = uploadResponse.task_id  // ✅ 后端返回的是 task_id
     isUploading.value = false
 
+    // 检查音频时长（如果启用了频谱图分析）
+    // 管理员不受此限制
+    const duration = uploadResponse.normalized_meta?.duration_s || uploadResponse.audio_metadata?.duration_s
+    const hasSpectrogramModule = settings.modules && settings.modules.includes('spectrogram')
+    const isAdmin = userStore.role === 'admin'
+
+    if (hasSpectrogramModule && duration && duration > 3 && !isAdmin) {
+      // 阻止分析并显示警告
+      showWarning(
+        `音頻時長為 ${duration.toFixed(1)} 秒，超過 3 秒限制。頻譜圖分析不支持超過 3 秒的音頻。請在設置中關閉頻譜圖模塊後重試。`,
+        5000  // 5秒显示时长
+      )
+
+      // 延迟打开设置面板，确保 toast 先显示
+      setTimeout(() => {
+        showSettings.value = true
+      }, 300)
+
+      // 重置状态
+      jobStatus.value = 'idle'
+      jobStage.value = ''
+      activeTab.value = 'upload'
+
+      console.warn(`[Praat] Audio duration ${duration}s exceeds 3s limit for spectrogram analysis - analysis blocked`)
+      return
+    }
+
+    // 管理员使用长音频时的提示
+    if (hasSpectrogramModule && duration && duration > 3 && isAdmin) {
+      console.log(`[Praat] Admin user bypassing 3s limit for spectrogram analysis (duration: ${duration}s)`)
+    }
+
     // Create job
     jobStage.value = '創建分析任務...'
     const jobResponse = await createJob(uploadId.value, settings)

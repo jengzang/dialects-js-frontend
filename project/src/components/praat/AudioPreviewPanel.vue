@@ -180,6 +180,7 @@
 import { ref, watch, onMounted, onBeforeUnmount, nextTick, computed } from 'vue'
 import WaveSurfer from 'wavesurfer.js'
 import RegionsPlugin from 'wavesurfer.js/dist/plugins/regions.esm.js'
+import { userStore } from '@/utils/store.js'
 
 const props = defineProps({
   audioBlob: {
@@ -338,9 +339,10 @@ const addRegion = () => {
 // Handle region created
 const handleRegionCreated = async (region) => {
   const duration = region.end - region.start
+  const isAdmin = userStore.role === 'admin'
 
-  // Validate duration
-  if (duration > 10) {
+  // Validate duration (管理员不受限制)
+  if (duration > 10 && !isAdmin) {
     validationError.value = '分段不能超過 10 秒'
     region.remove()
     return
@@ -385,9 +387,10 @@ const handleRegionUpdated = (region) => {
   if (!regionData) return
 
   const duration = region.end - region.start
+  const isAdmin = userStore.role === 'admin'
 
-  // Validate duration
-  if (duration > 10) {
+  // Validate duration (管理员不受限制)
+  if (duration > 10 && !isAdmin) {
     validationError.value = '分段不能超過 10 秒'
     region.update({ start: regionData.start, end: regionData.end })
     return
@@ -422,7 +425,10 @@ const updateRegionTime = (regionData) => {
   }
 
   const duration = regionData.end - regionData.start
-  if (duration > 10) {
+  const isAdmin = userStore.role === 'admin'
+
+  // 管理员不受 10 秒限制
+  if (duration > 10 && !isAdmin) {
     validationError.value = '分段不能超過 10 秒'
     return
   }

@@ -115,6 +115,7 @@ const pitchChartContainer = ref(null)
 const tValueChartContainer = ref(null)
 let pitchChart = null
 let tValueChart = null
+let resizeObserver = null
 
 const toneNameInput = ref('')
 const currentSelection = ref([]) // 當前框選的Hz數組
@@ -144,8 +145,9 @@ const getToneSegmentCount = (tone) => {
 
 // === 初始化與生命週期 ===
 onMounted(() => {
-  console.log('Component mounted')
-  console.log('hasPitchData:', hasPitchData.value)
+  console.log('[PitchTone] Component mounted')
+  console.log('[PitchTone] hasPitchData:', hasPitchData.value)
+  console.log('[PitchTone] props.results:', props.results)
 
   // 1. 從 LocalStorage 恢復數據 (支持舊格式遷移)
   const stored = localStorage.getItem(STORAGE_KEY)
@@ -180,33 +182,35 @@ onMounted(() => {
 
   // 2. 初始化圖表 (在 nextTick 中确保 DOM 已挂载)
   nextTick(() => {
-    console.log('nextTick: Checking for pitch data...')
+    console.log('[PitchTone] nextTick: Checking for pitch data...')
+    console.log('[PitchTone] pitchChartContainer.value:', pitchChartContainer.value)
     if (hasPitchData.value) {
-      console.log('Has pitch data, initializing chart...')
+      console.log('[PitchTone] Has pitch data, initializing chart...')
       initPitchChart()
     } else {
-      console.log('No pitch data available')
+      console.log('[PitchTone] No pitch data available')
     }
 
     // 3. Setup ResizeObserver (在 nextTick 中确保容器已存在)
-    const resizeObserver = new ResizeObserver(() => {
+    resizeObserver = new ResizeObserver(() => {
       pitchChart?.resize()
       tValueChart?.resize()
     })
 
     if (pitchChartContainer.value) {
-      console.log('Setting up ResizeObserver for pitch chart')
+      // console.log('Setting up ResizeObserver for pitch chart')
       resizeObserver.observe(pitchChartContainer.value)
     }
 
-    // Cleanup on unmount
-    onBeforeUnmount(() => {
-      console.log('Component unmounting, cleaning up...')
-      resizeObserver?.disconnect()
-      pitchChart?.dispose()
-      tValueChart?.dispose()
-    })
   })
+})
+
+// Cleanup on unmount
+onBeforeUnmount(() => {
+  // console.log('Component unmounting, cleaning up...')
+  resizeObserver?.disconnect()
+  pitchChart?.dispose()
+  tValueChart?.dispose()
 })
 
 // 監聽數據變化自動保存
@@ -214,27 +218,40 @@ watch(savedTones, (newVal) => {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(newVal))
 }, { deep: true })
 
+// 監聽 props.results 變化，重新初始化圖表
+watch(() => props.results, (newVal) => {
+  console.log('[PitchTone] props.results changed:', newVal)
+  if (newVal && newVal.timeseries && newVal.timeseries.pitch_hz) {
+    nextTick(() => {
+      console.log('[PitchTone] Re-initializing chart due to data change')
+      initPitchChart()
+    })
+  }
+}, { deep: true })
+
 // === 1. 基頻圖表邏輯 (帶框選功能) ===
 const initPitchChart = () => {
-  console.log('initPitchChart called')
-  console.log('pitchChartContainer.value:', pitchChartContainer.value)
+  console.log('[PitchTone] initPitchChart called')
+  console.log('[PitchTone] pitchChartContainer.value:', pitchChartContainer.value)
 
   if (!pitchChartContainer.value) {
-    console.error('pitchChartContainer is null!')
+    console.error('[PitchTone] pitchChartContainer is null!')
     return
   }
 
   if (pitchChart) pitchChart.dispose()
 
-  console.log('Initializing ECharts...')
+  console.log('[PitchTone] Initializing ECharts...')
   pitchChart = echarts.init(pitchChartContainer.value)
-  console.log('ECharts initialized:', pitchChart)
+  console.log('[PitchTone] ECharts initialized:', pitchChart)
 
   const ts = props.results.timeseries
   if (!ts || !ts.pitch_hz) {
-    console.error('No pitch data available')
+    console.error('[PitchTone] No pitch data available')
     return
   }
+
+  console.log('[PitchTone] Pitch data points:', ts.pitch_hz.length)
 
   // 構建數據 [時間, Hz]
   const rawData = ts.pitch_hz.map((v, i) => [ts.time?.[i] || i * 0.01, v])
@@ -305,7 +322,7 @@ const initPitchChart = () => {
 
   pitchChart.setOption(option)
 
-  console.log('Pitch chart initialized, activating brush mode...')
+  // console.log('Pitch chart initialized, activating brush mode...')
 
   // 默认激活框选模式
   pitchChart.dispatchAction({
@@ -317,15 +334,15 @@ const initPitchChart = () => {
     }
   })
 
-  console.log('Brush mode activated')
+  // console.log('Brush mode activated')
 
   // 監聽框選事件
   pitchChart.on('brushSelected', (params) => {
-    console.log('=== brushSelected event triggered ===')
+    // console.log('=== brushSelected event triggered ===')
 
     const brushComponent = params.batch[0]
     if (!brushComponent || !brushComponent.areas || brushComponent.areas.length === 0) {
-      console.log('No valid brush selection')
+      // console.log('No valid brush selection')
       currentSelection.value = []
       return
     }
@@ -335,13 +352,13 @@ const initPitchChart = () => {
     const coordRange = area.coordRange || area.coordRanges?.[0]
 
     if (!coordRange || coordRange.length !== 2) {
-      console.log('No valid coordRange')
+      // console.log('No valid coordRange')
       currentSelection.value = []
       return
     }
 
     const [startTime, endTime] = coordRange
-    console.log('Selected time range:', startTime, 'to', endTime)
+    // console.log('Selected time range:', startTime, 'to', endTime)
 
     // Manually filter data points within the time range
     const selectedValues = rawData
@@ -349,8 +366,8 @@ const initPitchChart = () => {
       .map(([time, hz]) => hz)
 
     currentSelection.value = selectedValues
-    console.log('✅ Selected Hz values:', currentSelection.value.length, 'points')
-    console.log('First few values:', currentSelection.value.slice(0, 5))
+    // console.log('✅ Selected Hz values:', currentSelection.value.length, 'points')
+    // console.log('First few values:', currentSelection.value.slice(0, 5))
   })
 }
 
@@ -543,7 +560,7 @@ const initTValueChart = () => {
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 1rem;
 }
 
 @media (max-aspect-ratio: 1/1) {
@@ -614,6 +631,7 @@ const initTValueChart = () => {
 }
 
 .chart-container {
+  width: 100%;
   height: 350px;
   background: white;
   border-radius: var(--radius-md, 8px);

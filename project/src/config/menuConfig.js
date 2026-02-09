@@ -141,7 +141,7 @@ export const menuConfig = {
     ]
   },
   'praat': {
-    label: '實驗語音',
+    label: '聲學分析',
     icon: '👂️️',
     path: '/explore?page=praat',
     children: null

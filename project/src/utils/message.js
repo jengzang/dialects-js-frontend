@@ -64,7 +64,7 @@ export function showError(message, duration = 5000) {
 /**
  * 显示警告消息
  * @param {string} message - 消息内容
- * @param {number} duration - 显示时长（ms）
+ * @param {{duration: number}} duration - 显示时长（ms）
  */
 export function showWarning(message, duration = 4000) {
     showMessage(message, 'warning', duration)

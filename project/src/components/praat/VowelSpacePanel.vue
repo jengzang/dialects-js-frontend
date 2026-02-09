@@ -114,7 +114,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import * as echarts from 'echarts'
 import referenceVowelsData from '@/assets/vowels.json'
 
@@ -447,16 +447,18 @@ const initChart = () => {
 // Watch for segment selection changes and display mode changes
 watch([selectedSegments, showSegmented, showReferenceVowels, () => props.results], () => {
   if (showSegmented.value && segmentVowelData.value.length > 0) {
-    setTimeout(() => initChart(), 100)
+    nextTick(() => initChart())
   } else if (!showSegmented.value && allVowelSpaceData.value.length > 0) {
-    setTimeout(() => initChart(), 100)
+    nextTick(() => initChart())
   }
 }, { deep: true })
 
 onMounted(() => {
-  if (segmentVowelData.value.length > 0) {
-    initChart()
-  }
+  nextTick(() => {
+    if (segmentVowelData.value.length > 0) {
+      initChart()
+    }
+  })
 })
 
 onBeforeUnmount(() => {

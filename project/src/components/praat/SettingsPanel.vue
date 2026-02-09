@@ -107,6 +107,7 @@
         </div>
         <div class="param-item">
           <label>最大頻率 (Hz)</label>
+          <label>男人4500；女人5500；兒童8000</label>
           <input type="number"
                  v-model.number="localSettings.formant_options.max_freq_hz" min="3000"
                  max="8000" step="100" />
@@ -269,10 +270,10 @@ const applyResolutionPreset = () => {
   }
   localSettings.output_options.downsample_hz = preset.downsample_hz
 
-  console.log(`✅ 已应用 ${currentResolutionMode.value} 预设:`, {
-    formant_time_step: preset.time_step,
-    downsample_hz: preset.downsample_hz
-  })
+  // console.log(`✅ 已应用 ${currentResolutionMode.value} 预设:`, {
+  //   formant_time_step: preset.time_step,
+  //   downsample_hz: preset.downsample_hz
+  // })
 }
 
 // 手动修改时，切换到自定义模式（可选）
