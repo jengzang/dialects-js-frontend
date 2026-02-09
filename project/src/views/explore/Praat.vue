@@ -91,20 +91,26 @@
 
       <!-- Tab 2: Analysis Results -->
       <div v-show="activeTab === 'results'" class="page-content" :class="{ 'tab-hidden': activeTab !== 'results' }">
-          <!-- Job Status (Inline) -->
-          <div v-if="jobId" class="job-status-inline">
-            <JobStatusPanel
-              :job-id="jobId"
-              :status="jobStatus"
-              :progress="jobProgress"
-              :stage="jobStage"
-              :error="jobError"
-              @cancel="cancelAnalysis"
-            />
+          <!-- Job Status Panel (All states handled inside) -->
+          <JobStatusPanel
+            v-if="jobId && !analysisResults"
+            :job-id="jobId"
+            :status="jobStatus"
+            :progress="jobProgress"
+            :stage="jobStage"
+            :error="jobError"
+            @cancel="cancelAnalysis"
+          />
+
+          <!-- No Results Message -->
+          <div v-else-if="!analysisResults && !jobId" class="no-results-state glass-panel">
+            <div class="no-results-icon">📊</div>
+            <h3 class="no-results-title">尚無分析結果</h3>
+            <p class="no-results-text">請先上傳音頻並開始分析</p>
           </div>
 
           <!-- Analysis Results -->
-          <AnalysisResultsPanel :results="analysisResults" />
+          <AnalysisResultsPanel v-else-if="analysisResults" :results="analysisResults" />
         </div>
 
       <!-- Tab 3: Vowel Space - NEW -->
@@ -359,6 +365,13 @@ const startAnalysis = async () => {
     return
   }
 
+  // Clear previous results and reset status IMMEDIATELY
+  analysisResults.value = null
+  jobStatus.value = 'queued'
+  jobProgress.value = 0
+  jobStage.value = '準備上傳音頻...'
+  jobError.value = null
+
   // Enable results tab and auto-switch
   resultsTabEnabled.value = true
   activeTab.value = 'results'
@@ -366,20 +379,25 @@ const startAnalysis = async () => {
   try {
     // Upload audio
     isUploading.value = true
+    jobStage.value = '上傳音頻中...'
     const uploadResponse = await uploadAudio(audioFile.value)
     uploadId.value = uploadResponse.task_id  // ✅ 后端返回的是 task_id
     isUploading.value = false
 
     // Create job
+    jobStage.value = '創建分析任務...'
     const jobResponse = await createJob(uploadId.value, settings)
     jobId.value = jobResponse.job_id
 
     // Start polling
+    jobStage.value = '開始分析...'
     startPolling()
   } catch (error) {
     console.error('Start analysis error:', error)
     showError(error.message || '啟動分析失敗')
     isUploading.value = false
+    jobStatus.value = 'error'
+    jobError.value = error.message
   }
 }
 
@@ -1001,5 +1019,135 @@ if (typeof window !== 'undefined') {
     top: 1rem;
     right: 1rem;
   }
+}
+
+/* Analysis Status Card - Single Unified Card */
+.analysis-status-card {
+  width: 95%;
+  max-width: 800px;
+  margin: 1rem auto;
+  padding: 1rem;
+}
+
+
+.loading-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 2rem 0;
+}
+
+.error-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 2rem 0;
+}
+
+.error-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.error-title {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #ff3b30;
+  margin-bottom: 0.5rem;
+}
+
+.error-text {
+  font-size: 1rem;
+  color: var(--color-text-secondary);
+}
+
+
+.loading-spinner {
+  width: 60px;
+  height: 60px;
+  border: 4px solid rgba(0, 122, 255, 0.2);
+  border-top-color: #007aff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 2rem;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loading-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.loading-text {
+  font-size: 1rem;
+  color: var(--color-text-secondary);
+  margin-bottom: 2rem;
+}
+
+.loading-progress {
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #007aff, #5ac8fa);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.progress-text {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #007aff;
+  text-align: center;
+}
+
+/* No Results State */
+.no-results-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  margin: 2rem auto;
+  max-width: 600px;
+  text-align: center;
+}
+
+.no-results-icon {
+  font-size: 4rem;
+  margin-bottom: 1.5rem;
+  opacity: 0.6;
+}
+
+.no-results-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.no-results-text {
+  font-size: 1rem;
+  color: var(--color-text-secondary);
 }
 </style>

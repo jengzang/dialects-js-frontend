@@ -289,18 +289,53 @@ const initChart = () => {
       name: 'F2 (Hz)',
       nameLocation: 'middle',
       nameGap: 30,
-      inverse: true,  // REVERSED
-      min: 500,
-      max: 3000
+      inverse: true,
+      scale: true,
+      min: 0,
+      // 【新增】强制最小间隔为 1，防止出现 0.5 这种情况
+      minInterval: 1,
+      // 【新增】标签格式化，强制去掉小数点
+      axisLabel: {
+        formatter: (value) => value.toFixed(0)
+      },
+      max: (value) => {
+        // 1. 先计算出带缓冲的最大值
+        let val = value.max + 200;
+
+        // 2. 【关键】向上取整到最近的 100 (例如 2563 -> 2600)
+        // 这样能让刻度切分得更漂亮
+        val = Math.ceil(val / 100) * 100;
+
+        // 3. 设定硬性保底值
+        const hardLimit = 2500;
+
+        return Math.max(val, hardLimit);
+      }
     },
     yAxis: {
       type: 'value',
       name: 'F1 (Hz)',
       nameLocation: 'middle',
       nameGap: 40,
-      inverse: true,  // REVERSED
-      min: 200,
-      max: 1200
+      inverse: true,
+      scale: true,
+      min: 0,
+      // 【新增】
+      minInterval: 1,
+      // 【新增】
+      axisLabel: {
+        formatter: (value) => value.toFixed(0)
+      },
+      max: (value) => {
+        let val = value.max + 50;
+
+        // 【关键】向上取整到最近的 50
+        val = Math.ceil(val / 50) * 50;
+
+        const hardLimit = 1000;
+
+        return Math.max(val, hardLimit);
+      }
     },
     series: series,
     grid: {

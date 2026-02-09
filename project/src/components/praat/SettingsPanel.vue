@@ -61,8 +61,8 @@
       <label class="setting-label">輸出選項</label>
       <div class="param-grid">
         <div class="param-item">
-          <label>下採樣頻率 (Hz)</label>
-          <input type="number" v-model.number="localSettings.output_options.downsample_hz" min="10" max="1000" />
+          <label>採樣頻率(Hz)</label>
+          <input type="number" placeholder="數值越大點越多" v-model.number="localSettings.output_options.downsample_hz" min="10" max="1000" />
         </div>
       </div>
       <div class="checkbox-options">

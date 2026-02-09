@@ -28,24 +28,26 @@
     </div>
 
     <!-- Tone Features (Single Mode) -->
-    <div v-if="results.units?.tone_features" class="summary-section">
+    <div v-if="results.units?.[0]?.tone_features" class="summary-section">
       <h3 class="section-title">調值特徵</h3>
       <div class="stats-grid">
         <div class="stat-card glass-panel-inner">
           <div class="stat-label">起始基頻</div>
-          <div class="stat-value">{{ results.units?.tone_features.f0_start?.toFixed(1) }} Hz</div>
+          <div class="stat-value">{{ results.units[0].tone_features.f0_start?.toFixed(1) }} Hz</div>
         </div>
         <div class="stat-card glass-panel-inner">
           <div class="stat-label">結束基頻</div>
-          <div class="stat-value">{{ results.units?.tone_features.f0_end?.toFixed(1) }} Hz</div>
+          <div class="stat-value">{{ results.units[0].tone_features.f0_end?.toFixed(1) }} Hz</div>
         </div>
         <div class="stat-card glass-panel-inner">
           <div class="stat-label">基頻斜率</div>
-          <div class="stat-value">{{ results.units?.tone_features.f0_slope?.toFixed(2) }}</div>
+          <div class="stat-value">{{ results.units[0].tone_features.f0_slope?.toFixed(2) }}</div>
         </div>
         <div class="stat-card glass-panel-inner">
           <div class="stat-label">五度標調</div>
-          <div class="stat-value">{{ results.units?.tone_features.contour_5pt || 'N/A' }}</div>
+          <div class="stat-value contour-display">
+            {{ formatContour5pt(results.units[0].tone_features.contour_5pt) }}
+          </div>
         </div>
       </div>
     </div>
@@ -154,6 +156,12 @@ const hasFormantData = computed(() => {
   const ts = props.results?.timeseries
   return ts?.formants && Object.keys(ts.formants).length > 0
 })
+
+// Format contour_5pt array for display
+const formatContour5pt = (contour) => {
+  if (!contour || !Array.isArray(contour)) return 'N/A'
+  return contour.map(v => v.toFixed(2)).join(' → ')
+}
 
 // Initialize Pitch Chart with Segment Overlay
 const initPitchChart = () => {
@@ -459,6 +467,13 @@ onBeforeUnmount(() => {
   font-size: 1.5rem;
   font-weight: 600;
   color: var(--color-text-primary);
+}
+
+.stat-value.contour-display {
+  font-size: 1.1rem;
+  font-family: 'Courier New', monospace;
+  letter-spacing: 0.05em;
+  color: #007aff;
 }
 
 .chart-section {
