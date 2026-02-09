@@ -76,7 +76,18 @@
     <!-- Spectrogram Chart -->
     <div v-if="hasSpectrogramData" class="chart-section">
       <h3 class="section-title">頻譜圖</h3>
-      <div ref="spectrogramChartContainer" class="chart-container spectrogram-chart"></div>
+
+      <div v-if="!showSpectrogram" class="spectrogram-placeholder glass-panel-inner">
+        <div class="placeholder-content">
+          <span class="placeholder-icon">🌊</span>
+          <p>頻譜圖數據量較大，渲染可能需要一點時間</p>
+          <button class="load-spectrogram-btn glass-button" @click="loadSpectrogram">
+            顯示頻譜圖
+          </button>
+        </div>
+      </div>
+
+      <div v-else ref="spectrogramChartContainer" class="chart-container spectrogram-chart"></div>
     </div>
 
     <!-- Voice Quality Section -->
@@ -98,25 +109,30 @@
         <!-- Jitter -->
         <div v-if="results.summary?.voice_quality.jitter" class="quality-card glass-panel-inner">
           <div class="quality-label">基頻微擾 (Jitter)</div>
-          <div class="quality-value" :class="getJitterClass(results.summary?.voice_quality.jitter.mean)">
-            {{ (results.summary?.voice_quality.jitter.mean * 100)?.toFixed(2) }}%
+          <div class="quality-value"
+               :class="getJitterClass(results.summary?.voice_quality.jitter.local)">
+            {{ (results.summary?.voice_quality.jitter.local * 100)?.toFixed(2) }}%
           </div>
           <div class="quality-bar">
-            <div class="quality-fill" :style="getJitterBarStyle(results.summary?.voice_quality.jitter.mean)"></div>
+            <div class="quality-fill" :style="getJitterBarStyle(results.summary?.voice_quality.jitter.local)"></div>
           </div>
-          <div class="quality-status">{{ getJitterStatus(results.summary?.voice_quality.jitter.mean) }}</div>
+          <div class="quality-status">{{
+              getJitterStatus(results.summary?.voice_quality.jitter.local) }}</div>
         </div>
 
         <!-- Shimmer -->
         <div v-if="results.summary?.voice_quality.shimmer" class="quality-card glass-panel-inner">
           <div class="quality-label">振幅微擾 (Shimmer)</div>
-          <div class="quality-value" :class="getShimmerClass(results.summary?.voice_quality.shimmer.mean)">
-            {{ (results.summary?.voice_quality.shimmer.mean * 100)?.toFixed(2) }}%
+          <div class="quality-value"
+               :class="getShimmerClass(results.summary?.voice_quality.shimmer.local)">
+            {{ (results.summary?.voice_quality.shimmer.local * 100)?.toFixed(2)
+            }}%
           </div>
           <div class="quality-bar">
-            <div class="quality-fill" :style="getShimmerBarStyle(results.summary?.voice_quality.shimmer.mean)"></div>
+            <div class="quality-fill" :style="getShimmerBarStyle(results.summary?.voice_quality.shimmer.local)"></div>
           </div>
-          <div class="quality-status">{{ getShimmerStatus(results.summary?.voice_quality.shimmer.mean) }}</div>
+          <div class="quality-status">{{
+              getShimmerStatus(results.summary?.voice_quality.shimmer.local) }}</div>
         </div>
       </div>
     </div>
@@ -124,7 +140,7 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted, onBeforeUnmount, computed } from 'vue'
+import {ref, watch, onMounted, onBeforeUnmount, computed, nextTick} from 'vue'
 import * as echarts from 'echarts'
 
 const props = defineProps({
@@ -138,6 +154,8 @@ const pitchChartContainer = ref(null)
 const intensityChartContainer = ref(null)
 const formantChartContainer = ref(null)
 const spectrogramChartContainer = ref(null)
+const showSpectrogram = ref(false)
+
 let pitchChart = null
 let intensityChart = null
 let formantChart = null
@@ -174,6 +192,13 @@ const hasSpectrogramData = computed(() => {
 const hasSegmentData = computed(() => {
   return props.results?.segments && props.results.segments.length > 0
 })
+
+const loadSpectrogram = async () => {
+  showSpectrogram.value = true
+  // 等待 DOM 更新，確保 spectrogramChartContainer 已經被渲染出來
+  await nextTick()
+  initSpectrogramChart()
+}
 
 // Format contour_5pt array for display
 const formatContour5pt = (contour) => {
@@ -625,7 +650,7 @@ watch(() => props.results, (newResults) => {
       if (hasPitchData.value) initPitchChart()
       if (hasIntensityData.value) initIntensityChart()
       if (hasFormantData.value) initFormantChart()
-      if (hasSpectrogramData.value) initSpectrogramChart()
+      // if (hasSpectrogramData.value) initSpectrogramChart()
     }, 100)
   }
 }, { deep: true })
@@ -805,5 +830,49 @@ onBeforeUnmount(() => {
   font-size: 0.85rem;
   font-weight: 600;
   color: var(--color-text-secondary);
+}
+
+/* 【新增】頻譜圖佔位區與按鈕樣式 */
+.spectrogram-placeholder {
+  width: 80%;
+  height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.3); /* 半透明背景 */
+  border-radius: var(--radius-lg);
+  border: 1px dashed rgba(0, 0, 0, 0.1);
+}
+
+.placeholder-content {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.placeholder-icon {
+  font-size: 3rem;
+  opacity: 0.7;
+}
+
+.load-spectrogram-btn {
+  padding: 0.8rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius-2xl);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 122, 255, 0.2);
+}
+
+.load-spectrogram-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 122, 255, 0.3);
+  opacity: 0.9;
 }
 </style>

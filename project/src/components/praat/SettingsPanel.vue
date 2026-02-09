@@ -55,7 +55,7 @@
           >
           <span class="radio-label">
               <span class="radio-title">💎 高精度</span>
-              <span class="radio-desc">1ms 步长 · 1000Hz 输出</span>
+              <span class="radio-desc">2ms 步长 · 500Hz 输出</span>
             </span>
         </label>
       </div>
@@ -212,8 +212,8 @@ const resolutionPresets = {
     description: '标准分析，平衡精度和性能'
   },
   'high': {
-    time_step: 0.001,
-    downsample_hz: 1000,
+    time_step: 0.002,
+    downsample_hz: 500,
     description: '高精度，适合精细分析（数据量大）'
   }
 }

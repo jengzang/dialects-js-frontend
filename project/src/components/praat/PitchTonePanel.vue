@@ -2,76 +2,99 @@
   <div class="pitch-tone-panel glass-panel">
     <h2 class="panel-title">石锋 T 值分析器</h2>
 
-    <div v-if="hasPitchData" class="chart-section">
-      <div class="chart-header">
-        <h3 class="section-title">步骤 1: 框選基頻並標註</h3>
-        <span class="hint-text">請使用鼠標在圖中框選一段穩定的音高區間</span>
+    <!-- Step 1: Select and Label -->
+    <div v-if="hasPitchData" class="step-section">
+      <div class="step-header">
+        <span class="step-number">1</span>
+        <div class="step-info">
+          <h3 class="step-title">框選基頻並標註</h3>
+          <span class="step-hint">直接在圖中拖動鼠標框選一段穩定的音高區間（橫向框選）</span>
+        </div>
       </div>
+
       <div ref="pitchChartContainer" class="chart-container"></div>
+
+      <div class="controls-section glass-panel-inner">
+        <div class="input-group">
+          <div class="selection-info">
+            <span v-if="currentSelection.length > 0" class="status-active">
+              ✅ 已選取 {{ currentSelection.length }} 個點
+            </span>
+            <span v-else class="status-idle">等待框選...</span>
+          </div>
+
+          <input
+              v-model="toneNameInput"
+              type="text"
+              placeholder="輸入調類名稱 (如: 陰平)"
+              class="tone-input"
+              @keyup.enter="saveTone"
+          />
+          <button
+              class="action-btn add-btn"
+              :disabled="currentSelection.length === 0 || !toneNameInput"
+              @click="saveTone"
+          >
+            ➕ 加入列表
+          </button>
+        </div>
+
+        <div class="saved-list-container">
+          <div class="list-header">
+            <span>已採集調類 ({{ savedTones.length }})</span>
+            <button v-if="savedTones.length > 0" @click="clearAll" class="text-btn danger">清空全部</button>
+          </div>
+
+          <div class="tags-wrapper">
+            <div v-for="(tone, index) in savedTones" :key="index" class="tone-tag">
+              <span class="tag-name">{{ tone.name }}</span>
+              <span class="tag-count">{{ getToneSegmentCount(tone) }} 段</span>
+              <button @click="removeTone(index)" class="close-tag">×</button>
+            </div>
+            <div v-if="savedTones.length === 0" class="empty-hint">暫無數據，請在上方圖表框選並添加</div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div v-else class="no-data-message">
       <div class="no-data-icon">📊</div>
-      <p>無基頻數據</p>
+      <p>請先上傳音頻並完成 Praat 分析</p>
     </div>
 
-    <div v-if="hasPitchData" class="controls-section glass-panel-inner">
-      <div class="input-group">
-        <div class="selection-info">
-          <span v-if="currentSelection.length > 0" class="status-active">
-            ✅ 已選取 {{ currentSelection.length }} 個點
-          </span>
-          <span v-else class="status-idle">等待框選...</span>
-        </div>
-
-        <input
-            v-model="toneNameInput"
-            type="text"
-            placeholder="輸入調類名稱 (如: 陰平)"
-            class="tone-input"
-            @keyup.enter="saveTone"
-        />
-        <button
-            class="action-btn add-btn"
-            :disabled="currentSelection.length === 0 || !toneNameInput"
-            @click="saveTone"
-        >
-          ➕ 加入列表
-        </button>
-      </div>
-
-      <div class="saved-list-container">
-        <div class="list-header">
-          <span>已採集調類 ({{ savedTones.length }})</span>
-          <button v-if="savedTones.length > 0" @click="clearAll" class="text-btn danger">清空全部</button>
-        </div>
-
-        <div class="tags-wrapper">
-          <div v-for="(tone, index) in savedTones" :key="index" class="tone-tag">
-            <span class="tag-name">{{ tone.name }}</span>
-            <span class="tag-count">{{ tone.values.length }}pts</span>
-            <button @click="removeTone(index)" class="close-tag">×</button>
-          </div>
-          <div v-if="savedTones.length === 0" class="empty-hint">暫無數據，請在上方圖表框選並添加</div>
+    <!-- Step 2: Analyze -->
+    <div v-if="hasPitchData && savedTones.length > 0" class="step-section">
+      <div class="step-header">
+        <span class="step-number">2</span>
+        <div class="step-info">
+          <h3 class="step-title">開始 T 值分析</h3>
+          <span class="step-hint">計算並生成各調類的五度值曲線</span>
         </div>
       </div>
 
       <div class="analyze-action">
         <button
             class="analyze-btn"
-            :disabled="savedTones.length === 0"
             @click="performTValueAnalysis"
         >
-          🚀 開始 T 值分析 ({{ savedTones.length }} 個調類)
+          🚀 開始分析 ({{ savedTones.length }} 個調類)
         </button>
       </div>
     </div>
 
-    <div v-if="tValueResults.length > 0" class="result-section">
-      <h3 class="section-title">分析結果: 五度值曲線</h3>
+    <!-- Step 3: Results -->
+    <div v-if="tValueResults.length > 0" class="step-section">
+      <div class="step-header">
+        <span class="step-number">3</span>
+        <div class="step-info">
+          <h3 class="step-title">分析結果</h3>
+          <span class="step-hint">五度值曲線（歸一化時長）</span>
+        </div>
+      </div>
+
       <div class="stats-info">
-        <span>參考系上限 (Max): {{ globalStats.max.toFixed(1) }} Hz</span>
-        <span>參考系下限 (Min): {{ globalStats.min.toFixed(1) }} Hz</span>
+        <span>參考系上限: {{ globalStats.max.toFixed(1) }} Hz</span>
+        <span>參考系下限: {{ globalStats.min.toFixed(1) }} Hz</span>
       </div>
       <div ref="tValueChartContainer" class="chart-container result-chart"></div>
     </div>
@@ -80,11 +103,11 @@
 </template>
 
 <script setup>
-import {computed, nextTick, onBeforeUnmount, onMounted, ref, watch} from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import * as echarts from 'echarts'
 
 const props = defineProps({
-  results: { type: Object, required: true }
+  results: { type: Object, default: null }
 })
 
 // === 狀態變量 ===
@@ -95,7 +118,7 @@ let tValueChart = null
 
 const toneNameInput = ref('')
 const currentSelection = ref([]) // 當前框選的Hz數組
-const savedTones = ref([])       // 已保存的調類列表 [{name, values:[]}]
+const savedTones = ref([])       // 已保存的調類列表 [{name, segments:[[]]}]
 const tValueResults = ref([])    // 計算後的T值結果
 const globalStats = ref({ max: 0, min: 0 })
 
@@ -103,25 +126,87 @@ const globalStats = ref({ max: 0, min: 0 })
 const STORAGE_KEY = 'shifeng_analysis_data'
 
 const hasPitchData = computed(() => {
-  return props.results?.timeseries?.pitch_hz?.length > 0
+  return props.results && props.results.timeseries && props.results.timeseries.pitch_hz && props.results.timeseries.pitch_hz.length > 0
 })
+
+// Helper function to safely get segment count
+const getToneSegmentCount = (tone) => {
+  if (!tone) return 0
+  if (tone.segments && Array.isArray(tone.segments)) {
+    return tone.segments.length
+  }
+  // Old format fallback
+  if (tone.values && Array.isArray(tone.values)) {
+    return 1
+  }
+  return 0
+}
 
 // === 初始化與生命週期 ===
 onMounted(() => {
-  // 1. 從 LocalStorage 恢復數據
+  console.log('Component mounted')
+  console.log('hasPitchData:', hasPitchData.value)
+
+  // 1. 從 LocalStorage 恢復數據 (支持舊格式遷移)
   const stored = localStorage.getItem(STORAGE_KEY)
   if (stored) {
     try {
-      savedTones.value = JSON.parse(stored)
+      const data = JSON.parse(stored)
+
+      // Migration: Convert old format to new format
+      if (Array.isArray(data) && data.length > 0) {
+        savedTones.value = data.map(tone => {
+          // Check if it's old format (has 'values' property)
+          if (tone.values && !tone.segments) {
+            return {
+              name: tone.name,
+              segments: [tone.values]  // Wrap in array
+            }
+          }
+          // Already new format or ensure segments exists
+          return {
+            name: tone.name,
+            segments: tone.segments || []
+          }
+        })
+      }
     } catch (e) {
       console.error('Failed to load tones', e)
+      // Clear corrupted data
+      localStorage.removeItem(STORAGE_KEY)
+      savedTones.value = []
     }
   }
 
-  // 2. 初始化圖表
-  if (hasPitchData.value) {
-    initPitchChart()
-  }
+  // 2. 初始化圖表 (在 nextTick 中确保 DOM 已挂载)
+  nextTick(() => {
+    console.log('nextTick: Checking for pitch data...')
+    if (hasPitchData.value) {
+      console.log('Has pitch data, initializing chart...')
+      initPitchChart()
+    } else {
+      console.log('No pitch data available')
+    }
+
+    // 3. Setup ResizeObserver (在 nextTick 中确保容器已存在)
+    const resizeObserver = new ResizeObserver(() => {
+      pitchChart?.resize()
+      tValueChart?.resize()
+    })
+
+    if (pitchChartContainer.value) {
+      console.log('Setting up ResizeObserver for pitch chart')
+      resizeObserver.observe(pitchChartContainer.value)
+    }
+
+    // Cleanup on unmount
+    onBeforeUnmount(() => {
+      console.log('Component unmounting, cleaning up...')
+      resizeObserver?.disconnect()
+      pitchChart?.dispose()
+      tValueChart?.dispose()
+    })
+  })
 })
 
 // 監聽數據變化自動保存
@@ -130,27 +215,39 @@ watch(savedTones, (newVal) => {
 }, { deep: true })
 
 // === 1. 基頻圖表邏輯 (帶框選功能) ===
-// === 1. 基頻圖表邏輯 (帶框選功能 + 音段顯示) ===
 const initPitchChart = () => {
-  if (!pitchChartContainer.value) return
+  console.log('initPitchChart called')
+  console.log('pitchChartContainer.value:', pitchChartContainer.value)
+
+  if (!pitchChartContainer.value) {
+    console.error('pitchChartContainer is null!')
+    return
+  }
+
   if (pitchChart) pitchChart.dispose()
 
+  console.log('Initializing ECharts...')
   pitchChart = echarts.init(pitchChartContainer.value)
+  console.log('ECharts initialized:', pitchChart)
 
   const ts = props.results.timeseries
+  if (!ts || !ts.pitch_hz) {
+    console.error('No pitch data available')
+    return
+  }
+
   // 構建數據 [時間, Hz]
   const rawData = ts.pitch_hz.map((v, i) => [ts.time?.[i] || i * 0.01, v])
 
-  // --- 恢复原有逻辑：准备音段背景 (markArea) ---
+  // 準備音段背景 (markArea)
   const segments = props.results.segments || []
   const markAreaData = segments.map(seg => [
     {
       xAxis: seg.start_s,
       itemStyle: {
-        // 根据类型显示不同颜色
-        color: seg.type === 'rime_core' ? 'rgba(255,215,0,0.2)' : // 金色 (韵核)
-            seg.type === 'silence' ? 'rgba(200,200,200,0.1)' : // 灰色 (静音)
-                'rgba(100,150,255,0.15)'                           // 蓝色 (其他)
+        color: seg.type === 'rime_core' ? 'rgba(255,215,0,0.2)' :
+            seg.type === 'silence' ? 'rgba(200,200,200,0.1)' :
+                'rgba(100,150,255,0.15)'
       }
     },
     { xAxis: seg.end_s }
@@ -164,24 +261,22 @@ const initPitchChart = () => {
     },
     tooltip: {
       trigger: 'axis',
-      axisPointer: { type: 'cross' } // 恢复十字准星
+      axisPointer: { type: 'cross' }
     },
-    // --- 关键：保留 Toolbox 里的 Brush 工具 ---
     toolbox: {
       right: 20,
       feature: {
-        brush: { type: ['lineX'], title: { lineX: '框選區域' } }, // 只有横向框选
         dataZoom: { title: { zoom: '縮放', back: '還原' } },
         restore: { title: '重置' }
       }
     },
-    // --- 关键：Brush 配置 ---
     brush: {
+      toolbox: ['lineX'],  // 启用横向框选
       xAxisIndex: 0,
       throttleType: 'debounce',
       throttleDelay: 300,
-      transformable: true, // 允许调整选框大小
-      brushStyle: { borderWidth: 1, color: 'rgba(255,0,0,0.1)', borderColor: '#ff4d4f' }
+      transformable: true,
+      brushStyle: { borderWidth: 2, color: 'rgba(142,20,34,0.15)', borderColor: '#e24a57' }
     },
     xAxis: {
       type: 'value',
@@ -192,61 +287,100 @@ const initPitchChart = () => {
     yAxis: {
       type: 'value',
       name: '基頻 (Hz)',
-      scale: true // 让Y轴不从0开始，聚焦数据变化
+      scale: true
     },
     series: [{
       name: '基頻',
       type: 'line',
       data: rawData,
-      symbol: 'none', // 不显示小圆点，保持线条流畅
-      smooth: true,   // 平滑曲线
-      lineStyle: { color: '#007aff', width: 2 }, // 恢复原本的蓝色线条
-
-      // --- 关键：恢复 markArea ---
+      symbol: 'none',
+      smooth: true,
+      lineStyle: { color: '#007aff', width: 2 },
       markArea: markAreaData.length > 0 ? {
         data: markAreaData,
-        silent: true // 重要：设置为 true，让背景色块不干扰鼠标框选
+        silent: true
       } : undefined
     }]
   }
 
   pitchChart.setOption(option)
 
-  // === 監聽框選事件 (保持不變) ===
-  pitchChart.on('brushSelected', (params) => {
-    const brushComponent = params.batch[0]
+  console.log('Pitch chart initialized, activating brush mode...')
 
-    if (!brushComponent || !brushComponent.selected || brushComponent.selected.length === 0) {
+  // 默认激活框选模式
+  pitchChart.dispatchAction({
+    type: 'takeGlobalCursor',
+    key: 'brush',
+    brushOption: {
+      brushType: 'lineX',
+      brushMode: 'single'
+    }
+  })
+
+  console.log('Brush mode activated')
+
+  // 監聽框選事件
+  pitchChart.on('brushSelected', (params) => {
+    console.log('=== brushSelected event triggered ===')
+
+    const brushComponent = params.batch[0]
+    if (!brushComponent || !brushComponent.areas || brushComponent.areas.length === 0) {
+      console.log('No valid brush selection')
       currentSelection.value = []
       return
     }
 
-    const dataIndices = brushComponent.selected[0].dataIndex
-    if (dataIndices && dataIndices.length > 0) {
-      currentSelection.value = dataIndices
-          .map(idx => rawData[idx][1])
-          .filter(v => v !== null && v > 0)
-    } else {
+    // Get the time range from brush area
+    const area = brushComponent.areas[0]
+    const coordRange = area.coordRange || area.coordRanges?.[0]
+
+    if (!coordRange || coordRange.length !== 2) {
+      console.log('No valid coordRange')
       currentSelection.value = []
+      return
     }
+
+    const [startTime, endTime] = coordRange
+    console.log('Selected time range:', startTime, 'to', endTime)
+
+    // Manually filter data points within the time range
+    const selectedValues = rawData
+      .filter(([time, hz]) => time >= startTime && time <= endTime && hz !== null && hz > 0)
+      .map(([time, hz]) => hz)
+
+    currentSelection.value = selectedValues
+    console.log('✅ Selected Hz values:', currentSelection.value.length, 'points')
+    console.log('First few values:', currentSelection.value.slice(0, 5))
   })
 }
+
 // === 2. 數據管理邏輯 ===
 const saveTone = () => {
   if (!toneNameInput.value || currentSelection.value.length === 0) return
 
-  savedTones.value.push({
-    name: toneNameInput.value,
-    values: [...currentSelection.value] // 深拷貝
-  })
+  // Check if tone class already exists
+  const existingTone = savedTones.value.find(t => t.name === toneNameInput.value)
+
+  if (existingTone) {
+    // Add to existing tone class
+    existingTone.segments.push([...currentSelection.value])
+  } else {
+    // Create new tone class
+    savedTones.value.push({
+      name: toneNameInput.value,
+      segments: [[...currentSelection.value]]
+    })
+  }
 
   // 重置輸入
   toneNameInput.value = ''
   // 清除圖表上的選框
-  pitchChart.dispatchAction({
-    type: 'brush',
-    areas: []
-  })
+  if (pitchChart) {
+    pitchChart.dispatchAction({
+      type: 'brush',
+      areas: []
+    })
+  }
   currentSelection.value = []
 }
 
@@ -258,7 +392,7 @@ const clearAll = () => {
   if (confirm('確定要清空所有已保存的調類嗎？')) {
     savedTones.value = []
     localStorage.removeItem(STORAGE_KEY)
-    tValueResults.value = [] // 也清空結果
+    // Do NOT clear tValueResults - keep analysis results visible
   }
 }
 
@@ -266,51 +400,94 @@ const clearAll = () => {
 const performTValueAnalysis = () => {
   if (savedTones.value.length === 0) return
 
-  // A. 計算全域 Max 和 Min (基於所有採集的數據)
-  // 將所有調類的所有採樣點合併成一個大數組
-  const allValues = savedTones.value.flatMap(t => t.values)
+  // A. Calculate global statistics from ALL collected segments
+  const allValues = savedTones.value.flatMap(t => t.segments.flat())
 
-  // 簡單過濾異常值 (可選: 使用四分位數過濾極端值)
-  const maxHz = Math.max(...allValues)
-  const minHz = Math.min(...allValues)
+  if (allValues.length === 0) {
+    alert('沒有有效的數據點')
+    return
+  }
 
-  globalStats.value = { max: maxHz, min: minHz }
+  // Calculate mean
+  const mean = allValues.reduce((sum, v) => sum + v, 0) / allValues.length
 
-  // B. 計算每個調類的 T 值曲線
-  // 公式: T = [(lgX - lgMin) / (lgMax - lgMin)] * 5
-  const lgMin = Math.log10(minHz)
-  const lgMax = Math.log10(maxHz)
-  const denominator = lgMax - lgMin // 分母
+  // Calculate standard deviation
+  const variance = allValues.reduce((sum, v) => sum + Math.pow(v - mean, 2), 0) / allValues.length
+  const sd = Math.sqrt(variance)
 
-  tValueResults.value = savedTones.value.map(tone => {
-    // 將該調類的每個 Hz 點轉換為 T 值
-    const tValues = tone.values.map(hz => {
+  // Calculate ceiling and floor using mean ± SD
+  const ceiling = mean + sd
+  const floor = mean - sd
+
+  console.log('Statistics:', { mean, sd, ceiling, floor })
+
+  globalStats.value = { max: ceiling, min: floor }
+
+  // B. Calculate T-values for each tone class
+  const lgMin = Math.log10(floor)
+  const lgMax = Math.log10(ceiling)
+  const denominator = lgMax - lgMin
+
+  // Helper: Convert Hz array to T-value array
+  const hzToTValues = (hzArray) => {
+    return hzArray.map(hz => {
       const lgX = Math.log10(hz)
       let T = ((lgX - lgMin) / denominator) * 5
-      // 限制在 0-5 之間
-      return Math.max(0, Math.min(5, T))
+      return Math.max(0, Math.min(5, T))  // Clamp to [0, 5]
+    })
+  }
+
+  // Helper: Normalize array to N points using linear interpolation
+  const normalizeLength = (arr, targetLength = 20) => {
+    if (arr.length === targetLength) return arr
+
+    const result = []
+    for (let i = 0; i < targetLength; i++) {
+      const pos = (i / (targetLength - 1)) * (arr.length - 1)
+      const idx = Math.floor(pos)
+      const frac = pos - idx
+
+      if (idx >= arr.length - 1) {
+        result.push(arr[arr.length - 1])
+      } else {
+        // Linear interpolation
+        result.push(arr[idx] * (1 - frac) + arr[idx + 1] * frac)
+      }
+    }
+    return result
+  }
+
+  // C. Process each tone class
+  tValueResults.value = savedTones.value.map(tone => {
+    // Convert each segment to T-values
+    const tValueSegments = tone.segments.map(hzSegment => {
+      const tValues = hzToTValues(hzSegment)
+      return normalizeLength(tValues, 20)  // Normalize to 20 points
     })
 
-    // 為了圖表平滑，我們可以對 T 值做簡單的移動平均，這裡暫時直接輸出
-    // 我們需要為每個 T 值生成一個虛擬的時間軸 (0% - 100%) 方便歸一化對比
-    const normalizedData = tValues.map((val, idx) => {
-      const percent = (idx / (tValues.length - 1)) * 100
+    // Average across all segments at each position
+    const avgTValues = []
+    for (let i = 0; i < 20; i++) {
+      const sum = tValueSegments.reduce((acc, seg) => acc + seg[i], 0)
+      avgTValues.push(sum / tValueSegments.length)
+    }
+
+    // Convert to chart data format [percent, T-value]
+    const chartData = avgTValues.map((val, idx) => {
+      const percent = (idx / 19) * 100  // 0% to 100%
       return [percent, val]
     })
 
     return {
       name: tone.name,
-      data: normalizedData
+      data: chartData
     }
   })
 
-  // C. 分析後清空 LocalStorage (根據需求)
-  localStorage.removeItem(STORAGE_KEY)
-  // 注意：我們保留了 savedTones 變量在內存中，以便用戶還能看到剛剛分析的是什麼
-  // 如果想徹底清空，可以 uncomment 下面這行：
-  // savedTones.value = []
+  // D. Do NOT clear localStorage automatically
+  // User will manually clear using the "清空" button
 
-  // D. 渲染結果圖
+  // E. Render results chart
   nextTick(() => {
     initTValueChart()
   })
@@ -325,7 +502,7 @@ const initTValueChart = () => {
   const series = tValueResults.value.map(res => ({
     name: res.name,
     type: 'line',
-    data: res.data, // [百分比, T值]
+    data: res.data,
     smooth: true,
     showSymbol: false,
     lineStyle: { width: 3 }
@@ -348,7 +525,7 @@ const initTValueChart = () => {
       name: '五度值 (T)',
       min: 0,
       max: 5,
-      interval: 1, // 刻度為 1
+      interval: 1,
       splitLine: { show: true }
     },
     series: series
@@ -356,54 +533,125 @@ const initTValueChart = () => {
 
   tValueChart.setOption(option)
 }
-
-// Resize Observer logic (simplified)
-let resizeObserver = null
-onMounted(() => {
-  resizeObserver = new ResizeObserver(() => {
-    pitchChart?.resize()
-    tValueChart?.resize()
-  })
-  if (pitchChartContainer.value) resizeObserver.observe(pitchChartContainer.value)
-})
-onBeforeUnmount(() => {
-  resizeObserver?.disconnect()
-  pitchChart?.dispose()
-  tValueChart?.dispose()
-})
 </script>
 
 <style scoped>
 .pitch-tone-panel {
   padding: 1.5rem;
-  margin-bottom: 1.5rem;
+  margin: 0 auto 1.5rem auto;
+  max-width: 1200px;
+  width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 2rem;
+}
+
+@media (max-aspect-ratio: 1/1) {
+  .pitch-tone-panel{
+    padding:0.5rem;
+  }
+  .controls-section{
+    display: flex!important;
+    flex-direction: column;
+  }
+}
+
+.panel-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--color-text-primary, #2c3e50);
+  margin: 0 0 1rem 0;
+  text-align: center;
+}
+
+/* Step Section */
+.step-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 96%;
+}
+
+.step-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.step-number {
+  flex-shrink: 0;
+  width: 2.5rem;
+  height: 2.5rem;
+  background: linear-gradient(135deg, #007aff, #5856d6);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(0, 122, 255, 0.3);
+}
+
+.step-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  align-items: center;
+}
+
+.step-title {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #2c3e50);
+  margin: 0;
+}
+
+.step-hint {
+  font-size: 0.9rem;
+  color: var(--color-text-secondary, #666);
 }
 
 .chart-container {
-  width: 100%;
   height: 350px;
   background: white;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-md, 8px);
   padding: 0.5rem;
   border: 1px solid rgba(0,0,0,0.05);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
 
 .result-chart {
-  height: 400px; /* 結果圖稍微高一點 */
+  height: 400px;
+}
+
+.no-data-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  color: var(--color-text-secondary, #666);
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: var(--radius-lg, 12px);
+  border: 2px dashed rgba(0,0,0,0.1);
+}
+
+.no-data-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
 }
 
 /* 控制面板樣式 */
 .controls-section {
   display: grid;
-  grid-template-columns: 1fr 1fr; /* 左右分欄 */
+  grid-template-columns: 1fr 1fr;
   gap: 1.5rem;
-  padding: 1rem;
-  background: rgba(255, 255, 255, 0.4);
-  border-radius: var(--radius-lg);
-  border: 1px solid rgba(255, 255, 255, 0.6);
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: var(--radius-lg, 12px);
+  border: 1px solid rgba(255, 255, 255, 0.8);
 }
 
 .input-group {
@@ -413,49 +661,81 @@ onBeforeUnmount(() => {
 }
 
 .selection-info {
-  font-size: 0.9rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  min-height: 1.5rem;
+}
+
+.status-active {
+  color: var(--color-success, #50c878);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+.status-idle {
+  color: var(--color-text-secondary, #999);
   font-weight: 500;
 }
 
-.status-active { color: var(--color-success); }
-.status-idle { color: var(--color-text-secondary); }
-
 .tone-input {
-  padding: 0.6rem 1rem;
-  border: 1px solid rgba(0,0,0,0.1);
-  border-radius: var(--radius-md);
+  padding: 0.7rem 1rem;
+  border: 2px solid rgba(0,0,0,0.1);
+  border-radius: var(--radius-md, 8px);
   font-size: 1rem;
+  transition: all 0.2s;
+}
+
+.tone-input:focus {
+  outline: none;
+  border-color: var(--color-primary, #4a90e2);
+  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
 }
 
 .action-btn {
-  padding: 0.6rem;
+  padding: 0.7rem;
   border: none;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-md, 8px);
   cursor: pointer;
   font-weight: 600;
+  font-size: 1rem;
   transition: all 0.2s;
 }
 
 .add-btn {
-  background: var(--color-primary);
+  background: var(--color-primary, #4a90e2);
   color: white;
+  box-shadow: 0 2px 6px rgba(74, 144, 226, 0.3);
 }
+
+.add-btn:hover:not(:disabled) {
+  background: #3a7bc8;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(74, 144, 226, 0.4);
+}
+
 .add-btn:disabled {
   background: #ccc;
   cursor: not-allowed;
+  box-shadow: none;
 }
 
 .saved-list-container {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.8rem;
 }
 
 .list-header {
   display: flex;
   justify-content: space-between;
-  font-size: 0.9rem;
-  color: var(--color-text-secondary);
+  align-items: center;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #2c3e50);
 }
 
 .text-btn {
@@ -464,15 +744,27 @@ onBeforeUnmount(() => {
   cursor: pointer;
   font-size: 0.85rem;
   text-decoration: underline;
+  transition: opacity 0.2s;
 }
-.text-btn.danger { color: var(--color-error); }
+
+.text-btn:hover {
+  opacity: 0.7;
+}
+
+.text-btn.danger {
+  color: var(--color-error, #e74c3c);
+  font-weight: 600;
+}
 
 .tags-wrapper {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
-  max-height: 120px;
+  gap: 0.6rem;
+  max-height: 140px;
   overflow-y: auto;
+  padding: 0.5rem;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: var(--radius-md, 8px);
 }
 
 .tone-tag {
@@ -480,54 +772,115 @@ onBeforeUnmount(() => {
   align-items: center;
   gap: 0.5rem;
   background: white;
-  padding: 0.3rem 0.6rem;
-  border-radius: var(--radius-full);
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-  font-size: 0.9rem;
+  padding: 0.4rem 0.8rem;
+  border: 2px solid rgba(0,0,0,0.5);
+  border-radius: var(--radius-2xl);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  font-size: 0.95rem;
+  transition: all 0.2s;
 }
 
-.tag-name { font-weight: 600; color: var(--color-primary); }
-.tag-count { font-size: 0.75rem; color: #999; }
+.tone-tag:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.tag-name {
+  font-weight: 700;
+  color: var(--color-primary, #4a90e2);
+}
+
+.tag-count {
+  font-size: 0.8rem;
+  color: #666;
+  font-weight: 600;
+}
+
 .close-tag {
   border: none;
   background: none;
   color: #999;
   cursor: pointer;
-  font-size: 1.1rem;
+  font-size: 1.2rem;
   line-height: 1;
+  padding: 0;
+  width: 1.2rem;
+  height: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
 }
-.close-tag:hover { color: var(--color-error); }
+
+.close-tag:hover {
+  color: var(--color-error, #e74c3c);
+  transform: scale(1.2);
+}
+
+.empty-hint {
+  color: var(--color-text-secondary, #999);
+  font-size: 0.9rem;
+  font-style: italic;
+  text-align: center;
+  padding: 1rem;
+}
 
 .analyze-action {
-  grid-column: 1 / -1;
   display: flex;
   justify-content: center;
-  margin-top: 0.5rem;
+  padding: 1rem 0;
 }
 
 .analyze-btn {
-  background: linear-gradient(90deg, #007aff, #5856d6);
+  background: linear-gradient(135deg, #007aff, #5856d6);
   color: white;
   border: none;
-  padding: 0.8rem 3rem;
-  border-radius: var(--radius-full);
-  font-size: 1.1rem;
-  font-weight: 600;
+  padding: 1rem 3rem;
+  border-radius: var(--radius-2xl);
+  font-size: 1.2rem;
+  font-weight: 700;
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
-  transition: transform 0.2s;
+  box-shadow: 0 4px 16px rgba(0, 122, 255, 0.4);
+  transition: all 0.3s;
+  position: relative;
+  overflow: hidden;
 }
 
-.analyze-btn:hover { transform: translateY(-2px); }
-.analyze-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+.analyze-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+  transition: left 0.5s;
+}
+
+.analyze-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 122, 255, 0.5);
+}
+
+.analyze-btn:hover::before {
+  left: 100%;
+}
+
+.analyze-btn:active {
+  transform: translateY(0);
+}
 
 .stats-info {
   display: flex;
   justify-content: center;
-  gap: 2rem;
-  margin-bottom: 0.5rem;
-  font-size: 0.9rem;
-  color: var(--color-text-secondary);
-  font-family: monospace;
+  gap: 3rem;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: var(--radius-md, 8px);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #2c3e50);
+  font-family: 'Courier New', monospace;
 }
 </style>

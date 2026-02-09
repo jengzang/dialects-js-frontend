@@ -121,7 +121,7 @@ import referenceVowelsData from '@/assets/vowels.json'
 const props = defineProps({
   results: {
     type: Object,
-    required: true
+    default: null
   }
 })
 
