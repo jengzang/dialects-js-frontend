@@ -73,6 +73,12 @@
       </div>
     </div>
 
+    <!-- Spectrogram Chart -->
+    <div v-if="hasSpectrogramData" class="chart-section">
+      <h3 class="section-title">頻譜圖</h3>
+      <div ref="spectrogramChartContainer" class="chart-container spectrogram-chart"></div>
+    </div>
+
     <!-- Voice Quality Section -->
     <div v-if="results.summary?.voice_quality" class="voice-quality-section">
       <h3 class="section-title">嗓音質量評估</h3>
@@ -131,9 +137,11 @@ const props = defineProps({
 const pitchChartContainer = ref(null)
 const intensityChartContainer = ref(null)
 const formantChartContainer = ref(null)
+const spectrogramChartContainer = ref(null)
 let pitchChart = null
 let intensityChart = null
 let formantChart = null
+let spectrogramChart = null
 
 const hasTimeSeriesData = computed(() => {
   const ts = props.results?.timeseries
@@ -155,6 +163,16 @@ const hasIntensityData = computed(() => {
 const hasFormantData = computed(() => {
   const ts = props.results?.timeseries
   return ts?.formants && Object.keys(ts.formants).length > 0
+})
+
+const hasSpectrogramData = computed(() => {
+  return props.results?.spectrogram &&
+         props.results.spectrogram.time &&
+         props.results.spectrogram.time.length > 0
+})
+
+const hasSegmentData = computed(() => {
+  return props.results?.segments && props.results.segments.length > 0
 })
 
 // Format contour_5pt array for display
@@ -364,6 +382,221 @@ const initFormantChart = () => {
   resizeObserver.observe(formantChartContainer.value)
 }
 
+// Initialize Spectrogram Chart
+const initSpectrogramChart = () => {
+  if (!spectrogramChartContainer.value || !hasSpectrogramData.value) return
+
+  spectrogramChart = echarts.init(spectrogramChartContainer.value)
+
+  const { time, frequency, energy_db } = props.results.spectrogram
+
+  // Prepare heatmap data: [timeIndex, frequencyIndex, energy]
+  const heatmapData = []
+  for (let i = 0; i < time.length; i++) {
+    for (let j = 0; j < frequency.length; j++) {
+      heatmapData.push([i, j, energy_db[i][j]])
+    }
+  }
+
+  // Get energy range from summary or calculate
+  const summary = props.results.summary?.spectrogram
+  const minEnergy = summary?.min_db ?? -100
+  const maxEnergy = summary?.max_db ?? -20
+
+  const option = {
+    tooltip: {
+      formatter: (params) => {
+        const t = time[params.data[0]].toFixed(3)
+        const f = frequency[params.data[1]].toFixed(0)
+        const e = params.data[2].toFixed(1)
+        return `時間: ${t}s<br/>頻率: ${f}Hz<br/>能量: ${e}dB`
+      }
+    },
+    grid: {
+      left: '10%',
+      right: '15%',
+      top: '10%',
+      bottom: '15%'
+    },
+    xAxis: {
+      type: 'category',
+      data: time.map((_, i) => i),
+      name: '時間 (s)',
+      nameLocation: 'middle',
+      nameGap: 30,
+      axisLabel: {
+        formatter: (value) => time[value]?.toFixed(2) || ''
+      }
+    },
+    yAxis: {
+      type: 'category',
+      data: frequency.map((_, i) => i),
+      name: '頻率 (Hz)',
+      nameLocation: 'middle',
+      nameGap: 50,
+      axisLabel: {
+        formatter: (value) => frequency[value]?.toFixed(0) || ''
+      }
+    },
+    visualMap: {
+      min: minEnergy,
+      max: maxEnergy,
+      calculable: true,
+      orient: 'vertical',
+      right: '0',
+      top: 'center',
+      text: ['高', '低'],
+      inRange: {
+        color: [
+          '#313695', '#4575b4', '#74add1', '#abd9e9',
+          '#e0f3f8', '#ffffbf', '#fee090', '#fdae61',
+          '#f46d43', '#d73027', '#a50026'
+        ]
+      }
+    },
+    series: [{
+      type: 'heatmap',
+      data: heatmapData,
+      emphasis: {
+        itemStyle: {
+          shadowBlur: 10,
+          shadowColor: 'rgba(0, 0, 0, 0.5)'
+        }
+      }
+    }]
+  }
+
+  // Add overlay layers if data is available
+  addSpectrogramOverlays(option)
+
+  spectrogramChart.setOption(option)
+}
+
+// Add overlay layers to spectrogram
+const addSpectrogramOverlays = (option) => {
+  const { time, frequency } = props.results.spectrogram
+  const overlays = []
+
+  // Helper function to find nearest index
+  const findNearestIndex = (arr, value) => {
+    let minDiff = Infinity
+    let index = 0
+    for (let i = 0; i < arr.length; i++) {
+      const diff = Math.abs(arr[i] - value)
+      if (diff < minDiff) {
+        minDiff = diff
+        index = i
+      }
+    }
+    return index
+  }
+
+  // Add formant trajectories (F1, F2, F3)
+  if (hasFormantData.value) {
+    const ts = props.results.timeseries
+    const formantColors = ['#ff4444', '#44ff44', '#4444ff']
+    const formantNames = ['F1', 'F2', 'F3']
+    const formantKeys = ['f1', 'f2', 'f3']
+
+    for (let i = 0; i < 3; i++) {  // Only show F1, F2, F3
+      const formantKey = formantKeys[i]
+      if (!ts.formants[formantKey]) continue
+
+      const formantData = ts.formants[formantKey]
+        .map((freq, idx) => {
+          if (freq === null || freq === undefined) return null
+          const t = ts.time?.[idx] || idx * 0.01
+          const timeIndex = findNearestIndex(time, t)
+          const freqIndex = findNearestIndex(frequency, freq)
+          return [timeIndex, freqIndex]
+        })
+        .filter(point => point !== null)
+
+      if (formantData.length > 0) {
+        overlays.push({
+          type: 'line',
+          name: formantNames[i],
+          data: formantData,
+          symbol: 'none',
+          lineStyle: {
+            color: formantColors[i],
+            width: 2
+          },
+          z: 10  // Ensure overlays are on top
+        })
+      }
+    }
+  }
+
+  // Add pitch curve (F0)
+  if (hasPitchData.value) {
+    const ts = props.results.timeseries
+    const pitchData = ts.pitch_hz
+      .map((freq, idx) => {
+        if (freq === null || freq === undefined || freq <= 0) return null
+        const t = ts.time?.[idx] || idx * 0.01
+        const timeIndex = findNearestIndex(time, t)
+        const freqIndex = findNearestIndex(frequency, freq)
+        return [timeIndex, freqIndex]
+      })
+      .filter(point => point !== null)
+
+    if (pitchData.length > 0) {
+      overlays.push({
+        type: 'line',
+        name: '基頻 (F0)',
+        data: pitchData,
+        symbol: 'none',
+        lineStyle: {
+          color: '#ffffff',
+          width: 3,
+          type: 'solid'
+        },
+        z: 11  // On top of formants
+      })
+    }
+  }
+
+  // Add segment markers
+  if (hasSegmentData.value) {
+    const segments = props.results.segments
+    const markAreas = segments.map(seg => {
+      const startIndex = findNearestIndex(time, seg.start_s)
+      const endIndex = findNearestIndex(time, seg.end_s)
+      return {
+        xAxis: startIndex,
+        xAxisEnd: endIndex,
+        itemStyle: {
+          color: 'rgba(255, 255, 255, 0.1)',
+          borderColor: '#ffffff',
+          borderWidth: 1,
+          borderType: 'dashed'
+        }
+      }
+    })
+
+    option.series[0].markArea = {
+      data: markAreas.map(area => [
+        { xAxis: area.xAxis, yAxis: 0 },
+        { xAxis: area.xAxisEnd, yAxis: frequency.length - 1 }
+      ]),
+      itemStyle: markAreas[0]?.itemStyle
+    }
+  }
+
+  // Add overlay series to option
+  if (overlays.length > 0) {
+    option.series.push(...overlays)
+    option.legend = {
+      data: overlays.map(s => s.name),
+      top: 'bottom',
+      textStyle: {
+        color: '#333'
+      }
+    }
+  }
+}
+
 // Voice Quality Helper Functions
 const getHnrClass = (hnr) => hnr >= 15 ? 'quality-good' : hnr >= 10 ? 'quality-fair' : 'quality-poor'
 const getHnrBarStyle = (hnr) => ({
@@ -392,6 +625,7 @@ watch(() => props.results, (newResults) => {
       if (hasPitchData.value) initPitchChart()
       if (hasIntensityData.value) initIntensityChart()
       if (hasFormantData.value) initFormantChart()
+      if (hasSpectrogramData.value) initSpectrogramChart()
     }, 100)
   }
 }, { deep: true })
@@ -402,12 +636,16 @@ onMounted(() => {
     if (hasIntensityData.value) initIntensityChart()
     if (hasFormantData.value) initFormantChart()
   }
+  if (props.results && hasSpectrogramData.value) {
+    initSpectrogramChart()
+  }
 })
 
 onBeforeUnmount(() => {
   if (pitchChart) pitchChart.dispose()
   if (intensityChart) intensityChart.dispose()
   if (formantChart) formantChart.dispose()
+  if (spectrogramChart) spectrogramChart.dispose()
 })
 </script>
 
@@ -454,6 +692,10 @@ onBeforeUnmount(() => {
     width: 96%!important;
     padding:0.5rem!important;
   }
+  .spectrogram-chart {
+    min-height: 400px;
+    height: 400px;
+  }
 
 }
 
@@ -489,6 +731,12 @@ onBeforeUnmount(() => {
   background: var(--glass-light);
   border-radius: var(--radius-lg);
   padding: 1rem;
+}
+
+/* Spectrogram specific styling */
+.spectrogram-chart {
+  min-height: 500px;
+  height: 500px;
 }
 
 .charts-section {

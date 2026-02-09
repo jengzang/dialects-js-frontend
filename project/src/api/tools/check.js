@@ -37,11 +37,6 @@ export async function uploadCheckFile(file, formatType, isSimplified = false) {
   const formData = new FormData()
   formData.append('file', file)
 
-  // 添加格式类型参数（如果提供了）
-  if (formatType) {
-    formData.append('format_type', formatType)
-  }
-
   // 繁体(false) -> '0', 简体(true) -> '1'
   formData.append('level', isSimplified ? '1' : '0')
 

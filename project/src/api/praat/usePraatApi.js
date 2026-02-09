@@ -131,6 +131,57 @@ export function usePraatApi() {
   // ========== 3. 分析任务管理（Job API）==========
 
   /**
+   * Transform frontend settings structure to backend API structure
+   * Frontend uses flat structure: pitch_options, formant_options, etc.
+   * Backend expects nested structure: options.pitch, options.formant, etc.
+   */
+  const transformSettingsForAPI = (settings) => {
+    const transformed = {
+      mode: settings.mode,
+      modules: settings.modules
+    }
+
+    // Build nested options object from flat *_options fields
+    const options = {}
+
+    if (settings.pitch_options) {
+      options.pitch = settings.pitch_options
+    }
+
+    if (settings.formant_options) {
+      options.formant = settings.formant_options
+    }
+
+    if (settings.intensity_options) {
+      options.intensity = settings.intensity_options
+    }
+
+    if (settings.spectrogram_options) {
+      options.spectrogram = settings.spectrogram_options
+    }
+
+    if (settings.voice_quality_options) {
+      options.voice_quality = settings.voice_quality_options
+    }
+
+    if (settings.segments_options) {
+      options.segments = settings.segments_options
+    }
+
+    // Only add options if there are any
+    if (Object.keys(options).length > 0) {
+      transformed.options = options
+    }
+
+    // Rename output_options to output
+    if (settings.output_options) {
+      transformed.output = settings.output_options
+    }
+
+    return transformed
+  }
+
+  /**
    * 创建声学分析任务
    * @param {string} uploadId - 上传 ID（即 task_id）
    * @param {Object} settings - 分析设置
@@ -158,11 +209,18 @@ export function usePraatApi() {
    */
   const createJob = async (uploadId, settings) => {
     try {
+      // Transform settings to match backend API structure
+      const transformedSettings = transformSettingsForAPI(settings)
+
+      // Debug logging (can be removed after verification)
+      console.log('[Praat API] Original settings:', settings)
+      console.log('[Praat API] Transformed settings:', transformedSettings)
+
       return await api('/api/tools/praat/jobs', {
         method: 'POST',
         body: {
           upload_id: uploadId,
-          ...settings
+          ...transformedSettings
         }
         // ✅ 不需要手动 JSON.stringify，api() 会自动处理
       })

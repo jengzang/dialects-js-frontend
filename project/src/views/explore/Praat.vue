@@ -283,11 +283,12 @@ const defaultSettings = {
   pitch_options: {
     f0_min: 75,
     f0_max: 500,
-    time_step: 0.01
+    time_step: 0.01  // Pitch analysis time step (separate from format)
   },
   formant_options: {
     max_formants: 5,
-    max_freq_hz: 5500
+    max_freq_hz: 5500,
+    time_step: 0.005  // Output format time step (default: standard - 5ms)
   },
   intensity_options: {
     min_pitch: 100
@@ -296,6 +297,12 @@ const defaultSettings = {
     downsample_hz: 100,
     include_timeseries: true,
     include_summary: true
+  },
+  spectrogram_options: {
+    window_length: 0.005,
+    time_step: 0.002,
+    frequency_step: 20.0,
+    max_frequency: 8000.0
   }
 }
 
@@ -305,6 +312,7 @@ const loadSettings = () => {
     const saved = localStorage.getItem(STORAGE_KEY)
     if (saved) {
       const parsed = JSON.parse(saved)
+
       return JSON.parse(JSON.stringify({ ...defaultSettings, ...parsed }))
     }
   } catch (error) {

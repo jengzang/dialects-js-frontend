@@ -4,54 +4,138 @@
     <div class="setting-group">
       <label class="setting-label">分析模塊</label>
       <div class="module-checkboxes">
-        <label class="checkbox-option" v-for="module in availableModules" :key="module.value">
-          <input type="checkbox" :value="module.value" v-model="localSettings.modules" />
+        <label class="checkbox-option" v-for="module in availableModules"
+               :key="module.value">
+          <input type="checkbox" :value="module.value"
+                 v-model="localSettings.modules" />
           <span>{{ module.label }}</span>
         </label>
       </div>
     </div>
 
+    <!-- Resolution Presets (移到前面，更显眼) -->
+    <div class="setting-group">
+      <label class="setting-label">分辨率预设</label>
+      <div class="resolution-presets">
+        <label class="radio-option" :class="{ active:
+  currentResolutionMode === 'quick' }">
+          <input
+              type="radio"
+              value="quick"
+              v-model="currentResolutionMode"
+              @change="applyResolutionPreset"
+          >
+          <span class="radio-label">
+              <span class="radio-title">⚡ 快速预览</span>
+              <span class="radio-desc">10ms 步长 · 100Hz 输出</span>
+            </span>
+        </label>
+
+        <label class="radio-option" :class="{ active:
+  currentResolutionMode === 'standard' }">
+          <input
+              type="radio"
+              value="standard"
+              v-model="currentResolutionMode"
+              @change="applyResolutionPreset"
+          >
+          <span class="radio-label">
+              <span class="radio-title">⚖️ 标准分析</span>
+              <span class="radio-desc">5ms 步长 · 200Hz 输出</span>
+            </span>
+        </label>
+
+        <label class="radio-option" :class="{ active:
+  currentResolutionMode === 'high' }">
+          <input
+              type="radio"
+              value="high"
+              v-model="currentResolutionMode"
+              @change="applyResolutionPreset"
+          >
+          <span class="radio-label">
+              <span class="radio-title">💎 高精度</span>
+              <span class="radio-desc">1ms 步长 · 1000Hz 输出</span>
+            </span>
+        </label>
+      </div>
+      <p class="hint-text" style="margin-top: 0.5rem; color: #666;">
+        {{ resolutionPresets[currentResolutionMode]?.description }}
+      </p>
+    </div>
+
     <!-- Pitch Settings -->
-    <div v-if="localSettings.modules.includes('pitch')" class="setting-group">
+    <div v-if="localSettings.modules.includes('pitch')"
+         class="setting-group">
       <label class="setting-label">基頻設置</label>
       <div class="param-grid">
         <div class="param-item">
           <label>最小基頻 (Hz)</label>
-          <input type="number" v-model.number="localSettings.pitch_options.f0_min" min="50" max="300" />
+          <input type="number"
+                 v-model.number="localSettings.pitch_options.f0_min" min="50" max="300" />
         </div>
         <div class="param-item">
           <label>最大基頻 (Hz)</label>
-          <input type="number" v-model.number="localSettings.pitch_options.f0_max" min="200" max="800" />
+          <input type="number"
+                 v-model.number="localSettings.pitch_options.f0_max" min="200" max="800" />
         </div>
         <div class="param-item">
           <label>時間步長 (s)</label>
-          <input type="number" v-model.number="localSettings.pitch_options.time_step" min="0.001" max="0.1" step="0.001" />
+          <input
+              type="number"
+              v-model.number="localSettings.pitch_options.time_step"
+              min="0.001"
+              max="0.1"
+              step="0.001"
+              @input="onManualChange"
+          />
+          <span class="hint-text">手动修改会覆盖预设</span>
         </div>
       </div>
     </div>
 
     <!-- Formant Settings -->
-    <div v-if="localSettings.modules.includes('formant')" class="setting-group">
+    <div v-if="localSettings.modules.includes('formant')"
+         class="setting-group">
       <label class="setting-label">共振峰設置</label>
       <div class="param-grid">
         <div class="param-item">
           <label>最大共振峰數</label>
-          <input type="number" v-model.number="localSettings.formant_options.max_formants" min="3" max="7" />
+          <input type="number"
+                 v-model.number="localSettings.formant_options.max_formants" min="3"
+                 max="7" />
         </div>
         <div class="param-item">
           <label>最大頻率 (Hz)</label>
-          <input type="number" v-model.number="localSettings.formant_options.max_freq_hz" min="3000" max="8000" step="100" />
+          <input type="number"
+                 v-model.number="localSettings.formant_options.max_freq_hz" min="3000"
+                 max="8000" step="100" />
+        </div>
+        <div class="param-item">
+          <label>時間步長 (s)</label>
+          <input
+              type="number"
+              v-model.number="localSettings.formant_options.time_step"
+              min="0.001"
+              max="0.1"
+              step="0.001"
+              @input="onManualChange"
+          />
+          <span class="hint-text">手动修改会覆盖预设</span>
         </div>
       </div>
     </div>
 
     <!-- Intensity Settings -->
-    <div v-if="localSettings.modules.includes('intensity')" class="setting-group">
+    <div v-if="localSettings.modules.includes('intensity')"
+         class="setting-group">
       <label class="setting-label">強度設置</label>
       <div class="param-grid">
         <div class="param-item">
           <label>最小基頻 (Hz)</label>
-          <input type="number" v-model.number="localSettings.intensity_options.min_pitch" min="50" max="200" />
+          <input type="number"
+                 v-model.number="localSettings.intensity_options.min_pitch" min="50"
+                 max="200" />
         </div>
       </div>
     </div>
@@ -61,58 +145,32 @@
       <label class="setting-label">輸出選項</label>
       <div class="param-grid">
         <div class="param-item">
-          <label>採樣頻率(Hz)</label>
-          <input type="number" placeholder="數值越大點越多" v-model.number="localSettings.output_options.downsample_hz" min="10" max="1000" />
+          <label>輸出採樣率 (Hz)</label>
+          <input
+              type="number"
+              placeholder="數值越大點越多"
+              v-model.number="localSettings.output_options.downsample_hz"
+              min="10"
+              max="1000"
+              @input="onManualChange"
+          />
+          <span class="hint-text">
+              当前: {{ localSettings.output_options.downsample_hz }}Hz
+              ({{ (1000 /
+              localSettings.output_options.downsample_hz).toFixed(1) }}ms 间隔)
+            </span>
         </div>
       </div>
       <div class="checkbox-options">
         <label class="checkbox-option">
-          <input type="checkbox" v-model="localSettings.output_options.include_timeseries" />
+          <input type="checkbox"
+                 v-model="localSettings.output_options.include_timeseries" />
           <span>包含時間序列數據</span>
         </label>
         <label class="checkbox-option">
-          <input type="checkbox" v-model="localSettings.output_options.include_summary" />
+          <input type="checkbox"
+                 v-model="localSettings.output_options.include_summary" />
           <span>包含摘要信息</span>
-        </label>
-      </div>
-      <div class="resolution-presets">
-        <label class="radio-option" :class="{ active: currentResolutionMode === 'quick' }">
-          <input
-              type="radio"
-              value="quick"
-              v-model="currentResolutionMode"
-              @change="applyResolutionPreset"
-          >
-          <span class="radio-label">
-        <span class="radio-title">⚡ 快速预览</span>
-        <span class="radio-desc">10ms 步长 (粗略)</span>
-      </span>
-        </label>
-
-        <label class="radio-option" :class="{ active: currentResolutionMode === 'standard' }">
-          <input
-              type="radio"
-              value="standard"
-              v-model="currentResolutionMode"
-              @change="applyResolutionPreset"
-          >
-          <span class="radio-label">
-        <span class="radio-title">⚖️ 标准分析</span>
-        <span class="radio-desc">5ms 步长 (默认)</span>
-      </span>
-        </label>
-
-        <label class="radio-option" :class="{ active: currentResolutionMode === 'high' }">
-          <input
-              type="radio"
-              value="high"
-              v-model="currentResolutionMode"
-              @change="applyResolutionPreset"
-          >
-          <span class="radio-label">
-        <span class="radio-title">💎 高精度</span>
-        <span class="radio-desc">1ms 步长 (精细)</span>
-      </span>
         </label>
       </div>
     </div>
@@ -120,7 +178,7 @@
 </template>
 
 <script setup>
-import { reactive, watch,ref } from 'vue'
+import { reactive, watch, ref, onMounted } from 'vue'
 
 const props = defineProps({
   settings: {
@@ -137,34 +195,102 @@ const availableModules = [
   { value: 'intensity', label: '強度分析' },
   { value: 'formant', label: '共振峰分析' },
   { value: 'voice_quality', label: '音質分析' },
-  { value: 'segments', label: '音段分析' }
+  { value: 'segments', label: '音段分析' },
+  { value: 'spectrogram', label: '頻譜圖分析' }
 ]
-// 预设配置
+
+// 预设配置（扩展版）
 const resolutionPresets = {
-  'quick': { time_step: 0.01 },     // 10ms
-  'standard': { time_step: 0.005 }, // 5ms
-  'high': { time_step: 0.001 }      // 1ms
-}
-
-// 当前选中的模式，默认为 standard
-const currentResolutionMode = ref('standard')
-
-// 应用预设函数
-const applyResolutionPreset = () => {
-  const preset = resolutionPresets[currentResolutionMode.value]
-  if (preset) {
-    // 假设 localSettings 是你的响应式对象
-    localSettings.value.time_step = preset.time_step
+  'quick': {
+    time_step: 0.01,
+    downsample_hz: 100,
+    description: '快速预览，适合快速查看整体趋势'
+  },
+  'standard': {
+    time_step: 0.005,
+    downsample_hz: 200,
+    description: '标准分析，平衡精度和性能'
+  },
+  'high': {
+    time_step: 0.001,
+    downsample_hz: 1000,
+    description: '高精度，适合精细分析（数据量大）'
   }
 }
 
 const localSettings = reactive(JSON.parse(JSON.stringify(props.settings)))
 
+// 当前选中的模式
+const currentResolutionMode = ref('standard')
+
+// 根据当前设置推断初始模式
+const detectCurrentMode = () => {
+  const currentTimeStep = localSettings.formant_options?.time_step ||
+      0.005
+  const currentDownsample = localSettings.output_options?.downsample_hz ||
+      200
+
+  if (currentTimeStep === 0.01 && currentDownsample === 100) {
+    return 'quick'
+  } else if (currentTimeStep === 0.001 && currentDownsample === 1000) {
+    return 'high'
+  } else {
+    return 'standard'
+  }
+}
+
+// 初始化模式
+currentResolutionMode.value = detectCurrentMode()
+
+// 应用预设函数
+const applyResolutionPreset = () => {
+  const preset = resolutionPresets[currentResolutionMode.value]
+  if (!preset) return
+
+  // 1. 更新 formant time_step
+  if (!localSettings.formant_options) {
+    localSettings.formant_options = {}
+  }
+  localSettings.formant_options.time_step = preset.time_step
+
+  // 2. 更新 pitch time_step
+  if (localSettings.modules.includes('pitch')) {
+    if (!localSettings.pitch_options) {
+      localSettings.pitch_options = {}
+    }
+    // pitch 可以用稍大的步长
+    localSettings.pitch_options.time_step = Math.min(preset.time_step * 2,
+        0.01)
+  }
+
+  // 3. 🔑 关键：更新 output downsample_hz
+  if (!localSettings.output_options) {
+    localSettings.output_options = {}
+  }
+  localSettings.output_options.downsample_hz = preset.downsample_hz
+
+  console.log(`✅ 已应用 ${currentResolutionMode.value} 预设:`, {
+    formant_time_step: preset.time_step,
+    downsample_hz: preset.downsample_hz
+  })
+}
+
+// 手动修改时，切换到自定义模式（可选）
+const onManualChange = () => {
+  // 可以添加一个 'custom' 模式，或者保持当前模式
+  console.log('⚠️ 用户手动修改了参数')
+}
+
+// 初始化时应用预设
+onMounted(() => {
+  applyResolutionPreset()
+})
+
+// 监听变化并同步到父组件
 watch(localSettings, (newSettings) => {
   emit('update:settings', JSON.parse(JSON.stringify(newSettings)))
 }, { deep: true })
 </script>
-
 <style scoped>
 .settings-panel {
   padding: 1.5rem;
@@ -333,5 +459,14 @@ watch(localSettings, (newSettings) => {
 }
 .radio-option.active:hover {
   border-color: #0066cc;
+}
+
+/* Hint text for format options */
+.hint-text {
+  font-size: 0.75rem;
+  color: var(--color-text-secondary, #666);
+  margin-top: 0.25rem;
+  font-style: italic;
+  display: block;
 }
 </style>

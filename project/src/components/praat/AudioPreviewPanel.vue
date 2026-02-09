@@ -1157,7 +1157,7 @@ onBeforeUnmount(() => {
 }
 
 .btn-reset {
-  background: var(--color-secondary);
+  background: #3da35d;
   color: white;
 }
 
