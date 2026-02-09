@@ -1,5 +1,5 @@
 // utils/onlineTimeTracker.js
-import { reportOnlineTime } from './auth.js';
+import { reportOnlineTime } from '../api/auth/auth.js';
 import { WEB_BASE } from '@/env-config.js';
 
 const REPORT_INTERVAL = 10 * 60 * 1000; // 10分钟

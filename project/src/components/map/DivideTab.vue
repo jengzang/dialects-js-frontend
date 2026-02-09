@@ -67,7 +67,7 @@ import { ref, reactive, nextTick, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter, useRoute } from 'vue-router' // ✨ 1. 引入路由
 import LocationAndRegionInput from "@/components/query/LocationAndRegionInput.vue";
 import { mapStore, uiStore, isDivideButtonDisabled, setRunning } from "@/utils/store.js";
-import { api } from "@/utils/auth.js";
+import { getCoordinates } from '@/api/query/geo'
 import { showError } from '@/utils/message.js';
 
 // ✨ 2. 初始化路由
@@ -142,39 +142,35 @@ const runAction = async () => {
   setRunning('divide', true);
 
   // ✨ 4. 優化參數構造邏輯
-  const params_geo = new URLSearchParams();
+  const queryParams = {
+    locations: '',
+    regions: '',
+    region_mode: locationRef.value?.regionUsing || '1',
+    iscustom: 'true',
+    flag: 'False'
+  }
 
   // 處理地點
   const locs = getLocation();
-// 如果 locs 是字符串，最好也處理一下空格分割，確保後端能收到正確格式
   if (locs) {
     const locArray = locs.trim().split(/\s+/);
-    locArray.forEach(l => params_geo.append('locations', l));
+    queryParams.locations = locArray;
   } else {
-    // 如果 locs 为空，添加空字符串
-    params_geo.append('locations', '');
+    queryParams.locations = '';
   }
 
-// 處理分區 (支持數組)
+  // 處理分區 (支持數組)
   const regions = locationRef.value?.selectedValue;
   if (Array.isArray(regions)) {
-    regions.forEach(r => params_geo.append('regions', r));
+    queryParams.regions = regions;
   } else if (regions) {
-    params_geo.append('regions', regions);
+    queryParams.regions = regions;
   } else {
-    // 如果 regions 为空，添加空字符串
-    params_geo.append('regions', '');
+    queryParams.regions = '';
   }
 
-
-  params_geo.append("region_mode", locationRef.value?.regionUsing || '1'); // 這裡確認一下後端是需要 'yindian' 還是 '1'
-  params_geo.append("iscustom", "true");
-  params_geo.append("flag", "False");
-
   try {
-    const data = await api(`/api/get_coordinates?${params_geo.toString()}`, {
-      method: 'GET'
-    });
+    const data = await getCoordinates(queryParams)
 
     // 更新 Store
     mapStore.mapData = data;

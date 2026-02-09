@@ -86,7 +86,7 @@
 
 <script setup>
 import { ref, computed ,watch} from 'vue';
-import {api} from "@/utils/auth.js";
+import { getFeatureCounts } from '@/api/query/core'
 import { userStore, setTabContentDisabled } from '@/utils/store.js'
 
 // 1. 接收父組件傳入的 locationRef
@@ -151,23 +151,11 @@ const fetchFeatureCount = async (locationName) => {
   apiResults.value[locationName] = null;
 
   try {
-    const query = new URLSearchParams();
-
     // ✅ 重點修改：顯式定義為列表，然後遍歷 append
     // 即使只有一個元素，這樣寫也完全符合 List[str] 的邏輯
     const locationsPayload = [locationName];
 
-    locationsPayload.forEach(loc => {
-      query.append('locations', loc);
-    });
-
-    const data = await api(
-        `/api/feature_counts?${query.toString()}`,
-        {
-          method: 'GET',
-          headers: { 'Content-Type': 'application/json' }
-        }
-    );
+    const data = await getFeatureCounts({ locations: locationsPayload })
 
     // 這裡假設後端返回的數據結構，如果需要格式化請在此處理
     // 例如：const formatted = `共有 ${data.count} 個特徵`;

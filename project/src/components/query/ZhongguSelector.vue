@@ -75,7 +75,7 @@
 
 <script setup>
 import { ref, computed, watch } from 'vue'
-import { api } from '@/utils/auth.js'
+import { getCharList } from '@/api/query/core'
 import { userStore, setTabContentDisabled } from '@/utils/store.js'
 import { ROLE_LIMITS, QUERY_CONFIG } from '@/config/constants.js'
 
@@ -205,14 +205,10 @@ async function fetchData(pathStrings) {
   updateDisabledState(true)
 
   try {
-    const data = await api('/api/charlist', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({
-        path_strings: pathStrings,
-        combine_query: false,
-        exclude_columns: props.excludeColumns  // ✨ 新增
-      })
+    const data = await getCharList({
+      path_strings: pathStrings,
+      combine_query: false,
+      exclude_columns: props.excludeColumns
     })
     results.value = Array.isArray(data) ? data : []
 

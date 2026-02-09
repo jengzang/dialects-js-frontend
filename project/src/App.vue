@@ -23,7 +23,7 @@ import GlobalToast from './components/GlobalToast.vue'
 import GlobalConfirm from './components/GlobalConfirm.vue'
 import PanelManager from './components/result/PanelManager.vue'
 import { initOnlineTimeTracker, stopOnlineTimeTracker } from './utils/onlineTimeTracker.js'
-import { getToken } from './utils/auth.js'
+import { getToken } from './api/auth/auth.js'
 
 // // 🌉 建立 bridge 用於跨組件共享 iframe 狀態
 // const nativeFrame = ref(null)

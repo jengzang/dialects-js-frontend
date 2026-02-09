@@ -93,13 +93,13 @@
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { api } from '@/utils/auth.js'
+import { getPhonologyClassificationMatrix } from '@/api/query/phonology'
 import PhonologyMatrix from '@/components/TableAndTree/PhonologyTable.vue'
 import LocationMultiInput from '@/components/LocationMultiInput.vue'
 import {
   parsePhonologyCustomParams,
   validatePhonologyParams
-} from '@/utils/urlParams.js'
+} from '@/api/urlParams.js'
 
 const route = useRoute()
 const router = useRouter()
@@ -299,22 +299,13 @@ const loadData = async () => {
       cell_row_column: cellRowColumn.value
     }
 
-    const result = await api('/api/phonology_classification_matrix', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(requestBody)
-    })
+    const result = await getPhonologyClassificationMatrix(requestBody)
 
     // 調試：查看返回的數據結構
     console.log('API result:', result)
 
-    // api() 函數可能直接返回數據，或者包裝在 data 屬性中
-    const responseData = result.data || result
-
     // 轉換數據格式
-    matrixData.value = transformMatrixData(responseData)
+    matrixData.value = transformMatrixData(result.data || result)
 
     // 首次查询成功后启用 URL 同步
     shouldSyncUrl.value = true

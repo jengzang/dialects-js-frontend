@@ -1,4 +1,4 @@
-import { api } from './auth.js'
+import {api} from '../auth/auth.js'
 
 /**
  * Praat API composable for acoustic analysis
@@ -12,13 +12,11 @@ export function usePraatApi() {
       const formData = new FormData()
       formData.append('file', file)
 
-      const data = await api('/api/praat/uploads', {
+      return await api('/api/praat/uploads', {
         method: 'POST',
         body: formData,
         headers: {}
       })
-
-      return data
     } catch (error) {
       console.error('Upload error:', error)
       throw new Error(error.message || '音頻上傳失敗，請重試')

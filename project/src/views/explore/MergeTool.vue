@@ -336,7 +336,7 @@
 import { ref, reactive, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import * as XLSX from 'xlsx'
-import { api } from '@/utils/auth.js'
+import { uploadReference, uploadFiles, executeMerge, getMergeProgress, downloadMerge } from '@/api/tools'
 import { userStore } from '@/utils/store.js'
 import { showSuccess, showError, showWarning, showConfirm } from '@/utils/message.js'
 
@@ -428,13 +428,7 @@ const setReferenceFile = async (file) => {
 
   try {
     // 上传参考表
-    const formData = new FormData()
-    formData.append('file', file)
-
-    const data = await api('/api/tools/merge/upload_reference', {
-      method: 'POST',
-      body: formData
-    })
+    const data = await uploadReference(file)
 
     referenceFile.value = file
     taskId.value = data.task_id
@@ -491,17 +485,7 @@ const addFiles = async (files) => {
 
   try {
     // 上传待合并文件
-    const formData = new FormData()
-    formData.append('task_id', taskId.value)
-
-    for (let file of validFiles) {
-      formData.append('files', file)
-    }
-
-    await api(`/api/tools/merge/upload_files?task_id=${taskId.value}`, {
-      method: 'POST',
-      body: formData
-    })
+    await uploadFiles(taskId.value, validFiles)
 
     // 添加到文件列表
     mergeFiles.value.push(...validFiles)
@@ -542,19 +526,14 @@ const startMerge = async () => {
   try {
     // 发起合并请求
     processingText.value = '正在初始化合併...'
-    await api('/api/tools/merge/execute', {
-      method: 'POST',
-      body: {
-        task_id: taskId.value
-      }
-    })
+    await executeMerge(taskId.value)
 
     progress.value = 10
 
     // 轮询进度
     const pollInterval = setInterval(async () => {
       try {
-        const progressData = await api(`/api/tools/merge/progress/${taskId.value}`)
+        const progressData = await getMergeProgress(taskId.value)
 
         progress.value = progressData.progress || 0
         processingText.value = progressData.message || '合併中...'
@@ -602,9 +581,7 @@ const downloadMerged = async () => {
       return
     }
 
-    const blob = await api(`/api/tools/merge/download/${taskId.value}`, {
-      responseType: 'blob'
-    })
+    const blob = await downloadMerge(taskId.value)
 
     const url = window.URL.createObjectURL(blob)
     const a = document.createElement('a')

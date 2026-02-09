@@ -529,7 +529,14 @@
 <script setup>
 import { ref, reactive, onMounted, computed, onUnmounted, nextTick } from 'vue';
 import * as XLSX from 'xlsx';
-import { api } from "@/utils/auth.js";
+import {
+  sqlQuery,
+  distinctQuery,
+  mutateSingleRow,
+  batchMutate,
+  batchReplacePreview,
+  batchReplaceExecute
+} from '@/api/sql'
 import { userStore } from '@/utils/store.js';
 import { useVirtualList } from '@vueuse/core';
 import { TABLE_CONFIG } from '@/config/constants.js';
@@ -664,11 +671,7 @@ const fetchData = async () => {
   };
 
   try {
-    const response = await api('/sql/query', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
+    const response = await sqlQuery(payload);
 
     tableData.value = response.data;
     total.value = response.total;
@@ -878,11 +881,7 @@ const openFilter = async (key, event) => {
   distinctValues[key] = []; // 先清空
 
   try {
-    const res = await api('/sql/distinct-query', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' }, // 必须加这行！
-      body: JSON.stringify(payload)
-    });
+    const res = await distinctQuery(payload);
     distinctValues[key] = res.values;
   } catch (e) {
     console.error("Filter Load Error:", e);
@@ -1114,11 +1113,7 @@ const submitBatchEdit = async () => {
       update_data: updateData
     };
 
-    const response = await api('/sql/batch-mutate', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
+    const response = await batchMutate(payload);
 
     if (response.status === 'completed') {
       showSuccess(`批量更新成功: ${response.success_count} 條記錄已更新`);
@@ -1166,11 +1161,7 @@ const handleDelete = async (row) => {
       pk_value: row[primaryKeyField.value]  // ✅ 动态主键值
     };
 
-    await api('/sql/mutate', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
+    await mutateSingleRow(payload);
 
     showSuccess('刪除成功');
     await fetchData();
@@ -1222,11 +1213,7 @@ const submitNewRecord = async () => {
       data: { ...newRecordData }
     };
 
-    await api('/sql/mutate', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
+    await mutateSingleRow(payload);
 
     showSuccess('新增成功');
     closeAddModal();
@@ -1382,11 +1369,7 @@ const previewAllPagesReplace = async (findText, matchMode, isEmptySearch) => {
       search_text: searchText.value  // 尊重搜索条件
     }
 
-    const response = await api('/sql/batch-replace-preview', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    })
+    const response = await batchReplacePreview(payload)
 
     batchReplace.totalMatches = response.total_matches
     batchReplace.previewResults = []  // 全表模式不显示详细列表
@@ -1488,11 +1471,7 @@ const executeAllPagesReplace = async () => {
       search_text: searchText.value  // 尊重搜索条件
     }
 
-    const response = await api('/sql/batch-replace-execute', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    })
+    const response = await batchReplaceExecute(payload)
 
     if (response.status === 'success') {
       showSuccess(`全表替換完成！共更新 ${response.affected_rows} 筆記錄`)

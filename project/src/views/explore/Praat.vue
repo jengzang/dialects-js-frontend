@@ -10,7 +10,7 @@
 
     <div class="page-header">
       <h1 class="page-title">Praat 聲學分析</h1>
-      <p class="page-description">上傳音頻或錄音，進行專業的聲學特徵分析</p>
+      <p class="page-description">（還沒開發完，可以先試試）上傳音頻或錄音，進行專業的聲學特徵分析</p>
     </div>
 
     <!-- Tab Navigation -->
@@ -143,7 +143,7 @@ import AudioPreviewPanel from '../../components/praat/AudioPreviewPanel.vue'
 import SettingsPanel from '../../components/praat/SettingsPanel.vue'
 import JobStatusPanel from '../../components/praat/JobStatusPanel.vue'
 import AnalysisResultsPanel from '../../components/praat/AnalysisResultsPanel.vue'
-import { usePraatApi } from '@/utils/usePraatApi.js'
+import { usePraatApi } from '@/api/praat'
 import { userStore } from '@/utils/store.js'
 import { showWarning, showError } from '@/utils/message.js'
 

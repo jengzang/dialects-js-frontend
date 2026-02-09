@@ -214,7 +214,8 @@
 <script setup>
 import { ref , onMounted, onBeforeUnmount, computed} from 'vue'
 import {useRoute, useRouter} from 'vue-router'
-import {api, clearToken, getToken, initUserByToken, saveToken} from '../utils/auth.js'
+import {api, clearToken, getToken, initUserByToken, saveToken} from '../api/auth/auth.js'
+import { getTodayVisits, getTotalVisits, getVisitHistory } from '@/api/logs'
 import { menuConfig } from '@/config/menuConfig.js'
 import { WEB_BASE } from '@/env-config.js'
 // import { userStore } from '../utils/store.js'
@@ -292,8 +293,8 @@ const goToAuthPage = () => {
 async function fetchVisitStats() {
   try {
     const [todayData, totalData] = await Promise.all([
-      api('/logs/visits/today'),
-      api('/logs/visits/total')
+      getTodayVisits(),
+      getTotalVisits()
     ])
 
     todayVisits.value = todayData?.today_visits || 0
@@ -330,7 +331,7 @@ async function fetchVisitHistory() {
     const start_date = startDate.toISOString().split('T')[0];  // 格式化为 'YYYY-MM-DD'
     const end_date = endDate.toISOString().split('T')[0];      // 格式化为 'YYYY-MM-DD'
 
-    const data = await api(`/logs/visits/history?start_date=${start_date}&end_date=${end_date}&limit=9999`);
+    const data = await getVisitHistory({ start_date, end_date, limit: 9999 })
 
 
     // 按日期汇总数据

@@ -73,7 +73,8 @@
 <script setup>
 import {computed, onUnmounted, ref, watch, onMounted} from 'vue';
 import {useRoute, useRouter} from 'vue-router';
-import {api} from '@/utils/auth.js';
+import { searchChars, searchZhongGu, searchYinWei, searchTones } from '@/api/query/core'
+import { getCoordinates } from '@/api/query/geo'
 import {globalPayload, mapStore, resultCache} from '@/utils/store.js';
 import ResultList from "@/components/result/ResultList.vue";
 import CharsAndTones from "@/components/result/CharsAndTones.vue";
@@ -171,17 +172,13 @@ watch(
       try {
         mapStore.mode = 'feature';
         // ================= 获取 MapData（放入 try 内，避免失败不 stopTimer）=================
-        const params_geo = new URLSearchParams();
-// 這裡加個 || "" 只是為了防止變量不存在時出現 "undefined" 字樣，其他情況都直接添加
-        params_geo.append("locations", newPayload.locations || "");
-        params_geo.append("regions", newPayload.regions || "");
-        params_geo.append("region_mode", newPayload.region_mode || 'yindian');
-        params_geo.append("iscustom", "true");
-        params_geo.append("flag", "False");
-
-        const MapData = await api(`/api/get_coordinates?${params_geo.toString()}`, {
-          method: 'GET'
-        });
+        const MapData = await getCoordinates({
+          locations: newPayload.locations || "",
+          regions: newPayload.regions || "",
+          region_mode: newPayload.region_mode || 'yindian',
+          iscustom: "true",
+          flag: "False"
+        })
         // console.log(MapData)
 
         // ✅ 竞态保护：MapData 回来时如果不是最新请求，直接退出
@@ -195,27 +192,23 @@ watch(
 
         // ================= TAB 1: 查字 =================
         if (sourceTab === 'tab1') {
-          const params = new URLSearchParams();
           resultCache.mode = '';
           resultCache.features = [];
+
+          const queryParams = {
+            chars: [],
+            locations: newPayload.locations || "",
+            regions: Array.isArray(newPayload.regions) ? newPayload.regions : (newPayload.regions || ""),
+            region_mode: newPayload.region_mode || 'yindian'
+          }
+
           let rawChars = newPayload.chars;
           if (rawChars) {
             if (typeof rawChars === 'string') rawChars = rawChars.split('');
-            if (Array.isArray(rawChars)) rawChars.forEach(c => params.append("chars", c));
+            if (Array.isArray(rawChars)) queryParams.chars = rawChars;
           }
-            // 這裡加個 || "" 只是為了防止變量不存在時出現 "undefined" 字樣，其他情況都直接添加
-          params.append("locations", newPayload.locations || "");
-          // ✅ 如果想传数组，要这样写：
-          if (Array.isArray(newPayload.regions)) {
-            newPayload.regions.forEach(r => params.append("regions", r));
-          } else {
-            params.append("regions", newPayload.regions || "");
-          }
-          params.append("region_mode", newPayload.region_mode || 'yindian');
 
-          const response = await api(`/api/search_chars/?${params.toString()}`, {
-            method: 'GET'
-          });
+          const response = await searchChars(queryParams)
 
           if (seq !== requestSeq) return;
 
@@ -242,14 +235,10 @@ watch(
           resultCache.mode = modeCN;
           resultCache.features = featuresList;
 
-          const response = await api('/api/ZhongGu', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              ...payload.value,
-              exclude_columns: payload.value.exclude_columns || []  // ✨ 新增
-            })
-          });
+          const response = await searchZhongGu({
+            ...payload.value,
+            exclude_columns: payload.value.exclude_columns || []
+          })
 
           if (seq !== requestSeq) return;
 
@@ -276,14 +265,10 @@ watch(
           resultCache.mode = modeCN;
           resultCache.features = featuresList;
 
-          const response = await api('/api/YinWei', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              ...payload.value,
-              exclude_columns: payload.value.exclude_columns || []  // ✨ 新增
-            })
-          });
+          const response = await searchYinWei({
+            ...payload.value,
+            exclude_columns: payload.value.exclude_columns || []
+          })
 
           if (seq !== requestSeq) return;
 
@@ -306,20 +291,11 @@ watch(
         else if (sourceTab === 'tab4') {
           resultCache.mode = '';
           resultCache.features = [];
-          const params = new URLSearchParams();
-        // 這裡加個 || "" 只是為了防止變量不存在時出現 "undefined" 字樣，其他情況都直接添加
-          params.append("locations", newPayload.locations || "");
-          // ✅ 如果想传数组，要这样写：
-          if (Array.isArray(newPayload.regions)) {
-            newPayload.regions.forEach(r => params.append("regions", r));
-          } else {
-            params.append("regions", newPayload.regions || "");
-          }
-          params.append("region_mode", newPayload.region_mode || 'yindian');
-
-          const response = await api(`/api/search_tones/?${params.toString()}`, {
-            method: 'GET',
-          });
+          const response = await searchTones({
+            locations: newPayload.locations || "",
+            regions: Array.isArray(newPayload.regions) ? newPayload.regions : (newPayload.regions || ""),
+            region_mode: newPayload.region_mode || 'yindian'
+          })
 
           if (seq !== requestSeq) return;
 

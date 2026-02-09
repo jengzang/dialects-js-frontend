@@ -105,7 +105,7 @@
 import { ref, onMounted } from 'vue';
 import VillagesTreeItem from '@/components/TableAndTree/VillagesTreeItem.vue';
 import VillageMapPopup from '@/components/map/VillageMapPopup.vue';
-import { api } from '@/utils/auth.js';
+import { lazyLoadTree, loadFullTree } from '@/api/sql';
 import { useRouter } from 'vue-router';
 const router = useRouter();
 
@@ -149,11 +149,7 @@ const loadInitialCities = async () => {
   };
 
   try {
-    const result = await api('/sql/tree/lazy', {
-      method: 'POST',
-      body: payload,
-      timeout: 30000
-    });
+    const result = await lazyLoadTree(payload)
 
     // Extract city names from result.children
     if (result && result.children && Array.isArray(result.children) && result.children.length > 0) {
@@ -190,11 +186,7 @@ const loadCityData = async (cityName) => {
   };
 
   try {
-    const result = await api('/sql/tree/full', {
-      method: 'POST',
-      body: payload,
-      timeout: 60000
-    });
+    const result = await loadFullTree(payload)
 
     // Extract city data from result.tree
     if (result && result.tree && result.tree[cityName]) {

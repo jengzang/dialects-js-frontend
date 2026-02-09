@@ -53,10 +53,10 @@
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { api } from '@/utils/auth.js'
+import { getPhonologyMatrix } from '@/api/query/phonology'
 import PhonologyMatrix from '@/components/TableAndTree/PhonologyTable.vue'
 import LocationMultiInput from '@/components/LocationMultiInput.vue'
-import { parseLocationsFromUrl, updateUrlWithLocations } from '@/utils/urlParams.js'
+import { parseLocationsFromUrl, updateUrlWithLocations } from '@/api/urlParams.js'
 
 const route = useRoute()
 const router = useRouter()
@@ -102,15 +102,8 @@ const loadData = async () => {
       locations: matchedLocations.value
     }
 
-    const result = await api('/api/phonology_matrix', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(requestBody)
-    })
+    const result = await getPhonologyMatrix(requestBody)
 
-    // api() 函数已经返回了 JSON 数据
     matrixData.value = result.data
 
     // 首次查询成功后启用 URL 同步

@@ -137,7 +137,8 @@ import { mapStyle, mapStyleConfig, calculateDenseMapCenterAndZoom } from '@/util
 import {get_detail} from "@/utils/ResultTable.js";
 import {mapStore, userStore, resultCache} from "@/utils/store.js";
 import { showSuccess, showError, showWarning, showConfirm } from '@/utils/message.js';
-import { api } from '@/utils/auth.js';
+import { sqlQuery } from '@/api/sql'
+import { deleteCustomForm } from '@/api/user/custom.js'
 import { func_mergeData } from '@/utils/MapData.js';
 
 // --- Props: 只接收數據，不負責請求 ---
@@ -238,11 +239,7 @@ const handleLocationClick = async (locationName) => {
       }
     };
 
-    const response = await api('/sql/query', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
+    const response = await sqlQuery(payload);
 
     locationPopup.value.data = response;
   } catch (error) {
@@ -795,11 +792,7 @@ const handleCustomBtnClick = async (item) => {
     };
 
     try {
-      const data = await api('/api/delete_form', {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
-      });
+      const data = await deleteCustomForm(formData);
 
       if (data.success) {
         showSuccess("刪除成功！\n" + data.message);

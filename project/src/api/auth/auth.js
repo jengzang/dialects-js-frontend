@@ -1,5 +1,5 @@
 // utils/auth.js
-import { userStore } from './store.js'
+import { userStore } from '../../utils/store.js'
 import { WEB_BASE } from '@/env-config.js'
 
 // ==========================================

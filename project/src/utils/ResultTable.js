@@ -1,5 +1,5 @@
 // utils/ResultTable.js
-import { api } from './auth.js'
+import { queryPhonology } from '../api/query/phonology.js'
 import { API_CONFIG } from '../config/constants.js'
 import { resultCache } from './store.js'
 import { column_values } from '@/config'
@@ -171,11 +171,7 @@ export async function get_detail(location, feature_value, bool=false, vue=false,
     };
     try {
         // ✅ 使用统一的 api 函数（替代 window.fetch）
-        const result = await api('/api/phonology', {
-            method: 'POST',
-            body: payload,
-            timeout: API_CONFIG.LONG_TIMEOUT  // 使用长超时时间（60秒）
-        });
+        const result = await queryPhonology(payload);
 
         // === 3. 處理數據 ===
         if (!result.results) {

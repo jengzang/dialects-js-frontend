@@ -899,7 +899,16 @@
 <script setup>
 import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { api } from '@/utils/auth.js'
+import {
+  uploadCheckFile,
+  analyzeFile as analyzeFileApi,
+  getToneStats,
+  getTableData,
+  updateRow as updateRowApi,
+  batchDelete as batchDeleteApi,
+  executeBatchOperation,
+  downloadCheckResult
+} from '@/api/tools'
 import { userStore } from '@/utils/store.js'
 import { showSuccess, showError, showWarning, showConfirm } from '@/utils/message.js'
 
@@ -1178,19 +1187,7 @@ const uploadFile = async (file) => {
     isUploading.value = true
     fileName.value = file.name
 
-    const formData = new FormData()
-    formData.append('file', file)
-
-    // 添加格式类型参数（如果选择了）
-    if (selectedFormat.value) {
-      formData.append('format_type', selectedFormat.value)
-    }
-    // 繁体(false) -> '0', 简体(true) -> '1'
-    formData.append('level', isSimplified.value ? '1' : '0')
-    const data = await api('/api/tools/check/upload', {
-      method: 'POST',
-      body: formData
-    })
+    const data = await uploadCheckFile(file, selectedFormat.value || 'excel', isSimplified.value)
 
     taskId.value = data.task_id
     totalRows.value = data.total_rows || 0
@@ -1207,9 +1204,7 @@ const uploadFile = async (file) => {
 const analyzeFile = async () => {
   try {
     isLoadingTable.value = true
-    const data = await api(`/api/tools/check/analyze?task_id=${taskId.value}`, {
-      method: 'POST'
-    })
+    const data = await analyzeFileApi(taskId.value)
 
     // errorData存储错误元数据（用于侧边栏）
     const errorMetadata = data.errors || []
@@ -1238,13 +1233,7 @@ const analyzeFile = async () => {
 
 const loadToneStats = async () => {
   try {
-    const data = await api('/api/tools/check/get_tone_stats', {
-      method: 'POST',
-      body: {
-        task_id: taskId.value,
-        include_all: true
-      }
-    })
+    const data = await getToneStats(taskId.value)
 
     if (data.success && data.tone_stats) {
       toneStats.value = data.tone_stats
@@ -1257,13 +1246,7 @@ const loadToneStats = async () => {
 const loadAllData = async () => {
   try {
     isLoadingTable.value = true
-    const data = await api('/api/tools/check/get_data', {
-      method: 'POST',
-      body: {
-        task_id: taskId.value,
-        include_all: true
-      }
-    })
+    const data = await getTableData(taskId.value, { page: 1, pageSize: 99999 })
 
     if (data.success) {
       allData.value = data.data || []
@@ -1282,13 +1265,7 @@ const loadErrorRowsData = async (errors) => {
     errorMetadata.value = errors
 
     // 获取错误行的完整数据
-    const data = await api('/api/tools/check/get_data', {
-      method: 'POST',
-      body: {
-        task_id: taskId.value,
-        include_all: false  // 只获取错误行
-      }
-    })
+    const data = await getTableData(taskId.value, { page: 1, pageSize: 99999 })
 
     if (data.success) {
       // 为每行添加错误信息
@@ -1668,25 +1645,12 @@ const batchSave = async () => {
   try {
     // 保存修改
     for (const [row, data] of pendingChanges.value) {
-      await api('/api/tools/check/update_row', {
-        method: 'POST',
-        body: {
-          task_id: taskId.value,
-          row,
-          data
-        }
-      })
+      await updateRowApi(taskId.value, row, data)
     }
 
     // 批量删除
     if (rowsToDelete.value.size > 0) {
-      await api('/api/tools/check/batch_delete', {
-        method: 'POST',
-        body: {
-          task_id: taskId.value,
-          rows: Array.from(rowsToDelete.value)
-        }
-      })
+      await batchDeleteApi(taskId.value, Array.from(rowsToDelete.value))
     }
 
     showSuccess(`保存成功：修改 ${pendingChanges.value.size} 行，刪除 ${rowsToDelete.value.size} 行`)
@@ -1723,12 +1687,9 @@ const executeCommand = async () => {
   }
 
   try {
-    const data = await api('/api/tools/check/execute', {
-      method: 'POST',
-      body: {
-        task_id: taskId.value,
-        commands: command.split('\n').filter(c => c.trim())
-      }
+    const data = await executeBatchOperation(taskId.value, {
+      type: 'command',
+      params: { commands: command.split('\n').filter(c => c.trim()) }
     })
 
     if (data.success) {
@@ -1770,12 +1731,9 @@ const executeBatchReplace = async () => {
   }
 
   try {
-    const data = await api('/api/tools/check/execute', {
-      method: 'POST',
-      body: {
-        task_id: taskId.value,
-        commands: command.split('\n').filter(c => c.trim())
-      }
+    const data = await executeBatchOperation(taskId.value, {
+      type: 'replace',
+      params: { commands: command.split('\n').filter(c => c.trim()) }
     })
 
     if (data.success) {
@@ -1796,13 +1754,7 @@ const showAllChars = async (tone, info, toneType) => {
     return
   }
   try {
-    const data = await api('/api/tools/check/get_data', {
-      method: 'POST',
-      body: {
-        task_id: taskId.value,
-        include_all: true
-      }
-    })
+    const data = await getTableData(taskId.value, { page: 1, pageSize: 99999 })
 
     if (data.success) {
       const RU_FINALS = new Set('ptkʔˀᵖᵏᵗbdg')
@@ -1854,9 +1806,7 @@ const showAllChars = async (tone, info, toneType) => {
 // 下载
 const downloadFile = async () => {
   try {
-    const blob = await api(`/api/tools/check/download/${taskId.value}`, {
-      responseType: 'blob'
-    })
+    const blob = await downloadCheckResult(taskId.value)
 
     const url = window.URL.createObjectURL(blob)
     const a = document.createElement('a')

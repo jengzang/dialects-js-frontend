@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed } from 'vue'
-import { api } from '@/utils/auth.js'
+import { getFeatureCounts } from '@/api/query/core'
 import LocationMultiInput from '@/components/LocationMultiInput.vue'
 
 const loading = ref(false)
@@ -50,20 +50,8 @@ const loadData = async () => {
   aggregatedData.value = {}
 
   try {
-    // 為所有地點構建 API 查詢
-    const query = new URLSearchParams()
-    matchedLocations.value.forEach(loc => {
-      query.append('locations', loc)
-    })
-
     // 調用 API
-    const result = await api(
-      `/api/feature_counts?${query.toString()}`,
-      {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' }
-      }
-    )
+    const result = await getFeatureCounts({ locations: matchedLocations.value })
 
     // 存儲原始數據
     featureData.value = result

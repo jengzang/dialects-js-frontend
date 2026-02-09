@@ -342,7 +342,7 @@
 <script setup>
 import { ref, nextTick, onMounted, watch, computed, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { api } from '@/utils/auth.js'
+import { sqlQuery, distinctQuery } from '@/api/sql'
 import * as OpenCC from 'opencc-js'
 import UniversalTable from '@/components/TableAndTree/UniversalTable.vue'
 import { watchDebounced } from '@vueuse/core'
@@ -517,16 +517,13 @@ async function loadAllVocabulary() {
     }
 
     // 缓存不存在或无效，请求 API
-    const response = await api('/sql/distinct-query', {
-      method: 'POST',
-      body: {
-        db_key: 'yubao',
-        table_name: 'vocabulary',
-        target_column: 'word',
-        search_text: '',  // 空字符串获取所有数据
-        search_columns: [],
-        current_filters: {}
-      }
+    const response = await distinctQuery({
+      db_key: 'yubao',
+      table_name: 'vocabulary',
+      target_column: 'word',
+      search_text: '',  // 空字符串获取所有数据
+      search_columns: [],
+      current_filters: {}
     })
 
     if (response && response.values && Array.isArray(response.values)) {
@@ -561,16 +558,10 @@ async function loadAllGrammar() {
     }
 
     // 缓存不存在或无效，请求 API
-    const response = await api('/sql/distinct-query', {
-      method: 'POST',
-      body: {
-        db_key: 'yubao',
-        table_name: 'grammar',
-        target_column: 'sentence',
-        search_text: '',  // 空字符串获取所有数据
-        search_columns: [],
-        current_filters: {}
-      }
+    const response = await distinctQuery({
+      db_key: 'yubao',
+      table_name: 'grammar',
+      target_column: 'sentence'
     })
 
     if (response && response.values && Array.isArray(response.values)) {
@@ -755,17 +746,14 @@ async function loadCardsPage() {
     // 构建筛选条件 - filters中的值必须是列表格式
     const filters = { [searchColumn]: [searchValue] }
 
-    const response = await api('/sql/query', {
-      method: 'POST',
-      body: {
-        db_key: 'yubao',
-        table_name: tableName,
-        page_size: 9999,
-        page: 1,
-        filters: filters,
-        search_text: '',
-        search_columns: []
-      }
+    const response = await sqlQuery({
+      db_key: 'yubao',
+      table_name: tableName,
+      page_size: 9999,
+      page: 1,
+      filters: filters,
+      search_text: '',
+      search_columns: []
     })
 
     // console.log('📦 卡片数据响应:', response)

@@ -178,7 +178,8 @@
 import { ref, computed, onMounted, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { userStore } from '@/utils/store.js'
-import { api, getUserRole, ensureAuthenticated } from '@/utils/auth.js'
+import { getUserRole, ensureAuthenticated } from '@/api/auth/auth.js'
+import { getTableColumns } from '@/api/sql'
 import UniversalTable from '@/components/TableAndTree/UniversalTable.vue'
 
 const router = useRouter()
@@ -325,13 +326,9 @@ const fetchColumns = async () => {
     const dbKey = selectedDbKey.value;
     const tableName = selectedTable.value;
 
-    // 注意：GET 请求参数放在 URL 后面，用 ? 和 & 连接
-    const url = `/sql/query/columns?db_key=${encodeURIComponent(dbKey)}&table_name=${encodeURIComponent(tableName)}`;
-
-    // 2. 调用 api，不传 body
-    const res = await api(url, {
+    // 2. 调用 getTableColumns API
+    const res = await getTableColumns(dbKey, tableName)
       method: 'GET'
-    })
 
     // 后面逻辑保持不变
     allColumns.value = res.columns || []

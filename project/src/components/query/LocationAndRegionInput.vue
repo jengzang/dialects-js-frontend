@@ -264,7 +264,9 @@
 
 <script setup>
 import { ref, nextTick ,onMounted, onActivated, watch, computed,defineProps, defineComponent, h} from 'vue'
-import {api} from '@/utils/auth.js'
+import { getLocations } from '@/api/query/LocationAndRegion.js'
+import { getCustomFeature } from '@/api/user/custom.js'
+import { sqlQuery } from '@/api/sql'
 import RegionSelector from "@/components/query/RegionSelector.vue"
 import { userStore, setLocationDisabled } from '@/utils/store.js'
 import { LOCATION_LIMITS } from '@/config/constants.js'
@@ -765,20 +767,12 @@ async function fetchLocationsResult() {
   }
 
   try {
-    const query = new URLSearchParams()
-    locations.forEach(loc => query.append('locations', loc))
-    regions.forEach(reg => query.append('regions', reg))
-    query.set('region_mode', regionUsing.value)
+    const data = await getLocations({
+      locations,
+      regions,
+      region_mode: regionUsing.value
+    })
 
-    const data = await api(
-        `/api/get_locs/?${query.toString()}`,
-        {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        }
-    )
     // ✅ 存列表（用於預覽與彈層）
     locationsResult.value = Array.isArray(data?.locations_result) ? data.locations_result : []
     // 6️⃣ 核心結果：locations_result
@@ -820,31 +814,14 @@ async function fetchLocationsResult() {
 // 獲取自定義特徵地點列表
 async function fetchCustomFeatureLocations(locations, regions) {
   try {
-    const params = new URLSearchParams()
-
-    // 添加地点
-    if (locations && locations.length > 0) {
-      locations.forEach(loc => {
-        if (loc) params.append('locations', loc)
-      })
-    } else {
-      params.append('locations', '')
+    const queryParams = {
+      locations: (locations && locations.length > 0) ? locations.filter(Boolean) : [''],
+      regions: (regions && regions.length > 0) ? regions.filter(Boolean) : [''],
+      word: ''
     }
-
-    // 添加分区
-    if (regions && regions.length > 0) {
-      regions.forEach(reg => {
-        if (reg) params.append('regions', reg)
-      })
-    } else {
-      params.append('regions', '')
-    }
-
-    // word 設置為空
-    params.set('word', '')
 
     // 调用 API
-    const response = await api(`/api/get_custom_feature?${params.toString()}`)
+    const response = await getCustomFeature(queryParams)
 
     // 提取所有的「簡稱」
     if (Array.isArray(response)) {
@@ -996,20 +973,16 @@ const fetchPartitionData = async () => {
   partitionTreeError.value = ''
 
   try {
-    const response = await api('/sql/query', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        db_key: 'query',
-        table_name: 'dialects',
-        page: 1,
-        page_size: 9999,  // 获取所有数据
-        sort_by: null,
-        sort_desc: false,
-        filters: {},
-        search_text: '',
-        search_columns: []
-      })
+    const response = await sqlQuery({
+      db_key: 'query',
+      table_name: 'dialects',
+      page: 1,
+      page_size: 9999,  // 获取所有数据
+      sort_by: null,
+      sort_desc: false,
+      filters: {},
+      search_text: '',
+      search_columns: []
     })
 
     const data = response.data || []

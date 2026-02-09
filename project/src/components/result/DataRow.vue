@@ -62,7 +62,7 @@
 <script setup>
 import { computed, ref } from 'vue';
 import { getCorrespondingCharacters } from '@/utils/ResultTable.js';
-import { api } from '@/utils/auth.js';
+import { sqlQuery } from '@/api/sql';
 import LocationDetailPopup from './LocationDetailPopup.vue';
 
 const props = defineProps({
@@ -138,11 +138,7 @@ const handleLocationClick = async (e) => {
       }
     };
 
-    const response = await api('/sql/query', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
+    const response = await sqlQuery(payload)
 
     locationPopup.value.data = response;
   } catch (error) {

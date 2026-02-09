@@ -256,7 +256,12 @@
 <script setup>
 import { ref, reactive, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { api } from '@/utils/auth.js'
+import {
+  uploadJyutFile,
+  processJyut2Ipa,
+  getJyut2IpaProgress,
+  downloadJyut2IpaResult
+} from '@/api/tools'
 import { userStore } from '@/utils/store.js'
 import { showSuccess, showError, showWarning, showConfirm } from '@/utils/message.js'
 
@@ -489,13 +494,7 @@ const processFile = async (file) => {
   try {
     // 上传文件
     processingText.value = '正在上傳文件...'
-    const formData = new FormData()
-    formData.append('file', file)
-
-    const uploadData = await api('/api/tools/jyut2ipa/upload', {
-      method: 'POST',
-      body: formData
-    })
+    const uploadData = await uploadJyutFile(file)
 
     const taskId = uploadData.task_id
     progress.value = 10
@@ -506,20 +505,14 @@ const processFile = async (file) => {
     // 将规则转换为后端需要的格式
     const customRules = rules.value.filter(r => r.enabled)
 
-    await api('/api/tools/jyut2ipa/process', {
-      method: 'POST',
-      body: {
-        task_id: taskId,
-        custom_rules: customRules  // 发送完整规则列表
-      }
-    })
+    await processJyut2Ipa(taskId)
 
     progress.value = 20
 
     // 轮询进度
     const pollInterval = setInterval(async () => {
       try {
-        const progressData = await api(`/api/tools/jyut2ipa/progress/${taskId}`)
+        const progressData = await getJyut2IpaProgress(taskId)
 
         progress.value = progressData.progress || 0
         processingText.value = progressData.message || '處理中...'
@@ -566,9 +559,7 @@ const downloadResult = async () => {
       return
     }
 
-    const blob = await api(`/api/tools/jyut2ipa/download/${taskId}`, {
-      responseType: 'blob'
-    })
+    const blob = await downloadJyut2IpaResult(taskId)
 
     const url = window.URL.createObjectURL(blob)
     const a = document.createElement('a')

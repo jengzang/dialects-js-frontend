@@ -93,7 +93,7 @@
 <script setup>
 import { ref, computed } from 'vue';
 import CharTreeItem from '@/components/TableAndTree/CharTreeItem.vue';
-import { api } from '@/utils/auth.js';
+import { loadFullTree } from '@/api/sql';
 
 // Classification Types Configuration
 const CLASSIFICATION_TYPES = {
@@ -177,11 +177,7 @@ const loadClassificationData = async (type) => {
   const config = CLASSIFICATION_TYPES[type];
 
   try {
-    const result = await api('/sql/tree/full', {
-      method: 'POST',
-      body: config.payload,
-      timeout: 60000
-    });
+    const result = await loadFullTree(config.payload)
 
     if (result && result.tree) {
       const normalized = normalizeTreeData(result.tree);

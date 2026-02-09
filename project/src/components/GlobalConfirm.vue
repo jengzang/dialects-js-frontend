@@ -136,9 +136,9 @@ function handleCancel() {
 
 /* 取消按钮 */
 .cancel-btn {
-  background: rgba(0, 0, 0, 0.05);
-  color: rgba(0, 0, 0, 0.7);
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: rgba(0, 0, 0, 0.05)!important;
+  color: rgba(0, 0, 0, 0.7)!important;
+  border: 1px solid rgba(0, 0, 0, 0.1)!important;
 }
 
 .cancel-btn:hover {

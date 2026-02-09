@@ -328,7 +328,7 @@ import {
   getUserRole,
   ensureAuthenticated,
   update_userdatas_bytoken
-} from '../utils/auth.js'
+} from '../api/auth/auth.js'
 import { userStore } from '../utils/store.js'
 import { useRouter } from 'vue-router';
 import { manualReport } from '../utils/onlineTimeTracker.js'

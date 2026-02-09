@@ -315,7 +315,12 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { api } from '@/utils/auth.js'
+import {
+  getAllCustomData,
+  editCustomData,
+  batchCreateCustomData,
+  batchDeleteCustomData
+} from '@/api/user'
 import { showSuccess, showError, showWarning, showConfirm } from '@/utils/message.js'
 import { userStore } from '@/utils/store.js'
 
@@ -439,7 +444,7 @@ const validBatchEditRows = computed(() => {
 const fetchData = async () => {
   loading.value = true
   try {
-    const response = await api('/user/custom/all')
+    const response = await getAllCustomData()
 
     // 確保數據存在，否則給予空數組
     dataList.value = response.data || []
@@ -501,11 +506,7 @@ const closeEditModal = () => {
 
 const submitEdit = async () => {
   try {
-    await api('/user/custom/edit', {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(editingRecord.value)
-    })
+    await editCustomData(editingRecord.value)
     showSuccess('更新成功')
     closeEditModal()
     await fetchData()
@@ -602,11 +603,7 @@ const submitBatchCreate = async () => {
   }
 
   try {
-    const response = await api('/user/custom/batch-create', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
-    })
+    const response = await batchCreateCustomData(data)
     showSuccess(response.message || `批量創建成功：${data.length} 條`)
     closeBatchCreateModal()
     await fetchData()
@@ -660,13 +657,7 @@ const submitBatchEdit = async () => {
   try {
     // 第一步：删除原记录
     const deleteIds = batchEditRows.value.map(row => row.created_at)
-    await api('/user/custom/batch-delete', {
-      method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        created_at_list: deleteIds
-      })
-    })
+    await batchDeleteCustomData(deleteIds)
 
     // 第二步：添加修改后的记录
     const newData = validRows.map(row => ({
@@ -705,13 +696,7 @@ const handleBatchDelete = async () => {
   if (!confirmed) return
 
   try {
-    const response = await api('/user/custom/batch-delete', {
-      method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        created_at_list: selectedRecords.value
-      })
-    })
+    const response = await batchDeleteCustomData(selectedRecords.value)
     showSuccess(response.message || '刪除成功')
     selectedRecords.value = []
     await fetchData()

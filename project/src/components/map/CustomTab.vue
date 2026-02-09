@@ -211,7 +211,8 @@
 import { ref, reactive, nextTick, onMounted, onBeforeUnmount, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import LocationAndRegionInput from '@/components/query/LocationAndRegionInput.vue'
-import { api } from '@/utils/auth.js'
+import { getCustomFeature } from '@/api/user/custom.js'
+import { getAllCustomData } from '@/api/user'
 import { userStore, resultCache, mapStore, uiStore, isCustomButtonDisabled, setRunning } from '@/utils/store.js'
 import { showSuccess, showError, showWarning, showInfo } from '@/utils/message.js'
 
@@ -387,32 +388,18 @@ const searchCustomFeatures = async () => {
 
   try {
     // 构建查询参数
-    const params = new URLSearchParams()
-
-// 添加地点
-    if (locationData.value.locations && locationData.value.locations.length > 0) {
-      locationData.value.locations.forEach(loc => {
-        if (loc) params.append('locations', loc)
-      })
-    } else {
-      params.append('locations', '')  // 确保传递空值
+    const queryParams = {
+      locations: (locationData.value.locations && locationData.value.locations.length > 0)
+        ? locationData.value.locations.filter(Boolean)
+        : [''],
+      regions: (locationData.value.regions && locationData.value.regions.length > 0)
+        ? locationData.value.regions.filter(Boolean)
+        : [''],
+      word: word
     }
-
-// 添加分区
-    if (locationData.value.regions && locationData.value.regions.length > 0) {
-      locationData.value.regions.forEach(reg => {
-        if (reg) params.append('regions', reg)
-      })
-    } else {
-      params.append('regions', '')  // 确保传递空值
-    }
-
-
-    // 添加搜索词（允许空字符串，后端会返回所有特征）
-    params.set('word', word)
 
     // 调用 API
-    const response = await api(`/api/get_custom_feature?${params.toString()}`)
+    const response = await getCustomFeature(queryParams)
 
     if (Array.isArray(response) && response.length > 0) {
       // 后端返回的是对象数组: { "簡稱": "test", "聲韻調": "", "特徵": "流" }
@@ -476,7 +463,7 @@ const fetchUserTotalCount = async () => {
   if (!userStore.isAuthenticated) return
   try {
     // 不帶任何參數請求，獲取所有個人記錄
-    const response = await api('/user/custom/all')
+    const response = await getAllCustomData()
     if (Array.isArray(response.data)) {
       userTotalCount.value = response.data.length
     }
