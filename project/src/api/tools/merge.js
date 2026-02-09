@@ -56,12 +56,13 @@ export async function uploadReference(file) {
  */
 export async function uploadFiles(taskId, files) {
   const formData = new FormData()
+  formData.append('task_id', taskId)  // task_id 必须在 FormData 中
   files.forEach(file => {
     formData.append('files', file)
   })
 
   try {
-    return await api(`/api/tools/merge/upload_files?task_id=${taskId}`, {
+    return await api('/api/tools/merge/upload_files', {
       method: 'POST',
       body: formData
     })

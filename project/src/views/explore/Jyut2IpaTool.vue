@@ -80,7 +80,7 @@
       <div class="complete-area" v-if="completed">
         <div class="complete-icon">✅</div>
         <h3 class="complete-title">轉換完成！</h3>
-        <p class="complete-text">文件已成功處理，可以下載結果</p>
+        <p class="complete-text">請在5分鐘內下載</p>
 
 <!--        <div class="result-stats">-->
 <!--          <div class="result-card">-->

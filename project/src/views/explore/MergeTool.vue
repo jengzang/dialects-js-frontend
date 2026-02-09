@@ -195,7 +195,7 @@
           <div class="complete-view" v-else>
 <!--            <div class="complete-icon">✅</div>-->
             <h3 class="complete-title">✅ 合併完成！</h3>
-<!--            <p class="complete-text">所有文件已成功合併</p>-->
+            <p class="complete-text">請在5分鐘內下載</p>
 
             <div class="result-summary">
 <!--              <div class="summary-card">-->
@@ -982,7 +982,6 @@ const reset = () => {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  max-height: 200px;
   overflow-y: auto;
   padding: 12px;
   background: rgba(255, 255, 255, 0.3);
