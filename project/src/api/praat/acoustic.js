@@ -61,7 +61,7 @@ export async function uploadAudio(file) {
   formData.append('file', file)
 
   try {
-    return await api('/api/praat/uploads', {
+    return await api('/api/tools/praat/uploads', {
       method: 'POST',
       body: formData
     })
@@ -86,7 +86,7 @@ export async function uploadAudio(file) {
  */
 export async function createAnalysisJob(uploadId, settings) {
   try {
-    return await api('/api/praat/jobs', {
+    return await api('/api/tools/praat/jobs', {
       method: 'POST',
       body: {
         upload_id: uploadId,
@@ -111,7 +111,7 @@ export async function createAnalysisJob(uploadId, settings) {
  */
 export async function getJobStatus(jobId) {
   try {
-    return await api(`/api/praat/jobs/${jobId}`)
+    return await api(`/api/tools/praat/jobs/progress/${jobId}`)
   } catch (error) {
     console.error('Get job status error:', error)
     showError(error.message || '獲取任務狀態失敗')
@@ -129,7 +129,7 @@ export async function getJobStatus(jobId) {
  */
 export async function cancelJob(jobId) {
   try {
-    return await api(`/api/praat/jobs/${jobId}`, {
+    return await api(`/api/tools/praat/jobs/progress/${jobId}`, {
       method: 'DELETE'
     })
   } catch (error) {
@@ -151,7 +151,7 @@ export async function cancelJob(jobId) {
  */
 export async function getJobResult(jobId, view = 'full') {
   try {
-    return await api(`/api/praat/jobs/${jobId}/result?view=${view}`)
+    return await api(`/api/tools/praat/jobs/progress/${jobId}/result?view=${view}`)
   } catch (error) {
     console.error('Get job result error:', error)
     showError(error.message || '獲取分析結果失敗')

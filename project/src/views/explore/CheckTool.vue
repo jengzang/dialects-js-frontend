@@ -333,203 +333,214 @@
           </div>
 
           <!-- 表格 -->
-          <div class="table-container glass-panel custom-scrollbar" :class="{ 'loading': isLoadingTable || isEditModeLoading }">
+          <div class="table-container glass-panel" :class="{ 'loading': isLoadingTable || isEditModeLoading }">
             <div v-if="isLoadingTable || isEditModeLoading " class="table-loading-overlay">
               <div class="table-loading-spinner"></div>
               <div class="table-loading-text">加載中...</div>
             </div>
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th width="50">行</th>
-                  <th width="80">漢字</th>
-                  <th width="90">音標</th>
-                  <th 
-                    width="45"
-                    class="filterable-header"
-                    @click="openFilterModal('onset')"
-                    :class="{ 'filtered': filterOnset.size > 0 }"
-                  >
-                    聲母{{ getFilterDisplayText('onset') }}
-                  </th>
-                  <th 
-                    width="55"
-                    class="filterable-header"
-                    @click="openFilterModal('rime')"
-                    :class="{ 'filtered': filterRime.size > 0 }"
-                  >
-                    韻母{{ getFilterDisplayText('rime') }}
-                  </th>
-                  <th 
-                    width="40"
-                    class="filterable-header"
-                    @click="openFilterModal('tone')"
-                    :class="{ 'filtered': filterTone.size > 0 }"
-                  >
-                    聲調{{ getFilterDisplayText('tone') }}
-                  </th>
-                  <th>解釋</th>
-                  <th v-if="isEditMode" width="80">操作</th>
-                </tr>
-              </thead>
-              <tbody >
-              <tr
-                  v-for="row in displayedTableData"
-                  :key="row.row"
-                  :data-row="row.row"
-                  :class="{
-      'modified-row': pendingChanges.has(row.row),
-      'marked-for-delete': rowsToDelete.has(row.row)
-    }"
-              >
-                <td>{{ row.row }}</td>
 
-                <td
-                    :class="{
-        'error-cell': row.errors?.includes('nonSingleChar'),
-        'editable-cell': isEditMode
-      }"
-                    @click="isEditMode && startEditing(row.row, 'char')"
+            <!-- Fixed Header -->
+            <div class="virtual-table-header" :style="{ gridTemplateColumns: isEditMode ? '60px 80px 90px 80px 80px 80px 1fr 80px' : '60px 80px 90px 80px 80px 80px 1fr' }">
+              <div class="header-cell">行</div>
+              <div class="header-cell">漢字</div>
+              <div class="header-cell">音標</div>
+              <div
+                class="header-cell filterable-header"
+                @click="openFilterModal('onset')"
+                :class="{ 'filtered': filterOnset.size > 0 }"
+              >
+                聲母{{ getFilterDisplayText('onset') }}
+              </div>
+              <div
+                class="header-cell filterable-header"
+                @click="openFilterModal('rime')"
+                :class="{ 'filtered': filterRime.size > 0 }"
+              >
+                韻母{{ getFilterDisplayText('rime') }}
+              </div>
+              <div
+                class="header-cell filterable-header"
+                @click="openFilterModal('tone')"
+                :class="{ 'filtered': filterTone.size > 0 }"
+              >
+                聲調{{ getFilterDisplayText('tone') }}
+              </div>
+              <div class="header-cell">解釋</div>
+              <div v-show="isEditMode" class="header-cell">操作</div>
+            </div>
+
+            <!-- Virtual Scroller Body -->
+            <RecycleScroller
+              v-slot="{ item: row }"
+              :items="displayedTableData"
+              :item-size="40"
+              :buffer="200"
+              key-field="row"
+              :key="`scroller-${showingAll}-${filterOnset.size}-${filterRime.size}-${filterTone.size}`"
+              class="virtual-table-scroller custom-scrollbar"
+            >
+              <div
+                class="virtual-table-row"
+                :style="{ gridTemplateColumns: isEditMode ? '60px 80px 90px 80px 80px 80px 1fr 80px' : '60px 80px 90px 80px 80px 80px 1fr' }"
+                :data-row="row.row"
+                :class="{
+                  'modified-row': pendingChanges.has(row.row),
+                  'marked-for-delete': rowsToDelete.has(row.row)
+                }"
+              >
+                <div class="cell cell-row">{{ row.row }}</div>
+
+                <div
+                  class="cell cell-char"
+                  :class="{
+                    'error-cell': row.errors?.includes('nonSingleChar'),
+                    'editable-cell': isEditMode
+                  }"
+                  @click="isEditMode && startEditing(row.row, 'char')"
                 >
                   <input
-                      v-if="editingCell.row === row.row && editingCell.field === 'char'"
-                      :id="`edit-input-${row.row}-char`"
-                      type="text"
-                      class="glass-input row-input"
-                      :value="getPendingValue(row.row, 'char') ?? row.char ?? ''"
-                      @blur="finishEditing(row, 'char', $event.target.value)"
-                      @keydown.enter.prevent="$event.target.blur()"
-                      @keydown.esc.prevent="editingCell = { row: null, field: null }"
-                      @click.stop
+                    v-if="editingCell.row === row.row && editingCell.field === 'char'"
+                    :id="`edit-input-${row.row}-char`"
+                    type="text"
+                    class="glass-input row-input"
+                    :value="getPendingValue(row.row, 'char') ?? row.char ?? ''"
+                    @blur="finishEditing(row, 'char', $event.target.value)"
+                    @keydown.enter.prevent="$event.target.blur()"
+                    @keydown.esc.prevent="editingCell = { row: null, field: null }"
+                    @click.stop
                   />
                   <template v-else>
                     {{ getPendingValue(row.row, 'char') || row.char || '' }}
                     <span v-if="row.errors?.includes('nonSingleChar')" class="error-indicator">❌</span>
                   </template>
-                </td>
+                </div>
 
-                <td
-                    :class="{
-        'error-cell': row.errors?.includes('invalidIpa'),
-        'editable-cell': isEditMode
-      }"
-                    @click="isEditMode && startEditing(row.row, 'ipa')"
+                <div
+                  class="cell cell-ipa"
+                  :class="{
+                    'error-cell': row.errors?.includes('invalidIpa'),
+                    'editable-cell': isEditMode
+                  }"
+                  @click="isEditMode && startEditing(row.row, 'ipa')"
                 >
                   <input
-                      v-if="editingCell.row === row.row && editingCell.field === 'ipa'"
-                      :id="`edit-input-${row.row}-ipa`"
-                      type="text"
-                      class="glass-input row-input"
-                      :value="getPendingValue(row.row, 'ipa') ?? row.ipa ?? ''"
-                      @blur="finishEditing(row, 'ipa', $event.target.value)"
-                      @keydown.enter.prevent="$event.target.blur()"
-                      @keydown.esc.prevent="editingCell = { row: null, field: null }"
-                      @click.stop
+                    v-if="editingCell.row === row.row && editingCell.field === 'ipa'"
+                    :id="`edit-input-${row.row}-ipa`"
+                    type="text"
+                    class="glass-input row-input"
+                    :value="getPendingValue(row.row, 'ipa') ?? row.ipa ?? ''"
+                    @blur="finishEditing(row, 'ipa', $event.target.value)"
+                    @keydown.enter.prevent="$event.target.blur()"
+                    @keydown.esc.prevent="editingCell = { row: null, field: null }"
+                    @click.stop
                   />
                   <template v-else>
                     {{ getPendingValue(row.row, 'ipa') || row.ipa || '' }}
                     <span v-if="row.errors?.includes('invalidIpa')" class="error-indicator">⚠️</span>
                   </template>
-                </td>
+                </div>
 
-                <td
-                    :class="{ 'editable-cell': isEditMode }"
-                    @click="isEditMode && startEditing(row.row, 'onset')"
+                <div
+                  class="cell cell-onset"
+                  :class="{ 'editable-cell': isEditMode }"
+                  @click="isEditMode && startEditing(row.row, 'onset')"
                 >
                   <input
-                      v-if="editingCell.row === row.row && editingCell.field === 'onset'"
-                      :id="`edit-input-${row.row}-onset`"
-                      type="text"
-                      class="glass-input row-input"
-                      :value="getPendingValue(row.row, 'onset') ?? row.onset ?? ''"
-                      @blur="finishEditing(row, 'onset', $event.target.value)"
-                      @keydown.enter.prevent="$event.target.blur()"
-                      @keydown.esc.prevent="editingCell = { row: null, field: null }"
-                      @click.stop
+                    v-if="editingCell.row === row.row && editingCell.field === 'onset'"
+                    :id="`edit-input-${row.row}-onset`"
+                    type="text"
+                    class="glass-input row-input"
+                    :value="getPendingValue(row.row, 'onset') ?? row.onset ?? ''"
+                    @blur="finishEditing(row, 'onset', $event.target.value)"
+                    @keydown.enter.prevent="$event.target.blur()"
+                    @keydown.esc.prevent="editingCell = { row: null, field: null }"
+                    @click.stop
                   />
                   <template v-else>
                     {{ getPendingValue(row.row, 'onset') || row.onset || '' }}
                   </template>
-                </td>
+                </div>
 
-                <td
-                    :class="{ 'editable-cell': isEditMode }"
-                    @click="isEditMode && startEditing(row.row, 'rime')"
+                <div
+                  class="cell cell-rime"
+                  :class="{ 'editable-cell': isEditMode }"
+                  @click="isEditMode && startEditing(row.row, 'rime')"
                 >
                   <input
-                      v-if="editingCell.row === row.row && editingCell.field === 'rime'"
-                      :id="`edit-input-${row.row}-rime`"
-                      type="text"
-                      class="glass-input row-input"
-                      :value="getPendingValue(row.row, 'rime') ?? row.rime ?? ''"
-                      @blur="finishEditing(row, 'rime', $event.target.value)"
-                      @keydown.enter.prevent="$event.target.blur()"
-                      @keydown.esc.prevent="editingCell = { row: null, field: null }"
-                      @click.stop
+                    v-if="editingCell.row === row.row && editingCell.field === 'rime'"
+                    :id="`edit-input-${row.row}-rime`"
+                    type="text"
+                    class="glass-input row-input"
+                    :value="getPendingValue(row.row, 'rime') ?? row.rime ?? ''"
+                    @blur="finishEditing(row, 'rime', $event.target.value)"
+                    @keydown.enter.prevent="$event.target.blur()"
+                    @keydown.esc.prevent="editingCell = { row: null, field: null }"
+                    @click.stop
                   />
                   <template v-else>
                     {{ getPendingValue(row.row, 'rime') || row.rime || '' }}
                   </template>
-                </td>
+                </div>
 
-                <td
-                    :class="{
-        'error-cell': row.errors?.includes('missingTone'),
-        'editable-cell': isEditMode
-      }"
-                    @click="isEditMode && startEditing(row.row, 'tone')"
+                <div
+                  class="cell cell-tone"
+                  :class="{
+                    'error-cell': row.errors?.includes('missingTone'),
+                    'editable-cell': isEditMode
+                  }"
+                  @click="isEditMode && startEditing(row.row, 'tone')"
                 >
                   <input
-                      v-if="editingCell.row === row.row && editingCell.field === 'tone'"
-                      :id="`edit-input-${row.row}-tone`"
-                      type="text"
-                      class="glass-input row-input"
-                      :value="getPendingValue(row.row, 'tone') ?? row.tone ?? ''"
-                      @blur="finishEditing(row, 'tone', $event.target.value)"
-                      @keydown.enter.prevent="$event.target.blur()"
-                      @keydown.esc.prevent="editingCell = { row: null, field: null }"
-                      @click.stop
+                    v-if="editingCell.row === row.row && editingCell.field === 'tone'"
+                    :id="`edit-input-${row.row}-tone`"
+                    type="text"
+                    class="glass-input row-input"
+                    :value="getPendingValue(row.row, 'tone') ?? row.tone ?? ''"
+                    @blur="finishEditing(row, 'tone', $event.target.value)"
+                    @keydown.enter.prevent="$event.target.blur()"
+                    @keydown.esc.prevent="editingCell = { row: null, field: null }"
+                    @click.stop
                   />
                   <template v-else>
                     {{ getPendingValue(row.row, 'tone') || row.tone || '' }}
                     <span v-if="row.errors?.includes('missingTone')" class="error-indicator">🔍</span>
                   </template>
-                </td>
+                </div>
 
-                <td
-                    :class="{ 'editable-cell': isEditMode }"
-                    @click="isEditMode && startEditing(row.row, 'note')"
+                <div
+                  class="cell cell-note"
+                  :class="{ 'editable-cell': isEditMode }"
+                  @click="isEditMode && startEditing(row.row, 'note')"
                 >
                   <input
-                      v-if="editingCell.row === row.row && editingCell.field === 'note'"
-                      :id="`edit-input-${row.row}-note`"
-                      type="text"
-                      class="glass-input row-input"
-                      style="text-align: left;"
-                      :value="getPendingValue(row.row, 'note') ?? row.note ?? ''"
-                      @blur="finishEditing(row, 'note', $event.target.value)"
-                      @keydown.enter.prevent="$event.target.blur()"
-                      @keydown.esc.prevent="editingCell = { row: null, field: null }"
-                      @click.stop
+                    v-if="editingCell.row === row.row && editingCell.field === 'note'"
+                    :id="`edit-input-${row.row}-note`"
+                    type="text"
+                    class="glass-input row-input"
+                    style="text-align: left;"
+                    :value="getPendingValue(row.row, 'note') ?? row.note ?? ''"
+                    @blur="finishEditing(row, 'note', $event.target.value)"
+                    @keydown.enter.prevent="$event.target.blur()"
+                    @keydown.esc.prevent="editingCell = { row: null, field: null }"
+                    @click.stop
                   />
                   <template v-else>
                     {{ getPendingValue(row.row, 'note') || row.note || '' }}
                   </template>
-                </td>
+                </div>
 
-                <td v-if="isEditMode" class="action-cell">
+                <div v-show="isEditMode" class="cell cell-action">
                   <button
-                      class="delete-btn-icon"
-                      :class="{ 'delete-active': rowsToDelete.has(row.row) }"
-                      @click="markForDelete(row.row)"
-                      :title="rowsToDelete.has(row.row) ? '取消刪除' : '標記刪除'"
+                    class="delete-btn-icon"
+                    :class="{ 'delete-active': rowsToDelete.has(row.row) }"
+                    @click="markForDelete(row.row)"
+                    :title="rowsToDelete.has(row.row) ? '取消刪除' : '標記刪除'"
                   >
                     {{ rowsToDelete.has(row.row) ? '↩️' : '🗑️' }}
                   </button>
-                </td>
-              </tr>
-              </tbody>
-            </table>
+                </div>
+              </div>
+            </RecycleScroller>
           </div>
         </div>
 
@@ -899,6 +910,8 @@
 <script setup>
 import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { RecycleScroller } from 'vue-virtual-scroller'
+import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
 import {
   uploadCheckFile,
   analyzeFile as analyzeFileApi,
@@ -1280,12 +1293,14 @@ const loadErrorRowsData = async (errors) => {
         errorsByRow[error.row].push(error.error_type || error.type)
       })
 
-      // 为每行数据添加错误数组
-      rowData.forEach(row => {
+      // 为每行数据添加错误数组，并只保留有错误的行
+      const errorRows = rowData.filter(row => errorsByRow[row.row])
+      errorRows.forEach(row => {
         row.errors = errorsByRow[row.row] || []
       })
-      errorData.value = rowData
-      filteredData.value = rowData
+
+      errorData.value = errorRows
+      filteredData.value = errorRows
     }
   } catch (error) {
     console.error('加載錯誤行數據失敗:', error)
@@ -1528,28 +1543,22 @@ const resetFilter = () => {
 
 // 跳转到行
 const jumpToRow = (rowNumber) => {
-  const row = document.querySelector(`tr[data-row="${rowNumber}"]`)
-  if (row) {
-    row.scrollIntoView({ behavior: 'smooth', block: 'center' })
-    row.classList.add('highlight-row')
+  // Find the row in virtual scroller
+  const rowElement = document.querySelector(`div[data-row="${rowNumber}"]`)
+  if (rowElement) {
+    rowElement.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    rowElement.classList.add('highlight-row')
     setTimeout(() => {
-      row.classList.remove('highlight-row')
+      rowElement.classList.remove('highlight-row')
     }, 2000)
   }
 }
 
 // 编辑功能
-const toggleEditMode = async () => {
+const toggleEditMode = () => {
   if (!isEditMode.value) {
-    // 进入编辑模式
+    // 进入编辑模式 - 无需等待，虚拟滚动会自动处理
     isEditMode.value = true
-    isEditModeLoading.value = true
-    // 等待 DOM 更新完成
-    await nextTick()
-    // 等待一小段时间确保所有 DOM 元素都已渲染
-    setTimeout(() => {
-      isEditModeLoading.value = false
-    }, 100)
   } else {
     // 退出编辑模式
     isEditMode.value = false
@@ -2529,7 +2538,7 @@ onUnmounted(() => {
 
 .table-container {
   flex: 1;
-  overflow: auto;
+  overflow: hidden;
   -webkit-overflow-scrolling: touch;
   position: relative;
 }
@@ -2569,30 +2578,28 @@ onUnmounted(() => {
   font-weight: 500;
 }
 
-.data-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 13px;
-}
-
-.data-table thead {
+/* Virtual Table Styles */
+.virtual-table-header {
+  display: grid;
   background: rgba(255, 255, 255, 0.6);
   backdrop-filter: blur(10px);
   position: sticky;
   top: 0;
   z-index: 10;
+  border-bottom: 2px solid rgba(0, 122, 255, 0.2);
 }
 
-.data-table th,
-.data-table td {
+.header-cell {
   padding: 10px 12px;
-  text-align: center; /* <--- 改成 center 即可 */
-  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
-}
-
-.data-table th {
+  text-align: center;
   font-weight: 600;
   color: #0b2540;
+  font-size: 13px;
+  border-right: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.header-cell:last-child {
+  border-right: none;
 }
 
 .filterable-header {
@@ -2616,24 +2623,32 @@ onUnmounted(() => {
   font-size: 12px;
 }
 
-.data-table tbody tr {
+.virtual-table-scroller {
+  height: calc(100% - 44px);
+  overflow-y: auto;
+}
+
+.virtual-table-row {
+  display: grid;
+  min-height: 40px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
   transition: background 0.2s ease;
 }
 
-.data-table tbody tr:hover {
+.virtual-table-row:hover {
   background: rgba(0, 122, 255, 0.05);
 }
 
-.data-table tbody tr.modified-row {
+.virtual-table-row.modified-row {
   background: rgba(255, 204, 0, 0.1);
 }
 
-.data-table tbody tr.marked-for-delete {
+.virtual-table-row.marked-for-delete {
   background: rgba(255, 59, 48, 0.1);
   text-decoration: line-through;
 }
 
-.data-table tbody tr.highlight-row {
+.virtual-table-row.highlight-row {
   background: rgba(0, 122, 255, 0.2);
   animation: highlight 2s ease;
 }
@@ -2641,6 +2656,28 @@ onUnmounted(() => {
 @keyframes highlight {
   0%, 100% { background: rgba(0, 122, 255, 0.05); }
   50% { background: rgba(0, 122, 255, 0.3); }
+}
+
+.cell {
+  padding: 10px 12px;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cell:last-child {
+  border-right: none;
+}
+
+.cell-note {
+  text-align: left;
+  justify-content: flex-start;
 }
 
 .error-cell {
@@ -2652,22 +2689,11 @@ onUnmounted(() => {
   position: relative;
   background: rgba(0, 122, 255, 0.02);
   border: 1px dashed rgba(0, 122, 255, 0.2) !important;
-  transition: all 0.2s ease;
 }
 
 .editable-cell:hover {
   background: rgba(0, 122, 255, 0.08);
   border-color: rgba(0, 122, 255, 0.4) !important;
-}
-
-.editable-cell:hover::after {
-  content: '✏️';
-  position: absolute;
-  right: 4px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 10px;
-  opacity: 0.6;
 }
 
 .error-indicator {
@@ -2676,7 +2702,7 @@ onUnmounted(() => {
 }
 
 /* 删除按钮 */
-.action-cell {
+.cell-action {
   text-align: center;
 }
 

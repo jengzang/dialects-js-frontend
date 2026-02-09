@@ -110,13 +110,6 @@ export {
   queryPhonology
 } from './query/phonology.js'
 
-// 自定义特征查询
-export {
-  getCustomData,
-  getCustomFeature,
-  submitCustomForm,
-  deleteCustomForm
-} from './query/custom.js'
 
 // ==================== 用户数据 ====================
 export {

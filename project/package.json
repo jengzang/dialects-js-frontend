@@ -22,6 +22,7 @@
     "maplibre-gl": "^5.16.0",
     "opencc-js": "^1.0.5",
     "vue-router": "^4.5.1",
+    "vue-virtual-scroller": "^2.0.0-beta.8",
     "wavesurfer.js": "^7.12.1",
     "xlsx": "^0.18.5"
   }
