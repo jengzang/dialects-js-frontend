@@ -449,17 +449,19 @@ onBeforeUnmount(() => {
 
 .upload-icon {
   font-size: 3rem;
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
 }
 
 .upload-text {
   font-size: 1.1rem;
   color: var(--color-text-primary);
   margin-bottom: 0.5rem;
+  margin-top:0.5rem;
 }
 
 .upload-hint {
   font-size: 0.9rem;
+  margin:0;
   color: var(--color-text-secondary);
 }
 

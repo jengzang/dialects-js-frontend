@@ -100,9 +100,9 @@
 
       <!-- Tab 2: Analysis Results -->
       <div v-show="activeTab === 'results'" class="page-content" :class="{ 'tab-hidden': activeTab !== 'results' }">
-          <!-- Job Status Panel (All states handled inside) -->
+          <!-- Job Status Panel (shown during analysis, including upload phase) -->
           <JobStatusPanel
-            v-if="jobId && !analysisResults"
+            v-if="isAnalyzing"
             :job-id="jobId"
             :status="jobStatus"
             :progress="jobProgress"
@@ -112,14 +112,14 @@
           />
 
           <!-- No Results Message -->
-          <div v-else-if="!analysisResults && !jobId" class="no-results-state glass-panel">
+          <div v-else-if="!analysisResults" class="no-results-state glass-panel">
             <div class="no-results-icon">📊</div>
             <h3 class="no-results-title">尚無分析結果</h3>
             <p class="no-results-text">請先上傳音頻並開始分析</p>
           </div>
 
           <!-- Analysis Results -->
-          <AnalysisResultsPanel v-else-if="analysisResults" :results="analysisResults" />
+          <AnalysisResultsPanel v-else :results="analysisResults" />
         </div>
 
       <!-- Tab 3: Vowel Space - NEW -->
@@ -272,6 +272,7 @@ const jobStage = ref(null)
 const jobError = ref(null)
 const pollingFailCount = ref(0)  // ✅ 添加失败计数器
 const MAX_POLLING_FAILURES = 5   // ✅ 最大失败次数
+const isAnalyzing = ref(false)   // ✅ 分析进行中标志（包括上传阶段）
 
 // Results
 const analysisResults = ref(null)
@@ -471,6 +472,7 @@ const startAnalysis = async () => {
   jobProgress.value = 0
   jobStage.value = '準備上傳音頻...'
   jobError.value = null
+  isAnalyzing.value = true  // ✅ 立即设置分析中标志
 
   // Enable results tab and auto-switch
   resultsTabEnabled.value = true
@@ -506,6 +508,7 @@ const startAnalysis = async () => {
       jobStatus.value = 'idle'
       jobStage.value = ''
       activeTab.value = 'upload'
+      isAnalyzing.value = false  // ✅ 清除分析中标志
 
       console.warn(`[Praat] Audio duration ${duration}s exceeds 3s limit for spectrogram analysis - analysis blocked`)
       return
@@ -530,6 +533,7 @@ const startAnalysis = async () => {
     isUploading.value = false
     jobStatus.value = 'error'
     jobError.value = error.message
+    isAnalyzing.value = false  // ✅ 清除分析中标志
   }
 }
 
@@ -556,9 +560,11 @@ const startPolling = () => {
       if (status.status === 'completed' || status.status === 'done') {
         stopPolling()
         await fetchResults()
+        isAnalyzing.value = false  // ✅ 分析完成，清除标志
       } else if (status.status === 'failed' || status.status === 'error' || status.status === 'canceled') {
         stopPolling()
         showError(status.error || '分析任務失敗')
+        isAnalyzing.value = false  // ✅ 分析失败，清除标志
       }
     } catch (error) {
       console.error('Polling error:', error)
@@ -572,6 +578,7 @@ const startPolling = () => {
         jobStatus.value = 'error'
         jobError.value = '連續查詢失敗，請檢查網絡連接或重試'
         showError(`任務狀態查詢失敗 (${MAX_POLLING_FAILURES}次)，已停止輪詢`)
+        isAnalyzing.value = false  // ✅ 轮询失败，清除标志
       }
     }
   }, 2000)
@@ -602,6 +609,7 @@ const cancelAnalysis = async () => {
     await cancelJob(jobId.value)
     stopPolling()
     jobStatus.value = 'canceled'
+    isAnalyzing.value = false  // ✅ 取消分析，清除标志
   } catch (error) {
     console.error('Cancel error:', error)
     showError('取消任務失敗')

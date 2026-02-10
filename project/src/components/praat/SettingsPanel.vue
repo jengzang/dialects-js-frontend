@@ -341,7 +341,7 @@ watch(localSettings, (newSettings) => {
 
 .module-checkboxes {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
   gap: 0.75rem;
 }
 
@@ -378,7 +378,7 @@ watch(localSettings, (newSettings) => {
 
 .param-item label {
   font-size: 0.9rem;
-  color: var(--color-text-secondary);
+  color: var(--color-text-primary);
 }
 
 .param-item input[type="number"] {

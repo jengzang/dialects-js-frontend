@@ -1858,7 +1858,7 @@ td.cell-changed::after {
   top: 100%;
   left: 0;
   margin-top: 8px;
-  z-index: 1000;
+  z-index: 10000;
   min-width: 240px;
   max-width: 300px;
   padding: 10px;
@@ -2408,7 +2408,7 @@ td.cell-changed::after {
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.95);
-  z-index: 9999;
+  z-index: 999;
   display: flex;
   align-items: center;
   justify-content: center;

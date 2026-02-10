@@ -1,6 +1,6 @@
 <template>
   <div class="pitch-tone-panel glass-panel">
-    <h2 class="panel-title">石锋 T 值分析器</h2>
+    <h2 class="panel-title" style="margin:0">石峰 T 值分析器</h2>
 
     <!-- Step 1: Select and Label -->
     <div v-if="hasPitchData" class="step-section">

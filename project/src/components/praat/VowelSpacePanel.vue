@@ -5,9 +5,12 @@
       <!-- Control Buttons -->
       <div class="control-buttons">
         <button
-          class="control-btn glass-panel-inner"
-          :class="{ active: showSegmented }"
-          @click="showSegmented = !showSegmented">
+            class="control-btn glass-panel-inner"
+            :class="{ active: showSegmented }"
+            :disabled="vowelSegments.length === 0"
+            @click="showSegmented = !showSegmented"
+            :title="vowelSegments.length === 0 ? '未檢測到有效語音段，無法切換' : ''"
+        >
           {{ showSegmented ? '📊 分段顯示' : '⚫ 全部顯示' }}
         </button>
         <button
@@ -223,8 +226,14 @@ const allVowelSpaceData = computed(() => {
 
 // Initialize: select all segments by default
 watch(vowelSegments, (segments) => {
-  if (segments.length > 0 && selectedSegments.value.size === 0) {
-    selectedSegments.value = new Set(segments.map(s => s.id))
+  if (segments.length > 0) {
+    // 有元音段时，默认选中全部段
+    if (selectedSegments.value.size === 0) {
+      selectedSegments.value = new Set(segments.map(s => s.id))
+    }
+  } else {
+    // 【新增逻辑】如果没有元音段，强制切换到“全部显示”模式
+    showSegmented.value = false
   }
 }, { immediate: true })
 
@@ -518,6 +527,10 @@ onBeforeUnmount(() => {
   border-color: #007aff;
   background: rgba(0, 122, 255, 0.1);
 }
+.control-btn:disabled {
+  cursor: not-allowed;
+  pointer-events: none; /* 彻底防止点击事件 */
+}
 
 /* Segment Selector Section */
 .segment-selector-section {
@@ -683,6 +696,10 @@ onBeforeUnmount(() => {
   padding: 1rem;
   background: var(--glass-light);
   border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  justify-items: center;
 }
 
 .description-text {

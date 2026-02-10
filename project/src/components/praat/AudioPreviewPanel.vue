@@ -848,6 +848,14 @@ onBeforeUnmount(() => {
 .audio-preview-panel {
   padding: 1.25rem;
 }
+@media (max-aspect-ratio: 1/1) {
+  .audio-preview-panel {
+    padding:0.5rem;
+  }
+  .manual-mode{
+    gap:0.5rem!important;
+  }
+}
 
 .panel-title {
   font-size: 1rem;
@@ -1196,6 +1204,8 @@ onBeforeUnmount(() => {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+  overflow-y: auto;
+  max-height: 20rem;
 }
 
 .regions-list h4 {

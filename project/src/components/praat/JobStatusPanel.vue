@@ -76,7 +76,7 @@ onUnmounted(() => {
   width: 95%;
   max-width: 800px;
   margin: 1rem auto;
-  padding: 2rem;
+  padding: 1rem;
 }
 
 .panel-header {
