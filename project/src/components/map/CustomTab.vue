@@ -171,9 +171,158 @@
                   <li><strong>【聲韻調】</strong>：值所屬的（聲/韻/調），用於基礎分類</li>
                   <li><strong>【簡稱】</strong>：數據的<strong>地點名稱</strong>（如：`陽春`）。</li>
                   <li><strong>【分區】</strong>：數據的<strong>方言分區</strong>（如：`粵語-高陽片`）。</li>
-<!--                  <li>💡 小貼士：如果你不是在做方言分區，可以把「分區」當作<strong>「文件夾」</strong>，「聲韻調」留空。比如「分區」填入"探店地圖",-->
-<!--                    「特徵」填入“咖啡館”“火鍋店”“燒烤攤”等，以後搜索即可分別展示“咖啡館”“火鍋店”“燒烤攤”的地圖分佈</li>-->
                 </ul>
+                <div class="example-hint">
+                  <ul>
+                    <li>推薦配合<strong>「查中古」</strong>地圖所顯示的結果一起使用。</li>
+                  </ul>
+                </div>
+                <ul class="help-list">
+                  <li>例如：當前<strong>「查中古」</strong>搜索的是<strong>「嶺南」</strong>的<strong>「豪」韻</strong>的
+                    <strong>「韻母」</strong>音值，但網站並沒有方言點<strong>「陽春圭崗」</strong>的字表，而用戶知道陽春圭崗的
+                    <strong>「豪」韻</strong>讀<strong>「ɐu」</strong>，即可添加數據：
+                  </li>
+                </ul>
+                <div class="example-block">
+                  <div class="table-container">
+                    <table class="example-table">
+                      <thead>
+                      <tr>
+                        <th style="min-width: 60px;">簡稱</th>
+                        <th style="min-width: 40px;">分區</th>
+                        <th style="min-width: 90px;">經緯度</th>
+                        <th style="min-width: 50px;">聲韻調</th>
+                        <th style="min-width: 30px;">特徵</th>
+                        <th style="min-width: 40px;">值</th>
+                        <th style="min-width: 60px;">說明</th>
+                      </tr>
+                      </thead>
+                      <tbody>
+                      <tr>
+                        <td class="highlight-location">陽春圭崗</td>
+                        <td class="highlight-region">嶺南</td>
+                        <td  class="highlight-geo">111.742615,22.35676</td>
+                        <td>韻母</td>
+                        <td><strong>豪</strong></td>
+                        <td><span class="value-tag">ɐu</span></td>
+                        <td class="note-text">個人田調</td>
+                      </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <div class="example-hint">
+                    <ul>
+                      <li>點擊地圖右側「➕️」，打開<strong>添加數據面板</strong>，針對當前地圖特徵補充數據。</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              <div class="help-section" style=" border-left: 4px solid #007aff;">
+                <h4 class="section-title">💫 靈活歸類方言數據</h4>
+                <p style="font-size: 16px; line-height: 1.6; color: #222; margin: 0;">
+                  例如想錄入個人<strong>「2025田調」</strong>數據，可以這樣填入：
+                </p>
+                <ul class="help-list" style="margin-bottom: 8px">
+                  <li><strong>「分區」</strong>：填入<strong>2025田調</strong></li>
+                  <li><strong>「聲韻調」</strong>：<strong>留空</strong>或<strong>填入大類別</strong>(例如“詞彙”)，不影響「自定義特徵檢索」</li>
+                  <li><strong>「特徵」</strong>：填入具體類別，例如止·精組·開、來母、陰去、昨天、玩耍等</li>
+                  <li><strong>「值」</strong>：填入具體的音值/詞彙等</li>
+                </ul>
+                <div class="example-block">
+                  <div class="table-container">
+                    <table class="example-table">
+                      <thead>
+                      <tr>
+                        <th style="min-width: 60px;">簡稱</th>
+                        <th style="min-width: 30px;">分區</th>
+                        <th style="min-width: 70px;">經緯度</th>
+                        <th style="min-width: 50px;">聲韻調</th>
+                        <th style="min-width: 30px;">特徵</th>
+                        <th style="min-width: 40px;">值</th>
+                        <th style="min-width: 60px;">說明</th>
+                      </tr>
+                      </thead>
+                      <tbody>
+                      <tr>
+                        <td rowspan="5" class="highlight-location">陽春雙滘</td>
+                        <td rowspan="10" class="highlight-region">2025田調</td>
+                        <td rowspan="5" class="highlight-geo">111.332451,<br>22.109056</td>
+                        <td>韻母</td>
+                        <td><strong>止·精組·開</strong></td>
+                        <td><span class="value-tag">ei/i</span></td>
+                        <td class="note-text">兩讀</td>
+                      </tr>
+                      <tr>
+                        <td>聲母</td>
+                        <td><strong>來</strong></td>
+                        <td><span class="value-tag">l</span></td>
+                        <td class="note-text"></td>
+                      </tr>
+                      <tr>
+                        <td>調值</td>
+                        <td><strong>陰去</strong></td>
+                        <td><span class="value-tag">53</span></td>
+                        <td class="note-text">可能是受涯話影響</td>
+                      </tr>
+                      <tr>
+                        <td>詞彙</td>
+                        <td><strong>昨天</strong></td>
+                        <td><span class="value-tag">從日</span></td>
+                        <td class="note-text">ʦuŋ21 ȵɐt51</td>
+                      </tr>
+                      <tr>
+                        <td>詞彙</td>
+                        <td><strong>玩耍</strong></td>
+                        <td><span class="value-tag">嬲</span></td>
+                        <td class="note-text">liɛu53</td>
+                      </tr>
+
+                      <tr>
+                        <td rowspan="5" class="highlight-location">阳春合水</td>
+                        <td rowspan="5" class="highlight-geo">111.856357,<br>22.289037</td>
+                        <td>韻母</td>
+                        <td><strong>止·精組·開</strong></td>
+                        <td><span class="value-tag">ei</span></td>
+                        <td class="note-text">兩陽的特點</td>
+                      </tr>
+                      <tr>
+                        <td>泥來母</td>
+                        <td><strong>來母</strong></td>
+                        <td><span class="value-tag">l</span></td>
+                        <td class="note-text"></td>
+                      </tr>
+                      <tr>
+                        <td>調值</td>
+                        <td><strong>陰去</strong></td>
+                        <td><span class="value-tag">33</span></td>
+                        <td class="note-text"></td>
+                      </tr>
+                      <tr>
+                        <td>詞彙</td>
+                        <td><strong>昨天</strong></td>
+                        <td><span class="value-tag">撞日</span></td>
+                        <td class="note-text">tsoŋ53 ŋɐt53</td>
+                      </tr>
+                      <tr>
+                        <td>詞彙</td>
+                        <td><strong>玩耍</strong></td>
+                        <td><span class="value-tag">耍</span></td>
+                        <td class="note-text">ʃa323</td>
+                      </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <div class="example-hint">
+                    <ul>
+                      <li><strong>分區：</strong> 這是您的「搜索範圍」。請先在分區框內填入<code>2025田調</code></li>
+                      <li><strong>特徵：</strong> 這是您的「搜索關鍵詞」。搜 <code>昨天</code>，地圖會顯示 <code>從日</code> 和 <code>撞日</code> 的分佈。</li>
+                      <li><strong>聲韻調：</strong> 詞彙類數據可在此欄填寫「詞彙」以便歸類，也可留空，不影響正常顯示。</li>
+                      <li><strong>值：</strong> 直接顯示在地圖上，但無法用於搜索。</li>
+                    </ul>
+                  </div>
+                </div>
+
               </div>
 
               <div class="help-section" style=" border-left: 4px solid #007aff;">
@@ -184,17 +333,72 @@
                 <ul class="help-list" style="margin-top: 8px;">
                   <li>📁 <strong>「分區」即文件夾：</strong>比如填入 <code>我的探店地圖</code>（「聲韻調」可留空）。</li>
                   <li>🏷️ <strong>「特徵」即分類：</strong>比如填入 <code>咖啡館</code>、<code>火鍋店</code> 或 <code>燒烤攤</code>。</li>
-                  <li>📍 <strong>「值」即標記：</strong>可以填入評分（如<code>9分</code>）或店名簡稱。</li>
+                  <li>📍 <strong>「簡稱」即名字：</strong>可以填入景點/店鋪名稱（如<code>時光咖啡館</code>）。</li>
+                  <li>✅️ <strong>「值」即標記：</strong>可以填入評分（如<code>9分</code>）或簡介。</li>
                 </ul>
                 <p style="font-size: 13px; color: #666; margin-top: 8px; font-style: italic;">
                   ✨ 這樣操作後，您只需在分區框填入「我的探店地圖」，搜索框搜尋「咖啡館」，地圖就會精確展示您標註過的所有咖啡店分佈。
                 </p>
+                <div class="usage-diagram">
+
+                  <div class="usage-level region-level">
+                    <div class="level-icon">📂</div>
+                    <div class="level-content">
+                      <div class="field-tag">分區 (Region)</div>
+                      <div class="usage-text">相當於 <strong>「文件夾名稱」</strong></div>
+                      <div class="usage-example">例：填入 <code>我的美食地圖</code></div>
+                    </div>
+                  </div>
+
+                  <div class="connector-line">⬇️ 包含多個地點</div>
+
+                  <div class="usage-level location-level">
+                    <div class="level-icon">📍</div>
+                    <div class="level-content">
+                      <div class="field-tag">簡稱 (Location)</div>
+                      <div class="usage-text">相當於 <strong>「店名」或「景點名」</strong></div>
+                      <div class="usage-example">例：填入 <code>老王燒烤</code></div>
+                    </div>
+                  </div>
+
+                  <div class="connector-line">⬇️ 給這個地點打標籤</div>
+
+                  <div class="usage-level data-level">
+                    <div class="level-group">
+
+                      <div class="sub-level feature-box">
+                        <div class="level-icon-sm">🏷️</div>
+                        <div>
+                          <div class="field-tag-sm">特徵</div>
+                          <div class="usage-text-sm"><strong>分類標籤</strong> (搜索用)</div>
+                          <div class="usage-example-sm">例：<code>評價</code> / <code>種類</code></div>
+                        </div>
+                      </div>
+
+                      <div class="arrow-right">👉</div>
+
+                      <div class="sub-level value-box">
+                        <div class="level-icon-sm">💬</div>
+                        <div>
+                          <div class="field-tag-sm">值</div>
+                          <div class="usage-text-sm"><strong>顯示內容</strong> (地圖顯示)</div>
+                          <div class="usage-example-sm">例：<code>好吃</code> / <code>燒烤</code></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <p class="example-hint" style="margin:0;">
+                    ✨ <strong>最終效果：</strong> 當您在分區輸入框填入 <code>我的美食地圖</code> ，
+                    再在搜索框輸入 <code>評價</code> 時，地圖上 <strong>老王燒烤</strong> 的位置就會亮起，並顯示 <code>好吃</code> 兩個字。
+                  </p>
+
+                </div>
               </div>
 
               <div class="help-section" style=" border-left: 4px solid #007aff;">
                 <h4 class="section-title">📍 添加數據步驟</h4>
                 <ul class="help-list">
-                  <li><strong>1. 選擇模式：</strong> 「逐條添加」適合精確輸入，「批量添加」支持從 Excel 直接複製粘貼。</li>
+                  <li><strong>1. 選擇模式：</strong> 「逐條添加」適合精確選擇坐標，「批量添加」支持從 Excel 直接複製粘貼。</li>
                   <li><strong>2. 獲取坐標：</strong> 「逐條添加」無需手動查詢！在面板打開時，<strong>直接點擊地圖上的目標位置</strong>，經緯度會自動填充。</li>
                   <li><strong>3. 提交保存：</strong> 填寫完畢後點擊提交，數據將永久保存至您的個人數據庫中。</li>
                 </ul>
@@ -862,7 +1066,7 @@ const handleAddBatch = () => {
 .help-modal {
   position: relative;
   width: 90%;
-  max-width: 500px;
+  max-width: 800px;
   max-height: 80vh;
   overflow-y: auto;
   padding: 30px;
@@ -995,5 +1199,217 @@ const handleAddBatch = () => {
   .label-row {
     flex-direction: row; /* 移動端也保持一行，若文字太擁擠可改為 column */
   }
+}
+
+/* 表格容器 */
+.table-container {
+  overflow-x: auto; /* 確保移動端可以橫向滑動 */
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  background: #fff;
+  margin-bottom: 8px;
+}
+
+/* 表格本體 */
+.example-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px; /* 稍微調小字體以容納更多列 */
+  text-align: left;
+  min-width: 500px; /* 防止在手機上擠成一團 */
+}
+
+/* 表頭 */
+.example-table th {
+  background-color: #f5f7fa;
+  color: #333;
+  font-weight: 600;
+  padding: 8px 6px;
+  border-bottom: 2px solid #d9d9d9;
+  white-space: nowrap;
+}
+
+/* 單元格 */
+.example-table td {
+  padding: 8px 6px;
+  border-bottom: 1px solid #eee;
+  border-right: 1px solid #f0f0f0;
+  color: #555;
+  vertical-align: middle;
+}
+
+/* 去掉最後一列邊框 */
+.example-table td:last-child {
+  border-right: none;
+}
+
+/* 重點列高亮 */
+.highlight-location {
+  color: #333;
+  font-weight: 700;
+  background-color: #fffcf5; /* 淺黃背景 */
+}
+
+.highlight-region {
+  color: #007aff;
+  font-weight: 600;
+  background-color: #f0f7ff; /* 淺藍背景 */
+}
+
+.highlight-geo {
+  font-family: monospace;
+  font-size: 11px;
+  color: #888;
+  background-color: #fafafa;
+}
+
+/* 值標籤 */
+.value-tag {
+  display: inline-block;
+  padding: 1px 6px;
+  background: #e6f7ff;
+  border: 1px solid #91d5ff;
+  border-radius: 4px;
+  color: #0050b3;
+  font-weight: bold;
+}
+
+/* 說明文字 */
+.note-text {
+  font-size: 11px;
+  color: #999;
+  font-style: italic;
+}
+
+/* 提示塊 */
+.example-hint {
+  font-size: 12px;
+  color: #666;
+  background: rgba(0, 0, 0, 0.03);
+  padding: 8px 12px;
+  border-radius: 6px;
+}
+
+.example-hint ul {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.example-hint li {
+  margin-bottom: 4px;
+}
+/* --- 日常應用層級圖樣式 --- */
+
+.usage-diagram {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px 10px;
+  border-radius: 12px;
+}
+
+/* 通用層級卡片 */
+.usage-level {
+  display: flex;
+  align-items: center;
+  width: 90%;
+  max-width: 400px;
+  background: #fff;
+  border-radius: 10px;
+  padding: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  position: relative;
+}
+
+/* 各層級配色 */
+.region-level { border-left: 5px solid #007aff; } /* 藍色 */
+.location-level { border-left: 5px solid #ff9500; } /* 橘色 */
+.data-level {
+  border-left: 5px solid #34c759; /* 綠色 */
+  flex-direction: column;
+  padding: 10px;
+}
+
+/* 圖標 */
+.level-icon {
+  font-size: 24px;
+  margin-right: 15px;
+  width: 30px;
+  text-align: center;
+}
+
+/* 內容區 */
+.level-content {
+  flex: 1;
+}
+
+/* 字段標籤 (如：分區) */
+.field-tag {
+  font-weight: 700;
+  font-size: 14px;
+  color: #333;
+  margin-bottom: 4px;
+}
+
+.usage-text {
+  font-size: 13px;
+  color: #555;
+  margin-bottom: 4px;
+}
+
+.usage-example {
+  font-size: 12px;
+  color: #007aff;
+  background: rgba(0, 122, 255, 0.08);
+  padding: 4px 8px;
+  border-radius: 4px;
+  display: inline-block;
+  font-family: monospace;
+}
+
+/* 連接線 */
+.connector-line {
+  font-size: 12px;
+  color: #999;
+  font-weight: bold;
+  margin: 8px 0;
+  position: relative;
+}
+
+/* 第三層：左右佈局 (特徵 -> 值) */
+.level-group {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.sub-level {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  padding: 8px;
+  background: #f5fcf5; /* 淺綠背景 */
+  border-radius: 6px;
+}
+
+.feature-box { margin-right: 5px; }
+.value-box { margin-left: 5px; }
+
+.level-icon-sm { font-size: 18px; margin-right: 8px; }
+.field-tag-sm { font-weight: 700; font-size: 12px; color: #2e7d32; }
+.usage-text-sm { font-size: 11px; color: #555; }
+.usage-example-sm {
+  font-size: 11px;
+  color: #2e7d32;
+  font-family: monospace;
+  margin-top: 2px;
+  font-weight: bold;
+}
+
+.arrow-right {
+  color: #999;
+  font-size: 14px;
+  margin: 0 4px;
 }
 </style>

@@ -474,9 +474,10 @@ const startAnalysis = async () => {
   jobError.value = null
   isAnalyzing.value = true  // ✅ 立即设置分析中标志
 
+
   // Enable results tab and auto-switch
   resultsTabEnabled.value = true
-  activeTab.value = 'results'
+
 
   try {
     // Upload audio
@@ -486,7 +487,6 @@ const startAnalysis = async () => {
     uploadId.value = uploadResponse.task_id  // ✅ 后端返回的是 task_id
     isUploading.value = false
 
-    // 检查音频时长（如果启用了频谱图分析）
     // 管理员不受此限制
     const duration = uploadResponse.normalized_meta?.duration_s || uploadResponse.audio_metadata?.duration_s
     const hasSpectrogramModule = settings.modules && settings.modules.includes('spectrogram')
@@ -524,12 +524,15 @@ const startAnalysis = async () => {
     const jobResponse = await createJob(uploadId.value, settings)
     jobId.value = jobResponse.job_id
 
+    activeTab.value = 'results'
+
     // Start polling
     jobStage.value = '開始分析...'
     startPolling()
   } catch (error) {
     console.error('Start analysis error:', error)
     showError(error.message || '啟動分析失敗')
+    activeTab.value = 'results'
     isUploading.value = false
     jobStatus.value = 'error'
     jobError.value = error.message
