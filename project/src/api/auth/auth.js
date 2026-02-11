@@ -65,12 +65,25 @@ export const getCookie = (name) => {
 };
 
 export const saveToken = (accessToken, refreshToken = null, expiresIn = 1800) => {
+    // 计算过期时间戳（当前时间 + expiresIn秒）
+    const expiresAt = Date.now() + expiresIn * 1000;
+
+    // ✅ 修改：计算 Cookie 过期时间（与 localStorage 一致）
+    const expiresDate = new Date(expiresAt);
+    const expiresString = expiresDate.toUTCString();
+
+    // ✅ 修改：根据协议决定是否使用 secure 属性（解决开发环境问题）
+    const isSecure = window.location.protocol === 'https:';
+    const secureFlag = isSecure ? 'secure; ' : '';
+
     if (!refreshToken) {
         // 旧版本调用，只传一个参数
         localStorage.setItem('access_token', accessToken);
         localStorage.setItem('ACCESS_TOKEN', accessToken);  // 兼容
-        document.cookie = `access_token=${accessToken}; path=/; secure; samesite=None`;
-        document.cookie = `ACCESS_TOKEN=${accessToken}; path=/; secure; samesite=None`;
+
+        // 存储到 Cookie，并设置过期时间
+        document.cookie = `access_token=${accessToken}; path=/; ${secureFlag}samesite=Lax; expires=${expiresString}`;
+        document.cookie = `ACCESS_TOKEN=${accessToken}; path=/; ${secureFlag}samesite=Lax; expires=${expiresString}`;
         return;
     }
 
@@ -80,17 +93,18 @@ export const saveToken = (accessToken, refreshToken = null, expiresIn = 1800) =>
     // 存储 refresh token
     localStorage.setItem('refresh_token', refreshToken);
 
-    // 存储过期时间戳（当前时间 + expiresIn秒）
-    const expiresAt = Date.now() + expiresIn * 1000;
+    // 存储过期时间戳
     localStorage.setItem('token_expires_at', expiresAt.toString());
 
-    // 同时存到 Cookie（可选，保持兼容）
-    document.cookie = `access_token=${accessToken}; path=/; secure; samesite=None`;
-    document.cookie = `refresh_token=${refreshToken}; path=/; secure; samesite=None`;
+    // 存储到 Cookie，并设置过期时间
+    document.cookie = `access_token=${accessToken}; path=/; ${secureFlag}samesite=Lax; expires=${expiresString}`;
+    document.cookie = `refresh_token=${refreshToken}; path=/; ${secureFlag}samesite=Lax; expires=${expiresString}`;
+    document.cookie = `ACCESS_TOKEN=${accessToken}; path=/; ${secureFlag}samesite=Lax; expires=${expiresString}`;  // 兼容旧版
 };
 
 // 修改 clearToken，使其同时清理用户信息
 export const clearToken = () => {
+    // 清除 localStorage
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
     localStorage.removeItem('token_expires_at');
@@ -101,6 +115,12 @@ export const clearToken = () => {
 
     // 【新增】同时清理用户信息缓存
     clearUserCache();
+
+    // ✅ 新增：清除 Cookie（设置过期时间为过去）
+    const expiredDate = 'Thu, 01 Jan 1970 00:00:00 UTC';
+    document.cookie = `access_token=; path=/; expires=${expiredDate}; secure; samesite=None`;
+    document.cookie = `refresh_token=; path=/; expires=${expiredDate}; secure; samesite=None`;
+    document.cookie = `ACCESS_TOKEN=; path=/; expires=${expiredDate}; secure; samesite=None`;  // 兼容旧版
 };
 
 // ==========================================
@@ -117,13 +137,34 @@ export const clearToken = () => {
 export async function initUserByToken({ forceRefresh = false, console_log = false } = {}) {
     const token = getToken();
 
-    // 1. 并没有 Token：直接处理为匿名
+    // 1. 没有 Token：直接处理为匿名
     if (!token) {
         resetStoreToAnonymous();
         return { user: null, role: 'anonymous' };
     }
 
-    // 2. 尝试读取本地缓存 (如果未强制刷新)
+    // ✅ 新增：检查 token 是否已过期（即使有缓存也要检查）
+    const expiresAt = getTokenExpiresAt();
+    const now = Date.now();
+
+    if (expiresAt && expiresAt <= now) {
+        if (console_log) console.log('🔒 [initUserByToken] Token 已过期，尝试刷新');
+
+        const newToken = await refreshAccessToken();
+
+        if (!newToken) {
+            // 刷新失败，清除所有状态
+            if (console_log) console.log('🔒 [initUserByToken] Token 刷新失败，重置为匿名状态');
+            clearToken();
+            resetStoreToAnonymous();
+            return { user: null, role: 'anonymous' };
+        }
+
+        // 刷新成功，强制重新获取用户信息
+        forceRefresh = true;
+    }
+
+    // 2. 尝试读取本地缓存（仅当 token 有效且未强制刷新时）
     if (!forceRefresh) {
         const cachedUser = getUserCache();
         if (cachedUser) {
@@ -139,7 +180,7 @@ export async function initUserByToken({ forceRefresh = false, console_log = fals
 
     // 3. 缓存未命中或强制刷新：请求 API
     try {
-        const res = await api('/auth/me'); // 你的 API 请求
+        const res = await api('/auth/me');
 
         if (!res) {
             throw new Error("API 返回空数据");
@@ -154,7 +195,7 @@ export async function initUserByToken({ forceRefresh = false, console_log = fals
         return { user: res, role: res.role || 'user' };
 
     } catch (err) {
-        if (console_log) console.error("❌ 初始化失败，Token 可能失效", err);
+        if (console_log) console.error('🔒 [initUserByToken] 获取用户信息失败:', err);
 
         // 失败处理：清空 Token 和 缓存
         clearToken();
@@ -180,45 +221,66 @@ function resetStoreToAnonymous() {
     userStore.isAuthenticated = false;
 }
 
+// ==========================================
+// 4. Token 刷新并发控制
+// ==========================================
+
+// 防止并发刷新
+let refreshPromise = null;
+
 /**
  * 刷新 Access Token
  * @returns {Promise<string|null>} 新的 access token，失败返回 null
  */
 export async function refreshAccessToken() {
-    const refreshToken = getRefreshToken();
-
-    if (!refreshToken) {
-        console.warn('没有 refresh token，无法刷新');
-        return null;
+    // ✅ 如果已有刷新在进行，直接返回
+    if (refreshPromise) {
+        console.log('🔄 刷新已在进行，等待完成');
+        return refreshPromise;
     }
 
-    try {
-        const res = await fetch(WEB_BASE + '/auth/refresh', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ refresh_token: refreshToken })
-        });
+    // ✅ 创建新的刷新操作并缓存
+    refreshPromise = (async () => {
+        const refreshToken = getRefreshToken();
 
-        if (!res.ok) {
-            // refresh token 过期或无效
-            console.error('刷新 token 失败:', res.status);
-            clearToken();
+        if (!refreshToken) {
+            console.warn('没有 refresh token，无法刷新');
             return null;
         }
 
-        const data = await res.json();
+        try {
+            const res = await fetch(WEB_BASE + '/auth/refresh', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ refresh_token: refreshToken })
+            });
 
-        // 保存新的 tokens
-        saveToken(data.access_token, data.refresh_token, data.expires_in);
+            if (!res.ok) {
+                // refresh token 过期或无效
+                console.error('刷新 token 失败:', res.status);
+                clearToken();
+                return null;
+            }
 
-        console.log('✅ Token 刷新成功');
-        return data.access_token;
+            const data = await res.json();
 
-    } catch (error) {
-        console.error('刷新 token 异常:', error);
-        clearToken();
-        return null;
-    }
+            // 保存新的 tokens
+            saveToken(data.access_token, data.refresh_token, data.expires_in);
+
+            console.log('✅ Token 刷新成功');
+            return data.access_token;
+
+        } catch (error) {
+            console.error('刷新 token 异常:', error);
+            clearToken();
+            return null;
+        } finally {
+            // ✅ 清除缓存，允许下次刷新
+            refreshPromise = null;
+        }
+    })();
+
+    return refreshPromise;
 }
 
 /**

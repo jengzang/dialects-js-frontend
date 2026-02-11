@@ -586,6 +586,13 @@ const handleInputFocus = () => {
 
 // 搜索自定义特征
 const searchCustomFeatures = async () => {
+  // ✅ 登录检查（早返回）
+  if (!userStore.isAuthenticated) {
+    featureSuggestions.value = []
+    showSuggestions.value = false
+    return  // 静默返回，不显示错误
+  }
+
   const word = featureSearchInput.value.trim()
 
   isSearching.value = true

@@ -813,6 +813,12 @@ async function fetchLocationsResult() {
 
 // 獲取自定義特徵地點列表
 async function fetchCustomFeatureLocations(locations, regions) {
+  // ✅ 登录检查（早返回）
+  if (!userStore.isAuthenticated) {
+    customFeatureLocations.value = []
+    return  // 静默返回
+  }
+
   try {
     const queryParams = {
       locations: (locations && locations.length > 0) ? locations.filter(Boolean) : [''],
