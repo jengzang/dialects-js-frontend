@@ -1318,6 +1318,7 @@ onBeforeUnmount(() => {
   align-items: center;
   justify-content: center;
   font-size: 0.9rem;
+  border: 1px rgba(128, 128, 128, 0.51) solid;
 }
 
 .playback-controls .time-display {

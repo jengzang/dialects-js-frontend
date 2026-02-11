@@ -2,6 +2,12 @@
   <div class="vowel-space-panel glass-panel">
     <div style="display: flex;align-items: center;flex-direction: column;justify-content: center;">
       <h2 class="panel-title">F1-F2 元音空間</h2>
+
+      <!-- Usage Hint -->
+      <div class="usage-hint">
+        💡 使用建議：推薦使用「單音節」分析模式，需精確截取韻核(rime_core)，本網站自動截取的韻核可能有誤差。此功能對錄音質量要求較高，噪音可能影響分析準確度。
+      </div>
+
       <!-- Control Buttons -->
       <div class="control-buttons">
         <button
@@ -107,7 +113,7 @@
     <!-- Description -->
     <div class="description-section">
       <p class="description-text">
-        元音空間圖顯示 F1（第一共振峰）和 F2（第二共振峰）的分布。
+        元音空間圖顯示 F1(第一共振峰)和 F2(第二共振峰)的分布。
         根據語音學慣例，兩個軸都是反向的（從高到低）。
         <span v-if="showSegmented">連線顯示元音在時間上的軌跡變化，箭頭指示時間方向。</span>
         <span v-if="showReferenceVowels">灰色標記為 IPA 參考元音位置。</span>
@@ -494,6 +500,20 @@ onBeforeUnmount(() => {
   color: var(--color-text-primary);
 }
 
+.usage-hint {
+  max-width: 800px;
+  padding: 0.75rem 1.25rem;
+  margin-bottom: 1.5rem;
+  background: linear-gradient(135deg, rgba(255, 193, 7, 0.15), rgba(255, 152, 0, 0.1));
+  border-left: 4px solid #ffc107;
+  border-radius: var(--radius-md, 8px);
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--color-text-primary, #2c3e50);
+  box-shadow: 0 2px 8px rgba(255, 193, 7, 0.1);
+  text-align: left;
+}
+
 .section-title {
   font-size: 1.1rem;
   font-weight: 600;
@@ -717,6 +737,12 @@ onBeforeUnmount(() => {
 
   .stats-grid {
     grid-template-columns: 1fr;
+  }
+
+  .usage-hint {
+    font-size: 0.85rem;
+    padding: 0.6rem 1rem;
+    margin-bottom: 1rem;
   }
 }
 </style>
