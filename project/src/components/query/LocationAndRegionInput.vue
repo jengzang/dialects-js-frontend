@@ -272,6 +272,11 @@ import { userStore, setLocationDisabled } from '@/utils/store.js'
 import { LOCATION_LIMITS } from '@/config/constants.js'
 import { API_BASE } from '@/env-config.js'
 import { STATIC_REGION_TREE, top_yindian } from '@/config'
+import * as OpenCC from 'opencc-js'
+
+// 创建繁简转换器
+const t2s = OpenCC.Converter({ from: 'tw', to: 'cn' })  // 繁 → 简
+const s2t = OpenCC.Converter({ from: 'cn', to: 'tw' })  // 简 → 繁
 // const API_BASE = window.API_BASE;
 // const MAP_TREE = STATIC_REGION_TREE;
 // const YINDIAN_TREE = top_yindian;
@@ -536,11 +541,23 @@ const matchRegions = (input) => {
 
   if (!query) return []
 
-  // Find matches
-  const matches = flatRegions.filter(region =>
-    region.name.toLowerCase().includes(query) ||
-    region.path.toLowerCase().includes(query)
-  )
+  // ✅ 新增：创建繁简变体用于匹配
+  const querySimplified = t2s(query).toLowerCase()
+  const queryTraditional = s2t(query).toLowerCase()
+
+  // Find matches - 支持繁简双向匹配
+  const matches = flatRegions.filter(region => {
+    const nameLower = region.name.toLowerCase()
+    const pathLower = region.path.toLowerCase()
+
+    // ✅ 检查原文、简体、繁体是否匹配
+    return nameLower.includes(query) ||
+           nameLower.includes(querySimplified) ||
+           nameLower.includes(queryTraditional) ||
+           pathLower.includes(query) ||
+           pathLower.includes(querySimplified) ||
+           pathLower.includes(queryTraditional)
+  })
 
   // Limit to top 10 matches
   return matches.slice(0, 10)
@@ -697,6 +714,40 @@ function loadTreeFor(mode) {
 }
 // 初始加載
 loadTreeFor(regionUsing.value)
+
+// ✅ 新增：预加载音典分区数据到缓存，确保输入模式可以匹配所有分区
+const preloadYindianTree = async () => {
+  const CACHE_KEY = '__YINDIAN_TREE_CACHE__'
+  if (!sessionStorage.getItem(CACHE_KEY)) {
+    try {
+      const response = await fetch(`${API_BASE}/partitions`)
+      const tree = await response.json()
+
+      // 过滤顶级分区
+      const filterTopLevelKeys = (obj) => {
+        if (typeof obj !== 'object' || Array.isArray(obj) || obj === null) {
+          return {}
+        }
+        const filtered = {}
+        for (const key of top_yindian) {
+          if (obj.hasOwnProperty(key)) {
+            filtered[key] = obj[key]
+          }
+        }
+        return filtered
+      }
+
+      const filteredTree = filterTopLevelKeys(tree)
+      sessionStorage.setItem(CACHE_KEY, JSON.stringify(filteredTree))
+      console.log('✅ 音典分区数据已预加载到缓存')
+    } catch (error) {
+      console.warn('⚠️ 预加载音典分区失败:', error)
+    }
+  }
+}
+
+// 预加载音典数据（异步，不阻塞页面）
+preloadYindianTree()
 
 // const cascaderRef = ref(null)
 
