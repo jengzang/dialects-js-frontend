@@ -86,8 +86,8 @@
 
 <script setup>
 import { ref, computed ,watch} from 'vue';
-import {api} from "@/utils/auth.js";
-import { userStore } from '@/utils/store.js'
+import { getFeatureCounts } from '@/api/query/core'
+import { userStore, setTabContentDisabled } from '@/utils/store.js'
 
 // 1. 接收父組件傳入的 locationRef
 const props = defineProps({
@@ -102,13 +102,23 @@ const tab3KeyInput = ref('');
 const isHelpModalOpen = ref(false);
 
 const emit = defineEmits(['update:runDisabled']);
+
+// 辅助函数：同时更新 emit 和 store（向后兼容）
+function updateDisabledState(isDisabled) {
+  // 1. Emit to parent (backward compatible)
+  emit('update:runDisabled', isDisabled)
+
+  // 2. Update store for tab3 (音位查询)
+  setTabContentDisabled('query', 'tab3', isDisabled)
+}
+
 // ✅ 3. 修改後的監聽邏輯：
-// 僅當輸入框為空，或“只包含”空格和特定分隔符時，禁用按鈕
+// 僅當輸入框為空，或"只包含"空格和特定分隔符時，禁用按鈕
 watch(tab3KeyInput, (newVal) => {
   const isInvalid = !newVal || /^[\s,;，；、]*$/.test(newVal);
   if (userStore.role !== 'admin'){
-    emit('update:runDisabled', isInvalid);}
-  else {emit('update:runDisabled', false);}
+    updateDisabledState(isInvalid);}
+  else {updateDisabledState(false);}
 }, { immediate: true });
 
 // 狀態管理
@@ -141,23 +151,11 @@ const fetchFeatureCount = async (locationName) => {
   apiResults.value[locationName] = null;
 
   try {
-    const query = new URLSearchParams();
-
     // ✅ 重點修改：顯式定義為列表，然後遍歷 append
     // 即使只有一個元素，這樣寫也完全符合 List[str] 的邏輯
     const locationsPayload = [locationName];
 
-    locationsPayload.forEach(loc => {
-      query.append('locations', loc);
-    });
-
-    const data = await api(
-        `/api/feature_counts?${query.toString()}`,
-        {
-          method: 'GET',
-          headers: { 'Content-Type': 'application/json' }
-        }
-    );
+    const data = await getFeatureCounts({ locations: locationsPayload })
 
     // 這裡假設後端返回的數據結構，如果需要格式化請在此處理
     // 例如：const formatted = `共有 ${data.count} 個特徵`;

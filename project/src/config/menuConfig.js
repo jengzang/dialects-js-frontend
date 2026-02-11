@@ -140,7 +140,12 @@ export const menuConfig = {
       }
     ]
   },
-
+  'praat': {
+    label: '聲學分析',
+    icon: '👂️️',
+    path: '/explore?page=praat',
+    children: null
+  },
   // Level 1: External link to old website
   'old-site': {
     label: '舊版網站',
@@ -149,4 +154,5 @@ export const menuConfig = {
     external: true,
     children: null
   }
+
 }

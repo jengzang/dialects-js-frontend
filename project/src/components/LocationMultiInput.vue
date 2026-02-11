@@ -83,7 +83,8 @@
 
 <script setup>
 import { ref, computed, watch, nextTick } from 'vue'
-import { api } from '@/utils/auth.js'
+import { getLocations } from '@/api/query/LocationAndRegion.js'
+import { API_BASE } from '@/env-config.js'
 
 const props = defineProps({
   modelValue: {
@@ -202,7 +203,7 @@ function fetchSuggestion() {
 
   const token = localStorage.getItem('ACCESS_TOKEN')
 
-  fetch(`${window.API_BASE}/batch_match?input_string=${encodeURIComponent(query)}`, {
+  fetch(`${API_BASE}/batch_match?input_string=${encodeURIComponent(query)}`, {
     headers: {
       'Content-Type': 'application/json',
       ...(token ? { Authorization: `Bearer ${token}` } : {})
@@ -273,18 +274,7 @@ async function fetchMatchedLocations(queries) {
   emit('update:isMatching', true)
 
   try {
-    const query = new URLSearchParams()
-    queries.forEach(loc => query.append('locations', loc))
-
-    const data = await api(
-      `/api/get_locs/?${query.toString()}`,
-      {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      }
-    )
+    const data = await getLocations({ locations: queries })
 
     // 对返回的地点列表去重
     const locations = Array.isArray(data?.locations_result) ? data.locations_result : []

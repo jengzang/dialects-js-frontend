@@ -1,10 +1,10 @@
 <template>
   <div>
-    <div class="page">
+    <div class="page" style="max-width: 90%;overflow: hidden">
       <div class="page-content-stack">
-        <div class="page-footer">
-          <small class="hint">繪製所選方言點的分區圖<br>想輸入多個分區❓️ 點擊👉</small>
-          <button class="enter-btn" @click="handleEnter">進入網站</button>
+        <div class="page-footer" style="flex-direction: column">
+          <p style="margin:0">分區繪圖</p>
+          <small class="hint">按照不同分區層級，繪製方言分佈點圖<br>程序自動分配不同顏色</small>
         </div>
 
         <div class="dropdown-row horizontal-dropdown" style="margin-top: 12px;">
@@ -42,8 +42,9 @@
 
     <LocationAndRegionInput
         ref="locationRef"
-        @update:runDisabled="isLocationDisabled = $event"
+        @update:runDisabled="uiStore.buttonStates.divide.isLocationDisabled = $event"
         v-model="locationModel"
+        limitContext="divide"
     />
 
     <div class="run-container">
@@ -51,10 +52,10 @@
           id="allmap-first"
           class="allmap-first"
           @click="runAction"
-          :disabled="isRunning || isLocationDisabled"
-          :class="{ 'disabled-style': isLocationDisabled }"
+          :disabled="buttonState.isRunning || isDisabled"
+          :class="{ 'disabled-style': isDisabled }"
       >
-        <span v-if="isRunning">🔄 運行中...</span>
+        <span v-if="buttonState.isRunning">🔄 運行中...</span>
         <span v-else>🌍繪圖</span>
       </button>
     </div>
@@ -65,8 +66,8 @@
 import { ref, reactive, nextTick, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter, useRoute } from 'vue-router' // ✨ 1. 引入路由
 import LocationAndRegionInput from "@/components/query/LocationAndRegionInput.vue";
-import { mapStore } from "@/utils/store.js";
-import { api } from "@/utils/auth.js";
+import { mapStore, uiStore, isDivideButtonDisabled, setRunning } from "@/utils/store.js";
+import { getCoordinates } from '@/api/query/geo'
 import { showError } from '@/utils/message.js';
 
 // ✨ 2. 初始化路由
@@ -74,7 +75,9 @@ const router = useRouter()
 const route = useRoute()
 
 const locationRef = ref(null)
-const isRunning = ref(false)
+// 使用 uiStore 中的按钮状态（不再定义本地状态）
+const buttonState = uiStore.buttonStates.divide
+const isDisabled = isDivideButtonDisabled
 const selectedRegion = ref('')
 const dropdownOpen = ref(null)
 const regionTriggerEl = ref(null)
@@ -85,9 +88,7 @@ const locationModel = ref({
   regionUsing: 'map'
 })
 
-
-// ✨ 3. 定義禁用狀態變量 (默認為 true，防止未加載完成就點擊)
-const isLocationDisabled = ref(false)
+// isLocationDisabled 状态已移至 uiStore，不再需要本地定义
 
 const emit = defineEmits(['region-selected'])
 
@@ -138,42 +139,38 @@ function getLocation() {
 }
 
 const runAction = async () => {
-  isRunning.value = true;
+  setRunning('divide', true);
 
   // ✨ 4. 優化參數構造邏輯
-  const params_geo = new URLSearchParams();
+  const queryParams = {
+    locations: '',
+    regions: '',
+    region_mode: locationRef.value?.regionUsing || '1',
+    iscustom: 'true',
+    flag: 'False'
+  }
 
   // 處理地點
   const locs = getLocation();
-// 如果 locs 是字符串，最好也處理一下空格分割，確保後端能收到正確格式
   if (locs) {
     const locArray = locs.trim().split(/\s+/);
-    locArray.forEach(l => params_geo.append('locations', l));
+    queryParams.locations = locArray;
   } else {
-    // 如果 locs 为空，添加空字符串
-    params_geo.append('locations', '');
+    queryParams.locations = '';
   }
 
-// 處理分區 (支持數組)
+  // 處理分區 (支持數組)
   const regions = locationRef.value?.selectedValue;
   if (Array.isArray(regions)) {
-    regions.forEach(r => params_geo.append('regions', r));
+    queryParams.regions = regions;
   } else if (regions) {
-    params_geo.append('regions', regions);
+    queryParams.regions = regions;
   } else {
-    // 如果 regions 为空，添加空字符串
-    params_geo.append('regions', '');
+    queryParams.regions = '';
   }
 
-
-  params_geo.append("region_mode", locationRef.value?.regionUsing || '1'); // 這裡確認一下後端是需要 'yindian' 還是 '1'
-  params_geo.append("iscustom", "true");
-  params_geo.append("flag", "False");
-
   try {
-    const data = await api(`/api/get_coordinates?${params_geo.toString()}`, {
-      method: 'GET'
-    });
+    const data = await getCoordinates(queryParams)
 
     // 更新 Store
     mapStore.mapData = data;
@@ -181,13 +178,13 @@ const runAction = async () => {
     mapStore.mode = 'dot';
 
     // 切換回地圖 Tab
-    router.replace({ query: { ...route.query, sub: 'map' } });
+    await router.replace({query: {...route.query, sub: 'map'}});
 
   } catch (error) {
     console.error(error);
     showError("獲取數據失敗: " + error.message);
   } finally {
-    isRunning.value = false;
+    setRunning('divide', false);
   }
 }
 </script>
@@ -228,6 +225,7 @@ const runAction = async () => {
   transition: all 0.3s ease;
   white-space: nowrap;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2), 0 6px 20px rgba(0, 0, 0, 0.19);
+  pointer-events: auto; /* 恢復點擊事件，覆蓋父容器的 pointer-events: none */
 }
 
 .allmap-first:hover {

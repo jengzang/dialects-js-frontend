@@ -19,6 +19,7 @@
 <script setup>
 import TabBar from '@/components/old/TabBar.vue'
 import { useRouter } from 'vue-router'
+import { WEB_BASE } from '@/env-config.js'
 const router = useRouter()
 
 const goToAuthPage = () => {
@@ -26,7 +27,7 @@ const goToAuthPage = () => {
 }
 
 const goBack = () => {
-  window.location.replace(window.WEB_BASE)
+  window.location.replace(WEB_BASE)
 }
 </script>
 

@@ -3,6 +3,7 @@
       <div class="page-content-stack">
       <div class="page-footer">
         <h3 style="margin:0">搜索自定義特徵</h3>
+        <div class="help-icon-head" @click="openHelpModal" title="查看使用說明">?</div>
         <div class="button-row" v-if="!userStore.isAuthenticated">
           <button class="enter-btn" @click="handleLogin">🔐 登錄</button>
         </div>
@@ -17,7 +18,19 @@
 
         <!-- 特征搜索输入框 -->
         <div class="feature-search-container">
-          <label for="featureSearch" class="query-label">特徵搜索</label>
+          <div class="label-row">
+            <label for="featureSearch" class="query-label">特徵搜索</label>
+
+            <span v-if="!userStore.isAuthenticated" class="data-count-badge warning">
+              🔒 登錄用戶方可添加個人數據
+            </span>
+            <span v-else-if="userTotalCount === 0" class="data-count-badge hint">
+              📝 請先點擊下方按鈕添加數據
+            </span>
+            <span v-else class="data-count-badge success">
+              📊 您共有 {{ userTotalCount }} 條個人數據
+            </span>
+          </div>
           <div class="search-input-wrapper">
             <input
               id="featureSearch"
@@ -61,16 +74,16 @@
           <button
             class="action-btn primary-btn"
             @click="handleRunQuery"
-            :disabled="!selectedFeature || isRunning"
+            :disabled="isDisabled"
           >
-            <span v-if="isRunning">🔄 運行中...</span>
+            <span v-if="buttonState.isRunning">🔄 運行中...</span>
             <span v-else>🚀 運行查詢</span>
           </button>
         </div>
 
         <!-- 分隔线 -->
         <div class="divider">
-          <span>添加新的自定義數據</span>
+          <span> 添加新的自定義數據 </span>
         </div>
 
         <!-- 使用说明链接 -->
@@ -82,12 +95,55 @@
 
         <!-- 添加按钮 -->
         <div class="button-group">
-          <button class="action-btn add-single-btn" @click="handleAddSingle">
-            📝 逐條添加
-          </button>
-          <button class="action-btn add-batch-btn" @click="handleAddBatch">
-            📋 批量添加
-          </button>
+          <div class="button-with-help">
+            <button class="action-btn add-single-btn" @click="handleAddSingle">
+              📝 逐條添加
+            </button>
+            <div
+              class="help-icon"
+              @mouseenter="!isMobile ? showTooltip('single') : null"
+              @mouseleave="!isMobile ? hideTooltip() : null"
+              @click="isMobile ? toggleTooltip('single') : null"
+            >
+              ?
+            </div>
+            <Teleport to="body">
+              <Transition name="tooltip-fade">
+                <div
+                  v-if="activeTooltip === 'single'"
+                  class="tooltip-panel"
+                  :style="tooltipStyle"
+                >
+                  跳轉至地圖頁面，點擊地圖即可獲取經緯度
+                </div>
+              </Transition>
+            </Teleport>
+          </div>
+
+          <div class="button-with-help">
+            <button class="action-btn add-batch-btn" @click="handleAddBatch">
+              📋 批量添加
+            </button>
+            <div
+              class="help-icon"
+              @mouseenter="!isMobile ? showTooltip('batch') : null"
+              @mouseleave="!isMobile ? hideTooltip() : null"
+              @click="isMobile ? toggleTooltip('batch') : null"
+            >
+              ?
+            </div>
+            <Teleport to="body">
+              <Transition name="tooltip-fade">
+                <div
+                  v-if="activeTooltip === 'batch'"
+                  class="tooltip-panel"
+                  :style="tooltipStyle"
+                >
+                  批量添加多條數據，支持從excel粘貼
+                </div>
+              </Transition>
+            </Teleport>
+          </div>
         </div>
       </div>
     <!-- 帮助弹窗 -->
@@ -95,29 +151,256 @@
       <Transition name="fade-scale">
         <div v-if="isHelpModalOpen" class="glass-modal-overlay" @click.self="closeHelpModal">
           <div class="glass-card help-modal">
-            <button class="close-btn" @click="closeHelpModal">&times;</button>
+            <button class="close-btn" style="position: sticky;margin-left: auto" @click="closeHelpModal">&times;</button>
             <h3 class="modal-title">自定義數據使用說明</h3>
 
             <div class="help-content">
               <div class="help-section">
-                <h4 class="section-title">📋 功能說明</h4>
+                <h4 class="section-title">🌟 功能簡介</h4>
                 <ul class="help-list">
-                  <li>🧩 您可以自由添加點、設置該點對應的特徵</li>
-                  <li>🖌️ 網站會根據特徵自動分配顏色</li>
-                  <li>👤 您將創建的是僅屬於您的數據，故需要登錄</li>
-                  <li>🤝 本站承諾：不會洩漏您的個人數據</li>
+                  <li><strong>專屬空間：</strong> 這是您的私有數據庫，僅在登錄後可見，數據絕對保密。</li>
+                  <li><strong>智能繪圖：</strong> 系統會根據您填寫的「特徵」自動分類顏色，並將「值」標註在地圖點上。</li>
                 </ul>
               </div>
 
-              <div class="help-section">
-                <h4 class="section-title">📝 添加數據步驟</h4>
+              <div class="help-section" style=" border-left: 4px solid #007aff;">
+                <h4 class="section-title">🎨 地圖填寫指南</h4>
                 <ul class="help-list">
-                  <li><strong>點擊下方按鈕</strong> 右側將彈出一個面板</li>
-                  <li>您需在面板中填入簡稱、分區、聲韻調、特徵、值</li>
-                  <li>"聲韻調"是指分析的"聲母/韻母/聲調"</li>
-                  <li>"特徵"是指分析的類別，例如"流攝"</li>
-                  <li>"值"是顯示在地圖上的，例如"iu"</li>
-                  <li>點擊地圖即可自動填入經緯度</li>
+                  <li><strong>【特徵】</strong>：數據的<strong>分類方式</strong>（如：填入 `流攝`，搜索流攝時即可展示該點）。</li>
+                  <li><strong>【值】</strong>：在地圖圓點上顯示的<strong>符號</strong>（如：填入 `iu`，地圖點上就顯示 `iu`）。</li>
+                  <li><strong>【聲韻調】</strong>：值所屬的（聲/韻/調），用於基礎分類</li>
+                  <li><strong>【簡稱】</strong>：數據的<strong>地點名稱</strong>（如：`陽春`）。</li>
+                  <li><strong>【分區】</strong>：數據的<strong>方言分區</strong>（如：`粵語-高陽片`）。</li>
+                </ul>
+                <div class="example-hint">
+                  <ul>
+                    <li>推薦配合<strong>「查中古」</strong>地圖所顯示的結果一起使用。</li>
+                  </ul>
+                </div>
+                <ul class="help-list">
+                  <li>例如：當前<strong>「查中古」</strong>搜索的是<strong>「嶺南」</strong>的<strong>「豪」韻</strong>的
+                    <strong>「韻母」</strong>音值，但網站並沒有方言點<strong>「陽春圭崗」</strong>的字表，而用戶知道陽春圭崗的
+                    <strong>「豪」韻</strong>讀<strong>「ɐu」</strong>，即可添加數據：
+                  </li>
+                </ul>
+                <div class="example-block">
+                  <div class="table-container">
+                    <table class="example-table">
+                      <thead>
+                      <tr>
+                        <th style="min-width: 60px;">簡稱</th>
+                        <th style="min-width: 40px;">分區</th>
+                        <th style="min-width: 90px;">經緯度</th>
+                        <th style="min-width: 50px;">聲韻調</th>
+                        <th style="min-width: 30px;">特徵</th>
+                        <th style="min-width: 40px;">值</th>
+                        <th style="min-width: 60px;">說明</th>
+                      </tr>
+                      </thead>
+                      <tbody>
+                      <tr>
+                        <td class="highlight-location">陽春圭崗</td>
+                        <td class="highlight-region">嶺南</td>
+                        <td  class="highlight-geo">111.742615,22.35676</td>
+                        <td>韻母</td>
+                        <td><strong>豪</strong></td>
+                        <td><span class="value-tag">ɐu</span></td>
+                        <td class="note-text">個人田調</td>
+                      </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <div class="example-hint">
+                    <ul>
+                      <li>點擊地圖右側「➕️」，打開<strong>添加數據面板</strong>，針對當前地圖特徵補充數據。</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              <div class="help-section" style=" border-left: 4px solid #007aff;">
+                <h4 class="section-title">💫 靈活歸類方言數據</h4>
+                <p style="font-size: 16px; line-height: 1.6; color: #222; margin: 0;">
+                  例如想錄入個人<strong>「2025田調」</strong>數據，可以這樣填入：
+                </p>
+                <ul class="help-list" style="margin-bottom: 8px">
+                  <li><strong>「分區」</strong>：填入<strong>2025田調</strong></li>
+                  <li><strong>「聲韻調」</strong>：<strong>留空</strong>或<strong>填入大類別</strong>(例如“詞彙”)，不影響「自定義特徵檢索」</li>
+                  <li><strong>「特徵」</strong>：填入具體類別，例如止·精組·開、來母、陰去、昨天、玩耍等</li>
+                  <li><strong>「值」</strong>：填入具體的音值/詞彙等</li>
+                </ul>
+                <div class="example-block">
+                  <div class="table-container">
+                    <table class="example-table">
+                      <thead>
+                      <tr>
+                        <th style="min-width: 60px;">簡稱</th>
+                        <th style="min-width: 30px;">分區</th>
+                        <th style="min-width: 70px;">經緯度</th>
+                        <th style="min-width: 50px;">聲韻調</th>
+                        <th style="min-width: 30px;">特徵</th>
+                        <th style="min-width: 40px;">值</th>
+                        <th style="min-width: 60px;">說明</th>
+                      </tr>
+                      </thead>
+                      <tbody>
+                      <tr>
+                        <td rowspan="5" class="highlight-location">陽春雙滘</td>
+                        <td rowspan="10" class="highlight-region">2025田調</td>
+                        <td rowspan="5" class="highlight-geo">111.332451,<br>22.109056</td>
+                        <td>韻母</td>
+                        <td><strong>止·精組·開</strong></td>
+                        <td><span class="value-tag">ei/i</span></td>
+                        <td class="note-text">兩讀</td>
+                      </tr>
+                      <tr>
+                        <td>聲母</td>
+                        <td><strong>來</strong></td>
+                        <td><span class="value-tag">l</span></td>
+                        <td class="note-text"></td>
+                      </tr>
+                      <tr>
+                        <td>調值</td>
+                        <td><strong>陰去</strong></td>
+                        <td><span class="value-tag">53</span></td>
+                        <td class="note-text">可能是受涯話影響</td>
+                      </tr>
+                      <tr>
+                        <td>詞彙</td>
+                        <td><strong>昨天</strong></td>
+                        <td><span class="value-tag">從日</span></td>
+                        <td class="note-text">ʦuŋ21 ȵɐt51</td>
+                      </tr>
+                      <tr>
+                        <td>詞彙</td>
+                        <td><strong>玩耍</strong></td>
+                        <td><span class="value-tag">嬲</span></td>
+                        <td class="note-text">liɛu53</td>
+                      </tr>
+
+                      <tr>
+                        <td rowspan="5" class="highlight-location">阳春合水</td>
+                        <td rowspan="5" class="highlight-geo">111.856357,<br>22.289037</td>
+                        <td>韻母</td>
+                        <td><strong>止·精組·開</strong></td>
+                        <td><span class="value-tag">ei</span></td>
+                        <td class="note-text">兩陽的特點</td>
+                      </tr>
+                      <tr>
+                        <td>泥來母</td>
+                        <td><strong>來母</strong></td>
+                        <td><span class="value-tag">l</span></td>
+                        <td class="note-text"></td>
+                      </tr>
+                      <tr>
+                        <td>調值</td>
+                        <td><strong>陰去</strong></td>
+                        <td><span class="value-tag">33</span></td>
+                        <td class="note-text"></td>
+                      </tr>
+                      <tr>
+                        <td>詞彙</td>
+                        <td><strong>昨天</strong></td>
+                        <td><span class="value-tag">撞日</span></td>
+                        <td class="note-text">tsoŋ53 ŋɐt53</td>
+                      </tr>
+                      <tr>
+                        <td>詞彙</td>
+                        <td><strong>玩耍</strong></td>
+                        <td><span class="value-tag">耍</span></td>
+                        <td class="note-text">ʃa323</td>
+                      </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <div class="example-hint">
+                    <ul>
+                      <li><strong>分區：</strong> 這是您的「搜索範圍」。請先在分區框內填入<code>2025田調</code></li>
+                      <li><strong>特徵：</strong> 這是您的「搜索關鍵詞」。搜 <code>昨天</code>，地圖會顯示 <code>從日</code> 和 <code>撞日</code> 的分佈。</li>
+                      <li><strong>聲韻調：</strong> 詞彙類數據可在此欄填寫「詞彙」以便歸類，也可留空，不影響正常顯示。</li>
+                      <li><strong>值：</strong> 直接顯示在地圖上，但無法用於搜索。</li>
+                    </ul>
+                  </div>
+                </div>
+
+              </div>
+
+              <div class="help-section" style=" border-left: 4px solid #007aff;">
+                <h4 class="section-title">💡 進階小貼士：日常應用</h4>
+                <p style="font-size: 13px; line-height: 1.6; color: #444; margin: 0;">
+                  如果您不是在做方言研究，可以把這套系統當作您的<strong>「私人生活地圖」</strong>：
+                </p>
+                <ul class="help-list" style="margin-top: 8px;">
+                  <li>📁 <strong>「分區」即文件夾：</strong>比如填入 <code>我的探店地圖</code>（「聲韻調」可留空）。</li>
+                  <li>🏷️ <strong>「特徵」即分類：</strong>比如填入 <code>咖啡館</code>、<code>火鍋店</code> 或 <code>燒烤攤</code>。</li>
+                  <li>📍 <strong>「簡稱」即名字：</strong>可以填入景點/店鋪名稱（如<code>時光咖啡館</code>）。</li>
+                  <li>✅️ <strong>「值」即標記：</strong>可以填入評分（如<code>9分</code>）或簡介。</li>
+                </ul>
+                <p style="font-size: 13px; color: #666; margin-top: 8px; font-style: italic;">
+                  ✨ 這樣操作後，您只需在分區框填入「我的探店地圖」，搜索框搜尋「咖啡館」，地圖就會精確展示您標註過的所有咖啡店分佈。
+                </p>
+                <div class="usage-diagram">
+
+                  <div class="usage-level region-level">
+                    <div class="level-icon">📂</div>
+                    <div class="level-content">
+                      <div class="field-tag">分區 (Region)</div>
+                      <div class="usage-text">相當於 <strong>「文件夾名稱」</strong></div>
+                      <div class="usage-example">例：填入 <code>我的美食地圖</code></div>
+                    </div>
+                  </div>
+
+                  <div class="connector-line">⬇️ 包含多個地點</div>
+
+                  <div class="usage-level location-level">
+                    <div class="level-icon">📍</div>
+                    <div class="level-content">
+                      <div class="field-tag">簡稱 (Location)</div>
+                      <div class="usage-text">相當於 <strong>「店名」或「景點名」</strong></div>
+                      <div class="usage-example">例：填入 <code>老王燒烤</code></div>
+                    </div>
+                  </div>
+
+                  <div class="connector-line">⬇️ 給這個地點打標籤</div>
+
+                  <div class="usage-level data-level">
+                    <div class="level-group">
+
+                      <div class="sub-level feature-box">
+                        <div class="level-icon-sm">🏷️</div>
+                        <div>
+                          <div class="field-tag-sm">特徵</div>
+                          <div class="usage-text-sm"><strong>分類標籤</strong> (搜索用)</div>
+                          <div class="usage-example-sm">例：<code>評價</code> / <code>種類</code></div>
+                        </div>
+                      </div>
+
+                      <div class="arrow-right">👉</div>
+
+                      <div class="sub-level value-box">
+                        <div class="level-icon-sm">💬</div>
+                        <div>
+                          <div class="field-tag-sm">值</div>
+                          <div class="usage-text-sm"><strong>顯示內容</strong> (地圖顯示)</div>
+                          <div class="usage-example-sm">例：<code>好吃</code> / <code>燒烤</code></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <p class="example-hint" style="margin:0;">
+                    ✨ <strong>最終效果：</strong> 當您在分區輸入框填入 <code>我的美食地圖</code> ，
+                    再在搜索框輸入 <code>評價</code> 時，地圖上 <strong>老王燒烤</strong> 的位置就會亮起，並顯示 <code>好吃</code> 兩個字。
+                  </p>
+
+                </div>
+              </div>
+
+              <div class="help-section" style=" border-left: 4px solid #007aff;">
+                <h4 class="section-title">📍 添加數據步驟</h4>
+                <ul class="help-list">
+                  <li><strong>1. 選擇模式：</strong> 「逐條添加」適合精確選擇坐標，「批量添加」支持從 Excel 直接複製粘貼。</li>
+                  <li><strong>2. 獲取坐標：</strong> 「逐條添加」無需手動查詢！在面板打開時，<strong>直接點擊地圖上的目標位置</strong>，經緯度會自動填充。</li>
+                  <li><strong>3. 提交保存：</strong> 填寫完畢後點擊提交，數據將永久保存至您的個人數據庫中。</li>
                 </ul>
               </div>
             </div>
@@ -129,11 +412,12 @@
 </template>
 
 <script setup>
-import { ref, reactive, nextTick, onMounted, onBeforeUnmount } from 'vue'
+import { ref, reactive, nextTick, onMounted, onBeforeUnmount, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import LocationAndRegionInput from '@/components/query/LocationAndRegionInput.vue'
-import { api } from '@/utils/auth.js'
-import { userStore, resultCache, mapStore } from '@/utils/store.js'
+import { getCustomFeature } from '@/api/user/custom.js'
+import { getAllCustomData } from '@/api/user'
+import { userStore, resultCache, mapStore, uiStore, isCustomButtonDisabled, setRunning } from '@/utils/store.js'
 import { showSuccess, showError, showWarning, showInfo } from '@/utils/message.js'
 
 const router = useRouter()
@@ -151,12 +435,39 @@ const featureSearchInput = ref('')
 const featureSuggestions = ref([])
 const selectedFeature = ref('')
 const isSearching = ref(false)
-const isRunning = ref(false)
+// 使用 uiStore 中的按钮状态（不再定义本地 isRunning）
+const buttonState = uiStore.buttonStates.custom
+const isDisabled = isCustomButtonDisabled
 const showSuggestions = ref(false)
 const featureDropdownEl = ref(null)
+// 數據總量
+const userTotalCount = ref(0)
+
+// 同步 selectedFeature 到 store
+watch(selectedFeature, (newVal) => {
+  uiStore.buttonStates.custom.hasSelectedFeature = !!newVal
+}, { immediate: true })
 
 // 帮助弹窗状态
 const isHelpModalOpen = ref(false)
+
+// Tooltip 相關狀態
+const activeTooltip = ref(null)
+const tooltipStyle = reactive({
+  position: 'absolute',
+  top: '0px',
+  left: '0px',
+  zIndex: 99999
+})
+
+// Mobile detection
+const isMobile = ref(false)
+const checkMobile = () => {
+  isMobile.value = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+}
+
+// Tooltip timer for mobile auto-hide
+let tooltipTimer = null
 
 // Dropdown 样式（动态计算位置）
 const dropdownStyle = reactive({
@@ -177,6 +488,77 @@ const openHelpModal = () => {
 
 const closeHelpModal = () => {
   isHelpModalOpen.value = false
+}
+
+// Tooltip 控制函數
+const showTooltip = (type) => {
+  activeTooltip.value = type
+  updateTooltipPosition(type)
+}
+
+const hideTooltip = () => {
+  activeTooltip.value = null
+}
+
+const toggleTooltip = (type) => {
+  if (activeTooltip.value === type) {
+    activeTooltip.value = null
+    clearTimeout(tooltipTimer)
+  } else {
+    activeTooltip.value = type
+    updateTooltipPosition(type)
+
+    // 移動端自動隱藏（3秒後）
+    clearTimeout(tooltipTimer)
+    tooltipTimer = setTimeout(() => {
+      activeTooltip.value = null
+    }, 3000)
+  }
+}
+
+const updateTooltipPosition = (type) => {
+  nextTick(() => {
+    const helpIcons = document.querySelectorAll('.help-icon')
+    let targetIcon = null
+
+    if (type === 'single') {
+      targetIcon = helpIcons[0]
+    } else if (type === 'batch') {
+      targetIcon = helpIcons[1]
+    }
+
+    if (targetIcon) {
+      const rect = targetIcon.getBoundingClientRect()
+      const viewportWidth = window.innerWidth
+      const viewportHeight = window.innerHeight
+      const tooltipWidth = 250 // 預估 tooltip 寬度
+      const tooltipHeight = 60 // 預估 tooltip 高度
+
+      // 計算初始位置（圖標下方居中）
+      let left = rect.left + window.scrollX + (rect.width / 2) - (tooltipWidth / 2)
+      let top = rect.bottom + window.scrollY + 8
+
+      // 檢查右邊界
+      if (left + tooltipWidth > viewportWidth) {
+        left = viewportWidth - tooltipWidth - 10
+      }
+
+      // 檢查左邊界
+      if (left < 10) {
+        left = 10
+      }
+
+      // 檢查下邊界（如果超出，顯示在圖標上方）
+      if (rect.bottom + tooltipHeight + 8 > viewportHeight) {
+        top = rect.top + window.scrollY - tooltipHeight - 8
+      }
+
+      tooltipStyle.position = 'absolute'
+      tooltipStyle.top = `${top}px`
+      tooltipStyle.left = `${left}px`
+      tooltipStyle.zIndex = 99999
+    }
+  })
 }
 
 // 登录
@@ -204,38 +586,31 @@ const handleInputFocus = () => {
 
 // 搜索自定义特征
 const searchCustomFeatures = async () => {
+  // ✅ 登录检查（早返回）
+  if (!userStore.isAuthenticated) {
+    featureSuggestions.value = []
+    showSuggestions.value = false
+    return  // 静默返回，不显示错误
+  }
+
   const word = featureSearchInput.value.trim()
 
   isSearching.value = true
 
   try {
     // 构建查询参数
-    const params = new URLSearchParams()
-
-// 添加地点
-    if (locationData.value.locations && locationData.value.locations.length > 0) {
-      locationData.value.locations.forEach(loc => {
-        if (loc) params.append('locations', loc)
-      })
-    } else {
-      params.append('locations', '')  // 确保传递空值
+    const queryParams = {
+      locations: (locationData.value.locations && locationData.value.locations.length > 0)
+        ? locationData.value.locations.filter(Boolean)
+        : [''],
+      regions: (locationData.value.regions && locationData.value.regions.length > 0)
+        ? locationData.value.regions.filter(Boolean)
+        : [''],
+      word: word
     }
-
-// 添加分区
-    if (locationData.value.regions && locationData.value.regions.length > 0) {
-      locationData.value.regions.forEach(reg => {
-        if (reg) params.append('regions', reg)
-      })
-    } else {
-      params.append('regions', '')  // 确保传递空值
-    }
-
-
-    // 添加搜索词（允许空字符串，后端会返回所有特征）
-    params.set('word', word)
 
     // 调用 API
-    const response = await api(`/api/get_custom_feature?${params.toString()}`)
+    const response = await getCustomFeature(queryParams)
 
     if (Array.isArray(response) && response.length > 0) {
       // 后端返回的是对象数组: { "簡稱": "test", "聲韻調": "", "特徵": "流" }
@@ -295,13 +670,29 @@ const onClickOutside = (event) => {
   }
 }
 
+const fetchUserTotalCount = async () => {
+  if (!userStore.isAuthenticated) return
+  try {
+    // 不帶任何參數請求，獲取所有個人記錄
+    const response = await getAllCustomData()
+    if (Array.isArray(response.data)) {
+      userTotalCount.value = response.data.length
+    }
+  } catch (error) {
+    console.error('獲取數據總量失敗:', error)
+  }
+}
+
 onMounted(() => {
+  checkMobile()
   document.addEventListener('click', onClickOutside)
+  fetchUserTotalCount() // 進入頁面獲取總量
 })
 
 onBeforeUnmount(() => {
   document.removeEventListener('click', onClickOutside)
   clearTimeout(featureDebounceTimer)
+  clearTimeout(tooltipTimer)
 })
 
 // 运行查询
@@ -311,7 +702,7 @@ const handleRunQuery = () => {
     return
   }
 
-  isRunning.value = true
+  setRunning('custom', true)
 
   try {
     // 清空地图数据
@@ -352,12 +743,12 @@ const handleRunQuery = () => {
 
     // 延迟重置运行状态（跳转后组件不会被销毁，需要手动重置）
     setTimeout(() => {
-      isRunning.value = false
+      setRunning('custom', false)
     }, 1000)
   } catch (error) {
     console.error('跳转失败:', error)
     showError('操作失败：' + error.message)
-    isRunning.value = false
+    setRunning('custom', false)
   }
 }
 
@@ -404,14 +795,6 @@ const handleAddBatch = () => {
   position: relative;
 }
 
-.query-label {
-  display: block;
-  font-size: 14px;
-  font-weight: 600;
-  color: #333;
-  margin-bottom: 6px;
-  text-align: center;
-}
 
 /* 搜索输入框包装器 */
 .search-input-wrapper {
@@ -463,9 +846,113 @@ const handleAddBatch = () => {
 .button-group {
   display: flex;
   justify-content: center;
-  gap: 12px;
+  align-items: center;
+  gap: 30px;
   margin-top: 10px;
   flex-wrap: wrap;
+}
+
+/* 按鈕與幫助圖標容器 */
+.button-with-help {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+}
+
+/* 幫助圖標 - 蘋果液態玻璃風格 */
+.help-icon,.help-icon-head{
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  color: #007aff;
+  cursor: pointer;
+  user-select: none;
+
+  /* 液態玻璃效果 */
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.9),
+    rgba(255, 255, 255, 0.7)
+  );
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+
+  /* 邊框和陰影 */
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow:
+    inset 0 0 0.5px rgba(255, 255, 255, 0.3),
+    0 4px 12px rgba(0, 122, 255, 0.15),
+    0 0 0 0.5px rgba(255, 255, 255, 0.1);
+
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.help-icon:hover,.help-icon-head:hover{
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 1),
+    rgba(255, 255, 255, 0.85)
+  );
+  box-shadow:
+    inset 0 0 0.5px rgba(255, 255, 255, 0.5),
+    0 6px 16px rgba(0, 122, 255, 0.25),
+    0 0 0 0.5px rgba(255, 255, 255, 0.2);
+  transform: scale(1.1);
+}
+
+.help-icon:active,.help-icon-head:active{
+  transform: scale(1.05);
+  box-shadow:
+    inset 0 0 0.5px rgba(255, 255, 255, 0.3),
+    0 2px 8px rgba(0, 122, 255, 0.2);
+}
+
+/* Tooltip 面板 - 蘋果液態玻璃風格 */
+.tooltip-panel {
+  position: absolute;
+  padding: 10px 14px;
+  max-width: min(250px, calc(100vw - 20px)); /* 確保不超出屏幕 */
+  font-size: 13px;
+  line-height: 1.5;
+  color: #1d1d1f;
+  text-align: center;
+  pointer-events: none;
+  word-wrap: break-word; /* 長文字自動換行 */
+
+  /* 液態玻璃效果 */
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.95),
+    rgba(255, 255, 255, 0.85)
+  );
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+
+  /* 邊框和陰影 */
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 12px;
+  box-shadow:
+    inset 0 0 0.5px rgba(255, 255, 255, 0.3),
+    0 8px 24px rgba(0, 0, 0, 0.15),
+    0 0 0 0.5px rgba(255, 255, 255, 0.1);
+}
+
+/* Tooltip 過渡動畫 */
+.tooltip-fade-enter-active,
+.tooltip-fade-leave-active {
+  transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.tooltip-fade-enter-from,
+.tooltip-fade-leave-to {
+  opacity: 0;
+  transform: translateY(-5px) scale(0.95);
 }
 
 /* 通用按钮样式（非悬浮） */
@@ -559,7 +1046,6 @@ const handleAddBatch = () => {
   color: #353535;
   font-weight: bold;
   font-size: 17px;
-  background: white;
   position: relative;
   z-index: 1;
 }
@@ -587,7 +1073,7 @@ const handleAddBatch = () => {
 .help-modal {
   position: relative;
   width: 90%;
-  max-width: 500px;
+  max-width: 800px;
   max-height: 80vh;
   overflow-y: auto;
   padding: 30px;
@@ -651,14 +1137,14 @@ const handleAddBatch = () => {
 }
 
 /* 移动端适配 */
-@media (max-width: 480px) {
+@media (max-aspect-ratio: 1/1) {
   .button-group {
+    gap:10px;
     flex-direction: column;
-    align-items: stretch;
   }
 
   .action-btn {
-    width: 100%;
+    width: 90%;
   }
 
   .feature-search-container {
@@ -668,5 +1154,269 @@ const handleAddBatch = () => {
   .help-modal {
     padding: 20px;
   }
+}
+/* 新增：標籤行布局 */
+.label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+  padding: 0 4px;
+}
+
+.query-label {
+  margin-bottom: 0; /* 覆蓋原有 margin */
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+}
+
+/* 數據量徽章樣式 */
+.data-count-badge {
+  font-size: 11px;
+  padding: 2px 10px;
+  border-radius: 20px;
+  font-weight: 500;
+  border: 1px solid transparent;
+  transition: all 0.3s ease;
+}
+/* 未登錄：橘紅色系 */
+.data-count-badge.warning {
+  color: #ff9500;
+  background: rgba(255, 149, 0, 0.1);
+  border-color: rgba(255, 149, 0, 0.2);
+}
+
+/* 暫無數據：灰色系 */
+.data-count-badge.hint {
+  color: #8e8e93;
+  background: rgba(142, 142, 147, 0.1);
+  border-color: rgba(142, 142, 147, 0.2);
+}
+
+/* 有數據：藍色系 */
+.data-count-badge.success {
+  color: #007aff;
+  background: rgba(0, 122, 255, 0.1);
+  border-color: rgba(0, 122, 255, 0.2);
+}
+
+/* 適配移動端 */
+@media (max-aspect-ratio: 1/1) {
+  .label-row {
+    flex-direction: row; /* 移動端也保持一行，若文字太擁擠可改為 column */
+  }
+}
+
+/* 表格容器 */
+.table-container {
+  overflow-x: auto; /* 確保移動端可以橫向滑動 */
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  background: #fff;
+  margin-bottom: 8px;
+}
+
+/* 表格本體 */
+.example-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px; /* 稍微調小字體以容納更多列 */
+  text-align: left;
+  min-width: 500px; /* 防止在手機上擠成一團 */
+}
+
+/* 表頭 */
+.example-table th {
+  background-color: #f5f7fa;
+  color: #333;
+  font-weight: 600;
+  padding: 8px 6px;
+  border-bottom: 2px solid #d9d9d9;
+  white-space: nowrap;
+}
+
+/* 單元格 */
+.example-table td {
+  padding: 8px 6px;
+  border-bottom: 1px solid #eee;
+  border-right: 1px solid #f0f0f0;
+  color: #555;
+  vertical-align: middle;
+}
+
+/* 去掉最後一列邊框 */
+.example-table td:last-child {
+  border-right: none;
+}
+
+/* 重點列高亮 */
+.highlight-location {
+  color: #333;
+  font-weight: 700;
+  background-color: #fffcf5; /* 淺黃背景 */
+}
+
+.highlight-region {
+  color: #007aff;
+  font-weight: 600;
+  background-color: #f0f7ff; /* 淺藍背景 */
+}
+
+.highlight-geo {
+  font-family: monospace;
+  font-size: 11px;
+  color: #888;
+  background-color: #fafafa;
+}
+
+/* 值標籤 */
+.value-tag {
+  display: inline-block;
+  padding: 1px 6px;
+  background: #e6f7ff;
+  border: 1px solid #91d5ff;
+  border-radius: 4px;
+  color: #0050b3;
+  font-weight: bold;
+}
+
+/* 說明文字 */
+.note-text {
+  font-size: 11px;
+  color: #999;
+  font-style: italic;
+}
+
+/* 提示塊 */
+.example-hint {
+  font-size: 12px;
+  color: #666;
+  background: rgba(0, 0, 0, 0.03);
+  padding: 8px 12px;
+  border-radius: 6px;
+}
+
+.example-hint ul {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.example-hint li {
+  margin-bottom: 4px;
+}
+/* --- 日常應用層級圖樣式 --- */
+
+.usage-diagram {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px 10px;
+  border-radius: 12px;
+}
+
+/* 通用層級卡片 */
+.usage-level {
+  display: flex;
+  align-items: center;
+  width: 90%;
+  max-width: 400px;
+  background: #fff;
+  border-radius: 10px;
+  padding: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  position: relative;
+}
+
+/* 各層級配色 */
+.region-level { border-left: 5px solid #007aff; } /* 藍色 */
+.location-level { border-left: 5px solid #ff9500; } /* 橘色 */
+.data-level {
+  border-left: 5px solid #34c759; /* 綠色 */
+  flex-direction: column;
+  padding: 10px;
+}
+
+/* 圖標 */
+.level-icon {
+  font-size: 24px;
+  margin-right: 15px;
+  width: 30px;
+  text-align: center;
+}
+
+/* 內容區 */
+.level-content {
+  flex: 1;
+}
+
+/* 字段標籤 (如：分區) */
+.field-tag {
+  font-weight: 700;
+  font-size: 14px;
+  color: #333;
+  margin-bottom: 4px;
+}
+
+.usage-text {
+  font-size: 13px;
+  color: #555;
+  margin-bottom: 4px;
+}
+
+.usage-example {
+  font-size: 12px;
+  color: #007aff;
+  background: rgba(0, 122, 255, 0.08);
+  padding: 4px 8px;
+  border-radius: 4px;
+  display: inline-block;
+  font-family: monospace;
+}
+
+/* 連接線 */
+.connector-line {
+  font-size: 12px;
+  color: #999;
+  font-weight: bold;
+  margin: 8px 0;
+  position: relative;
+}
+
+/* 第三層：左右佈局 (特徵 -> 值) */
+.level-group {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.sub-level {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  padding: 8px;
+  background: #f5fcf5; /* 淺綠背景 */
+  border-radius: 6px;
+}
+
+.feature-box { margin-right: 5px; }
+.value-box { margin-left: 5px; }
+
+.level-icon-sm { font-size: 18px; margin-right: 8px; }
+.field-tag-sm { font-weight: 700; font-size: 12px; color: #2e7d32; }
+.usage-text-sm { font-size: 11px; color: #555; }
+.usage-example-sm {
+  font-size: 11px;
+  color: #2e7d32;
+  font-family: monospace;
+  margin-top: 2px;
+  font-weight: bold;
+}
+
+.arrow-right {
+  color: #999;
+  font-size: 14px;
+  margin: 0 4px;
 }
 </style>
