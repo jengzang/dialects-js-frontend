@@ -88,7 +88,7 @@
         <span class="step-number">3</span>
         <div class="step-info">
           <h3 class="step-title">分析結果</h3>
-          <span class="step-hint">五度值曲線（歸一化時長）</span>
+          <span class="step-hint">五度值曲線（保留原始時長，對齊起點）</span>
         </div>
       </div>
 
@@ -432,7 +432,7 @@ const clearAll = () => {
   }
 }
 
-// === 3. 石鋒 T 值分析算法 ===
+// === 3. 石峰 T 值分析算法 ===
 const performTValueAnalysis = () => {
   if (savedTones.value.length === 0) return
 
@@ -444,18 +444,16 @@ const performTValueAnalysis = () => {
     return
   }
 
-  // Calculate mean
-  const mean = allValues.reduce((sum, v) => sum + v, 0) / allValues.length
+  // ✅ 使用真實的最大/最小值作為參考系上下限
+  const ceiling = Math.max(...allValues)
+  const floor = Math.min(...allValues)
 
-  // Calculate standard deviation
+  // 計算均值和標準差（用於日誌輸出）
+  const mean = allValues.reduce((sum, v) => sum + v, 0) / allValues.length
   const variance = allValues.reduce((sum, v) => sum + Math.pow(v - mean, 2), 0) / allValues.length
   const sd = Math.sqrt(variance)
 
-  // Calculate ceiling and floor using mean ± SD
-  const ceiling = mean + sd
-  const floor = mean - sd
-
-  console.log('Statistics:', { mean, sd, ceiling, floor })
+  console.log('Statistics:', { mean, sd, ceiling, floor, realMax: ceiling, realMin: floor })
 
   globalStats.value = { max: ceiling, min: floor }
 
@@ -464,55 +462,58 @@ const performTValueAnalysis = () => {
   const lgMax = Math.log10(ceiling)
   const denominator = lgMax - lgMin
 
+  // ✅ 修复：调值范围改为 1~5（传统五度值）
   // Helper: Convert Hz array to T-value array
   const hzToTValues = (hzArray) => {
     return hzArray.map(hz => {
       const lgX = Math.log10(hz)
-      let T = ((lgX - lgMin) / denominator) * 5
-      return Math.max(0, Math.min(5, T))  // Clamp to [0, 5]
+      let T = ((lgX - lgMin) / denominator) * 4 + 1  // 映射到 [1, 5]
+      return Math.max(1, Math.min(5, T))  // Clamp to [1, 5]
     })
   }
 
-  // Helper: Normalize array to N points using linear interpolation
-  const normalizeLength = (arr, targetLength = 20) => {
-    if (arr.length === targetLength) return arr
-
-    const result = []
-    for (let i = 0; i < targetLength; i++) {
-      const pos = (i / (targetLength - 1)) * (arr.length - 1)
-      const idx = Math.floor(pos)
-      const frac = pos - idx
-
-      if (idx >= arr.length - 1) {
-        result.push(arr[arr.length - 1])
-      } else {
-        // Linear interpolation
-        result.push(arr[idx] * (1 - frac) + arr[idx + 1] * frac)
-      }
-    }
-    return result
+  // ✅ 修复：计算采样间隔（用于保留真实时长）
+  const ts = props.results?.timeseries
+  let samplingInterval = 0.01 // 默认 10ms
+  if (ts && ts.time && ts.time.length > 1) {
+    // 计算平均采样间隔（秒）
+    samplingInterval = (ts.time[ts.time.length - 1] - ts.time[0]) / (ts.time.length - 1)
   }
+  const samplingIntervalMs = samplingInterval * 1000  // 转换为毫秒
+
+  console.log('Sampling interval:', samplingIntervalMs, 'ms')
 
   // C. Process each tone class
   tValueResults.value = savedTones.value.map(tone => {
-    // Convert each segment to T-values
+    // ✅ 修复：不再归一化时长，保留原始点数
+    // Convert each segment to T-values (keep original length)
     const tValueSegments = tone.segments.map(hzSegment => {
-      const tValues = hzToTValues(hzSegment)
-      return normalizeLength(tValues, 20)  // Normalize to 20 points
+      return hzToTValues(hzSegment)  // 不再调用 normalizeLength
     })
 
-    // Average across all segments at each position
+    // 找出最长的音段，用于对齐
+    const maxLength = Math.max(...tValueSegments.map(seg => seg.length))
+
+    // Average across all segments at each position (对齐到最长音段)
     const avgTValues = []
-    for (let i = 0; i < 20; i++) {
-      const sum = tValueSegments.reduce((acc, seg) => acc + seg[i], 0)
-      avgTValues.push(sum / tValueSegments.length)
+    for (let i = 0; i < maxLength; i++) {
+      let sum = 0
+      let count = 0
+      for (const seg of tValueSegments) {
+        if (i < seg.length) {
+          sum += seg[i]
+          count++
+        }
+      }
+      avgTValues.push(count > 0 ? sum / count : null)
     }
 
-    // Convert to chart data format [percent, T-value]
+    // ✅ 修复：使用真实时间（毫秒）而不是百分比
+    // Convert to chart data format [time_ms, T-value]
     const chartData = avgTValues.map((val, idx) => {
-      const percent = (idx / 19) * 100  // 0% to 100%
-      return [percent, val]
-    })
+      const timeMs = idx * samplingIntervalMs  // 真实时间（毫秒）
+      return [timeMs, val]
+    }).filter(([time, val]) => val !== null)  // 过滤掉无效点
 
     return {
       name: tone.name,
@@ -550,21 +551,29 @@ const initTValueChart = () => {
   }))
 
   const option = {
-    title: { text: '石鋒 T 值曲線 (歸一化時長)', left: 'center' },
-    tooltip: { trigger: 'axis' },
+    title: { text: '石峰 T 值曲線', left: 'center' },
+    tooltip: {
+      trigger: 'axis',
+      formatter: (params) => {
+        let result = `時間: ${params[0].value[0].toFixed(1)} ms<br/>`
+        params.forEach(param => {
+          result += `${param.seriesName}: ${param.value[1].toFixed(2)}<br/>`
+        })
+        return result
+      }
+    },
     legend: { bottom: 0 },
-    grid: { top: 50, bottom: 60, left: 50, right: 30 },
+    grid: { top: 50, bottom: 60, left: 60, right: 30 },
     xAxis: {
       type: 'value',
-      name: '時長 (%)',
+      name: '時間 (ms)',
       min: 0,
-      max: 100,
-      axisLabel: { formatter: '{value}%' }
+      axisLabel: { formatter: '{value}' }
     },
     yAxis: {
       type: 'value',
       name: '五度值 (T)',
-      min: 0,
+      min: 1,
       max: 5,
       interval: 1,
       splitLine: { show: true }
