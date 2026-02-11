@@ -96,6 +96,13 @@
         <span>參考系上限: {{ globalStats.max.toFixed(1) }} Hz</span>
         <span>參考系下限: {{ globalStats.min.toFixed(1) }} Hz</span>
       </div>
+
+      <div class="export-actions">
+        <button class="export-btn" @click="exportToExcel">
+          📊 導出 Excel
+        </button>
+      </div>
+
       <div ref="tValueChartContainer" class="chart-container result-chart"></div>
     </div>
 
@@ -105,6 +112,8 @@
 <script setup>
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import * as echarts from 'echarts'
+import * as XLSX from 'xlsx'
+import { showSuccess, showWarning } from '@/utils/message.js'
 
 const props = defineProps({
   results: { type: Object, default: null }
@@ -530,6 +539,46 @@ const performTValueAnalysis = () => {
   })
 }
 
+// === 4. Excel 导出功能 ===
+const exportToExcel = () => {
+  if (tValueResults.value.length === 0) {
+    showWarning('沒有分析結果可導出')
+    return
+  }
+
+  // 1. 找出最大时间点数（对齐到最长曲线）
+  const maxLength = Math.max(...tValueResults.value.map(r => r.data.length))
+
+  // 2. 构建表格数据
+  const excelData = []
+  for (let i = 0; i < maxLength; i++) {
+    const row = {}
+
+    // 时间列
+    const firstTime = tValueResults.value[0].data[i]?.[0]
+    row['時間 (ms)'] = firstTime?.toFixed(1) || ''
+
+    // 每个调类的 T 值列
+    tValueResults.value.forEach(result => {
+      const point = result.data[i]
+      row[result.name] = point ? point[1].toFixed(2) : ''
+    })
+
+    excelData.push(row)
+  }
+
+  // 3. 生成 Excel
+  const ws = XLSX.utils.json_to_sheet(excelData)
+  const wb = XLSX.utils.book_new()
+  XLSX.utils.book_append_sheet(wb, ws, '石峰T值分析')
+
+  // 4. 下载文件
+  const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-')
+  XLSX.writeFile(wb, `方音圖鑑_T值法定調_${timestamp}.xlsx`)
+
+  showSuccess('已導出 Excel 文件')
+}
+
 const initTValueChart = () => {
   if (!tValueChartContainer.value) return
   if (tValueChart) tValueChart.dispose()
@@ -562,7 +611,29 @@ const initTValueChart = () => {
         return result
       }
     },
-    legend: { bottom: 0 },
+    legend: {
+      bottom: 0,
+      type: 'scroll',        // 添加滚动条（调类多时有用）
+      orient: 'horizontal',  // 水平排列
+      itemGap: 20,           // 增加间距
+      textStyle: {
+        fontSize: 14,
+        color: '#2c3e50'
+      }
+    },
+    toolbox: {
+      right: 20,
+      feature: {
+        dataZoom: { title: { zoom: '縮放', back: '還原' } },
+        restore: { title: '重置' },
+        saveAsImage: {           // 新增 PNG 导出
+          title: '保存為圖片',
+          name: '石峰T值分析',   // 文件名
+          pixelRatio: 2,         // 高清图（2倍分辨率）
+          backgroundColor: '#fff'
+        }
+      }
+    },
     grid: { top: 50, bottom: 60, left: 60, right: 30 },
     xAxis: {
       type: 'value',
@@ -605,9 +676,56 @@ const initTValueChart = () => {
   .pitch-tone-panel{
     padding:0.5rem;
   }
+
+  /* 控制面板改为单列布局 */
   .controls-section{
     display: flex!important;
     flex-direction: column;
+    gap: 1rem;
+  }
+
+  /* 图表容器高度调整 */
+  .chart-container {
+    height: 280px;
+  }
+
+  .result-chart {
+    height: 320px;
+  }
+
+  /* 统计信息纵向排列 */
+  .stats-info {
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: flex-start;
+  }
+
+  /* 导出按钮自适应 */
+  .export-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+}
+
+/* 额外的小屏幕适配 */
+@media (max-width: 600px) {
+  .step-number {
+    width: 2rem;
+    height: 2rem;
+    font-size: 1rem;
+  }
+
+  .step-title {
+    font-size: 1.1rem;
+  }
+
+  .step-hint {
+    font-size: 0.85rem;
+  }
+
+  .panel-title {
+    font-size: 1.4rem;
   }
 }
 
@@ -944,4 +1062,36 @@ const initTValueChart = () => {
   color: var(--color-text-primary, #2c3e50);
   font-family: 'Courier New', monospace;
 }
+
+.export-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-bottom: 1rem;
+  align-items: center;
+}
+
+.export-btn {
+  background: linear-gradient(135deg, #50c878, #3aa65d);
+  color: white;
+  border: none;
+  padding: 0.8rem 2rem;
+  border-radius: var(--radius-lg, 12px);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(80, 200, 120, 0.3);
+  transition: all 0.3s;
+  max-width: 300px;
+}
+
+.export-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(80, 200, 120, 0.4);
+}
+
+.export-btn:active {
+  transform: translateY(0);
+}
+
 </style>
