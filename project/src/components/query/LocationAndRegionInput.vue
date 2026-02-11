@@ -813,6 +813,12 @@ async function fetchLocationsResult() {
     limitHint.value = '請輸入地點或分區'
     selectedCount.value = null
     locationsResult.value = []
+
+    // ✅ 修复：清空自定义地点预览
+    if (props.useInputMode) {
+      customFeatureLocations.value = []
+    }
+
     updateDisabledState(true)  // ⭐ 禁用按鈕
     return
   }
@@ -870,10 +876,16 @@ async function fetchCustomFeatureLocations(locations, regions) {
     return  // 静默返回
   }
 
+  // ✅ 只有两个输入框都为空时，才清空自定义地点，不调用 API
+  if ((!locations || locations.length === 0) && (!regions || regions.length === 0)) {
+    customFeatureLocations.value = []
+    return
+  }
+
   try {
     const queryParams = {
-      locations: (locations && locations.length > 0) ? locations.filter(Boolean) : [''],
-      regions: (regions && regions.length > 0) ? regions.filter(Boolean) : [''],
+      locations: (locations && locations.length > 0) ? locations.filter(Boolean) : [],
+      regions: (regions && regions.length > 0) ? regions.filter(Boolean) : [],
       word: ''
     }
 
