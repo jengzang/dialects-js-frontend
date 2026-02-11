@@ -91,8 +91,8 @@
               v-model="regionInputValue"
               @input="onRegionInput"
               @blur="onRegionBlur"
-              placeholder="輸入分區名稱，空格分隔（如：客家話 閩南片）"
-              class="region-textarea"
+              placeholder="輸入分區名稱，空格分隔（如：粵語）"
+              class="textarea"
               rows="3"
           ></textarea>
 
@@ -264,9 +264,19 @@
 
 <script setup>
 import { ref, nextTick ,onMounted, onActivated, watch, computed,defineProps, defineComponent, h} from 'vue'
-import {api} from '@/utils/auth.js'
+import { getLocations } from '@/api/query/LocationAndRegion.js'
+import { getCustomFeature } from '@/api/user/custom.js'
+import { sqlQuery } from '@/api/sql'
 import RegionSelector from "@/components/query/RegionSelector.vue"
-import { userStore } from '@/utils/store.js'
+import { userStore, setLocationDisabled } from '@/utils/store.js'
+import { LOCATION_LIMITS } from '@/config/constants.js'
+import { API_BASE } from '@/env-config.js'
+import { STATIC_REGION_TREE, top_yindian } from '@/config'
+import * as OpenCC from 'opencc-js'
+
+// 创建繁简转换器
+const t2s = OpenCC.Converter({ from: 'tw', to: 'cn' })  // 繁 → 简
+const s2t = OpenCC.Converter({ from: 'cn', to: 'tw' })  // 简 → 繁
 // const API_BASE = window.API_BASE;
 // const MAP_TREE = STATIC_REGION_TREE;
 // const YINDIAN_TREE = top_yindian;
@@ -279,6 +289,10 @@ const props = defineProps({
   useInputMode: {
     type: Boolean,
     default: false
+  },
+  limitContext: {
+    type: String,
+    default: 'default'
   }
 })
 
@@ -337,6 +351,18 @@ const suggestionStyle = ref({
 const selectedCount = ref(null)
 // 定义事件，用于通知父组件禁用/启用按钮
 const emit = defineEmits(['update:runDisabled', 'update:modelValue'])
+
+// 辅助函数：同时更新 emit 和 store（向后兼容）
+function updateDisabledState(isDisabled) {
+  // 1. Emit to parent (backward compatible)
+  emit('update:runDisabled', isDisabled)
+
+  // 2. Update store for all pages that might use this component
+  setLocationDisabled('query', isDisabled)
+  setLocationDisabled('divide', isDisabled)
+  // Note: custom tab doesn't use location validation
+}
+
 // 底部提示欄的「限制提示文案」（對應 showToast）
 // 為空字串時不顯示
 const limitHint = ref('')
@@ -386,7 +412,7 @@ function fetchSuggestion() {
 
   const token = localStorage.getItem('ACCESS_TOKEN')
 
-  fetch(`${window.API_BASE}/batch_match?input_string=${encodeURIComponent(query)}`, {
+  fetch(`${API_BASE}/batch_match?input_string=${encodeURIComponent(query)}`, {
     headers: {
       'Content-Type': 'application/json',
       ...(token ? { Authorization: `Bearer ${token}` } : {})
@@ -451,7 +477,7 @@ const flattenRegionTree = (tree, parentPath = []) => {
     results.push({
       name: key,
       path: currentPath.join('-'),
-      display: currentPath.join(' > ')
+      display: currentPath.join('·')
     })
 
     if (typeof value === 'object' && !Array.isArray(value)) {
@@ -465,7 +491,7 @@ const flattenRegionTree = (tree, parentPath = []) => {
           results.push({
             name: item,
             path: leafPath.join('-'),
-            display: leafPath.join(' > ')
+            display: leafPath.join('·')
           })
         }
       })
@@ -515,11 +541,23 @@ const matchRegions = (input) => {
 
   if (!query) return []
 
-  // Find matches
-  const matches = flatRegions.filter(region =>
-    region.name.toLowerCase().includes(query) ||
-    region.path.toLowerCase().includes(query)
-  )
+  // ✅ 新增：创建繁简变体用于匹配
+  const querySimplified = t2s(query).toLowerCase()
+  const queryTraditional = s2t(query).toLowerCase()
+
+  // Find matches - 支持繁简双向匹配
+  const matches = flatRegions.filter(region => {
+    const nameLower = region.name.toLowerCase()
+    const pathLower = region.path.toLowerCase()
+
+    // ✅ 检查原文、简体、繁体是否匹配
+    return nameLower.includes(query) ||
+           nameLower.includes(querySimplified) ||
+           nameLower.includes(queryTraditional) ||
+           pathLower.includes(query) ||
+           pathLower.includes(querySimplified) ||
+           pathLower.includes(queryTraditional)
+  })
 
   // Limit to top 10 matches
   return matches.slice(0, 10)
@@ -659,7 +697,7 @@ function loadTreeFor(mode) {
       return filtered
     }
     if (!sessionStorage.getItem(CACHE_KEY)) {
-      fetch(`${window.API_BASE}/partitions`)
+      fetch(`${API_BASE}/partitions`)
           .then(res => res.json())
           .then(tree => {
             const filteredTree = filterTopLevelKeys(tree)
@@ -676,6 +714,40 @@ function loadTreeFor(mode) {
 }
 // 初始加載
 loadTreeFor(regionUsing.value)
+
+// ✅ 新增：预加载音典分区数据到缓存，确保输入模式可以匹配所有分区
+const preloadYindianTree = async () => {
+  const CACHE_KEY = '__YINDIAN_TREE_CACHE__'
+  if (!sessionStorage.getItem(CACHE_KEY)) {
+    try {
+      const response = await fetch(`${API_BASE}/partitions`)
+      const tree = await response.json()
+
+      // 过滤顶级分区
+      const filterTopLevelKeys = (obj) => {
+        if (typeof obj !== 'object' || Array.isArray(obj) || obj === null) {
+          return {}
+        }
+        const filtered = {}
+        for (const key of top_yindian) {
+          if (obj.hasOwnProperty(key)) {
+            filtered[key] = obj[key]
+          }
+        }
+        return filtered
+      }
+
+      const filteredTree = filterTopLevelKeys(tree)
+      sessionStorage.setItem(CACHE_KEY, JSON.stringify(filteredTree))
+      console.log('✅ 音典分区数据已预加载到缓存')
+    } catch (error) {
+      console.warn('⚠️ 预加载音典分区失败:', error)
+    }
+  }
+}
+
+// 预加载音典数据（异步，不阻塞页面）
+preloadYindianTree()
 
 // const cascaderRef = ref(null)
 
@@ -741,25 +813,23 @@ async function fetchLocationsResult() {
     limitHint.value = '請輸入地點或分區'
     selectedCount.value = null
     locationsResult.value = []
-    emit('update:runDisabled', true)  // ⭐ 禁用按鈕
+
+    // ✅ 修复：清空自定义地点预览
+    if (props.useInputMode) {
+      customFeatureLocations.value = []
+    }
+
+    updateDisabledState(true)  // ⭐ 禁用按鈕
     return
   }
 
   try {
-    const query = new URLSearchParams()
-    locations.forEach(loc => query.append('locations', loc))
-    regions.forEach(reg => query.append('regions', reg))
-    query.set('region_mode', regionUsing.value)
+    const data = await getLocations({
+      locations,
+      regions,
+      region_mode: regionUsing.value
+    })
 
-    const data = await api(
-        `/api/get_locs/?${query.toString()}`,
-        {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        }
-    )
     // ✅ 存列表（用於預覽與彈層）
     locationsResult.value = Array.isArray(data?.locations_result) ? data.locations_result : []
     // 6️⃣ 核心結果：locations_result
@@ -767,18 +837,16 @@ async function fetchLocationsResult() {
     selectedCount.value = count
 
     // 7️⃣ 對齊原來的限制邏輯（showToast 對應 bottom-hint）
-    const limit_anonymous = 200
-    const limit_users = 600
+    // Get limits for current context and user role
+    const contextLimits = LOCATION_LIMITS[props.limitContext] || LOCATION_LIMITS.default
+    const limits = contextLimits[userStore.role] || contextLimits.anonymous
 
-    if (userStore.role === 'anonymous' && count > limit_anonymous) {
-      limitHint.value = `未登錄用戶單次最多可查詢 ${limit_anonymous} 個地點`
-      emit('update:runDisabled', true)
-    } else if (userStore.role === 'user' && count > limit_users) {
-      limitHint.value = `用戶單次最多可查詢 ${limit_users} 個地點`
-      emit('update:runDisabled', true)
+    if (count > limits.MAX_LOCATIONS) {
+      limitHint.value = limits.MESSAGE.replace('{limit}', limits.MAX_LOCATIONS)
+      updateDisabledState(true)
     } else {
       limitHint.value = ''
-      emit('update:runDisabled', false)
+      updateDisabledState(false)
     }
 
     // ✅ 若你後面還有「正常處理」，從這裡往下接
@@ -796,38 +864,33 @@ async function fetchLocationsResult() {
     selectedCount.value = null
     locationsResult.value = []
     customFeatureLocations.value = []
-    emit('update:runDisabled', true)  // ⭐ 錯誤時禁用按鈕
+    updateDisabledState(true)  // ⭐ 錯誤時禁用按鈕
   }
 }
 
 // 獲取自定義特徵地點列表
 async function fetchCustomFeatureLocations(locations, regions) {
+  // ✅ 登录检查（早返回）
+  if (!userStore.isAuthenticated) {
+    customFeatureLocations.value = []
+    return  // 静默返回
+  }
+
+  // ✅ 只有两个输入框都为空时，才清空自定义地点，不调用 API
+  if ((!locations || locations.length === 0) && (!regions || regions.length === 0)) {
+    customFeatureLocations.value = []
+    return
+  }
+
   try {
-    const params = new URLSearchParams()
-
-    // 添加地点
-    if (locations && locations.length > 0) {
-      locations.forEach(loc => {
-        if (loc) params.append('locations', loc)
-      })
-    } else {
-      params.append('locations', '')
+    const queryParams = {
+      locations: (locations && locations.length > 0) ? locations.filter(Boolean) : [],
+      regions: (regions && regions.length > 0) ? regions.filter(Boolean) : [],
+      word: ''
     }
-
-    // 添加分区
-    if (regions && regions.length > 0) {
-      regions.forEach(reg => {
-        if (reg) params.append('regions', reg)
-      })
-    } else {
-      params.append('regions', '')
-    }
-
-    // word 設置為空
-    params.set('word', '')
 
     // 调用 API
-    const response = await api(`/api/get_custom_feature?${params.toString()}`)
+    const response = await getCustomFeature(queryParams)
 
     // 提取所有的「簡稱」
     if (Array.isArray(response)) {
@@ -979,20 +1042,16 @@ const fetchPartitionData = async () => {
   partitionTreeError.value = ''
 
   try {
-    const response = await api('/sql/query', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        db_key: 'query',
-        table_name: 'dialects',
-        page: 1,
-        page_size: 9999,  // 获取所有数据
-        sort_by: null,
-        sort_desc: false,
-        filters: {},
-        search_text: '',
-        search_columns: []
-      })
+    const response = await sqlQuery({
+      db_key: 'query',
+      table_name: 'dialects',
+      page: 1,
+      page_size: 9999,  // 获取所有数据
+      sort_by: null,
+      sort_desc: false,
+      filters: {},
+      search_text: '',
+      search_columns: []
     })
 
     const data = response.data || []
@@ -1760,27 +1819,6 @@ defineExpose({
   flex: 1;
 }
 
-.region-textarea {
-  width: 100%;
-  min-height: 60px;
-  padding: 8px 12px;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
-  font-size: 14px;
-  resize: vertical;
-  background: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  transition: all 0.2s ease;
-  box-sizing: border-box;
-}
-
-.region-textarea:focus {
-  outline: none;
-  border-color: #007aff;
-  box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
-}
-
 /* Suggestions dropdown for region input */
 .suggestions-dropdown {
   position: absolute !important;
@@ -1811,7 +1849,7 @@ defineExpose({
   cursor: pointer;
   border-radius: 6px;
   transition: background-color 0.2s ease;
-  gap: 12px;
+  gap: 6px;
 }
 
 .suggestion-item:hover {

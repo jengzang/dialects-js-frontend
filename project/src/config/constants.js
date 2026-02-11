@@ -38,6 +38,107 @@ export const ROLE_LIMITS = {
 }
 
 // ========================================
+// 地点选择限制（用于 LocationAndRegionInput）
+// ========================================
+export const LOCATION_LIMITS = {
+    // tab1: 查字
+    tab1: {
+        anonymous: {
+            MAX_LOCATIONS: 300,
+            MESSAGE: '未登錄用戶單次最多可查詢 {limit} 個地點'
+        },
+        user: {
+            MAX_LOCATIONS: 600,
+            MESSAGE: '用戶單次最多可查詢 {limit} 個地點'
+        },
+        admin: {
+            MAX_LOCATIONS: Infinity,
+            MESSAGE: ''
+        }
+    },
+
+    // tab2: 查中古
+    tab2: {
+        anonymous: {
+            MAX_LOCATIONS: 200,
+            MESSAGE: '未登錄用戶單次最多可查詢 {limit} 個地點'
+        },
+        user: {
+            MAX_LOCATIONS: 600,
+            MESSAGE: '用戶單次最多可查詢 {limit} 個地點'
+        },
+        admin: {
+            MAX_LOCATIONS: Infinity,
+            MESSAGE: ''
+        }
+    },
+
+    // tab3: 查音位 (最嚴格的限制)
+    tab3: {
+        anonymous: {
+            MAX_LOCATIONS: 5,
+            MESSAGE: '未登錄用戶查詢音位最多可選 {limit} 個地點'
+        },
+        user: {
+            MAX_LOCATIONS: 30,
+            MESSAGE: '用戶查詢音位最多可選 {limit} 個地點'
+        },
+        admin: {
+            MAX_LOCATIONS: Infinity,
+            MESSAGE: ''
+        }
+    },
+
+    // tab4: 查調 (無限制)
+    tab4: {
+        anonymous: {
+            MAX_LOCATIONS: Infinity,
+            MESSAGE: ''
+        },
+        user: {
+            MAX_LOCATIONS: Infinity,
+            MESSAGE: ''
+        },
+        admin: {
+            MAX_LOCATIONS: Infinity,
+            MESSAGE: ''
+        }
+    },
+
+    // divide: 分區繪圖 (無限制)
+    divide: {
+        anonymous: {
+            MAX_LOCATIONS: Infinity,
+            MESSAGE: ''
+        },
+        user: {
+            MAX_LOCATIONS: Infinity,
+            MESSAGE: ''
+        },
+        admin: {
+            MAX_LOCATIONS: Infinity,
+            MESSAGE: ''
+        }
+    },
+
+    // default: 其他場景使用 tab2 的限制
+    default: {
+        anonymous: {
+            MAX_LOCATIONS: 200,
+            MESSAGE: '未登錄用戶單次最多可查詢 {limit} 個地點'
+        },
+        user: {
+            MAX_LOCATIONS: 600,
+            MESSAGE: '用戶單次最多可查詢 {limit} 個地點'
+        },
+        admin: {
+            MAX_LOCATIONS: Infinity,
+            MESSAGE: ''
+        }
+    }
+}
+
+// ========================================
 // 面板布局配置
 // ========================================
 export const PANEL_CONFIG = {

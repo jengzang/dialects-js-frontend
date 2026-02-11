@@ -20,6 +20,7 @@
             v-for="(item, key) in filteredMenuConfig"
             :key="key"
             @click="handleMainClick(item, key)"
+            @mouseenter="!isMobile && item.children ? handleArrowClick(item, key, $event) : null"
           >
             <span role="img" :aria-label="key">{{ item.icon }}</span>
             {{ item.label }}
@@ -134,9 +135,11 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount, computed } from 'vue';
 import { useRouter } from 'vue-router';
-import {api, clearToken, getToken, initUserByToken} from '@/utils/auth.js';
+import { clearToken, getToken, initUserByToken } from '@/api/auth/auth.js'
+import { getTodayVisits, getTotalVisits, getVisitHistory } from '@/api/logs'
 import {userStore} from "@/utils/store.js";
 import { menuConfig } from '@/config/menuConfig.js';
+import { WEB_BASE } from '@/env-config.js';
 
 const router = useRouter();
 const props = defineProps({
@@ -149,6 +152,12 @@ const emit = defineEmits(['close']);
 // Submenu state management
 const activeSubmenu = ref(null)  // Currently open submenu key
 const submenuPosition = ref({ top: 0, left: 0 })  // Position for submenu panel
+
+// Mobile detection
+const isMobile = ref(false)
+const checkMobile = () => {
+  isMobile.value = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+}
 
 // Filter menu items for SimpleSidebar (exclude items that should only show in NavBar)
 const filteredMenuConfig = computed(() => {
@@ -181,7 +190,7 @@ const handleMainClick = (item, key) => {
   if (item.path) {
     // 有路徑就導航
     if (item.external) {
-      window.location.href = window.WEB_BASE + '/detail/'
+      window.location.href = WEB_BASE + '/detail/'
     } else {
       router.push(item.path)
       closeSidebar()
@@ -196,7 +205,12 @@ const handleMainClick = (item, key) => {
 // 箭頭點擊處理 - 展開子菜單
 const handleArrowClick = (item, key, event) => {
   if (item.children) {
-    const rect = event.currentTarget.parentElement.getBoundingClientRect()
+    // 判斷事件來源：如果是箭頭點擊，需要取 parentElement；如果是 li hover，直接用 currentTarget
+    const targetElement = event.currentTarget.classList?.contains('menu-arrow')
+      ? event.currentTarget.parentElement
+      : event.currentTarget
+
+    const rect = targetElement.getBoundingClientRect()
     const viewportWidth = window.innerWidth
     const submenuWidth = 250 // 預估子菜單寬度
 
@@ -241,8 +255,8 @@ const closeSubmenu = () => {
 async function fetchVisitStats() {
   try {
     const [todayData, totalData] = await Promise.all([
-      api('/logs/visits/today'),
-      api('/logs/visits/total')
+      getTodayVisits(),
+      getTotalVisits()
     ]);
 
     todayVisits.value = todayData?.today_visits || 0;
@@ -278,7 +292,7 @@ async function fetchVisitHistory() {
     const start_date = startDate.toISOString().split('T')[0];
     const end_date = endDate.toISOString().split('T')[0];
 
-    const data = await api(`/logs/visits/history?start_date=${start_date}&end_date=${end_date}&limit=9999`);
+    const data = await getVisitHistory({ start_date, end_date, limit: 9999 })
 
     const dateMap = new Map();
     data?.data?.forEach(item => {
@@ -300,6 +314,7 @@ async function fetchVisitHistory() {
 }
 
 onMounted(async () => {
+  checkMobile();
   await initUserByToken();
   await fetchVisitStats();
   document.addEventListener('click', closeSubmenu);
@@ -352,7 +367,7 @@ onBeforeUnmount(() => {
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  padding: 15px 0;
+  padding: 15px 0 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.3);
 }
 
@@ -391,7 +406,7 @@ onBeforeUnmount(() => {
     gap: 15px;
   }
   .sidebar-content ul {
-    gap: 10px;
+    gap: 8px;
   }
   .title-img {
     height: 6dvh;
@@ -738,6 +753,7 @@ onBeforeUnmount(() => {
 @media (max-aspect-ratio: 1/1) {
   .sidebar-content li {
     font-size: 1.1rem;
+    padding: 3px 15px;
   }
 }
 

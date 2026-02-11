@@ -124,7 +124,7 @@
 
 <script setup>
 import { ref, computed } from 'vue'; // 合併 import
-import { api } from '@/utils/auth.js';
+import { sqlQuery } from '@/api/sql';
 
 const props = defineProps({
   location: {
@@ -183,11 +183,7 @@ const handleShowDetails = async () => {
       }
     };
 
-    const response = await api('/sql/query', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
+    const response = await sqlQuery(payload)
 
     locationData.value = response;
   } catch (error) {

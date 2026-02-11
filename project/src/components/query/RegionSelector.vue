@@ -179,11 +179,12 @@
 
 <script setup>
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
+import { API_BASE } from '@/env-config.js'
+import { STATIC_REGION_TREE, top_yindian } from '@/config'
 
 // 全局已有（你原来 Cascader 就这么用的）
 const STATIC_TREE = STATIC_REGION_TREE ?? {}
 const TOP_YINDIAN = top_yindian ?? []
-const API_BASE = window.API_BASE ?? ''
 
 const props = defineProps({
   mode: { type: String, required: true },

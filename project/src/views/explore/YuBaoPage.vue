@@ -275,24 +275,31 @@
 
     <!-- 地图模式 -->
     <div v-else-if="viewMode === 'map'" class="map-mode">
-      <div v-if="!isValidInput || cardData.length === 0" class="empty-state">
-        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <circle cx="12" cy="12" r="10"/>
-          <line x1="12" y1="8" x2="12" y2="12"/>
-          <line x1="12" y1="16" x2="12.01" y2="16"/>
-        </svg>
-        <p v-if="!vocabularyInput.trim() && !grammarInput.trim()">請輸入搜索內容</p>
-        <p v-else-if="!isValidInput">請從建議列表中選擇</p>
-        <p v-else>沒有找到相關數據</p>
-        <small v-if="!vocabularyInput.trim() && !grammarInput.trim()">
-          在上方輸入框中輸入{{ activeTab === 'vocabulary' ? '詞彙' : '語法句式' }}進行查詢
-        </small>
+      <div v-if="isLoadingCards" class="cards-loading">
+        <div class="spinner"></div>
+        <span>加載數據中...</span>
       </div>
-      <YuBaoMap
-          v-else
-          :map-data="cardData"
-          :active-tab="activeTab"
-      />
+      <template v-else>
+        <div v-if="!isValidInput || cardData.length === 0" class="empty-state">
+          <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="8" x2="12" y2="12"/>
+            <line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+          <p v-if="!vocabularyInput.trim() && !grammarInput.trim()">請輸入搜索內容</p>
+          <p v-else-if="!isValidInput">請從建議列表中選擇</p>
+          <p v-else>沒有找到相關數據</p>
+          <small v-if="!vocabularyInput.trim() && !grammarInput.trim()">
+            在上方輸入框中輸入{{ activeTab === 'vocabulary' ? '詞彙' : '語法句式' }}進行查詢
+          </small>
+        </div>
+        <YuBaoMap
+            v-else
+            :map-data="cardData"
+            :active-tab="activeTab"
+        />
+      </template>
+
     </div>
 
     <!-- 查看全部弹窗 -->
@@ -335,7 +342,7 @@
 <script setup>
 import { ref, nextTick, onMounted, watch, computed, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { api } from '@/utils/auth.js'
+import { sqlQuery, distinctQuery } from '@/api/sql'
 import * as OpenCC from 'opencc-js'
 import UniversalTable from '@/components/TableAndTree/UniversalTable.vue'
 import { watchDebounced } from '@vueuse/core'
@@ -360,7 +367,8 @@ const allGrammar = ref([])
 const isLoading = ref(false)
 const showAllModal = ref(false)
 const modalSearchQuery = ref('')
-const viewMode = ref('card')
+// const viewMode = ref('card')
+const viewMode = ref(activeTab.value === 'vocabulary' ? 'map' : 'card')
 // 为每个 tab 维护独立的卡片数据
 const vocabularyCardData = ref([])
 const grammarCardData = ref([])
@@ -493,21 +501,36 @@ watch(() => route.query.sub, (newSub) => {
 // 加载所有词汇数据
 async function loadAllVocabulary() {
   try {
-    const response = await api('/sql/distinct-query', {
-      method: 'POST',
-      body: {
-        db_key: 'yubao',
-        table_name: 'vocabulary',
-        target_column: 'word',
-        search_text: '',  // 空字符串获取所有数据
-        search_columns: [],
-        current_filters: {}
+    // 优先读取缓存
+    const cached = sessionStorage.getItem('yubao_vocabulary_all')
+    if (cached) {
+      try {
+        const response = JSON.parse(cached)
+        if (response && response.values && Array.isArray(response.values)) {
+          allVocabulary.value = response.values.filter(item => item && typeof item === 'string' && item.trim())
+          console.log(`✅ 从缓存加载 ${allVocabulary.value.length} 条词汇数据`)
+          return
+        }
+      } catch (e) {
+        console.warn('⚠️ 缓存数据解析失败，将重新请求', e)
       }
+    }
+
+    // 缓存不存在或无效，请求 API
+    const response = await distinctQuery({
+      db_key: 'yubao',
+      table_name: 'vocabulary',
+      target_column: 'word',
+      search_text: '',  // 空字符串获取所有数据
+      search_columns: [],
+      current_filters: {}
     })
 
     if (response && response.values && Array.isArray(response.values)) {
       allVocabulary.value = response.values.filter(item => item && typeof item === 'string' && item.trim())
-      console.log(`✅ 已加载 ${allVocabulary.value.length} 条词汇数据`)
+      // 存储到 sessionStorage
+      sessionStorage.setItem('yubao_vocabulary_all', JSON.stringify(response))
+      console.log(`✅ 从 API 加载 ${allVocabulary.value.length} 条词汇数据`)
     } else {
       console.error('❌ 词汇数据格式错误:', response)
     }
@@ -519,21 +542,33 @@ async function loadAllVocabulary() {
 // 加载所有语法数据
 async function loadAllGrammar() {
   try {
-    const response = await api('/sql/distinct-query', {
-      method: 'POST',
-      body: {
-        db_key: 'yubao',
-        table_name: 'grammar',
-        target_column: 'sentence',
-        search_text: '',  // 空字符串获取所有数据
-        search_columns: [],
-        current_filters: {}
+    // 优先读取缓存
+    const cached = sessionStorage.getItem('yubao_grammar_all')
+    if (cached) {
+      try {
+        const response = JSON.parse(cached)
+        if (response && response.values && Array.isArray(response.values)) {
+          allGrammar.value = response.values.filter(item => item && typeof item === 'string' && item.trim())
+          console.log(`✅ 从缓存加载 ${allGrammar.value.length} 条语法数据`)
+          return
+        }
+      } catch (e) {
+        console.warn('⚠️ 缓存数据解析失败，将重新请求', e)
       }
+    }
+
+    // 缓存不存在或无效，请求 API
+    const response = await distinctQuery({
+      db_key: 'yubao',
+      table_name: 'grammar',
+      target_column: 'sentence'
     })
 
     if (response && response.values && Array.isArray(response.values)) {
       allGrammar.value = response.values.filter(item => item && typeof item === 'string' && item.trim())
-      console.log(`✅ 已加载 ${allGrammar.value.length} 条语法数据`)
+      // 存储到 sessionStorage
+      sessionStorage.setItem('yubao_grammar_all', JSON.stringify(response))
+      console.log(`✅ 从 API 加载 ${allGrammar.value.length} 条语法数据`)
     } else {
       console.error('❌ 语法数据格式错误:', response)
     }
@@ -711,17 +746,14 @@ async function loadCardsPage() {
     // 构建筛选条件 - filters中的值必须是列表格式
     const filters = { [searchColumn]: [searchValue] }
 
-    const response = await api('/sql/query', {
-      method: 'POST',
-      body: {
-        db_key: 'yubao',
-        table_name: tableName,
-        page_size: 9999,
-        page: 1,
-        filters: filters,
-        search_text: '',
-        search_columns: []
-      }
+    const response = await sqlQuery({
+      db_key: 'yubao',
+      table_name: tableName,
+      page_size: 9999,
+      page: 1,
+      filters: filters,
+      search_text: '',
+      search_columns: []
     })
 
     // console.log('📦 卡片数据响应:', response)

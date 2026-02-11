@@ -119,7 +119,8 @@
 <script setup>
 import { ref, reactive, watch, computed } from 'vue'
 import { useRoute } from 'vue-router'
-import { api } from '@/utils/auth.js'
+import { batchMatch, getRegions } from '@/api/query/LocationAndRegion.js'
+import { submitCustomForm } from '@/api/user/custom.js'
 import { showSuccess, showError, showWarning, showInfo } from '@/utils/message.js'
 import { userStore, globalPayload, resultCache } from '@/utils/store.js'
 
@@ -228,7 +229,7 @@ const handleLocationInput = () => {
     }
 
     try {
-      const response = await api(`/api/batch_match?input_string=${encodeURIComponent(query)}&filter_valid_abbrs_only=false`)
+      const response = await batchMatch(query, false)
       if (response && response.length > 0) {
         const items = response[0].items || []
         // 过滤掉已存在的项
@@ -248,7 +249,7 @@ const selectSuggestion = async (item) => {
 
   // 自动获取音典分区
   try {
-    const response = await api(`/api/get_regions?input_data=${encodeURIComponent(item)}`)
+    const response = await getRegions(item)
     if (response && response['音典分區']) {
       formData.region = response['音典分區']
     } else {
@@ -321,10 +322,7 @@ const handleSubmit = async () => {
       description: formData.description.trim() || null
     }
 
-    const response = await api('/api/submit_form', {
-      method: 'POST',
-      body: JSON.stringify(payload)
-    })
+    const response = await submitCustomForm(payload)
 
     if (response.success) {
       showSuccess('提交成功！')

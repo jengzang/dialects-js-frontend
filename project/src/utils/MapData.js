@@ -1,6 +1,6 @@
 // 整理數據,用於地圖繪製
 import { queryStore, mapStore, resultCache, userStore } from './store.js'
-import { api } from './auth.js'
+import { getCustomData } from '../api/user/custom.js'
 
 export async function func_mergeData(resultData = null, mapData = null) {
     // 1) 数据来源：优先参数，否则 fallback 到 window
@@ -140,14 +140,8 @@ export async function func_mergeData(resultData = null, mapData = null) {
             throw new Error('用戶未登錄');
         }
 
-        // 用 URLSearchParams 拼接到 GET URL
-        const queryString = new URLSearchParams(queryParams).toString();
-
         // 使用统一的 api 函数
-        result = await api(`/api/get_custom?${queryString}`, {
-            method: 'GET',
-            showError: false  // 不自动显示错误，由下方逻辑处理
-        });
+        result = await getCustomData(queryParams);
 
     } catch (error) {
         shouldContinue = false;
@@ -198,53 +192,16 @@ export async function addCustomFeatureData(featuresToAdd, locations = [], region
     console.log('开始加载新特征:', newFeatures)
 
     // 4. 构建查询参数
-    const params = new URLSearchParams()
-
-// 添加地点，即使为空也要添加
-    if (locations && locations.length > 0) {
-        locations.forEach(loc => {
-            if (loc && loc.trim()) {
-                params.append('locations', loc.trim())
-            } else {
-                params.append('locations', '')  // 即使为空也添加
-            }
-        })
-    } else {
-        // 如果 locations 为空，也确保传递空值
-        params.append('locations', '')
+    const queryParams = {
+        locations: (locations && locations.length > 0) ? locations.map(loc => loc?.trim() || '').filter(Boolean) : [''],
+        regions: (regions && regions.length > 0) ? regions.map(reg => reg?.trim() || '').filter(Boolean) : [''],
+        need_features: newFeatures,
+        region_mode: regionMode
     }
-
-// 添加分区，即使为空也要添加
-    if (regions && regions.length > 0) {
-        regions.forEach(reg => {
-            if (reg && reg.trim()) {
-                params.append('regions', reg.trim())
-            } else {
-                params.append('regions', '')  // 即使为空也添加
-            }
-        })
-    } else {
-        // 如果 regions 为空，也确保传递空值
-        params.append('regions', '')
-    }
-
-
-    // 添加特征
-    newFeatures.forEach(feat => {
-        params.append('need_features', feat)
-    })
-
-    // 添加分区模式
-    params.set('region_mode', regionMode)
 
     try {
         // 5. 调用 API 获取自定义数据
-        // console.log('调用 API: /api/get_custom?' + params.toString())
-
-        const customData = await api(`/api/get_custom?${params.toString()}`, {
-            method: 'GET',
-            showError: false
-        })
+        const customData = await getCustomData(queryParams)
 
         // 6. 验证返回数据
         if (!Array.isArray(customData) || customData.length === 0) {
