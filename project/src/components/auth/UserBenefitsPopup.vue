@@ -3,14 +3,16 @@
     <Transition name="popup-fade">
       <div v-if="visible" class="benefits-popup-overlay" @click.self="closePopup">
         <div class="benefits-popup popup-animated">
-          <!-- Header -->
+          <!-- Fixed Header -->
           <div class="popup-header">
             <h3>✨ 登錄解鎖更多功能</h3>
             <button class="popup-close-btn" @click="closePopup">✕</button>
           </div>
 
-          <!-- Comparison Table -->
-          <div class="benefits-section">
+          <!-- Scrollable Content -->
+          <div class="popup-content">
+            <!-- Comparison Table -->
+            <div class="benefits-section">
             <h4 class="section-title">🎯 權限對比</h4>
             <div class="comparison-table-wrapper">
               <table class="comparison-table">
@@ -63,6 +65,7 @@
             </button>
             <p class="cta-hint">完全免費，30秒完成註冊</p>
           </div>
+          </div><!-- End of popup-content -->
         </div>
       </div>
     </Transition>
@@ -104,8 +107,8 @@ const comparisonData = computed(() => [
   },
   {
     feature: '🎵 查調',
-    anonymous: '✅️ 開放',
-    user: '✅️ 開放'
+    anonymous: '✅️ 不限',
+    user: '✅️ 不限'
   },
   {
     feature: '🎯 地位組合',
@@ -246,31 +249,36 @@ onBeforeUnmount(() => {
 
 /* Popup Container - Apple Liquid Glass Style */
 .benefits-popup {
+  position: relative;
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(40px) saturate(180%);
   -webkit-backdrop-filter: blur(40px) saturate(180%);
   border-radius: 24px;
-  padding: 32px;
   max-width: 700px;
   width: 90%;
   max-height: 85vh;
-  overflow-y: auto;
+  overflow: hidden; /* 改为 hidden，滚动由内部 popup-content 处理 */
   box-shadow:
     0 1px 2px rgba(0, 0, 0, 0.04),
     0 8px 32px rgba(0, 0, 0, 0.12),
     0 16px 64px rgba(0, 0, 0, 0.08),
     inset 0 0 0 1px rgba(255, 255, 255, 0.9);
   border: 0.5px solid rgba(255, 255, 255, 0.8);
+  display: flex;
+  flex-direction: column;
 }
 
-/* Popup Header */
+/* Popup Header - 固定不滚动 */
 .popup-header {
+  flex-shrink: 0; /* 防止被压缩 */
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 24px;
-  padding-bottom: 16px;
+  padding: 32px 32px 16px 32px;
   border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  z-index: 10;
 }
 
 .popup-header h3 {
@@ -285,6 +293,7 @@ onBeforeUnmount(() => {
 }
 
 .popup-close-btn {
+  flex-shrink: 0;
   background: rgba(0, 0, 0, 0.05);
   border: none;
   border-radius: 50%;
@@ -303,6 +312,34 @@ onBeforeUnmount(() => {
   background: rgba(0, 0, 0, 0.1);
   color: #1d1d1f;
   transform: scale(1.1);
+}
+
+/* Popup Content - 可滚动区域 */
+.popup-content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 24px 32px 32px 32px;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* 自定义滚动条样式 */
+.popup-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.popup-content::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
+}
+
+.popup-content::-webkit-scrollbar-thumb {
+  background: rgba(255, 149, 0, 0.3);
+  border-radius: 4px;
+}
+
+.popup-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 149, 0, 0.5);
 }
 
 /* Sections */
@@ -563,11 +600,18 @@ onBeforeUnmount(() => {
   .benefits-popup {
     width: 95%;
     max-height: 90vh;
-    padding: 24px 20px;
+  }
+
+  .popup-header {
+    padding: 24px 20px 12px 20px;
   }
 
   .popup-header h3 {
     font-size: 20px;
+  }
+
+  .popup-content {
+    padding: 20px 20px 24px 20px;
   }
 
   .section-title {

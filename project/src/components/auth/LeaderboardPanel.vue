@@ -70,7 +70,10 @@ function createRow(label, data) {
     value: data.value.toLocaleString() + ' 次',
     gap: data.gap_to_prev ? data.gap_to_prev.toLocaleString() + ' 次' : '—',
     firstPlace: data.first_place_value.toLocaleString() + ' 次',
-    isFirstPlace: data.rank === 1
+    // ✨ 修改：增加前三名的判断
+    isFirstPlace: data.rank === 1,
+    isSecondPlace: data.rank === 2,
+    isThirdPlace: data.rank === 3
   }
 }
 
@@ -143,7 +146,9 @@ const tableData = computed(() => {
       value: categoryData.value.toLocaleString() + ' 次',
       gap: categoryData.gap_to_prev ? categoryData.gap_to_prev.toLocaleString() + ' 次' : '—',
       firstPlace: categoryData.first_place_value.toLocaleString() + ' 次',
-      isFirstPlace: categoryData.rank === 1
+      isFirstPlace: categoryData.rank === 1,
+      isSecondPlace: categoryData.rank === 2,
+      isThirdPlace: categoryData.rank === 3
     }
 
     // Collect endpoint rows for this category (only if value > 0)
@@ -223,7 +228,11 @@ function formatMetricFirst(metric) {
           v-for="metric in topMetrics"
           :key="metric.label"
           class="metric-card"
-          :class="{ 'first-place': metric.data.rank === 1 }"
+          :class="{
+            'first-place': metric.data.rank === 1,
+            'second-place': metric.data.rank === 2,
+            'third-place': metric.data.rank === 3
+          }"
         >
           <div class="metric-header">
             <span class="metric-icon">{{ metric.icon }}</span>
@@ -242,6 +251,12 @@ function formatMetricFirst(metric) {
 
           <div v-if="metric.data.rank === 1" class="metric-rank gold">
             🥇 第 1 名
+          </div>
+          <div v-else-if="metric.data.rank === 2" class="metric-rank silver">
+            🥈 第 2 名
+          </div>
+          <div v-else-if="metric.data.rank === 3" class="metric-rank bronze">
+            🥉 第 3 名
           </div>
           <div v-else class="metric-rank">
             第 {{ metric.data.rank }} 名
@@ -286,7 +301,11 @@ function formatMetricFirst(metric) {
                 <!-- Desktop: 10-column hierarchical structure -->
                 <tr v-if="!row.isCategorySummary"
                     class="data-row"
-                    :class="{ 'first-place': row.isFirstPlace }">
+                    :class="{
+                      'first-place': row.isFirstPlace,
+                      'second-place': row.isSecondPlace,
+                      'third-place': row.isThirdPlace
+                    }">
                   <!-- Category columns with rowspan (only on first endpoint of each category) -->
                   <template v-if="row.isFirstEndpointInCategory">
                     <td :rowspan="row.categoryEndpointCount" class="category-cell">
@@ -294,6 +313,8 @@ function formatMetricFirst(metric) {
                     </td>
                     <td :rowspan="row.categoryEndpointCount" class="rank category-data">
                       <span v-if="row.categorySummary.isFirstPlace" class="rank-badge gold">🥇 第1名</span>
+                      <span v-else-if="row.categorySummary.isSecondPlace" class="rank-badge silver">🥈 第2名</span>
+                      <span v-else-if="row.categorySummary.isThirdPlace" class="rank-badge bronze">🥉 第3名</span>
                       <span v-else class="rank-badge">第{{ row.categorySummary.rank }}名</span>
                     </td>
                     <td :rowspan="row.categoryEndpointCount" class="value category-data">
@@ -320,6 +341,8 @@ function formatMetricFirst(metric) {
                   </td>
                   <td class="rank">
                     <span v-if="row.isFirstPlace" class="rank-badge gold">🥇 第1名</span>
+                    <span v-else-if="row.isSecondPlace" class="rank-badge silver">🥈 第2名</span>
+                    <span v-else-if="row.isThirdPlace" class="rank-badge bronze">🥉 第3名</span>
                     <span v-else class="rank-badge">第{{ row.rank }}名</span>
                   </td>
                   <td class="value">{{ row.value }}</td>
@@ -346,10 +369,16 @@ function formatMetricFirst(metric) {
               <template v-for="(row, index) in tableData" :key="'mobile-cat-' + index">
                 <tr v-if="row.isCategorySummary"
                     class="data-row category-summary"
-                    :class="{ 'first-place': row.isFirstPlace }">
+                    :class="{
+                      'first-place': row.isFirstPlace,
+                      'second-place': row.isSecondPlace,
+                      'third-place': row.isThirdPlace
+                    }">
                   <td class="metric-name">{{ row.categoryIcon }} {{ row.categoryName }}</td>
                   <td class="rank">
                     <span v-if="row.isFirstPlace" class="rank-badge gold">🥇 第1名</span>
+                    <span v-else-if="row.isSecondPlace" class="rank-badge silver">🥈 第2名</span>
+                    <span v-else-if="row.isThirdPlace" class="rank-badge bronze">🥉 第3名</span>
                     <span v-else class="rank-badge">第{{ row.rank }}名</span>
                   </td>
                   <td class="value">{{ row.value }}</td>
@@ -361,7 +390,11 @@ function formatMetricFirst(metric) {
               <template v-for="(row, index) in tableData" :key="'mobile-end-' + index">
                 <tr v-if="!row.isCategorySummary"
                     class="data-row"
-                    :class="{ 'first-place': row.isFirstPlace }">
+                    :class="{
+                      'first-place': row.isFirstPlace,
+                      'second-place': row.isSecondPlace,
+                      'third-place': row.isThirdPlace
+                    }">
                   <td class="metric-name">
                     {{ row.label }}
                     <HelpIcon
@@ -374,6 +407,8 @@ function formatMetricFirst(metric) {
                   </td>
                   <td class="rank">
                     <span v-if="row.isFirstPlace" class="rank-badge gold">🥇 第1名</span>
+                    <span v-else-if="row.isSecondPlace" class="rank-badge silver">🥈 第2名</span>
+                    <span v-else-if="row.isThirdPlace" class="rank-badge bronze">🥉 第3名</span>
                     <span v-else class="rank-badge">第{{ row.rank }}名</span>
                   </td>
                   <td class="value">{{ row.value }}</td>
@@ -496,6 +531,16 @@ function formatMetricFirst(metric) {
   border-left: 4px solid #ffd700;
 }
 
+.metric-card.second-place {
+  background: linear-gradient(135deg, rgba(192, 192, 192, 0.15), rgba(224, 224, 224, 0.08));
+  border-left: 4px solid #c0c0c0;
+}
+
+.metric-card.third-place {
+  background: linear-gradient(135deg, rgba(205, 127, 50, 0.15), rgba(255, 160, 122, 0.08));
+  border-left: 4px solid #cd7f32;
+}
+
 .metric-header {
   display: flex;
   align-items: center;
@@ -525,6 +570,19 @@ function formatMetricFirst(metric) {
 
 .metric-rank.gold {
   background: linear-gradient(135deg, #ffd700, #ffed4e);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.metric-rank.silver {
+  background: linear-gradient(135deg, #c0c0c0, #e0e0e0);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 1px 1px rgba(0,0,0,0.1));
+}
+
+.metric-rank.bronze {
+  background: linear-gradient(135deg, #cd7f32, #ffab73);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -673,6 +731,24 @@ function formatMetricFirst(metric) {
   background: linear-gradient(90deg, rgba(255, 215, 0, 0.2), rgba(255, 215, 0, 0.12));
 }
 
+.data-row.second-place {
+  background: linear-gradient(90deg, rgba(192, 192, 192, 0.15), rgba(224, 224, 224, 0.08));
+  border-left: 3px solid #c0c0c0;
+}
+
+.data-row.second-place:hover {
+  background: linear-gradient(90deg, rgba(192, 192, 192, 0.2), rgba(192, 192, 192, 0.12));
+}
+
+.data-row.third-place {
+  background: linear-gradient(90deg, rgba(205, 127, 50, 0.15), rgba(255, 160, 122, 0.08));
+  border-left: 3px solid #cd7f32;
+}
+
+.data-row.third-place:hover {
+  background: linear-gradient(90deg, rgba(205, 127, 50, 0.2), rgba(205, 127, 50, 0.12));
+}
+
 .data-row td {
   padding: 12px;
   font-size: 14px;
@@ -701,6 +777,20 @@ function formatMetricFirst(metric) {
   color: #d4af37;
   font-weight: 700;
   box-shadow: 0 2px 8px rgba(255, 215, 0, 0.3);
+}
+
+.rank-badge.silver {
+  background: linear-gradient(135deg, rgba(192, 192, 192, 0.2), rgba(220, 220, 220, 0.15));
+  color: #7f8c8d;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(192, 192, 192, 0.3);
+}
+
+.rank-badge.bronze {
+  background: linear-gradient(135deg, rgba(205, 127, 50, 0.2), rgba(255, 160, 122, 0.15));
+  color: #a0522d;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(205, 127, 50, 0.3);
 }
 
 .value {
