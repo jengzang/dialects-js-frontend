@@ -198,7 +198,25 @@
         <!-- Welcome Header -->
         <h3 id="login-title" style="font-size: 30px; white-space: nowrap">👋{{ user.username }} 歡迎回來✨</h3>
 
-        <!-- User Info -->
+        <!-- Tab 切換按鈕 -->
+        <div class="profile-tabs">
+          <button
+            @click="switchTab('overview')"
+            :class="{ active: currentTab === 'overview' }"
+          >
+            📊 個人概覽
+          </button>
+          <button
+            @click="switchTab('leaderboard')"
+            :class="{ active: currentTab === 'leaderboard' }"
+          >
+            🏆 排行榜
+          </button>
+        </div>
+
+        <!-- Overview Tab -->
+        <div v-if="currentTab === 'overview'">
+          <!-- User Info -->
         <div class="profile-user-info">
           <div class="user-info-badge">
             🎖️ 您是本站的第 <span class="user-number">{{ user.id }}</span> 位註冊用戶
@@ -253,16 +271,12 @@
 
         <!-- Action Buttons -->
         <div class="action-buttons">
-          <button class="btn-action danger" @click="logout">🚪 退出登錄</button>
-
-          <button class="btn-action primary" @click="mode = 'modifyProfile'">🛠 修改資料</button>
-
           <button class="btn-action info" @click="goToUserData">📊 個人數據</button>
-
+          <button class="btn-action blue" @click="mode = 'modifyProfile'">🛠 修改資料</button>
+          <button class="btn-action danger" @click="logout">🚪 退出登錄</button>
           <button v-if="user?.role === 'admin'" class="btn-action green" @click="goToAdminPanel">
             🧑‍💻 後台管理
           </button>
-
           <button
             v-if="user?.role === 'admin'"
             class="btn-action yellow"
@@ -270,6 +284,12 @@
           >
             📈 表格管理
           </button>
+        </div>
+        </div>
+
+        <!-- Leaderboard Tab -->
+        <div v-if="currentTab === 'leaderboard'">
+          <LeaderboardPanel />
         </div>
       </div>
 
@@ -385,17 +405,22 @@ import {
   getUserRole,
   ensureAuthenticated,
   update_userdatas_bytoken
-} from '../api/auth/auth.js'
+} from '@/api/index.js'
 import { userStore } from '../utils/store.js'
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import { manualReport } from '../utils/onlineTimeTracker.js'
 import { WEB_BASE } from '@/env-config.js'
 import { showConfirm } from '../utils/message.js'
+import LeaderboardPanel from '@/components/auth/LeaderboardPanel.vue'
 
 export default defineComponent({
   name: 'AuthPopup',
+  components: {
+    LeaderboardPanel
+  },
   setup() {
     const router = useRouter(); // 必须在 setup 内部调用
+    const route = useRoute(); // 获取当前路由
     const mode = ref('login') // login | register | profile
     const isInitLoading = ref(false)
     const username = ref('')
@@ -415,6 +440,13 @@ export default defineComponent({
     const modeType = ref('username'); // 默认显示修改用户名
     const loginMode = ref('email') // 'email' | 'username'
     const showPassword = ref(false)
+
+    // Tab switching for profile mode
+    const currentTab = computed(() => route.query.tab || 'overview')
+    const switchTab = (tab) => {
+      router.push({ query: { ...route.query, tab } })
+    }
+
 
 
     const validateEmail = (email) => {
@@ -930,7 +962,8 @@ export default defineComponent({
       username, password, email, error, success, loading, savePassword, saveUsername, modeType,
       user, mode, login, register, logout, fmt, loginMode,
       newPassword, newUsername, currentPassword, formatOnlineTime,
-      showPassword, queryStats, goToAdminPanel, goToTableManager, goToUserData, isInitLoading, statsExpanded, // 记得导出
+      showPassword, queryStats, goToAdminPanel, goToTableManager, goToUserData, isInitLoading, statsExpanded,
+      currentTab, switchTab, // 添加 tab 切换相关
     }
   }
 })
@@ -1002,6 +1035,41 @@ export default defineComponent({
   font-weight: 600;
 }
 
+/* Profile Tabs - Same style as login tabs */
+.profile-tabs {
+  display: inline-flex;
+  border: 1px solid #d0d0d0;
+  border-radius: 12px;
+  padding: 4px;
+  background-color: #f0f0f5;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.profile-tabs button {
+  appearance: none;
+  background: none;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 0.25s ease;
+  color: #333;
+  font-weight: 500;
+}
+
+.profile-tabs button:hover {
+  background-color: rgba(0, 122, 255, 0.1);
+}
+
+.profile-tabs button.active {
+  background-color: white;
+  color: #007aff;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+  font-weight: 600;
+}
+
+
 .form-row {
   width: 100%;
   margin: 12px 0;
@@ -1061,10 +1129,10 @@ export default defineComponent({
   margin: 0 auto;
 }
 
-.btn-action.primary {
+.btn-action.blue {
   background-color: #007aff;
 }
-.btn-action.primary:hover {
+.btn-action.blue:hover {
   background-color: #005fcc;
 }
 /* Warning 状态效果 - 深黄色/琥珀色 */
