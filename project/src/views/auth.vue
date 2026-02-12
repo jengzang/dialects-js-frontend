@@ -118,6 +118,7 @@
           </button>
         </div>
         <p v-if="error" class="err" v-html="error"></p>
+        <p v-if="success" class="success" v-html="success"></p>
         <p><a href="#" @click.prevent="mode='register'">沒有帳號？註冊一個</a></p>
       </div>
 
@@ -185,10 +186,11 @@
           <button class="btn-search" @click="register" :disabled="loading">註冊</button>
         </div>
         <p v-if="error" class="err" v-html="error"></p>
+        <p v-if="success" class="success" v-html="success"></p>
         <p><a href="#" @click.prevent="mode='login'">已有帳號？登錄</a></p>
       </div>
 
-      <!-- 🎉 Profile 歡迎彈窗 -->
+      <!-- 🎉 Profile 歡迎界面 -->
       <div
           v-if="mode === 'profile' && user"
           style="text-align: center"
@@ -221,13 +223,13 @@
 
           <button class="btn-action info" @click="goToUserData">📊 個人數據</button>
 
-          <button v-if="user?.role === 'admin'" class="btn-action success" @click="goToAdminPanel">
+          <button v-if="user?.role === 'admin'" class="btn-action green" @click="goToAdminPanel">
             🧑‍💻 後台管理
           </button>
 
           <button
             v-if="user?.role === 'admin'"
-            class="btn-action warning"
+            class="btn-action yellow"
             @click="goToTableManager"
           >
             📈 表格管理
@@ -276,30 +278,50 @@
         <!-- 修改密码部分 -->
         <div v-if="modeType === 'password'">
           <!-- 验证原密码 -->
-          <div class="form-row" style="display: flex; justify-content: center;">
+          <div class="form-row" style="display: flex; justify-content: center; position: relative;">
             <input
                 v-model="currentPassword"
                 :type="showPassword ? 'text' : 'password'"
                 placeholder="請輸入當前密碼"
                 style="padding-right: 2em;"
             />
+            <span
+                @click="showPassword = !showPassword"
+                style="
+                    position: absolute;
+                    right: 15px;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    cursor: pointer;
+                    user-select: none;
+                    font-size: 16px;
+                  ">
+                  {{ showPassword ? '👁️' : '🙈' }}
+                </span>
           </div>
 
           <!-- 修改密码 -->
-          <div class="form-row" style="display: flex; justify-content: center;">
+          <div class="form-row" style="display: flex; justify-content: center; position: relative;">
             <input
                 v-model="newPassword"
                 :type="showPassword ? 'text' : 'password'"
                 placeholder="請輸入新密碼（至少6個字符）"
                 style="padding-right: 2em;"
             />
+            <span
+                @click="showPassword = !showPassword"
+                style="
+                    position: absolute;
+                    right: 15px;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    cursor: pointer;
+                    user-select: none;
+                    font-size: 16px;
+                  ">
+                  {{ showPassword ? '👁️' : '🙈' }}
+                </span>
           </div>
-
-          <span
-              @click="showPassword = !showPassword"
-              style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; user-select: none; font-size: 16px;">
-                      {{ showPassword ? '👁️' : '🙈' }}
-                  </span>
 
           <div v-if="modeType === 'password'" class="form-row" style="display: flex; justify-content: center;">
             <!-- 保存密码按钮 -->
@@ -308,6 +330,7 @@
         </div>
 
         <p v-if="error" class="err" v-html="error"></p>
+        <p v-if="success" class="success" v-html="success"></p>
         <!-- 返回按钮 -->
         <div class="form-row" style="justify-content: center; margin-top: 10px;">
           <button class="btn-search" @click="mode = 'profile'" style="background: darkgoldenrod">返回</button>
@@ -333,6 +356,7 @@ import { userStore } from '../utils/store.js'
 import { useRouter } from 'vue-router';
 import { manualReport } from '../utils/onlineTimeTracker.js'
 import { WEB_BASE } from '@/env-config.js'
+import { showConfirm } from '../utils/message.js'
 
 export default defineComponent({
   name: 'AuthPopup',
@@ -349,6 +373,7 @@ export default defineComponent({
     const newPassword = ref('');  // 新密码
 
     const error = ref('')
+    const success = ref('')
     const loading = ref(false)
     const user = ref(null)
 
@@ -358,12 +383,113 @@ export default defineComponent({
 
 
     const validateEmail = (email) => {
+      // Basic format check
       const re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-      return re.test(email);
+      if (!re.test(email)) {
+        return false;
+      }
+
+      // Extract domain
+      const domain = email.split('@')[1]?.toLowerCase();
+      if (!domain) {
+        return false;
+      }
+
+      // Whitelist of common Chinese email domains (50+ domains)
+      const allowedDomains = [
+        // NetEase (网易)
+        '163.com',
+        '126.com',
+        'yeah.net',
+        '188.com',
+        'vip.163.com',
+        'vip.126.com',
+
+        // Tencent (腾讯)
+        'qq.com',
+        'foxmail.com',
+        'vip.qq.com',
+
+        // Sina (新浪)
+        'sina.com',
+        'sina.cn',
+        'sina.net',
+        'vip.sina.com',
+
+        // Sohu (搜狐)
+        'sohu.com',
+        'sohu.net',
+
+        // Alibaba (阿里)
+        'aliyun.com',
+        'alibaba-inc.com',
+
+        // Telecom operators (运营商)
+        '139.com',      // China Mobile
+        '10086.cn',     // China Mobile
+        '189.cn',       // China Telecom
+        'wo.cn',        // China Unicom
+        '10010.com',    // China Unicom
+
+        // Other Chinese providers
+        '21cn.com',
+        'tom.com',
+        '263.net',
+        '2980.com',
+        '88.com',
+        'eyou.com',
+        '56.com',
+        'x.cn',
+        'citiz.net',
+
+        // International - Google
+        'gmail.com',
+
+        // International - Microsoft
+        'outlook.com',
+        'hotmail.com',
+        'live.com',
+        'msn.com',
+
+        // International - Yahoo
+        'yahoo.com',
+        'yahoo.com.cn',
+        'yahoo.com.hk',
+        'yahoo.com.tw',
+
+        // International - Apple
+        'icloud.com',
+        'me.com',
+        'mac.com',
+
+        // International - Other
+        'aol.com',
+        'protonmail.com',
+        'yandex.com',
+        'mail.com',
+        'zoho.com',
+        'gmx.com',
+        'tutanota.com'
+      ];
+
+      // Wildcard suffixes for educational institutions
+      const allowedSuffixes = [
+        '.edu.cn',  // Chinese universities (e.g., tsinghua.edu.cn, pku.edu.cn)
+        '.edu',     // International universities (e.g., mit.edu, stanford.edu)
+      ];
+
+      // Check exact domain match
+      if (allowedDomains.includes(domain)) {
+        return true;
+      }
+
+      // Check wildcard suffix match
+      return allowedSuffixes.some(suffix => domain.endsWith(suffix));
     };
 
     const login = async () => {
       error.value = ''
+      success.value = ''
 
       if (password.value.length < 6) {
         error.value = '密碼不得少於 6 位'
@@ -391,7 +517,7 @@ export default defineComponent({
         await fetchUser()
         await getUserRole();
         // console.log(userStore.role)
-        error.value = '✅ 登錄成功<br>即將刷新頁面'
+        success.value = '✅ 登錄成功<br>即將刷新頁面'
         setTimeout(() => {
           // 刷新页面以确保所有状态正确加载
           window.location.reload()
@@ -420,6 +546,17 @@ export default defineComponent({
 
     const register = async () => {
       error.value = ''
+      success.value = ''
+
+      // Username length validation
+      if (!username.value || username.value.trim().length < 3) {
+        error.value = '用戶名長度不得少於 3 個字符'
+        return
+      }
+      if (username.value.trim().length > 50) {
+        error.value = '用戶名長度不得超過 50 個字符'
+        return
+      }
 
       if (!validateEmail(email.value)) {
         error.value = '請輸入正確的郵箱'
@@ -442,11 +579,12 @@ export default defineComponent({
             password: password.value,
           }),
         })
-        error.value = '✅ 註冊成功，請登錄👤<br> ⏳ 兩秒後將自動跳轉到登錄頁面。'
+        success.value = '✅ 註冊成功，請登錄👤<br> ⏳ 兩秒後將自動跳轉到登錄頁面。'
 
         setTimeout(async () => {
           mode.value = 'login'
           error.value = ''
+          success.value = ''
         }, 2000);
       } catch (e) {
         const msg = e.message || ''
@@ -463,6 +601,18 @@ export default defineComponent({
     }
 
     const logout = async () => {
+      // Show confirmation dialog
+      const confirmed = await showConfirm('確定要退出登錄嗎？', {
+        title: '退出確認',
+        confirmText: '退出',
+        cancelText: '取消'
+      });
+
+      // If user cancels, return early
+      if (!confirmed) {
+        return;
+      }
+
       console.log('🚪 [登出] 用户登出，先上报在线时长');
 
       // 先上报在线时长
@@ -481,12 +631,13 @@ export default defineComponent({
       clearToken()
       userStore.role = 'anonymous';
       userStore.isAuthenticated = false;
-      setTimeout(async () => {
-        mode.value = 'login'
-        error.value = ''
-      }, 100);
 
       console.log('✅ [登出] 登出完成');
+
+      // 刷新页面以确保所有状态正确清除
+      setTimeout(() => {
+        window.location.reload()
+      }, 500);
     }
 
 
@@ -514,6 +665,7 @@ export default defineComponent({
 
     const saveUsername = async () => {
       error.value = ''
+      success.value = ''
 
       if (!newUsername.value) {
         error.value = '請輸入新的用戶名'
@@ -533,12 +685,13 @@ export default defineComponent({
           body: form,
         })
 
-        error.value = '✅ 用戶名更新成功！<br>👤 您需重新登錄<br>⏳ 兩秒後將自動跳轉到登錄頁面。'
+        success.value = '✅ 用戶名更新成功！<br>👤 您需重新登錄<br>⏳ 兩秒後將自動跳轉到登錄頁面。'
 
         setTimeout(async () => {
           mode.value = 'profile';
           await fetchUser();
           error.value = ''
+          success.value = ''
         }, 2000);
       } catch (e) {
         try {
@@ -558,6 +711,7 @@ export default defineComponent({
 
     const savePassword = async () => {
       error.value = ''
+      success.value = ''
 
       if (!currentPassword.value) {
         error.value = '請輸入當前密碼'
@@ -583,12 +737,13 @@ export default defineComponent({
           body: form,
         })
 
-        error.value = '✅ 密碼更新成功！<br>👤 ⏳ 兩秒後將自動跳轉到個人資料頁面。'
+        success.value = '✅ 密碼更新成功！<br>👤 ⏳ 兩秒後將自動跳轉到個人資料頁面。'
 
         setTimeout(async () => {
           mode.value = 'profile';
           await fetchUser();
           error.value = ''
+          success.value = ''
         }, 2000);
       } catch (e) {
         try {
@@ -692,10 +847,11 @@ export default defineComponent({
 
     watch(mode, () => {
       error.value = ''
+      success.value = ''
     })
 
     return {
-      username, password, email, error, loading, savePassword, saveUsername, modeType,
+      username, password, email, error, success, loading, savePassword, saveUsername, modeType,
       user, mode, login, register, logout, fmt, loginMode,
       newPassword, newUsername, currentPassword, formatOnlineTime,
       showPassword, queryStats, goToAdminPanel, goToTableManager, goToUserData, isInitLoading, // 记得导出
@@ -836,19 +992,19 @@ export default defineComponent({
   background-color: #005fcc;
 }
 /* Warning 状态效果 - 深黄色/琥珀色 */
-.btn-action.warning {
+.btn-action.yellow {
   background-color: #f39c12; /* 更深、更饱和的警示黄 */
   color: #ffffff;           /* 颜色加深后，白色文字对比度也足够了 */
 }
 
-.btn-action.warning:hover {
+.btn-action.yellow:hover {
   background-color: #e67e22; /* 悬停时转为深橙色，增强交互感 */
 }
 
-.btn-action.success {
+.btn-action.green {
   background-color: #28a745;
 }
-.btn-action.success:hover {
+.btn-action.green:hover {
   background-color: #1f8a36;
 }
 
@@ -908,6 +1064,13 @@ export default defineComponent({
 
 .err {
   color: red;
+  margin-top: 10px;
+  font-size: 15px;
+  font-weight: bold;
+}
+
+.success {
+  color: #34c759;
   margin-top: 10px;
   font-size: 15px;
   font-weight: bold;
