@@ -194,28 +194,64 @@
       <div
           v-if="mode === 'profile' && user"
           style="text-align: center"
-
       >
+        <!-- Welcome Header -->
         <h3 id="login-title" style="font-size: 30px; white-space: nowrap">👋{{ user.username }} 歡迎回來✨</h3>
-<!--        <p id="login-info" style="font-size: 20px">-->
-<!--          {{ user?.role === 'admin' ? '🛡️ 您是管理員' : '👤 您是普通用戶' }}-->
-<!--        </p>-->
-        <p id="login-info" style="font-size: 20px">🗓️ 註冊時間：{{ fmt(user.created_at) }}</p>
-        <p id="login-info" style="font-size: 20px">⏱️ 總在線時長：
-          {{ formatOnlineTime(user.total_online_seconds) }}</p>
-        <p id="login-info" style=" font-size: 20px;">
-          📊 總查詢次數：<span style="color: #cd0b0b;margin-bottom: 0;">{{ queryStats.total }}</span> 次
-        </p>
-        <ul class="api-log-list">
-          <li
-              v-for="item in queryStats.items"
-              :key="item.label"
-              class="api-log-item"
-          >
-            -- {{ item.label }}：{{ item.count }} 次
-          </li>
-        </ul>
-        <!-- Action 按鈕們 -->
+
+        <!-- User Info -->
+        <div class="profile-user-info">
+          <div class="user-info-badge">
+            🎖️ 您是本站的第 <span class="user-number">{{ user.id }}</span> 位註冊用戶
+          </div>
+          <p class="user-info-details" style="margin:2px">🗓️ 註冊時間：{{ fmt(user.created_at) }}</p>
+          <p class="user-info-details" style="margin:2px">⏱️ 在線時長：
+            {{ formatOnlineTime(user.total_online_seconds) }}</p>
+<!--          <div class="user-info-details">-->
+<!--            🗓️ {{ fmt(user.created_at) }} · ⏱️ {{ formatOnlineTime(user.total_online_seconds) }}-->
+<!--          </div>-->
+        </div>
+
+        <!-- Statistics Card -->
+        <div class="stats-card">
+          <div class="stats-card-header">
+            📊 查詢統計
+            <button class="stats-toggle-btn" @click="statsExpanded = !statsExpanded">
+              {{ statsExpanded ? '收起' : '展開' }}
+              <span class="stats-toggle-icon">{{ statsExpanded ? '▲' : '▼' }}</span>
+            </button>
+          </div>
+
+          <div class="stats-total">
+            總查詢次數
+            <span class="stats-total-number">{{ queryStats.total }}</span>
+          </div>
+
+          <div v-show="statsExpanded" class="stats-categories">
+            <div
+              v-for="category in queryStats.categories"
+              :key="category.name"
+              class="stat-category"
+            >
+              <div class="stat-category-header">
+                <span class="stat-category-icon">{{ category.icon }}</span>
+                <span class="stat-category-name">{{ category.name }}</span>
+                <span class="stat-category-total">{{ category.total }}</span>
+              </div>
+              <div class="stat-category-items">
+                <div
+                  v-for="item in category.items"
+                  :key="item.label"
+                  class="stat-item"
+                >
+                  <div class="stat-item-label">{{ item.label }}</div>
+                  <div class="stat-item-count">{{ item.count }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
         <div class="action-buttons">
           <button class="btn-action danger" @click="logout">🚪 退出登錄</button>
 
@@ -235,8 +271,6 @@
             📈 表格管理
           </button>
         </div>
-
-
       </div>
 
       <!-- 修改资料界面 -->
@@ -371,6 +405,7 @@ export default defineComponent({
     const newUsername = ref('');  // 新用户名
     const currentPassword = ref('');  // 当前密码
     const newPassword = ref('');  // 新密码
+    const statsExpanded = ref(false); // 統計展開狀態（默認收起）
 
     const error = ref('')
     const success = ref('')
@@ -764,47 +799,88 @@ export default defineComponent({
     const queryStats = computed(() => {
       const stats = user.value?.usage_summary || []
 
-      const labelMap = {
-        '/api/ZhongGu': '📖 查中古',
-        '/api/YinWei': '🗣 查音位',
-        '/api/search_chars/': '🔤 查字',
-        '/api/search_tones/': '🎶 查調',
-        '/api/phonology_matrix': '📈 查音系',
-        '/api/phonology_classification_matrix': '📈 查音系',
-        '/api/phonology': '🔍 查地位',
+      // 定義分類結構
+      const categoryMap = {
+        '音韻查詢': {
+          icon: '🔍',
+          paths: {
+            '/api/ZhongGu': '查中古',
+            '/api/YinWei': '查音位',
+            '/api/phonology': '查地位',
+          }
+        },
+        '字調查詢': {
+          icon: '📝',
+          paths: {
+            '/api/search_chars/': '查字',
+            '/api/search_tones/': '查調',
+          }
+        },
+        '音系分析': {
+          icon: '📊',
+          paths: {
+            '/api/phonology_matrix': '查音系',
+            '/api/phonology_classification_matrix': '查音素',
+            '/api/feature_counts': '查音節',
+          }
+        },
+        '工具使用': {
+          icon: '🛠️',
+          paths: {
+            '/api/tools/check/analyze': '字表檢查',
+            '/api/tools/jyut2ipa/process': '粵拼轉換',
+            '/api/tools/merge/execute': '合併字表',
+            '/api/tools/praat/jobs': '聲學分析',
+          }
+        }
       }
 
       let total = 0
-      // 1. 建立一個物件來暫存合併後的數據
-      const mergedCounts = {}
+      const categoryCounts = {}
 
+      // 初始化分類計數
+      Object.keys(categoryMap).forEach(categoryName => {
+        categoryCounts[categoryName] = {}
+      })
+
+      // 統計每個 API 的調用次數
       stats.forEach(stat => {
-        // 獲取對應的 label
-        const label = labelMap[stat.path]
+        // 找到這個 path 屬於哪個分類
+        for (const [categoryName, categoryData] of Object.entries(categoryMap)) {
+          if (categoryData.paths[stat.path]) {
+            const label = categoryData.paths[stat.path]
+            total += stat.count
 
-        // 如果這個 path 在我們的名單內
-        if (label) {
-          // 累加總數
-          total += stat.count
-
-          // 2. 針對 Label 進行累加 (去重核心邏輯)
-          if (mergedCounts[label]) {
-            mergedCounts[label] += stat.count
-          } else {
-            mergedCounts[label] = stat.count
+            if (categoryCounts[categoryName][label]) {
+              categoryCounts[categoryName][label] += stat.count
+            } else {
+              categoryCounts[categoryName][label] = stat.count
+            }
+            break
           }
         }
       })
 
-      // 3. 將合併後的物件轉換回原本需要的陣列格式
-      const items = Object.keys(mergedCounts).map(label => ({
-        label: label,
-        count: mergedCounts[label]
-      }))
+      // 構建分類數據結構
+      const categories = Object.entries(categoryMap).map(([categoryName, categoryData]) => {
+        const items = Object.entries(categoryCounts[categoryName]).map(([label, count]) => ({
+          label,
+          count
+        }))
+
+        const categoryTotal = items.reduce((sum, item) => sum + item.count, 0)
+
+        return {
+          name: categoryName,
+          icon: categoryData.icon,
+          total: categoryTotal,
+          items
+        }
+      }).filter(category => category.total > 0) // 只顯示有數據的分類
 
       return {
         total,
-        items
+        categories
       }
     })
 
@@ -854,7 +930,7 @@ export default defineComponent({
       username, password, email, error, success, loading, savePassword, saveUsername, modeType,
       user, mode, login, register, logout, fmt, loginMode,
       newPassword, newUsername, currentPassword, formatOnlineTime,
-      showPassword, queryStats, goToAdminPanel, goToTableManager, goToUserData, isInitLoading, // 记得导出
+      showPassword, queryStats, goToAdminPanel, goToTableManager, goToUserData, isInitLoading, statsExpanded, // 记得导出
     }
   }
 })
@@ -1076,34 +1152,13 @@ export default defineComponent({
   font-weight: bold;
 }
 
-.api-log-list {
-  margin: 4px 0 0 16px;
-  padding: 0;
-}
-
-.api-log-item {
-  list-style: none;
-  font-size: 15px;
-  color: #333;
-  padding: 0 8px;
-  border-radius: 4px;
-  cursor: default;
-  transition: background-color 0.2s, color 0.2s;
-  margin: 0;
-}
-
-.api-log-item:hover {
-  background-color: #eaeffd;
-  color: #007aff;
-  font-weight: bold;
-}
 
 .form-row span {
   user-select: none;
 }
 
 /* 📱 Mobile: 字體放大、距離拉開、互動更舒適 */
-@media (max-width: 480px) {
+@media (max-aspect-ratio: 1/1) {
   .query-detail-panel {
     font-size: 18px;
     max-width: 350px;       /* 控制在大屏不太宽 */
@@ -1137,14 +1192,52 @@ export default defineComponent({
     font-size: 16px;
   }
 
-  .api-log-item {
-    font-size: 16px;
-  }
   #login-title {
     font-size: 28px!important;
   }
-  #login-info{
-    font-size: 18px!important;
+
+  /* User info responsive */
+  .user-info-badge {
+    font-size: 16px;
+  }
+
+  .user-number {
+    font-size: 18px;
+  }
+
+  .user-info-details {
+    font-size: 14px;
+  }
+
+  .stats-card {
+    padding: 12px 20px!important;
+  }
+
+  .stat-category-items {
+    grid-template-columns: 1fr;
+  }
+
+  .stat-item {
+    padding: 12px;
+  }
+
+  .stat-category-header {
+    font-size: 14px;
+  }
+
+  .stat-category-name {
+    font-size: 14px;
+  }
+
+  .stat-category-total {
+    font-size: 16px;
+  }
+}
+
+/* 📱 Tablet: 2-column grid for statistics */
+@media (max-width: 768px) and (min-width: 481px) {
+  .stat-category-items {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 h3 {
@@ -1163,15 +1256,234 @@ h3 {
   text-shadow: 0 0 8px rgba(0, 122, 255, 0.6);
   transform: scale(1.05);
 }
-#login-info{
-  margin: 6px 0;
-  transition: all 0.3s ease;
+
+/* User Info Section - Compact Display */
+.profile-user-info {
+  margin: 10px auto;
+  max-width: 600px;
+  text-align: center;
 }
 
-#login-info:hover{
-  transform: translateY(-2px);
-  text-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
-  color: #005fcc;
+.user-info-badge {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1d1d1f;
+  margin-bottom: 8px;
+  letter-spacing: -0.01em;
+}
+
+.user-number {
+  color: #007aff;
+  font-weight: 700;
+  font-size: 20px;
+  padding: 0 4px;
+}
+
+.user-info-details {
+  font-size: 15px;
+  color: #707077;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: 1.4;
+}
+
+/* Statistics Card - Apple Liquid Glass Style */
+.stats-card {
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(40px) saturate(180%);
+  -webkit-backdrop-filter: blur(40px) saturate(180%);
+  border-radius: 24px;
+  padding: 16px 28px;
+  margin: 20px auto;
+  max-width: 1000px;
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.04),
+    0 8px 32px rgba(0, 0, 0, 0.08),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.9);
+  border: 0.5px solid rgba(255, 255, 255, 0.8);
+}
+
+.stats-card-header {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1d1d1f;
+  margin-bottom: 20px;
+  text-align: center;
+  letter-spacing: -0.02em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.stats-toggle-btn {
+  background: rgba(0, 122, 255, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 0.5px solid rgba(0, 122, 255, 0.3);
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #007aff;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.stats-toggle-btn:hover {
+  background: rgba(0, 122, 255, 0.15);
+  border-color: rgba(0, 122, 255, 0.5);
+  transform: translateY(-1px);
+}
+
+.stats-toggle-icon {
+  font-size: 10px;
+  transition: transform 0.3s ease;
+}
+
+.stats-total {
+  background: linear-gradient(135deg, rgba(0, 122, 255, 0.1), rgba(0, 122, 255, 0.05));
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  color: #007aff;
+  padding: 15px;
+  margin-bottom: 8px;
+  border-radius: 16px;
+  text-align: center;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  box-shadow:
+    0 2px 8px rgba(0, 122, 255, 0.12),
+    inset 0 0 0 1px rgba(0, 122, 255, 0.2);
+  border: 0.5px solid rgba(0, 122, 255, 0.3);
+}
+
+.stats-total-number {
+  font-size: 42px;
+  font-weight: 700;
+  display: block;
+  letter-spacing: -0.03em;
+  background: linear-gradient(135deg, #007aff, #0051d5);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Statistics Categories - Grid Layout */
+.stats-categories {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  margin-top: 20px;
+}
+
+/* Portrait mode - 1 column */
+@media (orientation: portrait), (max-width: 768px) {
+  .stats-categories {
+    grid-template-columns: 1fr;
+  }
+}
+
+.stat-category {
+  background: rgba(247, 247, 247, 0.5);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 16px;
+  padding: 12px;
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.04),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.6);
+  border: 0.5px solid rgba(255, 255, 255, 0.5);
+}
+
+.stat-category-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.stat-category-icon {
+  font-size: 20px;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+}
+
+.stat-category-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1d1d1f;
+  letter-spacing: -0.01em;
+  flex: 1;
+}
+
+.stat-category-total {
+  font-size: 18px;
+  font-weight: 700;
+  color: #007aff;
+  letter-spacing: -0.02em;
+  background: rgba(0, 122, 255, 0.08);
+  padding: 4px 12px;
+  border-radius: 8px;
+}
+
+.stat-category-items {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+
+.stat-item {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-radius: 12px;
+  padding: 8px 12px;
+  text-align: center;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: default;
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.04),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.8);
+  border: 0.5px solid rgba(255, 255, 255, 0.6);
+  flex: 0 0 80px;
+}
+
+/* Portrait mode - slightly wider items */
+@media (max-aspect-ratio: 1/1) {
+  .stat-item {
+    flex: 0 0 90px;
+  }
+}
+
+.stat-item:hover {
+  transform: translateY(-2px) scale(1.03);
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow:
+    0 4px 12px rgba(0, 122, 255, 0.15),
+    inset 0 0 0 1.5px rgba(0, 122, 255, 0.4);
+  border-color: rgba(0, 122, 255, 0.5);
+}
+
+.stat-item-label {
+  font-size: 12px;
+  color: #86868b;
+  margin-bottom: 8px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+.stat-item-count {
+  font-size: 22px;
+  font-weight: 700;
+  color: #007aff;
+  letter-spacing: -0.02em;
 }
 /* 简单的转圈动画 */
 .login-spinner {
