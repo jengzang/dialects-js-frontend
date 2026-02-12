@@ -2,6 +2,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { api } from '@/api/auth/auth.js'
 import { showError } from '@/utils/message.js'
+import HelpIcon from '@/components/HelpIcon.vue'
 
 const loading = ref(false)
 const error = ref(null)
@@ -28,13 +29,15 @@ const fetchLeaderboard = async () => {
 
 // 格式化在线时长
 const formatOnlineTime = (seconds) => {
-  if (!seconds) return '0分钟'
+  if (!seconds) return '0秒'
   const hours = Math.floor(seconds / 3600)
   const minutes = Math.floor((seconds % 3600) / 60)
+  const secs = Math.floor(seconds % 60)
+
   if (hours > 0) {
     return `${hours}小时${minutes}分钟`
   }
-  return `${minutes}分钟`
+  return `${minutes}分钟${secs}秒`
 }
 
 // Top 2 metrics for cards
@@ -44,15 +47,16 @@ const topMetrics = computed(() => {
   return [
     {
       icon: '⏱️',
-      label: '在线时长',
+      label: '在線時長',
       data: r.online_time,
       isTime: true
     },
     {
       icon: '📊',
-      label: '总查询次数',
+      label: '總查詢次數',
       data: r.total_queries,
-      isTime: false
+      isTime: false,
+      tooltip: '與個人信息的總查詢次數不同，還包括了語保查詢、各種表格查詢等'
     }
   ]
 })
@@ -103,9 +107,18 @@ const categoryMap = {
     categoryKey: 'category_工具使用',
     endpoints: [
       { key: 'endpoint__api_tools_check_analyze', label: '字表檢查' },
-      { key: 'endpoint__api_tools_jyut2ipa_process', label: '粵拼轉換' },
+      { key: 'endpoint__api_tools_jyut2ipa_upload', label: '粵拼轉換' },
       { key: 'endpoint__api_tools_merge_execute', label: '合併字表' },
       { key: 'endpoint__api_tools_praat_jobs', label: '聲學分析' }
+    ]
+  },
+  '其他查詢': {
+    icon: '🏷️',
+    categoryKey: 'category_其他查询',
+    endpoints: [
+      { key: 'endpoint__api_get_coordinates', label: '坐標查詢' },
+      { key: 'endpoint__sql_query', label: '表格查詢' },
+      { key: 'endpoint__sql_tree_full', label: '樹形查詢' },
     ]
   }
 }
@@ -121,7 +134,7 @@ const tableData = computed(() => {
     const categoryData = r[categoryInfo.categoryKey]
 
     // Skip category if no data or value is 0
-    if (!categoryData || categoryData.value === 0) continue
+    // if (!categoryData || categoryData.value === 0) continue
 
     // Create category summary data object
     const categorySummary = {
@@ -136,7 +149,7 @@ const tableData = computed(() => {
     const endpointRows = []
     for (const endpoint of categoryInfo.endpoints) {
       const data = r[endpoint.key]
-      if (data && data.value > 0) {
+      if (data && data.value >= 0) {
         const endpointRow = createRow(endpoint.label, data)
         endpointRow.categoryName = categoryName
         endpointRow.categoryIcon = categoryInfo.icon
@@ -212,7 +225,17 @@ function formatMetricFirst(metric) {
         >
           <div class="metric-header">
             <span class="metric-icon">{{ metric.icon }}</span>
-            <span class="metric-label">{{ metric.label }}</span>
+            <span class="metric-label">
+              {{ metric.label }}
+              <HelpIcon
+                v-if="metric.tooltip"
+                :content="metric.tooltip"
+                size="md"
+                fontSize="16px"
+                iconColor="#c7254e"
+                trigger="both"
+              />
+            </span>
           </div>
 
           <div v-if="metric.data.rank === 1" class="metric-rank gold">
@@ -457,7 +480,7 @@ function formatMetricFirst(metric) {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 16px;
+  margin-bottom: 6px ;
 }
 
 .metric-icon {
@@ -478,7 +501,6 @@ function formatMetricFirst(metric) {
   background: linear-gradient(135deg, #007aff, #0051d5);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  margin-bottom: 12px;
 }
 
 .metric-rank.gold {
@@ -491,7 +513,6 @@ function formatMetricFirst(metric) {
   font-size: 28px;
   font-weight: 600;
   color: #1d1d1f;
-  margin-bottom: 16px;
 }
 
 .metric-details {

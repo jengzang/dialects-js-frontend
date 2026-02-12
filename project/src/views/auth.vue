@@ -204,7 +204,7 @@
             @click="switchTab('overview')"
             :class="{ active: currentTab === 'overview' }"
           >
-            📊 個人概覽
+            📊 個人信息
           </button>
           <button
             @click="switchTab('leaderboard')"
@@ -232,6 +232,12 @@
         <!-- Statistics Card -->
         <div class="stats-card">
           <div class="stats-card-header">
+            <help-icon content="統計的是網站核心查詢功能，與排行榜中的總查詢次數不同"
+                       size="md"
+                       fontSize="16px"
+                       iconColor="#c7254e"
+                       trigger="both">
+            </help-icon>
             📊 查詢統計
             <button class="stats-toggle-btn" @click="statsExpanded = !statsExpanded">
               {{ statsExpanded ? '收起' : '展開' }}
@@ -412,10 +418,12 @@ import { manualReport } from '../utils/onlineTimeTracker.js'
 import { WEB_BASE } from '@/env-config.js'
 import { showConfirm } from '../utils/message.js'
 import LeaderboardPanel from '@/components/auth/LeaderboardPanel.vue'
+import HelpIcon from "@/components/HelpIcon.vue";
 
 export default defineComponent({
   name: 'AuthPopup',
   components: {
+    HelpIcon,
     LeaderboardPanel
   },
   setup() {
@@ -860,7 +868,7 @@ export default defineComponent({
           icon: '🛠️',
           paths: {
             '/api/tools/check/analyze': '字表檢查',
-            '/api/tools/jyut2ipa/process': '粵拼轉換',
+            '/api/tools/jyut2ipa/upload': '粵拼轉換',
             '/api/tools/merge/execute': '合併字表',
             '/api/tools/praat/jobs': '聲學分析',
           }
@@ -935,7 +943,12 @@ export default defineComponent({
       if (!seconds || isNaN(seconds)) return '-'
       const hours = Math.floor(seconds / 3600)
       const minutes = Math.floor((seconds % 3600) / 60)
-      return `${hours} 小時 ${minutes} 分鐘`
+      const secs = Math.floor(seconds % 60)
+
+      if (hours > 0) {
+        return `${hours} 小時 ${minutes} 分鐘`
+      }
+      return `${minutes} 分鐘 ${secs} 秒`
     }
 
     const goToAdminPanel = () => {
