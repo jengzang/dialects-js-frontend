@@ -82,7 +82,8 @@ const categoryMap = {
     endpoints: [
       { key: 'endpoint__api_ZhongGu', label: '查中古' },
       { key: 'endpoint__api_YinWei', label: '查音位' },
-      { key: 'endpoint__api_phonology', label: '查地位' }
+      { key: 'endpoint__api_phonology', label: '查地位' },
+      { key: 'endpoint__api_charlist', label: '地位組合' }
     ]
   },
   '字調查詢': {
@@ -116,9 +117,9 @@ const categoryMap = {
     icon: '🏷️',
     categoryKey: 'category_其他查询',
     endpoints: [
-      { key: 'endpoint__api_get_coordinates', label: '坐標查詢' },
-      { key: 'endpoint__sql_query', label: '表格查詢' },
-      { key: 'endpoint__sql_tree_full', label: '樹形查詢' },
+      { key: 'endpoint__api_get_coordinates', label: '坐標查詢', tooltip: '獲取坐標數據以繪製地圖，查中古、查音位、查字、查調、分區圖、自定義繪圖等均會使用' },
+      { key: 'endpoint__sql_query', label: '表格查詢', tooltip: '包括各種表格查詢，例如語保詞彙語法查詢、資料來源查詢、全粵村情表格、陽春口語詞等' },
+      { key: 'endpoint__sql_tree_full', label: '樹形查詢', tooltip: '包括各種樹狀圖查詢，例如廣東自然村樹狀圖、中古地位等' },
     ]
   }
 }
@@ -154,6 +155,7 @@ const tableData = computed(() => {
         endpointRow.categoryName = categoryName
         endpointRow.categoryIcon = categoryInfo.icon
         endpointRow.categorySummary = categorySummary
+        endpointRow.tooltip = endpoint.tooltip // 添加 tooltip
         endpointRows.push(endpointRow)
       }
     }
@@ -306,7 +308,16 @@ function formatMetricFirst(metric) {
                   </template>
 
                   <!-- Endpoint columns (one per row) -->
-                  <td class="metric-name">{{ row.label }}</td>
+                  <td class="metric-name">
+                    {{ row.label }}
+                    <HelpIcon
+                      v-if="row.tooltip"
+                      :content="row.tooltip"
+                      size="sm"
+                      fontSize="14px"
+                      trigger="both"
+                    />
+                  </td>
                   <td class="rank">
                     <span v-if="row.isFirstPlace" class="rank-badge gold">🥇 第1名</span>
                     <span v-else class="rank-badge">第{{ row.rank }}名</span>
@@ -351,7 +362,16 @@ function formatMetricFirst(metric) {
                 <tr v-if="!row.isCategorySummary"
                     class="data-row"
                     :class="{ 'first-place': row.isFirstPlace }">
-                  <td class="metric-name">{{ row.label }}</td>
+                  <td class="metric-name">
+                    {{ row.label }}
+                    <HelpIcon
+                      v-if="row.tooltip"
+                      :content="row.tooltip"
+                      size="sm"
+                      fontSize="14px"
+                      trigger="both"
+                    />
+                  </td>
                   <td class="rank">
                     <span v-if="row.isFirstPlace" class="rank-badge gold">🥇 第1名</span>
                     <span v-else class="rank-badge">第{{ row.rank }}名</span>

@@ -8,7 +8,17 @@
     <div v-else style="min-height: 80dvh;align-items: center;display: flex">
       <!-- 登錄介面 -->
       <div v-if="mode === 'login'" style="padding: 12px; text-align: center;">
-        <h3>登錄</h3>
+        <h3 style="display: flex; align-items: center; gap: 8px; justify-content: center;">
+          登錄
+          <HelpIcon
+            icon="🎁"
+            content="查看會員權益對比"
+            size="lg"
+            iconColor="#ff9500"
+            trigger="click"
+            @click="showBenefitsPopup"
+          />
+        </h3>
 
         <!-- Tab 切換 -->
         <div class="login-tabs">
@@ -124,7 +134,17 @@
 
       <!-- 註冊介面 -->
       <div v-else-if="mode === 'register'" style="padding: 12px; text-align: center;">
-        <h3>註冊</h3>
+        <h3 style="display: flex; align-items: center; gap: 8px; justify-content: center;">
+          註冊
+          <HelpIcon
+            icon="🎁"
+            content="查看會員權益對比"
+            size="lg"
+            iconColor="#ff9500"
+            trigger="click"
+            @click="showBenefitsPopup"
+          />
+        </h3>
         <div class="form-row" style="display: flex; justify-content: center;">
           <input
               v-model="username"
@@ -182,6 +202,27 @@
                   {{ showPassword ? '👁️' : '🙈' }}
                 </span>
         </div>
+        <div class="form-row" style="display: flex; justify-content: center; position: relative;">
+          <input
+              v-model="confirmPassword"
+              :type="showPassword ? 'text' : 'password'"
+              placeholder="確認密碼"
+              style="padding-right: 2em;"
+          />
+          <span
+              @click="showPassword = !showPassword"
+              style="
+                    position: absolute;
+                    right: 15px;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    cursor: pointer;
+                    user-select: none;
+                    font-size: 16px;
+                  ">
+                  {{ showPassword ? '👁️' : '🙈' }}
+                </span>
+        </div>
         <div class="form-row" style="display: flex; justify-content: center;">
           <button class="btn-search" @click="register" :disabled="loading">註冊</button>
         </div>
@@ -199,19 +240,30 @@
         <h3 id="login-title" style="font-size: 30px; white-space: nowrap">👋{{ user.username }} 歡迎回來✨</h3>
 
         <!-- Tab 切換按鈕 -->
-        <div class="profile-tabs">
-          <button
-            @click="switchTab('overview')"
-            :class="{ active: currentTab === 'overview' }"
-          >
-            📊 個人信息
-          </button>
-          <button
-            @click="switchTab('leaderboard')"
-            :class="{ active: currentTab === 'leaderboard' }"
-          >
-            🏆 排行榜
-          </button>
+        <div style="display: flex; align-items: center; gap: 12px; justify-content: center; flex-wrap: wrap;">
+          <div class="profile-tabs">
+            <button
+              @click="switchTab('overview')"
+              :class="{ active: currentTab === 'overview' }"
+            >
+              📊 個人信息
+            </button>
+            <button
+              @click="switchTab('leaderboard')"
+              :class="{ active: currentTab === 'leaderboard' }"
+            >
+              🏆 排行榜
+            </button>
+          </div>
+
+          <HelpIcon
+            icon="🎁"
+            content="查看會員權益對比"
+            size="lg"
+            iconColor="#ff9500"
+            trigger="click"
+            @click="showBenefitsPopup"
+          />
         </div>
 
         <!-- Overview Tab -->
@@ -397,6 +449,13 @@
         </div>
       </div>
     </div>
+
+    <!-- 用户权益弹窗 -->
+    <UserBenefitsPopup
+      :visible="showBenefits"
+      @close="closeBenefitsPopup"
+      @register="handleRegisterFromBenefits"
+    />
   </div>
 </template>
 
@@ -419,12 +478,14 @@ import { WEB_BASE } from '@/env-config.js'
 import { showConfirm } from '../utils/message.js'
 import LeaderboardPanel from '@/components/auth/LeaderboardPanel.vue'
 import HelpIcon from "@/components/HelpIcon.vue";
+import UserBenefitsPopup from '@/components/auth/UserBenefitsPopup.vue'
 
 export default defineComponent({
   name: 'AuthPopup',
   components: {
     HelpIcon,
-    LeaderboardPanel
+    LeaderboardPanel,
+    UserBenefitsPopup
   },
   setup() {
     const router = useRouter(); // 必须在 setup 内部调用
@@ -433,6 +494,7 @@ export default defineComponent({
     const isInitLoading = ref(false)
     const username = ref('')
     const password = ref('')
+    const confirmPassword = ref('') // 确认密码
     const email = ref('')
 
     const newUsername = ref('');  // 新用户名
@@ -448,6 +510,7 @@ export default defineComponent({
     const modeType = ref('username'); // 默认显示修改用户名
     const loginMode = ref('email') // 'email' | 'username'
     const showPassword = ref(false)
+    const showBenefits = ref(false) // 用户权益弹窗显示状态
 
     // Tab switching for profile mode
     const currentTab = computed(() => route.query.tab || 'overview')
@@ -639,6 +702,12 @@ export default defineComponent({
       }
       if (password.value.length < 6) {
         error.value = '密碼不得少於 6 位'
+        return
+      }
+
+      // 验证两次密码是否一致
+      if (password.value !== confirmPassword.value) {
+        error.value = '兩次輸入的密碼不一致，請重新輸入'
         return
       }
 
@@ -971,12 +1040,26 @@ export default defineComponent({
       success.value = ''
     })
 
+    const showBenefitsPopup = () => {
+      showBenefits.value = true
+    }
+
+    const closeBenefitsPopup = () => {
+      showBenefits.value = false
+    }
+
+    const handleRegisterFromBenefits = () => {
+      mode.value = 'register'
+      showBenefits.value = false
+    }
+
     return {
-      username, password, email, error, success, loading, savePassword, saveUsername, modeType,
+      username, password, confirmPassword, email, error, success, loading, savePassword, saveUsername, modeType,
       user, mode, login, register, logout, fmt, loginMode,
       newPassword, newUsername, currentPassword, formatOnlineTime,
       showPassword, queryStats, goToAdminPanel, goToTableManager, goToUserData, isInitLoading, statsExpanded,
       currentTab, switchTab, // 添加 tab 切换相关
+      showBenefits, showBenefitsPopup, closeBenefitsPopup, handleRegisterFromBenefits // 用户权益弹窗相关
     }
   }
 })
