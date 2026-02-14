@@ -563,7 +563,6 @@ const handleFeatureStatsClick = async () => {
   }
 
   .brief-stats {
-    width: 100%;
     white-space: normal;
     word-break: break-all;
     order: 0;

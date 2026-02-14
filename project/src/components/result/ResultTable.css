@@ -343,26 +343,26 @@
     display: inline-block;
 }
 
-/* 特徵和值的顯示 */
-.data-row-vue .feature-row p:nth-child(1) {
-    left: auto;
-    width: 30%; /* 特徵-值占据 80% 的宽度 */
-    font-size: 18px;
-    text-align: left; /* 字數/佔比靠右 */
-    font-weight: bold; /* 讓特徵-值加粗 */
-    color: #007bff; /* 使用藍色顯示特徵-值 */
-    margin: 1px;
-}
+/*!* 特徵和值的顯示 *!*/
+/*.data-row-vue .feature-row p:nth-child(1) {*/
+/*    left: auto;*/
+/*    width: 30%; !* 特徵-值占据 80% 的宽度 *!*/
+/*    font-size: 18px;*/
+/*    text-align: left; !* 字數/佔比靠右 *!*/
+/*    font-weight: bold; !* 讓特徵-值加粗 *!*/
+/*    color: #007bff; !* 使用藍色顯示特徵-值 *!*/
+/*    margin: 1px;*/
+/*}*/
 
-.data-row-vue .feature-row p:nth-child(2) {
-    font-size: 13px;
-    font-style: italic; /* 讓字數/佔比顯示為斜體 */
-    text-align: right; /* 字數/佔比靠右 */
-    width: 40%; /* 字數/佔比占据 20% 的宽度 */
-    /*margin-left: auto;*/
-    color: #6c757d; /* 較淡的顏色 */
-    margin: 1px;
-}
+/*.data-row-vue .feature-row p:nth-child(2) {*/
+/*    font-size: 13px;*/
+/*    font-style: italic; !* 讓字數/佔比顯示為斜體 *!*/
+/*    text-align: right; !* 字數/佔比靠右 *!*/
+/*    width: 40%; !* 字數/佔比占据 20% 的宽度 *!*/
+/*    !*margin-left: auto;*!*/
+/*    color: #6c757d; !* 較淡的顏色 *!*/
+/*    margin: 1px;*/
+/*}*/
 
 .characters-vue {
     text-align: center;
