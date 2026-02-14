@@ -820,8 +820,8 @@ onMounted(async () => {
   // 如果 URL 中没有 sub 参数，默认跳转到 vocabulary
   if (!route.query.sub) {
     await router.replace({
-      path: '/menu',
-      query: {tab: 'YuBao', sub: 'vocabulary'}
+      path: '/explore',
+      query: {page: 'YuBao', sub: 'vocabulary'}
     })
   }
 

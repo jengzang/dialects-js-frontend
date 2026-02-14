@@ -14,19 +14,25 @@
         <RouterLink
             v-for="t in tabs"
             :key="t.tab"
-            :to="{ path: '/menu', query: { tab: t.tab } }"
+            :to="t.to || { path: '/menu', query: { tab: t.tab } }"
             custom
             v-slot="{ href, navigate, isActive }"
         >
           <a
               :href="href"
               class="menu-item"
-              :class="[{ active: isActiveComputed(t.tab, isActive) }, { small: t.tab === 'about' }]"
+              :class="[
+                { active: isActiveComputed(t.tab, isActive) },
+                t.cssClass
+              ]"
               :style="{ flex: t.weight + ' 1 0', fontSize: t.fontSize + 'rem' }"
-          @click.prevent="onClick(t.tab, navigate)"
+          @click.prevent="onClick(t, navigate)"
           >
           <span class="emoji">{{ t.icon }}</span>
-          <span class="label">{{ t.label }}</span>
+          <span
+            class="label"
+            v-if="!t.showLabelOnlyWhenActive || isActiveComputed(t.tab, isActive)"
+          >{{ t.label }}</span>
           </a>
         </RouterLink>
       </nav>
@@ -188,21 +194,29 @@
         <RouterLink
             v-for="t in tabs"
             :key="t.tab"
-            :to="{ path: '/menu', query: { tab: t.tab } }"
+            :to="t.to || { path: '/menu', query: { tab: t.tab } }"
             custom
             v-slot="{ href, navigate, isActive }"
         >
           <a
-              v-if="t.tab !== 'tools'"
+              v-if="!t.hideOnMobile"
               :href="href"
               class="menu-item"
-              :class="[{ active: isActiveComputed(t.tab, isActive) }, { small: t.tab === 'about' }]"
-              :style="{ flex: t.weight + ' 1 0', fontSize: t.fontSize === 1 ? '1.5rem' : t.fontSize + 'rem' }"
-              @click.prevent="onClick(t.tab, navigate)"
+              :class="[
+                { active: isActiveComputed(t.tab, isActive) },
+                t.cssClass
+              ]"
+              :style="{
+                flex: (t.mobileWeight || t.weight) + ' 1 0',
+                fontSize: (t.mobileFontSize || t.fontSize) + 'rem'
+              }"
+              @click.prevent="onClick(t, navigate)"
           >
-            <!-- 如果 tab 为 "about"，仅显示 emoji，否则显示标签和 emoji -->
-            <span class="emoji">{{ t.icon === '🌐' ? '🌐' : t.icon }}</span>
-            <span class="label" v-if="t.tab !== 'about'">{{ t.label }}</span>
+            <span class="emoji">{{ t.icon }}</span>
+            <span
+              class="label"
+              v-if="!t.hideLabelOnMobile && (!(t.mobileShowLabelOnlyWhenActive ?? t.showLabelOnlyWhenActive) || isActiveComputed(t.tab, isActive))"
+            >{{ t.label }}</span>
           </a>
         </RouterLink>
       </div>
@@ -217,8 +231,9 @@ import {useRoute, useRouter} from 'vue-router'
 import { clearToken, getToken, saveToken } from '../../api/auth/auth.js'
 import { getTodayVisits, getTotalVisits, getVisitHistory } from '@/api/logs/index.js'
 import { menuConfig } from '@/config/menuConfig.js'
+import { tabsConfig } from '@/config/tabsConfig.js'
 import { WEB_BASE } from '@/env-config.js'
-import { userStore } from '@/utils/store.js'
+import { userStore, resultCache } from '@/utils/store.js'
 const route = useRoute()
 const router = useRouter()
 const isSidebarVisible = ref(false)  // 控制边栏显示
@@ -231,7 +246,7 @@ const submenuPosition = ref({ top: 0, left: 0 })  // Position for submenu panel
 const isMobile = ref(false)
 const checkMobile = () => {
   isMobile.value = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
-  console.log("ismobile")
+  // console.log("ismobile")
 }
 
 // Filter menu items for NavBar (exclude items that should only show in SimpleSidebar)
@@ -254,33 +269,68 @@ const isStatsExpanded = ref(false)
 const visitHistory = ref([])
 const loadingStats = ref(false)
 
-// 更新tabs，增加 "结果" 页面并控制字体大小
-const tabs = [
-  { tab: 'tools', label: '工具集', icon: '🛠️', weight: 1, fontSize: 1.3, isPseudo: true },
-  { tab: 'about', label: '關於網站', icon: '🌐', weight: 0.6, fontSize: 1 },
-  { tab: 'query', label: '查詢', icon: '🔍️', weight: 1, fontSize: 1.3 },
-  { tab: 'result', label: '結果', icon: '📈', weight: 1, fontSize: 1.3 },
-  { tab: 'map', label: '地圖', icon: '🗺️', weight: 1, fontSize: 1.3 },
-]
+// 过滤可见的 tabs
+const visibleTabs = computed(() => {
+  return tabsConfig.filter(tab => {
+    // 如果有 visibleWhen 函数，执行它
+    if (typeof tab.visibleWhen === 'function') {
+      return tab.visibleWhen()
+    }
+    // 没有 visibleWhen 则默认可见
+    return true
+  })
+})
+
+// 使用过滤后的 tabs
+const tabs = visibleTabs
 
 // 根据当前 query.tab 判断
-const currentTab = () => route.query.tab || 'query'
-const isActiveComputed = (tabName) => {
-  // 工具集伪 tab 永远不显示为激活状态
+const currentTab = () => route.query.tab || route.query.page || 'query'
+
+// 检查路由是否匹配
+const isRouteMatch = (targetRoute) => {
+  if (!targetRoute) return false
+
+  // 检查路径是否匹配
+  if (route.path !== targetRoute.path) return false
+
+  // 检查 query 参数是否匹配
+  if (targetRoute.query) {
+    for (const [key, value] of Object.entries(targetRoute.query)) {
+      if (route.query[key] !== value) return false
+    }
+  }
+
+  return true
+}
+
+const isActiveComputed = (tabName, isActive) => {
+  // 伪 tab 永远不显示为激活状态
   if (tabName === 'tools') return false
-  return route.path === '/menu' && currentTab() === tabName
+
+  // 查找对应的 tab 配置
+  const tabConfig = tabs.value.find(t => t.tab === tabName)
+  if (!tabConfig || !tabConfig.to) return false
+
+  // 使用路由匹配检查
+  return isRouteMatch(tabConfig.to)
 }
 
 // 頂部導航欄的點擊處理
-const onClick = async (tabName, navigate) => {
-  // 如果是"工具集"伪 tab，打开 sidebar
-  if (tabName === 'tools') {
+const onClick = async (tabConfig, navigate) => {
+  // 伪 tab 处理：打开侧边栏而非导航
+  if (tabConfig.isPseudo) {
     toggleSidebar()
     return
   }
 
-  if (route.path === '/menu' && currentTab() === tabName) return
-  await router.replace({ path: '/menu', query: { tab: tabName } })
+  // 防止重复导航到当前路由
+  if (tabConfig.to && isRouteMatch(tabConfig.to)) return
+
+  // 使用配置的路由进行导航
+  if (tabConfig.to) {
+    await router.replace(tabConfig.to)
+  }
 }
 
 const goToAuthPage = () => {
@@ -743,10 +793,10 @@ onBeforeUnmount(() => {
 }
 @media (max-aspect-ratio: 1/1) {
   .sidebar-content{
-    gap:15px;
+    gap:18px;
   }
   .sidebar-content ul{
-    gap: 10px;
+    gap: 12px;
   }
 }
 
@@ -805,7 +855,7 @@ onBeforeUnmount(() => {
   border-radius: 15px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   border: 2px solid rgba(255, 255, 255, 0.4);
-  gap: 10px;
+  gap: 9px;
 }
 
 .stat-item {
@@ -1123,7 +1173,7 @@ onBeforeUnmount(() => {
   }
   .sidebar-content li{
     font-size: 1.1rem;
-    padding: 4px 15px;
+    padding: 6px 15px;
   }
 }
 

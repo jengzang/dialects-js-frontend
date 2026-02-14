@@ -117,8 +117,8 @@ const goToAuth = () => {
 }
 
 .float-btn {
-  width: 66px;
-  height: 66px;
+  width: 60px;
+  height: 60px;
   border-radius: 50%;
   border: 3px solid rgba(255, 255, 255, 0.5);
   background: linear-gradient(145deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.15));

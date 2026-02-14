@@ -38,7 +38,8 @@ export const menuConfig = {
         icon: '✍️',
         path: '/explore?page=ZhongGu'
       },
-    ]
+    ],
+    showIn: ['SimpleSidebar']
   },
 
   // Level 2: Expandable data submenu
@@ -62,7 +63,8 @@ export const menuConfig = {
         icon: '🗣️',
         path: '/explore?page=YuBao&sub=grammar'
       },
-    ]
+    ],
+    showIn: ['SimpleSidebar']
   },
 
   // Level 2: Expandable villages submenu
@@ -111,7 +113,12 @@ export const menuConfig = {
     }
   ]
 },
-
+  'praat': {
+    label: '聲學分析',
+    icon: '👂️️',
+    path: '/explore?page=praat',
+    children: null
+  },
   // Level 1: Direct navigation to Source page
   'source': {
     label: '資料源',
@@ -140,10 +147,10 @@ export const menuConfig = {
       }
     ]
   },
-  'praat': {
-    label: '聲學分析',
-    icon: '👂️️',
-    path: '/explore?page=praat',
+  'about': {
+    label: '關於網站',
+    icon: '‘🌐️',
+    path: '/menu?tab=about&sub=intro',
     children: null
   },
   // Level 1: External link to old website
