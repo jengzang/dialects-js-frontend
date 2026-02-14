@@ -169,9 +169,9 @@ export const ExploreTabsConfig = [
     weight: 1,                          // 桌面端标签显示时的 flex 权重
     mobileWeight: 1,                // 移动端标签显示时的 flex 权重
     weightIconOnly: 0.6,                  // 桌面端仅显示图标时的 flex 权重（可选，默认使用 weight）
-    mobileWeightIconOnly: 0.6,            // 移动端仅显示图标时的 flex 权重（可选，回退链：mobileWeight → weightIconOnly → weight）
+    mobileWeightIconOnly: 0.55,            // 移动端仅显示图标时的 flex 权重（可选，回退链：mobileWeight → weightIconOnly → weight）
     fontSize: 1.2,
-    mobileFontSize: 1.3,
+    mobileFontSize: 1.2,
     to: { path: '/menu', query: { tab: 'pho' } },
     isPseudo: false,
     hideOnMobile: false,
@@ -186,9 +186,9 @@ export const ExploreTabsConfig = [
     weight: 1,                          // 桌面端标签显示时的 flex 权重
     mobileWeight: 1,                // 移动端标签显示时的 flex 权重
     weightIconOnly: 0.6,                  // 桌面端仅显示图标时的 flex 权重（可选，默认使用 weight）
-    mobileWeightIconOnly: 0.6,            // 移动端仅显示图标时的 flex 权重（可选，回退链：mobileWeight → weightIconOnly → weight）
+    mobileWeightIconOnly: 0.55,            // 移动端仅显示图标时的 flex 权重（可选，回退链：mobileWeight → weightIconOnly → weight）
     fontSize: 1.2,
-    mobileFontSize: 1.3,
+    mobileFontSize: 1.2,
     to: { path: '/menu', query: { tab: 'words' } },
     isPseudo: false,
     hideOnMobile: false,
@@ -203,9 +203,9 @@ export const ExploreTabsConfig = [
     weight: 1,                          // 桌面端标签显示时的 flex 权重
     mobileWeight: 1,                // 移动端标签显示时的 flex 权重
     weightIconOnly: 0.6,                  // 桌面端仅显示图标时的 flex 权重（可选，默认使用 weight）
-    mobileWeightIconOnly: 0.4,            // 移动端仅显示图标时的 flex 权重（可选，回退链：mobileWeight → weightIconOnly → weight）
+    mobileWeightIconOnly: 0.35,            // 移动端仅显示图标时的 flex 权重（可选，回退链：mobileWeight → weightIconOnly → weight）
     fontSize: 1.2,
-    mobileFontSize: 1.3,
+    mobileFontSize: 1.2,
     to: { path: '/menu', query: { tab: 'query' } },
     isPseudo: false,
     hideOnMobile: false,
@@ -221,9 +221,9 @@ export const ExploreTabsConfig = [
     weight: 1,                          // 桌面端标签显示时的 flex 权重
     mobileWeight: 1,                // 移动端标签显示时的 flex 权重
     weightIconOnly: 0.6,                  // 桌面端仅显示图标时的 flex 权重（可选，默认使用 weight）
-    mobileWeightIconOnly: 0.6,            // 移动端仅显示图标时的 flex 权重（可选，回退链：mobileWeight → weightIconOnly → weight）
+    mobileWeightIconOnly: 0.55,            // 移动端仅显示图标时的 flex 权重（可选，回退链：mobileWeight → weightIconOnly → weight）
     fontSize: 1.2,
-    mobileFontSize: 1.3,
+    mobileFontSize: 1.2,
     to: { path: '/menu', query: { tab: 'villages' } },
     isPseudo: false,
     hideOnMobile: false,

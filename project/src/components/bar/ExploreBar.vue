@@ -543,7 +543,7 @@ const goToAuthPage = () => {
 
 .login-container {
   min-width: 6dvh;
-  max-width: 9dvh;
+  max-width: 10dvh;
   height: 6dvh;
   padding: 0 12px;
   border-radius: 30px;

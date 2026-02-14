@@ -187,7 +187,7 @@ export const menuConfig = {
   },
   'about': {
     label: '關於網站',
-    icon: '‘🌐️',
+    icon: '🌐️',
     path: '/menu?tab=about&sub=intro',
     children: null
   },

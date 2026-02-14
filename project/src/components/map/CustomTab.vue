@@ -421,6 +421,17 @@ watch(selectedFeature, (newVal) => {
   uiStore.buttonStates.custom.hasSelectedFeature = !!newVal
 }, { immediate: true })
 
+// Watch for custom tab visibility - only fetch data when tab is active
+watch(
+  () => route.query.sub,
+  (newSub) => {
+    if (newSub === 'custom' && userStore.isAuthenticated) {
+      fetchUserTotalCount()
+    }
+  },
+  { immediate: true } // Run immediately if already on custom tab
+)
+
 // 帮助弹窗状态
 const isHelpModalOpen = ref(false)
 
@@ -569,7 +580,7 @@ const fetchUserTotalCount = async () => {
 
 onMounted(() => {
   document.addEventListener('click', onClickOutside)
-  fetchUserTotalCount() // 進入頁面獲取總量
+  // fetchUserTotalCount() moved to route watcher below
 })
 
 onBeforeUnmount(() => {
