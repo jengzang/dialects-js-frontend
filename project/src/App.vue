@@ -19,6 +19,7 @@ import { useRoute } from 'vue-router'
 import IntroLayout from './layouts/IntroLayout.vue'
 import MenuLayout from './layouts/MenuLayout.vue'
 import SimpleLayout from './layouts/SimpleLayout.vue'
+import ExploreLayout from './layouts/ExploreLayout.vue'
 import GlobalToast from './components/ToastAndHelp/GlobalToast.vue'
 import GlobalConfirm from './components/ToastAndHelp/GlobalConfirm.vue'
 import PanelManager from './components/result/PanelManager.vue'
@@ -52,9 +53,17 @@ export default {
         return IntroLayout
       }
 
-      // /explore 路由使用 SimpleLayout（无 navbar）
+      // /explore 路由：根据 page 参数选择 Layout
       if (route.path === '/explore') {
-        return SimpleLayout
+        const page = route.query.page
+
+        // Praat 页面使用 SimpleLayout（无 navbar）
+        if (page === 'praat') {
+          return SimpleLayout
+        }
+
+        // 其他 explore 页面使用 ExploreLayout（有 ExploreBar）
+        return ExploreLayout
       }
 
       // 其他使用 MenuLayout（带 navbar）

@@ -20,6 +20,13 @@
           <div class="tool-name">字表合併</div>
           <div class="tool-desc">合併多個字表數據</div>
         </button>
+
+        <button class="tool-btn" @click="handlePraatTables">
+          <div class="tool-icon">👂️</div>
+          <div class="tool-name">聲學分析</div>
+          <div class="tool-desc">基於praat進行基頻、共振峰等分析</div>
+        </button>
+
       </div>
   </div>
 </template>
@@ -41,6 +48,11 @@ const handleJyutpingToIpa = () => {
 const handleMergeTables = () => {
   router.push('/explore?page=merge')
 };
+
+const handlePraatTables = () => {
+  router.push('/explore?page=praat')
+};
+
 </script>
 
 <style scoped>

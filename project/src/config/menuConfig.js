@@ -63,14 +63,14 @@ export const menuConfig = {
         path: '/explore?page=YuBao&sub=vocabulary'
       },
       {
-        label: '陽春口語詞',
-        icon: '💬',
-        path: '/explore?page=ycSpoken'
-      },
-      {
         label: '語保語法',
         icon: '🗣️',
         path: '/explore?page=YuBao&sub=grammar'
+      },
+      {
+        label: '陽春口語詞',
+        icon: '💬',
+        path: '/explore?page=ycSpoken'
       },
     ],
     showIn: ['SimpleSidebar']

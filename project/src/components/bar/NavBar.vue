@@ -231,10 +231,10 @@
 <script setup>
 import { ref , onMounted, onBeforeUnmount, computed} from 'vue'
 import {useRoute, useRouter} from 'vue-router'
-import { clearToken, getToken, saveToken } from '../../api/auth/auth.js'
+// import { clearToken, getToken, saveToken } from '../../api/auth/auth.js'
 import { getTodayVisits, getTotalVisits, getVisitHistory } from '@/api/logs/index.js'
 import { menuConfig } from '@/config/menuConfig.js'
-import { TabsConfig } from '@/config/TabsConfig.js'
+import { MenuTabsConfig } from '@/config/TabsConfig.js'
 import { WEB_BASE } from '@/env-config.js'
 import { userStore, resultCache } from '@/utils/store.js'
 const route = useRoute()
@@ -274,7 +274,7 @@ const loadingStats = ref(false)
 
 // 过滤可见的 tabs
 const visibleTabs = computed(() => {
-  return TabsConfig.filter(tab => {
+  return MenuTabsConfig.filter(tab => {
     // 如果有 visibleWhen 函数，执行它
     if (typeof tab.visibleWhen === 'function') {
       return tab.visibleWhen()

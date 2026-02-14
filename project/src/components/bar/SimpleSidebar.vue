@@ -8,8 +8,8 @@
   <!-- 侧边栏 -->
   <Transition name="slide-fade">
     <div v-if="isOpen" class="sidebar">
-      <!-- 标题图片 -->
-      <div class="sidebar-header">
+      <!-- 标题图片 (可选) -->
+      <div v-if="showTitle" class="sidebar-header">
         <img src="../../assets/title.png" alt="Title" class="title-img" />
       </div>
 
@@ -143,7 +143,11 @@ import { WEB_BASE } from '@/env-config.js';
 
 const router = useRouter();
 const props = defineProps({
-  isOpen: Boolean
+  isOpen: Boolean,
+  showTitle: {
+    type: Boolean,
+    default: true  // 默认显示 title，保持向后兼容
+  }
 });
 const user = ref({}) // 存储用户信息
 const mode = ref('login') // 存储登录状态
