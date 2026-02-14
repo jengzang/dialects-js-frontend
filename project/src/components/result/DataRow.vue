@@ -204,9 +204,9 @@ const statsButtonText = computed(() => {
   const currentFeatures = globalPayload.value?.features || [];
 
   // 判斷當前查詢的是哪個特徵
-  if (currentFeatures.includes('韻母')) return '聲/調詳情';
-  if (currentFeatures.includes('聲調')) return '聲/韻詳情';
-  if (currentFeatures.includes('聲母')) return '韻/調詳情';
+  if (currentFeatures.includes('韻母')) return '聲/調';
+  if (currentFeatures.includes('聲調')) return '聲/韻';
+  if (currentFeatures.includes('聲母')) return '韻/調';
   return '詳情';
 });
 
@@ -296,7 +296,66 @@ const handleFeatureStatsClick = async () => {
 </script>
 
 <style scoped>
-@import 'ResultTable.css';
+/* 從 ResultTable.css 遷移的樣式 */
+.data-row-vue {
+  margin-bottom: 15px;
+  display: block;
+  text-align: center;
+}
+
+.characters-vue {
+  text-align: center;
+  font-size: 15px;
+  border: 2px solid #333;
+  padding: 5px;
+  display: inline-block;
+  margin-top: 0;
+}
+
+.characters-vue-condensed {
+  text-align: center;
+  font-size: 15px;
+  border-bottom: 2px solid #333;
+  padding: 5px;
+  display: flex;
+  margin-top: 0;
+}
+
+.char-vue {
+  display: inline-flex;
+  padding: 1px 3px;
+  margin-right: 2px;
+  font-size: 15px;
+  color: #333;
+}
+
+.char-vue.multi-vue {
+  color: darkred;
+  font-weight: bold;
+  position: relative;
+  cursor: pointer;
+}
+
+.char-vue.multi-vue:hover {
+  background-color: #f9f9f9;
+  border-radius: 4px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.feature-value-clickable {
+  cursor: pointer;
+  text-decoration: none;
+  color: #007bff;
+  display: inline-block;
+  transition: transform 0.2s ease, color 0.2s ease, text-shadow 0.3s ease;
+}
+
+.feature-value-clickable:hover {
+  transform: scale(1.3);
+  text-decoration: underline;
+  color: #3c8dbc;
+  text-shadow: 0 0 8px rgba(60, 141, 188, 0.6);
+}
 
 /* 這是傳送到 body 的彈窗樣式，不受小容器限制 */
 .global-tooltip-popup {
@@ -420,73 +479,93 @@ const handleFeatureStatsClick = async () => {
   white-space: nowrap;
 }
 
-/* feature-row 佈局 */
+/* feature-row 佈局：寬屏左右對齊 */
 .feature-row {
   display: flex;
   align-items: center;
-  gap: 12px;
   flex-wrap: wrap;
+  /* 移除 gap，改用個別元素的 margin 控制間距 */
 }
 
-/* 主要信息容器：大螢幕下透明，小螢幕下成為真實容器 */
+/* feature-main-items 使用 contents 讓子元素成為 feature-row 的直接 flex 項目 */
 .feature-main-items {
-  display: contents; /* 大螢幕：容器透明，子元素直接參與 feature-row 的佈局 */
+  display: contents;
 }
 
-/* 大螢幕下的順序控制：p -> brief-stats -> button -> p */
+/* 特徵 p 標籤：左對齊，使用 margin-right: auto 推開右側元素 */
 .feature-main-items > p:first-child {
+  font-size: 18px;
+  text-align: left;
+  font-weight: bold;
+  color: #007bff;
+  margin: 1px;
+  margin-right: auto; /* 關鍵：推開右側所有元素到最右邊 */
   order: 1;
 }
 
+/* brief-stats 排在特徵 p 之後，與右側元素有間距 */
 .brief-stats {
   order: 2;
+  margin-left: 12px; /* 與 button 之間的間距 */
 }
 
+/* 按鈕排在 brief-stats 之後 */
 .feature-stats-btn {
   order: 3;
+  margin-left: 12px; /* 與字數佔比之間的間距 */
 }
 
+/* 字數佔比 p 標籤：最右側 */
 .feature-main-items > p:last-child {
+  font-size: 13px;
+  font-style: italic;
+  text-align: right;
+  color: #6c757d;
+  margin: 1px;
+  margin-left: 12px; /* 與 button 之間的間距 */
+  white-space: nowrap;
   order: 4;
 }
 
-/* 響應式：小螢幕下重新排序，brief-stats 獨立一行 */
-@media (max-width: 500px) {
-  /* 容器變為真實的 flex 容器，佔據第一行 */
-  .feature-main-items {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    flex-basis: 100%;
-    order: 1;
-    margin-top: 8px;
-  }
-  .feature-row{
+/* 響應式：小螢幕下垂直堆疊 */
+@media (max-width: 600px) {
+  .feature-row {
     flex-direction: column;
-    gap: 3px;
-  }
-  .feature-row p{
-    margin: 0;
-  }
-  /* brief-stats 獨立第二行 */
-  .brief-stats {
-    order: 2;
-    flex-basis: 100%;
-    white-space: normal;
-    word-break: break-all;
+    align-items: stretch;
+    gap: 2px;
   }
 
-  /* 重置容器內部元素的 order */
+  .feature-main-items {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    gap: 8px;
+  }
+
   .feature-main-items > p:first-child {
+    font-size: 16px;
+    flex: 1;
+    margin-right: 0;
     order: 0;
   }
 
   .feature-stats-btn {
+    padding: 4px 10px;
+    font-size: 11px;
     order: 0;
-    padding: 3px 10px;
   }
 
   .feature-main-items > p:last-child {
+    font-size: 12px;
+    order: 0;
+  }
+
+  .brief-stats {
+    width: 100%;
+    white-space: normal;
+    word-break: break-all;
     order: 0;
   }
 }
