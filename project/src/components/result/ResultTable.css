@@ -346,7 +346,7 @@
 /* 特徵和值的顯示 */
 .data-row-vue .feature-row p:nth-child(1) {
     left: auto;
-    width: 60%; /* 特徵-值占据 80% 的宽度 */
+    width: 30%; /* 特徵-值占据 80% 的宽度 */
     font-size: 18px;
     text-align: left; /* 字數/佔比靠右 */
     font-weight: bold; /* 讓特徵-值加粗 */

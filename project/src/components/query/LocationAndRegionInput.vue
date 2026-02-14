@@ -6,15 +6,18 @@
       <!-- ✅ 地點輸入框 -->
       <div class="location-input">
         <label for="locations">地點</label>
-        <textarea
-            id="locations"
-            ref="inputEl"
-            placeholder="請輸入地點(可匹配)"
-            v-model="inputValue"
-            @keyup="onKeyup"
-            @blur="onBlur"
-            autocomplete="off"
-        ></textarea>
+        <div class="textarea-wrapper">
+          <textarea
+              id="locations"
+              ref="inputEl"
+              placeholder="請輸入地點(可匹配)"
+              v-model="inputValue"
+              @keyup="onKeyup"
+              @blur="onBlur"
+              autocomplete="off"
+          ></textarea>
+          <span v-if="showSuccessCheckmark" class="success-checkmark">✓</span>
+        </div>
         <Teleport to="body">
           <div
               ref="suggestionEl"
@@ -264,13 +267,10 @@
 
 <script setup>
 import { ref, nextTick ,onMounted, onActivated, watch, computed,defineProps, defineComponent, h} from 'vue'
-import { getLocations } from '@/api/query/LocationAndRegion.js'
-import { getCustomFeature } from '@/api/user/custom.js'
-import { sqlQuery } from '@/api/sql'
+import { getLocations, getCustomFeature, sqlQuery, batchMatch, getPartitions } from '@/api'
 import RegionSelector from "@/components/query/RegionSelector.vue"
 import { userStore, setLocationDisabled } from '@/utils/store.js'
 import { LOCATION_LIMITS } from '@/config/constants.js'
-import { API_BASE } from '@/env-config.js'
 import { STATIC_REGION_TREE, top_yindian } from '@/config'
 import * as OpenCC from 'opencc-js'
 
@@ -340,6 +340,7 @@ const inputEl = ref(null)
 const suggestionEl = ref(null)
 const suggestions = ref([])
 const successMessage = ref('')
+const showSuccessCheckmark = ref(false)
 const suggestionStyle = ref({
   left: '0px',
   top: '0px',
@@ -390,6 +391,7 @@ function getQueryStart() {
 }
 
 function onKeyup() {
+  showSuccessCheckmark.value = false
   clearTimeout(debounceTimer)
   debounceTimer = setTimeout(fetchSuggestion, 200)
 }
@@ -398,6 +400,7 @@ function onBlur() {
   setTimeout(() => {
     suggestions.value = []
     successMessage.value = ''
+    showSuccessCheckmark.value = false
   }, 200)
 }
 
@@ -407,18 +410,11 @@ function fetchSuggestion() {
   if (!query) {
     suggestions.value = []
     successMessage.value = ''
+    showSuccessCheckmark.value = false
     return
   }
 
-  const token = localStorage.getItem('ACCESS_TOKEN')
-
-  fetch(`${API_BASE}/batch_match?input_string=${encodeURIComponent(query)}`, {
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {})
-    }
-  })
-      .then(res => res.json())
+  batchMatch(query)
       .then(results => {
         suggestions.value = []
         successMessage.value = ''
@@ -426,8 +422,20 @@ function fetchSuggestion() {
 
         const r = results[0]
         if (r.success) {
+          // ✅ Success: Show checkmark in textarea + items in dropdown
           successMessage.value = r.message
+          showSuccessCheckmark.value = true
+
+          // Also show items if available
+          if (r.items && r.items.length > 0) {
+            const allValues = value.split(/[ ,;/，；、\n\t]+/).filter(Boolean)
+            const exclusionSet = new Set(allValues.filter(v => v !== query))
+            const filtered = Array.from(new Set(r.items)).filter(item => !exclusionSet.has(item))
+            suggestions.value = filtered
+          }
         } else {
+          // ❌ No match: Show items only
+          showSuccessCheckmark.value = false
           const allValues = value.split(/[ ,;/，；、\n\t]+/).filter(Boolean)
           const exclusionSet = new Set(allValues.filter(v => v !== query))
           const filtered = Array.from(new Set(r.items)).filter(item => !exclusionSet.has(item))
@@ -697,8 +705,7 @@ function loadTreeFor(mode) {
       return filtered
     }
     if (!sessionStorage.getItem(CACHE_KEY)) {
-      fetch(`${API_BASE}/partitions`)
-          .then(res => res.json())
+      getPartitions()
           .then(tree => {
             const filteredTree = filterTopLevelKeys(tree)
             sessionStorage.setItem(CACHE_KEY, JSON.stringify(filteredTree))
@@ -720,8 +727,7 @@ const preloadYindianTree = async () => {
   const CACHE_KEY = '__YINDIAN_TREE_CACHE__'
   if (!sessionStorage.getItem(CACHE_KEY)) {
     try {
-      const response = await fetch(`${API_BASE}/partitions`)
-      const tree = await response.json()
+      const tree = await getPartitions()
 
       // 过滤顶级分区
       const filterTopLevelKeys = (obj) => {
@@ -1313,6 +1319,41 @@ defineExpose({
 .region-input{
   flex: 1.2;
 }
+
+/* Textarea wrapper for checkmark positioning */
+.textarea-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.success-checkmark {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 20px;
+  font-weight: bold;
+  color: #52c41a;
+  pointer-events: none;
+  animation: checkmark-appear 0.3s ease;
+}
+
+@keyframes checkmark-appear {
+  from {
+    opacity: 0;
+    transform: translateY(-50%) scale(0.5);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(-50%) scale(1);
+  }
+}
+
+/* Add right padding to textarea to prevent text overlap */
+.location-input textarea {
+  padding-right: 40px;
+}
+
 .input-row {
   display: flex;
   gap: 16px;

@@ -938,6 +938,7 @@ export default defineComponent({
             '/api/ZhongGu': '查中古',
             '/api/YinWei': '查音位',
             '/api/phonology': '查地位',
+            '/api/feature_stats': '查音節',
           }
         },
         '字調查詢': {
@@ -952,7 +953,7 @@ export default defineComponent({
           paths: {
             '/api/phonology_matrix': '查音系',
             '/api/phonology_classification_matrix': '查音素',
-            '/api/feature_counts': '查音節',
+            '/api/feature_counts': '音節統計',
           }
         },
         '工具使用': {

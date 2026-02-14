@@ -1,28 +1,48 @@
 <template>
-  <div class="data-row-vue">
+  <div class="data-row-vue" :class="{ 'has-stats-data': featureStatsPopup.fetched }">
     <p v-if="showLocation" class="locations-vue" @click="handleLocationClick" style="cursor: pointer;">
       {{ item.地點 }}
     </p>
 
     <div class="feature-row">
-      <p>
-        <span
-            class="feature-value-clickable"
-            style="cursor: pointer; color: #007bff"
-            @click.stop="(e) => $emit('trigger-popup', 'feature', item, featureKey, featureVal, e)"
+      <!-- 主要信息容器：包裹 p、button、p -->
+      <div class="feature-main-items">
+        <p>
+          <span
+              class="feature-value-clickable"
+              style="cursor: pointer; color: #007bff"
+              @click.stop="(e) => $emit('trigger-popup', 'feature', item, featureKey, featureVal, e)"
+          >
+            {{ featureKey }}
+          </span>
+          <span> ☞ </span>
+          <span
+              class="feature-value-clickable"
+              style="cursor: pointer; color: #007bff"
+              @click.stop="(e) => $emit('trigger-popup', 'value', item, featureKey, featureVal, e)"
+          >
+            {{ String(featureVal) }}
+          </span>
+        </p>
+
+        <!-- 特徵統計按鈕 -->
+        <button
+          class="feature-stats-btn"
+          :class="{ 'loading': featureStatsPopup.loading }"
+          :disabled="featureStatsPopup.loading"
+          @click.stop="handleFeatureStatsClick"
         >
-          {{ featureKey }}
-        </span>
-        <span> ☞ </span>
-        <span
-            class="feature-value-clickable"
-            style="cursor: pointer; color: #007bff"
-            @click.stop="(e) => $emit('trigger-popup', 'value', item, featureKey, featureVal, e)"
-        >
-          {{ String(featureVal) }}
-        </span>
-      </p>
-      <p>字數/佔比: {{ item.字數 }} ║ {{ (item.佔比 * 100).toFixed(1) }}%</p>
+          <span v-if="featureStatsPopup.loading" class="btn-spinner"></span>
+          <span v-else>{{ statsButtonText }}</span>
+        </button>
+
+        <p>字數/佔比: {{ item.字數 }} ║ {{ (item.佔比 * 100).toFixed(1) }}%</p>
+      </div>
+
+      <!-- 簡要統計：在容器外面 -->
+      <span v-if="featureStatsPopup.fetched && briefStats" class="brief-stats">
+        {{ briefStats }}
+      </span>
     </div>
 
     <p :class="isCondensed ? 'characters-vue-condensed' : 'characters-vue'">
@@ -56,6 +76,15 @@
         :loading="locationPopup.loading"
         @close="locationPopup.visible = false"
     />
+
+    <FeatureStatsPopup
+        :visible="featureStatsPopup.visible"
+        :location-name="featureStatsPopup.locationName"
+        :stats-data="featureStatsPopup.statsData"
+        :chars-map="featureStatsPopup.charsMap"
+        :loading="featureStatsPopup.loading"
+        @close="featureStatsPopup.visible = false"
+    />
   </div>
 </template>
 
@@ -63,7 +92,10 @@
 import { computed, ref } from 'vue';
 import { getCorrespondingCharacters } from '@/utils/ResultTable.js';
 import { sqlQuery } from '@/api/sql';
+import { getFeatureStats } from '@/api';
+import { globalPayload } from '@/utils/store.js';
 import LocationDetailPopup from './LocationDetailPopup.vue';
+import FeatureStatsPopup from './FeatureStatsPopup.vue';
 
 const props = defineProps({
   item: { type: Object, required: true },
@@ -147,6 +179,109 @@ const handleLocationClick = async (e) => {
     locationPopup.value.loading = false;
   }
 };
+
+// --- 特徵統計彈窗邏輯 ---
+const featureStatsPopup = ref({
+  visible: false,
+  locationName: '',
+  statsData: null,
+  charsMap: [],
+  loading: false,
+  fetched: false  // 是否已獲取資料
+});
+
+// 計算按鈕文字
+const statsButtonText = computed(() => {
+  if (featureStatsPopup.value.fetched) {
+    return '詳情';
+  }
+
+  // 從 globalPayload 獲取當前查詢的特徵
+  const currentFeatures = globalPayload.value?.features || [];
+
+  // 判斷當前查詢的是哪個特徵
+  if (currentFeatures.includes('韻母')) return '聲/調詳情';
+  if (currentFeatures.includes('聲調')) return '聲/韻詳情';
+  if (currentFeatures.includes('聲母')) return '韻/調詳情';
+  return '詳情';
+});
+
+// 計算要查詢的特徵列表（排除當前特徵）
+const queryFeatures = computed(() => {
+  const allFeatures = ['聲母', '韻母', '聲調'];
+  const currentFeatures = globalPayload.value?.features || [];
+
+  // 過濾掉當前查詢的特徵
+  const filtered = allFeatures.filter(f => !currentFeatures.includes(f));
+
+  console.log('🔍 當前查詢特徵:', currentFeatures);
+  console.log('🔍 要查詢的特徵:', filtered);
+
+  return filtered;
+});
+
+// 計算簡要統計（前3高）
+const briefStats = computed(() => {
+  if (!featureStatsPopup.value.fetched || !featureStatsPopup.value.statsData) return '';
+
+  const locationName = props.item.地點;
+  const locationData = featureStatsPopup.value.statsData.data[locationName];
+  if (!locationData) return '';
+
+  const parts = [];
+  queryFeatures.value.forEach(featureName => {
+    const featureData = locationData[featureName];
+    if (featureData) {
+      // 按 count 排序，取前3
+      const sorted = Object.entries(featureData)
+        .sort((a, b) => b[1].count - a[1].count)
+        .slice(0, 3)
+        .map(([value]) => value);
+
+      if (sorted.length > 0) {
+        parts.push(`${featureName}: ${sorted.join(', ')}`);
+      }
+    }
+  });
+
+  return parts.join('；');
+});
+
+// 處理特徵統計按鈕點擊
+const handleFeatureStatsClick = async () => {
+  // 如果已獲取資料，打開彈窗
+  if (featureStatsPopup.value.fetched) {
+    featureStatsPopup.value.visible = true;
+    featureStatsPopup.value.locationName = props.item.地點;
+    return;
+  }
+
+  // 否則獲取資料
+  const locationName = props.item.地點;
+  if (!locationName) return;
+
+  featureStatsPopup.value.loading = true;
+
+  try {
+    const chars = props.item.對應字 || [];
+    const features = queryFeatures.value;
+
+    const response = await getFeatureStats({
+      locations: [locationName],
+      chars: chars,
+      features: features
+    });
+
+    featureStatsPopup.value.statsData = response;
+    featureStatsPopup.value.charsMap = response.chars_map || [];
+    featureStatsPopup.value.fetched = true;
+    featureStatsPopup.value.locationName = locationName;
+  } catch (error) {
+    console.error('查詢特徵統計失敗:', error);
+  } finally {
+    featureStatsPopup.value.loading = false;
+  }
+};
 </script>
 
 <style scoped>
@@ -191,5 +326,155 @@ const handleLocationClick = async (e) => {
 
 .locations-vue:active {
   transform: scale(0.98);
+}
+
+/* 特徵統計按鈕 */
+.feature-stats-btn {
+  /* 基础布局 */
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  white-space: nowrap;
+
+  /* 尺寸与字体 */
+  padding: 6px 12px;
+  border-radius: 999px; /* 或者保持 8px，999px 更像胶囊风格 */
+  font-size: 12px;
+  font-weight: 500; /* 600有点太重，500更精致 */
+
+  /* 核心：液态玻璃风格 */
+  background-color: rgba(0, 122, 255, 0.08); /* 极淡的蓝色背景 */
+  border: 1px solid rgba(0, 122, 255, 0.2); /* 半透明的蓝色细边框 */
+  color: #007AFF; /* 苹果蓝文字 */
+
+  /* 磨砂效果（这是玻璃感的灵魂） */
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px); /* 兼容 Safari */
+
+  /* 交互 */
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.25, 0.1, 0.25, 1); /* iOS 物理缓动 */
+  box-shadow: none; /* 去掉之前的深色阴影 */
+}
+
+/* 悬停状态：稍微加深一点点背景，增强边框 */
+.feature-stats-btn:hover:not(:disabled) {
+  background-color: rgba(0, 122, 255, 0.15);
+  border-color: rgba(0, 122, 255, 0.4);
+  transform: translateY(-0.5px); /* 极其微小的位移 */
+}
+
+/* 点击状态：微缩 */
+.feature-stats-btn:active {
+  background-color: rgba(0, 122, 255, 0.2);
+  transform: scale(0.98);
+}
+
+/* 禁用状态 */
+.feature-stats-btn:disabled {
+  opacity: 0.5;
+  filter: grayscale(1); /* 自动置灰 */
+  cursor: not-allowed;
+}
+
+.btn-spinner {
+  width: 12px;
+  height: 12px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top: 2px solid white;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* 簡要統計顯示 */
+.brief-stats {
+  font-size: 13px;
+  color: #666;
+  font-weight: 500;
+  padding: 4px 8px;
+  background: rgba(0, 122, 255, 0.05);
+  border-radius: 6px;
+  border: 1px solid rgba(0, 122, 255, 0.1);
+  flex-shrink: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* feature-row 佈局 */
+.feature-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* 主要信息容器：大螢幕下透明，小螢幕下成為真實容器 */
+.feature-main-items {
+  display: contents; /* 大螢幕：容器透明，子元素直接參與 feature-row 的佈局 */
+}
+
+/* 大螢幕下的順序控制：p -> brief-stats -> button -> p */
+.feature-main-items > p:first-child {
+  order: 1;
+}
+
+.brief-stats {
+  order: 2;
+}
+
+.feature-stats-btn {
+  order: 3;
+}
+
+.feature-main-items > p:last-child {
+  order: 4;
+}
+
+/* 響應式：小螢幕下重新排序，brief-stats 獨立一行 */
+@media (max-width: 600px) {
+  /* 容器變為真實的 flex 容器，佔據第一行 */
+  .feature-main-items {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-basis: 100%;
+    order: 1;
+  }
+  .feature-row{
+    flex-direction: column;
+    gap:2px;
+  }
+  .feature-row p{
+    margin:0;
+  }
+  /* brief-stats 獨立第二行 */
+  .brief-stats {
+    order: 2;
+    flex-basis: 100%;
+    white-space: normal;
+    word-break: break-all;
+  }
+
+  /* 重置容器內部元素的 order */
+  .feature-main-items > p:first-child {
+    order: 0;
+  }
+
+  .feature-stats-btn {
+    order: 0;
+  }
+
+  .feature-main-items > p:last-child {
+    order: 0;
+  }
 }
 </style>

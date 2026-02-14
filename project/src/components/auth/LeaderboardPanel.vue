@@ -86,7 +86,8 @@ const categoryMap = {
       { key: 'endpoint__api_ZhongGu', label: '查中古' },
       { key: 'endpoint__api_YinWei', label: '查音位' },
       { key: 'endpoint__api_phonology', label: '查地位' },
-      { key: 'endpoint__api_charlist', label: '地位組合' }
+      { key: 'endpoint__api_charlist', label: '地位組合' },
+      { key: 'endpoint__api_feature_stats', label: '查音節' }
     ]
   },
   '字調查詢': {
@@ -103,7 +104,7 @@ const categoryMap = {
     endpoints: [
       { key: 'endpoint__api_phonology_matrix', label: '查音系' },
       { key: 'endpoint__api_phonology_classification_matrix', label: '查音素' },
-      { key: 'endpoint__api_feature_counts', label: '查音節' }
+      { key: 'endpoint__api_feature_counts', label: '音節統計' }
     ]
   },
   '工具使用': {

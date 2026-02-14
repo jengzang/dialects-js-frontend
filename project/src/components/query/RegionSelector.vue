@@ -179,7 +179,7 @@
 
 <script setup>
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
-import { API_BASE } from '@/env-config.js'
+import { getPartitions } from '@/api'
 import { STATIC_REGION_TREE, top_yindian } from '@/config'
 
 // 全局已有（你原来 Cascader 就这么用的）
@@ -283,8 +283,7 @@ async function loadTreeFor(mode) {
     }
 
     // ✅ 再请求后端
-    const res = await fetch(`${API_BASE}/partitions`)
-    const tree = await res.json()
+    const tree = await getPartitions()
     const filteredTree = filterTopLevelKeys(tree)
 
     sessionStorage.setItem(CACHE_KEY, JSON.stringify(filteredTree))

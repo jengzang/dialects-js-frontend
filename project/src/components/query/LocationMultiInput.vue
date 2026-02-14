@@ -28,6 +28,7 @@
         placeholder="請輸入地點（空格分隔，可自動匹配）"
         rows="3"
       ></textarea>
+      <span v-if="showSuccessCheckmark" class="success-checkmark">✓</span>
 
       <!-- 建議下拉框 -->
       <Teleport to="body">
@@ -83,8 +84,7 @@
 
 <script setup>
 import { ref, computed, watch, nextTick } from 'vue'
-import { getLocations } from '@/api/query/LocationAndRegion.js'
-import { API_BASE } from '@/env-config.js'
+import { getLocations, batchMatch } from '@/api'
 
 const props = defineProps({
   modelValue: {
@@ -104,6 +104,7 @@ const suggestionEl = ref(null)
 const inputValue = ref('')
 const suggestions = ref([])
 const successMessage = ref('')
+const showSuccessCheckmark = ref(false)
 const matchedLocations = ref([])
 const showModal = ref(false)
 const warningMessage = ref('')
@@ -178,6 +179,7 @@ function getQueryStart() {
 
 // 键盘输入事件
 function onKeyup() {
+  showSuccessCheckmark.value = false
   clearTimeout(debounceTimer)
   debounceTimer = setTimeout(fetchSuggestion, 200)
 }
@@ -187,6 +189,7 @@ function onBlur() {
   setTimeout(() => {
     suggestions.value = []
     successMessage.value = ''
+    showSuccessCheckmark.value = false
   }, 200)
 }
 
@@ -198,18 +201,11 @@ function fetchSuggestion() {
   if (!query) {
     suggestions.value = []
     successMessage.value = ''
+    showSuccessCheckmark.value = false
     return
   }
 
-  const token = localStorage.getItem('ACCESS_TOKEN')
-
-  fetch(`${API_BASE}/batch_match?input_string=${encodeURIComponent(query)}`, {
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {})
-    }
-  })
-    .then(res => res.json())
+  batchMatch(query)
     .then(results => {
       suggestions.value = []
       successMessage.value = ''
@@ -218,8 +214,20 @@ function fetchSuggestion() {
 
       const r = results[0]
       if (r.success) {
+        // ✅ Success: Show checkmark in textarea + items in dropdown
         successMessage.value = r.message
+        showSuccessCheckmark.value = true
+
+        // Also show items if available
+        if (r.items && r.items.length > 0) {
+          const allValues = value.split(/[ ,;/，；、\n\t]+/).filter(Boolean)
+          const exclusionSet = new Set(allValues.filter(v => v !== query))
+          const filtered = Array.from(new Set(r.items)).filter(item => !exclusionSet.has(item))
+          suggestions.value = filtered
+        }
       } else {
+        // ❌ No match: Show items only
+        showSuccessCheckmark.value = false
         const allValues = value.split(/[ ,;/，；、\n\t]+/).filter(Boolean)
         const exclusionSet = new Set(allValues.filter(v => v !== query))
         const filtered = Array.from(new Set(r.items)).filter(item => !exclusionSet.has(item))
@@ -415,6 +423,34 @@ async function fetchMatchedLocations(queries) {
 
 .input-section textarea::placeholder {
   color: var(--text-secondary);
+}
+
+.success-checkmark {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 20px;
+  font-weight: bold;
+  color: #52c41a;
+  pointer-events: none;
+  animation: checkmark-appear 0.3s ease;
+}
+
+@keyframes checkmark-appear {
+  from {
+    opacity: 0;
+    transform: translateY(-50%) scale(0.5);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(-50%) scale(1);
+  }
+}
+
+/* Add right padding to textarea to prevent text overlap */
+.input-section textarea {
+  padding-right: 40px;
 }
 
 .suggestions-dropdown {

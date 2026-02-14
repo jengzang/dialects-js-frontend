@@ -242,3 +242,32 @@ export async function getFeatureCounts(params) {
     throw new Error(error.message || '獲取音位特徵計數失敗')
   }
 }
+
+/**
+ * 獲取特徵統計資料
+ * @param {Object} params - 查詢參數
+ * @property {string[]} params.locations - 地點列表
+ * @property {string[]} params.chars - 漢字列表
+ * @property {string[]} [params.features] - 特徵列表（可選，預設全部）
+ * @property {Object} [params.filters] - 過濾條件（可選）
+ * @returns {Promise<Object>} 特徵統計結果
+ * @throws {Error} 查詢失敗
+ * @example
+ * const stats = await getFeatureStats({
+ *   locations: ['廣州'],
+ *   chars: ['東', '西', '南', '北'],
+ *   features: ['聲母', '韻母']
+ * })
+ */
+export async function getFeatureStats(params) {
+  try {
+    return await api('/api/feature_stats', {
+      method: 'POST',
+      body: params
+    })
+  } catch (error) {
+    console.error('Get feature stats error:', error)
+    showError(error.message || '獲取特徵統計失敗')
+    throw new Error(error.message || '獲取特徵統計失敗')
+  }
+}
