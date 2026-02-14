@@ -39,7 +39,17 @@
 
           <!-- 音典分区输入框（自动填充） -->
           <div class="form-group">
-            <label for="region-input">分區<span class="required">*</span></label>
+            <label for="region-input">
+              <HelpIcon
+                  content="推薦填入完整的地圖集分區/音典分區，例如“客家話-粵台片-梅惠小片"
+                  size="sm"
+                  placement="right"
+                  icon="?"
+                  icon-color="#007aff"
+                  style="margin-right: 2px; vertical-align: bottom;"
+              />
+              分區<span class="required">*</span>
+            </label>
             <input
                 id="region-input"
                 v-model="formData.region"
@@ -86,7 +96,16 @@
 
           <!-- 值输入框 -->
           <div class="form-group">
-            <label for="value-input">值<span class="required">*</span></label>
+            <label for="value-input">
+              <HelpIcon
+                  content="填入的值將顯示在地圖上"
+                  size="sm"
+                  placement="right"
+                  icon="?"
+                  icon-color="#007aff"
+                  style="margin-right: 2px; vertical-align: bottom;"
+              />
+              值<span class="required">*</span></label>
             <input
                 id="value-input"
                 v-model="formData.value"
@@ -123,6 +142,7 @@ import { batchMatch, getRegions } from '@/api/query/LocationAndRegion.js'
 import { submitCustomForm } from '@/api/user/custom.js'
 import { showSuccess, showError, showWarning, showInfo } from '@/utils/message.js'
 import { userStore, globalPayload, resultCache } from '@/utils/store.js'
+import HelpIcon from '@/components/ToastAndHelp/HelpIcon.vue'
 
 const route = useRoute()
 

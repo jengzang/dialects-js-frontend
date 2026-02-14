@@ -722,7 +722,7 @@ textarea:focus {
 /* 手机设备 */
 @media (max-width: 600px) {
   .tab {
-    padding: 10px 16px;
+    padding: 12px 14px;
     font-size: 14px;
     border-radius: var(--radius-md);
   }

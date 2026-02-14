@@ -177,8 +177,8 @@ export const API_CONFIG = {
 // ========================================
 export const LAYOUT_CONFIG = {
     // 列布局
-    DESKTOP_COLS: 4,
-    DESKTOP_WIDTH_PCT: 24,
+    DESKTOP_COLS: 3,
+    DESKTOP_WIDTH_PCT: 32,
     DESKTOP_GAP_PCT: 1,
 
     TABLET_COLS: 2,

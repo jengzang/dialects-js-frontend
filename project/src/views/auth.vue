@@ -10,14 +10,13 @@
       <div v-if="mode === 'login'" style="padding: 12px; text-align: center;">
         <h3 style="display: flex; align-items: center; gap: 8px; justify-content: center;">
           登錄
-          <HelpIcon
-            icon="🎁"
-            content="查看會員權益對比"
-            size="lg"
-            iconColor="#ff9500"
-            trigger="click"
-            @click="showBenefitsPopup"
-          />
+          <button
+              class="benefit-circle-btn"
+              @click="showBenefitsPopup"
+              title="查看會員權益對比"
+          >
+            🎁
+          </button>
         </h3>
 
         <!-- Tab 切換 -->
@@ -1687,6 +1686,43 @@ h3 {
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+.benefit-circle-btn {
+  /* 布局与尺寸 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 35px;  /* 对应 size="lg" */
+  height: 35px;
+  padding: 0;
+
+  /* 形状与外观 */
+  border-radius: 50%; /* 纯圆 */
+  background-color: white;
+  border: 1px solid rgba(0, 0, 0, 0.08); /* 极细的边框 */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06); /* 柔和阴影 */
+
+  /* 字体与内容 */
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+
+  /* 防止选中文字 */
+  user-select: none;
+}
+
+/* 悬停效果 */
+.benefit-circle-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(255, 149, 0, 0.15); /* 悬停时带一点点橙色光晕 */
+  border-color: rgba(255, 149, 0, 0.3); /* 边框变橙色 */
+}
+
+/* 点击按下效果 */
+.benefit-circle-btn:active {
+  transform: translateY(0) scale(0.96);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
 }
 </style>
 

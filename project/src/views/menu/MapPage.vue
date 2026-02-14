@@ -46,6 +46,16 @@
           </button>
         </div>
 
+        <!-- 幫助圖標 -->
+        <HelpIcon
+            :content="helpText"
+            size="sm"
+            placement="bottom"
+            icon="?"
+            icon-color="#007aff"
+            style="margin-left: 5px;"
+        />
+
     </div>
     </div>
 
@@ -87,6 +97,7 @@ import DivideTab from "@/components/map/DivideTab.vue";
 import CustomTab from '@/components/map/CustomTab.vue'
 import MapLibre from "@/components/map/MapLibre.vue";
 import CustomDataPanel from '@/components/map/CustomDataPanel.vue'
+import HelpIcon from '@/components/ToastAndHelp/HelpIcon.vue'
 import { showSuccess, showError } from '@/utils/message.js'
 import { func_mergeData, addCustomFeatureData } from '@/utils/MapData.js'
 
@@ -146,6 +157,12 @@ const availableFeatures = computed(() => {
   if (!mapStore.mergedData || mapStore.mergedData.length === 0) return []
   const features = mapStore.mergedData.map(item => item.feature)
   return [...new Set(features)]
+})
+
+// 計算幫助文本
+const helpText = computed(() => {
+  if (!selectedFeature.value) return '如果你想添加個人自定義數據，請先選擇特徵'
+  return `如果你想添加個人自定義數據，特徵需填入：${selectedFeature.value}`
 })
 
 // ✨ 監聽特徵列表變化 (修復版)
