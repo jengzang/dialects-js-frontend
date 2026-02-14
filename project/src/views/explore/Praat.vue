@@ -1,12 +1,12 @@
 <template>
   <div class="praat-page">
-    <!-- Login Button (top right) -->
-    <div v-if="!userStore.isAuthenticated" class="login-prompt">
-      <button class="login-button glass-button" @click="goToLogin">
-        <span>🔒</span>
-        <span>請先登錄</span>
-      </button>
-    </div>
+<!--    &lt;!&ndash; Login Button (top right) &ndash;&gt;-->
+<!--    <div v-if="!userStore.isAuthenticated" class="login-prompt">-->
+<!--      <button class="login-button glass-button" @click="goToLogin">-->
+<!--        <span>🔒</span>-->
+<!--        <span>請先登錄</span>-->
+<!--      </button>-->
+<!--    </div>-->
 
     <div class="page-header">
       <h1 class="page-title">Praat 聲學分析</h1>
@@ -463,6 +463,7 @@ const startAnalysis = async () => {
   // Check if user is logged in
   if (!userStore.isAuthenticated) {
     showWarning('請先登錄！')
+    router.push('/auth')
     return
   }
 
@@ -1123,7 +1124,7 @@ onBeforeUnmount(() => {
   .tab-navigation {
     position: fixed;
     bottom: auto;
-    top: 1rem;
+    top: 0.5rem;
     left: 50%;
     transform: translateX(-50%);
     width: 100%;
@@ -1137,8 +1138,8 @@ onBeforeUnmount(() => {
   .tab-btn {
     flex: 1;
     font-size: 13px;
-    padding: 10px 8px;
-    min-width: 90px;
+    padding: 10px 4px;
+    min-width: 60px;
   }
 
   .settings-sidebar {

@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { getFeatureCounts } from '@/api/query/core'
-import LocationMultiInput from '@/components/LocationMultiInput.vue'
+import LocationMultiInput from '@/components/query/LocationMultiInput.vue'
 
 const loading = ref(false)
 const error = ref(null)
@@ -297,7 +297,7 @@ const closeLocationModal = () => {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-bottom: 20px;
+  margin: 20px 0;
 }
 
 .page-title {

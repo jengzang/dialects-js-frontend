@@ -36,7 +36,7 @@
             </label>
             <label class="format-option">
               <input type="radio" name="format" value="跳跳老鼠" v-model="selectedFormat" />
-              <span>跳跳老鼠</span>
+              <span>一音多字</span>
             </label>
             <label class="format-option">
               <input type="radio" name="format" value="縣志" v-model="selectedFormat" />
@@ -766,7 +766,7 @@
           <div class="modal-body help-content custom-scrollbar">
             <!-- 音典格式 -->
             <div class="help-section">
-              <h4>1. 音典</h4>
+              <h4>1. 一字一音(音典)</h4>
               <div class="format-details">
                 <p><strong>文件要求：</strong>Excel (.xlsx, .xls)。</p>
                 <p><strong>必須包含三列：</strong></p>
@@ -781,7 +781,7 @@
 
             <!-- 跳跳老鼠格式 -->
             <div class="help-section">
-              <h4>2. 跳跳老鼠</h4>
+              <h4>2. 一音多字(跳跳老鼠)</h4>
               <p>「一音對多字」</p>
               <div class="format-details">
                 <p><strong>文件要求：</strong>Excel (.xlsx, .xls)。</p>
@@ -1864,9 +1864,10 @@ onUnmounted(() => {
 /* 基础布局 */
 .check-tool-container {
   width: 100%;
-  height: 100%;
+  height: 90%;
   display: flex;
   flex-direction: column;
+  padding-top: 30px;
 }
 
 .welcome-screen {
@@ -1918,7 +1919,7 @@ onUnmounted(() => {
 }
 
 .welcome-card {
-  max-width: 600px;
+  max-width: 800px;
   width: 100%;
   padding: 20px 30px;
   text-align: center;
@@ -1937,7 +1938,9 @@ onUnmounted(() => {
 }
 
 .feature-item {
+justify-content: center;
   display: flex;
+  font-size: 15px;
   align-items: center;
   gap: 12px;
   padding: 6px;

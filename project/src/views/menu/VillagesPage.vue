@@ -3,17 +3,19 @@
       <h2 class="page-title">自然村</h2>
 
       <div class="villages-grid">
-        <button class="village-btn" @click="handleGdVillagesTable">
-          <div class="village-icon">📈</div>
-          <div class="village-name">全粵村情表格</div>
-          <div class="village-desc">廣東省自然村表格數據</div>
-        </button>
 
         <button class="village-btn" @click="handleGdVillages">
           <div class="village-icon">🏘️</div>
           <div class="village-name">廣東自然村</div>
           <div class="village-desc">廣東省自然村樹狀圖</div>
         </button>
+
+        <button class="village-btn" @click="handleGdVillagesTable">
+          <div class="village-icon">📈</div>
+          <div class="village-name">全粵村情表格</div>
+          <div class="village-desc">廣東省自然村表格數據</div>
+        </button>
+
 
         <button class="village-btn" @click="handleYcVillages">
           <div class="village-icon">🏠</div>

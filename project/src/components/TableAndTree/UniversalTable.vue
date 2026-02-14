@@ -47,19 +47,7 @@
       </div>
     </div>
 
-    <div
-      ref="scrollAreaRef"
-      :class="[
-        'table-scroll-area',
-        {
-          'scroll-lock-horizontal': scrollDirection === 'horizontal',
-          'scroll-lock-vertical': scrollDirection === 'vertical'
-        }
-      ]"
-      @touchstart="handleTouchStart"
-      @touchmove="handleTouchMove"
-      @touchend="handleTouchEnd"
-    >
+    <div class="table-scroll-area">
       <div v-if="isLoading" class="loading-overlay">
         <div class="spinner"></div>
         <span>數據加載中...</span>
@@ -152,19 +140,7 @@
       <transition name="fade-scale">
         <div v-if="isFullscreen" class="table-fullscreen-overlay">
           <div class="fullscreen-container">
-            <div
-              ref="scrollAreaRefFullscreen"
-              :class="[
-                'table-scroll-area fullscreen-table',
-                {
-                  'scroll-lock-horizontal': scrollDirection === 'horizontal',
-                  'scroll-lock-vertical': scrollDirection === 'vertical'
-                }
-              ]"
-              @touchstart="handleTouchStart"
-              @touchmove="handleTouchMove"
-              @touchend="handleTouchEnd"
-            >
+            <div class="table-scroll-area fullscreen-table">
               <div v-if="isLoading" class="loading-overlay">
                 <div class="spinner"></div>
                 <span>數據加載中...</span>
@@ -594,19 +570,8 @@ const batchReplace = reactive({
 })
 
 // ========================================
-// 移动端滚动锁定相关状态
+// (已移除移动端滚动锁定相关状态，恢复为普通双向滚动)
 // ========================================
-// 滚动容器 ref
-const scrollAreaRef = ref(null)
-const scrollAreaRefFullscreen = ref(null)
-
-const touchStartX = ref(0)
-const touchStartY = ref(0)
-const scrollDirection = ref(null) // 'horizontal' | 'vertical' | null
-const isScrollLocked = ref(false)
-// ✅ 新增：保存切换方向前的滚动位置（修复 iOS Safari 重置问题）
-const savedScrollLeft = ref(0)
-const savedScrollTop = ref(0)
 
 // ✅ 可编辑的列（排除主键字段）
 const editableColumns = computed(() => {
@@ -1494,72 +1459,8 @@ const executeAllPagesReplace = async () => {
 
 
 // ========================================
-// 移动端触摸滚动锁定函数
+// (已移除移动端触摸滚动锁定函数，恢复为普通双向滚动)
 // ========================================
-
-/**
- * 处理触摸开始事件
- */
-const handleTouchStart = (e) => {
-  touchStartX.value = e.touches[0].clientX
-  touchStartY.value = e.touches[0].clientY
-  scrollDirection.value = null
-  isScrollLocked.value = false
-}
-
-/**
- * 处理触摸移动事件
- * ✅ iOS Safari 修复：在 overflow 改变前保存滚动位置，然后在 nextTick 中恢复
- */
-const handleTouchMove = (e) => {
-  if (isScrollLocked.value) {
-    return // 已经锁定方向，不需要重新计算
-  }
-
-  const deltaX = Math.abs(e.touches[0].clientX - touchStartX.value)
-  const deltaY = Math.abs(e.touches[0].clientY - touchStartY.value)
-
-  // ✅ 使用 10px 阈值检测滚动方向
-  if (deltaX > 10 || deltaY > 10) {
-    // ✅ 1. 在改变方向前，先保存当前滚动位置
-    const scrollArea = isFullscreen.value ? scrollAreaRefFullscreen.value : scrollAreaRef.value
-    if (scrollArea) {
-      savedScrollLeft.value = scrollArea.scrollLeft
-      savedScrollTop.value = scrollArea.scrollTop
-    }
-
-    // ✅ 2. 设置新的滚动方向
-    const newDirection = deltaX > deltaY ? 'horizontal' : 'vertical'
-    scrollDirection.value = newDirection
-    isScrollLocked.value = true
-
-    // ✅ 3. 使用 nextTick 在 CSS 类应用后恢复滚动位置
-    // 这样可以避免 iOS Safari 在 overflow 改变时重置滚动位置
-    nextTick(() => {
-      if (scrollArea) {
-        // 恢复非锁定方向的滚动位置
-        if (newDirection === 'horizontal') {
-          scrollArea.scrollTop = savedScrollTop.value
-        } else {
-          scrollArea.scrollLeft = savedScrollLeft.value
-        }
-      }
-    })
-  }
-}
-
-/**
- * 处理触摸结束事件
- * ✅ iOS Safari 修复：延迟重置状态，给惯性滚动时间完成
- */
-const handleTouchEnd = (e) => {
-  // ✅ 延迟重置，给 iOS 惯性滚动时间完成
-  // 100ms 延迟不会影响用户快速换方向滑动（用户反应时间通常 > 200ms）
-  setTimeout(() => {
-    scrollDirection.value = null
-    isScrollLocked.value = false
-  }, 100)
-}
 
 const handleGlobalClick = () => {
   if (activeFilterCol.value) {
@@ -1718,25 +1619,7 @@ onUnmounted(() => {
   border-radius: var(--radius-md);
   background: var(--glass-light);
   min-height: 200px;
-  /* ✅ 使用 touch-action 控制触摸行为 */
-  touch-action: pan-x pan-y;
-  /* ✅ 启用 iOS 原生惯性滚动 */
   -webkit-overflow-scrolling: touch;
-}
-
-/* ✅ 滾動方向鎖定類 */
-.table-scroll-area.scroll-lock-horizontal {
-  overflow-y: hidden !important;
-  overflow-x: auto;
-  touch-action: pan-x; /* 只允许水平滚动 */
-  /* iOS 会在 overflow 改变时重置滚动位置，由 JS 保存和恢复 */
-}
-
-.table-scroll-area.scroll-lock-vertical {
-  overflow-x: hidden !important;
-  overflow-y: auto;
-  touch-action: pan-y; /* 只允许垂直滚动 */
-  /* iOS 会在 overflow 改变时重置滚动位置，由 JS 保存和恢复 */
 }
 
 table {

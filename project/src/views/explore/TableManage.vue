@@ -199,7 +199,7 @@ const DB_TABLE_MAPPING = {
   dialects_admin: ['dialects'],
   yubao: ['grammar', 'vocabulary'],
   logs: ['api_keyword_log', 'api_statistics', 'api_visit_log'],
-  auth: ['api_usage_logs', 'api_usage_summary', 'users', 'refresh_tokens', 'user_db_permissions']
+  // auth: ['api_usage_logs', 'api_usage_summary', 'users', 'refresh_tokens', 'user_db_permissions']
 }
 
 // 预设配置（常用表的默认列配置）

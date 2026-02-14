@@ -707,16 +707,16 @@ const reset = () => {
 <style scoped>
 .merge-tool-container {
   width: 100%;
-  height: 100%;
+  height: 80%;
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 20px;
+  padding-top: 60px;
 }
 
 .glass-container {
   width: min(95vw, 900px);
-  height: min(85dvh, 800px);
   background: rgba(255, 255, 255, 0.65);
   backdrop-filter: blur(25px) saturate(180%);
   -webkit-backdrop-filter: blur(25px) saturate(180%);
@@ -726,7 +726,7 @@ const reset = () => {
   padding: 30px 40px;
   display: flex;
   flex-direction: column;
-  gap: 32px;
+  gap: 12px;
   overflow: hidden;
 }
 
@@ -1496,13 +1496,9 @@ const reset = () => {
     padding: 20px 16px;
     border-radius: 20px;
     width: 100%;
-    height: auto;
     min-height: auto;
   }
 
-  .header-section {
-    padding-bottom: 16px;
-  }
 
   .title {
     font-size: 22px;
@@ -1612,10 +1608,10 @@ const reset = () => {
     padding-top: 16px;
   }
 
-  .glass-button {
+  .glass-button ,.glass-button.large {
     width: 100%;
     justify-content: center;
-    padding: 14px 24px;
+    padding: 8px 24px;
   }
 
   .processing-icon {
