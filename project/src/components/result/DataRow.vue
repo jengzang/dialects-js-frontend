@@ -80,6 +80,8 @@
     <FeatureStatsPopup
         :visible="featureStatsPopup.visible"
         :location-name="featureStatsPopup.locationName"
+        :feature-key="featureStatsPopup.featureKey"
+        :feature-val="featureStatsPopup.featureVal"
         :stats-data="featureStatsPopup.statsData"
         :chars-map="featureStatsPopup.charsMap"
         :loading="featureStatsPopup.loading"
@@ -184,6 +186,8 @@ const handleLocationClick = async (e) => {
 const featureStatsPopup = ref({
   visible: false,
   locationName: '',
+  featureKey: '',
+  featureVal: '',
   statsData: null,
   charsMap: [],
   loading: false,
@@ -220,7 +224,7 @@ const queryFeatures = computed(() => {
   return filtered;
 });
 
-// 計算簡要統計（前3高）
+// 計算簡要統計（聲母/韻母顯示前5個，聲調顯示前2個）
 const briefStats = computed(() => {
   if (!featureStatsPopup.value.fetched || !featureStatsPopup.value.statsData) return '';
 
@@ -232,10 +236,13 @@ const briefStats = computed(() => {
   queryFeatures.value.forEach(featureName => {
     const featureData = locationData[featureName];
     if (featureData) {
-      // 按 count 排序，取前3
+      // 根據特徵類型決定顯示數量：聲母/韻母顯示前5個，聲調顯示前2個
+      const topCount = featureName === '聲調' ? 2 : 5;
+
+      // 按 count 排序，取前 N 個
       const sorted = Object.entries(featureData)
         .sort((a, b) => b[1].count - a[1].count)
-        .slice(0, 3)
+        .slice(0, topCount)
         .map(([value]) => value);
 
       if (sorted.length > 0) {
@@ -253,6 +260,8 @@ const handleFeatureStatsClick = async () => {
   if (featureStatsPopup.value.fetched) {
     featureStatsPopup.value.visible = true;
     featureStatsPopup.value.locationName = props.item.地點;
+    featureStatsPopup.value.featureKey = featureKey.value;
+    featureStatsPopup.value.featureVal = featureVal.value;
     return;
   }
 
@@ -276,6 +285,8 @@ const handleFeatureStatsClick = async () => {
     featureStatsPopup.value.charsMap = response.chars_map || [];
     featureStatsPopup.value.fetched = true;
     featureStatsPopup.value.locationName = locationName;
+    featureStatsPopup.value.featureKey = featureKey.value;
+    featureStatsPopup.value.featureVal = featureVal.value;
   } catch (error) {
     console.error('查詢特徵統計失敗:', error);
   } finally {
@@ -440,7 +451,7 @@ const handleFeatureStatsClick = async () => {
 }
 
 /* 響應式：小螢幕下重新排序，brief-stats 獨立一行 */
-@media (max-width: 600px) {
+@media (max-width: 500px) {
   /* 容器變為真實的 flex 容器，佔據第一行 */
   .feature-main-items {
     display: flex;
@@ -448,13 +459,14 @@ const handleFeatureStatsClick = async () => {
     gap: 12px;
     flex-basis: 100%;
     order: 1;
+    margin-top: 8px;
   }
   .feature-row{
     flex-direction: column;
-    gap:2px;
+    gap: 3px;
   }
   .feature-row p{
-    margin:0;
+    margin: 0;
   }
   /* brief-stats 獨立第二行 */
   .brief-stats {
@@ -471,6 +483,7 @@ const handleFeatureStatsClick = async () => {
 
   .feature-stats-btn {
     order: 0;
+    padding: 3px 10px;
   }
 
   .feature-main-items > p:last-child {

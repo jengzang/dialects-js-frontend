@@ -414,7 +414,7 @@ function fetchSuggestion() {
     return
   }
 
-  batchMatch(query)
+  batchMatch(query, true)
       .then(results => {
         suggestions.value = []
         successMessage.value = ''
@@ -422,11 +422,11 @@ function fetchSuggestion() {
 
         const r = results[0]
         if (r.success) {
-          // ✅ Success: Show checkmark in textarea + items in dropdown
-          successMessage.value = r.message
+          // ✅ Success: Show checkmark in textarea + items in dropdown (NO success message)
           showSuccessCheckmark.value = true
+          successMessage.value = ''  // Clear success message
 
-          // Also show items if available
+          // Show items if available
           if (r.items && r.items.length > 0) {
             const allValues = value.split(/[ ,;/，；、\n\t]+/).filter(Boolean)
             const exclusionSet = new Set(allValues.filter(v => v !== query))
@@ -436,6 +436,7 @@ function fetchSuggestion() {
         } else {
           // ❌ No match: Show items only
           showSuccessCheckmark.value = false
+          successMessage.value = ''
           const allValues = value.split(/[ ,;/，；、\n\t]+/).filter(Boolean)
           const exclusionSet = new Set(allValues.filter(v => v !== query))
           const filtered = Array.from(new Set(r.items)).filter(item => !exclusionSet.has(item))
