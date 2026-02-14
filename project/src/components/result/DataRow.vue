@@ -176,4 +176,20 @@ const handleLocationClick = async (e) => {
   from { opacity: 0; transform: translate(-50%, -90%); }
   to { opacity: 1; transform: translate(-50%, -100%); }
 }
+
+/* 地名点击交互反馈 */
+.locations-vue {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  color: #1d1d1f;
+}
+
+.locations-vue:hover {
+  color: #007aff;
+  transform: translateX(2px);
+}
+
+.locations-vue:active {
+  transform: scale(0.98);
+}
 </style>

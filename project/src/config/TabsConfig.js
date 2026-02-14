@@ -29,7 +29,7 @@ export const MenuTabsConfig = [
     mobileWeight: 0.9,                    // 移动端标签显示时的 flex 权重
     weightIconOnly: 0.6,                  // 桌面端仅显示图标时的 flex 权重（可选，默认使用 weight）
     mobileWeightIconOnly: 0.5,            // 移动端仅显示图标时的 flex 权重（可选，回退链：mobileWeight → weightIconOnly → weight）
-    fontSize: 1.3,
+    fontSize: 1.2,
     mobileFontSize: 1.5,                  // 移动端使用更大的字体
     to: { path: '/menu', query: { tab: 'pho' } },
     isPseudo: false,
@@ -47,7 +47,7 @@ export const MenuTabsConfig = [
     mobileWeight: 0.9,                // 移动端标签显示时的 flex 权重
     weightIconOnly: 0.6,                  // 桌面端仅显示图标时的 flex 权重（可选，默认使用 weight）
     mobileWeightIconOnly: 0.4,            // 移动端仅显示图标时的 flex 权重（可选，回退链：mobileWeight → weightIconOnly → weight）
-    fontSize: 1.3,
+    fontSize: 1.2,
     mobileFontSize: 1.5,                  // 移动端使用更大的字体
     to: { path: '/menu', query: { tab: 'words' } },
     isPseudo: false,
@@ -81,7 +81,7 @@ export const MenuTabsConfig = [
     mobileWeight: 0.9,                    // 移动端标签显示时的 flex 权重
     weightIconOnly: 0.6,                  // 桌面端仅显示图标时的 flex 权重（可选，默认使用 weight）
     mobileWeightIconOnly: 0.4,            // 移动端仅显示图标时的 flex 权重（可选，回退链：mobileWeight → weightIconOnly → weight）
-    fontSize: 1.3,
+    fontSize: 1.2,
     mobileFontSize: 1.3,
     to: { path: '/menu', query: { tab: 'result' } },
     isPseudo: false,
@@ -116,7 +116,7 @@ export const MenuTabsConfig = [
     mobileWeight: 0.8,                // 移动端标签显示时的 flex 权重
     weightIconOnly: 0.6,                  // 桌面端仅显示图标时的 flex 权重（可选，默认使用 weight）
     mobileWeightIconOnly: 0.4,            // 移动端仅显示图标时的 flex 权重（可选，回退链：mobileWeight → weightIconOnly → weight）
-    fontSize: 1.3,
+    fontSize: 1.2,
     mobileFontSize: 1.5,                  // 移动端使用更大的字体
     to: { path: '/menu', query: { tab: 'villages' } },
     isPseudo: false,

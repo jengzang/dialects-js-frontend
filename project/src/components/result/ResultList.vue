@@ -4,7 +4,10 @@
         id="resultPanelContent"
         class="panel-content"
         ref="scrollContainerRef"
-        style="overflow-y: auto;"
+        :style="{
+          overflowY: 'auto',
+          marginBottom: isCondensedMode ? '0' : '50px'
+        }"
     >
       <div v-if="!hasData" class="empty-tip" style="padding: 20px; text-align: center; color: #666;">
         請先查詢
@@ -98,7 +101,7 @@ import FeaturePopup from "./FeaturePopup.vue";
 
 const props = defineProps({
   data: { type: Array, default: () => [] },
-  isCondensed: { type: Boolean, default: true }
+  isCondensed: { type: Boolean, default: false }
 });
 
 // === 核心数据 (保持不变) ===

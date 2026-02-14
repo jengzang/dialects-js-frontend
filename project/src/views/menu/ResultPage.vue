@@ -48,7 +48,6 @@
     <ResultList
         v-else-if="latestResults.length > 0 && ['tab2', 'tab3'].includes(currentTabRef)"
         :data="latestResults"
-        :is-condensed="true"
     />
 
     <template v-else-if="latestResults.length > 0 && ['tab1', 'tab4'].includes(currentTabRef)">
