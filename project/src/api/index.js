@@ -81,7 +81,8 @@ export {
   searchChars,
   searchTones,
   getCharList,
-  getFeatureCounts
+  getFeatureCounts,
+  getFeatureStats
 } from './query/core.js'
 
 // 地点查询

@@ -95,7 +95,7 @@ import { ref, computed, watch, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { getPhonologyClassificationMatrix } from '@/api/query/phonology'
 import PhonologyMatrix from '@/components/TableAndTree/PhonologyTable.vue'
-import LocationMultiInput from '@/components/LocationMultiInput.vue'
+import LocationMultiInput from '@/components/query/LocationMultiInput.vue'
 import {
   parsePhonologyCustomParams,
   validatePhonologyParams
@@ -383,7 +383,7 @@ watch(() => route.query, (newQuery) => {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-bottom: 20px;
+  margin: 20px 0;
 }
 
 .page-title {

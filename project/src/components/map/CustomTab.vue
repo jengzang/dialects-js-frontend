@@ -99,50 +99,22 @@
             <button class="action-btn add-single-btn" @click="handleAddSingle">
               📝 逐條添加
             </button>
-            <div
-              class="help-icon"
-              @mouseenter="!isMobile ? showTooltip('single') : null"
-              @mouseleave="!isMobile ? hideTooltip() : null"
-              @click="isMobile ? toggleTooltip('single') : null"
-            >
-              ?
-            </div>
-            <Teleport to="body">
-              <Transition name="tooltip-fade">
-                <div
-                  v-if="activeTooltip === 'single'"
-                  class="tooltip-panel"
-                  :style="tooltipStyle"
-                >
-                  跳轉至地圖頁面，點擊地圖即可獲取經緯度
-                </div>
-              </Transition>
-            </Teleport>
+            <HelpIcon
+              content="跳轉至地圖頁面，點擊地圖即可獲取經緯度"
+              size="md"
+              trigger="both"
+            />
           </div>
 
           <div class="button-with-help">
             <button class="action-btn add-batch-btn" @click="handleAddBatch">
               📋 批量添加
             </button>
-            <div
-              class="help-icon"
-              @mouseenter="!isMobile ? showTooltip('batch') : null"
-              @mouseleave="!isMobile ? hideTooltip() : null"
-              @click="isMobile ? toggleTooltip('batch') : null"
-            >
-              ?
-            </div>
-            <Teleport to="body">
-              <Transition name="tooltip-fade">
-                <div
-                  v-if="activeTooltip === 'batch'"
-                  class="tooltip-panel"
-                  :style="tooltipStyle"
-                >
-                  批量添加多條數據，支持從excel粘貼
-                </div>
-              </Transition>
-            </Teleport>
+            <HelpIcon
+              content="批量添加多條數據，支持從excel粘貼"
+              size="md"
+              trigger="both"
+            />
           </div>
         </div>
       </div>
@@ -415,6 +387,7 @@
 import { ref, reactive, nextTick, onMounted, onBeforeUnmount, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import LocationAndRegionInput from '@/components/query/LocationAndRegionInput.vue'
+import HelpIcon from '@/components/ToastAndHelp/HelpIcon.vue'
 import { getCustomFeature } from '@/api/user/custom.js'
 import { getAllCustomData } from '@/api/user'
 import { userStore, resultCache, mapStore, uiStore, isCustomButtonDisabled, setRunning } from '@/utils/store.js'
@@ -448,26 +421,19 @@ watch(selectedFeature, (newVal) => {
   uiStore.buttonStates.custom.hasSelectedFeature = !!newVal
 }, { immediate: true })
 
+// Watch for custom tab visibility - only fetch data when tab is active
+watch(
+  () => route.query.sub,
+  (newSub) => {
+    if (newSub === 'custom' && userStore.isAuthenticated) {
+      fetchUserTotalCount()
+    }
+  },
+  { immediate: true } // Run immediately if already on custom tab
+)
+
 // 帮助弹窗状态
 const isHelpModalOpen = ref(false)
-
-// Tooltip 相關狀態
-const activeTooltip = ref(null)
-const tooltipStyle = reactive({
-  position: 'absolute',
-  top: '0px',
-  left: '0px',
-  zIndex: 99999
-})
-
-// Mobile detection
-const isMobile = ref(false)
-const checkMobile = () => {
-  isMobile.value = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
-}
-
-// Tooltip timer for mobile auto-hide
-let tooltipTimer = null
 
 // Dropdown 样式（动态计算位置）
 const dropdownStyle = reactive({
@@ -488,77 +454,6 @@ const openHelpModal = () => {
 
 const closeHelpModal = () => {
   isHelpModalOpen.value = false
-}
-
-// Tooltip 控制函數
-const showTooltip = (type) => {
-  activeTooltip.value = type
-  updateTooltipPosition(type)
-}
-
-const hideTooltip = () => {
-  activeTooltip.value = null
-}
-
-const toggleTooltip = (type) => {
-  if (activeTooltip.value === type) {
-    activeTooltip.value = null
-    clearTimeout(tooltipTimer)
-  } else {
-    activeTooltip.value = type
-    updateTooltipPosition(type)
-
-    // 移動端自動隱藏（3秒後）
-    clearTimeout(tooltipTimer)
-    tooltipTimer = setTimeout(() => {
-      activeTooltip.value = null
-    }, 3000)
-  }
-}
-
-const updateTooltipPosition = (type) => {
-  nextTick(() => {
-    const helpIcons = document.querySelectorAll('.help-icon')
-    let targetIcon = null
-
-    if (type === 'single') {
-      targetIcon = helpIcons[0]
-    } else if (type === 'batch') {
-      targetIcon = helpIcons[1]
-    }
-
-    if (targetIcon) {
-      const rect = targetIcon.getBoundingClientRect()
-      const viewportWidth = window.innerWidth
-      const viewportHeight = window.innerHeight
-      const tooltipWidth = 250 // 預估 tooltip 寬度
-      const tooltipHeight = 60 // 預估 tooltip 高度
-
-      // 計算初始位置（圖標下方居中）
-      let left = rect.left + window.scrollX + (rect.width / 2) - (tooltipWidth / 2)
-      let top = rect.bottom + window.scrollY + 8
-
-      // 檢查右邊界
-      if (left + tooltipWidth > viewportWidth) {
-        left = viewportWidth - tooltipWidth - 10
-      }
-
-      // 檢查左邊界
-      if (left < 10) {
-        left = 10
-      }
-
-      // 檢查下邊界（如果超出，顯示在圖標上方）
-      if (rect.bottom + tooltipHeight + 8 > viewportHeight) {
-        top = rect.top + window.scrollY - tooltipHeight - 8
-      }
-
-      tooltipStyle.position = 'absolute'
-      tooltipStyle.top = `${top}px`
-      tooltipStyle.left = `${left}px`
-      tooltipStyle.zIndex = 99999
-    }
-  })
 }
 
 // 登录
@@ -684,15 +579,13 @@ const fetchUserTotalCount = async () => {
 }
 
 onMounted(() => {
-  checkMobile()
   document.addEventListener('click', onClickOutside)
-  fetchUserTotalCount() // 進入頁面獲取總量
+  // fetchUserTotalCount() moved to route watcher below
 })
 
 onBeforeUnmount(() => {
   document.removeEventListener('click', onClickOutside)
   clearTimeout(featureDebounceTimer)
-  clearTimeout(tooltipTimer)
 })
 
 // 运行查询
@@ -860,8 +753,8 @@ const handleAddBatch = () => {
   position: relative;
 }
 
-/* 幫助圖標 - 蘋果液態玻璃風格 */
-.help-icon,.help-icon-head{
+/* 頁面頭部幫助圖標 - 蘋果液態玻璃風格 */
+.help-icon-head {
   width: 24px;
   height: 24px;
   border-radius: 50%;
@@ -893,7 +786,7 @@ const handleAddBatch = () => {
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.help-icon:hover,.help-icon-head:hover{
+.help-icon-head:hover {
   background: linear-gradient(
     145deg,
     rgba(255, 255, 255, 1),
@@ -906,53 +799,11 @@ const handleAddBatch = () => {
   transform: scale(1.1);
 }
 
-.help-icon:active,.help-icon-head:active{
+.help-icon-head:active {
   transform: scale(1.05);
   box-shadow:
     inset 0 0 0.5px rgba(255, 255, 255, 0.3),
     0 2px 8px rgba(0, 122, 255, 0.2);
-}
-
-/* Tooltip 面板 - 蘋果液態玻璃風格 */
-.tooltip-panel {
-  position: absolute;
-  padding: 10px 14px;
-  max-width: min(250px, calc(100vw - 20px)); /* 確保不超出屏幕 */
-  font-size: 13px;
-  line-height: 1.5;
-  color: #1d1d1f;
-  text-align: center;
-  pointer-events: none;
-  word-wrap: break-word; /* 長文字自動換行 */
-
-  /* 液態玻璃效果 */
-  background: linear-gradient(
-    145deg,
-    rgba(255, 255, 255, 0.95),
-    rgba(255, 255, 255, 0.85)
-  );
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-
-  /* 邊框和陰影 */
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  border-radius: 12px;
-  box-shadow:
-    inset 0 0 0.5px rgba(255, 255, 255, 0.3),
-    0 8px 24px rgba(0, 0, 0, 0.15),
-    0 0 0 0.5px rgba(255, 255, 255, 0.1);
-}
-
-/* Tooltip 過渡動畫 */
-.tooltip-fade-enter-active,
-.tooltip-fade-leave-active {
-  transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
-}
-
-.tooltip-fade-enter-from,
-.tooltip-fade-leave-to {
-  opacity: 0;
-  transform: translateY(-5px) scale(0.95);
 }
 
 /* 通用按钮样式（非悬浮） */

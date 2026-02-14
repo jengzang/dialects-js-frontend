@@ -820,8 +820,8 @@ onMounted(async () => {
   // 如果 URL 中没有 sub 参数，默认跳转到 vocabulary
   if (!route.query.sub) {
     await router.replace({
-      path: '/menu',
-      query: {tab: 'YuBao', sub: 'vocabulary'}
+      path: '/explore',
+      query: {page: 'YuBao', sub: 'vocabulary'}
     })
   }
 
@@ -1306,9 +1306,9 @@ watch(viewMode, async (newMode) => {
   border-radius: 16px;
   border: 1px solid var(--border-gray-light);
   box-shadow: var(--shadow-md);
-  padding: 32px;
+  padding: 25px;
   min-height: 300px;
-  max-height: 70dvh;
+  max-height: 69dvh;
   overflow: auto;
 }
 

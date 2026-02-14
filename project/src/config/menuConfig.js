@@ -5,22 +5,31 @@ export const menuConfig = {
   // Special: Return to query (only in SimpleSidebar)
   'query': {
     label: '返回查詢',
-    icon: '📊',
+    icon: '🔍️',
     path: '/menu?tab=query',
     children: null,
-    showIn: ['SimpleSidebar'] // 只在 SimpleSidebar 中顯示
+    showIn: ['none'] // 只在 SimpleSidebar 中顯示
+  },
+  // Level 1: External link to old website
+  'old-site': {
+    label: '舊版網站',
+    icon: '🕰️',
+    path: '/detail', // Will be set dynamically using window.WEB_BASE
+    external: true,
+    children: null,
+    // showIn: ['NavBar']
   },
 
 
   // Level 2: Expandable data submenu
   'data': {
     label: '音系',
-    icon: '✍️',
+    icon: '🧬',
     path: '/menu?tab=pho',
     children: [
       {
         label: '音系查詢',
-        icon: '🔍️',
+        icon: '⚛️',
         path: '/explore?page=phonologyMatrix'
       },
       {
@@ -38,20 +47,16 @@ export const menuConfig = {
         icon: '✍️',
         path: '/explore?page=ZhongGu'
       },
-    ]
+    ],
+    showIn: ['SimpleSidebar']
   },
 
   // Level 2: Expandable data submenu
   'words': {
-    label: '詞語',
+    label: '詞句',
     icon: '📖',
     path: '/menu?tab=words',
     children: [
-      {
-        label: '陽春口語詞',
-        icon: '💬',
-        path: '/explore?page=ycSpoken'
-      },
       {
         label: '語保詞彙',
         icon: '📖',
@@ -62,31 +67,38 @@ export const menuConfig = {
         icon: '🗣️',
         path: '/explore?page=YuBao&sub=grammar'
       },
-    ]
+      {
+        label: '陽春口語詞',
+        icon: '💬',
+        path: '/explore?page=ycSpoken'
+      },
+    ],
+    showIn: ['SimpleSidebar']
   },
 
   // Level 2: Expandable villages submenu
   'villages': {
     label: '自然村',
-    icon: '🏠',
+    icon: '🏘️',
     path: '/menu?tab=villages',
     children: [
-      {
-        label: '全粵村情表格',
-        icon: '📈',
-        path: '/explore?page=gdVillagesTable'
-      },
       {
         label: '廣東自然村',
         icon: '🏘️',
         path: '/explore?page=gdVillages'
       },
       {
+        label: '全粵村情表格',
+        icon: '📈',
+        path: '/explore?page=gdVillagesTable'
+      },
+      {
         label: '陽春自然村',
         icon: '🏠',
         path: '/explore?page=ycVillages'
       }
-    ]
+    ],
+    showIn: ['SimpleSidebar']
   },
 // Level 2: Expandable tools submenu
 'tools': {
@@ -108,10 +120,43 @@ export const menuConfig = {
       label: '字表合併',
       icon: '🔗',
       path: '/explore?page=merge'
+    },
+    {
+      label: '聲學分析',
+      icon: '👂️️',
+      path: '/explore?page=praat'
     }
-  ]
+  ],
+  showIn: ['SimpleSidebar']
 },
-
+  'check':{
+    label: '字表工具',
+    icon: '📝',
+    path: '/explore?page=check',
+    children: null,
+    showIn: ['NavBar']
+  },
+  'jyut2ipa':{
+    label: '粵拼轉IPA',
+    icon: '🔤',
+    path: '/explore?page=jyut2ipa',
+    children: null,
+    showIn: ['NavBar']
+  },
+  'merge':{
+    label: '字表合併',
+    icon: '🔗',
+    path: '/explore?page=merge',
+    children: null,
+    showIn: ['NavBar']
+  },
+  'praat': {
+    label: '聲學分析',
+    icon: '👂️️',
+    path: '/explore?page=praat',
+    children: null,
+    showIn: ['NavBar']
+  },
   // Level 1: Direct navigation to Source page
   'source': {
     label: '資料源',
@@ -140,19 +185,11 @@ export const menuConfig = {
       }
     ]
   },
-  'praat': {
-    label: '聲學分析',
-    icon: '👂️️',
-    path: '/explore?page=praat',
+  'about': {
+    label: '關於網站',
+    icon: '🌐️',
+    path: '/menu?tab=about&sub=intro',
     children: null
   },
-  // Level 1: External link to old website
-  'old-site': {
-    label: '舊版網站',
-    icon: '🕰️',
-    path: '/detail', // Will be set dynamically using window.WEB_BASE
-    external: true,
-    children: null
-  }
 
 }

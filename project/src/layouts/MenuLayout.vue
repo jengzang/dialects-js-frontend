@@ -22,7 +22,7 @@
 // import FloatingHeader from '@/components/FloatingHeader.vue'
 // import { useRoute } from 'vue-router'
 // import { computed } from 'vue'
-import NavBar from "@/components/NavBar.vue";
+import NavBar from "@/components/bar/NavBar.vue";
 
 // const route = useRoute()
 // const shouldShowHeader = computed(() => {

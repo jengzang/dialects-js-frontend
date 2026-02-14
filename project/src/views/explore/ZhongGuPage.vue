@@ -91,9 +91,9 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import {computed, ref} from 'vue';
 import CharTreeItem from '@/components/TableAndTree/CharTreeItem.vue';
-import { loadFullTree } from '@/api/sql';
+import {loadFullTree} from '@/api/sql';
 
 // Classification Types Configuration
 const CLASSIFICATION_TYPES = {
@@ -180,8 +180,7 @@ const loadClassificationData = async (type) => {
     const result = await loadFullTree(config.payload)
 
     if (result && result.tree) {
-      const normalized = normalizeTreeData(result.tree);
-      loadedData.value[type] = normalized;
+      loadedData.value[type] = normalizeTreeData(result.tree);
     } else {
       throw new Error('數據格式錯誤');
     }
