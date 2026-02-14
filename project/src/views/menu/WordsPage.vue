@@ -3,22 +3,22 @@
       <h2 class="page-title">詞彙與語法</h2>
 
       <div class="words-grid">
-        <button class="word-btn" @click="handleYcSpoken">
-          <div class="word-icon">💬</div>
-          <div class="word-name">陽春口語詞</div>
-          <div class="word-desc">廣東陽春口語單字詞表</div>
-        </button>
-
         <button class="word-btn" @click="handleYuBaoVocabulary">
           <div class="word-icon">📖</div>
           <div class="word-name">語保詞彙</div>
           <div class="word-desc">語保1000詞表</div>
         </button>
 
+        <button class="word-btn" @click="handleYcSpoken">
+          <div class="word-icon">💬</div>
+          <div class="word-name">陽春口語詞</div>
+          <div class="word-desc">廣東陽春口語單字詞表</div>
+        </button>
+
         <button class="word-btn" @click="handleYuBaoGrammar">
           <div class="word-icon">🗣️</div>
           <div class="word-name">語保語法</div>
-          <div class="word-desc">語保50條語法資料</div>
+          <div class="word-desc">語保50條句子語法資料</div>
         </button>
       </div>
   </div>

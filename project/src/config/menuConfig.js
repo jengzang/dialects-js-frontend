@@ -8,7 +8,16 @@ export const menuConfig = {
     icon: '🔍️',
     path: '/menu?tab=query',
     children: null,
-    showIn: ['SimpleSidebar'] // 只在 SimpleSidebar 中顯示
+    showIn: ['none'] // 只在 SimpleSidebar 中顯示
+  },
+  // Level 1: External link to old website
+  'old-site': {
+    label: '舊版網站',
+    icon: '🕰️',
+    path: '/detail', // Will be set dynamically using window.WEB_BASE
+    external: true,
+    children: null,
+    // showIn: ['NavBar']
   },
 
 
@@ -70,7 +79,7 @@ export const menuConfig = {
   // Level 2: Expandable villages submenu
   'villages': {
     label: '自然村',
-    icon: '🏠',
+    icon: '🏘️',
     path: '/menu?tab=villages',
     children: [
       {
@@ -88,7 +97,8 @@ export const menuConfig = {
         icon: '🏠',
         path: '/explore?page=ycVillages'
       }
-    ]
+    ],
+    showIn: ['SimpleSidebar']
   },
 // Level 2: Expandable tools submenu
 'tools': {
@@ -110,14 +120,42 @@ export const menuConfig = {
       label: '字表合併',
       icon: '🔗',
       path: '/explore?page=merge'
+    },
+    {
+      label: '聲學分析',
+      icon: '👂️️',
+      path: '/explore?page=praat'
     }
-  ]
+  ],
+  showIn: ['SimpleSidebar']
 },
+  'check':{
+    label: '字表工具',
+    icon: '📝',
+    path: '/explore?page=check',
+    children: null,
+    showIn: ['NavBar']
+  },
+  'jyut2ipa':{
+    label: '粵拼轉IPA',
+    icon: '🔤',
+    path: '/explore?page=jyut2ipa',
+    children: null,
+    showIn: ['NavBar']
+  },
+  'merge':{
+    label: '字表合併',
+    icon: '🔗',
+    path: '/explore?page=merge',
+    children: null,
+    showIn: ['NavBar']
+  },
   'praat': {
     label: '聲學分析',
     icon: '👂️️',
     path: '/explore?page=praat',
-    children: null
+    children: null,
+    showIn: ['NavBar']
   },
   // Level 1: Direct navigation to Source page
   'source': {
@@ -153,14 +191,5 @@ export const menuConfig = {
     path: '/menu?tab=about&sub=intro',
     children: null
   },
-  // Level 1: External link to old website
-  'old-site': {
-    label: '舊版網站',
-    icon: '🕰️',
-    path: '/detail', // Will be set dynamically using window.WEB_BASE
-    external: true,
-    children: null,
-    showIn: ['NavBar']
-  }
 
 }

@@ -25,7 +25,10 @@
                 { active: isActiveComputed(t.tab, isActive) },
                 t.cssClass
               ]"
-              :style="{ flex: t.weight + ' 1 0', fontSize: t.fontSize + 'rem' }"
+              :style="{
+                flex: getFlexWeight(t, isActiveComputed(t.tab, isActive), false) + ' 1 0',
+                fontSize: t.fontSize + 'rem'
+              }"
           @click.prevent="onClick(t, navigate)"
           >
           <span class="emoji">{{ t.icon }}</span>
@@ -207,7 +210,7 @@
                 t.cssClass
               ]"
               :style="{
-                flex: (t.mobileWeight || t.weight) + ' 1 0',
+                flex: getFlexWeight(t, isActiveComputed(t.tab, isActive), true) + ' 1 0',
                 fontSize: (t.mobileFontSize || t.fontSize) + 'rem'
               }"
               @click.prevent="onClick(t, navigate)"
@@ -231,7 +234,7 @@ import {useRoute, useRouter} from 'vue-router'
 import { clearToken, getToken, saveToken } from '../../api/auth/auth.js'
 import { getTodayVisits, getTotalVisits, getVisitHistory } from '@/api/logs/index.js'
 import { menuConfig } from '@/config/menuConfig.js'
-import { tabsConfig } from '@/config/tabsConfig.js'
+import { TabsConfig } from '@/config/TabsConfig.js'
 import { WEB_BASE } from '@/env-config.js'
 import { userStore, resultCache } from '@/utils/store.js'
 const route = useRoute()
@@ -271,7 +274,7 @@ const loadingStats = ref(false)
 
 // 过滤可见的 tabs
 const visibleTabs = computed(() => {
-  return tabsConfig.filter(tab => {
+  return TabsConfig.filter(tab => {
     // 如果有 visibleWhen 函数，执行它
     if (typeof tab.visibleWhen === 'function') {
       return tab.visibleWhen()
@@ -283,6 +286,40 @@ const visibleTabs = computed(() => {
 
 // 使用过滤后的 tabs
 const tabs = visibleTabs
+
+/**
+ * Calculate dynamic flex weight based on label visibility
+ * @param {Object} tab - Tab configuration object
+ * @param {boolean} isActive - Whether the tab is currently active
+ * @param {boolean} isMobile - Whether in mobile layout
+ * @returns {number} - Flex weight value
+ */
+const getFlexWeight = (tab, isActive, isMobile) => {
+  // Determine if label is visible based on configuration
+  let labelVisible
+
+  if (isMobile) {
+    // Mobile: Check hideLabelOnMobile and mobileShowLabelOnlyWhenActive
+    const showOnlyWhenActive = tab.mobileShowLabelOnlyWhenActive ?? tab.showLabelOnlyWhenActive
+    labelVisible = !tab.hideLabelOnMobile && (!showOnlyWhenActive || isActive)
+  } else {
+    // Desktop: Check showLabelOnlyWhenActive
+    labelVisible = !tab.showLabelOnlyWhenActive || isActive
+  }
+
+  // Return appropriate weight based on label visibility
+  if (labelVisible) {
+    // Label is visible - use full weight
+    return isMobile ? (tab.mobileWeight || tab.weight) : tab.weight
+  } else {
+    // Label is hidden - use icon-only weight with fallback chain
+    if (isMobile) {
+      return tab.mobileWeightIconOnly || tab.mobileWeight || tab.weightIconOnly || tab.weight
+    } else {
+      return tab.weightIconOnly || tab.weight
+    }
+  }
+}
 
 // 根据当前 query.tab 判断
 const currentTab = () => route.query.tab || route.query.page || 'query'
