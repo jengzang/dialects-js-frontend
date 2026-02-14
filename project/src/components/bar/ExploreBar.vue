@@ -542,7 +542,8 @@ const goToAuthPage = () => {
 }
 
 .login-container {
-  min-width: 7dvh;
+  min-width: 6dvh;
+  max-width: 9dvh;
   height: 6dvh;
   padding: 0 12px;
   border-radius: 30px;
@@ -567,7 +568,6 @@ const goToAuthPage = () => {
   font-weight: 600;
   max-width: 80px;
   overflow: hidden;
-  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
@@ -587,7 +587,7 @@ const goToAuthPage = () => {
     justify-content: space-between;
     height: max(8dvh, 44px);  /* 确保最小触摸目标 */
     padding: 0 1%;
-    gap: 6px;
+    gap: 3px;
   }
 
   .explorebar-mobile .explorebar-tabs {
@@ -618,9 +618,9 @@ const goToAuthPage = () => {
   }
 
   .explorebar-mobile .logo-container {
-    width: 6dvh;
-    height: 6dvh;
-    min-width: 6dvh;
+    width: 5dvh;
+    height: 5dvh;
+    min-width: 5dvh;
     flex-shrink: 0;
   }
 

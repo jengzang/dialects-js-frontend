@@ -606,16 +606,14 @@ loadConfig()
 <style scoped>
 .jyut2ipa-container {
   width: 100%;
-  height: 80%;
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 60px 20px 20px;
+  padding: 20px;
 }
 
 .glass-container {
   width: min(95vw, 1000px);
-  height: min(85vh, 800px);
   background: rgba(255, 255, 255, 0.65);
   backdrop-filter: blur(25px) saturate(180%);
   -webkit-backdrop-filter: blur(25px) saturate(180%);
@@ -631,7 +629,7 @@ loadConfig()
 
 .header-section {
   text-align: center;
-  margin-bottom: 32px;
+  margin-bottom: 12px;
   position: relative;
 }
 
@@ -670,7 +668,6 @@ loadConfig()
 }
 
 .upload-area {
-  flex: 1;
   display: flex;
   flex-direction: column;
   gap: 24px;
@@ -679,7 +676,6 @@ loadConfig()
 }
 
 .upload-zone {
-  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;

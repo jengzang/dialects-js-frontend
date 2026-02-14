@@ -717,7 +717,6 @@ const reset = () => {
 
 .glass-container {
   width: min(95vw, 900px);
-  height: min(85dvh, 800px);
   background: rgba(255, 255, 255, 0.65);
   backdrop-filter: blur(25px) saturate(180%);
   -webkit-backdrop-filter: blur(25px) saturate(180%);
@@ -1500,9 +1499,6 @@ const reset = () => {
     min-height: auto;
   }
 
-  .header-section {
-    padding-bottom: 16px;
-  }
 
   .title {
     font-size: 22px;
@@ -1612,10 +1608,10 @@ const reset = () => {
     padding-top: 16px;
   }
 
-  .glass-button {
+  .glass-button ,.glass-button.large {
     width: 100%;
     justify-content: center;
-    padding: 14px 24px;
+    padding: 8px 24px;
   }
 
   .processing-icon {
