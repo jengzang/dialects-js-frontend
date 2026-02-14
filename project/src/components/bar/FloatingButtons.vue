@@ -155,8 +155,10 @@ const goToAuth = () => {
 @media (max-aspect-ratio: 1/1) {
   /* 认证按钮移动端 */
   .auth-button {
-    top: 15px;
-    right: 10px;
+    top: auto;
+    left: 15px;
+    bottom: 15px ;
+    right: auto;
     min-width:50px;
     height: 35px;
     padding: 0 10px;

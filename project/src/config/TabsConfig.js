@@ -146,16 +146,33 @@ export const MenuTabsConfig = [
  */
 export const ExploreTabsConfig = [
   {
+    tab: 'tools',
+    label: '工具',
+    icon: '🧰',
+    weight: 1,                          // 桌面端标签显示时的 flex 权重
+    mobileWeight: 1,                // 移动端标签显示时的 flex 权重
+    weightIconOnly: 0.6,                  // 桌面端仅显示图标时的 flex 权重（可选，默认使用 weight）
+    mobileWeightIconOnly: 0.6,            // 移动端仅显示图标时的 flex 权重（可选，回退链：mobileWeight → weightIconOnly → weight）
+    fontSize: 1.2,
+    mobileFontSize: 1.3,
+    to: { path: '/menu', query: { tab: 'tools' } },
+    isPseudo: false,
+    hideOnMobile: false,
+    hideLabelOnMobile: false,
+    showLabelOnlyWhenActive: false,
+    mobileShowLabelOnlyWhenActive: true
+  },
+  {
     tab: 'data',
     label: '音系',
     icon: '🧬',
     weight: 1,                          // 桌面端标签显示时的 flex 权重
     mobileWeight: 1,                // 移动端标签显示时的 flex 权重
     weightIconOnly: 0.6,                  // 桌面端仅显示图标时的 flex 权重（可选，默认使用 weight）
-    mobileWeightIconOnly: 0.4,            // 移动端仅显示图标时的 flex 权重（可选，回退链：mobileWeight → weightIconOnly → weight）
+    mobileWeightIconOnly: 0.6,            // 移动端仅显示图标时的 flex 权重（可选，回退链：mobileWeight → weightIconOnly → weight）
     fontSize: 1.2,
     mobileFontSize: 1.3,
-    to: { path: '/explore', query: { page: 'phonologyMatrix' } },
+    to: { path: '/menu', query: { tab: 'pho' } },
     isPseudo: false,
     hideOnMobile: false,
     hideLabelOnMobile: false,
@@ -169,15 +186,33 @@ export const ExploreTabsConfig = [
     weight: 1,                          // 桌面端标签显示时的 flex 权重
     mobileWeight: 1,                // 移动端标签显示时的 flex 权重
     weightIconOnly: 0.6,                  // 桌面端仅显示图标时的 flex 权重（可选，默认使用 weight）
-    mobileWeightIconOnly: 0.4,            // 移动端仅显示图标时的 flex 权重（可选，回退链：mobileWeight → weightIconOnly → weight）
+    mobileWeightIconOnly: 0.6,            // 移动端仅显示图标时的 flex 权重（可选，回退链：mobileWeight → weightIconOnly → weight）
     fontSize: 1.2,
     mobileFontSize: 1.3,
-    to: { path: '/explore', query: { page: 'YuBao', sub: 'vocabulary' } },
+    to: { path: '/menu', query: { tab: 'words' } },
     isPseudo: false,
     hideOnMobile: false,
     hideLabelOnMobile: false,
     showLabelOnlyWhenActive: false,
     mobileShowLabelOnlyWhenActive: true
+  },
+  {
+    tab: 'query',
+    label: '查詢',
+    icon: '🔍️',
+    weight: 1,                          // 桌面端标签显示时的 flex 权重
+    mobileWeight: 1,                // 移动端标签显示时的 flex 权重
+    weightIconOnly: 0.6,                  // 桌面端仅显示图标时的 flex 权重（可选，默认使用 weight）
+    mobileWeightIconOnly: 0.4,            // 移动端仅显示图标时的 flex 权重（可选，回退链：mobileWeight → weightIconOnly → weight）
+    fontSize: 1.2,
+    mobileFontSize: 1.3,
+    to: { path: '/menu', query: { tab: 'query' } },
+    isPseudo: false,
+    hideOnMobile: false,
+    hideLabelOnMobile: false,
+    showLabelOnlyWhenActive: false,
+    mobileShowLabelOnlyWhenActive: true,
+    cssClass: ''
   },
   {
     tab: 'villages',
@@ -186,10 +221,10 @@ export const ExploreTabsConfig = [
     weight: 1,                          // 桌面端标签显示时的 flex 权重
     mobileWeight: 1,                // 移动端标签显示时的 flex 权重
     weightIconOnly: 0.6,                  // 桌面端仅显示图标时的 flex 权重（可选，默认使用 weight）
-    mobileWeightIconOnly: 0.4,            // 移动端仅显示图标时的 flex 权重（可选，回退链：mobileWeight → weightIconOnly → weight）
+    mobileWeightIconOnly: 0.6,            // 移动端仅显示图标时的 flex 权重（可选，回退链：mobileWeight → weightIconOnly → weight）
     fontSize: 1.2,
     mobileFontSize: 1.3,
-    to: { path: '/explore', query: { page: 'gdVillages' } },
+    to: { path: '/menu', query: { tab: 'villages' } },
     isPseudo: false,
     hideOnMobile: false,
     hideLabelOnMobile: false,
@@ -197,20 +232,16 @@ export const ExploreTabsConfig = [
     mobileShowLabelOnlyWhenActive: true
   },
   {
-    tab: 'tools',
-    label: '工具',
-    icon: '🧰',
-    weight: 1,                          // 桌面端标签显示时的 flex 权重
-    mobileWeight: 1,                // 移动端标签显示时的 flex 权重
-    weightIconOnly: 0.6,                  // 桌面端仅显示图标时的 flex 权重（可选，默认使用 weight）
-    mobileWeightIconOnly: 0.4,            // 移动端仅显示图标时的 flex 权重（可选，回退链：mobileWeight → weightIconOnly → weight）
-    fontSize: 1.2,
-    mobileFontSize: 1.3,
-    to: { path: '/explore', query: { page: 'check' } },
-    isPseudo: false,
-    hideOnMobile: false,
-    hideLabelOnMobile: false,
-    showLabelOnlyWhenActive: false,
-    mobileShowLabelOnlyWhenActive: true
-  }
+    tab: 'about',
+    label: '關於網站',
+    icon: '🌐️',
+    weight: 0.8,                          // 桌面端标签显示时的 flex 权重
+    weightIconOnly: 0.25,                  // 桌面端仅显示图标时的 flex 权重（可选，默认使用 weight）
+    fontSize: 0.9,
+    to: { path: '/menu', query: { tab: 'about' } },
+    hideOnMobile: true,
+    // showLabelOnlyWhenActive: true,        // 桌面端：只有选中时显示文字，未选中只显示图标
+    cssClass: ''                     // 应用 'small' CSS class
+  },
+
 ]

@@ -44,6 +44,16 @@ import ExploreBar from '@/components/bar/ExploreBar.vue'
   padding: 10px 6px;
   color: #0b2540;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  /* 桌面端：为 ExploreBar 留出空间 (7.5dvh + 一点间距) */
+  padding-top: calc(7.5dvh - 15px);
+}
+
+/* 移动端：调整 padding-top */
+@media (max-aspect-ratio: 1/1) {
+  .content-area {
+    /* 移动端：为 ExploreBar 留出空间 (max(8dvh, 44px) + 一点间距) */
+    padding-top: calc(8dvh - 15px);
+  }
 }
 
 /* 动画 */

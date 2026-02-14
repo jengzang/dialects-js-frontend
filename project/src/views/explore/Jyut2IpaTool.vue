@@ -606,11 +606,11 @@ loadConfig()
 <style scoped>
 .jyut2ipa-container {
   width: 100%;
-  height: 100%;
+  height: 80%;
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 20px;
+  padding: 60px 20px 20px;
 }
 
 .glass-container {
@@ -1504,7 +1504,7 @@ loadConfig()
   }
 
   .header-section {
-    padding-bottom: 16px;
+    padding-bottom: 0px;
   }
 
   .title {

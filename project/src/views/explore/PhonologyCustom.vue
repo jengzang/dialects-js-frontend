@@ -383,7 +383,7 @@ watch(() => route.query, (newQuery) => {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-bottom: 20px;
+  margin: 20px 0;
 }
 
 .page-title {

@@ -11,7 +11,7 @@
         </div>
       </div>
 
-      <nav class="explorebar-tabs">
+      <nav class="explorebar-tabs" @mouseleave="handleTabLeave">
         <RouterLink
           v-for="t in tabs"
           :key="t.tab"
@@ -23,8 +23,12 @@
             :href="href"
             class="tab-item"
             :class="{ active: isActiveComputed(t.tab) }"
-            :style="{ flex: t.weight + ' 1 0', fontSize: t.fontSize + 'rem' }"
-            @click.prevent="onClick(t, navigate)"
+            :style="{
+              flex: getFlexWeight(t, isActiveComputed(t.tab), false) + ' 1 0',
+              fontSize: t.fontSize + 'rem'
+            }"
+            @click.prevent.stop="onClick(t, navigate, $event)"
+            @mouseenter="handleTabHover(t, t.tab, $event)"
           >
             <span class="emoji">{{ t.icon }}</span>
             <span
@@ -55,14 +59,15 @@
           v-slot="{ href, navigate }"
         >
           <a
+            v-if="!t.hideOnMobile"
             :href="href"
             class="tab-item"
             :class="{ active: isActiveComputed(t.tab) }"
             :style="{
-              flex: (t.mobileWeight || t.weight) + ' 1 0',
+              flex: getFlexWeight(t, isActiveComputed(t.tab), true) + ' 1 0',
               fontSize: (t.mobileFontSize || t.fontSize) + 'rem'
             }"
-            @click.prevent="onClick(t, navigate)"
+            @click.prevent.stop="onClick(t, navigate, $event)"
           >
             <span class="emoji">{{ t.icon }}</span>
             <span
@@ -78,27 +83,111 @@
       </div>
     </div>
 
-    <!-- 侧边栏 (使用 SimpleSidebar 组件，不显示 title) -->
+    <!-- 侧边栏 (使用 SimpleSidebar 组件，桌面端不显示 title，移动端显示) -->
     <SimpleSidebar
       :is-open="isSidebarVisible"
-      :show-title="false"
+      :show-title="isMobile"
       @close="isSidebarVisible = false"
     />
+
+    <!-- Submenu panel (liquid glass style) - Teleported to body -->
+    <Teleport to="body">
+      <Transition name="submenu-fade">
+        <div
+          v-if="activeSubmenu"
+          class="submenu-panel"
+          :style="{
+            top: submenuPosition.top + 'px',
+            left: submenuPosition.left + 'px'
+          }"
+          @click.stop
+          @mouseenter="handleSubmenuEnter"
+          @mouseleave="handleSubmenuLeave"
+        >
+          <div
+            v-for="(child, index) in getTabChildren(activeSubmenu)"
+            :key="index"
+            class="submenu-item"
+            @click="handleSubmenuClick(child)"
+          >
+            <span class="submenu-icon">{{ child.icon }}</span>
+            <span class="submenu-label">{{ child.label }}</span>
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ExploreTabsConfig } from '@/config/TabsConfig.js'
 import { userStore } from '@/utils/store.js'
 import SimpleSidebar from '@/components/bar/SimpleSidebar.vue'
+import { menuConfig } from '@/config/menuConfig.js'
 
 const route = useRoute()
 const router = useRouter()
 
-const tabs = ExploreTabsConfig
+// 过滤可见的 tabs (支持 visibleWhen 函数)
+const visibleTabs = computed(() => {
+  return ExploreTabsConfig.filter(tab => {
+    // 如果有 visibleWhen 函数，执行它
+    if (typeof tab.visibleWhen === 'function') {
+      return tab.visibleWhen()
+    }
+    // 没有 visibleWhen 则默认可见
+    return true
+  })
+})
+
+const tabs = visibleTabs
 const isSidebarVisible = ref(false)
+
+// Submenu state management
+const activeSubmenu = ref(null)  // Currently open submenu tab key
+const submenuPosition = ref({ top: 0, left: 0 })  // Position for submenu panel
+let closeSubmenuTimer = null  // Timer for delayed close
+
+// Mobile detection
+const isMobile = ref(false)
+const checkMobile = () => {
+  isMobile.value = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+}
+
+// Map ExploreBar tab keys to menuConfig keys
+const tabToMenuConfigMap = {
+  'data': 'data',
+  'words': 'words',
+  'villages': 'villages',
+  'tools': 'tools'
+}
+
+// Helper function to get children from menuConfig
+const getTabChildren = (tabKey) => {
+  const menuKey = tabToMenuConfigMap[tabKey]
+  return menuKey ? menuConfig[menuKey]?.children : null
+}
+
+// Lifecycle hooks
+onMounted(() => {
+  checkMobile()
+  document.addEventListener('click', closeSubmenu)
+})
+
+onBeforeUnmount(() => {
+  document.removeEventListener('click', closeSubmenu)
+  // Clear any pending timer
+  if (closeSubmenuTimer) {
+    clearTimeout(closeSubmenuTimer)
+    closeSubmenuTimer = null
+  }
+})
+
+const closeSubmenu = () => {
+  activeSubmenu.value = null
+}
 
 // Page → Tab 映射表
 const pageToTabMap = {
@@ -135,11 +224,179 @@ const isActiveComputed = (tabName) => {
   return getCurrentTab() === tabName
 }
 
-// Tab 点击处理
-const onClick = async (tabConfig, navigate) => {
-  if (tabConfig.to) {
-    await router.push(tabConfig.to)
+/**
+ * Calculate dynamic flex weight based on label visibility
+ * @param {Object} tab - Tab configuration object
+ * @param {boolean} isActive - Whether the tab is currently active
+ * @param {boolean} isMobile - Whether in mobile layout
+ * @returns {number} - Flex weight value
+ */
+const getFlexWeight = (tab, isActive, isMobile) => {
+  // Determine if label is visible based on configuration
+  let labelVisible
+
+  if (isMobile) {
+    // Mobile: Check hideLabelOnMobile and mobileShowLabelOnlyWhenActive
+    const showOnlyWhenActive = tab.mobileShowLabelOnlyWhenActive ?? tab.showLabelOnlyWhenActive
+    labelVisible = !tab.hideLabelOnMobile && (!showOnlyWhenActive || isActive)
+  } else {
+    // Desktop: Check showLabelOnlyWhenActive
+    labelVisible = !tab.showLabelOnlyWhenActive || isActive
   }
+
+  // Return appropriate weight based on label visibility
+  if (labelVisible) {
+    // Label is visible - use full weight
+    return isMobile ? (tab.mobileWeight || tab.weight) : tab.weight
+  } else {
+    // Label is hidden - use icon-only weight with fallback chain
+    if (isMobile) {
+      return tab.mobileWeightIconOnly || tab.mobileWeight || tab.weightIconOnly || tab.weight
+    } else {
+      return tab.weightIconOnly || tab.weight
+    }
+  }
+}
+
+// Tab 点击处理
+const onClick = async (tabConfig, navigate, event) => {
+  // 伪 tab 处理：打开侧边栏而非导航
+  if (tabConfig.isPseudo) {
+    toggleSidebar()
+    return
+  }
+
+  const children = getTabChildren(tabConfig.tab)  // Get children from menuConfig
+  console.log('onClick triggered:', tabConfig.tab, 'children:', children, 'isMobile:', isMobile.value)
+
+  // Desktop: always navigate (hover handles submenu)
+  // Mobile: show submenu if has children, otherwise navigate
+  if (!isMobile.value) {
+    // Desktop: click to navigate
+    console.log('Desktop: navigating to:', tabConfig.to)
+    if (tabConfig.to) {
+      await router.replace(tabConfig.to)
+    }
+  } else {
+    // Mobile: click to show submenu if has children
+    if (children && children.length > 0) {
+      console.log('Mobile: has children, calling handleTabClick')
+      handleTabClick(tabConfig, tabConfig.tab, event)
+    } else {
+      console.log('Mobile: no children, navigating to:', tabConfig.to)
+      if (tabConfig.to) {
+        await router.replace(tabConfig.to)
+      }
+    }
+  }
+}
+
+const handleTabClick = (tabConfig, tabKey, event) => {
+  const children = getTabChildren(tabKey)  // Get children from menuConfig
+  console.log('handleTabClick:', tabKey, 'children:', children)
+  if (!children || children.length === 0) return
+
+  const targetElement = event.currentTarget
+
+  const rect = targetElement.getBoundingClientRect()
+  const viewportWidth = window.innerWidth
+  const viewportHeight = window.innerHeight
+  const submenuWidth = 250
+  const submenuHeight = children.length * 50 + 20  // Use actual children count
+
+  // Position BELOW the tab
+  let top = rect.bottom + 5
+  let left = rect.left
+
+  // Boundary checks
+  if (top + submenuHeight > viewportHeight) {
+    top = rect.top - submenuHeight - 5  // Show above if no space below
+  }
+  if (left + submenuWidth > viewportWidth) {
+    left = viewportWidth - submenuWidth - 10
+  }
+  if (left < 10) {
+    left = 10
+  }
+
+  submenuPosition.value = { top, left }
+  activeSubmenu.value = activeSubmenu.value === tabKey ? null : tabKey  // Toggle
+  console.log('activeSubmenu set to:', activeSubmenu.value, 'position:', submenuPosition.value)
+}
+
+const handleTabHover = (tabConfig, tabKey, event) => {
+  if (isMobile.value) return  // No hover on mobile
+
+  // Clear any pending close timer
+  if (closeSubmenuTimer) {
+    clearTimeout(closeSubmenuTimer)
+    closeSubmenuTimer = null
+  }
+
+  const children = getTabChildren(tabKey)
+  if (!children || children.length === 0) {
+    // No children - close any open submenu
+    activeSubmenu.value = null
+    return
+  }
+
+  // For hover: always open (don't toggle)
+  const targetElement = event.currentTarget
+  const rect = targetElement.getBoundingClientRect()
+  const viewportWidth = window.innerWidth
+  const viewportHeight = window.innerHeight
+  const submenuWidth = 250
+  const submenuHeight = children.length * 50 + 20
+
+  // Position BELOW the tab
+  let top = rect.bottom + 5
+  let left = rect.left
+
+  // Boundary checks
+  if (top + submenuHeight > viewportHeight) {
+    top = rect.top - submenuHeight - 5
+  }
+  if (left + submenuWidth > viewportWidth) {
+    left = viewportWidth - submenuWidth - 10
+  }
+  if (left < 10) {
+    left = 10
+  }
+
+  submenuPosition.value = { top, left }
+  activeSubmenu.value = tabKey  // Always open on hover (don't toggle)
+}
+
+const handleTabLeave = () => {
+  if (isMobile.value) return
+  // Delay closing to allow mouse to move to submenu
+  closeSubmenuTimer = setTimeout(() => {
+    activeSubmenu.value = null
+  }, 300)  // 300ms delay
+}
+
+const handleSubmenuEnter = () => {
+  // Clear close timer when entering submenu
+  if (closeSubmenuTimer) {
+    clearTimeout(closeSubmenuTimer)
+    closeSubmenuTimer = null
+  }
+}
+
+const handleSubmenuLeave = () => {
+  // Close submenu when leaving
+  closeSubmenuTimer = setTimeout(() => {
+    activeSubmenu.value = null
+  }, 200)  // Shorter delay when leaving submenu
+}
+
+const handleSubmenuClick = (child) => {
+  if (child.external) {
+    window.open(child.path, '_blank')
+  } else {
+    router.push(child.path)
+  }
+  activeSubmenu.value = null
 }
 
 // 切换侧边栏
@@ -208,7 +465,7 @@ const goToAuthPage = () => {
 
 /* 完全复刻 NavBar 的 .menu-item 样式 */
 .tab-item {
-  height: 6dvh;
+  height: 6.5dvh;
   display: flex;
   align-items: center;
   white-space: nowrap;
@@ -250,8 +507,8 @@ const goToAuthPage = () => {
 }
 
 .logo-container {
-  width: 5dvh;
-  height: 5dvh;
+  width: 6dvh;
+  height: 6dvh;
   min-width: 5dvh;  /* 防止被压缩 */
   flex-shrink: 0;  /* 防止被压缩 */
   border-radius: 50%;
@@ -286,7 +543,7 @@ const goToAuthPage = () => {
 
 .login-container {
   min-width: 7dvh;
-  height: 5dvh;
+  height: 6dvh;
   padding: 0 12px;
   border-radius: 30px;
   display: flex;
@@ -306,7 +563,7 @@ const goToAuthPage = () => {
 }
 
 .login-text {
-  font-size: 0.9rem;
+  font-size: 1.15rem;
   font-weight: 600;
   max-width: 80px;
   overflow: hidden;
@@ -371,6 +628,80 @@ const goToAuthPage = () => {
     min-width: 6dvh;
     height: 6dvh;
     flex-shrink: 0;
+  }
+}
+
+/* Submenu panel - liquid glass style */
+.submenu-panel {
+  position: fixed;
+  width: auto;
+  max-width: min(300px, calc(100vw - 20px));
+  z-index: 10001;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.85));
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 16px;
+  box-shadow: inset 0 0 0.5px rgba(255, 255, 255, 0.3),
+              0 12px 40px rgba(0, 0, 0, 0.2),
+              0 0 0 0.5px rgba(255, 255, 255, 0.1);
+  padding: 8px;
+  overflow: hidden;
+}
+
+.submenu-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+  font-size: 15px;
+  font-weight: 500;
+  color: #333;
+}
+
+.submenu-item:hover {
+  background: linear-gradient(145deg, rgba(0, 122, 255, 0.15), rgba(0, 122, 255, 0.08));
+  transform: translateX(4px);
+}
+
+.submenu-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.submenu-label {
+  flex: 1;
+  white-space: nowrap;
+}
+
+/* Submenu fade transition */
+.submenu-fade-enter-active,
+.submenu-fade-leave-active {
+  transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.submenu-fade-enter-from {
+  opacity: 0;
+  transform: translateY(-10px) scale(0.95);
+}
+
+.submenu-fade-leave-to {
+  opacity: 0;
+  transform: translateY(-10px) scale(0.95);
+}
+
+/* Mobile responsive */
+@media (max-aspect-ratio: 1/1) {
+  .submenu-panel {
+    max-width: calc(100vw - 20px);
+  }
+
+  .submenu-item {
+    padding: 10px 14px;
+    font-size: 14px;
   }
 }
 </style>

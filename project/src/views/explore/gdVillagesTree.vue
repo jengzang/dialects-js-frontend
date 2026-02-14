@@ -369,7 +369,7 @@ onMounted(() => {
 .glass-container {
   width: 90%;
   max-width: 1400px;
-  height: 92dvh;
+  height: 90dvh;
   margin:10px auto;
   border-radius: 30px;
   background: rgba(255, 255, 255, 0.65);
@@ -664,7 +664,7 @@ onMounted(() => {
 @media (max-aspect-ratio: 1/1) {
   .glass-container {
     width: 100%;
-    height: 90dvh;
+    height: 88dvh;
     border-radius: 20px;
   }
 

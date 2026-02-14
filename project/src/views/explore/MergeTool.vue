@@ -707,11 +707,12 @@ const reset = () => {
 <style scoped>
 .merge-tool-container {
   width: 100%;
-  height: 100%;
+  height: 80%;
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 20px;
+  padding-top: 60px;
 }
 
 .glass-container {
@@ -726,7 +727,7 @@ const reset = () => {
   padding: 30px 40px;
   display: flex;
   flex-direction: column;
-  gap: 32px;
+  gap: 12px;
   overflow: hidden;
 }
 
@@ -1496,7 +1497,6 @@ const reset = () => {
     padding: 20px 16px;
     border-radius: 20px;
     width: 100%;
-    height: auto;
     min-height: auto;
   }
 

@@ -1306,9 +1306,9 @@ watch(viewMode, async (newMode) => {
   border-radius: 16px;
   border: 1px solid var(--border-gray-light);
   box-shadow: var(--shadow-md);
-  padding: 32px;
+  padding: 25px;
   min-height: 300px;
-  max-height: 70dvh;
+  max-height: 69dvh;
   overflow: auto;
 }
 

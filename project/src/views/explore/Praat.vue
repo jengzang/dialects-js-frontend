@@ -463,6 +463,7 @@ const startAnalysis = async () => {
   // Check if user is logged in
   if (!userStore.isAuthenticated) {
     showWarning('請先登錄！')
+    router.push('/auth')
     return
   }
 
@@ -1123,7 +1124,7 @@ onBeforeUnmount(() => {
   .tab-navigation {
     position: fixed;
     bottom: auto;
-    top: 1rem;
+    top: 0.5rem;
     left: 50%;
     transform: translateX(-50%);
     width: 100%;
