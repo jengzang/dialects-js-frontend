@@ -2,7 +2,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { api } from '@/api/auth/auth.js'
 import { showError } from '@/utils/message.js'
-import HelpIcon from '@/components/HelpIcon.vue'
+import HelpIcon from '@/components/ToastAndHelp/HelpIcon.vue'
 
 const loading = ref(false)
 const error = ref(null)

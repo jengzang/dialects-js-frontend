@@ -23,8 +23,8 @@
 
 <script setup>
 import { ref } from 'vue';
-import FloatingButtons from '@/components/FloatingButtons.vue';
-import SimpleSidebar from '@/components/SimpleSidebar.vue';
+import FloatingButtons from '@/components/bar/FloatingButtons.vue';
+import SimpleSidebar from '@/components/bar/SimpleSidebar.vue';
 
 const isSidebarOpen = ref(false);
 </script>

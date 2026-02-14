@@ -111,7 +111,7 @@ const comparisonData = computed(() => [
     user: '✅️ 不限'
   },
   {
-    feature: '🎯 地位組合',
+    feature: '🧩 地位組合',
     unit: '組',
     anonymous: ROLE_LIMITS.anonymous.MAX_COMBINATIONS,
     user: ROLE_LIMITS.user.MAX_COMBINATIONS

@@ -387,7 +387,7 @@
 import { ref, reactive, nextTick, onMounted, onBeforeUnmount, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import LocationAndRegionInput from '@/components/query/LocationAndRegionInput.vue'
-import HelpIcon from '@/components/HelpIcon.vue'
+import HelpIcon from '@/components/ToastAndHelp/HelpIcon.vue'
 import { getCustomFeature } from '@/api/user/custom.js'
 import { getAllCustomData } from '@/api/user'
 import { userStore, resultCache, mapStore, uiStore, isCustomButtonDisabled, setRunning } from '@/utils/store.js'

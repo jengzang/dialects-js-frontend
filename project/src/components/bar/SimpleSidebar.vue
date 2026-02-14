@@ -10,7 +10,7 @@
     <div v-if="isOpen" class="sidebar">
       <!-- 标题图片 -->
       <div class="sidebar-header">
-        <img src="@/assets/title.png" alt="Title" class="title-img" />
+        <img src="../../assets/title.png" alt="Title" class="title-img" />
       </div>
 
       <div class="sidebar-content">
@@ -135,8 +135,8 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount, computed } from 'vue';
 import { useRouter } from 'vue-router';
-import { clearToken, getToken, initUserByToken } from '@/api/auth/auth.js'
-import { getTodayVisits, getTotalVisits, getVisitHistory } from '@/api/logs'
+import { clearToken, getToken } from '@/api/auth/auth.js'
+import { getTodayVisits, getTotalVisits, getVisitHistory } from '@/api/logs/index.js'
 import {userStore} from "@/utils/store.js";
 import { menuConfig } from '@/config/menuConfig.js';
 import { WEB_BASE } from '@/env-config.js';
@@ -315,7 +315,6 @@ async function fetchVisitHistory() {
 
 onMounted(async () => {
   checkMobile();
-  await initUserByToken();
   await fetchVisitStats();
   document.addEventListener('click', closeSubmenu);
 });

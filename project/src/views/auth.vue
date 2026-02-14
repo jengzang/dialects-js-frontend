@@ -477,7 +477,7 @@ import { manualReport } from '../utils/onlineTimeTracker.js'
 import { WEB_BASE } from '@/env-config.js'
 import { showConfirm } from '../utils/message.js'
 import LeaderboardPanel from '@/components/auth/LeaderboardPanel.vue'
-import HelpIcon from "@/components/HelpIcon.vue";
+import HelpIcon from "@/components/ToastAndHelp/HelpIcon.vue";
 import UserBenefitsPopup from '@/components/auth/UserBenefitsPopup.vue'
 
 export default defineComponent({
@@ -816,6 +816,17 @@ export default defineComponent({
         return
       }
 
+      // 确认对话框
+      const confirmed = await showConfirm(`確定要將用戶名修改為「${newUsername.value}」嗎？`, {
+        title: '修改用戶名',
+        confirmText: '確定修改',
+        cancelText: '取消'
+      });
+
+      if (!confirmed) {
+        return;
+      }
+
       loading.value = true
 
       try {
@@ -865,6 +876,17 @@ export default defineComponent({
       if (!newPassword.value || newPassword.value.length < 6) {
         error.value = '新密碼必須至少6個字符'
         return
+      }
+
+      // 确认对话框
+      const confirmed = await showConfirm('確定要修改密碼嗎？', {
+        title: '修改密碼',
+        confirmText: '確定修改',
+        cancelText: '取消'
+      });
+
+      if (!confirmed) {
+        return;
       }
 
       loading.value = true

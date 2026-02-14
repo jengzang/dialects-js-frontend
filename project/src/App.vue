@@ -19,11 +19,11 @@ import { useRoute } from 'vue-router'
 import IntroLayout from './layouts/IntroLayout.vue'
 import MenuLayout from './layouts/MenuLayout.vue'
 import SimpleLayout from './layouts/SimpleLayout.vue'
-import GlobalToast from './components/GlobalToast.vue'
-import GlobalConfirm from './components/GlobalConfirm.vue'
+import GlobalToast from './components/ToastAndHelp/GlobalToast.vue'
+import GlobalConfirm from './components/ToastAndHelp/GlobalConfirm.vue'
 import PanelManager from './components/result/PanelManager.vue'
 import { initOnlineTimeTracker, stopOnlineTimeTracker } from './utils/onlineTimeTracker.js'
-import { getToken } from './api/auth/auth.js'
+import { getToken, initUserByToken } from './api/auth/auth.js'
 
 // // 🌉 建立 bridge 用於跨組件共享 iframe 狀態
 // const nativeFrame = ref(null)
@@ -62,7 +62,10 @@ export default {
     })
 
     // 初始化在线时长统计
-    onMounted(() => {
+    onMounted(async () => {
+      // 🆕 统一初始化用户认证状态
+      await initUserByToken()
+
       const token = getToken()
       if (token) {
         console.log('🎯 [App.vue] 检测到用户已登录，启动在线时长统计')

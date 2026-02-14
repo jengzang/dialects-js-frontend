@@ -29,7 +29,7 @@ const router = useRouter()
 
 const tabs = [
   { tab: 'map',   label: '地圖',   icon: '🗺️', weight: 0.8 },
-  { tab: 'query', label: '查詢',   icon: '📊', weight: 1.6 },
+  { tab: 'query', label: '查詢',   icon: '🔍️', weight: 1.6 },
   { tab: 'about', label: '關於網站', icon: '🌐', weight: 0.6 }
 ]
 

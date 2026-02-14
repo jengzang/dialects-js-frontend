@@ -5,7 +5,7 @@ export const menuConfig = {
   // Special: Return to query (only in SimpleSidebar)
   'query': {
     label: '返回查詢',
-    icon: '📊',
+    icon: '🔍️',
     path: '/menu?tab=query',
     children: null,
     showIn: ['SimpleSidebar'] // 只在 SimpleSidebar 中顯示
@@ -15,12 +15,12 @@ export const menuConfig = {
   // Level 2: Expandable data submenu
   'data': {
     label: '音系',
-    icon: '✍️',
+    icon: '🧬',
     path: '/menu?tab=pho',
     children: [
       {
         label: '音系查詢',
-        icon: '🔍️',
+        icon: '⚛️',
         path: '/explore?page=phonologyMatrix'
       },
       {
@@ -43,19 +43,19 @@ export const menuConfig = {
 
   // Level 2: Expandable data submenu
   'words': {
-    label: '詞語',
+    label: '詞句',
     icon: '📖',
     path: '/menu?tab=words',
     children: [
       {
-        label: '陽春口語詞',
-        icon: '💬',
-        path: '/explore?page=ycSpoken'
-      },
-      {
         label: '語保詞彙',
         icon: '📖',
         path: '/explore?page=YuBao&sub=vocabulary'
+      },
+      {
+        label: '陽春口語詞',
+        icon: '💬',
+        path: '/explore?page=ycSpoken'
       },
       {
         label: '語保語法',
@@ -72,14 +72,14 @@ export const menuConfig = {
     path: '/menu?tab=villages',
     children: [
       {
-        label: '全粵村情表格',
-        icon: '📈',
-        path: '/explore?page=gdVillagesTable'
-      },
-      {
         label: '廣東自然村',
         icon: '🏘️',
         path: '/explore?page=gdVillages'
+      },
+      {
+        label: '全粵村情表格',
+        icon: '📈',
+        path: '/explore?page=gdVillagesTable'
       },
       {
         label: '陽春自然村',
@@ -152,7 +152,8 @@ export const menuConfig = {
     icon: '🕰️',
     path: '/detail', // Will be set dynamically using window.WEB_BASE
     external: true,
-    children: null
+    children: null,
+    showIn: ['NavBar']
   }
 
 }

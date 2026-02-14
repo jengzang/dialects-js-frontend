@@ -4,10 +4,10 @@
     <div class="navbar-desktop">
       <div  @click="toggleSidebar" class="navbar-item logo-and-title" :style="{ zIndex: isSidebarVisible ? '1100' : '999' }">
         <div class="logo-container" style="min-width: 6dvh;width: 6dvh;">
-          <img class="logo" src="@/assets/favicon.ico" alt="Logo" />
+          <img class="logo" src="../../assets/favicon.ico" alt="Logo" />
         </div>
         <div class="title">
-          <img src="@/assets/title.png" alt="Title" />
+          <img src="../../assets/title.png" alt="Title" />
         </div>
       </div>
       <nav class="navbar-btn">
@@ -33,7 +33,7 @@
       <div class="logo-container" style="color: #005fd3;border-radius: 30px" @click="goToAuthPage">
         <!-- 显示用户名或"登录" -->
         <span class="login-text">
-          {{ user.username ? user.username : '登錄' }}
+          {{ userStore.username || '登錄' }}
         </span>
       </div>
     </div>
@@ -169,16 +169,16 @@
       <div class="navbar-top">
         <div @click="toggleSidebar" class="navbar-item logo-and-title" :style="{ zIndex: isSidebarVisible ? '1100' : '999' }">
           <div class="logo-container" style="width: 6dvh;min-width: 6dvh" >
-            <img class="logo" src="@/assets/favicon.ico" alt="Logo" />
+            <img class="logo" src="../../assets/favicon.ico" alt="Logo" />
           </div>
           <div class="title">
-            <img src="@/assets/title.png" alt="Title" />
+            <img src="../../assets/title.png" alt="Title" />
           </div>
         </div>
         <div class="logo-container" style="color: #005fd3; border-radius: 30px;height: 5dvh" @click="goToAuthPage">
           <!-- 显示用户名或"登录" -->
           <span class="login-text">
-            {{ user.username ? user.username : '登錄' }}
+            {{ userStore.username || '登錄' }}
           </span>
         </div>
       </div>
@@ -214,15 +214,13 @@
 <script setup>
 import { ref , onMounted, onBeforeUnmount, computed} from 'vue'
 import {useRoute, useRouter} from 'vue-router'
-import {api, clearToken, getToken, initUserByToken, saveToken} from '../api/auth/auth.js'
-import { getTodayVisits, getTotalVisits, getVisitHistory } from '@/api/logs'
+import { clearToken, getToken, saveToken } from '../../api/auth/auth.js'
+import { getTodayVisits, getTotalVisits, getVisitHistory } from '@/api/logs/index.js'
 import { menuConfig } from '@/config/menuConfig.js'
 import { WEB_BASE } from '@/env-config.js'
-// import { userStore } from '../utils/store.js'
+import { userStore } from '@/utils/store.js'
 const route = useRoute()
 const router = useRouter()
-const user = ref({}) // 存储用户信息
-const mode = ref('login') // 存储登录状态
 const isSidebarVisible = ref(false)  // 控制边栏显示
 
 // Submenu state management
@@ -260,7 +258,7 @@ const loadingStats = ref(false)
 const tabs = [
   { tab: 'tools', label: '工具集', icon: '🛠️', weight: 1, fontSize: 1.3, isPseudo: true },
   { tab: 'about', label: '關於網站', icon: '🌐', weight: 0.6, fontSize: 1 },
-  { tab: 'query', label: '查詢', icon: '📊', weight: 1, fontSize: 1.3 },
+  { tab: 'query', label: '查詢', icon: '🔍️', weight: 1, fontSize: 1.3 },
   { tab: 'result', label: '結果', icon: '📈', weight: 1, fontSize: 1.3 },
   { tab: 'map', label: '地圖', icon: '🗺️', weight: 1, fontSize: 1.3 },
 ]
@@ -434,9 +432,6 @@ const closeSubmenu = () => {
 
 onMounted(async () => {
   checkMobile();
-  const res = await initUserByToken();
-  user.value = res.user || {};
-  mode.value = res.role !== 'anonymous' ? 'normal' : 'login';
   await fetchVisitStats();
   document.addEventListener('click', closeSubmenu)
 })
