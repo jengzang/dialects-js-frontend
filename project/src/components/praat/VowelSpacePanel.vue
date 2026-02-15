@@ -10,21 +10,31 @@
 
       <!-- Control Buttons -->
       <div class="control-buttons">
-        <button
-            class="control-btn glass-panel-inner"
-            :class="{ active: showSegmented }"
-            :disabled="vowelSegments.length === 0"
-            @click="showSegmented = !showSegmented"
-            :title="vowelSegments.length === 0 ? '未檢測到有效語音段，無法切換' : ''"
+        <!-- Display Mode Switch Toggle -->
+        <div
+          class="vowel-switch-container"
+          :class="{ disabled: vowelSegments.length === 0 }"
+          @click="vowelSegments.length > 0 && (showSegmented = !showSegmented)"
+          :title="vowelSegments.length === 0 ? '未檢測到有效語音段，無法切換' : ''"
         >
-          {{ showSegmented ? '📊 分段顯示' : '⚫ 全部顯示' }}
-        </button>
-        <button
-          class="control-btn glass-panel-inner"
-          :class="{ active: showReferenceVowels }"
-          @click="showReferenceVowels = !showReferenceVowels">
-          {{ showReferenceVowels ? '🔤 隱藏參考元音' : '🔤 顯示參考元音' }}
-        </button>
+          <span class="switch-label-text">分段顯示</span>
+          <div class="custom-switch" :class="{ 'open': showSegmented }">
+            <span class="custom-slider">
+              <span class="switch-text">
+                {{ showSegmented ? '開啟' : '關閉' }}
+              </span>
+            </span>
+          </div>
+        </div>
+
+        <!-- Reference Vowels Checkbox -->
+        <label class="reference-vowels-checkbox">
+          <input
+            type="checkbox"
+            v-model="showReferenceVowels"
+          />
+          <span class="segment-label">顯示參考元音</span>
+        </label>
       </div>
     </div>
 
@@ -527,6 +537,10 @@ onBeforeUnmount(() => {
   gap: 1rem;
   margin-bottom: 2rem;
   flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  flex-direction: row;
 }
 
 .control-btn {
@@ -550,6 +564,102 @@ onBeforeUnmount(() => {
 .control-btn:disabled {
   cursor: not-allowed;
   pointer-events: none; /* 彻底防止点击事件 */
+}
+
+/* Switch Toggle Styles */
+.vowel-switch-container {
+  display: flex;
+  align-items: center;
+  gap: 0.1rem;
+  padding: 0.75rem 1.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+
+.vowel-switch-container.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.switch-label-text {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--color-text-primary);
+}
+
+.custom-switch {
+  position: relative;
+  width: 50px;
+  height: 30px;
+  background-color: #ccc;
+  border-radius: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.3s ease;
+}
+
+.custom-slider {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.custom-slider:before {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 26px;
+  height: 26px;
+  background-color: white;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.custom-switch.open {
+  background-color: #007aff;
+}
+
+.custom-switch.open .custom-slider:before {
+  transform: translateX(20px);
+}
+
+.custom-switch:hover {
+  box-shadow: 0 0 10px 4px rgba(0, 122, 255, 0.3);
+}
+
+.switch-text {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: white;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Reference Vowels Checkbox */
+.reference-vowels-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.1rem;
+  padding: 0.75rem 1.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.reference-vowels-checkbox:hover {
+  transform: translateY(-2px);
+}
+
+.reference-vowels-checkbox input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
 }
 
 /* Segment Selector Section */
@@ -743,6 +853,29 @@ onBeforeUnmount(() => {
     font-size: 0.85rem;
     padding: 0.6rem 1rem;
     margin-bottom: 1rem;
+  }
+
+  /* Mobile optimizations for controls */
+  .control-buttons {
+    gap: 0.5rem;
+    width: 100%;
+  }
+
+  .vowel-switch-container {
+    padding: 0.5rem 1rem;
+  }
+
+  .reference-vowels-checkbox {
+    padding: 0.5rem 1rem;
+  }
+
+  .switch-label-text,
+  .segment-label {
+    font-size: 0.8rem;
+  }
+
+  .switch-text {
+    font-size: 0.6rem;
   }
 }
 </style>
