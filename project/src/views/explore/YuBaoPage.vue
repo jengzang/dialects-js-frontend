@@ -1753,8 +1753,6 @@ watch(viewMode, async (newMode) => {
 
 /* ===== 地图模式样式 ===== */
 .map-mode {
-  min-height: 500px;
-  height: 70vh;
   display: flex;
   align-items: center;
   justify-content: center;

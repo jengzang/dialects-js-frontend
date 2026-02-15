@@ -4,10 +4,31 @@
 export const menuConfig = {
   // Special: Return to query (only in SimpleSidebar)
   'query': {
-    label: '返回查詢',
+    label: '查詢',
     icon: '🔍️',
     path: '/menu?tab=query',
-    children: null,
+    children: [
+      {
+        label: '查字',
+        icon: '🔣', // 用这个比书本更像“工具”，或者用 📖
+        path: '/menu?tab=query&sub=tab1'
+      },
+      {
+        label: '查中古',
+        icon: '📜', // 卷轴绝对是中古音韵的最佳代表
+        path: '/menu?tab=query&sub=tab2'
+      },
+      {
+        label: '查音位',
+        icon: '🗣️', // 强调“口语/发音”
+        path:'/menu?tab=query&sub=tab3'
+      },
+      {
+        label: '查调',
+        icon: '🎼', // 乐谱，比普通音符更具系统性，代表“平上去入”的音阶
+        path:'/menu?tab=query&sub=tab4'
+      },
+    ],
     showIn: ['none'] // 只在 SimpleSidebar 中顯示
   },
   // Level 1: External link to old website
@@ -190,6 +211,34 @@ export const menuConfig = {
     icon: '🌐️',
     path: '/menu?tab=about&sub=intro',
     children: null
+  },
+  'about_ontop': {
+    label: '關於網站',
+    icon: '🌐️',
+    path: '/menu?tab=about&sub=intro',
+    children:[
+      {
+        label: '簡介',
+        icon: 'ℹ️',
+        path: '/menu?tab=about&sub=intro'
+      },
+      {
+        label: '感悟',
+        icon: '🙏',
+        path: '/menu?tab=about&sub=reflection'
+      },
+      {
+        label: '提出建議',
+        icon: '💬',
+        path: '/menu?tab=about&sub=suggestion'
+      },
+      {
+        label: '喜歡作者',
+        icon: '❤️',
+        path: '/menu?tab=about&sub=like'
+      }
+    ],
+    showIn:['none']
   },
 
 }

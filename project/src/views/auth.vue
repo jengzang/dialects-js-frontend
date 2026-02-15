@@ -135,14 +135,13 @@
       <div v-else-if="mode === 'register'" style="padding: 12px; text-align: center;">
         <h3 style="display: flex; align-items: center; gap: 8px; justify-content: center;">
           註冊
-          <HelpIcon
-            icon="🎁"
-            content="查看會員權益對比"
-            size="lg"
-            iconColor="#ff9500"
-            trigger="click"
-            @click="showBenefitsPopup"
-          />
+          <button
+              class="benefit-circle-btn"
+              @click="showBenefitsPopup"
+              title="查看會員權益對比"
+          >
+            🎁
+          </button>
         </h3>
         <div class="form-row" style="display: flex; justify-content: center;">
           <input
@@ -255,14 +254,13 @@
             </button>
           </div>
 
-          <HelpIcon
-            icon="🎁"
-            content="查看會員權益對比"
-            size="lg"
-            iconColor="#ff9500"
-            trigger="click"
-            @click="showBenefitsPopup"
-          />
+          <button
+              class="benefit-circle-btn"
+              @click="showBenefitsPopup"
+              title="查看會員權益對比"
+          >
+            🎁
+          </button>
         </div>
 
         <!-- Overview Tab -->
