@@ -93,7 +93,7 @@
         </tr>
         </thead>
         <tbody>
-        <tr v-for="final in finals" :key="final">
+        <tr v-for="final in visibleFinals" :key="final">
           <th class="final-header">{{ final || '零韻母' }}</th>
           <td
               v-for="initial in initials"
@@ -123,7 +123,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'; // 合併 import
+import { ref, computed, onMounted, nextTick } from 'vue';
 import { sqlQuery } from '@/api/sql';
 
 const props = defineProps({
@@ -153,9 +153,57 @@ const props = defineProps({
 // 這裡為了方便，我們創建一個響應式的引用（雖非必須，但如果後續要處理邏輯會方便）
 const location = computed(() => props.location);
 
+// Progressive rendering state
+const visibleRowCount = ref(15); // Show first 15 rows immediately
+const isFullyRendered = ref(false);
+
+// Memoized cell data lookup for better performance
+const cellDataMap = computed(() => {
+  const map = new Map();
+  for (const initial of props.initials) {
+    for (const final of props.finals) {
+      const data = props.matrix[initial]?.[final];
+      if (data) {
+        map.set(`${initial}-${final}`, data);
+      }
+    }
+  }
+  return map;
+});
+
 const getCellData = (initial, final) => {
-  return props.matrix[initial]?.[final] || null
-}
+  return cellDataMap.value.get(`${initial}-${final}`) || null;
+};
+
+// Filter visible finals for progressive rendering
+const visibleFinals = computed(() => {
+  return props.finals.slice(0, visibleRowCount.value);
+});
+
+// Progressive rendering logic
+onMounted(() => {
+  if (props.finals.length <= 15) {
+    isFullyRendered.value = true;
+    return;
+  }
+
+  const renderNextChunk = () => {
+    if (visibleRowCount.value < props.finals.length) {
+      visibleRowCount.value = Math.min(
+        visibleRowCount.value + 10,
+        props.finals.length
+      );
+      requestAnimationFrame(renderNextChunk);
+    } else {
+      isFullyRendered.value = true;
+    }
+  };
+
+  // Start progressive rendering after initial paint
+  nextTick(() => {
+    requestAnimationFrame(renderNextChunk);
+  });
+});
 
 const locationData = ref(null);
 const showModal = ref(false);
@@ -273,6 +321,9 @@ const getToneData = (data) => {
   box-shadow: var(--shadow-md2);
   max-height: 90dvh;
   margin-bottom:15px ;
+  /* GPU acceleration for smooth scrolling */
+  will-change: transform;
+  contain: layout style;
 }
 
 /* 自定义滚动条样式 */
@@ -318,8 +369,18 @@ const getToneData = (data) => {
   left: 0;
   z-index: 3;
   min-width: 60px;
+  /* GPU acceleration and backdrop-filter optimization */
+  transform: translateZ(0);
+  isolation: isolate;
+}
+
+.corner-cell::before {
+  content: '';
+  position: absolute;
+  inset: 0;
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
+  z-index: -1;
 }
 
 .initial-header {
@@ -333,9 +394,19 @@ const getToneData = (data) => {
   top: 0;
   z-index: 2;
   min-width: 120px;
+  font-size: 15px;
+  /* GPU acceleration and backdrop-filter optimization */
+  transform: translateZ(0);
+  isolation: isolate;
+}
+
+.initial-header::before {
+  content: '';
+  position: absolute;
+  inset: 0;
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  font-size: 15px;
+  z-index: -1;
 }
 
 .final-header {
@@ -349,9 +420,19 @@ const getToneData = (data) => {
   left: 0;
   z-index: 1;
   min-width: 80px;
+  font-size: 15px;
+  /* GPU acceleration and backdrop-filter optimization */
+  transform: translateZ(0);
+  isolation: isolate;
+}
+
+.final-header::before {
+  content: '';
+  position: absolute;
+  inset: 0;
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  font-size: 15px;
+  z-index: -1;
 }
 
 .matrix-cell {
@@ -361,11 +442,14 @@ const getToneData = (data) => {
   min-width: 120px;
   max-width: 200px;
   background: var(--glass-very-light2);
-  transition: background 0.2s ease;
+  /* Remove transition for better performance on Android */
+  /* Layout isolation for better rendering performance */
+  contain: layout style paint;
 }
 
 .matrix-cell:hover {
   background: var(--glass-light2);
+  /* Instant color change - no transition needed */
 }
 
 .cell-content {
