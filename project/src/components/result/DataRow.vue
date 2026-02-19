@@ -568,4 +568,46 @@ const handleFeatureStatsClick = async () => {
     order: 0;
   }
 }
+
+/* Container Query：當面板容器寬度小於 600px 時也應用相同樣式 */
+@container query-panel (max-width: 500px) {
+  .feature-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 2px;
+  }
+
+  .feature-main-items {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    gap: 8px;
+  }
+
+  .feature-main-items > p:first-child {
+    font-size: 16px;
+    flex: 1;
+    margin-right: 0;
+    order: 0;
+  }
+
+  .feature-stats-btn {
+    padding: 4px 10px;
+    font-size: 11px;
+    order: 0;
+  }
+
+  .feature-main-items > p:last-child {
+    font-size: 12px;
+    order: 0;
+  }
+
+  .brief-stats {
+    white-space: normal;
+    word-break: break-all;
+    order: 0;
+  }
+}
 </style>

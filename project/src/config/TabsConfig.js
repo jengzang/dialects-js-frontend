@@ -8,7 +8,7 @@ export const MenuTabsConfig = [
   {
     tab: 'tools',
     label: '工具集',
-    icon: '🧰',
+    icon: '🛠️',
     weight: 0.6,
     mobileWeight: 1,                      // 移动端 flex 权重（可选，不设置则使用 weight）
     fontSize: 1.2,

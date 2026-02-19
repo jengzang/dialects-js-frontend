@@ -430,8 +430,12 @@ const handleManualSegmentsReady = (segments) => {
     audioSegments.value = segments
   }
 
-  audioFile.value = audioSegments.value[0].file
-  selectedSegment.value = audioSegments.value[0]
+  // Auto-select first manual segment (or first segment if no manual)
+  const firstManualSegment = audioSegments.value.find(s => s.origin === 'manual')
+  selectedSegment.value = firstManualSegment || audioSegments.value[0]
+
+  // Set audioFile based on selected segment
+  audioFile.value = selectedSegment.value.file
 
   // Reset previous analysis
   jobId.value = null
