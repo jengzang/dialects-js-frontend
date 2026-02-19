@@ -56,10 +56,16 @@ import DataRow from "./DataRow.vue";
 import ValuePopup from './ValuePopup.vue';
 import FeaturePopup from './FeaturePopup.vue';
 import { parseFeatureString, get_detail } from '@/utils/ResultTable.js';
+import { PANEL_CONFIG, LAYOUT_CONFIG } from '@/config/constants.js';
 
 // === 1. Vue 状态管理 ===
 const panels = ref([]);
 const panelRefs = new Map();
+
+// 容器尺寸（響應式）
+const containerWidth = ref(window.innerWidth);
+const containerHeight = ref(window.innerHeight);
+const containerRef = ref(null);
 
 // [修復] 定義漏掉的 Popup 狀態變量
 const showPopupValue = ref(false);
@@ -75,26 +81,44 @@ const setPanelRef = (el, id) => {
 };
 
 // === 2. 布局常量 ===
-const ROW_GAP_PX = 120;
-const ROW_BOTTOM_START = 10;
-const PANEL_HEIGHT = '50vh';
-const EXTRA_EMPTY_ROWS = 3;
+const ROW_GAP_PX = PANEL_CONFIG.ROW_GAP_PX;
+const ROW_BOTTOM_START = PANEL_CONFIG.ROW_BOTTOM_START;
+const PANEL_HEIGHT = PANEL_CONFIG.PANEL_HEIGHT;
+const EXTRA_EMPTY_ROWS = PANEL_CONFIG.EXTRA_EMPTY_ROWS;
 
 const panelSlots = [];
 let currentCols = getCurrentCols();
 let gridOverlays = [];
 
-// === 3. 核心布局算法 (保持不變) ===
-function getLayoutSpec() {
-  const w = window.innerWidth;
-  if (w >= 1200) return { cols: 4, widthPct: 23, gapPct: 1 };
-  if (w >= 768)  return { cols: 2, widthPct: 48, gapPct: 1 };
-  return            { cols: 1, widthPct: 94, gapPct: 0 };
+// === 3. 核心布局算法 ===
+function getLayoutSpec(containerWidth) {
+  const w = containerWidth;
+  const { DESKTOP, TABLET } = PANEL_CONFIG.BREAKPOINTS;
+
+  if (w >= DESKTOP) {
+    return {
+      cols: LAYOUT_CONFIG.DESKTOP_COLS,
+      widthPct: LAYOUT_CONFIG.DESKTOP_WIDTH_PCT,
+      gapPct: LAYOUT_CONFIG.DESKTOP_GAP_PCT
+    };
+  }
+  if (w >= TABLET) {
+    return {
+      cols: LAYOUT_CONFIG.TABLET_COLS,
+      widthPct: LAYOUT_CONFIG.TABLET_WIDTH_PCT,
+      gapPct: LAYOUT_CONFIG.TABLET_GAP_PCT
+    };
+  }
+  return {
+    cols: LAYOUT_CONFIG.MOBILE_COLS,
+    widthPct: LAYOUT_CONFIG.MOBILE_WIDTH_PCT,
+    gapPct: LAYOUT_CONFIG.MOBILE_GAP_PCT
+  };
 }
-function getCurrentCols() { return getLayoutSpec().cols; }
+function getCurrentCols() { return getLayoutSpec(containerWidth.value).cols; }
 
 function slotToRB(idx) {
-  const { cols, widthPct, gapPct } = getLayoutSpec();
+  const { cols, widthPct, gapPct } = getLayoutSpec(containerWidth.value);
   const col = idx % cols;
   const row = Math.floor(idx / cols);
   const leftPct = col * (widthPct + gapPct);
@@ -111,8 +135,8 @@ function slotToRB(idx) {
 
 function slotRectPx(idx) {
   const rb = slotToRB(idx);
-  const vw = window.innerWidth;
-  const vh = window.innerHeight;
+  const vw = containerWidth.value;
+  const vh = containerHeight.value;
   const widthPx = (parseFloat(rb.width) / 100) * vw;
   const heightPx = rb.height.endsWith('vh') ? (parseFloat(rb.height) / 100) * vh : parseFloat(rb.height);
   const left = (parseFloat(rb.left) / 100) * vw;
@@ -147,7 +171,7 @@ function releaseSlot(index) {
 
 function showGridOverlays(origSlotIndex) {
   hideGridOverlays();
-  const { cols } = getLayoutSpec();
+  const { cols } = getLayoutSpec(containerWidth.value);
   const maxIndex = Math.max(panelSlots.length + EXTRA_EMPTY_ROWS * cols - 1, cols - 1);
   const frag = document.createDocumentFragment();
   gridOverlays = [];
@@ -177,7 +201,7 @@ function highlightGridSlot(idx) {
   });
 }
 function findNearestFreeSlot(cx, cy, origSlotIndex) {
-  const { cols } = getLayoutSpec();
+  const { cols } = getLayoutSpec(containerWidth.value);
   const maxIndex = Math.max(panelSlots.length + EXTRA_EMPTY_ROWS * cols - 1, cols - 1);
   let bestIdx = null; let bestDist = Infinity;
   for (let i = 0; i <= maxIndex; i++) {
@@ -228,6 +252,16 @@ function enableDragSnap(container) {
   container.addEventListener('mousedown', onPointerDown);
 }
 
+function relayoutAllPanels() {
+  // 根據新佈局重新定位所有現有面板
+  panelRefs.forEach((el, id) => {
+    const slotIndex = Number(el.dataset.slotIndex);
+    if (slotIndex >= 0) {
+      applySlotPosition(el, slotIndex);
+    }
+  });
+}
+
 // === 4. Vue Logic ===
 const addPanel = (data = [], isLoading = false) => {
   const id = Date.now() + Math.random();
@@ -269,7 +303,7 @@ const onTriggerPopup = (type, item, feature, value, e) => {
   const mouseX = e.clientX; const mouseY = e.clientY; const popupWidth = 250; const offset = 10;
   popupPos.value = {
     top: Math.max(mouseY - 100 - 5, 20),
-    left: Math.min(Math.max(mouseX + popupWidth / 2 - offset, 20), window.innerWidth - 0.5 * popupWidth)
+    left: Math.min(Math.max(mouseX + popupWidth / 2 - offset, 20), containerWidth.value - 0.5 * popupWidth)
   };
   if (type === 'value') { popupDataValue.value = dataObj; showPopupValue.value = true; }
   else { popupDataFeature.value = dataObj; showPopupFeature.value = true; }
@@ -301,11 +335,53 @@ onMounted(() => {
   window.addPanel = addPanel;
   window.updatePanel = updatePanel;
   window.removePanel = removePanel;
+
+  // 設置 ResizeObserver 監聽容器尺寸變化
+  const container = document.querySelector('.panel-manager-container');
+  if (container) {
+    containerRef.value = container;
+
+    const resizeObserver = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const { width, height } = entry.contentRect;
+        containerWidth.value = width;
+        containerHeight.value = height;
+
+        // 如果列數改變，重新佈局所有面板
+        const newCols = getLayoutSpec(width).cols;
+        if (newCols !== currentCols) {
+          currentCols = newCols;
+          relayoutAllPanels();
+
+          // 如果正在拖拽，更新網格覆蓋層
+          if (gridOverlays.length > 0) {
+            const draggingPanel = document.querySelector('.query-detail-panel.dragging');
+            if (draggingPanel) {
+              const origSlot = Number(draggingPanel.dataset.slotIndex);
+              showGridOverlays(origSlot);
+            }
+          }
+        }
+      }
+    });
+
+    resizeObserver.observe(container);
+    window._panelManagerResizeObserver = resizeObserver;
+  } else {
+    console.warn('[PanelManager] Container not found, using viewport dimensions');
+  }
+
   window.addEventListener('resize', onResizeDebounced);
 });
 onUnmounted(() => {
   window.removeEventListener('resize', onResizeDebounced);
   hideGridOverlays();
+
+  // 清理 ResizeObserver
+  if (window._panelManagerResizeObserver) {
+    window._panelManagerResizeObserver.disconnect();
+    delete window._panelManagerResizeObserver;
+  }
 });
 </script>
 
@@ -313,7 +389,15 @@ onUnmounted(() => {
 .panel-manager-container {
   pointer-events: none;
   position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 10000!important;
+  container-type: inline-size;
+  container-name: panel-manager;
 }
+
+.query-detail-panel {
+  container-type: inline-size;
+  container-name: query-panel;
+}
+
 /* 必要的 Loading 樣式 */
 .loading-container {
   display: flex; flex-direction: column; align-items: center; justify-content: center;

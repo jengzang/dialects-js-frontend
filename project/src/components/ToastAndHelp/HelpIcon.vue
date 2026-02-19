@@ -9,6 +9,7 @@
       @mouseenter="handleHover('enter')"
       @mouseleave="handleHover('leave')"
       @click="handleClick"
+      @touchend.prevent="handleTouchEnd"
     >
       <slot>{{ icon }}</slot>
     </div>
@@ -250,6 +251,17 @@ const handleClick = () => {
   toggleTooltip()
 }
 
+// 处理 touch 事件（移動端專用）
+const handleTouchEnd = (event) => {
+  // 阻止後續的 click 事件（避免雙重觸發）
+  event.preventDefault()
+
+  // 仅 click 或 both 模式才响应
+  if (props.trigger === 'hover' && !isMobile.value) return
+
+  toggleTooltip()
+}
+
 // 点击外部关闭
 const handleClickOutside = (event) => {
   if (!isVisible.value) return
@@ -314,18 +326,54 @@ onBeforeUnmount(() => {
   width: 20px;
   height: 20px;
   font-size: 12px;
+  /* 移動端增加觸控區域 */
+  position: relative;
+}
+
+.help-icon.size-sm::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 44px;
+  height: 44px;
+  /* 用於調試：取消註釋可看到觸控區域 */
+  /* background: rgba(255, 0, 0, 0.1); */
 }
 
 .help-icon.size-md {
   width: 24px;
   height: 24px;
   font-size: 14px;
+  position: relative;
+}
+
+.help-icon.size-md::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 44px;
+  height: 44px;
 }
 
 .help-icon.size-lg {
   width: 28px;
   height: 28px;
   font-size: 16px;
+  position: relative;
+}
+
+.help-icon.size-lg::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 48px;
+  height: 48px;
 }
 
 /* Hover 状态 */

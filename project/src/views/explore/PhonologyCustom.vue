@@ -204,14 +204,14 @@ const handleIsMatching = (matching) => {
 function updatePhonologyCustomUrl() {
   const query = {
     ...route.query,
-    feature: selectedFeature.value,
-    h: horizontalColumn.value,
-    v: verticalColumn.value,
-    c: cellRowColumn.value
+    feature: encodeURIComponent(selectedFeature.value),
+    h: encodeURIComponent(horizontalColumn.value),
+    v: encodeURIComponent(verticalColumn.value),
+    c: encodeURIComponent(cellRowColumn.value)
   }
 
   if (matchedLocations.value.length > 0) {
-    query.loc = matchedLocations.value
+    query.loc = matchedLocations.value.map(loc => encodeURIComponent(loc))
   } else {
     delete query.loc
   }
@@ -223,7 +223,7 @@ function updatePhonologyCustomUrl() {
 watch(selectedFeature, (newFeature) => {
   const query = {
     ...route.query,
-    feature: newFeature
+    feature: encodeURIComponent(newFeature)
   }
   router.replace({ query })
 

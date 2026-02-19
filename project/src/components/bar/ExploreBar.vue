@@ -161,7 +161,9 @@ const tabToMenuConfigMap = {
   'data': 'data',
   'words': 'words',
   'villages': 'villages',
-  'tools': 'tools'
+  'tools': 'tools',
+  'query':'query',
+  'about':'about_ontop'
 }
 
 // Helper function to get children from menuConfig

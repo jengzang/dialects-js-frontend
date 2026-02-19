@@ -125,10 +125,15 @@ export function parseLocationsFromUrl(route) {
   if (!locParam) return []
 
   // 处理单个字符串和数组两种情况
-  if (Array.isArray(locParam)) {
-    return locParam.filter(Boolean)
-  }
-  return [locParam].filter(Boolean)
+  const locations = Array.isArray(locParam) ? locParam : [locParam]
+  // Vue Router 会自动解码，但为了兼容性，确保解码
+  return locations.filter(Boolean).map(loc => {
+    try {
+      return decodeURIComponent(loc)
+    } catch {
+      return loc
+    }
+  })
 }
 
 /**
@@ -146,9 +151,9 @@ export function updateUrlWithLocations(router, locations, additionalParams = {})
   // 删除旧的 loc 参数
   delete query.loc
 
-  // 添加新的 loc 参数
+  // 添加新的 loc 参数（编码中文字符）
   if (locations.length > 0) {
-    query.loc = locations
+    query.loc = locations.map(loc => encodeURIComponent(loc))
   }
 
   router.replace({ query })
@@ -160,12 +165,22 @@ export function updateUrlWithLocations(router, locations, additionalParams = {})
  * @returns {Object} 包含所有参数的对象
  */
 export function parsePhonologyCustomParams(route) {
+  // 解码参数（可能包含中文）
+  const decodeParam = (param) => {
+    if (!param) return ''
+    try {
+      return decodeURIComponent(param)
+    } catch {
+      return param
+    }
+  }
+
   return {
     locations: parseLocationsFromUrl(route),
-    feature: route.query.feature || '',
-    horizontalColumn: route.query.h || '',
-    verticalColumn: route.query.v || '',
-    cellRowColumn: route.query.c || ''
+    feature: decodeParam(route.query.feature),
+    horizontalColumn: decodeParam(route.query.h),
+    verticalColumn: decodeParam(route.query.v),
+    cellRowColumn: decodeParam(route.query.c)
   }
 }
 

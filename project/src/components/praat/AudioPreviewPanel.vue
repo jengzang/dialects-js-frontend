@@ -29,23 +29,22 @@
           <h4>完整波形 ({{ totalDuration.toFixed(1) }}秒)</h4>
         </div>
         <div ref="fullWaveformContainer" class="full-waveform"></div>
-        <p class="hint">💡 拖動波形選擇區域，或點擊「添加分段」按鈕</p>
+        <p class="hint">💡 拖動波形創建分段，選擇一個分段後點擊「確認分段」</p>
       </div>
 
       <!-- Control Buttons -->
       <div class="control-buttons">
-        <button @click="addRegion" class="btn-add glass-button">
-          ➕ 添加分段
+        <button
+          @click="confirmManualSegments"
+          class="btn-confirm glass-button"
+          :disabled="!selectedRegionId || isConfirming"
+        >
+          <span v-if="isConfirming">處理中...</span>
+          <span v-else>✓ 確認分段</span>
         </button>
         <button @click="clearAllRegions" class="btn-clear glass-button">
           🗑️ 清除全部
         </button>
-        <button v-if="manualRegions.length > 0" @click="resetToOriginal" class="btn-reset glass-button">
-          🔄 恢復原始
-        </button>
-<!--        <button @click="autoSegment" class="btn-auto glass-button">-->
-<!--          ✂️ 自動分段(10s)-->
-<!--        </button>-->
       </div>
 
       <!-- Validation Messages -->
@@ -55,20 +54,25 @@
 
       <!-- Selected Regions List -->
       <div v-if="manualRegions.length > 0" class="regions-list">
-        <h4>已選分段 ({{ manualRegions.length }})</h4>
+        <h4>候選分段 ({{ manualRegions.length }}) - 請選擇一個</h4>
         <div
           v-for="(region, index) in manualRegions"
           :key="region.id"
           class="region-card glass-panel-inner"
+          :class="{ 'selected-region': selectedRegionId === region.id }"
+          @click="selectRegion(region.id)"
         >
           <div class="region-header">
             <span class="region-badge" :style="{ backgroundColor: region.color }">
               分段 {{ index + 1 }}
             </span>
             <span class="region-duration">{{ region.duration.toFixed(1) }}秒</span>
-            <button @click="deleteRegion(region.id)" class="btn-delete">
-              🗑️
-            </button>
+            <div class="region-actions">
+              <span v-if="selectedRegionId === region.id" class="selected-indicator">✓ 已選擇</span>
+              <button @click.stop="deleteRegion(region.id)" class="btn-delete">
+                🗑️
+              </button>
+            </div>
           </div>
 
           <!-- Region Waveform Preview -->
@@ -119,7 +123,7 @@
     <div v-else class="auto-mode">
       <div v-if="effectiveSegments.length > 1" class="info-banner">
         <span class="info-icon">ℹ️</span>
-        <span>以下為各段音頻，請選擇要分析的片段。</span>
+        <span>請選擇要分析的片段。</span>
       </div>
 
       <div class="segments-container">
@@ -181,6 +185,7 @@ import { ref, watch, onMounted, onBeforeUnmount, nextTick, computed } from 'vue'
 import WaveSurfer from 'wavesurfer.js'
 import RegionsPlugin from 'wavesurfer.js/dist/plugins/regions.esm.js'
 import { userStore } from '@/utils/store.js'
+import { showSuccess } from '@/utils/message.js'
 
 const props = defineProps({
   audioBlob: {
@@ -211,6 +216,8 @@ const manualRegions = ref([])
 const regionWaveformRefs = ref({})
 const validationError = ref('')
 const totalDuration = ref(0)
+const isConfirming = ref(false)
+const selectedRegionId = ref(null)
 let regionsPlugin = null
 
 // Region colors
@@ -269,6 +276,7 @@ const switchMode = async (newMode) => {
       fullWaveform.value = null
     }
     manualRegions.value = []
+    selectedRegionId.value = null
     validationError.value = ''
 
     // Reinitialize auto mode
@@ -319,23 +327,6 @@ const initFullWaveform = async () => {
   })
 }
 
-// Add a new region
-const addRegion = () => {
-  if (!fullWaveform.value || !regionsPlugin) return
-
-  const currentTime = fullWaveform.value.getCurrentTime()
-  const start = currentTime
-  const end = Math.min(start + 2, totalDuration.value)
-
-  regionsPlugin.addRegion({
-    start: start,
-    end: end,
-    color: regionColors[manualRegions.value.length % regionColors.length],
-    drag: true,
-    resize: true
-  })
-}
-
 // Handle region created
 const handleRegionCreated = async (region) => {
   const duration = region.end - region.start
@@ -372,6 +363,11 @@ const handleRegionCreated = async (region) => {
   }
 
   manualRegions.value.push(regionData)
+
+  // Auto-select if it's the only region
+  if (manualRegions.value.length === 1) {
+    selectedRegionId.value = regionData.id
+  }
 
   // Extract audio for this region
   await nextTick()
@@ -610,6 +606,12 @@ const stopRegion = (regionId) => {
   }
 }
 
+// Select a region
+const selectRegion = (regionId) => {
+  selectedRegionId.value = regionId
+  validationError.value = ''
+}
+
 // Delete region
 const deleteRegion = (regionId) => {
   // Remove from WaveSurfer
@@ -628,6 +630,11 @@ const deleteRegion = (regionId) => {
       manualRegions.value[index].wavesurfer.destroy()
     }
     manualRegions.value.splice(index, 1)
+  }
+
+  // Clear selection if deleted region was selected
+  if (selectedRegionId.value === regionId) {
+    selectedRegionId.value = manualRegions.value.length > 0 ? manualRegions.value[0].id : null
   }
 
   validationError.value = ''
@@ -650,6 +657,7 @@ const clearAllRegions = () => {
   })
 
   manualRegions.value = []
+  selectedRegionId.value = null
   validationError.value = ''
 
   // Emit empty segments
@@ -661,6 +669,77 @@ const resetToOriginal = () => {
   clearAllRegions()
   // This will trigger emitManualSegments with empty array
   // which will restore original segments in parent
+}
+
+// Confirm manual segments and switch to results view
+const confirmManualSegments = async () => {
+  if (!selectedRegionId.value) {
+    validationError.value = '請先選擇一個分段'
+    return
+  }
+
+  // Get the selected region
+  const selectedRegion = manualRegions.value.find(r => r.id === selectedRegionId.value)
+  if (!selectedRegion) {
+    validationError.value = '所選分段不存在'
+    return
+  }
+
+  // Validate duration limit
+  const duration = selectedRegion.end - selectedRegion.start
+  const isAdmin = userStore.role === 'admin'
+  if (duration > 10 && !isAdmin) {
+    validationError.value = '所選分段超過 10 秒，請調整後再確認'
+    return
+  }
+
+  isConfirming.value = true
+
+  try {
+    // Clean up manual mode UI FIRST
+    if (fullWaveform.value) {
+      fullWaveform.value.destroy()
+      fullWaveform.value = null
+    }
+    manualRegions.value = []
+    selectedRegionId.value = null
+    validationError.value = ''
+
+    // Switch mode to 'auto' BEFORE emitting
+    mode.value = 'auto'
+
+    // Wait for mode change to propagate
+    await nextTick()
+
+    // NOW emit the segment (watch will have correct mode)
+    emitSingleManualSegment(selectedRegion)
+
+    // Wait for parent to update and watch to trigger
+    await nextTick()
+
+    showSuccess('已確認手動分段')
+  } finally {
+    isConfirming.value = false
+  }
+}
+
+// Emit single manual segment
+const emitSingleManualSegment = (region) => {
+  const fileName = 'manual_segment.wav'
+  const file = new File([region.blob], fileName, { type: 'audio/wav' })
+
+  const segment = {
+    file: file,
+    blob: region.blob,
+    duration: region.duration,
+    startTime: region.start,
+    endTime: region.end,
+    index: 0,
+    name: fileName,
+    origin: 'manual'
+  }
+
+  emit('manual-segments-ready', [segment])
 }
 
 // Auto segment
@@ -820,7 +899,9 @@ const formatTime = (seconds) => {
 watch(effectiveSegments, async (newSegments) => {
   if (newSegments.length > 0 && mode.value === 'auto') {
     await initWaveSurfers()
-    selectSegment(0)
+    // Auto-select first manual segment, or first segment if no manual
+    const manualIndex = newSegments.findIndex(s => s.origin === 'manual')
+    selectSegment(manualIndex >= 0 ? manualIndex : 0)
   }
 })
 
@@ -990,6 +1071,7 @@ onBeforeUnmount(() => {
 
 .selected-badge {
   background: var(--color-primary);
+  white-space: nowrap;
   color: white;
   padding: 0.25rem 0.5rem;
   border-radius: var(--radius-sm);
@@ -1190,6 +1272,24 @@ onBeforeUnmount(() => {
   transform: translateY(-2px);
 }
 
+.btn-confirm {
+  background: linear-gradient(135deg, #4CAF50, #45a049);
+  color: white;
+  font-weight: 600;
+}
+
+.btn-confirm:hover:not(:disabled) {
+  background: linear-gradient(135deg, #45a049, #3d8b40);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+}
+
+.btn-confirm:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
 .validation-error {
   background: rgba(255, 59, 48, 0.1);
   border: 1px solid rgba(255, 59, 48, 0.3);
@@ -1221,12 +1321,20 @@ onBeforeUnmount(() => {
   border-radius: var(--radius-lg);
   padding: 0.75rem;
   transition: all 0.3s ease;
+  cursor: pointer;
+  border: 2px solid transparent;
 }
 
 .region-card:hover {
   background: rgba(255, 255, 255, 0.7);
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.region-card.selected-region {
+  border-color: var(--color-primary);
+  background: rgba(0, 122, 255, 0.05);
+  box-shadow: 0 4px 16px rgba(0, 122, 255, 0.2);
 }
 
 .region-header {
@@ -1248,6 +1356,21 @@ onBeforeUnmount(() => {
   font-size: 0.85rem;
   color: var(--color-text-secondary);
   font-weight: 500;
+}
+
+.region-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.selected-indicator {
+  background: var(--color-primary);
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 600;
 }
 
 .btn-delete {
