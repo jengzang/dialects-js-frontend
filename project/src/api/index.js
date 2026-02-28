@@ -114,7 +114,8 @@ export {
 export {
   getCustomRegions,
   createOrUpdateCustomRegion,
-  deleteCustomRegion
+  deleteCustomRegion,
+  clearCustomRegionsCache
 } from './user/custom-regions.js'
 
 // ==================== 日志统计 ====================
@@ -131,3 +132,108 @@ export {
   copyCurrentUrl,
   getUrlSegmentValue
 } from './urlParams.js'
+
+// ==================== VillagesML 自然村分析 ====================
+export {
+  // 村名搜尋
+  searchVillages,
+  getVillageDetail,
+  getRegionList,
+  getVillageComplete,
+  getVillageFeatures,
+  getVillageSpatialFeatures,
+  getVillageSemanticStructure,
+  getVillageNgrams,
+  // 字頻統計
+  getGlobalCharFrequency,
+  getCharTendency,
+  getRegionalCharFrequency,
+  getCharTendencyByChar,
+  getCharEmbeddingsList,
+  getCharEmbeddingVector,
+  getCharSimilarities,
+  getCharSignificanceByChar,
+  getCharSignificanceByRegion,
+  getCharSignificanceSummary,
+  // 聚類分析
+  runClustering,
+  scanClustering,
+  getClusteringStatus,
+  getClusteringCacheStats,
+  clearClusteringCache,
+  // 語義網絡
+  getCooccurrence,
+  getSemanticNetwork,
+  getSemanticNetworkStatus,
+  // 語義類別
+  getSemanticCategoryList,
+  getSemanticCategoryTendency,
+  getSemanticVTFGlobal,
+  getSemanticVTFRegional,
+  // 語義子類別 (Phase 17)
+  getSemanticSubcategoryList,
+  getSemanticSubcategoryChars,
+  getSemanticSubcategoryVTFGlobal,
+  getSemanticSubcategoryVTFRegional,
+  getSemanticSubcategoryTendencyTop,
+  getSemanticSubcategoryComparison,
+  // 語義標籤
+  getSemanticLabelCategories,
+  getSemanticLabelsByCategory,
+  getSemanticLabelsByChar,
+  getSemanticCompositionPatterns,
+  getSemanticBigrams,
+  // 語義組合
+  getSemanticTrigrams,
+  getSemanticPMI,
+  getSemanticIndices,
+  // 空間分析
+  getSpatialHotspots,
+  getSpatialHotspotDetail,
+  getSpatialClusters,
+  getSpatialClustersAvailableRuns,
+  getSpatialClustersSummary,
+  getSpatialIntegration,
+  getSpatialIntegrationByChar,
+  getSpatialIntegrationByCluster,
+  getSpatialIntegrationSummary,
+  getSpatialIntegrationAvailableCharacters,
+  getSpatialIntegrationClusterList,
+  // N-grams
+  getNgramFrequency,
+  getNgramPatterns,
+  getNgramRegional,
+  getNgramTendency,
+  getNgramSignificance,
+  // 結構模式
+  getPatternFrequencyGlobal,
+  getPatternFrequencyRegional,
+  getPatternStructural,
+  getPatternTendency,
+  // 區域聚合
+  getRegionalAggregatesCity,
+  getRegionalAggregatesCounty,
+  getRegionalAggregatesTown,
+  getRegionalSpatialAggregates,
+  getRegionalVectors,
+  // 計算模塊
+  extractFeatures,
+  aggregateFeatures,
+  clusterSubset,
+  compareSubsets,
+  // 元數據
+  getMetadataOverview,
+  getMetadataTables,
+  getNgramStatistics,
+  getDatabaseStatistics,
+  // 區域相似度 (Phase 15)
+  getRegionSimilaritySearch,
+  getRegionSimilarityPair,
+  getRegionSimilarityMatrix,
+  //聚类
+  runCharacterTendencyClustering,
+  runSampledVillagesClustering,
+  runSpatialAwareClustering,
+  runHierarchicalClustering,
+  getSpatialRunIds,
+} from './villagesML/index.js'

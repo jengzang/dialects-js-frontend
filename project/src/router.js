@@ -8,6 +8,7 @@ import UserDataPage from './components/user/UserDataPage.vue'
 import UserRegionPage from './components/user/UserRegionPage.vue'
 import MenuEntry from "@/views/MenuEntry.vue";
 import ExploreEntry from "@/views/ExploreEntry.vue";
+import VillagesMLEntry from "@/views/VillagesMLEntry.vue";
 import IntroLayout from "@/layouts/IntroLayout.vue";
 import { h, computed } from 'vue'
 import { useRoute } from 'vue-router'
@@ -48,6 +49,13 @@ const routes = [
         path: '/explore',
         component: ExploreEntry
     },
+
+    // ✅ /villagesML 村落機器學習（使用 SimpleLayout）
+    {
+        path: '/villagesML',
+        component: VillagesMLEntry
+    },
+
     {
         path: '/intro',
         component: IntroLayout,
@@ -123,7 +131,8 @@ const ExploreTitleMap = {
     phonologyMatrix: '方音圖鑑 - 音系表',
     phonologyCustom: '方音圖鑑 - 自定義音素表',
     Countphos: '方音圖鑑 - 音節統計',
-    praat: '方音圖鑒 - 實驗語音學'
+    praat: '方音圖鑑 - 實驗語音學',
+    VillagesML: '方音圖鑑 - 自然村機器學習'
 
 };
 
