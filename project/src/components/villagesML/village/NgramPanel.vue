@@ -1,0 +1,255 @@
+<template>
+  <div class="ngram-panel glass-panel">
+    <h3 class="panel-title">📐 N-gram 分解</h3>
+
+    <div v-if="loading" class="loading-state">
+      <div class="spinner"></div>
+      <p>加載中...</p>
+    </div>
+
+    <div v-else-if="data" class="ngram-content">
+      <!-- N value -->
+      <div v-if="data.n" class="ngram-section">
+        <h4>N-gram 級別: {{ data.n }}</h4>
+      </div>
+
+      <!-- Bigrams -->
+      <div v-if="data.bigrams" class="ngram-section">
+        <h4>二元組 (Bigrams)</h4>
+        <div class="ngram-list">
+          <span
+            v-for="(gram, index) in parseBigrams(data.bigrams)"
+            :key="index"
+            class="ngram-item bigram"
+          >
+            {{ gram }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Trigrams -->
+      <div v-if="data.trigrams" class="ngram-section">
+        <h4>三元組 (Trigrams)</h4>
+        <div class="ngram-list">
+          <span
+            v-for="(gram, index) in parseTrigrams(data.trigrams)"
+            :key="index"
+            class="ngram-item trigram"
+          >
+            {{ gram }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Prefix/Suffix -->
+      <div class="ngram-section">
+        <h4>前綴/後綴</h4>
+        <div class="info-grid">
+          <div v-if="data.prefix_bigram" class="info-item">
+            <span class="info-label">前綴二元組:</span>
+            <span class="info-value">{{ data.prefix_bigram }}</span>
+          </div>
+          <div v-if="data.suffix_bigram" class="info-item">
+            <span class="info-label">後綴二元組:</span>
+            <span class="info-value">{{ data.suffix_bigram }}</span>
+          </div>
+          <div v-if="data.prefix_trigram" class="info-item">
+            <span class="info-label">前綴三元組:</span>
+            <span class="info-value">{{ data.prefix_trigram }}</span>
+          </div>
+          <div v-if="data.suffix_trigram" class="info-item">
+            <span class="info-label">後綴三元組:</span>
+            <span class="info-value">{{ data.suffix_trigram }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div v-else class="empty-state">
+      <p>暫無數據</p>
+    </div>
+  </div>
+</template>
+
+<script setup>
+defineProps({
+  villageId: {
+    type: Number,
+    required: true
+  },
+  data: {
+    type: Object,
+    default: null
+  },
+  loading: {
+    type: Boolean,
+    default: false
+  }
+})
+
+const parseBigrams = (bigrams) => {
+  try {
+    return JSON.parse(bigrams)
+  } catch {
+    return []
+  }
+}
+
+const parseTrigrams = (trigrams) => {
+  if (!trigrams) return []
+  try {
+    return JSON.parse(trigrams)
+  } catch {
+    return []
+  }
+}
+</script>
+
+<style scoped>
+.ngram-panel {
+  padding: 24px;
+}
+
+.panel-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 20px;
+}
+
+.loading-state {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(74, 144, 226, 0.2);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 15px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.ngram-content {
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 6px;
+}
+
+.info-label {
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.info-value {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.ngram-section {
+  margin-bottom: 6px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+}
+
+.ngram-section h4 {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 6px;
+}
+
+.ngram-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.ngram-item {
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 500;
+  transition: transform 0.3s ease;
+}
+
+.ngram-item:hover {
+  transform: translateY(-2px);
+}
+
+.unigram {
+  background: rgba(74, 144, 226, 0.2);
+  color: var(--color-primary);
+}
+
+.bigram {
+  background: rgba(80, 200, 120, 0.2);
+  color: #2d8659;
+}
+
+.trigram {
+  background: rgba(243, 156, 18, 0.2);
+  color: #c87f0a;
+}
+
+.ngram-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 8px;
+}
+
+.stat-label {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+
+.stat-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-secondary);
+}
+</style>

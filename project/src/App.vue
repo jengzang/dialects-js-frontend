@@ -53,6 +53,11 @@ export default {
         return IntroLayout
       }
 
+      // /villagesML 路由使用 SimpleLayout
+      if (route.path === '/villagesML') {
+        return SimpleLayout
+      }
+
       // /explore 路由：根据 page 参数选择 Layout
       if (route.path === '/explore') {
         const page = route.query.page
@@ -77,11 +82,12 @@ export default {
 
       const token = getToken()
       if (token) {
-        console.log('🎯 [App.vue] 检测到用户已登录，启动在线时长统计')
+        // console.log('🎯 [App.vue] 检测到用户已登录，启动在线时长统计')
         initOnlineTimeTracker()
-      } else {
-        console.log('ℹ️ [App.vue] 用户未登录，不启动在线时长统计')
       }
+      // else {
+      //   console.log('ℹ️ [App.vue] 用户未登录，不启动在线时长统计')
+      // }
     })
 
     // 组件卸载时停止统计
