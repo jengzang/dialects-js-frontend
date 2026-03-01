@@ -371,7 +371,12 @@ const onClick = async (tabConfig, navigate) => {
 }
 
 const goToAuthPage = () => {
-  router.push('/auth')
+  // 如果用户已登录，跳转到个人资料页面；否则跳转到登录页面
+  if (userStore.isAuthenticated) {
+    router.push({ path: '/auth', query: { view: 'profile' } })
+  } else {
+    router.push('/auth')
+  }
 }
 
 // 获取访问统计数据

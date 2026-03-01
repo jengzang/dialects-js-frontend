@@ -1,11 +1,9 @@
 <template>
   <div>
     <!-- Loading State -->
-    <div v-if="isInitLoading" class="init-loading-overlay">
-      <div class="glass-loading-container">
-        <div class="glass-spinner"></div>
-        <p class="loading-text">正在同步數據...</p>
-      </div>
+    <div v-if="isInitLoading" class="loading-container">
+      <div class="login-spinner"></div>
+      <p>正在同步數據...</p>
     </div>
 
     <!-- Main Content -->
@@ -461,81 +459,24 @@ watch(mode, () => {
 </script>
 
 <style scoped>
-/* 🍎 Apple 液态玻璃风格加载动画 */
-
-/* 初始加载遮罩 */
-.init-loading-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  z-index: 9999;
-}
-
-/* 玻璃风格加载容器 */
-.glass-loading-container {
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.85));
-  backdrop-filter: blur(40px) saturate(180%);
-  -webkit-backdrop-filter: blur(40px) saturate(180%);
-  border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15), 0 8px 16px rgba(0, 0, 0, 0.08);
-  padding: 40px 60px;
+/* Loading State - 与排行榜保持一致的样式 */
+.loading-container {
   text-align: center;
-  animation: glass-fade-in 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  padding: 40px 20px;
 }
 
-/* Apple 风格加载动画 */
-.glass-spinner {
-  width: 50px;
-  height: 50px;
+.login-spinner {
+  width: 40px;
+  height: 40px;
   border: 4px solid rgba(0, 122, 255, 0.2);
   border-top-color: #007aff;
   border-radius: 50%;
-  animation: spin 0.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  animation: spin 1s linear infinite;
   margin: 0 auto 20px;
-  will-change: transform;
-  transform: translateZ(0);
-}
-
-.loading-text {
-  color: #1c1c1e;
-  font-size: 16px;
-  font-weight: 500;
-  margin: 0;
 }
 
 @keyframes spin {
   to { transform: rotate(360deg); }
-}
-
-@keyframes glass-fade-in {
-  from {
-    opacity: 0;
-    transform: scale(0.95) translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-  }
-}
-
-/* 降级方案（不支持 backdrop-filter 的浏览器） */
-@supports not (backdrop-filter: blur(40px)) {
-  .glass-loading-container {
-    background: rgba(255, 255, 255, 0.98);
-  }
-
-  .init-loading-overlay {
-    background: rgba(255, 255, 255, 0.95);
-  }
 }
 </style>
 

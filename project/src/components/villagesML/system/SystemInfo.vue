@@ -1,11 +1,11 @@
 <template>
   <div class="system-info-page">
-    <h3 class="villagesml-subtab-title">系統信息</h3>
+    <h3 class="villagesml-subtab-title">數據庫概覽與系統健康指標</h3>
 
     <!-- Header -->
-    <div class="page-header">
-      <p class="subtitle">數據庫概覽與系統健康指標</p>
-    </div>
+<!--    <div class="page-header">-->
+<!--      <p class="subtitle">數據庫概覽與系統健康指標</p>-->
+<!--    </div>-->
 
     <!-- Database Overview -->
     <div class="glass-panel overview-panel">
@@ -74,41 +74,60 @@
         </button>
       </div>
       <div v-if="ngramStats" class="overview-content">
+        <!-- 主要统计卡片 -->
         <div class="overview-grid">
-          <div class="overview-card">
+          <div class="overview-card large-card">
             <div class="card-icon">📐</div>
             <div class="card-info">
-              <div class="card-label">總 N-gram 數</div>
+              <div class="card-label">N-gram 總數</div>
               <div class="card-value">{{ formatNumber(ngramStats.ngram_significance?.total || 0) }}</div>
             </div>
           </div>
-          <div class="overview-card">
-            <div class="card-icon">✅</div>
+          <div class="overview-card large-card">
+            <div class="card-icon">🔍</div>
             <div class="card-info">
-              <div class="card-label">顯著 N-gram</div>
-              <div class="card-value">{{ formatNumber(ngramStats.ngram_significance?.significant || 0) }}</div>
+              <div class="card-label">過濾前總數</div>
+              <div class="card-value">{{ formatNumber(ngramStats.ngram_significance?.total_before_filter || 0) }}</div>
             </div>
           </div>
-          <div class="overview-card">
-            <div class="card-icon">❌</div>
-            <div class="card-info">
-              <div class="card-label">不顯著 N-gram</div>
-              <div class="card-value">{{ formatNumber(ngramStats.ngram_significance?.not_significant || 0) }}</div>
-            </div>
-          </div>
-          <div class="overview-card">
+          <div class="overview-card large-card">
             <div class="card-icon">📊</div>
             <div class="card-info">
-              <div class="card-label">整體顯著率</div>
-              <div class="card-value">{{ formatRate(ngramStats.ngram_significance?.significance_rate) }}</div>
+              <div class="card-label">顯著率</div>
+              <div class="card-value">{{ calculateSignificanceRate(ngramStats.ngram_significance) }}</div>
+            </div>
+          </div>
+          <div class="overview-card large-card">
+            <div class="card-icon">🌐</div>
+            <div class="card-info">
+              <div class="card-label">區域 N-gram 頻率</div>
+              <div class="card-value">{{ formatNumber(ngramStats.regional_ngram_frequency?.total || 0) }}</div>
             </div>
           </div>
         </div>
-        <div v-if="ngramStats.by_level" class="ngram-level-grid">
-          <div v-for="(data, level) in ngramStats.by_level" :key="level" class="level-card">
-            <div class="level-name">{{ levelLabel(level) }}</div>
-            <div class="level-rate">{{ formatRate(data.rate) }}</div>
-            <div class="level-detail">{{ formatNumber(data.significant) }} / {{ formatNumber(data.total) }}</div>
+
+        <!-- 按行政级别统计 -->
+        <div v-if="ngramStats.by_level" class="level-section">
+          <h4 class="section-title">按行政級別統計</h4>
+          <div class="ngram-level-grid">
+            <div v-for="(data, level) in ngramStats.by_level" :key="level" class="level-card">
+              <div class="level-name">{{ levelLabel(level) }}</div>
+              <div class="level-rate">{{ formatPercentage(data.significant_rate) }}</div>
+              <div class="level-detail">
+                <div class="level-detail-row">
+                  <span class="detail-label">顯著:</span>
+                  <span class="detail-value">{{ formatNumber(data.significant) }}</span>
+                </div>
+<!--                <div class="level-detail-row">-->
+<!--                  <span class="detail-label">總數:</span>-->
+<!--                  <span class="detail-value">{{ formatNumber(data.total) }}</span>-->
+<!--                </div>-->
+                <div class="level-detail-row">
+                  <span class="detail-label">過濾前:</span>
+                  <span class="detail-value">{{ formatNumber(data.total_before_filter) }}</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -381,6 +400,14 @@ const formatDate = (dateStr) => {
 
 const formatRate = (rate) => rate != null ? (rate * 100).toFixed(1) + '%' : '—'
 
+const formatPercentage = (value) => value != null ? value.toFixed(1) + '%' : '—'
+
+const calculateSignificanceRate = (data) => {
+  if (!data || !data.significant || !data.total_before_filter) return '—'
+  const rate = (data.significant / data.total_before_filter) * 100
+  return rate.toFixed(1) + '%'
+}
+
 const levelLabel = (level) => ({ city: '城市', county: '區縣', township: '鄉鎮' }[level] || level)
 
 const refreshNgramStats = async () => {
@@ -455,38 +482,95 @@ onMounted(() => {
 }
 
 .ngram-level-grid {
-  display: flex;
-  gap: 12px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
   margin-top: 16px;
-  flex-wrap: wrap;
+}
+
+.level-section {
+  margin-top: 24px;
+}
+
+.section-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid rgba(74, 144, 226, 0.2);
 }
 
 .level-card {
-  flex: 1;
-  min-width: 120px;
-  padding: 12px 16px;
+  padding: 16px;
   background: rgba(74, 144, 226, 0.06);
   border: 1px solid rgba(74, 144, 226, 0.2);
-  border-radius: 10px;
+  border-radius: 12px;
   text-align: center;
 }
 
 .level-name {
-  font-size: 12px;
+  font-size: 14px;
+  font-weight: 600;
   color: var(--text-secondary);
-  margin-bottom: 4px;
+  margin-bottom: 8px;
 }
 
 .level-rate {
-  font-size: 22px;
+  font-size: 28px;
   font-weight: 700;
-  color: var(--primary-color, #4a90e2);
+  color: var(--color-primary, #4a90e2);
+  margin-bottom: 12px;
 }
 
 .level-detail {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--text-secondary);
-  margin-top: 2px;
+  margin-top: 8px;
+}
+
+.level-detail-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 0;
+  border-bottom: 1px solid rgba(74, 144, 226, 0.1);
+}
+
+.level-detail-row:last-child {
+  border-bottom: none;
+}
+
+.level-detail-row .detail-label {
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.level-detail-row .detail-value {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.note-section {
+  margin-top: 20px;
+  padding: 16px;
+  background: rgba(255, 193, 7, 0.1);
+  border: 1px solid rgba(255, 193, 7, 0.3);
+  border-radius: 12px;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.note-icon {
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.note-text {
+  flex: 1;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-primary);
 }
 
 .loading-state {
@@ -547,7 +631,7 @@ onMounted(() => {
 
 .overview-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 16px;
 }
 
@@ -559,6 +643,51 @@ onMounted(() => {
   background: rgba(255, 255, 255, 0.6);
   border-radius: 12px;
   border: 2px solid rgba(74, 144, 226, 0.2);
+}
+
+.overview-card.large-card {
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 20px;
+}
+
+.overview-card.large-card .card-icon {
+  font-size: 48px;
+  margin-bottom: 8px;
+}
+
+.overview-card.large-card .card-info {
+  width: 100%;
+}
+
+.card-meta {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(74, 144, 226, 0.15);
+}
+
+.meta-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 0;
+  font-size: 14px;
+}
+
+.meta-row span:first-child {
+  color: var(--text-secondary);
+}
+
+.meta-row span:last-child {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.meta-row .highlight {
+  color: #4a90e2;
+  font-weight: 700;
+  font-size: 16px;
 }
 
 .card-icon {
@@ -579,6 +708,38 @@ onMounted(() => {
   font-size: 24px;
   font-weight: 700;
   color: #4a90e2;
+}
+
+.card-value-dual {
+  display: flex;
+  gap: 24px;
+  margin-top: 8px;
+}
+
+.dual-value {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px;
+  background: rgba(74, 144, 226, 0.05);
+  border-radius: 8px;
+}
+
+.dual-label {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+
+.dual-number {
+  font-size: 28px;
+  font-weight: 700;
+  color: #4a90e2;
+}
+
+.dual-number.highlight {
+  color: #50c878;
 }
 
 .table-wrapper {

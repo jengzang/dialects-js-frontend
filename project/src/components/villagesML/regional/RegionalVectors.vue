@@ -2,10 +2,10 @@
   <div class="regional-vectors-page">
       <h3 class="villagesml-subtab-title">區域分析 - 特徵向量</h3>
     <!-- Header -->
-    <div class="page-header">
-      <h2>區域特徵向量 Regional Feature Vectors</h2>
-      <p class="subtitle">分析區域間的特徵向量相似度與聚類模式</p>
-    </div>
+<!--    <div class="page-header">-->
+<!--      <h2>區域特徵向量 Regional Feature Vectors</h2>-->
+<!--      <p class="subtitle">分析區域間的特徵向量相似度與聚類模式</p>-->
+<!--    </div>-->
 
     <!-- Region Selector -->
     <div class="glass-panel selector-panel">
@@ -13,66 +13,38 @@
         <h3>選擇區域 Select Regions</h3>
       </div>
       <div class="selector-content">
-        <div class="form-row">
-          <label>層級 Level:</label>
-          <SimpleSelectDropdown :match-trigger-width="true"
-            v-model="selectedLevel"
-            :options="levelOptions"
-            @update:modelValue="handleLevelChange"
-          />
-        </div>
-        <div class="form-row">
-          <label>主要區域 Primary Region:</label>
-          <SimpleSelectDropdown :match-trigger-width="true"
+        <!-- Primary Region -->
+        <div class="region-group">
+          <h4 class="group-title">主要區域 Primary Region</h4>
+          <FilterableSelect
             v-model="primaryRegion"
-            :options="primaryRegionOptions"
-            @update:modelValue="handlePrimaryChange"
-            searchable
+            v-model:level="primaryLevel"
+            :show-level-selector="true"
+            :show-counts="true"
+            placeholder="請選擇區域..."
           />
         </div>
-        <div class="form-row">
-          <label>比較區域 Compare Region (可選):</label>
-          <SimpleSelectDropdown :match-trigger-width="true"
+
+        <!-- Compare Region -->
+        <div class="region-group">
+          <h4 class="group-title">比較區域 Compare Region (可選)</h4>
+          <FilterableSelect
             v-model="compareRegion"
-            :options="compareRegionOptions"
-            searchable
+            v-model:level="compareLevel"
+            :show-level-selector="true"
+            :show-counts="true"
+            placeholder="請選擇區域..."
           />
         </div>
+
         <div class="button-group">
-          <button @click="loadVectors" :disabled="!primaryRegion || loading" class="solid-button primary">
+          <button @click="loadVectors" :disabled="!primaryRegion || loading" class="action-button primary">
             <span v-if="!loading">載入向量 Load Vectors</span>
             <span v-else>載入中...</span>
           </button>
-          <button @click="compareVectors" :disabled="!primaryRegion || !compareRegion || loading" class="solid-button secondary">
+          <button @click="compareVectors" :disabled="!primaryRegion || !compareRegion || loading" class="action-button secondary">
             比較向量 Compare Vectors
           </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Feature Vector Display -->
-    <div v-if="vectorData" class="glass-panel vector-panel">
-      <div class="panel-header">
-        <h3>特徵向量 Feature Vector</h3>
-        <span class="region-label">{{ primaryRegion }}</span>
-      </div>
-      <div class="vector-content">
-        <div class="vector-stats">
-          <div class="stat-item">
-            <span class="label">向量維度:</span>
-            <span class="value">{{ vectorData.dimension || 'N/A' }}</span>
-          </div>
-          <div class="stat-item">
-            <span class="label">村莊數量:</span>
-            <span class="value">{{ vectorData.village_count || 'N/A' }}</span>
-          </div>
-          <div class="stat-item">
-            <span class="label">特徵類型:</span>
-            <span class="value">{{ vectorData.feature_type || 'Semantic' }}</span>
-          </div>
-        </div>
-        <div class="vector-visualization">
-          <div ref="vectorChart" class="chart-container"></div>
         </div>
       </div>
     </div>
@@ -108,22 +80,26 @@
       </div>
     </div>
 
-    <!-- Regional Clustering Navigation -->
-    <div class="glass-panel clustering-panel">
+    <!-- Feature Vector Display -->
+    <div v-if="vectorData" class="glass-panel vector-panel">
       <div class="panel-header">
-        <h3>區域聚類分析 Regional Clustering</h3>
-        <button @click="runClustering" class="solid-button small">
-          前往聚類分析 →
-        </button>
+        <h3>特徵向量 Feature Vector</h3>
+        <span class="region-label">{{ primaryRegion }} ({{ getLevelLabel(primaryLevel) }})</span>
       </div>
-      <div class="empty-state">
-        <p>🔍 想要發現區域之間的相似性模式？</p>
-        <p style="font-size: 14px; margin-top: 12px; color: var(--text-primary); font-weight: 500;">
-          使用專業的區域聚類工具，對所有市/縣/鄉鎮進行聚類分析
-        </p>
-        <p style="font-size: 13px; margin-top: 8px; color: var(--text-secondary);">
-          支持 K-Means、DBSCAN、GMM 等多種算法，可選擇語義、形態、多樣性等特徵
-        </p>
+      <div class="vector-content">
+        <div class="vector-stats">
+          <div class="stat-item">
+            <span class="label">向量維度:</span>
+            <span class="value">{{ vectorData.dimension || 'N/A' }}</span>
+          </div>
+          <div class="stat-item">
+            <span class="label">村莊數量:</span>
+            <span class="value">{{ vectorData.village_count || 'N/A' }}</span>
+          </div>
+        </div>
+        <div class="vector-visualization">
+          <div ref="vectorChart" class="chart-container"></div>
+        </div>
       </div>
     </div>
 
@@ -136,90 +112,34 @@
 </template>
 
 <script setup>
-import { ref, onMounted, nextTick, computed } from 'vue'
+import { ref, onMounted, onUnmounted, nextTick, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import * as echarts from 'echarts'
-import { getRegionalVectors, runClustering as apiRunClustering } from '@/api/index.js'
-import { showError, showSuccess, showWarning, showInfo } from '@/utils/message.js'
-import { getCities, getCounties, getTownships } from '@/utils/region/regionPreload.js'
-import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
+import { getRegionalVectors, compareRegionalVectors } from '@/api/index.js'
+import { showError, showSuccess, showWarning } from '@/utils/message.js'
+import FilterableSelect from '@/components/common/FilterableSelect.vue'
+import { SEMANTIC_CATEGORY_NAMES } from '@/config/villagesML.js'
 
 const router = useRouter()
 
 // State
-const selectedLevel = ref('city')
+const primaryLevel = ref('city')
 const primaryRegion = ref('')
+const compareLevel = ref('city')
 const compareRegion = ref('')
-const availableRegions = ref([])
 const vectorData = ref(null)
 const similarityData = ref(null)
 const loading = ref(false)
-
-// Options
-const levelOptions = [
-  { label: '市 City', value: 'city' },
-  { label: '縣 County', value: 'county' },
-  { label: '鄉鎮 Township', value: 'town' }
-]
-
-// Computed options for regions
-const primaryRegionOptions = computed(() => {
-  const options = [{ label: '-- 請選擇 --', value: '' }]
-  availableRegions.value.forEach(region => {
-    const name = region.name || region
-    const label = region.village_count ? `${name} (${region.village_count}村)` : name
-    options.push({ label, value: name })
-  })
-  return options
-})
-
-const compareRegionOptions = computed(() => {
-  const options = [{ label: '-- 無 --', value: '' }]
-  availableRegions.value.forEach(region => {
-    const name = region.name || region
-    if (name !== primaryRegion.value) {
-      const label = region.village_count ? `${name} (${region.village_count}村)` : name
-      options.push({ label, value: name })
-    }
-  })
-  return options
-})
 
 // Chart refs
 const vectorChart = ref(null)
 const diffChart = ref(null)
 
+// Chart instances
+let vectorChartInstance = null
+let diffChartInstance = null
+
 // Methods
-const handleLevelChange = async () => {
-  loading.value = true
-  try {
-    // Load regions based on selected level
-    if (selectedLevel.value === 'city') {
-      availableRegions.value = await getCities()
-    } else if (selectedLevel.value === 'county') {
-      availableRegions.value = await getCounties()
-    } else if (selectedLevel.value === 'town') {
-      availableRegions.value = await getTownships()
-    }
-
-    // Reset selections
-    primaryRegion.value = ''
-    compareRegion.value = ''
-    vectorData.value = null
-    similarityData.value = null
-  } catch (error) {
-    showError('載入區域列表失敗: ' + error.message)
-    availableRegions.value = []
-  } finally {
-    loading.value = false
-  }
-}
-
-const handlePrimaryChange = () => {
-  vectorData.value = null
-  similarityData.value = null
-}
-
 const loadVectors = async () => {
   if (!primaryRegion.value) return
 
@@ -227,7 +147,7 @@ const loadVectors = async () => {
   try {
     const response = await getRegionalVectors({
       region_name: primaryRegion.value,
-      level: selectedLevel.value
+      level: primaryLevel.value
     })
 
     // Handle response - API returns array, we need the first item
@@ -241,7 +161,6 @@ const loadVectors = async () => {
     vectorData.value = {
       dimension: data.feature_vector?.length || 9,
       village_count: data.village_count || 0,
-      feature_type: 'Semantic',
       vector: data.feature_vector || []
     }
 
@@ -260,41 +179,19 @@ const compareVectors = async () => {
 
   loading.value = true
   try {
-    // TODO: Backend API not implemented yet - waiting for implementation
-    // Once backend is ready, replace mock data with:
-    //
-    // import { compareRegionalVectors } from '@/api/index.js'
-    //
-    // const response = await compareRegionalVectors({
-    //   region1: primaryRegion.value,
-    //   region2: compareRegion.value,
-    //   level: selectedLevel.value
-    // })
-    // similarityData.value = response
-    //
-    // Expected backend endpoint: POST /api/villages/regional/vectors/compare
-    // Expected request body: { region1: string, region2: string, level: string }
-    // Expected response format: {
-    //   cosine_similarity: float,
-    //   euclidean_distance: float,
-    //   manhattan_distance: float,
-    //   vector_diff: List[float],
-    //   region1_vector: List[float],
-    //   region2_vector: List[float]
-    // }
+    const response = await compareRegionalVectors({
+      region1: primaryRegion.value,
+      level1: primaryLevel.value,
+      region2: compareRegion.value,
+      level2: compareLevel.value
+    })
 
-    showWarning('向量比較功能開發中，後端 API 尚未實現')
-
-    // Mock data for UI testing (will be removed when API is ready)
-    similarityData.value = {
-      cosine_similarity: 0.8234,
-      euclidean_distance: 0.4521,
-      manhattan_distance: 1.2345,
-      vector_diff: [0.05, -0.03, 0.08, -0.02, 0.04, -0.01, 0.06, -0.04, 0.03]
-    }
+    // Use real API response
+    similarityData.value = response
 
     await nextTick()
     renderDiffChart()
+    showSuccess('向量比較完成')
   } catch (error) {
     showError(error.message || '向量比較失敗')
   } finally {
@@ -302,27 +199,53 @@ const compareVectors = async () => {
   }
 }
 
-const runClustering = async () => {
-  // Redirect to dedicated clustering page
-  showInfo('正在跳轉到專業聚類分析頁面...')
-  router.push('/villagesML?module=compute&subtab=clustering')
-}
-
 const renderVectorChart = () => {
   if (!vectorChart.value || !vectorData.value) return
 
-  const chart = echarts.init(vectorChart.value)
-  const categories = ['山', '水', '聚落', '方位', '植物', '動物', '顏色', '數字', '其他']
+  if (!vectorChartInstance) {
+    vectorChartInstance = echarts.init(vectorChart.value)
+  }
 
-  chart.setOption({
-    title: { text: '特徵向量分布', left: 'center' },
+  // 9个语义类别（按字母顺序，与后端 semantic_indices 表一致）
+  const categoryKeys = ['agriculture', 'clan', 'direction', 'infrastructure', 'mountain', 'settlement', 'symbolic', 'vegetation', 'water']
+  const categories = categoryKeys.map(key => SEMANTIC_CATEGORY_NAMES[key])
+
+  // 检测是否为移动端
+  const isMobile = window.matchMedia('(orientation: portrait)').matches
+
+  vectorChartInstance.setOption({
+    title: {
+      text: '特徵向量分布',
+      left: 'center',
+      textStyle: {
+        fontSize: isMobile ? 14 : 16
+      }
+    },
     tooltip: { trigger: 'axis' },
+    grid: {
+      left: isMobile ? '15%' : '10%',
+      right: isMobile ? '5%' : '10%',
+      bottom: isMobile ? '20%' : '15%',
+      top: isMobile ? '15%' : '12%'
+    },
     xAxis: {
       type: 'category',
       data: categories,
-      axisLabel: { rotate: 45 }
+      axisLabel: {
+        rotate: isMobile ? 45 : 30,
+        fontSize: isMobile ? 10 : 12
+      }
     },
-    yAxis: { type: 'value', name: '權重' },
+    yAxis: {
+      type: 'value',
+      name: '權重',
+      nameTextStyle: {
+        fontSize: isMobile ? 11 : 12
+      },
+      axisLabel: {
+        fontSize: isMobile ? 10 : 12
+      }
+    },
     series: [{
       type: 'bar',
       data: vectorData.value.vector || [],
@@ -339,25 +262,80 @@ const renderVectorChart = () => {
 const renderDiffChart = () => {
   if (!diffChart.value || !similarityData.value) return
 
-  const chart = echarts.init(diffChart.value)
-  const categories = ['山', '水', '聚落', '方位', '植物', '動物', '顏色', '數字', '其他']
+  if (!diffChartInstance) {
+    diffChartInstance = echarts.init(diffChart.value)
+  }
 
-  chart.setOption({
-    title: { text: '向量差異分布', left: 'center' },
-    tooltip: { trigger: 'axis' },
+  // 9个语义类别（按字母顺序，与后端 semantic_indices 表一致）
+  const categoryKeys = ['agriculture', 'clan', 'direction', 'infrastructure', 'mountain', 'settlement', 'symbolic', 'vegetation', 'water']
+  const categories = categoryKeys.map(key => SEMANTIC_CATEGORY_NAMES[key])
+
+  // 检测是否为移动端
+  const isMobile = window.matchMedia('(orientation: portrait)').matches
+
+  diffChartInstance.setOption({
+    title: {
+      text: '向量對比分布',
+      left: 'center',
+      textStyle: {
+        fontSize: isMobile ? 14 : 16
+      }
+    },
+    tooltip: {
+      trigger: 'axis',
+      axisPointer: {
+        type: 'shadow'
+      }
+    },
+    legend: {
+      data: [primaryRegion.value, compareRegion.value],
+      top: isMobile ? 25 : 30,
+      textStyle: {
+        fontSize: isMobile ? 11 : 12
+      }
+    },
+    grid: {
+      left: isMobile ? '15%' : '10%',
+      right: isMobile ? '5%' : '10%',
+      bottom: isMobile ? '20%' : '15%',
+      top: isMobile ? '20%' : '18%'
+    },
     xAxis: {
       type: 'category',
       data: categories,
-      axisLabel: { rotate: 45 }
-    },
-    yAxis: { type: 'value', name: '差異值' },
-    series: [{
-      type: 'bar',
-      data: similarityData.value.vector_diff || [],
-      itemStyle: {
-        color: (params) => params.value >= 0 ? '#50c878' : '#e74c3c'
+      axisLabel: {
+        rotate: isMobile ? 45 : 30,
+        fontSize: isMobile ? 10 : 12
       }
-    }]
+    },
+    yAxis: {
+      type: 'value',
+      name: '權重',
+      nameTextStyle: {
+        fontSize: isMobile ? 11 : 12
+      },
+      axisLabel: {
+        fontSize: isMobile ? 10 : 12
+      }
+    },
+    series: [
+      {
+        name: primaryRegion.value,
+        type: 'bar',
+        data: similarityData.value.region1_vector || [],
+        itemStyle: {
+          color: '#4a90e2'
+        }
+      },
+      {
+        name: compareRegion.value,
+        type: 'bar',
+        data: similarityData.value.region2_vector || [],
+        itemStyle: {
+          color: '#50c878'
+        }
+      }
+    ]
   })
 }
 
@@ -365,11 +343,52 @@ const formatNumber = (num) => {
   return typeof num === 'number' ? num.toFixed(4) : 'N/A'
 }
 
-// Lifecycle
-onMounted(async () => {
-  // Load initial regions
-  await handleLevelChange()
+const getLevelLabel = (level) => {
+  const labels = {
+    city: '市級',
+    county: '區縣級',
+    town: '鄉鎮級'
+  }
+  return labels[level] || level
+}
+
+// 响应式处理
+const handleResize = () => {
+  if (vectorChartInstance) {
+    vectorChartInstance.resize()
+    // 重新渲染以应用移动端样式
+    if (vectorData.value) {
+      renderVectorChart()
+    }
+  }
+  if (diffChartInstance) {
+    diffChartInstance.resize()
+    // 重新渲染以应用移动端样式
+    if (similarityData.value) {
+      renderDiffChart()
+    }
+  }
+}
+
+// 生命周期
+onMounted(() => {
+  window.addEventListener('resize', handleResize)
+  window.addEventListener('orientationchange', handleResize)
 })
+
+onUnmounted(() => {
+  window.removeEventListener('resize', handleResize)
+  window.removeEventListener('orientationchange', handleResize)
+  if (vectorChartInstance) {
+    vectorChartInstance.dispose()
+    vectorChartInstance = null
+  }
+  if (diffChartInstance) {
+    diffChartInstance.dispose()
+    diffChartInstance = null
+  }
+})
+
 </script>
 
 <style scoped>
@@ -432,13 +451,34 @@ onMounted(async () => {
 .selector-content {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 24px;
+}
+
+.region-group {
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  border: 1px solid rgba(74, 144, 226, 0.2);
+}
+
+.group-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 16px 0;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(74, 144, 226, 0.15);
 }
 
 .form-row {
   display: flex;
   align-items: center;
   gap: 12px;
+  margin-bottom: 12px;
+}
+
+.form-row:last-child {
+  margin-bottom: 0;
 }
 
 .form-row label {
@@ -476,35 +516,42 @@ onMounted(async () => {
   margin-top: 8px;
 }
 
-.solid-button {
+.action-button {
+  flex: 1;
   padding: 10px 24px;
-  background: linear-gradient(135deg, #4a90e2, #50c878);
-  color: white;
   border: none;
   border-radius: 8px;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.3s ease;
+  color: white;
 }
 
-.solid-button:hover:not(:disabled) {
+.action-button.primary {
+  background: linear-gradient(135deg, #4a90e2, #357abd);
+}
+
+.action-button.primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, #357abd, #2868a8);
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(74, 144, 226, 0.4);
 }
 
-.solid-button:disabled {
+.action-button.secondary {
+  background: linear-gradient(135deg, #5a9fd4, #4a8fc4);
+}
+
+.action-button.secondary:hover:not(:disabled) {
+  background: linear-gradient(135deg, #4a8fc4, #3a7fb4);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(90, 159, 212, 0.4);
+}
+
+.action-button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
-}
-
-.solid-button.secondary {
-  background: linear-gradient(135deg, #95a5a6, #7f8c8d);
-}
-
-.solid-button.small {
-  padding: 6px 16px;
-  font-size: 13px;
+  transform: none;
 }
 
 .vector-stats {
@@ -678,23 +725,32 @@ onMounted(async () => {
   font-size: 16px;
 }
 
-/* Responsive */
-@media (max-width: 768px) {
+/* Responsive - Portrait orientation */
+@media (orientation: portrait) {
   .regional-vectors-page {
+    padding: 8px;
+  }
+
+  .glass-panel {
     padding: 12px;
+    margin-bottom: 16px;
   }
 
-  .form-row {
-    flex-direction: column;
-    align-items: stretch;
+  .selector-content {
+    gap: 16px;
   }
 
-  .form-row label {
-    min-width: auto;
+  .region-group {
+    padding: 12px;
   }
 
   .button-group {
     flex-direction: column;
+  }
+
+  .vector-stats {
+    grid-template-columns: 1fr;
+    gap: 12px;
   }
 
   .comparison-header {
@@ -702,12 +758,26 @@ onMounted(async () => {
     gap: 12px;
   }
 
-  .clustering-params {
-    flex-direction: column;
+  .region-badge {
+    padding: 6px 16px;
+    font-size: 14px;
+  }
+
+  .similarity-metrics {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .metric-card {
+    padding: 10px;
+  }
+
+  .metric-value {
+    font-size: 24px;
   }
 
   .chart-container {
-    height: 300px;
+    height: 280px;
   }
 }
 </style>

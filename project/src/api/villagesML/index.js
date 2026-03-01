@@ -121,7 +121,8 @@ export {
   getRegionalAggregatesCounty,
   getRegionalAggregatesTown,
   getRegionalSpatialAggregates,
-  getRegionalVectors
+  getRegionalVectors,
+  compareRegionalVectors
 } from './regional.js'
 
 // 計算模塊

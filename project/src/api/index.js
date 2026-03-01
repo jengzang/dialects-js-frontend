@@ -216,6 +216,7 @@ export {
   getRegionalAggregatesTown,
   getRegionalSpatialAggregates,
   getRegionalVectors,
+  compareRegionalVectors,
   // 計算模塊
   extractFeatures,
   aggregateFeatures,

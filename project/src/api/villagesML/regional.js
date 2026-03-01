@@ -79,3 +79,20 @@ export async function getRegionalVectors(params = {}) {
 
   return api(`/api/villages/regional/vectors?${queryParams.toString()}`)
 }
+
+
+/**
+ * 比較兩個區域的特徵向量
+ * @param {Object} params
+ * @param {string} params.region1 - 區域1名稱
+ * @param {string} params.level1 - 區域1層級：'city' | 'county' | 'township'
+ * @param {string} params.region2 - 區域2名稱
+ * @param {string} params.level2 - 區域2層級：'city' | 'county' | 'township'
+ * @returns {Promise<Object>} { region1, level1, region2, level2, feature_dimension, categories, cosine_similarity, euclidean_distance, manhattan_distance, vector_diff, region1_vector, region2_vector }
+ */
+export async function compareRegionalVectors(params) {
+  return api('/api/villages/regional/vectors/compare', {
+    method: 'POST',
+    body: params
+  })
+}
