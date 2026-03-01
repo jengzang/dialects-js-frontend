@@ -112,48 +112,13 @@
     <div class="glass-panel clustering-panel">
       <div class="panel-header">
         <h3>區域聚類 Regional Clustering</h3>
-        <button @click="runClustering" :disabled="loading" class="solid-button small">
-          執行聚類 Run Clustering
+        <button @click="runClustering" class="solid-button small">
+          前往聚類分析頁面 →
         </button>
       </div>
-      <div v-if="clusteringResults" class="clustering-content">
-        <div class="clustering-params">
-          <div class="param-item">
-            <label>聚類數量 K:</label>
-            <input v-model.number="clusterK" type="number" min="2" max="20" class="glass-input small">
-          </div>
-          <div class="param-item">
-            <label>演算法 Algorithm:</label>
-            <SimpleSelectDropdown
-              v-model="clusterAlgorithm"
-              :options="clusterAlgorithmOptions"
-            />
-          </div>
-        </div>
-        <div class="clustering-visualization">
-          <div ref="clusterChart" class="chart-container"></div>
-        </div>
-        <div class="cluster-table">
-          <table class="glass-table">
-            <thead>
-              <tr>
-                <th>聚類 ID</th>
-                <th>區域數量</th>
-                <th>區域列表</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="cluster in clusteringResults.clusters" :key="cluster.id">
-                <td>{{ cluster.id }}</td>
-                <td>{{ cluster.regions.length }}</td>
-                <td class="region-list">{{ cluster.regions.join(', ') }}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-      <div v-else class="empty-state">
-        <p>尚未執行聚類分析</p>
+      <div class="empty-state">
+        <p>💡 使用專業的聚類分析工具進行區域聚類</p>
+        <p style="font-size: 13px; margin-top: 8px; color: var(--text-secondary);">支持 K-Means、DBSCAN、GMM 等多種算法</p>
       </div>
     </div>
 
@@ -167,10 +132,14 @@
 
 <script setup>
 import { ref, onMounted, nextTick, computed } from 'vue'
+import { useRouter } from 'vue-router'
 import * as echarts from 'echarts'
-import { getRegionalVectors } from '@/api/index.js'
-import { showError, showSuccess } from '@/utils/message.js'
+import { getRegionalVectors, runClustering as apiRunClustering } from '@/api/index.js'
+import { showError, showSuccess, showWarning, showInfo } from '@/utils/message.js'
+import { getCities, getCounties, getTownships } from '@/utils/region/regionPreload.js'
 import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
+
+const router = useRouter()
 
 // State
 const selectedLevel = ref('city')
@@ -179,24 +148,13 @@ const compareRegion = ref('')
 const availableRegions = ref([])
 const vectorData = ref(null)
 const similarityData = ref(null)
-const clusteringResults = ref(null)
 const loading = ref(false)
-
-// Clustering params
-const clusterK = ref(5)
-const clusterAlgorithm = ref('kmeans')
 
 // Options
 const levelOptions = [
   { label: '市 City', value: 'city' },
   { label: '縣 County', value: 'county' },
   { label: '鄉鎮 Township', value: 'town' }
-]
-
-const clusterAlgorithmOptions = [
-  { label: 'K-Means', value: 'kmeans' },
-  { label: 'Hierarchical', value: 'hierarchical' },
-  { label: 'DBSCAN', value: 'dbscan' }
 ]
 
 // Computed options for regions
@@ -225,22 +183,31 @@ const compareRegionOptions = computed(() => {
 // Chart refs
 const vectorChart = ref(null)
 const diffChart = ref(null)
-const clusterChart = ref(null)
-
-// Mock regions (replace with actual API call)
-const mockRegions = {
-  city: ['台北市', '新北市', '桃園市', '台中市', '台南市', '高雄市'],
-  county: ['宜蘭縣', '新竹縣', '苗栗縣', '彰化縣', '南投縣', '雲林縣'],
-  town: ['中正區', '大同區', '中山區', '松山區', '大安區', '萬華區']
-}
 
 // Methods
-const handleLevelChange = () => {
-  availableRegions.value = mockRegions[selectedLevel.value]
-  primaryRegion.value = ''
-  compareRegion.value = ''
-  vectorData.value = null
-  similarityData.value = null
+const handleLevelChange = async () => {
+  loading.value = true
+  try {
+    // Load regions based on selected level
+    if (selectedLevel.value === 'city') {
+      availableRegions.value = await getCities()
+    } else if (selectedLevel.value === 'county') {
+      availableRegions.value = await getCounties()
+    } else if (selectedLevel.value === 'town') {
+      availableRegions.value = await getTownships()
+    }
+
+    // Reset selections
+    primaryRegion.value = ''
+    compareRegion.value = ''
+    vectorData.value = null
+    similarityData.value = null
+  } catch (error) {
+    showError('載入區域列表失敗: ' + error.message)
+    availableRegions.value = []
+  } finally {
+    loading.value = false
+  }
 }
 
 const handlePrimaryChange = () => {
@@ -254,15 +221,23 @@ const loadVectors = async () => {
   loading.value = true
   try {
     const response = await getRegionalVectors({
-      level: selectedLevel.value,
-      region: primaryRegion.value
+      region_name: primaryRegion.value,
+      level: selectedLevel.value
     })
 
-    vectorData.value = response.data || {
-      dimension: 9,
-      village_count: 1234,
+    // Handle response - API returns array, we need the first item
+    const data = Array.isArray(response) ? response[0] : response
+
+    if (!data) {
+      showWarning('未找到該區域的向量數據')
+      return
+    }
+
+    vectorData.value = {
+      dimension: data.feature_vector?.length || 9,
+      village_count: data.village_count || 0,
       feature_type: 'Semantic',
-      vector: [0.23, 0.15, 0.31, 0.08, 0.19, 0.12, 0.27, 0.18, 0.22]
+      vector: data.feature_vector || []
     }
 
     await nextTick()
@@ -280,7 +255,14 @@ const compareVectors = async () => {
 
   loading.value = true
   try {
-    // Mock similarity data
+    // TODO: Backend API not implemented yet
+    // This will be replaced with actual API call when backend is ready
+    // Expected endpoint: POST /api/villages/regional/vectors/compare
+    // Expected body: { region1, region2, level }
+
+    showWarning('向量比較功能開發中，後端 API 尚未實現')
+
+    // Mock data for now (will be removed when API is ready)
     similarityData.value = {
       cosine_similarity: 0.8234,
       euclidean_distance: 0.4521,
@@ -290,7 +272,6 @@ const compareVectors = async () => {
 
     await nextTick()
     renderDiffChart()
-    showSuccess('向量比較完成')
   } catch (error) {
     showError(error.message || '向量比較失敗')
   } finally {
@@ -299,27 +280,9 @@ const compareVectors = async () => {
 }
 
 const runClustering = async () => {
-  loading.value = true
-  try {
-    // Mock clustering results
-    clusteringResults.value = {
-      k: clusterK.value,
-      algorithm: clusterAlgorithm.value,
-      clusters: [
-        { id: 0, regions: ['台北市', '新北市', '桃園市'] },
-        { id: 1, regions: ['台中市', '彰化縣'] },
-        { id: 2, regions: ['台南市', '高雄市'] }
-      ]
-    }
-
-    await nextTick()
-    renderClusterChart()
-    showSuccess('聚類分析完成')
-  } catch (error) {
-    showError(error.message || '聚類分析失敗')
-  } finally {
-    loading.value = false
-  }
+  // Redirect to dedicated clustering page
+  showInfo('正在跳轉到專業聚類分析頁面...')
+  router.push('/villagesML?module=compute&subtab=clustering')
 }
 
 const renderVectorChart = () => {
@@ -375,40 +338,14 @@ const renderDiffChart = () => {
   })
 }
 
-const renderClusterChart = () => {
-  if (!clusterChart.value || !clusteringResults.value) return
-
-  const chart = echarts.init(clusterChart.value)
-
-  // Mock scatter data
-  const scatterData = clusteringResults.value.clusters.flatMap((cluster, idx) =>
-    cluster.regions.map((region, i) => ({
-      value: [Math.random() * 10, Math.random() * 10],
-      name: region,
-      itemStyle: { color: ['#4a90e2', '#50c878', '#f39c12'][idx] }
-    }))
-  )
-
-  chart.setOption({
-    title: { text: '區域聚類可視化', left: 'center' },
-    tooltip: { trigger: 'item' },
-    xAxis: { type: 'value', name: 'PC1' },
-    yAxis: { type: 'value', name: 'PC2' },
-    series: [{
-      type: 'scatter',
-      data: scatterData,
-      symbolSize: 20
-    }]
-  })
-}
-
 const formatNumber = (num) => {
   return typeof num === 'number' ? num.toFixed(4) : 'N/A'
 }
 
 // Lifecycle
-onMounted(() => {
-  availableRegions.value = mockRegions[selectedLevel.value]
+onMounted(async () => {
+  // Load initial regions
+  await handleLevelChange()
 })
 </script>
 

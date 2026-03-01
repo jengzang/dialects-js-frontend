@@ -17,12 +17,10 @@
         </div>
         <div class="control-group">
           <label>擴展深度</label>
-          <select v-model.number="depth" class="glass-select">
-            <option :value="1">1 層</option>
-            <option :value="2">2 層</option>
-            <option :value="3">3 層</option>
-            <option :value="4">4 層</option>
-          </select>
+          <SimpleSelectDropdown
+            v-model.number="depth"
+            :options="depthOptions"
+          />
         </div>
         <div class="control-group">
           <label>每節點 Top-K（1-10）</label>
@@ -82,6 +80,7 @@
 import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import * as echarts from 'echarts'
+import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
 import { getCharSimilarities } from '@/api/index.js'
 import { showWarning } from '@/utils/message.js'
 import { userStore } from '@/utils/store.js'
@@ -110,6 +109,14 @@ const chartRef = ref(null)
 let chartInstance = null
 
 const DEPTH_COLORS = { 0: '#007aff', 1: '#34c759', 2: '#ff9500', 3: '#ff3b30', 4: '#af52de' }
+
+// Options for SimpleSelectDropdown
+const depthOptions = [
+  { label: '1 層', value: 1 },
+  { label: '2 層', value: 2 },
+  { label: '3 層', value: 3 },
+  { label: '4 層', value: 4 }
+]
 
 // BFS network builder
 const buildNetwork = async () => {

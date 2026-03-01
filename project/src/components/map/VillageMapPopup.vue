@@ -14,15 +14,13 @@
           <div ref="mapContainer" class="map-content">
             <!-- 控制面板 -->
             <div v-if="!isFullscreen" class="map-controls">
-              <select v-model="currentStyle" @change="changeMapStyle">
-                <option
-                  v-for="(name, key) in mapStyleConfig"
-                  :key="key"
-                  :value="key"
-                >
-                  {{ name }}
-                </option>
-              </select>
+              <div class="select-wrapper">
+                <SimpleSelectDropdown
+                  v-model="currentStyle"
+                  :options="mapStyleOptions"
+                  @update:modelValue="changeMapStyle"
+                />
+              </div>
 
               <!-- 显示切换按钮 - 只在有方言数据时显示 -->
               <button
@@ -57,6 +55,7 @@ import { ref, computed, watch, shallowRef, onMounted, onBeforeUnmount, nextTick 
 import maplibregl from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import { mapStyle, mapStyleConfig, calculateDenseMapCenterAndZoom } from '@/utils/MapSource.js'
+import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
 
 const props = defineProps({
   visible: {
@@ -79,6 +78,14 @@ const currentStyle = ref('gaode')
 const displayMode = ref('name') // 'name' | 'dialect'
 const isFullscreen = ref(false)
 let currentMarkers = []
+
+// Map style options
+const mapStyleOptions = computed(() => {
+  return Object.entries(mapStyleConfig).map(([key, name]) => ({
+    label: name,
+    value: key
+  }))
+})
 
 // 20色盘 (参考 MapLibre.vue)
 const colorPalette = [
@@ -556,7 +563,7 @@ onBeforeUnmount(() => {
 .modal-overlay {
   position: fixed;
   inset: 0;
-  z-index: 100000;
+  z-index: 1000;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -671,6 +678,10 @@ onBeforeUnmount(() => {
   min-width: 140px;
 }
 
+.map-controls .select-wrapper {
+  width: 100%;
+}
+
 .map-controls select {
   width: 100%;
   padding: 8px 12px;
@@ -712,6 +723,7 @@ onBeforeUnmount(() => {
 }
 
 .control-btn {
+  white-space: nowrap;
   flex: 1;
   padding: 8px 12px;
   border: none;

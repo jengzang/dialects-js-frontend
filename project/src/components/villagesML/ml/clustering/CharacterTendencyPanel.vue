@@ -38,11 +38,10 @@
         <div class="setting-row">
           <label class="setting-label">區域級別</label>
           <div class="setting-control">
-            <select v-model="settings.region_level" class="setting-select">
-              <option value="city">市級</option>
-              <option value="county">縣級</option>
-              <option value="township">鎮級</option>
-            </select>
+            <SimpleSelectDropdown
+              v-model="settings.region_level"
+              :options="regionLevelOptions"
+            />
           </div>
         </div>
 
@@ -79,11 +78,10 @@
         <div class="setting-row">
           <label class="setting-label">傾向性指標</label>
           <div class="setting-control">
-            <select v-model="settings.tendency_metric" class="setting-select">
-              <option value="z_score">Z-Score</option>
-              <option value="lift">Lift</option>
-              <option value="log_odds">Log-Odds</option>
-            </select>
+            <SimpleSelectDropdown
+              v-model="settings.tendency_metric"
+              :options="tendencyMetricOptions"
+            />
             <span class="setting-hint">{{ tendencyMetricHint }}</span>
           </div>
         </div>
@@ -149,6 +147,7 @@ import { villagesMLStore } from '@/utils/villagesMLStore.js'
 import { userStore } from '@/utils/store.js'
 import { runCharacterTendencyClustering } from '@/api'
 import { showSuccess, showError, showWarning } from '@/utils/message.js'
+import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
 import AlgorithmSelector from './shared/AlgorithmSelector.vue'
 import PreprocessingSettings from './shared/PreprocessingSettings.vue'
 import ClusteringResultsPanel from '../ClusteringResultsPanel.vue'
@@ -157,6 +156,19 @@ const settings = computed(() => villagesMLStore.characterTendencySettings)
 const isAuthenticated = computed(() => userStore.isAuthenticated)
 const loading = ref(false)
 const results = ref(null)
+
+// Options for SimpleSelectDropdown
+const regionLevelOptions = [
+  { label: '市級', value: 'city' },
+  { label: '縣級', value: 'county' },
+  { label: '鎮級', value: 'township' }
+]
+
+const tendencyMetricOptions = [
+  { label: 'Z-Score', value: 'z_score' },
+  { label: 'Lift', value: 'lift' },
+  { label: 'Log-Odds', value: 'log_odds' }
+]
 
 const tendencyMetricHint = computed(() => {
   switch (settings.value.tendency_metric) {

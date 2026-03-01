@@ -7,12 +7,10 @@
 
       <!-- Controls -->
       <div class="controls">
-        <select v-model="patternType" class="select-input">
-          <option value="">全部類型</option>
-          <option value="prefix">前綴模式</option>
-          <option value="suffix">後綴模式</option>
-          <option value="compound">複合模式</option>
-        </select>
+        <SimpleSelectDropdown
+          v-model="patternType"
+          :options="patternTypeOptions"
+        />
         <button
           class="query-button"
           :disabled="loading"
@@ -67,6 +65,7 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
 import { getPatternStructural } from '@/api/index.js'
 import { showError } from '@/utils/message.js'
 
@@ -77,6 +76,14 @@ const route = useRoute()
 const structuralData = ref([])
 const loading = ref(false)
 const patternType = ref('')
+
+// Options for SimpleSelectDropdown
+const patternTypeOptions = [
+  { label: '全部類型', value: '' },
+  { label: '前綴模式', value: 'prefix' },
+  { label: '後綴模式', value: 'suffix' },
+  { label: '複合模式', value: 'compound' }
+]
 
 // Methods
 const loadStructuralAnalysis = async () => {

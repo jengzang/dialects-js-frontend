@@ -35,12 +35,11 @@
         <div class="filter-controls">
           <div class="filter-item">
             <label>區域篩選:</label>
-            <select v-model="filterRegion" @change="handleFilterChange" class="glass-select">
-              <option value="">全部區域</option>
-              <option v-for="region in availableRegions" :key="region.name || region" :value="region.name || region">
-                {{ region.name || region }}{{ region.village_count ? ` (${region.village_count}村)` : '' }}
-              </option>
-            </select>
+            <SimpleSelectDropdown
+              v-model="filterRegion"
+              :options="regionFilterOptions"
+              @update:modelValue="handleFilterChange"
+            />
           </div>
           <div class="filter-item">
             <label>快速選擇:</label>
@@ -95,12 +94,10 @@
       <div class="controls-content">
         <div class="control-row">
           <label>聚合方法:</label>
-          <select v-model="aggregationMethod" class="glass-select">
-            <option value="mean">平均值 (Mean)</option>
-            <option value="sum">總和 (Sum)</option>
-            <option value="max">最大值 (Max)</option>
-            <option value="min">最小值 (Min)</option>
-          </select>
+          <SimpleSelectDropdown
+            v-model="aggregationMethod"
+            :options="aggregationMethodOptions"
+          />
         </div>
         <div class="control-row">
           <label>標準化:</label>
@@ -229,6 +226,7 @@
 import { ref, computed, onMounted, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import * as echarts from 'echarts'
+import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
 import { extractFeatures as apiExtractFeatures, aggregateFeatures as apiAggregateFeatures } from '@/api/index.js'
 import { showError, showSuccess } from '@/utils/message.js'
 import { userStore } from '@/utils/store.js'
@@ -271,6 +269,24 @@ const featureTypes = [
   { value: 'ngram', label: 'N-gram 特徵', description: '1-3 字符組合' },
   { value: 'character', label: '字符特徵', description: '字符頻率向量' },
   { value: 'spatial', label: '空間特徵', description: '地理位置特徵' }
+]
+
+// Options for SimpleSelectDropdown
+const regionFilterOptions = [
+  { label: '全部區域', value: '' },
+  { label: '台北市', value: '台北市' },
+  { label: '新北市', value: '新北市' },
+  { label: '桃園市', value: '桃園市' },
+  { label: '台中市', value: '台中市' },
+  { label: '台南市', value: '台南市' },
+  { label: '高雄市', value: '高雄市' }
+]
+
+const aggregationMethodOptions = [
+  { label: '平均值 (Mean)', value: 'mean' },
+  { label: '總和 (Sum)', value: 'sum' },
+  { label: '最大值 (Max)', value: 'max' },
+  { label: '最小值 (Min)', value: 'min' }
 ]
 
 // Computed

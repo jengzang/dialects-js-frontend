@@ -22,12 +22,10 @@
         <div class="setting-row">
           <label class="setting-label">空間聚類 Run ID</label>
           <div class="setting-control">
-            <select v-model="settings.spatial_run_id" class="setting-select">
-              <option value="spatial_eps_05">超密集核心聚類</option>
-              <option value="spatial_hdbscan_v1">自動多密度聚類</option>
-              <option value="spatial_eps_10">標準密度聚類</option>
-              <option value="spatial_eps_20">全域覆蓋聚類</option>
-            </select>
+            <SimpleSelectDropdown
+              v-model="settings.spatial_run_id"
+              :options="spatialRunIdOptions"
+            />
             <span class="setting-hint">選擇已有的空間聚類結果</span>
           </div>
         </div>
@@ -56,6 +54,7 @@ import { villagesMLStore } from '@/utils/villagesMLStore.js'
 import { userStore } from '@/utils/store.js'
 import { runSpatialAwareClustering } from '@/api'
 import { showSuccess, showError, showWarning } from '@/utils/message.js'
+import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
 import AlgorithmSelector from './shared/AlgorithmSelector.vue'
 import PreprocessingSettings from './shared/PreprocessingSettings.vue'
 import SpatialFeatureToggles from './shared/SpatialFeatureToggles.vue'
@@ -65,6 +64,14 @@ const settings = computed(() => villagesMLStore.spatialAwareSettings)
 const isAuthenticated = computed(() => userStore.isAuthenticated)
 const loading = ref(false)
 const results = ref(null)
+
+// Options for SimpleSelectDropdown
+const spatialRunIdOptions = [
+  { label: '超密集核心聚類', value: 'spatial_eps_05' },
+  { label: '自動多密度聚類', value: 'spatial_hdbscan_v1' },
+  { label: '標準密度聚類', value: 'spatial_eps_10' },
+  { label: '全域覆蓋聚類', value: 'spatial_eps_20' }
+]
 
 async function runClustering() {
   if (!isAuthenticated.value) {

@@ -13,11 +13,10 @@
           placeholder="輸入模式（如：新村）"
           class="text-input"
         />
-        <select v-model="tendencyLevel" class="select-input">
-          <option value="city">城市</option>
-          <option value="county">區縣</option>
-          <option value="township">鄉鎮</option>
-        </select>
+        <SimpleSelectDropdown
+          v-model="tendencyLevel"
+          :options="tendencyLevelOptions"
+        />
         <button
           class="query-button"
           :disabled="!tendencyPattern || loading"
@@ -85,6 +84,7 @@
 <script setup>
 import { ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
+import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
 import { getPatternTendency } from '@/api/index.js'
 import { showError } from '@/utils/message.js'
 
@@ -95,6 +95,13 @@ const tendencyData = ref([])
 const loading = ref(false)
 const tendencyPattern = ref('')
 const tendencyLevel = ref('city')
+
+// Options for SimpleSelectDropdown
+const tendencyLevelOptions = [
+  { label: '城市', value: 'city' },
+  { label: '區縣', value: 'county' },
+  { label: '鄉鎮', value: 'township' }
+]
 
 // Methods
 const loadPatternTendency = async () => {

@@ -34,17 +34,14 @@
     <div class="frequency-section glass-panel">
       <h2>N-gram 頻率分析</h2>
       <div class="controls">
-        <select v-model.number="nValue" class="select-input">
-          <option :value="2">二元組 (Bigrams)</option>
-          <option :value="3">三元組 (Trigrams)</option>
-          <option :value="4">四元組 (4-grams)</option>
-        </select>
-        <select v-model="position" class="select-input">
-          <option value="all">所有位置</option>
-          <option value="prefix">前綴</option>
-          <option value="middle">中間</option>
-          <option value="suffix">後綴</option>
-        </select>
+        <SimpleSelectDropdown
+          v-model.number="nValue"
+          :options="nValueOptions"
+        />
+        <SimpleSelectDropdown
+          v-model="position"
+          :options="positionOptions"
+        />
         <input
           v-model.number="minFrequency"
           type="number"
@@ -128,11 +125,10 @@
           class="pattern-input"
           @keyup.enter="searchPatterns"
         />
-        <select v-model.number="patternN" class="select-input">
-          <option :value="2">二元組</option>
-          <option :value="3">三元組</option>
-          <option :value="4">四元組</option>
-        </select>
+        <SimpleSelectDropdown
+          v-model.number="patternN"
+          :options="nValueOptions"
+        />
         <button
           class="query-button"
           :disabled="!searchPattern || loadingPatterns"
@@ -177,6 +173,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
 import {
   getNgramFrequency,
   getNgramPatterns,
@@ -201,6 +198,20 @@ const patternResults = ref([])
 
 const loadingFrequency = ref(false)
 const loadingPatterns = ref(false)
+
+// Options for SimpleSelectDropdown
+const nValueOptions = [
+  { label: '二元組 (Bigrams)', value: 2 },
+  { label: '三元組 (Trigrams)', value: 3 },
+  { label: '四元組 (4-grams)', value: 4 }
+]
+
+const positionOptions = [
+  { label: '所有位置', value: 'all' },
+  { label: '前綴', value: 'prefix' },
+  { label: '中間', value: 'middle' },
+  { label: '後綴', value: 'suffix' }
+]
 
 // Computed
 const maxPercentage = computed(() => {

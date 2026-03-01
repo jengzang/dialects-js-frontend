@@ -48,10 +48,10 @@
         <div class="form-row">
           <div class="form-group">
             <label>相似度指標:</label>
-            <select v-model="metric" class="select-input">
-              <option value="cosine">Cosine 相似度</option>
-              <option value="jaccard">Jaccard 相似度</option>
-            </select>
+            <SimpleSelectDropdown
+              v-model="metric"
+              :options="metricOptions"
+            />
           </div>
 
           <div class="form-group">
@@ -267,10 +267,10 @@
 
         <div class="form-group">
           <label>相似度指標:</label>
-          <select v-model="matrixMetric" class="select-input">
-            <option value="cosine">Cosine 相似度</option>
-            <option value="jaccard">Jaccard 相似度</option>
-          </select>
+          <SimpleSelectDropdown
+            v-model="matrixMetric"
+            :options="metricOptions"
+          />
         </div>
 
         <button
@@ -306,11 +306,13 @@ import {
 import { showError, showSuccess } from '@/utils/message.js'
 import * as echarts from 'echarts'
 import FilterableSelect from '@/components/common/FilterableSelect.vue'
+import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
 
 export default {
   name: 'RegionSimilarity',
   components: {
-    FilterableSelect
+    FilterableSelect,
+    SimpleSelectDropdown
   },
   setup() {
     // State
@@ -345,6 +347,12 @@ export default {
     const matrixMetric = ref('cosine')
     const matrixData = ref(null)
     const loadingMatrix = ref(false)
+
+    // Options for SimpleSelectDropdown
+    const metricOptions = [
+      { label: 'Cosine 相似度', value: 'cosine' },
+      { label: 'Jaccard 相似度', value: 'jaccard' }
+    ]
     const heatmapChart = ref(null)
     let chartInstance = null
 

@@ -17,11 +17,10 @@
           placeholder="輸入 N-gram"
           class="text-input"
         />
-        <select v-model="level" class="select-input">
-          <option value="city">城市</option>
-          <option value="county">區縣</option>
-          <option value="township">鄉鎮</option>
-        </select>
+        <SimpleSelectDropdown
+          v-model="level"
+          :options="levelOptions"
+        />
         <button
           class="query-button"
           :disabled="!ngram || loading"
@@ -230,11 +229,10 @@
           placeholder="輸入 N-gram"
           class="text-input"
         />
-        <select v-model="significanceLevel" class="select-input">
-          <option value="city">城市</option>
-          <option value="county">區縣</option>
-          <option value="township">鄉鎮</option>
-        </select>
+        <SimpleSelectDropdown
+          v-model="significanceLevel"
+          :options="levelOptions"
+        />
         <button
           class="query-button"
           :disabled="!significanceNgram || loadingSignificance"
@@ -295,6 +293,7 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import RegionDisplay from '@/components/common/RegionDisplay.vue'
+import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
 import {
   getNgramTendency,
   getNgramSignificance
@@ -323,6 +322,13 @@ const significanceNgram = ref('')
 const significanceLevel = ref('city')
 const significanceData = ref([])
 const loadingSignificance = ref(false)
+
+// Options for SimpleSelectDropdown
+const levelOptions = [
+  { label: '城市', value: 'city' },
+  { label: '區縣', value: 'county' },
+  { label: '鄉鎮', value: 'township' }
+]
 
 // Computed
 const maxRegionalFrequency = computed(() => {

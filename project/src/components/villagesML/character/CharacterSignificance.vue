@@ -38,11 +38,10 @@
           </div>
           <div class="form-group">
             <label>區域層級:</label>
-            <select v-model="regionLevel" class="select-input">
-              <option value="city">城市</option>
-              <option value="county">區縣</option>
-              <option value="township">鄉鎮</option>
-            </select>
+            <SimpleSelectDropdown
+              v-model="regionLevel"
+              :options="regionLevelOptions"
+            />
           </div>
           <button
             class="query-button"
@@ -173,6 +172,7 @@
 import { ref } from 'vue'
 import ExploreLayout from '@/layouts/ExploreLayout.vue'
 import FilterableSelect from '@/components/common/FilterableSelect.vue'
+import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
 import {
   getCharSignificanceByChar,
   getCharSignificanceByRegion,
@@ -190,6 +190,13 @@ const topN = ref(30)
 const results = ref([])
 const summary = ref(null)
 const loading = ref(false)
+
+// Options for SimpleSelectDropdown
+const regionLevelOptions = [
+  { label: '城市', value: 'city' },
+  { label: '區縣', value: 'county' },
+  { label: '鄉鎮', value: 'township' }
+]
 
 // Methods
 const queryByChar = async () => {

@@ -116,11 +116,11 @@
         <template v-else>
           <div class="level-selector">
             <label>行政級別：</label>
-            <select v-model="rankingLevel" class="select-input" @change="loadCategoryRanking">
-              <option value="city">市級</option>
-              <option value="county">區縣級</option>
-              <option value="township">鄉鎮級</option>
-            </select>
+            <SimpleSelectDropdown
+              v-model="rankingLevel"
+              :options="rankingLevelOptions"
+              @update:modelValue="loadCategoryRanking"
+            />
 
             <label style="margin-left: 20px;">最小村莊數：</label>
             <input
@@ -185,12 +185,11 @@
 
         <!-- By Category -->
         <div v-if="labelsMode === 'by-category'" class="labels-content">
-          <select v-model="selectedCategoryForLabels" class="select-input" @change="loadLabelsByCategory">
-            <option value="">選擇類別</option>
-            <option v-for="cat in categories" :key="cat.category" :value="cat.category">
-              {{ getCategoryName(cat.category) }}
-            </option>
-          </select>
+          <SimpleSelectDropdown
+            v-model="selectedCategoryForLabels"
+            :options="categoryOptions"
+            @update:modelValue="loadLabelsByCategory"
+          />
           <div v-if="loadingLabels" class="loading-state">
             <div class="spinner"></div>
           </div>
@@ -240,6 +239,7 @@
 import { ref, computed, onMounted, nextTick, watch } from 'vue'
 import ExploreLayout from '@/layouts/ExploreLayout.vue'
 import FilterableSelect from '@/components/common/FilterableSelect.vue'
+import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
 import {
   getSemanticCategoryList,
   getSemanticVTFGlobal,
@@ -279,6 +279,21 @@ const minVillages = ref(null)
 const labelsMode = ref('by-category')
 const selectedCategoryForLabels = ref('')
 const charForLabels = ref('')
+
+// Options for SimpleSelectDropdown
+const rankingLevelOptions = [
+  { label: '市級', value: 'city' },
+  { label: '區縣級', value: 'county' },
+  { label: '鄉鎮級', value: 'township' }
+]
+
+const categoryOptions = computed(() => [
+  { label: '選擇類別', value: '' },
+  ...categories.value.map(cat => ({
+    label: getCategoryName(cat.category),
+    value: cat.category
+  }))
+])
 
 // Computed
 const maxVTF = computed(() => {

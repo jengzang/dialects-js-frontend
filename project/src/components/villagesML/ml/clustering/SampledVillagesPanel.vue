@@ -35,11 +35,10 @@
         <div class="setting-row">
           <label class="setting-label">採樣策略</label>
           <div class="setting-control">
-            <select v-model="settings.sampling_strategy" class="setting-select">
-              <option value="stratified">分層採樣</option>
-              <option value="random">隨機採樣</option>
-              <option value="systematic">系統採樣</option>
-            </select>
+            <SimpleSelectDropdown
+              v-model="settings.sampling_strategy"
+              :options="samplingStrategyOptions"
+            />
             <span class="setting-hint">{{ samplingStrategyHint }}</span>
           </div>
         </div>
@@ -96,6 +95,7 @@ import { villagesMLStore } from '@/utils/villagesMLStore.js'
 import { userStore } from '@/utils/store.js'
 import { runSampledVillagesClustering } from '@/api'
 import { showSuccess, showError, showWarning } from '@/utils/message.js'
+import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
 import AlgorithmSelector from './shared/AlgorithmSelector.vue'
 import PreprocessingSettings from './shared/PreprocessingSettings.vue'
 import FeatureToggles from './shared/FeatureToggles.vue'
@@ -105,6 +105,13 @@ const settings = computed(() => villagesMLStore.sampledVillagesSettings)
 const isAuthenticated = computed(() => userStore.isAuthenticated)
 const loading = ref(false)
 const results = ref(null)
+
+// Options for SimpleSelectDropdown
+const samplingStrategyOptions = [
+  { label: '分層採樣', value: 'stratified' },
+  { label: '隨機採樣', value: 'random' },
+  { label: '系統採樣', value: 'systematic' }
+]
 
 const samplingStrategyHint = computed(() => {
   switch (settings.value.sampling_strategy) {

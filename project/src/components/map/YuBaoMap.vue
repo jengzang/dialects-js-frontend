@@ -14,18 +14,11 @@
       <div class="map-controls" v-if="!isFullScreen">
         <!-- 地图样式选择器 -->
         <div class="control-group">
-          <div class="custom-select">
-            <select v-model="currentStyleKey" @change="handleStyleChange">
-              <option
-                  v-for="(name, key) in mapStyleConfig"
-                  :key="key"
-                  :value="key"
-              >
-                {{ name }}
-              </option>
-            </select>
-            <span class="arrow">▾</span>
-          </div>
+          <SimpleSelectDropdown
+            v-model="currentStyleKey"
+            :options="mapStyleOptions"
+            @update:modelValue="handleStyleChange"
+          />
         </div>
 
         <!-- 显示模式切换 -->
@@ -148,6 +141,7 @@ import { ref, onMounted, onBeforeUnmount, shallowRef, nextTick, watch, computed 
 import maplibregl from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import {mapStyle, calculateDenseMapCenterAndZoom, mapStyleConfig} from '@/utils/MapSource.js'
+import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
 
 // --- Props ---
 const props = defineProps({
@@ -171,6 +165,14 @@ const popupData = ref(null)
 const showPopup = ref(false)
 const mapLoaded = ref(false)  // 跟踪地图是否已加载
 const isLoadingMarkers = ref(false)  // 跟踪标记是否正在加载
+
+// Map style options
+const mapStyleOptions = computed(() => {
+  return Object.entries(mapStyleConfig).map(([key, name]) => ({
+    label: name,
+    value: key
+  }))
+})
 
 // --- Functions ---
 

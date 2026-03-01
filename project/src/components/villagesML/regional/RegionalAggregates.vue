@@ -8,11 +8,10 @@
       <div class="aggregates-section glass-panel">
         <h2>聚合结果表格</h2>
         <div class="aggregates-header">
-          <select v-model="currentLevel" class="select-input">
-            <option value="city">市級</option>
-            <option value="county">區縣級</option>
-            <option value="township">鄉鎮級</option>
-          </select>
+          <SimpleSelectDropdown
+            v-model="currentLevel"
+            :options="levelOptions"
+          />
           <button class="query-button" :disabled="loading" @click="loadAggregates">查詢</button>
         </div>
 
@@ -150,10 +149,10 @@
         <div class="spatial-header">
           <h2 style="white-space: nowrap">空間聚合</h2>
           <div class="controls">
-            <select v-model="spatialLevel" class="select-input">
-              <option value="city">城市</option>
-              <option value="county">區縣</option>
-            </select>
+            <SimpleSelectDropdown
+              v-model="spatialLevel"
+              :options="spatialLevelOptions"
+            />
             <button class="query-button" :disabled="loadingSpatial" @click="loadSpatialAggregates">查詢</button>
           </div>
         </div>
@@ -176,6 +175,7 @@
 import { ref, computed, watch, nextTick, onBeforeUnmount } from 'vue'
 import ExploreLayout from '@/layouts/ExploreLayout.vue'
 import RegionDisplay from '@/components/common/RegionDisplay.vue'
+import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
 import * as echarts from 'echarts'
 import {
   getRegionalAggregatesCity,
@@ -201,6 +201,18 @@ let spatialChartInstance = null
 const currentPage = ref(1)
 const pageSize = 30
 const spatialLevel = ref('city')
+
+// Options for SimpleSelectDropdown
+const levelOptions = [
+  { label: '市級', value: 'city' },
+  { label: '區縣級', value: 'county' },
+  { label: '鄉鎮級', value: 'township' }
+]
+
+const spatialLevelOptions = [
+  { label: '城市', value: 'city' },
+  { label: '區縣', value: 'county' }
+]
 
 const SEM_LABELS = {
   mountain: '山地',
