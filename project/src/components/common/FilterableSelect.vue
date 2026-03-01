@@ -358,11 +358,11 @@ const selectOption = (option) => {
   inputValue.value = option.name
   emit('update:modelValue', option.name)
 
-  // Emit full hierarchical path for precise queries
+  // Emit full hierarchical path from option object
   const hierarchy = {
-    city: props.level === 'city' ? option.name : props.city,
-    county: props.level === 'county' ? option.name : props.county,
-    township: props.level === 'township' ? option.name : null
+    city: option.city || null,
+    county: option.county || null,
+    township: option.township || null
   }
   emit('update:hierarchy', hierarchy)
 

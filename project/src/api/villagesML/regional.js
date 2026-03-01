@@ -66,15 +66,21 @@ export async function getRegionalSpatialAggregates(params) {
 }
 
 /**
- * 獲取區域特徵向量（僅元數據）
+ * 獲取區域特徵向量（使用層級路徑參數）
  * @param {Object} params
- * @param {string} params.region_name - 區域名稱（可選，不提供則返回所有區域）
+ * @param {string} params.level - 區域層級：'city' | 'county' | 'township'
+ * @param {string} params.city - 城市名稱（可選）
+ * @param {string} params.county - 區縣名稱（可選）
+ * @param {string} params.township - 鄉鎮名稱（可選）
  * @param {number} params.limit - 返回數量限制（可選）
- * @returns {Promise<Array>} [{ region_name: string, feature_vector: number[], semantic_categories: {} }, ...]
+ * @returns {Promise<Array>} [{ region_name: string, level: string, city: string, county: string, township: string, feature_vector: number[], village_count: number }, ...]
  */
 export async function getRegionalVectors(params = {}) {
   const queryParams = new URLSearchParams()
-  if (params.region_name) queryParams.append('region_name', params.region_name)
+  if (params.level) queryParams.append('level', params.level)
+  if (params.city) queryParams.append('city', params.city)
+  if (params.county) queryParams.append('county', params.county)
+  if (params.township) queryParams.append('township', params.township)
   if (params.limit) queryParams.append('limit', params.limit)
 
   return api(`/api/villages/regional/vectors?${queryParams.toString()}`)
@@ -82,16 +88,48 @@ export async function getRegionalVectors(params = {}) {
 
 
 /**
- * 比較兩個區域的特徵向量
+ * 比較兩個區域的特徵向量（使用層級路徑參數）
  * @param {Object} params
- * @param {string} params.region1 - 區域1名稱
  * @param {string} params.level1 - 區域1層級：'city' | 'county' | 'township'
- * @param {string} params.region2 - 區域2名稱
+ * @param {string} params.city1 - 區域1城市名稱（可選）
+ * @param {string} params.county1 - 區域1區縣名稱（可選）
+ * @param {string} params.township1 - 區域1鄉鎮名稱（可選）
  * @param {string} params.level2 - 區域2層級：'city' | 'county' | 'township'
- * @returns {Promise<Object>} { region1, level1, region2, level2, feature_dimension, categories, cosine_similarity, euclidean_distance, manhattan_distance, vector_diff, region1_vector, region2_vector }
+ * @param {string} params.city2 - 區域2城市名稱（可選）
+ * @param {string} params.county2 - 區域2區縣名稱（可選）
+ * @param {string} params.township2 - 區域2鄉鎮名稱（可選）
+ * @returns {Promise<Object>} { regions, feature_dimension, categories, cosine_similarity, euclidean_distance, manhattan_distance, vector_diff, region1_vector, region2_vector }
  */
 export async function compareRegionalVectors(params) {
   return api('/api/villages/regional/vectors/compare', {
+    method: 'POST',
+    body: params
+  })
+}
+
+/**
+ * 批量比較多個區域的特徵向量（用於熱力圖）
+ * @param {Object} params
+ * @param {Array} params.regions - 區域列表 [{ level: string, city?: string, county?: string, township?: string }, ...]
+ * @returns {Promise<Object>} { regions, similarity_matrix, distance_matrix, feature_dimension, categories, run_id }
+ */
+export async function batchCompareRegionalVectors(params) {
+  return api('/api/villages/regional/vectors/compare/batch', {
+    method: 'POST',
+    body: params
+  })
+}
+
+/**
+ * 向量降維可視化（PCA/t-SNE）
+ * @param {Object} params
+ * @param {Array} params.regions - 區域列表 [{ level: string, city?: string, county?: string, township?: string }, ...]
+ * @param {string} params.method - 降維方法：'pca' | 'tsne'
+ * @param {number} params.n_components - 降維維度：2 | 3
+ * @returns {Promise<Object>} { regions, coordinates, method, n_components, explained_variance?, run_id }
+ */
+export async function reduceRegionalVectors(params) {
+  return api('/api/villages/regional/vectors/reduce', {
     method: 'POST',
     body: params
   })

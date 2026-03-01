@@ -122,7 +122,9 @@ export {
   getRegionalAggregatesTown,
   getRegionalSpatialAggregates,
   getRegionalVectors,
-  compareRegionalVectors
+  compareRegionalVectors,
+  batchCompareRegionalVectors,
+  reduceRegionalVectors
 } from './regional.js'
 
 // 計算模塊

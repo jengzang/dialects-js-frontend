@@ -1,104 +1,212 @@
 <template>
   <div class="regional-vectors-page">
-      <h3 class="villagesml-subtab-title">區域分析 - 特徵向量</h3>
-    <!-- Header -->
-<!--    <div class="page-header">-->
-<!--      <h2>區域特徵向量 Regional Feature Vectors</h2>-->
-<!--      <p class="subtitle">分析區域間的特徵向量相似度與聚類模式</p>-->
-<!--    </div>-->
+    <h3 class="villagesml-subtab-title">區域分析 - 特徵向量</h3>
 
     <!-- Region Selector -->
     <div class="glass-panel selector-panel">
       <div class="panel-header">
-        <h3>選擇區域 Select Regions</h3>
+        <h3>選擇兩個區域進行比較</h3>
       </div>
       <div class="selector-content">
-        <!-- Primary Region -->
-        <div class="region-group">
-          <h4 class="group-title">主要區域 Primary Region</h4>
-          <FilterableSelect
-            v-model="primaryRegion"
-            v-model:level="primaryLevel"
-            :show-level-selector="true"
-            :show-counts="true"
-            placeholder="請選擇區域..."
-          />
+        <div class="regions-row">
+          <!-- Region 1 -->
+          <div class="region-group">
+            <h4 class="group-title">區域 1</h4>
+            <FilterableSelect
+              v-model="region1"
+              v-model:level="level1"
+              :show-level-selector="true"
+              :show-counts="true"
+              placeholder="請選擇區域..."
+              @update:hierarchy="(h) => hierarchy1 = h"
+            />
+          </div>
+
+          <!-- Region 2 -->
+          <div class="region-group">
+            <h4 class="group-title">區域 2</h4>
+            <FilterableSelect
+              v-model="region2"
+              v-model:level="level2"
+              :show-level-selector="true"
+              :show-counts="true"
+              placeholder="請選擇區域..."
+              @update:hierarchy="(h) => hierarchy2 = h"
+            />
+          </div>
         </div>
 
-        <!-- Compare Region -->
-        <div class="region-group">
-          <h4 class="group-title">比較區域 Compare Region (可選)</h4>
+        <button
+          @click="compareVectors"
+          :disabled="!region1 || !region2 || loading"
+          class="action-button primary"
+        >
+          <span v-if="!loading">比較向量</span>
+          <span v-else>比較中...</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Multi-Region Selector for Batch Analysis -->
+    <div class="glass-panel multi-region-panel">
+      <div class="panel-header">
+        <h3>批量分析（熱力圖 & 散點圖）</h3>
+      </div>
+      <div class="multi-region-content">
+        <div class="region-selector-row">
           <FilterableSelect
-            v-model="compareRegion"
-            v-model:level="compareLevel"
+            v-model="selectedRegionToAdd"
+            v-model:level="batchLevel"
             :show-level-selector="true"
             :show-counts="true"
-            placeholder="請選擇區域..."
+            placeholder="選擇區域添加到列表..."
+            @update:hierarchy="(h) => selectedRegionHierarchy = h"
           />
-        </div>
-
-        <div class="button-group">
-          <button @click="loadVectors" :disabled="!primaryRegion || loading" class="action-button primary">
-            <span v-if="!loading">載入向量 Load Vectors</span>
-            <span v-else>載入中...</span>
+          <button
+            @click="addRegionToBatch"
+            :disabled="!selectedRegionToAdd || batchRegions.length >= 20"
+            class="action-button add-button"
+          >
+            添加 ({{ batchRegions.length }}/20)
           </button>
-          <button @click="compareVectors" :disabled="!primaryRegion || !compareRegion || loading" class="action-button secondary">
-            比較向量 Compare Vectors
+        </div>
+
+        <!-- Selected Regions List -->
+        <div v-if="batchRegions.length > 0" class="selected-regions-list">
+          <div
+            v-for="(region, index) in batchRegions"
+            :key="index"
+            class="region-chip"
+          >
+            <span class="region-name">{{ region.display }}</span>
+            <button @click="removeRegionFromBatch(index)" class="remove-btn">×</button>
+          </div>
+        </div>
+
+        <!-- Batch Actions -->
+        <div v-if="batchRegions.length >= 2" class="batch-actions">
+          <button
+            @click="runBatchComparison"
+            :disabled="loading"
+            class="action-button primary"
+          >
+            <span v-if="!loading">生成熱力圖</span>
+            <span v-else>生成中...</span>
+          </button>
+          <button
+            @click="runDimensionReduction"
+            :disabled="loading"
+            class="action-button secondary"
+          >
+            <span v-if="!loading">生成散點圖 (PCA)</span>
+            <span v-else>降維中...</span>
           </button>
         </div>
       </div>
     </div>
 
-    <!-- Similarity Comparison -->
-    <div v-if="similarityData" class="glass-panel similarity-panel">
-      <div class="panel-header">
-        <h3>相似度分析 Similarity Analysis</h3>
+    <!-- Comparison Results -->
+    <div v-if="comparisonData" class="results-section">
+      <!-- Similarity Metrics -->
+      <div class="glass-panel similarity-panel">
+        <div class="panel-header">
+          <h3>相似度分析</h3>
+        </div>
+        <div class="similarity-content">
+          <div class="comparison-header">
+            <div class="region-badge primary">{{ region1 }}</div>
+            <div class="vs-label">vs</div>
+            <div class="region-badge compare">{{ region2 }}</div>
+          </div>
+          <div class="similarity-metrics">
+            <div class="metric-card">
+              <div class="metric-label">餘弦相似度</div>
+              <div class="metric-value">{{ formatNumber(comparisonData.cosine_similarity) }}</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">歐氏距離</div>
+              <div class="metric-value">{{ formatNumber(comparisonData.euclidean_distance) }}</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">曼哈頓距離</div>
+              <div class="metric-value">{{ formatNumber(comparisonData.manhattan_distance) }}</div>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="similarity-content">
-        <div class="comparison-header">
-          <div class="region-badge primary">{{ primaryRegion }}</div>
-          <div class="vs-label">vs</div>
-          <div class="region-badge compare">{{ compareRegion }}</div>
+
+      <!-- Side-by-side Vector Charts -->
+<!--      <div class="vectors-row">-->
+        <!-- Region 1 Vector -->
+<!--        <div class="glass-panel vector-panel">-->
+<!--          <div class="panel-header">-->
+<!--            <h3>{{ region1 }}</h3>-->
+<!--            <span class="region-label">{{ getLevelLabel(level1) }}</span>-->
+<!--          </div>-->
+<!--          <div class="vector-content">-->
+<!--            <div class="vector-stats">-->
+<!--              <div class="stat-item">-->
+<!--                <span class="label">向量維度:</span>-->
+<!--                <span class="value">{{ comparisonData.feature_dimension || 9 }}</span>-->
+<!--              </div>-->
+<!--            </div>-->
+<!--            <div class="vector-visualization">-->
+<!--              <div ref="vector1Chart" class="chart-container"></div>-->
+<!--            </div>-->
+<!--          </div>-->
+<!--        </div>-->
+
+        <!-- Region 2 Vector -->
+<!--        <div class="glass-panel vector-panel">-->
+<!--          <div class="panel-header">-->
+<!--            <h3>{{ region2 }}</h3>-->
+<!--            <span class="region-label">{{ getLevelLabel(level2) }}</span>-->
+<!--          </div>-->
+<!--          <div class="vector-content">-->
+<!--            <div class="vector-stats">-->
+<!--              <div class="stat-item">-->
+<!--                <span class="label">向量維度:</span>-->
+<!--                <span class="value">{{ comparisonData.feature_dimension || 9 }}</span>-->
+<!--              </div>-->
+<!--            </div>-->
+<!--            <div class="vector-visualization">-->
+<!--              <div ref="vector2Chart" class="chart-container"></div>-->
+<!--            </div>-->
+<!--          </div>-->
+<!--        </div>-->
+<!--      </div>-->
+
+      <!-- Combined Comparison Chart -->
+      <div class="glass-panel comparison-chart-panel">
+        <div class="panel-header">
+          <h3>向量對比分布</h3>
         </div>
-        <div class="similarity-metrics">
-          <div class="metric-card">
-            <div class="metric-label">餘弦相似度 Cosine Similarity</div>
-            <div class="metric-value">{{ formatNumber(similarityData.cosine_similarity) }}</div>
-          </div>
-          <div class="metric-card">
-            <div class="metric-label">歐氏距離 Euclidean Distance</div>
-            <div class="metric-value">{{ formatNumber(similarityData.euclidean_distance) }}</div>
-          </div>
-          <div class="metric-card">
-            <div class="metric-label">曼哈頓距離 Manhattan Distance</div>
-            <div class="metric-value">{{ formatNumber(similarityData.manhattan_distance) }}</div>
-          </div>
-        </div>
-        <div class="difference-chart">
-          <div ref="diffChart" class="chart-container"></div>
+        <div class="chart-wrapper">
+          <div ref="comparisonChart" class="chart-container-large"></div>
         </div>
       </div>
     </div>
 
-    <!-- Feature Vector Display -->
-    <div v-if="vectorData" class="glass-panel vector-panel">
-      <div class="panel-header">
-        <h3>特徵向量 Feature Vector</h3>
-        <span class="region-label">{{ primaryRegion }} ({{ getLevelLabel(primaryLevel) }})</span>
-      </div>
-      <div class="vector-content">
-        <div class="vector-stats">
-          <div class="stat-item">
-            <span class="label">向量維度:</span>
-            <span class="value">{{ vectorData.dimension || 'N/A' }}</span>
-          </div>
-          <div class="stat-item">
-            <span class="label">村莊數量:</span>
-            <span class="value">{{ vectorData.village_count || 'N/A' }}</span>
-          </div>
+    <!-- Batch Analysis Results -->
+    <div v-if="batchComparisonData || reductionData" class="batch-results-section">
+      <!-- Heatmap -->
+      <div v-if="batchComparisonData" class="glass-panel heatmap-panel">
+        <div class="panel-header">
+          <h3>相似度熱力圖</h3>
         </div>
-        <div class="vector-visualization">
-          <div ref="vectorChart" class="chart-container"></div>
+        <div class="chart-wrapper">
+          <div ref="heatmapChart" class="chart-container-xlarge"></div>
+        </div>
+      </div>
+
+      <!-- Scatter Plot -->
+      <div v-if="reductionData" class="glass-panel scatter-panel">
+        <div class="panel-header">
+          <h3>向量降維散點圖 (PCA)</h3>
+          <span class="info-label">解釋方差: {{ formatVariance(reductionData.explained_variance) }}</span>
+        </div>
+        <div class="chart-wrapper">
+          <div ref="scatterChart" class="chart-container-xlarge"></div>
         </div>
       </div>
     </div>
@@ -112,85 +220,73 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, nextTick, computed } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, onMounted, onUnmounted, nextTick } from 'vue'
 import * as echarts from 'echarts'
-import { getRegionalVectors, compareRegionalVectors } from '@/api/index.js'
+import { compareRegionalVectors, batchCompareRegionalVectors, reduceRegionalVectors } from '@/api/index.js'
 import { showError, showSuccess, showWarning } from '@/utils/message.js'
 import FilterableSelect from '@/components/common/FilterableSelect.vue'
 import { SEMANTIC_CATEGORY_NAMES } from '@/config/villagesML.js'
 
-const router = useRouter()
+// State - Two Region Comparison
+const level1 = ref('city')
+const region1 = ref('')
+const hierarchy1 = ref(null)
+const level2 = ref('city')
+const region2 = ref('')
+const hierarchy2 = ref(null)
+const comparisonData = ref(null)
 
-// State
-const primaryLevel = ref('city')
-const primaryRegion = ref('')
-const compareLevel = ref('city')
-const compareRegion = ref('')
-const vectorData = ref(null)
-const similarityData = ref(null)
+// State - Batch Analysis
+const batchLevel = ref('city')
+const selectedRegionToAdd = ref('')
+const selectedRegionHierarchy = ref(null)
+const batchRegions = ref([])
+const batchComparisonData = ref(null)
+const reductionData = ref(null)
+
 const loading = ref(false)
 
 // Chart refs
-const vectorChart = ref(null)
-const diffChart = ref(null)
+const comparisonChart = ref(null)
+const heatmapChart = ref(null)
+const scatterChart = ref(null)
 
 // Chart instances
-let vectorChartInstance = null
-let diffChartInstance = null
+let comparisonChartInstance = null
+let heatmapChartInstance = null
+let scatterChartInstance = null
 
-// Methods
-const loadVectors = async () => {
-  if (!primaryRegion.value) return
-
-  loading.value = true
-  try {
-    const response = await getRegionalVectors({
-      region_name: primaryRegion.value,
-      level: primaryLevel.value
-    })
-
-    // Handle response - API returns array, we need the first item
-    const data = Array.isArray(response) ? response[0] : response
-
-    if (!data) {
-      showWarning('未找到該區域的向量數據')
-      return
-    }
-
-    vectorData.value = {
-      dimension: data.feature_vector?.length || 9,
-      village_count: data.village_count || 0,
-      vector: data.feature_vector || []
-    }
-
-    await nextTick()
-    renderVectorChart()
-    showSuccess('向量載入成功')
-  } catch (error) {
-    showError(error.message || '載入向量失敗')
-  } finally {
-    loading.value = false
-  }
-}
-
+// Compare vectors
 const compareVectors = async () => {
-  if (!primaryRegion.value || !compareRegion.value) return
+  if (!region1.value || !region2.value) return
 
   loading.value = true
   try {
-    const response = await compareRegionalVectors({
-      region1: primaryRegion.value,
-      level1: primaryLevel.value,
-      region2: compareRegion.value,
-      level2: compareLevel.value
-    })
+    const params = {}
 
-    // Use real API response
-    similarityData.value = response
+    // Region 1 params (使用层级路径)
+    params.level1 = level1.value
+    if (hierarchy1.value) {
+      if (hierarchy1.value.city) params.city1 = hierarchy1.value.city
+      if (hierarchy1.value.county) params.county1 = hierarchy1.value.county
+      if (hierarchy1.value.township) params.township1 = hierarchy1.value.township
+    }
+
+    // Region 2 params (使用层级路径)
+    params.level2 = level2.value
+    if (hierarchy2.value) {
+      if (hierarchy2.value.city) params.city2 = hierarchy2.value.city
+      if (hierarchy2.value.county) params.county2 = hierarchy2.value.county
+      if (hierarchy2.value.township) params.township2 = hierarchy2.value.township
+    }
+
+    console.log('发送参数:', params) // 调试用
+
+    const response = await compareRegionalVectors(params)
+    comparisonData.value = response
 
     await nextTick()
-    renderDiffChart()
+    renderComparisonChart()
     showSuccess('向量比較完成')
   } catch (error) {
     showError(error.message || '向量比較失敗')
@@ -199,178 +295,350 @@ const compareVectors = async () => {
   }
 }
 
-const renderVectorChart = () => {
-  if (!vectorChart.value || !vectorData.value) return
+// Add region to batch list
+const addRegionToBatch = () => {
+  if (!selectedRegionToAdd.value || batchRegions.value.length >= 20) return
 
-  if (!vectorChartInstance) {
-    vectorChartInstance = echarts.init(vectorChart.value)
+  const regionParams = {
+    level: batchLevel.value,
+    display: selectedRegionToAdd.value
   }
 
-  // 9个语义类别（按字母顺序，与后端 semantic_indices 表一致）
-  const categoryKeys = ['agriculture', 'clan', 'direction', 'infrastructure', 'mountain', 'settlement', 'symbolic', 'vegetation', 'water']
-  const categories = categoryKeys.map(key => SEMANTIC_CATEGORY_NAMES[key])
+  if (selectedRegionHierarchy.value) {
+    if (selectedRegionHierarchy.value.city) regionParams.city = selectedRegionHierarchy.value.city
+    if (selectedRegionHierarchy.value.county) regionParams.county = selectedRegionHierarchy.value.county
+    if (selectedRegionHierarchy.value.township) regionParams.township = selectedRegionHierarchy.value.township
+  }
 
-  // 检测是否为移动端
-  const isMobile = window.matchMedia('(orientation: portrait)').matches
+  // Check duplicate
+  const isDuplicate = batchRegions.value.some(r =>
+    r.level === regionParams.level &&
+    r.city === regionParams.city &&
+    r.county === regionParams.county &&
+    r.township === regionParams.township
+  )
 
-  vectorChartInstance.setOption({
-    title: {
-      text: '特徵向量分布',
-      left: 'center',
-      textStyle: {
-        fontSize: isMobile ? 14 : 16
-      }
-    },
-    tooltip: { trigger: 'axis' },
-    grid: {
-      left: isMobile ? '15%' : '10%',
-      right: isMobile ? '5%' : '10%',
-      bottom: isMobile ? '20%' : '15%',
-      top: isMobile ? '15%' : '12%'
-    },
-    xAxis: {
-      type: 'category',
-      data: categories,
-      axisLabel: {
-        rotate: isMobile ? 45 : 30,
-        fontSize: isMobile ? 10 : 12
-      }
-    },
-    yAxis: {
-      type: 'value',
-      name: '權重',
-      nameTextStyle: {
-        fontSize: isMobile ? 11 : 12
-      },
-      axisLabel: {
-        fontSize: isMobile ? 10 : 12
-      }
-    },
-    series: [{
-      type: 'bar',
-      data: vectorData.value.vector || [],
-      itemStyle: {
-        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-          { offset: 0, color: '#4a90e2' },
-          { offset: 1, color: '#50c878' }
-        ])
-      }
-    }]
-  })
+  if (isDuplicate) {
+    showWarning('該區域已在列表中')
+    return
+  }
+
+  batchRegions.value.push(regionParams)
+  selectedRegionToAdd.value = ''
 }
 
-const renderDiffChart = () => {
-  if (!diffChart.value || !similarityData.value) return
+// Remove region from batch list
+const removeRegionFromBatch = (index) => {
+  batchRegions.value.splice(index, 1)
+}
 
-  if (!diffChartInstance) {
-    diffChartInstance = echarts.init(diffChart.value)
+// Run batch comparison (heatmap)
+const runBatchComparison = async () => {
+  if (batchRegions.value.length < 2) {
+    showWarning('至少需要2個區域')
+    return
   }
 
-  // 9个语义类别（按字母顺序，与后端 semantic_indices 表一致）
+  loading.value = true
+  try {
+    const regions = batchRegions.value.map(r => ({
+      level: r.level,
+      city: r.city,
+      county: r.county,
+      township: r.township
+    }))
+
+    const response = await batchCompareRegionalVectors({ regions })
+    batchComparisonData.value = response
+
+    await nextTick()
+    renderHeatmap()
+    showSuccess('熱力圖生成完成')
+  } catch (error) {
+    showError(error.message || '批量比較失敗')
+  } finally {
+    loading.value = false
+  }
+}
+
+// Run dimension reduction (scatter plot)
+const runDimensionReduction = async () => {
+  if (batchRegions.value.length < 2) {
+    showWarning('至少需要2個區域')
+    return
+  }
+
+  loading.value = true
+  try {
+    const regions = batchRegions.value.map(r => ({
+      level: r.level,
+      city: r.city,
+      county: r.county,
+      township: r.township
+    }))
+
+    const response = await reduceRegionalVectors({
+      regions,
+      method: 'pca',
+      n_components: 2
+    })
+    reductionData.value = response
+
+    await nextTick()
+    renderScatterPlot()
+    showSuccess('散點圖生成完成')
+  } catch (error) {
+    showError(error.message || '降維失敗')
+  } finally {
+    loading.value = false
+  }
+}
+
+// Render comparison chart (side-by-side)
+const renderComparisonChart = () => {
+  if (!comparisonChart.value || !comparisonData.value) return
+
+  if (!comparisonChartInstance) {
+    comparisonChartInstance = echarts.init(comparisonChart.value)
+  }
+
   const categoryKeys = ['agriculture', 'clan', 'direction', 'infrastructure', 'mountain', 'settlement', 'symbolic', 'vegetation', 'water']
   const categories = categoryKeys.map(key => SEMANTIC_CATEGORY_NAMES[key])
-
-  // 检测是否为移动端
   const isMobile = window.matchMedia('(orientation: portrait)').matches
 
-  diffChartInstance.setOption({
+  comparisonChartInstance.setOption({
     title: {
-      text: '向量對比分布',
+      text: '向量對比',
       left: 'center',
-      textStyle: {
-        fontSize: isMobile ? 14 : 16
-      }
+      textStyle: { fontSize: isMobile ? 14 : 16 }
     },
     tooltip: {
       trigger: 'axis',
-      axisPointer: {
-        type: 'shadow'
-      }
+      axisPointer: { type: 'shadow' }
     },
     legend: {
-      data: [primaryRegion.value, compareRegion.value],
-      top: isMobile ? 25 : 30,
-      textStyle: {
-        fontSize: isMobile ? 11 : 12
-      }
+      data: [region1.value, region2.value],
+      top: isMobile ? 28 : 32,
+      textStyle: { fontSize: isMobile ? 11 : 12 }
     },
     grid: {
       left: isMobile ? '15%' : '10%',
       right: isMobile ? '5%' : '10%',
       bottom: isMobile ? '20%' : '15%',
-      top: isMobile ? '20%' : '18%'
+      top: isMobile ? '22%' : '20%'
     },
     xAxis: {
       type: 'category',
       data: categories,
       axisLabel: {
-        rotate: isMobile ? 45 : 30,
+        rotate: isMobile ? 45 : 35,
         fontSize: isMobile ? 10 : 12
       }
     },
     yAxis: {
       type: 'value',
       name: '權重',
-      nameTextStyle: {
-        fontSize: isMobile ? 11 : 12
-      },
-      axisLabel: {
-        fontSize: isMobile ? 10 : 12
-      }
+      nameTextStyle: { fontSize: isMobile ? 11 : 12 },
+      axisLabel: { fontSize: isMobile ? 10 : 12 }
     },
     series: [
       {
-        name: primaryRegion.value,
+        name: region1.value,
         type: 'bar',
-        data: similarityData.value.region1_vector || [],
-        itemStyle: {
-          color: '#4a90e2'
-        }
+        data: comparisonData.value.region1_vector || [],
+        itemStyle: { color: '#4a90e2' }
       },
       {
-        name: compareRegion.value,
+        name: region2.value,
         type: 'bar',
-        data: similarityData.value.region2_vector || [],
-        itemStyle: {
-          color: '#50c878'
-        }
+        data: comparisonData.value.region2_vector || [],
+        itemStyle: { color: '#50c878' }
       }
     ]
   })
 }
 
+// Render heatmap
+const renderHeatmap = () => {
+  if (!heatmapChart.value || !batchComparisonData.value) return
+
+  if (!heatmapChartInstance) {
+    heatmapChartInstance = echarts.init(heatmapChart.value)
+  }
+
+  const regions = batchComparisonData.value.regions.map(r => r.region_name || r.display)
+  const matrix = batchComparisonData.value.similarity_matrix
+  const heatmapData = []
+
+  matrix.forEach((row, i) => {
+    row.forEach((value, j) => {
+      heatmapData.push([j, i, value])
+    })
+  })
+
+  const isMobile = window.matchMedia('(orientation: portrait)').matches
+
+  heatmapChartInstance.setOption({
+    tooltip: {
+      position: 'top',
+      formatter: (params) => {
+        const [x, y, value] = params.data
+        return `${regions[y]} vs ${regions[x]}<br/>相似度: ${value.toFixed(4)}`
+      }
+    },
+    grid: {
+      left: isMobile ? '25%' : '15%',
+      right: '5%',
+      bottom: isMobile ? '25%' : '15%',
+      top: '5%'
+    },
+    xAxis: {
+      type: 'category',
+      data: regions,
+      axisLabel: {
+        rotate: 45,
+        fontSize: isMobile ? 9 : 11
+      }
+    },
+    yAxis: {
+      type: 'category',
+      data: regions,
+      axisLabel: {
+        fontSize: isMobile ? 9 : 11
+      }
+    },
+    visualMap: {
+      min: 0,
+      max: 1,
+      calculable: true,
+      orient: 'horizontal',
+      left: 'center',
+      bottom: isMobile ? '2%' : '5%',
+      inRange: {
+        color: ['#313695', '#4575b4', '#74add1', '#abd9e9', '#e0f3f8', '#ffffbf', '#fee090', '#fdae61', '#f46d43', '#d73027', '#a50026']
+      }
+    },
+    series: [{
+      type: 'heatmap',
+      data: heatmapData,
+      label: {
+        show: !isMobile,
+        fontSize: 10
+      },
+      emphasis: {
+        itemStyle: {
+          shadowBlur: 10,
+          shadowColor: 'rgba(0, 0, 0, 0.5)'
+        }
+      }
+    }]
+  })
+}
+
+// Render scatter plot
+const renderScatterPlot = () => {
+  if (!scatterChart.value || !reductionData.value) return
+
+  if (!scatterChartInstance) {
+    scatterChartInstance = echarts.init(scatterChart.value)
+  }
+
+  const regions = reductionData.value.regions.map(r => r.region_name || r.display)
+  const coordinates = reductionData.value.coordinates
+  const scatterData = coordinates.map((coord, i) => ({
+    value: coord,
+    name: regions[i]
+  }))
+
+  const isMobile = window.matchMedia('(orientation: portrait)').matches
+
+  scatterChartInstance.setOption({
+    tooltip: {
+      formatter: (params) => params.name
+    },
+    grid: {
+      left: '10%',
+      right: '10%',
+      bottom: '10%',
+      top: '5%'
+    },
+    xAxis: {
+      type: 'value',
+      name: 'PC1',
+      nameLocation: 'middle',
+      nameGap: 30
+    },
+    yAxis: {
+      type: 'value',
+      name: 'PC2',
+      nameLocation: 'middle',
+      nameGap: 40
+    },
+    series: [{
+      type: 'scatter',
+      data: scatterData,
+      symbolSize: isMobile ? 15 : 20,
+      itemStyle: {
+        color: '#4a90e2',
+        borderColor: '#357abd',
+        borderWidth: 2
+      },
+      label: {
+        show: true,
+        position: 'top',
+        fontSize: isMobile ? 10 : 12,
+        formatter: (params) => params.name
+      },
+      emphasis: {
+        itemStyle: {
+          shadowBlur: 10,
+          shadowColor: 'rgba(74, 144, 226, 0.5)'
+        }
+      }
+    }]
+  })
+}
+
+// Format number
 const formatNumber = (num) => {
   return typeof num === 'number' ? num.toFixed(4) : 'N/A'
 }
 
+// Format variance
+const formatVariance = (variance) => {
+  if (!variance || !Array.isArray(variance)) return 'N/A'
+  const total = variance.reduce((sum, v) => sum + v, 0)
+  return `${(total * 100).toFixed(2)}%`
+}
+
+// Get level label
 const getLevelLabel = (level) => {
   const labels = {
     city: '市級',
     county: '區縣級',
-    town: '鄉鎮級'
+    town: '鄉鎮級',
+    township: '鄉鎮級'
   }
   return labels[level] || level
 }
 
-// 响应式处理
+// Responsive handling
 const handleResize = () => {
-  if (vectorChartInstance) {
-    vectorChartInstance.resize()
-    // 重新渲染以应用移动端样式
-    if (vectorData.value) {
-      renderVectorChart()
-    }
+  if (comparisonChartInstance) {
+    comparisonChartInstance.resize()
+    if (comparisonData.value) renderComparisonChart()
   }
-  if (diffChartInstance) {
-    diffChartInstance.resize()
-    // 重新渲染以应用移动端样式
-    if (similarityData.value) {
-      renderDiffChart()
-    }
+  if (heatmapChartInstance) {
+    heatmapChartInstance.resize()
+    if (batchComparisonData.value) renderHeatmap()
+  }
+  if (scatterChartInstance) {
+    scatterChartInstance.resize()
+    if (reductionData.value) renderScatterPlot()
   }
 }
 
-// 生命周期
+// Lifecycle
 onMounted(() => {
   window.addEventListener('resize', handleResize)
   window.addEventListener('orientationchange', handleResize)
@@ -379,39 +647,26 @@ onMounted(() => {
 onUnmounted(() => {
   window.removeEventListener('resize', handleResize)
   window.removeEventListener('orientationchange', handleResize)
-  if (vectorChartInstance) {
-    vectorChartInstance.dispose()
-    vectorChartInstance = null
+  if (comparisonChartInstance) {
+    comparisonChartInstance.dispose()
+    comparisonChartInstance = null
   }
-  if (diffChartInstance) {
-    diffChartInstance.dispose()
-    diffChartInstance = null
+  if (heatmapChartInstance) {
+    heatmapChartInstance.dispose()
+    heatmapChartInstance = null
+  }
+  if (scatterChartInstance) {
+    scatterChartInstance.dispose()
+    scatterChartInstance = null
   }
 })
-
 </script>
 
 <style scoped>
 .regional-vectors-page {
   padding: 12px;
-  max-width: 1400px;
+  max-width: 1600px;
   margin: 0 auto;
-}
-
-.page-header {
-  margin-bottom: 16px;
-  text-align: center;
-}
-
-.page-header h2 {
-  font-size: 28px;
-  color: var(--text-primary);
-  margin-bottom: 10px;
-}
-
-.subtitle {
-  color: var(--text-secondary);
-  font-size: 14px;
 }
 
 .glass-panel {
@@ -444,14 +699,21 @@ onUnmounted(() => {
   color: white;
   padding: 4px 12px;
   border-radius: 12px;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
 }
 
 .selector-content {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 20px;
+}
+
+/* 區域選擇器並排 */
+.regions-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
 }
 
 .region-group {
@@ -470,82 +732,23 @@ onUnmounted(() => {
   border-bottom: 1px solid rgba(74, 144, 226, 0.15);
 }
 
-.form-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 12px;
-}
-
-.form-row:last-child {
-  margin-bottom: 0;
-}
-
-.form-row label {
-  min-width: 150px;
-  font-weight: 500;
-  color: var(--text-primary);
-}
-
-.glass-select,
-.glass-input {
-  flex: 1;
-  padding: 10px 16px;
-  background: rgba(255, 255, 255, 0.5);
-  border: 1px solid rgba(74, 144, 226, 0.3);
-  border-radius: 8px;
-  font-size: 14px;
-  transition: all 0.3s ease;
-}
-
-.glass-select:focus,
-.glass-input:focus {
-  outline: none;
-  border-color: #4a90e2;
-  background: rgba(255, 255, 255, 0.8);
-}
-
-.glass-select.small,
-.glass-input.small {
-  max-width: 150px;
-}
-
-.button-group {
-  display: flex;
-  gap: 12px;
-  margin-top: 8px;
-}
-
 .action-button {
-  flex: 1;
-  padding: 10px 24px;
+  width: 100%;
+  padding: 12px 24px;
   border: none;
   border-radius: 8px;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.3s ease;
   color: white;
-}
-
-.action-button.primary {
   background: linear-gradient(135deg, #4a90e2, #357abd);
 }
 
-.action-button.primary:hover:not(:disabled) {
+.action-button:hover:not(:disabled) {
   background: linear-gradient(135deg, #357abd, #2868a8);
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(74, 144, 226, 0.4);
-}
-
-.action-button.secondary {
-  background: linear-gradient(135deg, #5a9fd4, #4a8fc4);
-}
-
-.action-button.secondary:hover:not(:disabled) {
-  background: linear-gradient(135deg, #4a8fc4, #3a7fb4);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(90, 159, 212, 0.4);
 }
 
 .action-button:disabled {
@@ -554,34 +757,158 @@ onUnmounted(() => {
   transform: none;
 }
 
-.vector-stats {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+.action-button.add-button {
+  width: auto;
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #50c878, #3da35d);
+}
+
+.action-button.add-button:hover:not(:disabled) {
+  background: linear-gradient(135deg, #3da35d, #2d8a4a);
+}
+
+/* Multi-region panel */
+.multi-region-content {
+  display: flex;
+  flex-direction: column;
   gap: 16px;
-  margin-bottom: 24px;
+}
+
+.region-selector-row {
+  display: flex;
+  gap: 12px;
+  align-items: flex-end;
+}
+
+.region-selector-row > :first-child {
+  flex: 1;
+}
+
+.selected-regions-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  min-height: 50px;
+}
+
+.region-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background: linear-gradient(135deg, #4a90e2, #357abd);
+  color: white;
+  border-radius: 16px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.region-name {
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.remove-btn {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background 0.2s;
+}
+
+.remove-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.batch-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.batch-actions .action-button {
+  flex: 1;
+}
+
+.info-label {
+  font-size: 13px;
+  color: var(--text-secondary);
+  background: rgba(74, 144, 226, 0.1);
+  padding: 4px 10px;
+  border-radius: 8px;
+}
+
+/* 結果區域 */
+.results-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* 向量卡片並排 */
+.vectors-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.vector-panel {
+  margin-bottom: 0;
+}
+
+.vector-stats {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
 }
 
 .stat-item {
+  flex: 1;
   display: flex;
   justify-content: space-between;
-  padding: 12px;
+  padding: 10px 14px;
   background: rgba(255, 255, 255, 0.5);
   border-radius: 8px;
 }
 
 .stat-item .label {
   font-weight: 500;
+  font-size: 13px;
   color: var(--text-secondary);
 }
 
 .stat-item .value {
   font-weight: 600;
+  font-size: 14px;
   color: var(--text-primary);
 }
 
 .chart-container {
   width: 100%;
+  height: 320px;
+}
+
+.chart-container-large {
+  width: 100%;
   height: 400px;
+}
+
+.chart-container-xlarge {
+  width: 100%;
+  height: 500px;
 }
 
 .comparison-header {
@@ -617,13 +944,13 @@ onUnmounted(() => {
 
 .similarity-metrics {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: 16px;
   margin-bottom: 24px;
 }
 
 .metric-card {
-  padding: 12px;
+  padding: 16px;
   background: rgba(255, 255, 255, 0.6);
   border-radius: 12px;
   text-align: center;
@@ -631,65 +958,15 @@ onUnmounted(() => {
 }
 
 .metric-label {
-  font-size: 14px;
+  font-size: 13px;
   color: var(--text-secondary);
   margin-bottom: 8px;
 }
 
 .metric-value {
-  font-size: 28px;
+  font-size: 26px;
   font-weight: 700;
   color: #4a90e2;
-}
-
-.clustering-params {
-  display: flex;
-  gap: 24px;
-  margin-bottom: 24px;
-}
-
-.param-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.param-item label {
-  font-weight: 500;
-  color: var(--text-primary);
-}
-
-.glass-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 20px;
-}
-
-.glass-table thead {
-  background: rgba(74, 144, 226, 0.1);
-}
-
-.glass-table th,
-.glass-table td {
-  padding: 12px;
-  text-align: left;
-  border-bottom: 1px solid rgba(74, 144, 226, 0.1);
-}
-
-.glass-table th {
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.region-list {
-  font-size: 13px;
-  color: var(--text-secondary);
-}
-
-.empty-state {
-  text-align: center;
-  padding: 60px 20px;
-  color: var(--text-secondary);
 }
 
 .loading-overlay {
@@ -736,19 +1013,17 @@ onUnmounted(() => {
     margin-bottom: 16px;
   }
 
-  .selector-content {
-    gap: 16px;
+  /* 豎屏時改為上下排列 */
+  .regions-row {
+    grid-template-columns: 1fr;
+    gap: 12px;
   }
 
   .region-group {
     padding: 12px;
   }
 
-  .button-group {
-    flex-direction: column;
-  }
-
-  .vector-stats {
+  .vectors-row {
     grid-template-columns: 1fr;
     gap: 12px;
   }
@@ -769,15 +1044,36 @@ onUnmounted(() => {
   }
 
   .metric-card {
-    padding: 10px;
+    padding: 12px;
   }
 
   .metric-value {
-    font-size: 24px;
+    font-size: 22px;
   }
 
   .chart-container {
-    height: 280px;
+    height: 260px;
+  }
+
+  .chart-container-large {
+    height: 300px;
+  }
+
+  .chart-container-xlarge {
+    height: 350px;
+  }
+
+  .region-selector-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .region-selector-row .action-button {
+    width: 100%;
+  }
+
+  .batch-actions {
+    flex-direction: column;
   }
 }
 </style>
