@@ -2,15 +2,11 @@
   <div class="setting-row">
     <label class="setting-label">聚類算法</label>
     <div class="setting-control">
-      <select
-        :value="modelValue"
-        @change="$emit('update:modelValue', $event.target.value)"
-        class="setting-select"
-      >
-        <option value="kmeans">K-Means</option>
-        <option value="dbscan">DBSCAN</option>
-        <option value="gmm">GMM</option>
-      </select>
+      <SimpleSelectDropdown
+        :modelValue="modelValue"
+        :options="algorithmOptions"
+        @update:modelValue="$emit('update:modelValue', $event)"
+      />
       <span class="setting-hint">{{ algorithmHint }}</span>
     </div>
   </div>
@@ -18,6 +14,7 @@
 
 <script setup>
 import { computed } from 'vue'
+import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
 
 const props = defineProps({
   modelValue: {
@@ -27,6 +24,13 @@ const props = defineProps({
 })
 
 defineEmits(['update:modelValue'])
+
+// Options
+const algorithmOptions = [
+  { label: 'K-Means', value: 'kmeans' },
+  { label: 'DBSCAN', value: 'dbscan' },
+  { label: 'GMM', value: 'gmm' }
+]
 
 const algorithmHint = computed(() => {
   switch (props.modelValue) {

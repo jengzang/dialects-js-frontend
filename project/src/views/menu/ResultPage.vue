@@ -3,22 +3,9 @@
     <div class="header-row">
       <h2 class="tabs-title">{{ pageTitle }}</h2>
       <div v-if="currentTabRef === 'tab1'" class="dropdown-wrapper" style="flex:none;">
-        <div
-            class="dropdown"
-            ref="tab1TriggerEl"
-            @click="toggleTab1Dropdown"
-            style="margin: 0"
-        >
-          {{ selectedTab1Type }}
-          <span class="arrow">▾</span>
-        </div>
-
-        <SimpleDropdown
-          v-if="isTab1DropdownOpen"
+        <SimpleSelectDropdown
           v-model="selectedTab1Type"
           :options="toneTypeOptions"
-          :triggerEl="tab1TriggerEl"
-          @close="isTab1DropdownOpen = false"
         />
       </div>
     </div>
@@ -66,7 +53,7 @@ import { getCoordinates } from '@/api/query/geo'
 import {globalPayload, mapStore, resultCache} from '@/utils/store.js';
 import ResultList from "@/components/result/ResultList.vue";
 import CharsAndTones from "@/components/result/CharsAndTones.vue";
-import SimpleDropdown from "@/components/common/SimpleDropdown.vue";
+import SimpleSelectDropdown from "@/components/common/SimpleSelectDropdown.vue";
 import {generateTonesMergedData,generateCharsMergedData,func_mergeData} from "@/utils/MapData.js";
 
 const route = useRoute();
@@ -312,20 +299,14 @@ const goToQuery = () => {
   router.push({ query: { tab: 'query' } });
 };
 
-// ================= ✨ Tab1 Dropdown 邏輯 (使用 SimpleDropdown) =================
+// ================= ✨ Tab1 Dropdown 邏輯 (使用 SimpleSelectDropdown) =================
 const selectedTab1Type = ref('默認');
-const isTab1DropdownOpen = ref(false);
-const tab1TriggerEl = ref(null);
 
 const toneTypeOptions = [
   { label: '默認', value: '默認' },
   { label: '調值', value: '調值' },
   { label: '調類', value: '調類' }
 ];
-
-const toggleTab1Dropdown = () => {
-  isTab1DropdownOpen.value = !isTab1DropdownOpen.value;
-};
 
 </script>
 

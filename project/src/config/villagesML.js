@@ -778,18 +778,18 @@ export const VILLAGESML_MODULES = [
         hideOnMobile: false,
         hideLabelOnMobile: true
       },
-      // {
-      //   id: 'vectors',
-      //   label: '特徵向量',
-      //   icon: '📐',
-      //   path: '/villagesML?module=regional&subtab=vectors',
-      //   weight: 1,
-      //   mobileWeight: 1,
-      //   fontSize: 0.95,
-      //   mobileFontSize: 0.9,
-      //   hideOnMobile: false,
-      //   hideLabelOnMobile: true
-      // },
+      {
+        id: 'vectors',
+        label: '特徵向量',
+        icon: '📐',
+        path: '/villagesML?module=regional&subtab=vectors',
+        weight: 1,
+        mobileWeight: 1,
+        fontSize: 0.95,
+        mobileFontSize: 0.9,
+        hideOnMobile: false,
+        hideLabelOnMobile: true
+      },
       {
         id: 'tendency',
         label: '類別傾向性',

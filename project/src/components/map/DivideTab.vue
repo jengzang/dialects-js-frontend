@@ -13,17 +13,10 @@
           </label>
 
           <div class="dropdown-wrapper" style="width: 200px">
-            <div class="dropdown" ref="regionTriggerEl" @click="toggleDropdown" style="margin: 0">
-              {{ selectedRegionLabel || '請選擇級數' }}
-              <span class="arrow">▾</span>
-            </div>
-
-            <SimpleDropdown
-              v-if="isDropdownOpen"
+            <SimpleSelectDropdown
               v-model="selectedRegion"
               :options="regionOptions"
-              :triggerEl="regionTriggerEl"
-              @close="isDropdownOpen = false"
+              placeholder="請選擇級數"
             />
           </div>
         </div>
@@ -56,7 +49,7 @@
 import { ref, computed, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import LocationAndRegionInput from "@/components/query/LocationAndRegionInput.vue";
-import SimpleDropdown from "@/components/common/SimpleDropdown.vue";
+import SimpleSelectDropdown from "@/components/common/SimpleSelectDropdown.vue";
 import { mapStore, uiStore, isDivideButtonDisabled, setRunning } from "@/utils/store.js";
 import { getCoordinates } from '@/api/query/geo'
 import { showError } from '@/utils/message.js';
@@ -68,8 +61,6 @@ const locationRef = ref(null)
 const buttonState = uiStore.buttonStates.divide
 const isDisabled = isDivideButtonDisabled
 const selectedRegion = ref(null)
-const isDropdownOpen = ref(false)
-const regionTriggerEl = ref(null)
 const locationModel = ref({
   locations: [],
   regions: [],
@@ -84,17 +75,6 @@ const regionOptions = [
   { label: '2級分區', value: 2 },
   { label: '3級分區', value: 3 }
 ]
-
-// Computed label for display
-const selectedRegionLabel = computed(() => {
-  if (!selectedRegion.value) return ''
-  return `${selectedRegion.value}級分區`
-})
-
-// Toggle dropdown
-const toggleDropdown = () => {
-  isDropdownOpen.value = !isDropdownOpen.value
-}
 
 // Watch for region selection changes
 watch(selectedRegion, (val) => {

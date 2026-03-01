@@ -56,16 +56,16 @@
   <div class="ngram-section glass-panel">
     <h2>區域 N-gram 排行榜</h2>
     <div class="ngram-controls">
-      <select v-model.number="ngramN" class="select-input">
-        <option :value="2">二元組 (Bigrams)</option>
-        <option :value="3">三元組 (Trigrams)</option>
-        <option :value="4">四元組 (4-grams)</option>
-      </select>
-      <select v-model="ngramLevel" class="select-input">
-        <option value="city">城市</option>
-        <option value="county">區縣</option>
-        <option value="township">鄉鎮</option>
-      </select>
+      <SimpleSelectDropdown
+        v-model="ngramN"
+        :options="ngramNOptions"
+      />
+
+      <SimpleSelectDropdown
+        v-model="ngramLevel"
+        :options="ngramLevelOptions"
+      />
+
       <FilterableSelect
         v-model="ngramFilterRegion"
         :level="ngramParentFilterLevel"
@@ -131,6 +131,7 @@
 <script setup>
 import { ref, computed, watch } from 'vue'
 import FilterableSelect from '@/components/common/FilterableSelect.vue'
+import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
 import { getSemanticCategoryTendency, getNgramRegional } from '@/api/index.js'
 import { showError } from '@/utils/message.js'
 import { getCategoryName } from '@/config/villagesML.js'
@@ -152,6 +153,19 @@ const ngramParentFilterLevel = computed(() => ngramLevel.value === 'township' ? 
 const ngramTopK = ref(50)
 const ngramData = ref([])
 const loadingNgram = ref(false)
+
+// Options
+const ngramNOptions = [
+  { label: '二元組 (Bigrams)', value: 2 },
+  { label: '三元組 (Trigrams)', value: 3 },
+  { label: '四元組 (4-grams)', value: 4 }
+]
+
+const ngramLevelOptions = [
+  { label: '城市', value: 'city' },
+  { label: '區縣', value: 'county' },
+  { label: '鄉鎮', value: 'township' }
+]
 
 const maxNgramPercentage = computed(() => {
   if (ngramData.value.length === 0) return 1

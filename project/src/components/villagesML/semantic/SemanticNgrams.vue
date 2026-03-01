@@ -560,7 +560,7 @@ const getPMIClass = (pmi_score) => {
   transition: width 0.5s ease;
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 600px) {
   .ngrams-section {
     grid-template-columns: 1fr;
   }

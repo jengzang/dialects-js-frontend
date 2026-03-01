@@ -11,20 +11,18 @@
     <div class="settings-group">
       <div class="setting-row">
         <label>區域級別：</label>
-        <select v-model="settings.region_level" class="setting-input">
-          <option value="city">市級</option>
-          <option value="county">區縣級</option>
-          <option value="township">鄉鎮級</option>
-        </select>
+        <SimpleSelectDropdown
+          v-model="settings.region_level"
+          :options="regionLevelOptions"
+        />
       </div>
 
       <div class="setting-row">
         <label>算法：</label>
-        <select v-model="settings.algorithm" class="setting-input">
-          <option value="kmeans">K-Means</option>
-          <option value="dbscan">DBSCAN</option>
-          <option value="gmm">GMM</option>
-        </select>
+        <SimpleSelectDropdown
+          v-model="settings.algorithm"
+          :options="algorithmOptions"
+        />
       </div>
 
       <div class="setting-row" v-if="settings.algorithm !== 'dbscan'">
@@ -76,9 +74,10 @@
 </template>
 
 <script setup>
-import { reactive, computed, watch, onMounted } from 'vue'
+import { reactive, computed, watch, onMounted, ref } from 'vue'
 import { villagesMLStore } from '@/utils/villagesMLStore.js'
 import { userStore } from '@/utils/store.js'
+import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
 
 const props = defineProps({
   loading: { type: Boolean, default: false },
@@ -89,6 +88,19 @@ const emit = defineEmits(['run'])
 
 const settings = reactive(villagesMLStore.clusteringSettings)
 const isAuthenticated = computed(() => userStore.isAuthenticated)
+
+// Options
+const regionLevelOptions = [
+  { label: '市級', value: 'city' },
+  { label: '區縣級', value: 'county' },
+  { label: '鄉鎮級', value: 'township' }
+]
+
+const algorithmOptions = [
+  { label: 'K-Means', value: 'kmeans' },
+  { label: 'DBSCAN', value: 'dbscan' },
+  { label: 'GMM', value: 'gmm' }
+]
 
 // 智能參數建議（針對 DBSCAN）
 const suggestedParams = computed(() => {
@@ -198,6 +210,7 @@ const runClustering = () => {
   background: rgba(255, 255, 255, 0.5);
   backdrop-filter: blur(10px);
   font-size: 14px;
+  white-space: nowrap;
 }
 
 .feature-toggles {

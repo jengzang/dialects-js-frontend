@@ -273,7 +273,7 @@ async function runClustering() {
   overflow-y: auto;
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 600px) {
   .two-col-layout {
     grid-template-columns: 1fr;
   }

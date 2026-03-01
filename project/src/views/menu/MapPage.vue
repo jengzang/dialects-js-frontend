@@ -12,22 +12,10 @@
 
       <div v-if="currentTab === 'map' && mapStore.mode === 'feature' && availableFeatures.length > 0" class="feature-control-area">
         <div v-if="availableFeatures.length > 1" class="dropdown-wrapper">
-          <div
-              class="dropdown"
-              ref="featureTriggerEl"
-              style="white-space: nowrap;min-width: 50px"
-              @click="toggleDropdown"
-          >
-            {{ selectedFeature || '請選擇特徵' }}
-            <span class="arrow">{{ isDropdownOpen ? '▲' : '▼' }}</span>
-          </div>
-
-          <SimpleDropdown
-            v-if="isDropdownOpen"
+          <SimpleSelectDropdown
             v-model="selectedFeature"
             :options="featureOptions"
-            :triggerEl="featureTriggerEl"
-            @close="isDropdownOpen = false"
+            placeholder="請選擇特徵"
           />
         </div>
         <div v-else-if="availableFeatures.length === 1" class="single-btn-wrapper">
@@ -88,7 +76,7 @@ import CustomTab from '@/components/map/CustomTab.vue'
 import MapLibre from "@/components/map/MapLibre.vue";
 import CustomDataPanel from '@/components/map/CustomDataPanel.vue'
 import HelpIcon from '@/components/ToastAndHelp/HelpIcon.vue'
-import SimpleDropdown from "@/components/common/SimpleDropdown.vue";
+import SimpleSelectDropdown from "@/components/common/SimpleSelectDropdown.vue";
 import { showSuccess, showError } from '@/utils/message.js'
 import { func_mergeData, addCustomFeatureData } from '@/utils/MapData.js'
 
@@ -134,8 +122,6 @@ const handleSubmitSuccess = async (response) => {
 
 // Feature dropdown
 const selectedFeature = ref('')
-const isDropdownOpen = ref(false)
-const featureTriggerEl = ref(null)
 
 // Computed feature options for dropdown
 const featureOptions = computed(() => {
@@ -173,11 +159,6 @@ watch(availableFeatures, (newVal) => {
     mapStore.selectedFeature = '';
   }
 }, { immediate: true });
-
-// Toggle dropdown
-const toggleDropdown = () => {
-  isDropdownOpen.value = !isDropdownOpen.value
-}
 
 // Watch for feature selection changes
 watch(selectedFeature, (val) => {

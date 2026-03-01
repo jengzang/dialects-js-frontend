@@ -15,29 +15,28 @@
       <div class="selector-content">
         <div class="form-row">
           <label>層級 Level:</label>
-          <select v-model="selectedLevel" @change="handleLevelChange" class="glass-select">
-            <option value="city">市 City</option>
-            <option value="county">縣 County</option>
-            <option value="town">鄉鎮 Township</option>
-          </select>
+          <SimpleSelectDropdown
+            v-model="selectedLevel"
+            :options="levelOptions"
+            @update:modelValue="handleLevelChange"
+          />
         </div>
         <div class="form-row">
           <label>主要區域 Primary Region:</label>
-          <select v-model="primaryRegion" @change="handlePrimaryChange" class="glass-select">
-            <option value="">-- 請選擇 --</option>
-            <option v-for="region in availableRegions" :key="region.name || region" :value="region.name || region">
-              {{ region.name || region }}{{ region.village_count ? ` (${region.village_count}村)` : '' }}
-            </option>
-          </select>
+          <SimpleSelectDropdown
+            v-model="primaryRegion"
+            :options="primaryRegionOptions"
+            @update:modelValue="handlePrimaryChange"
+            searchable
+          />
         </div>
         <div class="form-row">
           <label>比較區域 Compare Region (可選):</label>
-          <select v-model="compareRegion" class="glass-select">
-            <option value="">-- 無 --</option>
-            <option v-for="region in availableRegions" :key="region.name || region" :value="region.name || region" :disabled="(region.name || region) === primaryRegion">
-              {{ region.name || region }}{{ region.village_count ? ` (${region.village_count}村)` : '' }}
-            </option>
-          </select>
+          <SimpleSelectDropdown
+            v-model="compareRegion"
+            :options="compareRegionOptions"
+            searchable
+          />
         </div>
         <div class="button-group">
           <button @click="loadVectors" :disabled="!primaryRegion || loading" class="solid-button primary">
@@ -125,11 +124,10 @@
           </div>
           <div class="param-item">
             <label>演算法 Algorithm:</label>
-            <select v-model="clusterAlgorithm" class="glass-select small">
-              <option value="kmeans">K-Means</option>
-              <option value="hierarchical">Hierarchical</option>
-              <option value="dbscan">DBSCAN</option>
-            </select>
+            <SimpleSelectDropdown
+              v-model="clusterAlgorithm"
+              :options="clusterAlgorithmOptions"
+            />
           </div>
         </div>
         <div class="clustering-visualization">
@@ -168,10 +166,11 @@
 </template>
 
 <script setup>
-import { ref, onMounted, nextTick } from 'vue'
+import { ref, onMounted, nextTick, computed } from 'vue'
 import * as echarts from 'echarts'
 import { getRegionalVectors } from '@/api/index.js'
 import { showError, showSuccess } from '@/utils/message.js'
+import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
 
 // State
 const selectedLevel = ref('city')
@@ -186,6 +185,42 @@ const loading = ref(false)
 // Clustering params
 const clusterK = ref(5)
 const clusterAlgorithm = ref('kmeans')
+
+// Options
+const levelOptions = [
+  { label: '市 City', value: 'city' },
+  { label: '縣 County', value: 'county' },
+  { label: '鄉鎮 Township', value: 'town' }
+]
+
+const clusterAlgorithmOptions = [
+  { label: 'K-Means', value: 'kmeans' },
+  { label: 'Hierarchical', value: 'hierarchical' },
+  { label: 'DBSCAN', value: 'dbscan' }
+]
+
+// Computed options for regions
+const primaryRegionOptions = computed(() => {
+  const options = [{ label: '-- 請選擇 --', value: '' }]
+  availableRegions.value.forEach(region => {
+    const name = region.name || region
+    const label = region.village_count ? `${name} (${region.village_count}村)` : name
+    options.push({ label, value: name })
+  })
+  return options
+})
+
+const compareRegionOptions = computed(() => {
+  const options = [{ label: '-- 無 --', value: '' }]
+  availableRegions.value.forEach(region => {
+    const name = region.name || region
+    if (name !== primaryRegion.value) {
+      const label = region.village_count ? `${name} (${region.village_count}村)` : name
+      options.push({ label, value: name })
+    }
+  })
+  return options
+})
 
 // Chart refs
 const vectorChart = ref(null)

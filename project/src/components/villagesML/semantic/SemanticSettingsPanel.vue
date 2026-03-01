@@ -12,11 +12,10 @@
       <!-- 區域選擇 -->
       <div class="setting-row">
         <label>行政級別：</label>
-        <select v-model="settings.region_level" class="setting-select">
-          <option value="city">市級</option>
-          <option value="county">區縣級</option>
-          <option value="township">鄉鎮級</option>
-        </select>
+        <SimpleSelectDropdown
+          v-model="settings.region_level"
+          :options="regionLevelOptions"
+        />
       </div>
 
       <div class="setting-row">
@@ -81,6 +80,7 @@ import { reactive, computed, ref, watch } from 'vue'
 import { villagesMLStore } from '@/utils/villagesMLStore.js'
 import { userStore } from '@/utils/store.js'
 import FilterableSelect from '@/components/common/FilterableSelect.vue'
+import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
 
 const props = defineProps({
   loading: { type: Boolean, default: false }
@@ -91,6 +91,13 @@ const emit = defineEmits(['run'])
 const settings = reactive(villagesMLStore.semanticSettings)
 const selectedMetrics = ref(settings.centrality_metrics || ['degree', 'betweenness'])
 const isAuthenticated = computed(() => userStore.isAuthenticated)
+
+// Region level options
+const regionLevelOptions = [
+  { label: '市級', value: 'city' },
+  { label: '區縣級', value: 'county' },
+  { label: '鄉鎮級', value: 'township' }
+]
 
 // Detail mode toggle
 const detailMode = ref(false)

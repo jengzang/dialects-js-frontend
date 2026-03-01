@@ -616,7 +616,7 @@ onMounted(() => {
   background: #3a7bc8;
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 600px) {
   .results-section {
     grid-template-columns: 1fr;
   }

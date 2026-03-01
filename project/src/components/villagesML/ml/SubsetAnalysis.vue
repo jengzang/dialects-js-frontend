@@ -20,21 +20,16 @@
       </div>
       <div class="filter-content">
         <div v-for="(filter, idx) in filters" :key="idx" class="filter-row">
-          <select v-model="filter.field" class="glass-select">
-            <option value="name">村名</option>
-            <option value="region">區域</option>
-            <option value="semantic">語義類別</option>
-            <option value="structure">結構模式</option>
-            <option value="length">名稱長度</option>
-          </select>
-          <select v-model="filter.operator" class="glass-select">
-            <option value="contains">包含</option>
-            <option value="equals">等於</option>
-            <option value="startsWith">開頭為</option>
-            <option value="endsWith">結尾為</option>
-            <option value="gt">大於</option>
-            <option value="lt">小於</option>
-          </select>
+          <SimpleSelectDropdown
+            v-model="filter.field"
+            :options="fieldOptions"
+          />
+
+          <SimpleSelectDropdown
+            v-model="filter.operator"
+            :options="operatorOptions"
+          />
+
           <input v-model="filter.value" type="text" placeholder="值" class="glass-input">
           <button @click="removeFilter(idx)" class="solid-button small secondary">刪除</button>
         </div>
@@ -175,11 +170,10 @@
         <div class="clustering-controls">
           <div class="control-row">
             <label>選擇子集:</label>
-            <select v-model="clusteringSubset" class="glass-select">
-              <option value="A">子集 A</option>
-              <option value="B">子集 B</option>
-              <option value="both">兩者</option>
-            </select>
+            <SimpleSelectDropdown
+              v-model="clusteringSubset"
+              :options="clusteringSubsetOptions"
+            />
           </div>
           <div class="control-row">
             <label>聚類數 K:</label>
@@ -187,11 +181,10 @@
           </div>
           <div class="control-row">
             <label>演算法:</label>
-            <select v-model="clusterAlgorithm" class="glass-select">
-              <option value="kmeans">K-Means</option>
-              <option value="hierarchical">Hierarchical</option>
-              <option value="dbscan">DBSCAN</option>
-            </select>
+            <SimpleSelectDropdown
+              v-model="clusterAlgorithm"
+              :options="clusterAlgorithmOptions"
+            />
           </div>
           <button
             @click="runSubsetClustering"
@@ -246,6 +239,7 @@ import * as echarts from 'echarts'
 import { clusterSubset, compareSubsets as compareSubsetsAPI } from '@/api/index.js'
 import { showError, showSuccess } from '@/utils/message.js'
 import { userStore } from '@/utils/store.js'
+import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
 
 // Router
 const router = useRouter()
@@ -267,6 +261,36 @@ const loadingMessage = ref('載入中...')
 const clusteringSubset = ref('A')
 const clusterK = ref(5)
 const clusterAlgorithm = ref('kmeans')
+
+// Options
+const fieldOptions = [
+  { label: '村名', value: 'name' },
+  { label: '區域', value: 'region' },
+  { label: '語義類別', value: 'semantic' },
+  { label: '結構模式', value: 'structure' },
+  { label: '名稱長度', value: 'length' }
+]
+
+const operatorOptions = [
+  { label: '包含', value: 'contains' },
+  { label: '等於', value: 'equals' },
+  { label: '開頭為', value: 'startsWith' },
+  { label: '結尾為', value: 'endsWith' },
+  { label: '大於', value: 'gt' },
+  { label: '小於', value: 'lt' }
+]
+
+const clusteringSubsetOptions = [
+  { label: '子集 A', value: 'A' },
+  { label: '子集 B', value: 'B' },
+  { label: '兩者', value: 'both' }
+]
+
+const clusterAlgorithmOptions = [
+  { label: 'K-Means', value: 'kmeans' },
+  { label: 'Hierarchical', value: 'hierarchical' },
+  { label: 'DBSCAN', value: 'dbscan' }
+]
 
 // Chart refs
 const comparisonChart = ref(null)
