@@ -96,6 +96,10 @@ const props = defineProps({
     type: String,
     default: 'down',
     validator: (value) => ['up', 'down'].includes(value)
+  },
+  matchTriggerWidth: {
+    type: Boolean,
+    default: false
   }
 })
 
@@ -180,11 +184,14 @@ const scrollToFocused = () => {
 
 // Position dropdown
 const updatePosition = () => {
-  if (!props.triggerEl || !dropdownPanel.value) return
+  // Get the actual DOM element from ref or use directly if it's already a DOM element
+  const triggerElement = props.triggerEl?.value || props.triggerEl
+
+  if (!triggerElement || !dropdownPanel.value) return
 
   nextTick(() => {
-    const triggerRect = props.triggerEl.getBoundingClientRect()
-    const panelWidth = dropdownPanel.value.offsetWidth || 200
+    const triggerRect = triggerElement.getBoundingClientRect()
+    const panelWidth = props.matchTriggerWidth ? triggerRect.width : (dropdownPanel.value.offsetWidth || 200)
     const panelHeight = dropdownPanel.value.offsetHeight || 300
     const viewportHeight = window.innerHeight
     const viewportWidth = window.innerWidth
@@ -193,30 +200,31 @@ const updatePosition = () => {
     let left = 0
 
     // Calculate vertical position based on direction
+    // Use fixed positioning relative to viewport (no need to add scrollY)
     if (props.direction === 'down') {
       // Default: position below trigger
-      top = triggerRect.bottom + window.scrollY
+      top = triggerRect.bottom
 
       // Check if dropdown would go off bottom of screen
       if (triggerRect.bottom + panelHeight > viewportHeight) {
         // Not enough space below, position above instead
-        top = triggerRect.top + window.scrollY - panelHeight
+        top = triggerRect.top - panelHeight
       }
     } else {
       // direction === 'up': position above trigger
-      top = triggerRect.top + window.scrollY - panelHeight
+      top = triggerRect.top - panelHeight
 
       // Check if dropdown would go off top of screen
       if (top < 0) {
         // Not enough space above, position below instead
-        top = triggerRect.bottom + window.scrollY
+        top = triggerRect.bottom
       }
     }
 
     // Calculate horizontal position based on align
     if (props.align === 'right') {
       // Right-align: dropdown's right edge aligns with trigger's right edge
-      left = triggerRect.right + window.scrollX - panelWidth
+      left = triggerRect.right - panelWidth
 
       // Check if dropdown would go off left edge of screen
       if (left < 0) {
@@ -224,7 +232,7 @@ const updatePosition = () => {
       }
     } else {
       // Left-align: dropdown's left edge aligns with trigger's left edge
-      left = triggerRect.left + window.scrollX
+      left = triggerRect.left
 
       // Check if dropdown would go off right edge of screen
       if (left + panelWidth > viewportWidth) {
@@ -233,11 +241,15 @@ const updatePosition = () => {
     }
 
     dropdownStyle.value = {
-      position: 'absolute',
+      position: 'fixed',
       top: `${top}px`,
       left: `${left}px`,
-      zIndex: 1000,
-      maxHeight: props.maxHeight
+      zIndex: 10000,
+      maxHeight: props.maxHeight,
+      ...(props.matchTriggerWidth ? {
+        width: `${triggerRect.width}px`,
+        maxWidth: 'none'  // Remove max-width constraint when matching trigger width
+      } : {})
     }
   })
 }

@@ -38,7 +38,7 @@
           </div>
           <div class="form-group">
             <label>區域層級:</label>
-            <SimpleSelectDropdown
+            <SimpleSelectDropdown :match-trigger-width="true"
               v-model="regionLevel"
               :options="regionLevelOptions"
             />

@@ -270,21 +270,21 @@ const renderVizChart = () => {
 }
 
 const loadEmbeddingsList = async () => {
-  console.log('loadEmbeddingsList called')
+  // console.log('loadEmbeddingsList called')
   loadingList.value = true
   try {
     const result = await getCharEmbeddingsList({
       limit: pageSize,
       offset: (currentPage.value - 1) * pageSize
     })
-    console.log('Embeddings API result:', result)
+    // console.log('Embeddings API result:', result)
     // 新格式：{ embeddings: [...], total, limit, offset, page, page_size }
     embeddings.value = result.embeddings || []
     totalEmbeddings.value = result.total || 0
-    console.log('Embeddings value:', embeddings.value)
-    console.log('Total embeddings:', totalEmbeddings.value)
+    // console.log('Embeddings value:', embeddings.value)
+    // console.log('Total embeddings:', totalEmbeddings.value)
   } catch (error) {
-    console.error('Embeddings API error:', error)
+    // console.error('Embeddings API error:', error)
     showError('加載嵌入列表失敗')
   } finally {
     loadingList.value = false

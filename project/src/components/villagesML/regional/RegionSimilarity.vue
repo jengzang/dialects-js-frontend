@@ -48,7 +48,7 @@
         <div class="form-row">
           <div class="form-group">
             <label>相似度指標:</label>
-            <SimpleSelectDropdown
+            <SimpleSelectDropdown :match-trigger-width="true"
               v-model="metric"
               :options="metricOptions"
             />
@@ -267,7 +267,7 @@
 
         <div class="form-group">
           <label>相似度指標:</label>
-          <SimpleSelectDropdown
+          <SimpleSelectDropdown :match-trigger-width="true"
             v-model="matrixMetric"
             :options="metricOptions"
           />
@@ -612,6 +612,7 @@ export default {
       matrixData,
       loadingMatrix,
       heatmapChart,
+      metricOptions,
       searchSimilarRegions,
       compareRegions,
       loadPairComparison,

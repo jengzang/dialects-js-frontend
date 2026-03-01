@@ -25,29 +25,19 @@
       <div class="controls">
         <div class="input-group">
           <label class="input-label">語義類別</label>
-          <select v-model="indicesCategory" class="select-input">
-            <option value="">全部類別</option>
-            <option value="water">水系</option>
-            <option value="mountain">山地</option>
-            <option value="settlement">聚落</option>
-            <option value="direction">方位</option>
-            <option value="clan">宗族</option>
-            <option value="vegetation">植物</option>
-            <option value="agriculture">農業</option>
-            <option value="symbolic">象徵</option>
-            <option value="infrastructure">基建</option>
-          </select>
+          <SimpleSelectDropdown :match-trigger-width="true"
+            v-model="indicesCategory"
+            :options="categoryOptions"
+          />
           <span class="input-hint">過濾特定語義類別</span>
         </div>
 
         <div class="input-group">
           <label class="input-label">行政級別</label>
-          <select v-model="indicesRegionLevel" class="select-input">
-            <option value="">全部級別</option>
-            <option value="city">市級</option>
-            <option value="county">區縣級</option>
-            <option value="township">鄉鎮級</option>
-          </select>
+          <SimpleSelectDropdown :match-trigger-width="true"
+            v-model="indicesRegionLevel"
+            :options="regionLevelOptions"
+          />
           <span class="input-hint">過濾特定行政級別</span>
         </div>
 
@@ -211,6 +201,7 @@
 <script setup>
 import { ref, watch, computed } from 'vue'
 import FilterableSelect from '@/components/common/FilterableSelect.vue'
+import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
 import { getSemanticIndices } from '@/api/index.js'
 import { showError } from '@/utils/message.js'
 import { getCategoryDisplayName, getSubcategoryName } from '@/config/villagesML.js'
@@ -233,6 +224,27 @@ const detailMode = ref(false)
 
 // Lexicon modal
 const showLexiconModal = ref(false)
+
+// Options for SimpleSelectDropdown
+const categoryOptions = [
+  { label: '全部類別', value: '' },
+  { label: '水系', value: 'water' },
+  { label: '山地', value: 'mountain' },
+  { label: '聚落', value: 'settlement' },
+  { label: '方位', value: 'direction' },
+  { label: '宗族', value: 'clan' },
+  { label: '植物', value: 'vegetation' },
+  { label: '農業', value: 'agriculture' },
+  { label: '象徵', value: 'symbolic' },
+  { label: '基建', value: 'infrastructure' }
+]
+
+const regionLevelOptions = [
+  { label: '全部級別', value: '' },
+  { label: '市級', value: 'city' },
+  { label: '區縣級', value: 'county' },
+  { label: '鄉鎮級', value: 'township' }
+]
 
 // Helper function to get category name based on detail mode
 const getCategoryName = (category) => getCategoryDisplayName(category, detailMode.value)

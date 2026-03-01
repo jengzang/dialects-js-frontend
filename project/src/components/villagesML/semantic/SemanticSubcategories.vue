@@ -1,6 +1,6 @@
 <template>
   <div class="semantic-subcategories-page">
-    <h1 class="page-title">🏷️ 語義子類別分析</h1>
+    <h3 class="villagesml-subtab-title">語義分析 - 子類別分析</h3>
 
     <!-- Mode Selector -->
     <div class="mode-selector glass-panel">
@@ -37,11 +37,10 @@
 
         <div class="form-group">
           <label>父類別:</label>
-          <select v-model="regionalParentCategory" class="select-input">
-            <option v-for="cat in parentCategories" :key="cat.value" :value="cat.value">
-              {{ cat.label }}
-            </option>
-          </select>
+          <SimpleSelectDropdown :match-trigger-width="true"
+            v-model="regionalParentCategory"
+            :options="parentCategories"
+          />
         </div>
 
         <button
@@ -122,21 +121,18 @@
         <div class="form-row">
           <div class="form-group">
             <label>區域層級:</label>
-            <select v-model="rankingRegionLevel" class="select-input">
-              <option value="city">市級</option>
-              <option value="county">縣級</option>
-              <option value="township">鄉鎮級</option>
-            </select>
+            <SimpleSelectDropdown :match-trigger-width="true"
+              v-model="rankingRegionLevel"
+              :options="regionLevelOptions"
+            />
           </div>
 
           <div class="form-group">
             <label>父類別:</label>
-            <select v-model="rankingParentCategory" class="select-input">
-              <option :value="null">全部類別</option>
-              <option v-for="cat in parentCategories" :key="cat.value" :value="cat.value">
-                {{ cat.label }}
-              </option>
-            </select>
+            <SimpleSelectDropdown :match-trigger-width="true"
+              v-model="rankingParentCategory"
+              :options="parentCategoryOptions"
+            />
           </div>
 
           <div class="form-group">
@@ -217,20 +213,22 @@ import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import {
   getSemanticSubcategoryList,
   getSemanticSubcategoryChars,
-  getSemanticSubcategoryVTFGlobal,
-  getSemanticSubcategoryVTFRegional,
+  // getSemanticSubcategoryVTFGlobal,
+  // getSemanticSubcategoryVTFRegional,
   getSemanticSubcategoryTendencyTop,
   getSemanticSubcategoryComparison
 } from '@/api/index.js'
 import { showError, showSuccess } from '@/utils/message.js'
 import * as echarts from 'echarts'
 import FilterableSelect from '@/components/common/FilterableSelect.vue'
+import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
 import { SEMANTIC_SUBCATEGORY_NAMES } from '@/config/villagesML.js'
 
 export default {
   name: 'SemanticSubcategories',
   components: {
-    FilterableSelect
+    FilterableSelect,
+    SimpleSelectDropdown
   },
   setup() {
     // Helper function to get subcategory Chinese name
@@ -276,6 +274,21 @@ export default {
     const loadingRanking = ref(false)
     const barChart = ref(null)
     let barChartInstance = null
+
+    // Dropdown options
+    const regionLevelOptions = [
+      { label: '市級', value: 'city' },
+      { label: '縣級', value: 'county' },
+      { label: '鄉鎮級', value: 'township' }
+    ]
+
+    const parentCategoryOptions = computed(() => {
+      const options = [{ label: '全部類別', value: null }]
+      parentCategories.forEach(cat => {
+        options.push({ label: cat.label, value: cat.value })
+      })
+      return options
+    })
 
     // Methods
     const convertRegionLevel = (level) => {
@@ -579,6 +592,8 @@ export default {
       rankingData,
       loadingRanking,
       barChart,
+      regionLevelOptions,
+      parentCategoryOptions,
       getSubcategoryName,
       loadSubcategoryList,
       viewSubcategoryDetail,
@@ -919,10 +934,6 @@ tr.significant {
 
   .form-row {
     grid-template-columns: 1fr;
-  }
-
-  .mode-selector {
-    flex-direction: column;
   }
 
   .radar-container,

@@ -12,7 +12,7 @@
       <!-- 區域選擇 -->
       <div class="setting-row">
         <label>行政級別：</label>
-        <SimpleSelectDropdown
+        <SimpleSelectDropdown :match-trigger-width="true"
           v-model="settings.region_level"
           :options="regionLevelOptions"
         />

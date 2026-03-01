@@ -128,11 +128,11 @@
             placeholder="搜尋表名..."
             class="glass-input small"
           >
-          <select v-model="tableSortBy" class="glass-select small">
-            <option value="name">按名稱</option>
-            <option value="records">按記錄數</option>
-            <option value="size">按大小</option>
-          </select>
+          <SimpleSelectDropdown :match-trigger-width="true"
+            v-model="tableSortBy"
+            :options="sortOptions"
+            class="glass-select small"
+          />
         </div>
       </div>
       <div v-if="tables" class="tables-content">
@@ -241,6 +241,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { getMetadataOverview, getMetadataTables, getNgramStatistics } from '@/api/index.js'
 import { showError, showSuccess } from '@/utils/message.js'
+import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
 
 // State
 const overview = ref(null)
@@ -256,6 +257,13 @@ const tableSortBy = ref('name')
 const sortOrder = ref('asc')
 const currentPage = ref(1)
 const pageSize = 20
+
+// Sort options
+const sortOptions = [
+  { label: '按名稱', value: 'name' },
+  { label: '按記錄數', value: 'records' },
+  { label: '按大小', value: 'size' }
+]
 
 // Computed
 const filteredTables = computed(() => {

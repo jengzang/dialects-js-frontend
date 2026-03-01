@@ -6,11 +6,10 @@
     <div class="cluster-controls">
       <div class="run-selector" v-if="availableRuns.length">
         <label>聚類方案</label>
-        <select v-model="selectedRunId" class="run-select">
-          <option v-for="run in availableRuns" :key="run.run_id" :value="run.run_id">
-            {{ runLabel(run) }}
-          </option>
-        </select>
+        <SimpleSelectDropdown :match-trigger-width="true"
+          v-model="selectedRunId"
+          :options="runOptions"
+        />
       </div>
       <button class="load-button" :disabled="loading" @click="loadAll">
         {{ loading ? '加載中...' : '加載聚類數據' }}
@@ -72,8 +71,9 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import SpatialMap from './SpatialMap.vue'
+import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
 import { getSpatialClusters, getSpatialClustersAvailableRuns, getSpatialClustersSummary } from '@/api/index.js'
 import { showError } from '@/utils/message.js'
 import {
@@ -88,6 +88,14 @@ const clusters = ref([])
 const clustersMetadata = ref(null)
 const clustersSummary = ref(null)
 const loading = ref(false)
+
+// Options for SimpleSelectDropdown
+const runOptions = computed(() =>
+  availableRuns.value.map(run => ({
+    label: runLabel(run),
+    value: run.run_id
+  }))
+)
 
 const runLabel = (run) => {
   const name = SPATIAL_CLUSTERING_RUN_LABELS[run.run_id] || run.run_id

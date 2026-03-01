@@ -7,7 +7,7 @@
 
       <!-- Controls -->
       <div class="controls">
-        <SimpleSelectDropdown
+        <SimpleSelectDropdown :match-trigger-width="true"
           v-model="patternType"
           :options="patternTypeOptions"
         />
@@ -152,6 +152,7 @@ const goToTendency = (pattern) => {
 }
 
 .query-button {
+  white-space: nowrap;
   padding: 10px 24px;
   background: var(--color-primary);
   color: white;

@@ -13,7 +13,7 @@
           placeholder="輸入模式（如：新村）"
           class="text-input"
         />
-        <SimpleSelectDropdown
+        <SimpleSelectDropdown :match-trigger-width="true"
           v-model="tendencyLevel"
           :options="tendencyLevelOptions"
         />

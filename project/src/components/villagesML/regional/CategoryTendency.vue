@@ -56,7 +56,7 @@
   <div class="ngram-section glass-panel">
     <h2>區域 N-gram 排行榜</h2>
     <div class="ngram-controls">
-      <SimpleSelectDropdown
+      <SimpleSelectDropdown :match-trigger-width="true"
         v-model="ngramN"
         :options="ngramNOptions"
       />
@@ -429,6 +429,7 @@ const loadRegionalNgrams = async () => {
 
   .ngram-controls {
     flex-direction: column;
+    width: 100%;
   }
 
   .number-input,

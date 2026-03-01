@@ -6,6 +6,7 @@
         <SimpleSelectDropdown
           v-model="selectedTab1Type"
           :options="toneTypeOptions"
+          width="auto"
         />
       </div>
     </div>

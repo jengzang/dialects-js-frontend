@@ -20,12 +20,12 @@
       </div>
       <div class="filter-content">
         <div v-for="(filter, idx) in filters" :key="idx" class="filter-row">
-          <SimpleSelectDropdown
+          <SimpleSelectDropdown :match-trigger-width="true"
             v-model="filter.field"
             :options="fieldOptions"
           />
 
-          <SimpleSelectDropdown
+          <SimpleSelectDropdown :match-trigger-width="true"
             v-model="filter.operator"
             :options="operatorOptions"
           />
@@ -170,7 +170,7 @@
         <div class="clustering-controls">
           <div class="control-row">
             <label>選擇子集:</label>
-            <SimpleSelectDropdown
+            <SimpleSelectDropdown :match-trigger-width="true"
               v-model="clusteringSubset"
               :options="clusteringSubsetOptions"
             />
@@ -181,7 +181,7 @@
           </div>
           <div class="control-row">
             <label>演算法:</label>
-            <SimpleSelectDropdown
+            <SimpleSelectDropdown :match-trigger-width="true"
               v-model="clusterAlgorithm"
               :options="clusterAlgorithmOptions"
             />
@@ -236,8 +236,8 @@
 import { ref, computed, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import * as echarts from 'echarts'
-import { clusterSubset, compareSubsets as compareSubsetsAPI } from '@/api/index.js'
-import { showError, showSuccess } from '@/utils/message.js'
+import { clusterSubset, compareSubsets as compareSubsetsAPI, searchVillages } from '@/api/index.js'
+import { showError, showSuccess, showWarning } from '@/utils/message.js'
 import { userStore } from '@/utils/store.js'
 import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
 
@@ -341,14 +341,44 @@ const applyFilters = async () => {
   loadingMessage.value = '正在應用篩選...'
 
   try {
-    // Mock filtered villages
-    currentFilteredVillages.value = Array.from({ length: 50 }, (_, i) => ({
-      id: i + 1,
-      name: `村莊${i + 1}`,
-      region: '台北市',
-      length: 2 + Math.floor(Math.random() * 3)
+    // Build API parameters from filters
+    const params = { limit: 1000 }
+
+    // Extract region and length filters for API
+    filters.value.forEach(filter => {
+      if (filter.field === 'region' && filter.operator === 'equals') {
+        params.region_name = filter.value
+      } else if (filter.field === 'length') {
+        if (filter.operator === 'gt') params.min_length = parseInt(filter.value)
+        else if (filter.operator === 'lt') params.max_length = parseInt(filter.value)
+      }
+    })
+
+    // Call API
+    const response = await searchVillages(params)
+    let results = response.results.map(v => ({
+      id: v.id,
+      name: v.name,
+      region: v.region_display || v.city,
+      length: v.name.length
     }))
 
+    // Apply client-side filters for unsupported operators
+    filters.value.forEach(filter => {
+      if (filter.field === 'name') {
+        if (filter.operator === 'contains') {
+          results = results.filter(v => v.name.includes(filter.value))
+        } else if (filter.operator === 'startsWith') {
+          results = results.filter(v => v.name.startsWith(filter.value))
+        } else if (filter.operator === 'endsWith') {
+          results = results.filter(v => v.name.endsWith(filter.value))
+        } else if (filter.operator === 'equals') {
+          results = results.filter(v => v.name === filter.value)
+        }
+      }
+    })
+
+    currentFilteredVillages.value = results
     showSuccess(`篩選完成，找到 ${currentFilteredVillages.value.length} 個村莊`)
   } catch (error) {
     showError(error.message || '篩選失敗')
@@ -391,19 +421,8 @@ const compareSubsets = async () => {
       subset_b: subsetB.value.villages.map(v => v.id)
     })
 
-    // Mock comparison results
-    comparisonResults.value = {
-      similarity: 0.7234,
-      difference: 0.2766,
-      overlap_count: 10,
-      unique_a: 40,
-      unique_b: 35,
-      feature_diffs: {
-        '語義特徵': { a: 0.45, b: 0.52, diff: 0.07 },
-        '結構特徵': { a: 0.38, b: 0.31, diff: -0.07 },
-        'N-gram 特徵': { a: 0.62, b: 0.58, diff: -0.04 }
-      }
-    }
+    // Use real API response
+    comparisonResults.value = response
 
     await nextTick()
     renderComparisonChart()
@@ -433,17 +452,8 @@ const runSubsetClustering = async () => {
       algorithm: clusterAlgorithm.value
     })
 
-    // Mock clustering results
-    clusteringResults.value = {
-      k: clusterK.value,
-      algorithm: clusterAlgorithm.value,
-      clusters: Array.from({ length: clusterK.value }, (_, i) => ({
-        id: i,
-        size: Math.floor(Math.random() * 20) + 5,
-        centroid: [Math.random(), Math.random(), Math.random()],
-        cohesion: Math.random()
-      }))
-    }
+    // Use real API response
+    clusteringResults.value = response
 
     await nextTick()
     renderClusteringChart()
@@ -490,21 +500,20 @@ const renderClusteringChart = () => {
 
   const chart = echarts.init(clusteringChart.value)
 
-  // Mock scatter data
+  // Use real scatter data from API (PCA coordinates)
+  const CLUSTER_COLORS = ['#4a90e2', '#50c878', '#f39c12', '#e74c3c', '#9b59b6', '#3498db', '#e67e22', '#1abc9c']
   const scatterData = clusteringResults.value.clusters.map((cluster, idx) => ({
     name: `聚類 ${cluster.id}`,
     type: 'scatter',
-    data: Array.from({ length: cluster.size }, () => [
-      Math.random() * 10,
-      Math.random() * 10
-    ]),
+    data: cluster.points || cluster.coordinates || [], // Use real PCA coordinates from API
     symbolSize: 15,
-    itemStyle: { color: ['#4a90e2', '#50c878', '#f39c12', '#e74c3c', '#9b59b6'][idx] }
+    itemStyle: { color: CLUSTER_COLORS[idx % CLUSTER_COLORS.length] }
   }))
 
   chart.setOption({
     title: { text: '子集聚類可視化', left: 'center' },
     tooltip: { trigger: 'item' },
+    legend: { data: scatterData.map(s => s.name), bottom: 10 },
     xAxis: { type: 'value', name: 'PC1' },
     yAxis: { type: 'value', name: 'PC2' },
     series: scatterData

@@ -15,7 +15,7 @@
       <div class="selector-content">
         <div class="form-row">
           <label>層級 Level:</label>
-          <SimpleSelectDropdown
+          <SimpleSelectDropdown :match-trigger-width="true"
             v-model="selectedLevel"
             :options="levelOptions"
             @update:modelValue="handleLevelChange"
@@ -23,7 +23,7 @@
         </div>
         <div class="form-row">
           <label>主要區域 Primary Region:</label>
-          <SimpleSelectDropdown
+          <SimpleSelectDropdown :match-trigger-width="true"
             v-model="primaryRegion"
             :options="primaryRegionOptions"
             @update:modelValue="handlePrimaryChange"
@@ -32,7 +32,7 @@
         </div>
         <div class="form-row">
           <label>比較區域 Compare Region (可選):</label>
-          <SimpleSelectDropdown
+          <SimpleSelectDropdown :match-trigger-width="true"
             v-model="compareRegion"
             :options="compareRegionOptions"
             searchable
@@ -255,14 +255,32 @@ const compareVectors = async () => {
 
   loading.value = true
   try {
-    // TODO: Backend API not implemented yet
-    // This will be replaced with actual API call when backend is ready
-    // Expected endpoint: POST /api/villages/regional/vectors/compare
-    // Expected body: { region1, region2, level }
+    // TODO: Backend API not implemented yet - waiting for implementation
+    // Once backend is ready, replace mock data with:
+    //
+    // import { compareRegionalVectors } from '@/api/index.js'
+    //
+    // const response = await compareRegionalVectors({
+    //   region1: primaryRegion.value,
+    //   region2: compareRegion.value,
+    //   level: selectedLevel.value
+    // })
+    // similarityData.value = response
+    //
+    // Expected backend endpoint: POST /api/villages/regional/vectors/compare
+    // Expected request body: { region1: string, region2: string, level: string }
+    // Expected response format: {
+    //   cosine_similarity: float,
+    //   euclidean_distance: float,
+    //   manhattan_distance: float,
+    //   vector_diff: List[float],
+    //   region1_vector: List[float],
+    //   region2_vector: List[float]
+    // }
 
     showWarning('向量比較功能開發中，後端 API 尚未實現')
 
-    // Mock data for now (will be removed when API is ready)
+    // Mock data for UI testing (will be removed when API is ready)
     similarityData.value = {
       cosine_similarity: 0.8234,
       euclidean_distance: 0.4521,

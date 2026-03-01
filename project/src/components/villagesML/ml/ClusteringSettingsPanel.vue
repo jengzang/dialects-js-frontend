@@ -11,7 +11,7 @@
     <div class="settings-group">
       <div class="setting-row">
         <label>區域級別：</label>
-        <SimpleSelectDropdown
+        <SimpleSelectDropdown :match-trigger-width="true"
           v-model="settings.region_level"
           :options="regionLevelOptions"
         />
@@ -19,7 +19,7 @@
 
       <div class="setting-row">
         <label>算法：</label>
-        <SimpleSelectDropdown
+        <SimpleSelectDropdown :match-trigger-width="true"
           v-model="settings.algorithm"
           :options="algorithmOptions"
         />

@@ -1,5 +1,5 @@
 <template>
-  <div class="simple-select-dropdown">
+  <div class="simple-select-dropdown" :style="containerStyle">
     <div
       ref="triggerRef"
       class="select-trigger"
@@ -18,6 +18,7 @@
       :searchable="searchable"
       :searchPlaceholder="searchPlaceholder"
       :placeholder="placeholder"
+      :matchTriggerWidth="matchTriggerWidth"
       @update:modelValue="handleUpdate"
       @close="handleClose"
     />
@@ -53,6 +54,14 @@ const props = defineProps({
   searchPlaceholder: {
     type: String,
     default: '搜索...'
+  },
+  matchTriggerWidth: {
+    type: Boolean,
+    default: false
+  },
+  width: {
+    type: String,
+    default: null  // e.g., '80px', '200px', 'auto', null means 100%
   }
 })
 
@@ -64,11 +73,20 @@ const triggerRef = ref(null)
 
 // Computed
 const displayLabel = computed(() => {
-  if (!props.modelValue && props.modelValue !== 0) {
+  // Only show placeholder if modelValue is null or undefined
+  // Empty string ('') is a valid value
+  if (props.modelValue === null || props.modelValue === undefined) {
     return props.placeholder
   }
   const option = props.options.find(opt => opt.value === props.modelValue)
   return option?.label || props.placeholder
+})
+
+const containerStyle = computed(() => {
+  if (props.width) {
+    return { width: props.width }
+  }
+  return {}
 })
 
 // Methods
@@ -90,7 +108,6 @@ const handleClose = () => {
 .simple-select-dropdown {
   position: relative;
   display: inline-block;
-  width: 100%;
 }
 
 .select-trigger {

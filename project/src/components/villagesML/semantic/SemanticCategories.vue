@@ -116,7 +116,7 @@
         <template v-else>
           <div class="level-selector">
             <label>行政級別：</label>
-            <SimpleSelectDropdown
+            <SimpleSelectDropdown :match-trigger-width="true"
               v-model="rankingLevel"
               :options="rankingLevelOptions"
               @update:modelValue="loadCategoryRanking"
@@ -185,9 +185,9 @@
 
         <!-- By Category -->
         <div v-if="labelsMode === 'by-category'" class="labels-content">
-          <SimpleSelectDropdown
+          <SimpleSelectDropdown :match-trigger-width="true"
             v-model="selectedCategoryForLabels"
-            :options="categoryOptions"
+            :options="categoryOptionsForLabels"
             @update:modelValue="loadLabelsByCategory"
           />
           <div v-if="loadingLabels" class="loading-state">
@@ -280,20 +280,23 @@ const labelsMode = ref('by-category')
 const selectedCategoryForLabels = ref('')
 const charForLabels = ref('')
 
-// Options for SimpleSelectDropdown
+// Dropdown options
 const rankingLevelOptions = [
   { label: '市級', value: 'city' },
   { label: '區縣級', value: 'county' },
   { label: '鄉鎮級', value: 'township' }
 ]
 
-const categoryOptions = computed(() => [
-  { label: '選擇類別', value: '' },
-  ...categories.value.map(cat => ({
-    label: getCategoryName(cat.category),
-    value: cat.category
-  }))
-])
+const categoryOptionsForLabels = computed(() => {
+  const options = [{ label: '選擇類別', value: '' }]
+  categories.value.forEach(cat => {
+    options.push({
+      label: getCategoryName(cat.category),
+      value: cat.category
+    })
+  })
+  return options
+})
 
 // Computed
 const maxVTF = computed(() => {
@@ -839,6 +842,7 @@ onMounted(() => {
 }
 
 .level-selector label {
+  white-space: nowrap;
   font-size: 14px;
   font-weight: 500;
   color: var(--text-primary);
@@ -976,6 +980,32 @@ onMounted(() => {
 
   .select-input {
     flex: 1;
+  }
+
+  /* Level selector responsive layout */
+  .level-selector {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .level-selector label {
+    flex-basis: 100%;
+    margin-left: 0 !important;
+  }
+
+  .level-selector .simple-select-dropdown {
+    flex: 1;
+    min-width: 150px;
+  }
+
+  .level-selector .number-input {
+    flex: 1;
+    min-width: 120px;
+  }
+
+  .level-selector .input-hint {
+    flex-basis: 100%;
+    font-size: 12px;
   }
 }
 

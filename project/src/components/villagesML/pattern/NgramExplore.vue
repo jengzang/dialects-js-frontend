@@ -34,11 +34,11 @@
     <div class="frequency-section glass-panel">
       <h2>N-gram 頻率分析</h2>
       <div class="controls">
-        <SimpleSelectDropdown
+        <SimpleSelectDropdown :match-trigger-width="true"
           v-model.number="nValue"
           :options="nValueOptions"
         />
-        <SimpleSelectDropdown
+        <SimpleSelectDropdown :match-trigger-width="true"
           v-model="position"
           :options="positionOptions"
         />
@@ -125,7 +125,7 @@
           class="pattern-input"
           @keyup.enter="searchPatterns"
         />
-        <SimpleSelectDropdown
+        <SimpleSelectDropdown :match-trigger-width="true"
           v-model.number="patternN"
           :options="nValueOptions"
         />

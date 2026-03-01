@@ -17,7 +17,7 @@
           placeholder="輸入 N-gram"
           class="text-input"
         />
-        <SimpleSelectDropdown
+        <SimpleSelectDropdown :match-trigger-width="true"
           v-model="level"
           :options="levelOptions"
         />
@@ -229,7 +229,7 @@
           placeholder="輸入 N-gram"
           class="text-input"
         />
-        <SimpleSelectDropdown
+        <SimpleSelectDropdown :match-trigger-width="true"
           v-model="significanceLevel"
           :options="levelOptions"
         />

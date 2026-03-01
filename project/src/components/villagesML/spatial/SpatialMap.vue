@@ -5,14 +5,11 @@
         <!-- 地圖控制面板 -->
         <div class="map-controls" v-if="!isFullScreen">
           <div class="control-group">
-            <div class="custom-select">
-              <select v-model="currentStyleKey" @change="handleStyleChange">
-                <option v-for="(name, key) in mapStyleConfig" :key="key" :value="key">
-                  {{ name }}
-                </option>
-              </select>
-              <span class="arrow">▾</span>
-            </div>
+            <SimpleSelectDropdown :match-trigger-width="true"
+              v-model="currentStyleKey"
+              :options="mapStyleOptions"
+              @update:modelValue="handleStyleChange"
+            />
           </div>
 
           <div class="button-row">
@@ -37,9 +34,10 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount, shallowRef, nextTick, watch } from 'vue'
+import { ref, onMounted, onBeforeUnmount, shallowRef, nextTick, watch, computed } from 'vue'
 import maplibregl from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
+import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
 import { mapStyle, mapStyleConfig } from '@/utils/MapSource.js'
 
 const props = defineProps({
@@ -77,6 +75,14 @@ const map = shallowRef(null)
 const currentStyleKey = ref('gaode')
 const loading = ref(false)
 const isFullScreen = ref(false)
+
+// Options for SimpleSelectDropdown
+const mapStyleOptions = computed(() =>
+  Object.entries(mapStyleConfig).map(([key, name]) => ({
+    label: name,
+    value: key
+  }))
+)
 
 onMounted(() => {
   initMap()

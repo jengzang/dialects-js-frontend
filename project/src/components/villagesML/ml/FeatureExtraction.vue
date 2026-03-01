@@ -35,7 +35,7 @@
         <div class="filter-controls">
           <div class="filter-item">
             <label>區域篩選:</label>
-            <SimpleSelectDropdown
+            <SimpleSelectDropdown :match-trigger-width="true"
               v-model="filterRegion"
               :options="regionFilterOptions"
               @update:modelValue="handleFilterChange"
@@ -94,7 +94,7 @@
       <div class="controls-content">
         <div class="control-row">
           <label>聚合方法:</label>
-          <SimpleSelectDropdown
+          <SimpleSelectDropdown :match-trigger-width="true"
             v-model="aggregationMethod"
             :options="aggregationMethodOptions"
           />
@@ -227,9 +227,10 @@ import { ref, computed, onMounted, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import * as echarts from 'echarts'
 import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
-import { extractFeatures as apiExtractFeatures, aggregateFeatures as apiAggregateFeatures } from '@/api/index.js'
-import { showError, showSuccess } from '@/utils/message.js'
+import { extractFeatures as apiExtractFeatures, aggregateFeatures as apiAggregateFeatures, searchVillages } from '@/api/index.js'
+import { showError, showSuccess, showWarning } from '@/utils/message.js'
 import { userStore } from '@/utils/store.js'
+import { getCities, getCounties, getTownships } from '@/utils/region/regionPreload.js'
 
 // Router
 const router = useRouter()
@@ -240,7 +241,8 @@ const isAuthenticated = computed(() => userStore.isAuthenticated)
 // State
 const searchQuery = ref('')
 const filterRegion = ref('')
-const availableRegions = ref(['台北市', '新北市', '桃園市', '台中市', '台南市', '高雄市'])
+const regionLevel = ref('city') // 'city', 'county', or 'town'
+const availableRegions = ref([])
 const selectedVillages = ref([])
 const selectedFeatureTypes = ref(['semantic', 'structural'])
 const aggregationMethod = ref('mean')
@@ -250,7 +252,7 @@ const loadingMessage = ref('載入中...')
 const extractionResults = ref(null)
 const aggregationResults = ref(null)
 
-// Village list (mock data)
+// Village list
 const allVillages = ref([])
 const currentPage = ref(1)
 const pageSize = 20
@@ -272,15 +274,13 @@ const featureTypes = [
 ]
 
 // Options for SimpleSelectDropdown
-const regionFilterOptions = [
+const regionFilterOptions = computed(() => [
   { label: '全部區域', value: '' },
-  { label: '台北市', value: '台北市' },
-  { label: '新北市', value: '新北市' },
-  { label: '桃園市', value: '桃園市' },
-  { label: '台中市', value: '台中市' },
-  { label: '台南市', value: '台南市' },
-  { label: '高雄市', value: '高雄市' }
-]
+  ...availableRegions.value.map(region => ({
+    label: typeof region === 'string' ? region : region.name,
+    value: typeof region === 'string' ? region : region.name
+  }))
+])
 
 const aggregationMethodOptions = [
   { label: '平均值 (Mean)', value: 'mean' },
@@ -333,6 +333,56 @@ const goToAuth = () => {
   router.push('/auth?redirect=/explore?tab=villages')
 }
 
+const loadRegions = async () => {
+  loading.value = true
+  loadingMessage.value = '載入區域列表...'
+  try {
+    if (regionLevel.value === 'city') {
+      const cities = await getCities()
+      availableRegions.value = cities.map(c => c.name)
+    } else if (regionLevel.value === 'county') {
+      const counties = await getCounties()
+      availableRegions.value = counties.map(c => c.name)
+    } else if (regionLevel.value === 'town') {
+      const townships = await getTownships()
+      availableRegions.value = townships.map(t => t.name)
+    }
+  } catch (error) {
+    showError('載入區域列表失敗: ' + error.message)
+  } finally {
+    loading.value = false
+  }
+}
+
+const loadVillages = async () => {
+  if (!filterRegion.value) {
+    allVillages.value = []
+    return
+  }
+
+  loading.value = true
+  loadingMessage.value = '載入村莊列表...'
+  try {
+    const params = {
+      region_level: regionLevel.value,
+      region_name: filterRegion.value,
+      limit: 1000
+    }
+    const response = await searchVillages(params)
+    allVillages.value = response.results.map(v => ({
+      id: v.id,
+      name: v.name,
+      region: v.region_display || v.city
+    }))
+    showSuccess(`載入了 ${allVillages.value.length} 個村莊`)
+  } catch (error) {
+    showError('載入村莊列表失敗: ' + error.message)
+    allVillages.value = []
+  } finally {
+    loading.value = false
+  }
+}
+
 const handleSearch = () => {
   currentPage.value = 1
 }
@@ -344,6 +394,7 @@ const clearSearch = () => {
 
 const handleFilterChange = () => {
   currentPage.value = 1
+  loadVillages()
 }
 
 const toggleVillage = (village) => {
@@ -404,21 +455,8 @@ const extractFeatures = async () => {
       normalize: normalize.value
     })
 
-    // Mock response
-    extractionResults.value = {
-      village_count: selectedVillages.value.length,
-      feature_dimension: selectedFeatureTypes.value.length * 9,
-      extraction_time: 1234,
-      results: selectedVillages.value.map(v => ({
-        village_id: v.id,
-        village_name: v.name,
-        region: v.region,
-        features: selectedFeatureTypes.value.reduce((acc, type) => {
-          acc[type] = Math.random().toFixed(4)
-          return acc
-        }, {})
-      }))
-    }
+    // Use real API response
+    extractionResults.value = response
 
     resultsPage.value = 1
     showSuccess('特徵提取完成')
@@ -441,19 +479,8 @@ const aggregateFeatures = async () => {
       method: aggregationMethod.value
     })
 
-    // Mock response
-    aggregationResults.value = {
-      method: aggregationMethod.value,
-      aggregates: selectedFeatureTypes.value.reduce((acc, type) => {
-        acc[type] = {
-          value: Math.random(),
-          std: Math.random() * 0.1,
-          min: Math.random() * 0.5,
-          max: Math.random() * 0.5 + 0.5
-        }
-        return acc
-      }, {})
-    }
+    // Use real API response
+    aggregationResults.value = response
 
     await nextTick()
     renderAggregationChart()
@@ -508,21 +535,41 @@ const formatNumber = (num) => {
 }
 
 const exportResults = () => {
-  if (!extractionResults.value) return
+  if (!extractionResults.value) {
+    showWarning('請先執行特徵提取')
+    return
+  }
 
-  // Mock CSV export
-  const csv = 'Village ID,Village Name,Region,' + selectedFeatureTypes.value.join(',') + '\n'
-  showSuccess('CSV 匯出功能開發中')
+  // Build CSV header
+  const headers = ['Village ID', 'Village Name', 'Region', ...selectedFeatureTypes.value.map(t => getFeatureLabel(t))]
+  let csv = headers.join(',') + '\n'
+
+  // Build CSV rows
+  extractionResults.value.results.forEach(result => {
+    const row = [
+      result.village_id,
+      `"${result.village_name}"`, // Quote names with commas
+      `"${result.region}"`,
+      ...selectedFeatureTypes.value.map(type => result.features[type] || '')
+    ]
+    csv += row.join(',') + '\n'
+  })
+
+  // Download file
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+  const link = document.createElement('a')
+  link.href = URL.createObjectURL(blob)
+  link.download = `feature_extraction_${Date.now()}.csv`
+  link.click()
+  URL.revokeObjectURL(link.href)
+
+  showSuccess('CSV 導出成功')
 }
 
 // Lifecycle
 onMounted(() => {
-  // Mock village data
-  allVillages.value = Array.from({ length: 500 }, (_, i) => ({
-    id: i + 1,
-    name: `村莊${i + 1}`,
-    region: availableRegions.value[i % availableRegions.value.length]
-  }))
+  // Load regions on mount
+  loadRegions()
 })
 </script>
 

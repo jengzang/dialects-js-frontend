@@ -146,19 +146,10 @@
           <!-- Character Selector -->
           <div v-else class="form-group">
             <label>選擇字符:</label>
-            <select
+            <SimpleSelectDropdown :match-trigger-width="true"
               v-model="queryChar"
-              class="select-input"
-            >
-              <option value="">請選擇字符</option>
-              <option
-                v-for="char in availableCharacters"
-                :key="char.character"
-                :value="char.character"
-              >
-                {{ char.character }} - {{ getCategoryName(char.category) }} ({{ char.total_villages }}村, {{ char.total_clusters }}聚類)
-              </option>
-            </select>
+              :options="characterOptions"
+            />
           </div>
 
           <button
@@ -233,19 +224,10 @@
           <!-- Cluster Selector -->
           <div v-else class="form-group">
             <label>選擇聚類:</label>
-            <select
+            <SimpleSelectDropdown :match-trigger-width="true"
               v-model="clusterId"
-              class="select-input"
-            >
-              <option :value="null">請選擇聚類</option>
-              <option
-                v-for="cluster in availableClusters"
-                :key="cluster.cluster_id"
-                :value="cluster.cluster_id"
-              >
-                聚類 #{{ cluster.cluster_id }} - {{ cluster.dominant_city }}{{ cluster.dominant_county }} ({{ cluster.cluster_size }}村, {{ cluster.total_characters }}字符)
-              </option>
-            </select>
+              :options="clusterOptions"
+            />
           </div>
 
           <button
@@ -397,6 +379,7 @@
 import { ref, computed } from 'vue'
 import ExploreLayout from '@/layouts/ExploreLayout.vue'
 import SpatialMap from './SpatialMap.vue'
+import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
 import {
   getSpatialIntegration,
   getSpatialIntegrationByChar,
@@ -426,6 +409,29 @@ const loadingByCluster = ref(false)
 const loadingSummary = ref(false)
 const loadingClusters = ref(false)
 const loadingCharacters = ref(false)
+
+// Dropdown options
+const characterOptions = computed(() => {
+  const options = [{ label: '請選擇字符', value: '' }]
+  availableCharacters.value.forEach(char => {
+    options.push({
+      label: `${char.character} - ${getCategoryName(char.category)} (${char.total_villages}村, ${char.total_clusters}聚類)`,
+      value: char.character
+    })
+  })
+  return options
+})
+
+const clusterOptions = computed(() => {
+  const options = [{ label: '請選擇聚類', value: null }]
+  availableClusters.value.forEach(cluster => {
+    options.push({
+      label: `聚類 #${cluster.cluster_id} - ${cluster.dominant_city}${cluster.dominant_county} (${cluster.cluster_size}村, ${cluster.total_characters}字符)`,
+      value: cluster.cluster_id
+    })
+  })
+  return options
+})
 
 // Computed properties
 const uniqueCharacters = computed(() => {

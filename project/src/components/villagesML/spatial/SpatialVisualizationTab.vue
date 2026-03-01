@@ -24,11 +24,12 @@
                 <span>🔵 空間聚類</span>
               </label>
               <div v-if="layers.clusters && availableRuns.length" class="run-selector-inline">
-                <select v-model="selectedRunId" class="filter-select" style="margin-bottom:0">
-                  <option v-for="run in availableRuns" :key="run.run_id" :value="run.run_id">
-                    {{ SPATIAL_CLUSTERING_RUN_LABELS[run.run_id] || run.run_id }}
-                  </option>
-                </select>
+                <SimpleSelectDropdown :match-trigger-width="true"
+                  v-model="selectedRunId"
+                  :options="runOptions"
+                  class="filter-select"
+                  style="margin-bottom:0"
+                />
               </div>
               <label class="checkbox-item">
                 <input type="checkbox" v-model="layers.ngrams" @change="onLayerChange">
@@ -65,11 +66,11 @@
               maxlength="1"
               class="filter-input"
             >
-            <select v-model="filters.charLevel" class="filter-select">
-              <option value="city">城市</option>
-              <option value="county">區縣</option>
-              <option value="township">鄉鎮</option>
-            </select>
+            <SimpleSelectDropdown :match-trigger-width="true"
+              v-model="filters.charLevel"
+              :options="charLevelOptions"
+              class="filter-select"
+            />
           </div>
 
           <!-- 應用按鈕 -->
@@ -154,6 +155,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import SpatialMap from './SpatialMap.vue'
+import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
 import {
   getSpatialHotspots,
   getSpatialClusters,
@@ -187,6 +189,20 @@ const filters = ref({
   ngram: '',
   character: '',
   charLevel: 'city'
+})
+
+// Options for dropdowns
+const charLevelOptions = [
+  { label: '城市', value: 'city' },
+  { label: '區縣', value: 'county' },
+  { label: '鄉鎮', value: 'township' }
+]
+
+const runOptions = computed(() => {
+  return availableRuns.value.map(run => ({
+    label: SPATIAL_CLUSTERING_RUN_LABELS[run.run_id] || run.run_id,
+    value: run.run_id
+  }))
 })
 
 // UI 狀態
