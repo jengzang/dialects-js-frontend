@@ -1015,8 +1015,13 @@ export default {
     grid-template-columns: 1fr;
   }
 
-  .mode-selector {
-    flex-direction: column;
+  .form-row > *,
+  .form-group > .simple-select-dropdown,
+  .form-group > .filterable-select {
+    width: 100%;
+  }
+  .mode-button{
+    padding: 6px;
   }
 }
 </style>

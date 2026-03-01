@@ -432,9 +432,19 @@ const loadRegionalNgrams = async () => {
     width: 100%;
   }
 
-  .number-input,
-  .select-input {
-    width: 100%;
+  .ngram-controls > * {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .number-input {
+    width: 100% !important;
+  }
+
+  .select-input,
+  .simple-select-dropdown,
+  .filterable-select {
+    width: 100% !important;
   }
 
   .ngram-header,

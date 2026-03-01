@@ -108,17 +108,22 @@
       </div>
     </div>
 
-    <!-- Regional Clustering -->
+    <!-- Regional Clustering Navigation -->
     <div class="glass-panel clustering-panel">
       <div class="panel-header">
-        <h3>區域聚類 Regional Clustering</h3>
+        <h3>區域聚類分析 Regional Clustering</h3>
         <button @click="runClustering" class="solid-button small">
-          前往聚類分析頁面 →
+          前往聚類分析 →
         </button>
       </div>
       <div class="empty-state">
-        <p>💡 使用專業的聚類分析工具進行區域聚類</p>
-        <p style="font-size: 13px; margin-top: 8px; color: var(--text-secondary);">支持 K-Means、DBSCAN、GMM 等多種算法</p>
+        <p>🔍 想要發現區域之間的相似性模式？</p>
+        <p style="font-size: 14px; margin-top: 12px; color: var(--text-primary); font-weight: 500;">
+          使用專業的區域聚類工具，對所有市/縣/鄉鎮進行聚類分析
+        </p>
+        <p style="font-size: 13px; margin-top: 8px; color: var(--text-secondary);">
+          支持 K-Means、DBSCAN、GMM 等多種算法，可選擇語義、形態、多樣性等特徵
+        </p>
       </div>
     </div>
 

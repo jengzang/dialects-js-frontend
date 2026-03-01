@@ -936,6 +936,12 @@ tr.significant {
     grid-template-columns: 1fr;
   }
 
+  .form-row > *,
+  .form-group > .simple-select-dropdown,
+  .form-group > .filterable-select {
+    width: 100%;
+  }
+
   .radar-container,
   .bar-container {
     height: 400px;
