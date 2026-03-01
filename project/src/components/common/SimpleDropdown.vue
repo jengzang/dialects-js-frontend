@@ -10,38 +10,33 @@
         class="dropdown-panel"
         :style="dropdownStyle"
         @click.stop
+        @keydown="handleKeydown"
+        tabindex="0"
       >
-        <!-- Select All / Deselect All -->
-        <div
-          class="dropdown-item select-all-item"
-          :class="{ active: isAllSelected }"
-          @click="toggleSelectAll"
-        >
-          <span>{{ isAllSelected ? '☑' : '☐' }}</span>
-          {{ isAllSelected ? '取消全選' : '全選' }}
-        </div>
-
-        <div class="dropdown-divider"></div>
-
         <!-- Search Input -->
-        <div class="search-wrapper" v-if="options.length > 5">
+        <div class="search-wrapper" v-if="searchable">
           <input
+            ref="searchInput"
             type="text"
             v-model="searchQuery"
-            placeholder="搜索..."
+            :placeholder="searchPlaceholder"
             class="search-input"
             @click.stop
           />
         </div>
 
         <!-- Options List -->
-        <div class="options-list">
+        <div class="options-list" ref="optionsList">
           <div
             class="dropdown-item"
-            v-for="option in filteredOptions"
+            v-for="(option, index) in filteredOptions"
             :key="option.value"
-            :class="{ active: isSelected(option.value) }"
-            @click="toggleOption(option.value)"
+            :class="{
+              active: isSelected(option.value),
+              focused: focusedIndex === index
+            }"
+            @click="selectOption(option.value)"
+            @mouseenter="focusedIndex = index"
           >
             <span class="check-icon">{{ isSelected(option.value) ? '✓' : '' }}</span>
             {{ option.label }}
@@ -61,8 +56,8 @@ import { ref, computed, watch, nextTick, onMounted, onBeforeUnmount } from 'vue'
 
 const props = defineProps({
   modelValue: {
-    type: Array,
-    default: () => []
+    type: [String, Number],
+    default: null
   },
   options: {
     type: Array,
@@ -79,6 +74,14 @@ const props = defineProps({
   disabled: {
     type: Boolean,
     default: false
+  },
+  searchable: {
+    type: Boolean,
+    default: false
+  },
+  searchPlaceholder: {
+    type: String,
+    default: '搜索...'
   },
   maxHeight: {
     type: String,
@@ -101,6 +104,9 @@ const emit = defineEmits(['update:modelValue', 'close'])
 const isOpen = ref(true)
 const searchQuery = ref('')
 const dropdownPanel = ref(null)
+const searchInput = ref(null)
+const optionsList = ref(null)
+const focusedIndex = ref(-1)
 const dropdownStyle = ref({
   position: 'absolute',
   top: '0px',
@@ -118,44 +124,58 @@ const filteredOptions = computed(() => {
   )
 })
 
-// Check if all options are selected
-const isAllSelected = computed(() => {
-  return props.options.length > 0 &&
-         props.options.every(opt => props.modelValue.includes(opt.value))
-})
-
 // Check if an option is selected
 const isSelected = (value) => {
-  return props.modelValue.includes(value)
+  return props.modelValue === value
 }
 
-// Toggle select all
-const toggleSelectAll = () => {
-  if (isAllSelected.value) {
-    emit('update:modelValue', [])
-  } else {
-    emit('update:modelValue', props.options.map(opt => opt.value))
-  }
-}
-
-// Toggle single option
-const toggleOption = (value) => {
-  const newValue = [...props.modelValue]
-  const index = newValue.indexOf(value)
-
-  if (index > -1) {
-    newValue.splice(index, 1)
-  } else {
-    newValue.push(value)
-  }
-
-  emit('update:modelValue', newValue)
+// Select option and close dropdown
+const selectOption = (value) => {
+  emit('update:modelValue', value)
+  handleClose()
 }
 
 // Close dropdown
 const handleClose = () => {
   isOpen.value = false
   emit('close')
+}
+
+// Keyboard navigation
+const handleKeydown = (e) => {
+  switch (e.key) {
+    case 'ArrowDown':
+      e.preventDefault()
+      focusedIndex.value = Math.min(focusedIndex.value + 1, filteredOptions.value.length - 1)
+      scrollToFocused()
+      break
+    case 'ArrowUp':
+      e.preventDefault()
+      focusedIndex.value = Math.max(focusedIndex.value - 1, 0)
+      scrollToFocused()
+      break
+    case 'Enter':
+      e.preventDefault()
+      if (focusedIndex.value >= 0 && focusedIndex.value < filteredOptions.value.length) {
+        selectOption(filteredOptions.value[focusedIndex.value].value)
+      }
+      break
+    case 'Escape':
+      e.preventDefault()
+      handleClose()
+      break
+  }
+}
+
+// Scroll to focused item
+const scrollToFocused = () => {
+  nextTick(() => {
+    if (!optionsList.value) return
+    const items = optionsList.value.querySelectorAll('.dropdown-item')
+    if (items[focusedIndex.value]) {
+      items[focusedIndex.value].scrollIntoView({ block: 'nearest', behavior: 'smooth' })
+    }
+  })
 }
 
 // Position dropdown
@@ -222,8 +242,25 @@ const updatePosition = () => {
   })
 }
 
+// Initialize focused index to current selection
+const initializeFocusedIndex = () => {
+  const currentIndex = filteredOptions.value.findIndex(opt => opt.value === props.modelValue)
+  focusedIndex.value = currentIndex >= 0 ? currentIndex : 0
+}
+
 onMounted(() => {
   updatePosition()
+  initializeFocusedIndex()
+
+  // Focus search input if searchable, otherwise focus the panel for keyboard navigation
+  nextTick(() => {
+    if (props.searchable && searchInput.value) {
+      searchInput.value.focus()
+    } else if (dropdownPanel.value) {
+      dropdownPanel.value.focus()
+    }
+  })
+
   window.addEventListener('resize', updatePosition)
   window.addEventListener('scroll', updatePosition, true)
 })
@@ -235,6 +272,11 @@ onBeforeUnmount(() => {
 
 watch(() => props.triggerEl, () => {
   updatePosition()
+})
+
+watch(searchQuery, () => {
+  // Reset focused index when search changes
+  focusedIndex.value = 0
 })
 </script>
 
@@ -258,6 +300,7 @@ watch(() => props.triggerEl, () => {
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  outline: none;
   padding: 6px 0;
 }
 
@@ -297,7 +340,8 @@ watch(() => props.triggerEl, () => {
   transition: background-color 0.2s;
 }
 
-.dropdown-item:hover {
+.dropdown-item:hover,
+.dropdown-item.focused {
   background-color: #e6f0ff;
 }
 
@@ -307,23 +351,11 @@ watch(() => props.triggerEl, () => {
   font-weight: bold;
 }
 
-.select-all-item {
-  font-weight: 600;
-  color: rgba(0, 0, 0, 0.75);
-  border-bottom: 1px solid #f0f0f0;
-}
-
 .check-icon {
   width: 16px;
   text-align: center;
   font-weight: 700;
   color: #02469e;
-}
-
-.dropdown-divider {
-  height: 1px;
-  background: rgba(0, 0, 0, 0.08);
-  margin: 4px 8px;
 }
 
 .empty-message {
@@ -347,4 +379,3 @@ watch(() => props.triggerEl, () => {
   background: rgba(0, 0, 0, 0.05);
 }
 </style>
-

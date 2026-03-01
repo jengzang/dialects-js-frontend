@@ -1,16 +1,24 @@
 <template>
   <div class="filterable-select" :class="{ disabled }">
     <!-- Level Selector (optional) -->
-    <select
-      v-if="showLevelSelector"
-      :value="level"
-      @change="$emit('update:level', $event.target.value)"
-      class="level-select"
-    >
-      <option value="city">城市</option>
-      <option value="county">區縣</option>
-      <option v-if="allowedLevels.includes('township')" value="township">鄉鎮</option>
-    </select>
+    <div v-if="showLevelSelector" class="level-selector-wrapper">
+      <div
+        ref="levelTriggerRef"
+        class="level-select"
+        @click="toggleLevelDropdown"
+      >
+        {{ levelLabel }}
+        <span class="arrow-icon">▾</span>
+      </div>
+
+      <SimpleDropdown
+        v-if="isLevelDropdownOpen"
+        v-model="internalLevel"
+        :options="levelOptions"
+        :triggerEl="levelTriggerRef"
+        @close="isLevelDropdownOpen = false"
+      />
+    </div>
 
     <!-- Input + Dropdown Trigger -->
     <div class="dropdown-wrapper" ref="triggerRef">
@@ -98,7 +106,8 @@
 <script setup>
 import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import { showError } from '@/utils/message.js'
-import { getCities, getCounties, getTownships } from '@/utils/regionPreload.js'
+import { getCities, getCounties, getTownships } from '@/utils/region/regionPreload.js'
+import SimpleDropdown from '@/components/common/SimpleDropdown.vue'
 
 const props = defineProps({
   modelValue: { type: String, default: '' },
@@ -127,6 +136,47 @@ const triggerRef = ref(null)
 const dropdownRef = ref(null)
 const dropdownStyle = ref({})
 let blurTimeout = null
+
+// Level dropdown state
+const isLevelDropdownOpen = ref(false)
+const levelTriggerRef = ref(null)
+const internalLevel = ref(props.level)
+
+// Level options
+const levelOptions = computed(() => {
+  const options = [
+    { label: '城市', value: 'city' },
+    { label: '區縣', value: 'county' }
+  ]
+  if (props.allowedLevels.includes('township')) {
+    options.push({ label: '鄉鎮', value: 'township' })
+  }
+  return options
+})
+
+// Level label
+const levelLabel = computed(() => {
+  const option = levelOptions.value.find(opt => opt.value === internalLevel.value)
+  return option ? option.label : '城市'
+})
+
+// Toggle level dropdown
+const toggleLevelDropdown = () => {
+  if (!props.disabled) {
+    isLevelDropdownOpen.value = !isLevelDropdownOpen.value
+  }
+}
+
+// Watch internal level changes
+watch(internalLevel, (newLevel) => {
+  emit('update:level', newLevel)
+})
+
+// Watch props.level changes
+watch(() => props.level, (newLevel) => {
+  internalLevel.value = newLevel
+})
+
 
 // Load options from preloaded data
 const loadOptions = async () => {
@@ -377,8 +427,11 @@ onUnmounted(() => {
   pointer-events: none;
 }
 
-.level-select {
+.level-selector-wrapper {
   flex: 0 0 100px;
+}
+
+.level-select {
   padding: 10px 12px;
   border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 8px;
@@ -387,12 +440,21 @@ onUnmounted(() => {
   font-size: 14px;
   cursor: pointer;
   transition: all 0.3s ease;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  user-select: none;
 }
 
-.level-select:focus {
-  outline: none;
+.level-select:hover {
   border-color: var(--color-primary);
   background: rgba(255, 255, 255, 0.7);
+}
+
+.level-select .arrow-icon {
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.6);
 }
 
 .dropdown-wrapper {
@@ -414,6 +476,7 @@ onUnmounted(() => {
 
 .select-input {
   flex: 1;
+  width: 100%;
   padding: 10px 12px;
   border: none;
   background: transparent;
@@ -564,5 +627,14 @@ onUnmounted(() => {
 
 .dropdown-options::-webkit-scrollbar-thumb:hover {
   background: rgba(74, 144, 226, 0.5);
+}
+
+/* Dropdown 触发器样式 */
+.dropdown-wrapper {
+  flex: 1;
+  position: relative;
+  align-items: center;
+  display: flex;
+  justify-content: center;
 }
 </style>

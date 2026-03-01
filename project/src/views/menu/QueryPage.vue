@@ -1238,5 +1238,73 @@ export default {
   font-weight: bold;
 }
 
+/* 全选按钮特殊样式 */
+.select-all-item {
+  color: var(--text-tertiary);
+  font-size: 0.9em;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.check-icon {
+  width: 16px;
+  display: inline-block;
+}
+
+/* Dropdown 样式 */
+.dropdown-panel {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 10px;
+  padding: 6px 0;
+  position: absolute;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  min-width: 80px;
+  max-height: 40dvh;
+  overflow: auto;
+  z-index: 1000;
+}
+
+.dropdown-item {
+  padding: 8px 16px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+.dropdown-item.active {
+  background-color: #e6f0ff;
+  color: #02469e;
+  font-weight: bold;
+}
+
+.dropdown-item:hover {
+  background-color: #e6f0ff;
+}
+
+/* Dropdown 触发器样式（用于 tab2/tab3 的"不排除"下拉框） */
+.dropdown {
+  padding: 6px 12px;
+  border-radius: var(--radius-md);
+  background: var(--glass-light);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  cursor: pointer;
+  font-size: 14px;
+  border: 1px solid rgba(200, 200, 200, 0.5);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-width: 80px;
+  margin: auto;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.dropdown:hover {
+  background: var(--glass-medium);
+  border-color: var(--color-primary);
+}
+
 
 </style>

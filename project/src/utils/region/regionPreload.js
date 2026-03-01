@@ -3,7 +3,7 @@
  * 一次性加载所有区域数据，避免重复请求和错误
  */
 
-import { getRegionList } from '@/api'
+import { getRegionList } from '@/api/index.js'
 
 const CACHE_KEY = 'regions_all_data_v3'  // 更新版本号，强制重新加载
 const CACHE_TIMESTAMP_KEY = 'regions_cache_timestamp_v3'

@@ -2,6 +2,15 @@
 // Supports two-level navigation: direct links and expandable submenus
 
 export const menuConfig = {
+  // Level 1: External link to old website
+  'old-site': {
+    label: '舊版網站',
+    icon: '🕰️',
+    path: '/detail', // Will be set dynamically using window.WEB_BASE
+    external: true,
+    children: null,
+    // showIn: ['NavBar']
+  },
   // Special: Return to query (only in SimpleSidebar)
   'query': {
     label: '查詢',
@@ -29,18 +38,8 @@ export const menuConfig = {
         path:'/menu?tab=query&sub=tab4'
       },
     ],
-    showIn: ['none'] // 只在 SimpleSidebar 中顯示
+    showIn: ['SimpleSidebar']
   },
-  // Level 1: External link to old website
-  'old-site': {
-    label: '舊版網站',
-    icon: '🕰️',
-    path: '/detail', // Will be set dynamically using window.WEB_BASE
-    external: true,
-    children: null,
-    // showIn: ['NavBar']
-  },
-
 
   // Level 2: Expandable data submenu
   'data': {

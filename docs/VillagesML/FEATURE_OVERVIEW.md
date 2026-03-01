@@ -1289,3 +1289,910 @@
 | 空間聚類 | `spatial_hdbscan_v1`（默認）|
 | 空間熱點 | 動態查詢 |
 
+---
+
+## 算法詳情補充 — 各表計算邏輯與算法原理詳解
+
+> 本節對文檔各功能中提及的每張數據表，深入說明其背後的算法原理、數學假設、計算流程及結果解讀。目標是讓讀者不僅知道「調用了什麼」，更明白「為什麼這樣算、算的是什麼」。代碼位於 `scripts/core/` 及 `src/analysis/`、`src/semantic/` 等目錄。
+
+---
+
+### 一、字符頻率表：`char_frequency_global` / `char_regional_analysis`
+
+**來源腳本：** `src/analysis/char_frequency.py`
+
+#### 為什麼用「二元計數（村莊維度）」而不是「字符總出現次數」
+
+地名分析的研究單位是「村莊」而非「字符串」。我們關心的問題是「有多少個村莊使用了字符 X」，而不是「字符 X 在所有村名中出現了多少次」。如果用後者，一個名為「三三村」的村莊中「三」被計 2 次，會導致「長村名」的字符頻率被人為放大，掩蓋真實的地域分佈信息。
+
+因此，對每個村名先做 `set()` 集合去重，即同一村名中同一字符只計一次（二元存在性），然後再跨村莊累加：
+
+```
+village_count[c] = 在所有村莊中，有多少個村莊的村名包含字符 c（不重複計數）
+frequency[c]     = village_count[c] / total_valid_villages
+```
+
+這樣，`frequency` 表示「一個隨機抽取的廣東自然村，其村名中包含字符 c 的概率」。
+
+**全局頻率（`char_frequency_global`）計算流程：**
+
+1. 預處理階段已對每個村名的字符集做 `set()` 去重，存入 `字符集`（JSON 格式，如 `["村","水","大"]`）
+2. 遍歷全部 285,860 個有效村莊，對每個字符集中的每個字符累加計數
+3. 計算頻率 `frequency = village_count / total_villages`
+4. 按 frequency 倒序排名（`rank=1` 為最高頻）
+5. 結果寫入 `char_frequency_global(char, village_count, total_villages, frequency, rank)`
+
+**區域頻率（`char_regional_analysis`）計算流程：**
+
+廣東省有同名地區（如多個縣都有「白沙鎮」），因此不能單純 GROUP BY 地區名，需用「層次鍵」消歧義：
+- 市級：以 `(市级,)` 為組鍵
+- 縣級：以 `(市级, 区县级)` 為組鍵
+- 鎮級：以 `(市级, 区县级, 乡镇级)` 為組鍵
+
+每個組鍵對應一個唯一地區，在組內獨立計算字符頻率，再與全局頻率對比得出傾向指標（見下節）。
+
+---
+
+### 二、傾向性指標：Z-score / Lift / Log-odds / Log-lift
+
+**來源腳本：** `src/analysis/regional_analysis.py` → `compute_regional_tendency`
+
+這三類指標回答的問題本質相同：「某地區使用字符 c 的頻率，是否偏離了全省的基準水平，偏離了多少？」但各自對「偏離」的衡量角度不同，互相補充。
+
+#### 2.1 Lift（提升度）— 概率比值
+
+**原理：** Lift 來自關聯規則挖掘，本質是條件概率與邊際概率的比值，衡量「地區」和「字符」兩個事件是否統計獨立。
+
+若「字符 c 出現在某村名」與「該村莊位於某地區」完全統計獨立，則：
+
+```
+P(c | 地區 r) = P(c | 全省)   →   Lift = 1.0
+```
+
+實際計算時：
+
+```
+P(c | 地區 r) = village_count_r / total_r   （地區 r 中包含字符 c 的村莊比例）
+P(c | 全省)   = village_count_global / total_global
+
+Lift = P(c | 地區 r) / P(c | 全省)
+```
+
+**直觀解讀：**
+- `Lift = 2.0`：該地區出現字符 c 的概率是全省平均的 2 倍，即「強偏好」
+- `Lift = 0.5`：只有全省平均的一半，即「強迴避」
+- `Lift = 1.0`：與全省無差異，「中性」
+
+**局限性：** Lift 對稀有字符不穩定。若某字符全省僅出現在 3 個村莊（`p_global` 極小），某地區恰好有 1 個（`p_region` 略大），Lift 可能高達幾十，但此偏差純屬偶然。因此需配合最小支持度過濾（`min_global_support=20`，`min_regional_support=5`）和顯著性檢驗。
+
+#### 2.2 Log-lift — 對稱化的提升度
+
+**原理：** 直接取 `log(Lift)`。這個簡單變換解決了 Lift 的非對稱問題：
+
+```
+Lift=2 → log_lift ≈ +0.69  （超出全省 1 倍）
+Lift=0.5 → log_lift ≈ -0.69  （低於全省一半）
+```
+
+原始 Lift 中「超出 2 倍」(Lift=2) 和「減半」(Lift=0.5) 在數量上不對稱（一個偏差 +1，一個偏差 -0.5），對數化後對稱地分佈在 0 兩側，便於可視化熱圖的色標設置。
+
+#### 2.3 Log-odds（對數優勢比）— 基於優勢的比較
+
+**原理：** 統計學中「優勢（odds）」= P/(1-P)，表示「某事件發生 vs 不發生」的比率。Log-odds ratio 比較地區優勢與全省優勢之差：
+
+```
+odds_region = P(c | r) / (1 - P(c | r))   （地區 r 中包含 vs 不包含字符 c 的村莊比）
+odds_global = P(c) / (1 - P(c))           （全省中包含 vs 不包含字符 c 的比）
+
+log_odds = log(odds_region) - log(odds_global)
+         = log(odds_region / odds_global)   （即對數優勢比，Log Odds Ratio）
+```
+
+實現中使用 Laplace 平滑防止 `P=0` 或 `P=1` 的極端情況：
+
+```python
+p_r = clamp(p_region, 1e-10, 1-1e-10)   # 避免 log(0)
+p_g = clamp(p_global, 1e-10, 1-1e-10)
+log_odds = log(p_r/(1-p_r)) - log(p_g/(1-p_g))
+```
+
+**為什麼用 Log-odds 而不只用 Lift？** 因為 Lift 在 `p_global` 接近 1 時（極高頻字符）數值壓縮嚴重（所有地區的 Lift 都接近 1），而 Log-odds 在此情況下仍能放大差異。對於「村」、「山」等全省出現率極高的字符，Log-odds 比 Lift 更能捕捉地區差異。
+
+#### 2.4 Z-score（標準化偏差）— 統計假設檢驗視角
+
+**原理：** Z-score 把問題轉化成假設檢驗：「在地區 r 的 N 個村莊中，字符 c 出現 n 次，若真實概率等於全省平均 p_global，這個觀測結果有多'不正常'？」
+
+**統計假設：** 每個村莊是否包含字符 c 是一次獨立的 Bernoulli 試驗，成功概率為 p_global（零假設 H₀）。則地區 r 中出現次數 n 服從二項分佈 `B(N_region, p_global)`。
+
+當 N 足夠大時，二項分佈可近似為正態分佈（中心極限定理），計算標準化統計量：
+
+```
+期望值  E[n] = N_region × p_global
+方差    Var[n] = N_region × p_global × (1 - p_global)    （二項分佈方差公式）
+Z-score z = (n_region - E[n]) / sqrt(Var[n])
+```
+
+**解讀：**
+- `z > 0`：觀測次數超過零假設期望，正偏差
+- `z < 0`：低於期望，負偏差
+- `|z| > 1.96`（雙尾 α=0.05）：若零假設為真，出現這種偏差的概率 < 5%，統計顯著
+- Z-score 是無量綱量，可以在不同字符和不同地區間直接比較偏差程度
+
+**最小支持度過濾：** 若 N_region 很小（地區村莊太少），Var[n] 接近 0，即使有偏差也缺乏統計意義。因此設 `min_global_support=20`（全局至少 20 村）、`min_regional_support=5`（地區至少 5 村）作為閾值，低於此的字符-地區組合標記 `support_flag=False` 並在排名中排除。
+
+---
+
+### 三、顯著性檢驗表：`tendency_significance` / `ngram_significance`
+
+**來源腳本：** `src/analysis/regional_analysis.py` → `compute_chi_square_significance`
+
+#### 為什麼需要顯著性檢驗
+
+Z-score 本身已有顯著性含義（|z|>1.96 對應 p<0.05），但卡方獨立性檢驗從另一個角度驗證：「字符的出現」與「所屬地區」這兩個離散變量是否存在統計關聯，而不依賴正態近似假設。
+
+#### 卡方獨立性檢驗原理
+
+**核心思想：** 若「字符出現」與「地區歸屬」完全獨立（零假設 H₀），則在 2×2 列聯表的每個格子中，觀測值應接近期望值。卡方統計量 χ² 量化了「所有格子的觀測值與期望值的偏差程度」：
+
+**列聯表構造：**
+```
+                  含字符 c    不含字符 c    合計
+目標地區 r          O₁₁         O₁₂        N_r
+其他地區           O₂₁         O₂₂        N_global - N_r
+合計             n_global   N_global-n    N_global
+```
+
+**期望值計算（H₀ 下的理論分佈）：**
+
+H₀ 下，每個格子的期望值由行邊際 × 列邊際 ÷ 總數給出：
+
+```
+E₁₁ = N_r × n_global / N_global       （地區 r 中期望含字符 c 的村莊數）
+E₁₂ = N_r × (N_global - n_global) / N_global
+E₂₁ = (N_global-N_r) × n_global / N_global
+E₂₂ = (N_global-N_r) × (N_global-n_global) / N_global
+```
+
+**卡方統計量：**
+```
+χ² = Σ (Oᵢⱼ - Eᵢⱼ)² / Eᵢⱼ    （對所有 4 個格子求和）
+```
+
+χ² 越大，說明觀測值與「獨立假設下的期望值」偏差越大，越有理由拒絕 H₀（即字符分佈確實與地區相關）。
+
+**p 值：** χ² 服從自由度 `df = (行數-1)×(列數-1) = 1×1 = 1` 的卡方分佈，查表或用 `scipy.stats.chi2_contingency` 得到 p 值。p 越小，地區偏好越不可能是隨機偶然。
+
+#### Cramér's V（效應量）— 排除樣本量影響
+
+**問題：** χ² 統計量會隨樣本量增大而增大，即使效應很微弱，只要樣本足夠大也能達到顯著。因此需要一個不依賴樣本量的效應強度指標。
+
+**Cramér's V 公式：**
+```
+V = sqrt(χ² / (N_total × min(r-1, c-1)))
+  = sqrt(χ² / N_global)     （本場景 2×2 表，min(1,1)=1）
+```
+
+V 的直覺意義：它等價於「兩個離散變量之間的 phi 相關係數」，是對稱的關聯強度量，取值 [0,1]：
+- V < 0.1：弱關聯，即使顯著也可能無實際意義
+- 0.1 ≤ V < 0.3：中等關聯，地域偏好有一定規律性
+- V ≥ 0.3：強關聯，該字符的分佈高度地域集中
+
+#### Wilson Score 置信區間 — 為何不用普通 Wald 區間
+
+對地區頻率 `p = n_region / N_region` 計算 95% 置信區間時，最直觀的 Wald 區間是：
+
+```
+Wald CI = p ± z_α × sqrt(p(1-p)/N)
+```
+
+但當 N 很小或 p 接近 0/1 時，Wald 區間可能超出 [0,1]（如給出負的下界），統計性質很差。
+
+Wilson Score interval 改為對 z 統計量本身求反（inverts the z-test），避免此問題：
+
+```
+z_α = 1.96   （95% 水平）
+denominator = 1 + z_α² / N
+center = (p + z_α² / (2N)) / denominator     （修正中心點，向 0.5 拉偏）
+margin = z_α × sqrt(p(1-p)/N + z_α²/(4N²)) / denominator
+CI = [max(0, center-margin), min(1, center+margin)]
+```
+
+Wilson 區間的核心改進：它不假設「中心就是 p̂」，而是通過對 z 統計量的代數逆運算求解合理區間，在 N<30 或 p 接近邊界時精確度顯著優於 Wald 區間。
+
+---
+
+### 四、字符嵌入表：`char_embeddings` / `char_similarity`
+
+**來源腳本：** `scripts/core/train_char_embeddings.py`、`src/nlp/`
+
+#### Word2Vec 的核心思想：分佈假設（Distributional Hypothesis）
+
+Word2Vec 的理論基礎是語言學的「分佈假設」：**一個詞（字符）的語義由其出現的上下文決定**。兩個字符如果在相似的上下文中出現（即周圍常與相同的字符相鄰），它們在語義上就相近。
+
+對地名語料來說，「山」和「嶺」都常出現在「大_坑」「小_村」等結構中，兩者的上下文分佈相似，因此 Word2Vec 訓練後它們的向量會彼此接近。
+
+#### Skip-gram 模型的目標函數
+
+Skip-gram 的任務是：給定一個中心字 `wᵢ`，預測它在窗口 `[-window, +window]` 內的上下文字 `wⱼ`。
+
+**原始目標（最大化對數概率）：**
+```
+J = (1/T) Σₜ Σ_{-c≤j≤c, j≠0} log P(wₜ₊ⱼ | wₜ)
+```
+
+其中 `P(wₒ | wᵢ)` 用 Softmax 定義：
+```
+P(wₒ | wᵢ) = exp(vₒᵀ · vᵢ) / Σ_{w∈V} exp(vₙᵀ · vᵢ)
+```
+
+`vᵢ` 是中心詞向量，`vₒ` 是上下文詞向量，均為要學習的 100 維參數。
+
+**問題：** Softmax 分母需對整個詞彙表求和（3,067 個字符 × 每次更新），計算代價大。
+
+#### 負採樣（Negative Sampling）替代 Softmax
+
+實際訓練使用「負採樣」簡化：對每個真實上下文對 `(wᵢ, wₒ)`（正樣本），隨機從詞彙表採樣 `k=5` 個「噪聲詞」`wₙ`（負樣本），目標改為：
+
+```
+J_NEG = log σ(vₒᵀ · vᵢ) + Σ_{n=1}^{k} E[log σ(-vₙᵀ · vᵢ)]
+```
+
+`σ(x) = 1/(1+e⁻ˣ)` 為 sigmoid 函數。直觀理解：讓真實上下文詞的向量點積最大（越相似越好），同時讓隨機噪聲詞的向量點積最小。每次更新只涉及 `k+1=6` 個詞的梯度，計算量從 O(V) 降為 O(k)。
+
+**噪聲詞的採樣分佈：** 按詞頻的 3/4 次方概率採樣（`P(w) ∝ freq(w)^(3/4)`），使高頻字符被更多選為負樣本，防止高頻詞主導訓練。
+
+#### 訓練超參與本項目設置
+
+| 超參 | 值 | 含義 |
+|------|-----|------|
+| `vector_size=100` | 100 | 嵌入向量維度；維度越大表達越豐富，但需要更多數據。地名語料約 28 萬條，100 維是合理選擇 |
+| `window=3` | 3 | 上下文窗口；村名平均 2-4 字，window=3 相當於覆蓋整個村名的大多數字符對 |
+| `min_count=2` | 2 | 極低頻字符（只在 1 個村名出現的孤立字符）在語料中上下文太稀少，訓練的向量無意義 |
+| `sg=1` | 1 | 使用 Skipgram；對低頻字符效果優於 CBOW，因為每個訓練樣本都使用一個確定的中心詞 |
+| `epochs=15` | 15 | 訓練輪數；每輪遍歷全部語料一次，15 輪足夠收斂 |
+| `negative=5` | 5 | 每個正樣本配 5 個負樣本 |
+
+#### Cosine 相似度的幾何意義與預計算
+
+訓練完成後，每個字符有一個 100 維向量。兩個向量的 Cosine 相似度衡量它們在向量空間中的**方向相似性**（而非距離），等於向量夾角的餘弦值：
+
+```
+cosine(A, B) = (A · B) / (||A|| × ||B||) = cos(θ)
+```
+
+- 值域 [-1, 1]，本項目中字符向量通常為正值域 [0, 1]
+- `cosine ≈ 1`：方向幾乎一致，語義高度相似（如「山」和「嶺」）
+- `cosine ≈ 0`：方向垂直，語義無關（如「陳」和「坑」）
+
+由於查詢時需要實時返回「最相似的 top-k 字符」，若每次都計算 3,067 個字符的相似度，延遲不可接受。因此離線批量計算全部 3,067² ≈ 940 萬對相似度，每個字符保存 top-50 結果存入 `char_similarity`，查詢時直接排序返回，實現 O(1) 複雜度。
+
+---
+
+### 五、語義 VTF 表：`semantic_vtf_global` / `semantic_regional_analysis`
+
+**來源腳本：** `src/semantic/vtf_calculator.py` → `VTFCalculator`
+
+#### VTF 的概念起源：從字符頻率到語義類別頻率
+
+傳統詞頻（Term Frequency, TF）統計的是單個詞（字符）出現次數。本項目需要統計的是「語義類別在地名中的出現強度」，例如「廣州有多少村莊帶有水系相關字符」。
+
+由於字符與語義類別是多對一映射（「水」「溪」「江」「塘」都屬於 `water` 類），可以把一個語義類別看作一個「虛擬詞」，它的頻率是類別內所有字符頻率的聚合。這就是「Virtual Term Frequency（虛擬詞頻）」的含義——把不存在的「超詞彙」的出現頻率通過聚合虛擬計算出來。
+
+#### 全局 VTF（`semantic_vtf_global`）計算
+
+```python
+for category in ['water', 'mountain', 'settlement', ...]:   # 9 大類
+    chars_in_category = lexicon[category]           # 如 water 類 = {'水','溪','江','塘',...}
+    # 在 char_frequency_global 中，找出屬於該類別的所有字符
+    # 將它們的 village_count 相加
+    vtf_count = sum(char_freq_global['village_count'] for c in chars_in_category if c in char_freq_global)
+    frequency = vtf_count / total_villages
+```
+
+**注意「多重計數」的設計意圖：** 若村名「水塘村」中「水」和「塘」都屬於 `water` 類，`vtf_count` 會把這個村莊計算兩次（一次算「水」的 village_count，一次算「塘」的 village_count）。這是**刻意的設計**——VTF 反映的是語義類別在語料中的「出現強度」（intensity），而非「覆蓋的唯一村莊數」。包含越多水系字符的村名對水系 VTF 的貢獻越大，這符合「強化語義信號」的目標。
+
+#### 區域 VTF 傾向計算
+
+區域 VTF 頻率的計算同理，得到各地區各類別的 `frequency_regional` 後，使用與字符傾向相同的公式（Lift、Log-odds、Z-score）計算語義類別的地區傾向，存入 `semantic_regional_analysis`。
+
+這使得我們可以問「廣州市的水系語義傾向是否顯著高於全省平均」——與字符傾向分析的邏輯完全一致，只是分析單元從字符升級到語義類別。
+
+---
+
+### 六、語義 PMI 表：`semantic_pmi` / `semantic_pmi_detailed`
+
+**來源腳本：** `src/semantic_composition.py` → `SemanticCompositionAnalyzer.calculate_pmi`
+
+#### PMI 的信息論基礎
+
+**PMI（Pointwise Mutual Information）** 來自信息論，衡量兩個事件的「實際共現概率」相對於「若它們互相獨立時的期望共現概率」的比值，取對數：
+
+```
+PMI(A, B) = log( P(A,B) / (P(A) × P(B)) )
+```
+
+**信息論直覺：** 若 A 和 B 完全獨立，`P(A,B) = P(A)×P(B)`，PMI=0。若 A 出現時 B 幾乎必然出現（強正相關），`P(A,B) >> P(A)×P(B)`，PMI >> 0。若 A 出現時 B 幾乎不出現（強負相關），PMI << 0。
+
+**本項目應用場景：** 衡量兩個語義類別在同一村名中「相鄰出現」的關聯強度。例如，`clan` + `settlement`（如「陳村」中「陳」屬宗族、「村」屬聚落）的共現是否遠超獨立假設下的期望。
+
+#### 具體計算流程
+
+**Step 1：提取語義 Bigram**
+
+對每個村名，按字符順序映射語義類別形成序列，再取相鄰類別對（有序 Bigram）：
+
+```
+村名「東山村」 → 字符序列 ['東','山','村']
+              → 語義序列 ['direction','mountain','settlement']
+              → Bigrams: [('direction','mountain'), ('mountain','settlement')]
+```
+
+全量統計後得到每個 Bigram (A,B) 的出現次數 `count[(A,B)]`。
+
+**Step 2：計算聯合概率和邊際概率**
+
+```python
+total_bigrams = sum(all bigram counts)
+
+# 聯合概率（Bigram 作為整體的概率）
+P(A,B) = count[(A,B)] / total_bigrams
+
+# 邊際概率（每個 Bigram 拆開，各貢獻 2 個 unigram）
+# unigram_counts[A] = A 作為 Bigram 第一個或第二個元素出現的次數
+unigram_total = total_bigrams × 2   # 每個 bigram 貢獻 2 個 unigram 計數
+P(A) = unigram_counts[A] / unigram_total
+P(B) = unigram_counts[B] / unigram_total
+```
+
+**Step 3：計算 PMI（自然對數）**
+
+```python
+pmi = log(P(A,B) / (P(A) × P(B)))
+```
+
+使用自然對數，PMI > 0 表示正關聯，`is_positive=1`；PMI < 0 表示負關聯，`is_positive=0`。
+
+**PMI 的局限與處理：** 原始 PMI 對低頻 Bigram 嚴重偏高（極稀有的 Bigram 一旦出現，`P(A,B)` 遠超期望，PMI 虛高）。本項目通過前端 `min_pmi=0.3` 過濾緩解此問題。更嚴格的方案是 NPMI（Normalized PMI = PMI / -log(P(A,B))，將值域壓縮到 [-1,1]），但本項目未啟用。
+
+**雙版本存儲原因：** `semantic_pmi`（9 大類，100 條）給前端粗粒度查詢，`semantic_pmi_detailed`（76 子類，4,524 條）給精細分析，兩者使用不同詞典獨立計算。
+
+---
+
+### 七、語義組合模式表：`semantic_bigrams` / `semantic_trigrams` / `semantic_composition_patterns`
+
+**來源腳本：** `scripts/core/phase14_semantic_composition.py`、`src/semantic_composition.py`
+
+#### 為什麼要分析語義 N-gram
+
+村名是由字符序列構成的「微型句子」。如果把每個字符替換為其語義標籤，村名就變成了一個語義類別的排列序列。例如：
+
+```
+「大水村」 → direction? + water + settlement
+「陳家坑」 → clan + clan + mountain
+「福田村」 → symbolic + agriculture + settlement
+```
+
+通過統計這些類別序列中相鄰的 Bigram 和 Trigram 頻率，可以發現廣東地名的「語義構詞規律」：哪些語義類別常常相鄰出現（如「宗族+聚落」），哪些罕見相鄰（如「水系+水系」同一村名中連續出現）。
+
+#### Bigram/Trigram 提取：滑動窗口
+
+對長度為 n 的語義序列 `[c₁, c₂, ..., cₙ]`，使用大小為 k 的滑動窗口提取 k-gram：
+
+```
+Bigrams (k=2): (c₁,c₂), (c₂,c₃), ..., (cₙ₋₁,cₙ)    共 n-1 個
+Trigrams (k=3): (c₁,c₂,c₃), (c₂,c₃,c₄), ..., (cₙ₋₂,cₙ₋₁,cₙ)  共 n-2 個
+```
+
+**質量過濾：** 只處理「語義標注覆蓋率 ≥ 50%」的村名（即至少一半的漢字有明確語義標注，不是 'other'）。低覆蓋率說明該村名大量字符未在詞典中，語義序列可信度低。
+
+**百分比計算：** `percentage = count / total_bigrams × 100`，反映各 Bigram 在所有有序相鄰類別對中的佔比。
+
+#### 語義構詞模式識別（`semantic_composition_patterns`）
+
+在 Bigram 頻率基礎上，用一套優先級規則識別 6 類「修飾-中心」語義結構，這些結構對應廣東地名的主要命名邏輯：
+
+| 優先級 | 模式類型 | 觸發條件 | 語言學含義 | 示例 |
+|--------|---------|---------|-----------|------|
+| 1 | `clan_settlement` | cat1=`clan` AND cat2=`settlement` | 「姓氏+聚落詞」是廣東漢族命名最典型模式 | 陳村、李屋、羅寨 |
+| 2 | `clan_head` | cat1=`clan` AND cat2∈地物類 | 姓氏標識某地物的所有者 | 陳山、劉坑、黃田 |
+| 3 | `symbolic_head` | cat1=`symbolic` AND cat2∈地物類 | 吉祥詞修飾自然地物 | 福田、吉水、寶山 |
+| 4 | `modifier_head` | cat1∈[size,direction,number] AND cat2∈地物類 | 尺寸/方位/數量限定地物 | 大山、東坑、三灣 |
+| 5 | `head_settlement` | cat1∈地物類 AND cat2=`settlement` | 地物名+聚落詞（最常見後綴模式） | 水村、山莊、坑村 |
+| 6 | `head_direction` | cat1∈地物類 AND cat2=`direction` | 地物名+方位（如山東、水南） | 山東、水北 |
+
+**地物類（head_categories）** = `[water, mountain, landform, vegetation, settlement, agriculture]`
+
+規則按優先級依次嘗試，已匹配的 Bigram 不再重複處理（避免一個 Bigram 對應多個模式）。`modifier` 和 `head` 字段記錄該模式中修飾語和中心語各是哪個語義類別。
+
+---
+
+### 八、村莊語義結構表：`village_semantic_structure`
+
+**來源腳本：** `scripts/core/phase14_semantic_composition.py` → `step6_extract_village_structures`
+
+#### 計算邏輯
+
+對每個自然村，從 `自然村_去前缀`（去除通用地名前綴後的規範村名）提取語義結構：
+
+1. **字符→類別映射：** 使用詞典將每個漢字映射到語義類別，未在詞典中的字符標記為 `other`
+2. **覆蓋率計算並過濾：**
+   ```
+   coverage = labeled_chars / total_chars   （labeled_chars 為非 other 的字符數）
+   只保留 coverage ≥ 0.5 的村莊（237,461 / 285,860 = 83% 通過）
+   ```
+   這個閾值確保語義序列有足夠的信息量，避免「全是 other」的噪聲記錄影響後續分析。
+3. **三個布爾結構特征：**
+   - `has_modifier`：村名中是否包含「修飾性語義字符」（size/direction/number 類），如「大」「東」「三」
+   - `has_head`：是否包含「地物核心字符」（water/mountain/landform/vegetation 類），如「山」「水」「林」
+   - `has_settlement`：是否包含「聚落詞」（settlement 類），如「村」「莊」「坊」
+
+這三個特征共同描述村名的語義結構完整性：一個「完整」的地名通常同時包含修飾語（描述特征）、中心地物（主題）和聚落詞（聚落類型），構成「修飾-地物-聚落」三段式結構。
+
+---
+
+### 九、N-gram 分析管線：`ngram_frequency` / `regional_ngram_frequency` / `ngram_tendency` / `ngram_significance`
+
+**來源腳本：** `scripts/core/phase12_ngram_analysis.py`
+
+#### 為什麼做字符 N-gram 分析
+
+語義分析（第五~八節）通過「字符→語義類別映射」捕捉語義結構，但詞典覆蓋有限，且無法捕捉字符層面的具體命名習慣。字符 N-gram 分析不依賴語義詞典，直接統計字符串片段的頻率，可以發現：
+- 高頻後綴（如「水村」「大坑」「山村」）反映地名的命名模板
+- 地域性特有 N-gram（如某些客家話或粵語特有的詞組）
+- 各地區的字符使用偏好
+
+#### N-gram 提取與位置標注
+
+對每個村名，按字符為單元，以窗口大小 n（2/3/4）滑動提取所有 n-gram，並按其在村名中的位置打標籤：
+
+```
+村名「東山坑村」（長度=4）：
+  Bigrams (n=2)：「東山」(prefix), 「山坑」(middle), 「坑村」(suffix)
+  Trigrams (n=3)：「東山坑」(prefix), 「山坑村」(suffix)
+  4-grams (n=4)：「東山坑村」(prefix-suffix)  # 整個村名即為前後綴
+```
+
+位置判斷邏輯：
+- 從第 1 個字符開始 → `prefix`
+- 在最後 1 個字符結束 → `suffix`
+- 兩者都是 → `prefix-suffix`（整個村名長度等於 n 時）
+- 其他位置 → `middle`
+
+全局 `ngram_frequency` 還額外存儲一個 `position='all'` 的匯總行，統計不分位置的總頻率。
+
+#### 傾向指標計算：`ngram_tendency`
+
+與字符傾向計算完全相同的框架，但對象是 N-gram：
+
+```
+lift = P(ngram | 地區 r) / P(ngram | 全省)
+     = (regional_count / regional_total)
+       / (global_count / global_total)
+```
+
+**跨地區聚合的正確性問題（`regional_total_raw`）：** 前端在縣/市級別查詢時需要把多個鎮級數據聚合。如果直接 `SUM(regional_count) / SUM(regional_total)` 計算 lift，分母 `regional_total` 是已過濾後的 N-gram 總數（因為 Step 6 刪除了不顯著的 N-gram），會使分母偏小、Lift 偏大。
+
+解決方案：額外記錄 `regional_total_raw`（過濾前的原始 N-gram 總數），聚合時用原始分母：
+
+```
+Lift_aggregated = SUM(regional_count) / SUM(regional_total_raw)
+                ÷ (global_count / global_total)
+```
+
+#### 顯著性過濾（`ngram_significance`）
+
+同樣使用卡方獨立性檢驗（2×2 列聯表），構建方式與字符顯著性完全相同，只是把「字符」換成「N-gram」。
+
+**關鍵優化：** 只存儲 p < 0.05 的顯著結果，過濾後 `ngram_significance` 保留 202 萬條顯著 N-gram，相比原始 N-gram 傾向表減少約 40% 存儲。`ngram_tendency` 和 `regional_ngram_frequency` 也同步刪除不顯著的 N-gram，保持三表一致性。
+
+---
+
+### 十、空間特征表：`village_spatial_features`
+
+**來源腳本：** `scripts/core/generate_spatial_features.py`
+
+#### 球面最近鄰：為什麼需要 Haversine 距離
+
+GPS 坐標（經緯度）不是平面坐標，地球是球面。在廣東省的緯度範圍（20°~25°N），一度經度約 100 km，一度緯度約 111 km，相差不大但不相等。如果直接用歐氏距離計算兩點間的「度數差」，距離計算會有系統性誤差（在高緯度地區誤差更大）。
+
+Haversine 公式直接計算球面上兩點的大圓距離（Great-circle distance）：
+
+```
+a = sin²(Δlat/2) + cos(lat₁) × cos(lat₂) × sin²(Δlon/2)
+d = 2 × R × arcsin(sqrt(a))   （R = 6371 km，地球半徑）
+```
+
+實現時將坐標轉為弧度（`np.radians(coords)`），用 `NearestNeighbors(metric='haversine')` 的 Ball Tree 算法高效計算 k 個最近鄰。Ball Tree 的優勢：它對球面坐標建立分層包圍球樹，時間複雜度 O(n log n) 建樹，O(log n) 查詢，比暴力 O(n²) 快得多。
+
+#### 密度指標計算
+
+```
+local_density = 1.0 / (avg_knn_distance_km + 0.001)
+```
+
+這是「逆距離」密度估計：k 個最近鄰的平均距離越小，局部密度越高。加 0.001 是防止除以零的數值穩定性處理（極少數村莊坐標完全重疊時 avg_distance=0）。
+
+三個半徑（1/5/10 km）對應不同尺度的密度分析：1km 反映超密集聚居，5km 反映鄉鎮級聚落密度，10km 反映縣域級空間格局。
+
+---
+
+### 十一、空間聚類表：`spatial_clusters` / `village_cluster_assignments`
+
+**來源腳本：** `scripts/core/run_spatial_analysis.py`、`scripts/core/run_hdbscan_clustering.py`
+
+#### DBSCAN 算法原理：基於密度的聚類
+
+DBSCAN（Density-Based Spatial Clustering of Applications with Noise）的核心概念：
+
+**核心點（Core Point）：** 若點 p 在半徑 eps 內有至少 min_samples 個鄰居（包括自身），則 p 是核心點。
+
+**密度直達（Directly Density-Reachable）：** 若 q 在核心點 p 的 eps 鄰域內，則 q 密度直達自 p。
+
+**密度連通（Density-Connected）：** 若存在核心點鏈 p→...→q，使得鏈上相鄰點密度直達，則 p 和 q 密度連通，屬於同一個聚類。
+
+**噪聲點（Noise）：** 不屬於任何聚類的點（`cluster_id = -1`），代表孤立的村莊。
+
+**DBSCAN 的優勢（相對於 KMeans）：**
+- 不需要預設聚類數 k
+- 能識別任意形狀的聚類（廣東地形複雜，村莊沿河谷分佈是非球形的）
+- 能識別噪聲點（孤立村莊）
+
+**eps 參數（廣東坐標下的單位換算）：** eps 使用角度（度）作為單位，廣東省緯度約 23°N，1 度緯度 ≈ 111km，1 度經度 ≈ 102km。四套方案對應：
+- `spatial_eps_05`：eps ≈ 0.05° → 約 5km，識別超密集核心聚落
+- `spatial_eps_10`：eps ≈ 0.10° → 約 10km，識別標準密度聚落群
+- `spatial_eps_20`：eps ≈ 0.20° → 約 20km，識別跨鎮域的廣域聚落帶
+
+#### HDBSCAN：允許變密度的層次化 DBSCAN
+
+DBSCAN 的一個缺點是全局使用同一個 eps，無法同時識別「高密度的珠三角城鎮群」和「低密度的山區村落群」——使用大 eps 珠三角一片連成超大聚類，使用小 eps 山區所有點都是噪聲。
+
+HDBSCAN（Hierarchical DBSCAN）的解決方案：
+
+1. **構建最小生成樹（Mutual Reachability Graph）：** 對所有點計算「互達距離」（Mutual Reachability Distance），綜合考慮點間距離和各點的核心距離
+2. **層次聚類：** 用 Single-Linkage（最近距離合併）構建聚類層次樹
+3. **聚類穩定性剪枝：** 遍歷層次樹，計算每個聚類的「存在穩定性」（在 eps 從小到大增長過程中聚類保持連續的程度），保留穩定性最高的聚類
+
+**本項目參數：**
+- `min_cluster_size=50`：一個聚類至少需要 50 個村莊才被認為是真正的聚落群體
+- `min_samples=10`：計算核心距離時使用的最近鄰數，值越大聚類越保守（容忍更多噪聲）
+
+HDBSCAN 還輸出每個點的 `cluster_probability`（軟歸屬概率，0~1），存儲在 `village_cluster_assignments.cluster_probability`。
+
+---
+
+### 十二、空間熱點表：`spatial_hotspots`
+
+**來源腳本：** `src/pipelines/spatial_pipeline.py`
+
+#### KDE（核密度估計）的數學原理
+
+KDE 是一種非參數方法，用已知的離散樣本點估計整個空間上的連續概率密度函數，而不假設密度服從某種參數分佈（如正態分佈）。
+
+**核心公式：** 在位置 x 處的密度估計值為所有樣本點的核函數之和：
+
+```
+f̂(x) = (1 / (n × h²)) × Σᵢ K((x - xᵢ) / h)
+```
+
+其中：
+- `n`：樣本數（285,860 個村莊的 GPS 坐標）
+- `h`：帶寬（bandwidth），控制每個樣本點影響的範圍
+- `K(u)`：核函數，高斯核：`K(u) = (1/2π) × exp(-||u||²/2)`
+
+**直觀理解：** 每個村莊坐標在地圖上「散佈」出一個高斯（鐘形）影響區域，在該村莊附近密度高，遠處快速衰減。所有村莊的高斯疊加後，高密度區域（多個村莊疊加的峰值）即為熱點。
+
+#### 帶寬選擇：Scott's Rule
+
+帶寬 h 決定估計的平滑程度：h 太小，每個村莊單獨形成尖峰，看不出聚集規律；h 太大，整個省都模糊成一片。
+
+Scott's Rule 提供一個自動選取帶寬的公式：
+
+```
+h = n^(-1/(d+4)) × σ_data
+  = n^(-1/6) × σ_data     （d=2 維）
+```
+
+其中 `σ_data` 為坐標數據的標準差（分別對經度和緯度計算），n 為樣本數。本質上這個公式假設數據服從正態分佈，最優帶寬正比於數據標準差、反比於樣本量的 1/6 次方（樣本越多，帶寬越小，估計越精細）。
+
+#### 熱點識別流程
+
+1. 在經緯度範圍內建立均勻格柵（Grid，如 500×500 分辨率）
+2. 對格柵每個點計算 KDE 密度值 `f̂(x)`
+3. 用「局部最大值檢測」找出密度格柵上的峰值點（周圍所有點密度均低於當前點的點）
+4. 對每個峰值點，擴展到 `density_score` 閾值確定熱點半徑 `radius_km`
+5. 統計熱點半徑內的村莊數 `village_count`
+6. 結果存入 `spatial_hotspots`（317 個熱點，對應廣東省各主要聚落集群）
+
+---
+
+### 十三、空間整合表：`spatial_tendency_integration`
+
+**來源腳本：** 離線整合腳本
+
+#### 空間相干性（Spatial Coherence）— 基於信息熵
+
+**問題：** 某字符（如「陳」）在廣東省 100 個村莊中出現，我們想知道這些村莊是集中在少數幾個空間聚類中（「強空間集中性」），還是分散在全省各地（「弱空間集中性」）。
+
+**信息熵方法：** 設字符 c 在 K 個空間聚類中的分佈為：
+
+```
+pₖ = n_k_with_char / total_with_char   （含字符 c 的村莊中，位於聚類 k 的比例）
+```
+
+`pₖ` 是一個離散概率分佈，其 Shannon 熵：
+
+```
+H = -Σₖ pₖ × log(pₖ)
+```
+
+H 越大 → 分佈越均勻 → 字符 c 均勻分散在各聚類中 → 空間集中性低
+
+H 越小 → 分佈越集中 → 字符 c 大量出現在少數幾個聚類 → 空間集中性高
+
+**最大熵標準化：** `H_max = log(K)`（當 K 個聚類中 pₖ 完全均勻時的最大熵）
+
+**空間相干性：**
+```
+spatial_coherence = 1 - H / H_max   ∈ [0, 1]
+```
+- `= 1`：字符完全集中在單一聚類（H=0）
+- `= 0`：字符完全均勻分散（H=H_max）
+
+#### Mann-Whitney U 檢驗 — 非參數的分佈差異
+
+**問題：** 在某空間聚類 r 中，含字符 c 的村莊，它們的傾向分數（z_score）是否顯著高於不含字符 c 的村莊？
+
+**為什麼用 Mann-Whitney U 而不用 t 檢驗？** t 檢驗假設兩組數據都服從正態分佈。傾向分數（Z-score）的分佈可能是重尾的、有極端值的，不保證正態。Mann-Whitney U 是非參數檢驗，不做任何分佈假設。
+
+**算法原理：** 設兩組分別為 X₁,...,Xₘ（含字符 c 的村莊傾向分數）和 Y₁,...,Yₙ（不含字符 c 的村莊傾向分數）。
+
+U 統計量計算兩組之間的「勝負關係」：
+
+```
+U = 對所有 (Xᵢ, Yⱼ) 對，計算 Xᵢ > Yⱼ 的次數
+U = Σᵢ Σⱼ I(Xᵢ > Yⱼ)   （I 為指示函數）
+```
+
+等價於對合並後的 m+n 個值排秩，計算 X 組的秩和 Wₓ：
+
+```
+U = Wₓ - m(m+1)/2
+```
+
+**零假設：** 兩組數據來自同一分佈（字符 c 的存在對傾向分數沒有影響）。
+
+**p 值：** 在大樣本下 U 近似正態分佈，標準化後得到 z 統計量並計算 p 值。`p_value < 0.05` 即認為含字符 c 的村莊的傾向分數分佈顯著不同於不含字符 c 的村莊，記 `is_significant=1`。
+
+---
+
+### 十四、地區相似度表：`region_similarity`
+
+**來源腳本：** `scripts/core/phase15_region_similarity.py`、`src/analysis/region_similarity.py`
+
+#### 地區表示為特征向量
+
+要計算兩個縣之間的「命名風格相似度」，需要先把每個縣「數值化」為一個向量。特征向量的每個維度對應一個字符，維度值為該字符在該縣的出現頻率。
+
+**特征字符選取（兩類字符的並集）：**
+
+1. **全省 Top-100 高頻字符：** 代表廣東地名的基礎詞彙，確保所有地區都有非零值（通用性）
+2. **高傾向字符（|z_score| ≥ 2.0）：** 在某些地區高度集中的字符，哪怕全省頻率不高，也可能攜帶重要的地域信息（區分性）
+
+這樣選取兼顧「足夠的維度使向量有意義」和「具有地域區分能力」。
+
+#### 三種相似度指標的幾何/集合含義
+
+**Cosine 相似度（方向相似性）：**
+
+```
+cosine(A, B) = (Σᵢ aᵢ×bᵢ) / (sqrt(Σᵢ aᵢ²) × sqrt(Σᵢ bᵢ²))
+             = A·B / (||A|| × ||B||)
+```
+
+幾何意義：兩個向量的夾角餘弦值，只考慮「方向」不考慮「長度」。若縣 A 村莊較少（向量整體偏小），縣 B 村莊較多（向量整體偏大），但字符使用比例相同，Cosine=1（完全相似）。這使得 Cosine 對村莊數量的絕對差異不敏感，只比較字符偏好的相對結構，適合不同規模地區的比較。
+
+**Jaccard 相似度（集合交叉）：**
+
+取每個地區 z_score > 0（即傾向偏高）的字符集 S：
+
+```
+jaccard(A, B) = |S_A ∩ S_B| / |S_A ∪ S_B|
+```
+
+Jaccard 是集合層面的相似度，完全不考慮程度，只看「高傾向字符是否重疊」。兩個地區共同偏好的字符越多，Jaccard 越高。適合「定性」比較：哪些字符是兩地共有的命名偏好。
+
+**歐氏距離（數值差異）：**
+
+```
+euclidean(A, B) = sqrt(Σᵢ (aᵢ - bᵢ)²)
+```
+
+直接衡量兩個向量每個維度的差值平方和，對大差值更敏感（平方放大）。兩地在某個字符上使用率差距越大，歐氏距離越大。與 Cosine 不同，歐氏距離同時考慮方向和大小。
+
+**附加輸出：**
+- `common_high_tendency_chars`：兩地共同高傾向字符（z_score > 1.5）列表
+- `distinctive_chars_r1/r2`：各自獨有的高傾向字符（僅在一方偏高）列表
+
+---
+
+### 十五、語義指數表：`semantic_indices`
+
+**來源腳本：** `src/semantic/` 相關計算模塊
+
+#### 語義多樣性的測量
+
+**raw_intensity（原始強度）：** 就是各地區的語義 VTF 計數，反映某語義類別的絕對強度。
+
+**normalized_index（標準化指數）：**
+
+```
+normalized_index = raw_intensity / MAX(raw_intensity_across_all_regions) × 100
+```
+
+這是一個省內相對排名，100 = 全省最強的地區。便於跨類別和跨地區比較（因為不同語義類別的絕對 VTF 差異很大：「聚落」類在所有地區都高，「基建」類普遍低，直接比較無意義）。
+
+#### Shannon Entropy（信息熵）— 語義豐富度
+
+來自信息論（Claude Shannon, 1948），衡量一個離散概率分佈的「不確定性」或「均勻程度」：
+
+```
+H = -Σᵢ pᵢ × log(pᵢ)     （自然對數，nats 為單位）
+```
+
+設 9 大類別的 VTF 頻率歸一化為概率分佈 `p₁,...,p₉`（`Σpᵢ=1`）：
+
+- **最大熵：** 9 個類別均等分佈時 `H_max = log(9) ≈ 2.197`，意味著命名主題極多樣，沒有任何語義類別特別突出
+- **最小熵：** 所有村莊集中在一個語義類別時 H=0，意味著命名風格極度單一
+
+**地名學意義：** Shannon 熵高的地區，村名語義多樣，地形複雜、文化多元；熵低的地區，村名語義集中（如全是宗族類），命名習慣更統一。
+
+#### Simpson 多樣性指數 — 來自生態學
+
+原本用於衡量生態系統中物種多樣性，引申到語義類別的均勻分佈：
+
+```
+D = 1 - Σᵢ pᵢ²
+```
+
+等價形式：隨機從語料中抽取兩個字符（有放回），它們屬於不同語義類別的概率。`D∈[0,1]`：
+- D → 1：類別分佈極均勻（任兩個字符大概率屬於不同類別）
+- D → 0：完全集中在單一類別（任兩個字符幾乎屬於同一類別）
+
+**與 Shannon 熵的區別：** Shannon 熵對稀少類別更敏感（因為 log 函數在 p→0 時放大），Simpson 指數對優勢類別更敏感（因為 p² 對大 p 更敏感）。兩者互補。
+
+---
+
+### 十六、村莊特征表：`village_features`
+
+**來源腳本：** `scripts/core/generate_village_features.py`、`src/features/feature_extractor.py`
+
+#### 特征提取邏輯
+
+從 `广东省自然村_预处理.自然村_去前缀`（去前綴的規範村名）提取：
+
+**後綴 N-gram（suffix_1/2/3）：**
+- `suffix_1`：村名最後 1 個字符（例：「村」）
+- `suffix_2`：村名最後 2 個字符（例：「水村」）
+- `suffix_3`：村名最後 3 個字符（例：「大水村」）
+
+**前綴 N-gram（prefix_1/2/3）：** 同理，取村名前 1/2/3 個字符。
+
+**語義類別布爾標記（9 個，`sem_*`）：**
+```python
+# 使用 semantic_lexicon_v1.json（9 大類詞典）
+char_labels = {char: category for category, chars in lexicon.items() for char in chars}
+for char in village_name:
+    if char in char_labels:
+        category = char_labels[char]
+        row[f'sem_{category}'] = 1  # 布爾標記，只要出現任意屬於該類的字符即為 1
+```
+
+9 個語義布爾列：`sem_mountain, sem_water, sem_settlement, sem_direction, sem_clan, sem_symbolic, sem_agriculture, sem_vegetation, sem_infrastructure`
+
+- 值為 1 表示該村名至少包含一個屬於此語義類別的字符
+- 值為 0 表示不包含
+
+**聚類標注列（`kmeans_cluster_id, dbscan_cluster_id, gmm_cluster_id`）：** 由在線 ML 計算結果回寫（初始為 NULL）。
+
+---
+
+### 十七、ML 聚類在線計算（Module 7 — `/compute/clustering/*`）
+
+**來源代碼：** `api/compute/` 後端路由
+
+#### K-Means：最小化類內方差
+
+K-Means 的目標是將 N 個數據點分成 k 個聚類，使每個聚類的「類內方差」（Within-Cluster Sum of Squares, WCSS）最小：
+
+```
+最小化：WCSS = Σᵢ₌₁ᵏ Σₓ∈Cᵢ ||x - μᵢ||²
+```
+
+其中 `μᵢ` 是聚類 `Cᵢ` 的質心（均值）。
+
+**迭代求解（Lloyd's Algorithm）：**
+1. 隨機初始化 k 個質心 `μ₁,...,μₖ`（本項目用 k-means++ 初始化，比純隨機收斂更快）
+2. **分配步驟：** 每個數據點分配到最近的質心：`label(x) = argminᵢ ||x - μᵢ||²`
+3. **更新步驟：** 重新計算每個聚類的質心：`μᵢ = mean(所有屬於 Cᵢ 的點)`
+4. 重複 2-3 直到收斂（質心不再移動）或達到最大迭代次數
+
+**K-Means 的假設與局限：** 假設每個聚類是球形的（由於使用歐氏距離），且所有聚類大小相近。如果地區的命名風格呈現非球形或大小差異懸殊的聚類結構，K-Means 效果較差。
+
+#### GMM（Gaussian Mixture Model）：軟聚類
+
+GMM 把 K-Means 的「硬分配」（每點只屬一個聚類）推廣為「軟分配」（每點屬於每個聚類的概率）：
+
+**模型假設：** 數據來自 k 個高斯分佈的混合：
+
+```
+p(x) = Σᵢ₌₁ᵏ πᵢ × N(x | μᵢ, Σᵢ)
+```
+
+其中 `πᵢ` 是第 i 個分量的混合比例，`N(x | μᵢ, Σᵢ)` 是均值 `μᵢ`、協方差矩陣 `Σᵢ` 的高斯分佈。
+
+**EM 算法求解（Expectation-Maximization）：**
+- **E 步（期望）：** 計算每個點屬於每個高斯分量的後驗概率（責任值）：`γᵢₖ = πₖ × N(xᵢ | μₖ, Σₖ) / p(xᵢ)`
+- **M 步（最大化）：** 利用責任值更新參數 `πₖ, μₖ, Σₖ` 使對數似然最大化
+- 交替迭代直到收斂
+
+**GMM 的優勢：** 每個聚類可以是橢圓形（因為有協方差矩陣），且輸出軟概率。對於命名風格有「漸變過渡」的地區（如客家話-粵語方言過渡帶），GMM 的軟分配能更準確地反映模糊邊界。
+
+#### 聚類評估指標：三種不同視角
+
+**Silhouette Score（輪廓系數）：** 衡量每個點「是否歸對了聚類」
+
+對每個點 x，設 `a = 其所在聚類的平均類內距離`，`b = 最近異聚類的平均距離`：
+
+```
+s(x) = (b - a) / max(a, b)   ∈ [-1, 1]
+```
+
+- `s ≈ 1`：x 與本聚類緊密，與其他聚類分離（歸類正確）
+- `s ≈ 0`：x 在兩個聚類邊界上（模糊）
+- `s ≈ -1`：x 應該屬於另一個聚類（歸類錯誤）
+
+整體 Silhouette Score = 所有點的均值。
+
+**Davies-Bouldin Index（DBI）：** 衡量「類內散度 vs 類間分離度」的比率
+
+```
+DBI = (1/k) × Σᵢ max_{j≠i} [ (sᵢ + sⱼ) / dᵢⱼ ]
+```
+
+`sᵢ` = 聚類 i 的平均類內距離（散度），`dᵢⱼ` = 聚類 i 和 j 的質心距離。比率越小（類內緊湊、類間分離），聚類效果越好。DBI 越小越好。
+
+**Calinski-Harabasz Score（CH Score，方差比標準）：**
+
+```
+CH = [tr(Bₖ) / (k-1)] / [tr(Wₖ) / (N-k)]
+```
+
+`tr(Bₖ)` = 類間散佈矩陣的跡（類間方差總量），`tr(Wₖ)` = 類內散佈矩陣的跡（類內方差總量）。本質上是「類間方差」相對「類內方差」的比值，比值越大說明聚類越清晰（類間差異大、類內差異小）。CH Score 越大越好。
+
+#### PCA 降維（Principal Component Analysis）
+
+特征矩陣可能是高維的（語義 9D + 形態 N D + 多樣性 2D，總計可達幾百維）。在高維空間中，距離計算受「維度詛咒」影響（高維空間中所有點距離趨於相等），且計算量大。
+
+**PCA 的做法：** 找到特征空間中方差最大的方向（主成分），這些方向是數據變化最顯著的維度：
+
+1. 計算特征矩陣的協方差矩陣 `C = X^T X / (n-1)`
+2. 對 C 做特征值分解：`C = V Λ V^T`（V 的列即主成分方向）
+3. 取前 50 個特征向量（解釋方差最多的方向），投影得到 50 維新特征
+
+**為什麼用 50 維？** 前 50 個主成分通常能解釋原始特征 80-95% 的方差，同時去除噪聲維度，且距離計算更準確、更快。
+
+#### StandardScaler 標準化的必要性
+
+不同特征的量綱（scale）差異極大：語義 z_score 通常在 [-3, 3]，N-gram 頻率在 [0, 0.5]，Shannon 熵在 [0, 2.2]。若不標準化，量綱大的特征會主導距離計算，使量綱小的特征（即使信息豐富）被忽略。
+
+StandardScaler 對每個特征列做：
+```
+x_scaled = (x - mean(x)) / std(x)
+```
+
+使每個特征列均值=0、方差=1，確保所有特征對距離計算的貢獻平等。
+
+---
+
+*算法詳情補充完畢（2026-02-28）。各算法公式均對應源代碼實現，可在 `src/analysis/`、`src/semantic/`、`scripts/core/` 目錄下找到具體實現。*
+

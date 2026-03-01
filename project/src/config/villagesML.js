@@ -920,22 +920,22 @@ export const VILLAGESML_MODULES = [
       }
     ]
   },
-  {
-    id: 'system',
-    label: '信息',
-    icon: 'ℹ️',
-    path: '/villagesML?module=system',
-    weight: 1,
-    mobileWeight: 1,
-    weightIconOnly: 0.5,
-    fontSize: 1.0,
-    mobileFontSize: 1.0,
-    requireAuth: false,
-    hideOnMobile: false,
-    hideLabelOnMobile: true,
-    showLabelOnlyWhenActive: false,
-    subtabs: []
-  }
+  // {
+  //   id: 'system',
+  //   label: '信息',
+  //   icon: 'ℹ️',
+  //   path: '/villagesML?module=system',
+  //   weight: 1,
+  //   mobileWeight: 1,
+  //   weightIconOnly: 0.5,
+  //   fontSize: 1.0,
+  //   mobileFontSize: 1.0,
+  //   requireAuth: false,
+  //   hideOnMobile: false,
+  //   hideLabelOnMobile: true,
+  //   showLabelOnlyWhenActive: false,
+  //   subtabs: []
+  // }
 ]
 
 /**

@@ -13,24 +13,13 @@
           <span class="arrow">▾</span>
         </div>
 
-        <Teleport to="body">
-          <div
-              v-if="isTab1DropdownOpen"
-              class="dropdown-panel"
-              :style="tab1DropdownStyle"
-              ref="toneDropdownPanel"
-          >
-            <div
-                class="dropdown-item"
-                v-for="opt in ['默認', '調值', '調類']"
-                :key="opt"
-                @click="selectTab1Type(opt)"
-                :class="{ 'active': selectedTab1Type === opt }"
-            >
-              {{ opt }}
-            </div>
-          </div>
-        </Teleport>
+        <SimpleDropdown
+          v-if="isTab1DropdownOpen"
+          v-model="selectedTab1Type"
+          :options="toneTypeOptions"
+          :triggerEl="tab1TriggerEl"
+          @close="isTab1DropdownOpen = false"
+        />
       </div>
     </div>
 
@@ -77,6 +66,7 @@ import { getCoordinates } from '@/api/query/geo'
 import {globalPayload, mapStore, resultCache} from '@/utils/store.js';
 import ResultList from "@/components/result/ResultList.vue";
 import CharsAndTones from "@/components/result/CharsAndTones.vue";
+import SimpleDropdown from "@/components/common/SimpleDropdown.vue";
 import {generateTonesMergedData,generateCharsMergedData,func_mergeData} from "@/utils/MapData.js";
 
 const route = useRoute();
@@ -132,17 +122,6 @@ const stopTimer = () => {
   isLoading.value = false;
   if (timerInterval) clearInterval(timerInterval);
 };
-onMounted(() => {
-  window.addEventListener('click', handleClickOutside);
-  window.addEventListener('resize', updateDropdownPosition);
-  // ... 原有的 onMounted
-});
-
-onUnmounted(() => {
-  window.removeEventListener('click', handleClickOutside);
-  window.removeEventListener('resize', updateDropdownPosition);
-  // ... 原有的 onUnmounted
-});
 
 onUnmounted(() => {
   // ✅ 卸载时让当前请求失效，防止卸载后仍写入 store
@@ -333,48 +312,19 @@ const goToQuery = () => {
   router.push({ query: { tab: 'query' } });
 };
 
-// ================= ✨ 新增：Tab1 Dropdown 邏輯 =================
-const selectedTab1Type = ref('默認'); // 傳給子組件的狀態
+// ================= ✨ Tab1 Dropdown 邏輯 (使用 SimpleDropdown) =================
+const selectedTab1Type = ref('默認');
 const isTab1DropdownOpen = ref(false);
 const tab1TriggerEl = ref(null);
-const tab1DropdownStyle = ref({});
+
+const toneTypeOptions = [
+  { label: '默認', value: '默認' },
+  { label: '調值', value: '調值' },
+  { label: '調類', value: '調類' }
+];
 
 const toggleTab1Dropdown = () => {
-  if (isTab1DropdownOpen.value) {
-    isTab1DropdownOpen.value = false;
-  } else {
-    updateDropdownPosition();
-    isTab1DropdownOpen.value = true;
-  }
-};
-
-const selectTab1Type = (type) => {
-  selectedTab1Type.value = type;
-  isTab1DropdownOpen.value = false;
-  // 此處僅更新狀態，數據邏輯交由子組件根據 props 變化處理
-};
-
-const updateDropdownPosition = () => {
-  if (tab1TriggerEl.value) {
-    const rect = tab1TriggerEl.value.getBoundingClientRect();
-    tab1DropdownStyle.value = {
-      position: 'absolute',
-      top: `${rect.bottom + window.scrollY + 5}px`,
-      left: `${rect.left + window.scrollX}px`,
-      minWidth: `${rect.width}px`,
-      zIndex: 9999
-    };
-  }
-};
-
-// 點擊外部關閉
-const handleClickOutside = (e) => {
-  if (isTab1DropdownOpen.value && tab1TriggerEl.value) {
-    // 如果點擊的不是 Trigger 且不是 Panel 內部
-    if (!tab1TriggerEl.value.contains(e.target) && !e.target.closest('.dropdown-panel')) {
-      isTab1DropdownOpen.value = false;
-    }
-  }
+  isTab1DropdownOpen.value = !isTab1DropdownOpen.value;
 };
 
 </script>
@@ -523,6 +473,38 @@ const handleClickOutside = (e) => {
 
 .go-query-btn:active {
   transform: translateY(1px);
+}
+
+/* Dropdown 样式 */
+.dropdown-wrapper {
+  flex: 1;
+  position: relative;
+  align-items: center;
+  display: flex;
+  justify-content: center;
+}
+
+.dropdown {
+  padding: 6px 12px;
+  border-radius: var(--radius-md);
+  background: var(--glass-light);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  cursor: pointer;
+  font-size: 14px;
+  border: 1px solid rgba(200, 200, 200, 0.5);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-width: 80px;
+  margin: auto;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.dropdown:hover {
+  background: var(--glass-medium);
+  border-color: var(--color-primary);
 }
 
 
