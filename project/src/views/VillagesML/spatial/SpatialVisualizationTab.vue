@@ -162,7 +162,7 @@ import {
   getSpatialClustersAvailableRuns,
   getNgramTendency,
   getCharTendencyByChar
-} from '@/api'
+} from '@/api/index.js'
 import { showError, showWarning, showConfirm } from '@/utils/message.js'
 import { userStore } from '@/utils/store.js'
 import {

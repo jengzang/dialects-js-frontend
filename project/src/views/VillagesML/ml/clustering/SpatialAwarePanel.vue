@@ -52,7 +52,7 @@
 import { ref, computed } from 'vue'
 import { villagesMLStore } from '@/utils/villagesMLStore.js'
 import { userStore } from '@/utils/store.js'
-import { runSpatialAwareClustering } from '@/api'
+import { runSpatialAwareClustering } from '@/api/index.js'
 import { showSuccess, showError, showWarning } from '@/utils/message.js'
 import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
 import AlgorithmSelector from './shared/AlgorithmSelector.vue'

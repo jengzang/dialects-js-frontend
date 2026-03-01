@@ -106,7 +106,7 @@ import {
   getCharTendency,
   runClustering,
   getSemanticNetwork
-} from '@/api'
+} from '@/api/index.js'
 import { showError, showSuccess, showWarning } from '@/utils/message.js'
 import { VILLAGESML_MODULES, getModuleConfig, getVisibleModules } from '@/config/villagesML.js'
 
@@ -187,47 +187,47 @@ const isModuleActive = (moduleId) => {
 // ========================================
 
 // Lazy load page components
-const CharacterEmbeddings = defineAsyncComponent(() => import('@/components/villagesML/character/CharacterEmbeddings.vue'))
-const CharacterSignificance = defineAsyncComponent(() => import('@/components/villagesML/character/CharacterSignificance.vue'))
-const CharacterNetwork = defineAsyncComponent(() => import('@/components/villagesML/character/CharacterNetwork.vue'))
-const SemanticCategories = defineAsyncComponent(() => import('@/components/villagesML/semantic/SemanticCategories.vue'))
-const SemanticComposition = defineAsyncComponent(() => import('@/components/villagesML/semantic/SemanticComposition.vue'))
-const SemanticNgrams = defineAsyncComponent(() => import('@/components/villagesML/semantic/SemanticNgrams.vue'))
-const SemanticIndices = defineAsyncComponent(() => import('@/components/villagesML/semantic/SemanticIndices.vue'))
-const SemanticSubcategories = defineAsyncComponent(() => import('@/components/villagesML/semantic/SemanticSubcategories.vue'))
-const SpatialHotspotsTab = defineAsyncComponent(() => import('@/components/villagesML/spatial/SpatialHotspotsTab.vue'))
-const SpatialClustersTab = defineAsyncComponent(() => import('@/components/villagesML/spatial/SpatialClustersTab.vue'))
-const SpatialVisualizationTab = defineAsyncComponent(() => import('@/components/villagesML/spatial/SpatialVisualizationTab.vue'))
-const SpatialIntegration = defineAsyncComponent(() => import('@/components/villagesML/spatial/SpatialIntegration.vue'))
-const NgramExplore = defineAsyncComponent(() => import('@/components/villagesML/pattern/NgramExplore.vue'))
-const NgramStats = defineAsyncComponent(() => import('@/components/villagesML/pattern/NgramStats.vue'))
-const PatternFrequency = defineAsyncComponent(() => import('@/components/villagesML/pattern/PatternFrequency.vue'))
-const PatternStructural = defineAsyncComponent(() => import('@/components/villagesML/pattern/PatternStructural.vue'))
-const PatternTendency = defineAsyncComponent(() => import('@/components/villagesML/pattern/PatternTendency.vue'))
-const RegionalAggregates = defineAsyncComponent(() => import('@/components/villagesML/regional/RegionalAggregates.vue'))
-const RegionalVectors = defineAsyncComponent(() => import('@/components/villagesML/regional/RegionalVectors.vue'))
-const CategoryTendency = defineAsyncComponent(() => import('@/components/villagesML/regional/CategoryTendency.vue'))
-const RegionSimilarity = defineAsyncComponent(() => import('@/components/villagesML/regional/RegionSimilarity.vue'))
-const FeatureExtraction = defineAsyncComponent(() => import('@/components/villagesML/ml/FeatureExtraction.vue'))
-const SubsetAnalysis = defineAsyncComponent(() => import('@/components/villagesML/ml/SubsetAnalysis.vue'))
-const SystemInfo = defineAsyncComponent(() => import('@/components/villagesML/system/SystemInfo.vue'))
+const CharacterEmbeddings = defineAsyncComponent(() => import('@/views/VillagesML/character/CharacterEmbeddings.vue'))
+const CharacterSignificance = defineAsyncComponent(() => import('@/views/VillagesML/character/CharacterSignificance.vue'))
+const CharacterNetwork = defineAsyncComponent(() => import('@/views/VillagesML/character/CharacterNetwork.vue'))
+const SemanticCategories = defineAsyncComponent(() => import('@/views/VillagesML/semantic/SemanticCategories.vue'))
+const SemanticComposition = defineAsyncComponent(() => import('@/views/VillagesML/semantic/SemanticComposition.vue'))
+const SemanticNgrams = defineAsyncComponent(() => import('@/views/VillagesML/semantic/SemanticNgrams.vue'))
+const SemanticIndices = defineAsyncComponent(() => import('@/views/VillagesML/semantic/SemanticIndices.vue'))
+const SemanticSubcategories = defineAsyncComponent(() => import('@/views/VillagesML/semantic/SemanticSubcategories.vue'))
+const SpatialHotspotsTab = defineAsyncComponent(() => import('@/views/VillagesML/spatial/SpatialHotspotsTab.vue'))
+const SpatialClustersTab = defineAsyncComponent(() => import('@/views/VillagesML/spatial/SpatialClustersTab.vue'))
+const SpatialVisualizationTab = defineAsyncComponent(() => import('@/views/VillagesML/spatial/SpatialVisualizationTab.vue'))
+const SpatialIntegration = defineAsyncComponent(() => import('@/views/VillagesML/spatial/SpatialIntegration.vue'))
+const NgramExplore = defineAsyncComponent(() => import('@/views/VillagesML/pattern/NgramExplore.vue'))
+const NgramStats = defineAsyncComponent(() => import('@/views/VillagesML/pattern/NgramStats.vue'))
+const PatternFrequency = defineAsyncComponent(() => import('@/views/VillagesML/pattern/PatternFrequency.vue'))
+const PatternStructural = defineAsyncComponent(() => import('@/views/VillagesML/pattern/PatternStructural.vue'))
+const PatternTendency = defineAsyncComponent(() => import('@/views/VillagesML/pattern/PatternTendency.vue'))
+const RegionalAggregates = defineAsyncComponent(() => import('@/views/VillagesML/regional/RegionalAggregates.vue'))
+const RegionalVectors = defineAsyncComponent(() => import('@/views/VillagesML/regional/RegionalVectors.vue'))
+const CategoryTendency = defineAsyncComponent(() => import('@/views/VillagesML/regional/CategoryTendency.vue'))
+const RegionSimilarity = defineAsyncComponent(() => import('@/views/VillagesML/regional/RegionSimilarity.vue'))
+const FeatureExtraction = defineAsyncComponent(() => import('@/views/VillagesML/ml/FeatureExtraction.vue'))
+const SubsetAnalysis = defineAsyncComponent(() => import('@/views/VillagesML/ml/SubsetAnalysis.vue'))
+const SystemInfo = defineAsyncComponent(() => import('@/views/VillagesML/system/SystemInfo.vue'))
 
 // New clustering type panels
-const CharacterTendencyPanel = defineAsyncComponent(() => import('@/components/villagesML/ml/clustering/CharacterTendencyPanel.vue'))
-const SampledVillagesPanel = defineAsyncComponent(() => import('@/components/villagesML/ml/clustering/SampledVillagesPanel.vue'))
-const SpatialAwarePanel = defineAsyncComponent(() => import('@/components/villagesML/ml/clustering/SpatialAwarePanel.vue'))
-const HierarchicalPanel = defineAsyncComponent(() => import('@/components/villagesML/ml/clustering/HierarchicalPanel.vue'))
+const CharacterTendencyPanel = defineAsyncComponent(() => import('@/views/VillagesML/ml/clustering/CharacterTendencyPanel.vue'))
+const SampledVillagesPanel = defineAsyncComponent(() => import('@/views/VillagesML/ml/clustering/SampledVillagesPanel.vue'))
+const SpatialAwarePanel = defineAsyncComponent(() => import('@/views/VillagesML/ml/clustering/SpatialAwarePanel.vue'))
+const HierarchicalPanel = defineAsyncComponent(() => import('@/views/VillagesML/ml/clustering/HierarchicalPanel.vue'))
 
 // Import panel components for legacy tabs
-import SearchPanel from '@/components/villagesML/search/SearchPanel.vue'
-import VillageListPanel from '@/components/villagesML/search/VillageListPanel.vue'
-import VillageDeepAnalysisModal from '@/components/villagesML/search/VillageDeepAnalysisModal.vue'
-import RegionSelectorPanel from '@/components/villagesML/character/RegionSelectorPanel.vue'
-import TendencyHeatmapPanel from '@/components/villagesML/character/TendencyHeatmapPanel.vue'
-import ClusteringSettingsPanel from '@/components/villagesML/ml/ClusteringSettingsPanel.vue'
-import ClusteringResultsPanel from '@/components/villagesML/ml/ClusteringResultsPanel.vue'
-import SemanticSettingsPanel from '@/components/villagesML/semantic/SemanticSettingsPanel.vue'
-import NetworkGraphPanel from '@/components/villagesML/semantic/NetworkGraphPanel.vue'
+import SearchPanel from '@/views/VillagesML/search/SearchPanel.vue'
+import VillageListPanel from '@/views/VillagesML/search/VillageListPanel.vue'
+import VillageDeepAnalysisModal from '@/views/VillagesML/search/VillageDeepAnalysisModal.vue'
+import RegionSelectorPanel from '@/views/VillagesML/character/RegionSelectorPanel.vue'
+import TendencyHeatmapPanel from '@/views/VillagesML/character/TendencyHeatmapPanel.vue'
+import ClusteringSettingsPanel from '@/views/VillagesML/ml/ClusteringSettingsPanel.vue'
+import ClusteringResultsPanel from '@/views/VillagesML/ml/ClusteringResultsPanel.vue'
+import SemanticSettingsPanel from '@/views/VillagesML/semantic/SemanticSettingsPanel.vue'
+import NetworkGraphPanel from '@/views/VillagesML/semantic/NetworkGraphPanel.vue'
 
 // Module configuration (from villagesML.js)
 const modules = VILLAGESML_MODULES.map(m => ({

@@ -61,8 +61,8 @@
                 <span class="value">{{ subsetA.villages.length }}</span>
               </div>
               <div class="stat-item">
-                <span class="label">平均長度:</span>
-                <span class="value">{{ subsetA.avgLength || 'N/A' }}</span>
+                <span class="label">篩選條件:</span>
+                <span class="value">{{ formatFilterSummary(subsetA.filter) }}</span>
               </div>
             </div>
             <button @click="saveAsSubsetA" :disabled="!canSaveSubset" class="solid-button small">
@@ -78,8 +78,8 @@
                 <span class="value">{{ subsetB.villages.length }}</span>
               </div>
               <div class="stat-item">
-                <span class="label">平均長度:</span>
-                <span class="value">{{ subsetB.avgLength || 'N/A' }}</span>
+                <span class="label">篩選條件:</span>
+                <span class="value">{{ formatFilterSummary(subsetB.filter) }}</span>
               </div>
             </div>
             <button @click="saveAsSubsetB" :disabled="!canSaveSubset" class="solid-button small">
@@ -249,8 +249,28 @@ const isAuthenticated = computed(() => userStore.isAuthenticated)
 
 // State
 const filters = ref([])
-const subsetA = ref({ villages: [], avgLength: null })
-const subsetB = ref({ villages: [], avgLength: null })
+const subsetA = ref({
+  label: '',
+  filter: {
+    cities: [],
+    counties: [],
+    semantic_tags: [],
+    name_pattern: null,
+    sample_size: 1000
+  },
+  villages: []  // For UI display only
+})
+const subsetB = ref({
+  label: '',
+  filter: {
+    cities: [],
+    counties: [],
+    semantic_tags: [],
+    name_pattern: null,
+    sample_size: 1000
+  },
+  villages: []  // For UI display only
+})
 const currentFilteredVillages = ref([])
 const comparisonResults = ref(null)
 const clusteringResults = ref(null)
@@ -341,20 +361,34 @@ const applyFilters = async () => {
   loadingMessage.value = '正在應用篩選...'
 
   try {
+    // Build filter object for backend
+    const filterObj = {
+      cities: [],
+      counties: [],
+      semantic_tags: [],
+      name_pattern: null,
+      sample_size: 1000
+    }
+
     // Build API parameters from filters
     const params = { limit: 1000 }
 
-    // Extract region and length filters for API
+    // Extract filters
     filters.value.forEach(filter => {
       if (filter.field === 'region' && filter.operator === 'equals') {
         params.region_name = filter.value
+        filterObj.cities.push(filter.value)
+      } else if (filter.field === 'semantic' && filter.operator === 'equals') {
+        filterObj.semantic_tags.push(filter.value)
+      } else if (filter.field === 'name' && filter.operator === 'contains') {
+        filterObj.name_pattern = filter.value
       } else if (filter.field === 'length') {
         if (filter.operator === 'gt') params.min_length = parseInt(filter.value)
         else if (filter.operator === 'lt') params.max_length = parseInt(filter.value)
       }
     })
 
-    // Call API
+    // Call API to get villages for UI display
     const response = await searchVillages(params)
     let results = response.results.map(v => ({
       id: v.id,
@@ -379,6 +413,9 @@ const applyFilters = async () => {
     })
 
     currentFilteredVillages.value = results
+    // Store the filter object for later API calls
+    currentFilteredVillages.value.filterObj = filterObj
+
     showSuccess(`篩選完成，找到 ${currentFilteredVillages.value.length} 個村莊`)
   } catch (error) {
     showError(error.message || '篩選失敗')
@@ -388,17 +425,29 @@ const applyFilters = async () => {
 }
 
 const saveAsSubsetA = () => {
+  if (!currentFilteredVillages.value.filterObj) {
+    showError('請先應用篩選條件')
+    return
+  }
+
   subsetA.value = {
-    villages: [...currentFilteredVillages.value],
-    avgLength: calculateAvgLength(currentFilteredVillages.value)
+    label: `子集A (${currentFilteredVillages.value.length}個村莊)`,
+    filter: currentFilteredVillages.value.filterObj,
+    villages: [...currentFilteredVillages.value]
   }
   showSuccess(`已保存為子集 A (${subsetA.value.villages.length} 個村莊)`)
 }
 
 const saveAsSubsetB = () => {
+  if (!currentFilteredVillages.value.filterObj) {
+    showError('請先應用篩選條件')
+    return
+  }
+
   subsetB.value = {
-    villages: [...currentFilteredVillages.value],
-    avgLength: calculateAvgLength(currentFilteredVillages.value)
+    label: `子集B (${currentFilteredVillages.value.length}個村莊)`,
+    filter: currentFilteredVillages.value.filterObj,
+    villages: [...currentFilteredVillages.value]
   }
   showSuccess(`已保存為子集 B (${subsetB.value.villages.length} 個村莊)`)
 }
@@ -412,23 +461,58 @@ const calculateAvgLength = (villages) => {
 const compareSubsets = async () => {
   if (!canCompare.value) return
 
+  // Validate that both subsets have filter objects
+  if (!subsetA.value.filter || !subsetB.value.filter) {
+    showError('請先構建兩個子集')
+    return
+  }
+
   loading.value = true
   loadingMessage.value = '正在比較子集...'
 
   try {
-    const response = await compareSubsetsAPI({
-      subset_a: subsetA.value.villages.map(v => v.id),
-      subset_b: subsetB.value.villages.map(v => v.id)
-    })
+    // Build parameters matching backend API spec
+    const params = {
+      group_a: {
+        label: subsetA.value.label || '子集A',
+        filter: subsetA.value.filter
+      },
+      group_b: {
+        label: subsetB.value.label || '子集B',
+        filter: subsetB.value.filter
+      },
+      analysis: {
+        semantic_distribution: true,
+        morphology_patterns: true,
+        statistical_test: 'chi_square'
+      }
+    }
 
-    // Use real API response
-    comparisonResults.value = response
+    const response = await compareSubsetsAPI(params)
+
+    // Update response handling for new format
+    comparisonResults.value = {
+      comparison_id: response.comparison_id,
+      group_a_size: response.group_a_size,
+      group_b_size: response.group_b_size,
+      semantic_comparison: response.semantic_comparison,
+      morphology_comparison: response.morphology_comparison,
+      significant_differences: response.significant_differences,
+      from_cache: response.from_cache || false,
+      // Keep backward compatibility with old format
+      similarity: response.similarity || 0,
+      difference: response.difference || 0,
+      overlap_count: response.overlap_count || 0,
+      unique_a: response.unique_a || response.group_a_size,
+      unique_b: response.unique_b || response.group_b_size,
+      feature_diffs: response.feature_diffs || {}
+    }
 
     await nextTick()
     renderComparisonChart()
-    showSuccess('子集比較完成')
+    showSuccess(`子集比較完成${response.from_cache ? ' (使用緩存)' : ''}`)
   } catch (error) {
-    showError(error.message || '子集比較失敗')
+    handleApiError(error)
   } finally {
     loading.value = false
   }
@@ -441,25 +525,53 @@ const runSubsetClustering = async () => {
   loadingMessage.value = '正在執行聚類...'
 
   try {
-    let villages = []
-    if (clusteringSubset.value === 'A') villages = subsetA.value.villages
-    else if (clusteringSubset.value === 'B') villages = subsetB.value.villages
-    else villages = [...subsetA.value.villages, ...subsetB.value.villages]
+    // Select the subset to cluster
+    let subset = null
+    if (clusteringSubset.value === 'A') {
+      subset = subsetA.value
+    } else if (clusteringSubset.value === 'B') {
+      subset = subsetB.value
+    } else {
+      // For 'both', merge filters (this is a simplified approach)
+      showError('暫不支持同時聚類兩個子集，請選擇單個子集')
+      loading.value = false
+      return
+    }
 
-    const response = await clusterSubset({
-      village_ids: villages.map(v => v.id),
-      k: clusterK.value,
-      algorithm: clusterAlgorithm.value
-    })
+    if (!subset.filter) {
+      showError('請先構建子集')
+      loading.value = false
+      return
+    }
 
-    // Use real API response
-    clusteringResults.value = response
+    // Build parameters matching backend API spec
+    const params = {
+      filter: subset.filter,
+      clustering: {
+        algorithm: clusterAlgorithm.value,
+        k: clusterK.value,
+        features: ['semantic', 'morphology'],
+        random_state: 42
+      }
+    }
+
+    const response = await clusterSubset(params)
+
+    // Update response handling for new format
+    clusteringResults.value = {
+      subset_id: response.subset_id,
+      matched_villages: response.matched_villages,
+      sampled_villages: response.sampled_villages,
+      clusters: response.clusters,
+      metrics: response.metrics,
+      from_cache: response.from_cache || false
+    }
 
     await nextTick()
     renderClusteringChart()
-    showSuccess('聚類分析完成')
+    showSuccess(`聚類分析完成${response.from_cache ? ' (使用緩存)' : ''}`)
   } catch (error) {
-    showError(error.message || '聚類分析失敗')
+    handleApiError(error)
   } finally {
     loading.value = false
   }
@@ -527,6 +639,39 @@ const formatNumber = (num) => {
 const formatVector = (vec) => {
   if (!Array.isArray(vec)) return 'N/A'
   return vec.map(v => v.toFixed(2)).join(', ')
+}
+
+const formatFilterSummary = (filter) => {
+  if (!filter) return 'N/A'
+  const parts = []
+  if (filter.cities && filter.cities.length > 0) {
+    parts.push(`城市: ${filter.cities.join(', ')}`)
+  }
+  if (filter.counties && filter.counties.length > 0) {
+    parts.push(`區縣: ${filter.counties.join(', ')}`)
+  }
+  if (filter.semantic_tags && filter.semantic_tags.length > 0) {
+    parts.push(`語義: ${filter.semantic_tags.join(', ')}`)
+  }
+  if (filter.name_pattern) {
+    parts.push(`名稱: ${filter.name_pattern}`)
+  }
+  return parts.length > 0 ? parts.join(' | ') : '無篩選條件'
+}
+
+const handleApiError = (error) => {
+  if (error.status === 401) {
+    showError('此功能需要登錄，請先登錄')
+    setTimeout(() => {
+      router.push('/auth?redirect=/explore?tab=villages')
+    }, 2000)
+  } else if (error.status === 408) {
+    showError('請求超時，請減少數據量或稍後重試')
+  } else if (error.status === 500) {
+    showError(`服務器錯誤：${error.message}`)
+  } else {
+    showError(error.message || '操作失敗')
+  }
 }
 </script>
 

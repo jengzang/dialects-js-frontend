@@ -57,7 +57,7 @@
 import { ref, computed } from 'vue'
 import { villagesMLStore } from '@/utils/villagesMLStore.js'
 import { userStore } from '@/utils/store.js'
-import { runHierarchicalClustering } from '@/api'
+import { runHierarchicalClustering } from '@/api/index.js'
 import { showSuccess, showError, showWarning } from '@/utils/message.js'
 import AlgorithmSelector from './shared/AlgorithmSelector.vue'
 import PreprocessingSettings from './shared/PreprocessingSettings.vue'

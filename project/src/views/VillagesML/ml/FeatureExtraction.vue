@@ -372,6 +372,9 @@ const loadVillages = async () => {
     allVillages.value = response.results.map(v => ({
       id: v.id,
       name: v.name,
+      city: v.city,
+      county: v.county,
+      township: v.township,
       region: v.region_display || v.city
     }))
     showSuccess(`載入了 ${allVillages.value.length} 個村莊`)
@@ -449,19 +452,36 @@ const extractFeatures = async () => {
   loadingMessage.value = '正在提取特徵...'
 
   try {
-    const response = await apiExtractFeatures({
-      village_ids: selectedVillages.value.map(v => v.id),
-      feature_types: selectedFeatureTypes.value,
-      normalize: normalize.value
-    })
+    // Build parameters matching backend API spec
+    const params = {
+      villages: selectedVillages.value.map(v => ({
+        name: v.name,
+        city: v.city,
+        county: v.county || null
+      })),
+      features: {
+        semantic_tags: selectedFeatureTypes.value.includes('semantic'),
+        morphology: selectedFeatureTypes.value.includes('structural'),
+        clustering: selectedFeatureTypes.value.includes('ngram')
+      }
+    }
 
-    // Use real API response
-    extractionResults.value = response
+    const response = await apiExtractFeatures(params)
+
+    // Update response handling for new format
+    extractionResults.value = {
+      extraction_id: response.extraction_id,
+      village_count: response.matched_villages || response.village_count,
+      feature_dimension: response.feature_dimension,
+      extraction_time: response.execution_time_ms || response.extraction_time,
+      results: response.results,
+      from_cache: response.from_cache || false
+    }
 
     resultsPage.value = 1
-    showSuccess('特徵提取完成')
+    showSuccess(`特徵提取完成${response.from_cache ? ' (使用緩存)' : ''}`)
   } catch (error) {
-    showError(error.message || '特徵提取失敗')
+    handleApiError(error)
   } finally {
     loading.value = false
   }
@@ -474,19 +494,33 @@ const aggregateFeatures = async () => {
   loadingMessage.value = '正在聚合特徵...'
 
   try {
-    const response = await apiAggregateFeatures({
-      features: extractionResults.value.results,
-      method: aggregationMethod.value
-    })
+    // Build parameters matching backend API spec
+    const params = {
+      region_level: regionLevel.value || 'city',
+      region_names: filterRegion.value ? [filterRegion.value] : [],
+      features: {
+        semantic_distribution: true,
+        morphology_patterns: true
+      },
+      top_n: 100
+    }
 
-    // Use real API response
-    aggregationResults.value = response
+    const response = await apiAggregateFeatures(params)
+
+    // Update response handling for new format
+    aggregationResults.value = {
+      aggregation_id: response.aggregation_id,
+      region_count: response.region_count,
+      execution_time: response.execution_time_ms,
+      aggregates: response.results || response.aggregates,
+      from_cache: response.from_cache || false
+    }
 
     await nextTick()
     renderAggregationChart()
-    showSuccess('特徵聚合完成')
+    showSuccess(`特徵聚合完成${response.from_cache ? ' (使用緩存)' : ''}`)
   } catch (error) {
-    showError(error.message || '特徵聚合失敗')
+    handleApiError(error)
   } finally {
     loading.value = false
   }
@@ -564,6 +598,26 @@ const exportResults = () => {
   URL.revokeObjectURL(link.href)
 
   showSuccess('CSV 導出成功')
+}
+
+const formatVector = (vec) => {
+  if (!Array.isArray(vec)) return 'N/A'
+  return vec.map(v => v.toFixed(2)).join(', ')
+}
+
+const handleApiError = (error) => {
+  if (error.status === 401) {
+    showError('此功能需要登錄，請先登錄')
+    setTimeout(() => {
+      router.push('/auth?redirect=/explore?tab=villages')
+    }, 2000)
+  } else if (error.status === 408) {
+    showError('請求超時，請減少數據量或稍後重試')
+  } else if (error.status === 500) {
+    showError(`服務器錯誤：${error.message}`)
+  } else {
+    showError(error.message || '操作失敗')
+  }
 }
 
 // Lifecycle

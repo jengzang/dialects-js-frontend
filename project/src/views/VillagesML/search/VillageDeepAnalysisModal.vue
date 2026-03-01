@@ -86,7 +86,7 @@ import FeatureVectorPanel from '../village/FeatureVectorPanel.vue'
 import SpatialFeaturesPanel from '../village/SpatialFeaturesPanel.vue'
 import SemanticStructurePanel from '../village/SemanticStructurePanel.vue'
 import NgramPanel from '../village/NgramPanel.vue'
-import { getVillageComplete } from '@/api'
+import { getVillageComplete } from '@/api/index.js'
 
 const props = defineProps({
   show: {
