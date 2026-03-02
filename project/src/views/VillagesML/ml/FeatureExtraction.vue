@@ -3,8 +3,8 @@
       <h3 class="villagesml-subtab-title">ML計算 - 特徵提取</h3>
     <!-- Header -->
     <div class="page-header">
-      <h2>🔐 特徵提取 Feature Extraction</h2>
-      <p class="subtitle">為自訂村莊集合提取特徵向量</p>
+<!--      <h2>🔐 特徵提取 Feature Extraction</h2>-->
+<!--      <p class="subtitle">為自訂村莊集合提取特徵向量</p>-->
       <div v-if="!isAuthenticated" class="auth-warning">
         <span class="lock-icon">🔒</span>
         <span>此功能需要登入</span>
@@ -15,42 +15,85 @@
     <!-- Village Selector -->
     <div class="glass-panel selector-panel">
       <div class="panel-header">
-        <h3>選擇村莊 Select Villages</h3>
+        <h3>選擇村莊</h3>
         <span class="count-badge">已選擇: {{ selectedVillages.length }}</span>
       </div>
       <div class="selector-content">
-        <!-- Search Bar -->
+        <!-- Search Input -->
         <div class="search-bar">
           <input
-            v-model="searchQuery"
-            @input="handleSearch"
+            v-model="searchKeyword"
             type="text"
             placeholder="搜尋村莊名稱..."
             class="glass-input"
+            @input="handleSearchInput"
           >
-          <button @click="clearSearch" class="solid-button small secondary">清除</button>
         </div>
 
-        <!-- Filter Controls -->
-        <div class="filter-controls">
-          <div class="filter-item">
-            <label>區域篩選:</label>
-            <SimpleSelectDropdown :match-trigger-width="true"
-              v-model="filterRegion"
-              :options="regionFilterOptions"
-              @update:modelValue="handleFilterChange"
+        <!-- Region Filters -->
+        <div class="filters-row">
+          <div class="filter-group">
+            <label>城市:</label>
+            <FilterableSelect
+              v-model="filterCity"
+              level="city"
+              :show-level-selector="false"
+              placeholder="選擇城市"
+              @update:modelValue="handleCityChange"
             />
           </div>
-          <div class="filter-item">
-            <label>快速選擇:</label>
-            <button @click="selectTop100" class="solid-button small">前 100 個</button>
-            <button @click="selectRandom50" class="solid-button small">隨機 50 個</button>
-            <button @click="clearSelection" class="solid-button small secondary">清空選擇</button>
+
+          <div class="filter-group">
+            <label>區縣:</label>
+            <FilterableSelect
+              v-model="filterCounty"
+              level="county"
+              :parent="filterCity"
+              :show-level-selector="false"
+              :disabled="!filterCity"
+              placeholder="選擇區縣"
+              @update:modelValue="handleCountyChange"
+            />
           </div>
+
+          <div class="filter-group">
+            <label>鄉鎮:</label>
+            <FilterableSelect
+              v-model="filterTownship"
+              level="township"
+              :parent="townshipParent"
+              :show-level-selector="false"
+              :disabled="!canSelectTownship"
+              placeholder="選擇鄉鎮"
+              @update:modelValue="loadVillages"
+            />
+          </div>
+
+          <button
+            @click="loadVillages"
+            :disabled="(!searchKeyword && !hasFilters) || loading"
+            class="solid-button primary load-btn"
+          >
+            {{ loading ? '載入中...' : '載入村莊' }}
+          </button>
+        </div>
+
+        <!-- Quick Select -->
+        <div class="quick-select-row" v-if="allVillages.length > 0">
+          <label>快速選擇:</label>
+          <button @click="selectTop100" class="solid-button small">前 100 個</button>
+          <button @click="selectRandom50" class="solid-button small">隨機 50 個</button>
+          <button @click="selectAll" class="solid-button small">全選</button>
+          <button @click="clearSelection" :disabled="selectedVillages.length === 0" class="solid-button small secondary">清空選擇</button>
+        </div>
+
+        <!-- Empty State -->
+        <div v-if="allVillages.length === 0 && !loading" class="empty-hint">
+          <p>👆 請輸入搜索關鍵詞或選擇區域，然後點擊「載入村莊」按鈕</p>
         </div>
 
         <!-- Village List -->
-        <div class="village-list">
+        <div v-else-if="allVillages.length > 0" class="village-list">
           <div
             v-for="village in filteredVillages"
             :key="village.id"
@@ -58,8 +101,17 @@
             :class="['village-item', { selected: isSelected(village.id) }]"
           >
             <input type="checkbox" :checked="isSelected(village.id)" @click.stop="toggleVillage(village)">
-            <span class="village-name">{{ village.name }}</span>
-            <span class="village-region">{{ village.region }}</span>
+            <div class="village-info">
+              <div class="village-main">
+                <span class="village-name">{{ village.name }}</span>
+                <span class="village-id">ID: {{ village.id }}</span>
+              </div>
+              <div class="village-location">
+                <span v-if="village.city" class="location-item">{{ village.city }}</span>
+                <span v-if="village.county" class="location-item">{{ village.county }}</span>
+                <span v-if="village.township" class="location-item">{{ village.township }}</span>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -75,7 +127,7 @@
     <!-- Feature Type Selector -->
     <div class="glass-panel feature-type-panel">
       <div class="panel-header">
-        <h3>特徵類型 Feature Types</h3>
+        <h3>特徵類型</h3>
       </div>
       <div class="feature-types">
         <label v-for="type in featureTypes" :key="type.value" class="feature-type-item">
@@ -89,20 +141,22 @@
     <!-- Extraction Controls -->
     <div class="glass-panel controls-panel">
       <div class="panel-header">
-        <h3>提取控制 Extraction Controls</h3>
+        <h3>提取控制</h3>
       </div>
       <div class="controls-content">
-        <div class="control-row">
-          <label>聚合方法:</label>
-          <SimpleSelectDropdown :match-trigger-width="true"
-            v-model="aggregationMethod"
-            :options="aggregationMethodOptions"
-          />
-        </div>
-        <div class="control-row">
-          <label>標準化:</label>
-          <input type="checkbox" v-model="normalize">
-          <span>對特徵向量進行標準化</span>
+        <div class="controls-row">
+          <div class="control-item">
+            <label>聚合方法:</label>
+            <SimpleSelectDropdown
+              v-model="aggregationMethod"
+              :options="aggregationMethodOptions"
+            />
+          </div>
+          <div class="control-item">
+            <label>標準化:</label>
+            <input type="checkbox" v-model="normalize">
+            <span>對特徵向量進行標準化</span>
+          </div>
         </div>
         <div class="button-group">
           <button
@@ -110,7 +164,7 @@
             :disabled="!canExtract || loading"
             class="solid-button primary large"
           >
-            <span v-if="!loading">提取特徵 Extract Features</span>
+            <span v-if="!loading">提取特徵</span>
             <span v-else>提取中...</span>
           </button>
           <button
@@ -118,7 +172,7 @@
             :disabled="!extractionResults || loading"
             class="solid-button secondary large"
           >
-            聚合特徵 Aggregate Features
+            聚合特徵
           </button>
         </div>
       </div>
@@ -127,8 +181,8 @@
     <!-- Extraction Results -->
     <div v-if="extractionResults" class="glass-panel results-panel">
       <div class="panel-header">
-        <h3>提取結果 Extraction Results</h3>
-        <button @click="exportResults" class="solid-button small">匯出 CSV</button>
+        <h3>提取結果</h3>
+        <button @click="exportResults" class="solid-button small">導出CSV</button>
       </div>
       <div class="results-content">
         <!-- Summary Stats -->
@@ -140,6 +194,11 @@
           <div class="stat-card">
             <div class="stat-label">特徵維度</div>
             <div class="stat-value">{{ extractionResults.feature_dimension }}</div>
+            <div v-if="extractionResults.dimension_breakdown" class="stat-breakdown">
+              <span v-for="(dim, key) in extractionResults.dimension_breakdown" :key="key" class="breakdown-item">
+                {{ key }}: {{ dim }}
+              </span>
+            </div>
           </div>
           <div class="stat-card">
             <div class="stat-label">提取時間</div>
@@ -152,8 +211,8 @@
           <table class="glass-table">
             <thead>
               <tr>
-                <th>村莊 ID</th>
-                <th>村莊名稱</th>
+                <th>ID</th>
+                <th>村名</th>
                 <th>區域</th>
                 <th v-for="(type, idx) in selectedFeatureTypes" :key="idx">{{ getFeatureLabel(type) }}</th>
               </tr>
@@ -183,33 +242,124 @@
     <!-- Aggregation Results -->
     <div v-if="aggregationResults" class="glass-panel aggregation-panel">
       <div class="panel-header">
-        <h3>聚合結果 Aggregation Results</h3>
+        <h3>聚合結果 - 特徵分布分析</h3>
+        <span class="stat-badge">共 {{ aggregationResults.village_count }} 個村莊</span>
       </div>
       <div class="aggregation-content">
-        <div class="aggregation-chart">
-          <div ref="aggregationChart" class="chart-container"></div>
+        <!-- 语义特征分布 -->
+        <div v-if="aggregationResults.aggregates.semantic" class="agg-section">
+          <h4>語義特徵分布</h4>
+          <div class="category-grid">
+            <div v-for="cat in aggregationResults.aggregates.semantic.data" :key="cat.name" class="category-card">
+              <div class="category-name">{{ cat.name }}</div>
+              <div class="category-count">{{ cat.count }} 個村莊</div>
+              <div class="category-percentage">{{ cat.percentage }}%</div>
+            </div>
+          </div>
         </div>
-        <div class="aggregation-table">
-          <table class="glass-table">
-            <thead>
-              <tr>
-                <th>特徵類型</th>
-                <th>聚合值</th>
-                <th>標準差</th>
-                <th>最小值</th>
-                <th>最大值</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="(agg, type) in aggregationResults.aggregates" :key="type">
-                <td>{{ getFeatureLabel(type) }}</td>
-                <td>{{ formatNumber(agg.value) }}</td>
-                <td>{{ formatNumber(agg.std) }}</td>
-                <td>{{ formatNumber(agg.min) }}</td>
-                <td>{{ formatNumber(agg.max) }}</td>
-              </tr>
-            </tbody>
-          </table>
+
+        <!-- 结构特征分布 -->
+        <div v-if="aggregationResults.aggregates.structural" class="agg-section">
+          <h4>結構特徵分布</h4>
+          <div class="struct-grid">
+            <div class="struct-subsection">
+              <h5>村名長度分布</h5>
+              <table class="mini-table">
+                <thead>
+                  <tr>
+                    <th>長度</th>
+                    <th>數量</th>
+                    <th>占比</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="item in aggregationResults.aggregates.structural.length_distribution" :key="item.length">
+                    <td>{{ item.length }} 字</td>
+                    <td>{{ item.count }}</td>
+                    <td>{{ item.percentage }}%</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="struct-subsection">
+              <h5>Top 10 後綴</h5>
+              <table class="mini-table">
+                <thead>
+                  <tr>
+                    <th>後綴</th>
+                    <th>數量</th>
+                    <th>占比</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="item in aggregationResults.aggregates.structural.top_suffixes" :key="item.suffix">
+                    <td>{{ item.suffix }}</td>
+                    <td>{{ item.count }}</td>
+                    <td>{{ item.percentage }}%</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- N-gram聚类分布 -->
+        <div v-if="aggregationResults.aggregates.ngram" class="agg-section">
+          <h4>N-gram 聚類分布</h4>
+          <div v-if="aggregationResults.aggregates.ngram.kmeans_clusters.length === 0 && aggregationResults.aggregates.ngram.dbscan_clusters.length === 0" class="empty-cluster-hint">
+            <p>⚠️ 所選村莊暫無聚類數據</p>
+            <p class="hint-text">這些村莊可能尚未進行聚類分析，或聚類數據未同步到數據庫</p>
+          </div>
+          <div v-else class="cluster-grid">
+            <div v-if="aggregationResults.aggregates.ngram.kmeans_clusters.length > 0" class="cluster-subsection">
+              <h5>KMeans 聚類</h5>
+              <div class="cluster-badges">
+                <div v-for="item in aggregationResults.aggregates.ngram.kmeans_clusters" :key="item.cluster_id" class="cluster-badge">
+                  <span class="cluster-id">Cluster {{ item.cluster_id }}</span>
+                  <span class="cluster-count">{{ item.count }} ({{ item.percentage }}%)</span>
+                </div>
+              </div>
+            </div>
+            <div v-if="aggregationResults.aggregates.ngram.dbscan_clusters.length > 0" class="cluster-subsection">
+              <h5>DBSCAN 聚類</h5>
+              <div class="cluster-badges">
+                <div v-for="item in aggregationResults.aggregates.ngram.dbscan_clusters" :key="item.cluster_id" class="cluster-badge">
+                  <span class="cluster-id">Cluster {{ item.cluster_id }}</span>
+                  <span class="cluster-count">{{ item.count }} ({{ item.percentage }}%)</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 空间特征覆盖 -->
+        <div v-if="aggregationResults.aggregates.spatial" class="agg-section">
+          <h4>空間特徵覆蓋率</h4>
+          <div class="coverage-stats">
+            <div class="coverage-item">
+              <div class="coverage-label">有坐標</div>
+              <div class="coverage-value">{{ aggregationResults.aggregates.spatial.with_coordinates }}</div>
+            </div>
+            <div class="coverage-item">
+              <div class="coverage-label">無坐標</div>
+              <div class="coverage-value">{{ aggregationResults.aggregates.spatial.without_coordinates }}</div>
+            </div>
+            <div class="coverage-item highlight">
+              <div class="coverage-label">覆蓋率</div>
+              <div class="coverage-value">{{ aggregationResults.aggregates.spatial.coverage_percentage }}%</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 字符特征 -->
+        <div v-if="aggregationResults.aggregates.character" class="agg-section">
+          <h4>Top 20 高頻字符</h4>
+          <div class="char-grid">
+            <div v-for="item in aggregationResults.aggregates.character.top_characters" :key="item.char" class="char-card">
+              <div class="char-text">{{ item.char }}</div>
+              <div class="char-percentage">{{ item.percentage }}%</div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -227,10 +377,12 @@ import { ref, computed, onMounted, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import * as echarts from 'echarts'
 import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
+import FilterableSelect from '@/components/common/FilterableSelect.vue'
 import { extractFeatures as apiExtractFeatures, aggregateFeatures as apiAggregateFeatures, searchVillages } from '@/api/index.js'
 import { showError, showSuccess, showWarning } from '@/utils/message.js'
 import { userStore } from '@/store/store.js'
-import { getCities, getCounties, getTownships } from '@/utils/region/regionPreload.js'
+import { cityHasCounties } from '@/utils/region/regionPreload.js'
+import { SEMANTIC_CATEGORY_NAMES } from '@/config/villagesML.js'
 
 // Router
 const router = useRouter()
@@ -238,12 +390,20 @@ const router = useRouter()
 // Authentication
 const isAuthenticated = computed(() => userStore.isAuthenticated)
 
-// State
-const searchQuery = ref('')
-const filterRegion = ref('')
-const regionLevel = ref('city') // 'city', 'county', or 'town'
-const availableRegions = ref([])
+// State - Region Filters (参考 SearchPanel 逻辑)
+const searchKeyword = ref('')
+const filterCity = ref('')
+const filterCounty = ref('')
+const filterTownship = ref('')
+const hasCounties = ref(true)  // 标记当前城市是否有区县
+
+// State - Villages
 const selectedVillages = ref([])
+const allVillages = ref([])
+const currentPage = ref(1)
+const pageSize = 20
+
+// State - Feature Extraction
 const selectedFeatureTypes = ref(['semantic', 'structural'])
 const aggregationMethod = ref('mean')
 const normalize = ref(true)
@@ -252,11 +412,6 @@ const loadingMessage = ref('載入中...')
 const extractionResults = ref(null)
 const aggregationResults = ref(null)
 
-// Village list
-const allVillages = ref([])
-const currentPage = ref(1)
-const pageSize = 20
-
 // Results pagination
 const resultsPage = ref(1)
 const resultsPageSize = 20
@@ -264,23 +419,16 @@ const resultsPageSize = 20
 // Chart ref
 const aggregationChart = ref(null)
 
-// Feature types
+let searchTimeout = null
+
+// Feature types (现在后端已支持所有类型)
 const featureTypes = [
   { value: 'semantic', label: '語義特徵', description: '9 個語義類別向量' },
   { value: 'structural', label: '結構特徵', description: '村名結構模式' },
   { value: 'ngram', label: 'N-gram 特徵', description: '1-3 字符組合' },
-  { value: 'character', label: '字符特徵', description: '字符頻率向量' },
-  { value: 'spatial', label: '空間特徵', description: '地理位置特徵' }
+  { value: 'spatial', label: '空間特徵', description: '經緯度坐標' },
+  { value: 'character', label: '字符特徵', description: 'Top-20 高頻字符' }
 ]
-
-// Options for SimpleSelectDropdown
-const regionFilterOptions = computed(() => [
-  { label: '全部區域', value: '' },
-  ...availableRegions.value.map(region => ({
-    label: typeof region === 'string' ? region : region.name,
-    value: typeof region === 'string' ? region : region.name
-  }))
-])
 
 const aggregationMethodOptions = [
   { label: '平均值 (Mean)', value: 'mean' },
@@ -294,37 +442,42 @@ const canExtract = computed(() => {
   return isAuthenticated.value && selectedVillages.value.length > 0 && selectedFeatureTypes.value.length > 0
 })
 
+const hasFilters = computed(() => {
+  return filterCity.value || filterCounty.value || filterTownship.value
+})
+
+// 判断是否可以选择乡镇 (参考 SearchPanel)
+const canSelectTownship = computed(() => {
+  if (filterCounty.value) return true
+  if (filterCity.value && !hasCounties.value) return true
+  return false
+})
+
+// 乡镇选择器的 parent (参考 SearchPanel)
+const townshipParent = computed(() => {
+  if (filterCounty.value) return filterCounty.value
+  if (filterCity.value && !hasCounties.value) return filterCity.value
+  return null
+})
+
 const filteredVillages = computed(() => {
-  let villages = allVillages.value
-
-  if (searchQuery.value) {
-    villages = villages.filter(v => v.name.includes(searchQuery.value))
-  }
-
-  if (filterRegion.value) {
-    villages = villages.filter(v => v.region === filterRegion.value)
-  }
-
+  // 直接分页显示，不在前端过滤（搜索由 API 处理）
   const start = (currentPage.value - 1) * pageSize
-  return villages.slice(start, start + pageSize)
+  return allVillages.value.slice(start, start + pageSize)
 })
 
 const totalPages = computed(() => {
-  let count = allVillages.value.length
-  if (searchQuery.value || filterRegion.value) {
-    count = filteredVillages.value.length
-  }
-  return Math.ceil(count / pageSize)
+  return Math.ceil(allVillages.value.length / pageSize)
 })
 
 const paginatedResults = computed(() => {
-  if (!extractionResults.value) return []
+  if (!extractionResults.value || !extractionResults.value.results) return []
   const start = (resultsPage.value - 1) * resultsPageSize
   return extractionResults.value.results.slice(start, start + resultsPageSize)
 })
 
 const totalResultsPages = computed(() => {
-  if (!extractionResults.value) return 0
+  if (!extractionResults.value || !extractionResults.value.results) return 0
   return Math.ceil(extractionResults.value.results.length / resultsPageSize)
 })
 
@@ -333,30 +486,44 @@ const goToAuth = () => {
   router.push('/auth?redirect=/explore?tab=villages')
 }
 
-const loadRegions = async () => {
-  loading.value = true
-  loadingMessage.value = '載入區域列表...'
-  try {
-    if (regionLevel.value === 'city') {
-      const cities = await getCities()
-      availableRegions.value = cities.map(c => c.name)
-    } else if (regionLevel.value === 'county') {
-      const counties = await getCounties()
-      availableRegions.value = counties.map(c => c.name)
-    } else if (regionLevel.value === 'town') {
-      const townships = await getTownships()
-      availableRegions.value = townships.map(t => t.name)
+// 搜索输入防抖 (参考 SearchPanel)
+const handleSearchInput = () => {
+  clearTimeout(searchTimeout)
+  searchTimeout = setTimeout(() => {
+    currentPage.value = 1
+    // 只要有搜索关键词或筛选条件，就自动加载
+    if (searchKeyword.value || hasFilters.value) {
+      loadVillages()
     }
-  } catch (error) {
-    showError('載入區域列表失敗: ' + error.message)
-  } finally {
-    loading.value = false
+  }, 300)
+}
+
+// 城市变化处理 (参考 SearchPanel)
+const handleCityChange = async () => {
+  filterCounty.value = ''
+  filterTownship.value = ''
+  allVillages.value = []
+  selectedVillages.value = []
+
+  if (filterCity.value) {
+    hasCounties.value = await cityHasCounties(filterCity.value)
+  } else {
+    hasCounties.value = true
   }
 }
 
+// 区县变化处理 (参考 SearchPanel)
+const handleCountyChange = () => {
+  filterTownship.value = ''
+  allVillages.value = []
+  selectedVillages.value = []
+}
+
+// 载入村庄列表
 const loadVillages = async () => {
-  if (!filterRegion.value) {
-    allVillages.value = []
+  // 至少需要搜索关键词或区域筛选之一
+  if (!searchKeyword.value && !hasFilters.value) {
+    showWarning('請輸入搜索關鍵詞或選擇區域')
     return
   }
 
@@ -364,20 +531,35 @@ const loadVillages = async () => {
   loadingMessage.value = '載入村莊列表...'
   try {
     const params = {
-      region_level: regionLevel.value,
-      region_name: filterRegion.value,
-      limit: 1000
+      keyword: searchKeyword.value || '',
+      page_size: 1000
     }
+
+    // 根据选择的层级设置参数
+    if (filterCity.value) params.city = filterCity.value
+    if (filterCounty.value) params.county = filterCounty.value
+    if (filterTownship.value) params.township = filterTownship.value
+
     const response = await searchVillages(params)
-    allVillages.value = response.results.map(v => ({
-      id: v.id,
-      name: v.name,
+
+    const villages = response.data || []
+    allVillages.value = villages.map(v => ({
+      id: String(v.village_id),  // 确保 id 是字符串类型
+      name: v.village_name,
       city: v.city,
       county: v.county,
       township: v.township,
-      region: v.region_display || v.city
+      region: v.county || v.city
     }))
-    showSuccess(`載入了 ${allVillages.value.length} 個村莊`)
+
+    const total = response.total || 0
+    if (total > allVillages.value.length) {
+      showWarning(`載入了 ${allVillages.value.length} 個村莊（共 ${total} 個，已達到單次查詢上限）`)
+    } else {
+      showSuccess(`載入了 ${allVillages.value.length} 個村莊`)
+    }
+
+    currentPage.value = 1
   } catch (error) {
     showError('載入村莊列表失敗: ' + error.message)
     allVillages.value = []
@@ -386,20 +568,7 @@ const loadVillages = async () => {
   }
 }
 
-const handleSearch = () => {
-  currentPage.value = 1
-}
-
-const clearSearch = () => {
-  searchQuery.value = ''
-  currentPage.value = 1
-}
-
-const handleFilterChange = () => {
-  currentPage.value = 1
-  loadVillages()
-}
-
+// 村庄选择相关
 const toggleVillage = (village) => {
   const idx = selectedVillages.value.findIndex(v => v.id === village.id)
   if (idx >= 0) {
@@ -414,14 +583,21 @@ const isSelected = (villageId) => {
 }
 
 const selectTop100 = () => {
-  selectedVillages.value = allVillages.value.slice(0, 100)
-  showSuccess('已選擇前 100 個村莊')
+  const count = Math.min(100, allVillages.value.length)
+  selectedVillages.value = allVillages.value.slice(0, count)
+  showSuccess(`已選擇前 ${count} 個村莊`)
 }
 
 const selectRandom50 = () => {
+  const count = Math.min(50, allVillages.value.length)
   const shuffled = [...allVillages.value].sort(() => 0.5 - Math.random())
-  selectedVillages.value = shuffled.slice(0, 50)
-  showSuccess('已隨機選擇 50 個村莊')
+  selectedVillages.value = shuffled.slice(0, count)
+  showSuccess(`已隨機選擇 ${count} 個村莊`)
+}
+
+const selectAll = () => {
+  selectedVillages.value = [...allVillages.value]
+  showSuccess(`已選擇全部 ${allVillages.value.length} 個村莊`)
 }
 
 const clearSelection = () => {
@@ -452,29 +628,46 @@ const extractFeatures = async () => {
   loadingMessage.value = '正在提取特徵...'
 
   try {
-    // Build parameters matching backend API spec
+    // Build parameters matching backend API spec (使用 village_id，确保是字符串)
     const params = {
       villages: selectedVillages.value.map(v => ({
-        name: v.name,
-        city: v.city,
-        county: v.county || null
+        village_id: String(v.id)  // 确保 village_id 是字符串类型
       })),
       features: {
         semantic_tags: selectedFeatureTypes.value.includes('semantic'),
         morphology: selectedFeatureTypes.value.includes('structural'),
-        clustering: selectedFeatureTypes.value.includes('ngram')
+        clustering: selectedFeatureTypes.value.includes('ngram'),
+        spatial: selectedFeatureTypes.value.includes('spatial'),
+        character: selectedFeatureTypes.value.includes('character')
       }
     }
 
     const response = await apiExtractFeatures(params)
 
-    // Update response handling for new format
+    // 处理响应数据，将 features 数组转换为统一格式
+    const processedResults = (response.features || []).map((item, index) => ({
+      village_id: item.village_id || `v_${index + 1}`,  // 使用后端返回的 village_id
+      village_name: item.village_name,
+      city: item.city,
+      county: item.county,
+      region: item.county || item.city,
+      // 将特征数据映射到统一的 features 对象
+      features: {
+        semantic: item.semantic_tags,
+        structural: item.morphology,
+        ngram: item.clustering,
+        spatial: item.spatial,
+        character: item.character
+      }
+    }))
+
     extractionResults.value = {
       extraction_id: response.extraction_id,
-      village_count: response.matched_villages || response.village_count,
+      village_count: response.village_count,
       feature_dimension: response.feature_dimension,
-      extraction_time: response.execution_time_ms || response.extraction_time,
-      results: response.results,
+      dimension_breakdown: response.dimension_breakdown,
+      extraction_time: response.execution_time_ms,
+      results: processedResults,
       from_cache: response.from_cache || false
     }
 
@@ -494,31 +687,180 @@ const aggregateFeatures = async () => {
   loadingMessage.value = '正在聚合特徵...'
 
   try {
-    // Build parameters matching backend API spec
-    const params = {
-      region_level: regionLevel.value || 'city',
-      region_names: filterRegion.value ? [filterRegion.value] : [],
-      features: {
-        semantic_distribution: true,
-        morphology_patterns: true
-      },
-      top_n: 100
-    }
+    const aggregates = {}
 
-    const response = await apiAggregateFeatures(params)
+    selectedFeatureTypes.value.forEach(type => {
+      if (type === 'semantic') {
+        // 语义特征：统计每个类别的出现频率
+        const categoryCount = {}
+        const totalVillages = extractionResults.value.results.length
 
-    // Update response handling for new format
+        extractionResults.value.results.forEach(result => {
+          const feature = result.features.semantic
+          if (feature && feature.sem_mountain !== undefined) {
+            Object.keys(feature).forEach(key => {
+              if (feature[key] === 1) {
+                const categoryKey = key.replace('sem_', '')
+                const categoryName = SEMANTIC_CATEGORY_NAMES[categoryKey] || categoryKey
+                categoryCount[categoryName] = (categoryCount[categoryName] || 0) + 1
+              }
+            })
+          }
+        })
+
+        // 转换为百分比并排序
+        const sortedCategories = Object.entries(categoryCount)
+          .map(([name, count]) => ({
+            name,
+            count,
+            percentage: (count / totalVillages * 100).toFixed(1)
+          }))
+          .sort((a, b) => b.count - a.count)
+
+        aggregates.semantic = {
+          type: 'category_distribution',
+          data: sortedCategories,
+          total_villages: totalVillages
+        }
+
+      } else if (type === 'structural') {
+        // 结构特征：统计村名长度分布和后缀分布
+        const lengthCount = {}
+        const suffixCount = {}
+        const totalVillages = extractionResults.value.results.length
+
+        extractionResults.value.results.forEach(result => {
+          const feature = result.features.structural
+          if (feature && feature.name_length !== undefined) {
+            const length = feature.name_length
+            lengthCount[length] = (lengthCount[length] || 0) + 1
+
+            if (feature.suffix_1) {
+              suffixCount[feature.suffix_1] = (suffixCount[feature.suffix_1] || 0) + 1
+            }
+          }
+        })
+
+        aggregates.structural = {
+          type: 'pattern_distribution',
+          length_distribution: Object.entries(lengthCount)
+            .map(([length, count]) => ({
+              length: parseInt(length),
+              count,
+              percentage: (count / totalVillages * 100).toFixed(1)
+            }))
+            .sort((a, b) => a.length - b.length),
+          top_suffixes: Object.entries(suffixCount)
+            .map(([suffix, count]) => ({
+              suffix,
+              count,
+              percentage: (count / totalVillages * 100).toFixed(1)
+            }))
+            .sort((a, b) => b.count - a.count)
+            .slice(0, 10),
+          total_villages: totalVillages
+        }
+
+      } else if (type === 'ngram') {
+        // N-gram特征：统计聚类分布
+        const kmeansCount = {}
+        const dbscanCount = {}
+        const totalVillages = extractionResults.value.results.length
+
+        extractionResults.value.results.forEach(result => {
+          const feature = result.features.ngram
+          if (feature && feature.kmeans_cluster_id !== undefined) {
+            if (feature.kmeans_cluster_id !== null) {
+              const clusterId = feature.kmeans_cluster_id
+              kmeansCount[clusterId] = (kmeansCount[clusterId] || 0) + 1
+            }
+            if (feature.dbscan_cluster_id !== null) {
+              const clusterId = feature.dbscan_cluster_id
+              dbscanCount[clusterId] = (dbscanCount[clusterId] || 0) + 1
+            }
+          }
+        })
+
+        aggregates.ngram = {
+          type: 'cluster_distribution',
+          kmeans_clusters: Object.entries(kmeansCount)
+            .map(([id, count]) => ({
+              cluster_id: parseInt(id),
+              count,
+              percentage: (count / totalVillages * 100).toFixed(1)
+            }))
+            .sort((a, b) => a.cluster_id - b.cluster_id),
+          dbscan_clusters: Object.entries(dbscanCount)
+            .map(([id, count]) => ({
+              cluster_id: parseInt(id),
+              count,
+              percentage: (count / totalVillages * 100).toFixed(1)
+            }))
+            .sort((a, b) => a.cluster_id - b.cluster_id),
+          total_villages: totalVillages
+        }
+
+      } else if (type === 'spatial') {
+        // 空间特征：统计有坐标的村庄数量
+        let withCoords = 0
+        let withoutCoords = 0
+
+        extractionResults.value.results.forEach(result => {
+          const feature = result.features.spatial
+          if (feature && feature.longitude !== null && feature.latitude !== null) {
+            withCoords++
+          } else {
+            withoutCoords++
+          }
+        })
+
+        aggregates.spatial = {
+          type: 'coverage',
+          with_coordinates: withCoords,
+          without_coordinates: withoutCoords,
+          coverage_percentage: (withCoords / (withCoords + withoutCoords) * 100).toFixed(1)
+        }
+
+      } else if (type === 'character') {
+        // 字符特征：统计高频字符
+        const charCount = {}
+        let totalChars = 0
+
+        extractionResults.value.results.forEach(result => {
+          const feature = result.features.character
+          if (feature && feature.top_chars && Array.isArray(feature.top_chars)) {
+            feature.top_chars.forEach(item => {
+              charCount[item.char] = (charCount[item.char] || 0) + item.frequency
+              totalChars++
+            })
+          }
+        })
+
+        aggregates.character = {
+          type: 'character_frequency',
+          top_characters: Object.entries(charCount)
+            .map(([char, freq]) => ({
+              char,
+              frequency: freq,
+              percentage: (freq / totalChars * 100).toFixed(1)
+            }))
+            .sort((a, b) => b.frequency - a.frequency)
+            .slice(0, 20)
+        }
+      }
+    })
+
     aggregationResults.value = {
-      aggregation_id: response.aggregation_id,
-      region_count: response.region_count,
-      execution_time: response.execution_time_ms,
-      aggregates: response.results || response.aggregates,
-      from_cache: response.from_cache || false
+      aggregation_id: `agg_${Date.now()}`,
+      village_count: extractionResults.value.village_count,
+      execution_time: 0,
+      aggregates: aggregates,
+      from_cache: false
     }
 
     await nextTick()
     renderAggregationChart()
-    showSuccess(`特徵聚合完成${response.from_cache ? ' (使用緩存)' : ''}`)
+    showSuccess('特徵聚合完成')
   } catch (error) {
     handleApiError(error)
   } finally {
@@ -561,7 +903,79 @@ const getFeatureLabel = (type) => {
 }
 
 const formatFeatureValue = (value) => {
-  return typeof value === 'number' ? value.toFixed(4) : value
+  if (!value) return 'N/A'
+
+  // 如果是对象（semantic_tags, morphology, clustering, spatial, character）
+  if (typeof value === 'object') {
+    // semantic_tags: 显示激活的标签（映射为中文）
+    if (value.sem_mountain !== undefined) {
+      const activeTags = Object.keys(value)
+        .filter(key => value[key] === 1)
+        .map(key => {
+          // 去掉 "sem_" 前缀，查找中文名称
+          const categoryKey = key.replace('sem_', '')
+          return SEMANTIC_CATEGORY_NAMES[categoryKey] || categoryKey
+        })
+      return activeTags.length > 0 ? activeTags.join(', ') : '无'
+    }
+
+    // morphology: 显示关键信息
+    if (value.name_length !== undefined) {
+      return `长度:${value.name_length}, 后缀:${value.suffix_1 || '无'}`
+    }
+
+    // clustering: 显示聚类ID（检查所有可能的字段）
+    if (value.kmeans_cluster_id !== undefined || value.dbscan_cluster_id !== undefined || value.gmm_cluster_id !== undefined) {
+      const clusters = []
+
+      // 检查各种可能的聚类ID字段
+      if (value.kmeans_cluster_id !== null && value.kmeans_cluster_id !== undefined) {
+        clusters.push(`K:${value.kmeans_cluster_id}`)
+      }
+      if (value.dbscan_cluster_id !== null && value.dbscan_cluster_id !== undefined) {
+        clusters.push(`D:${value.dbscan_cluster_id}`)
+      }
+      if (value.gmm_cluster_id !== null && value.gmm_cluster_id !== undefined) {
+        clusters.push(`G:${value.gmm_cluster_id}`)
+      }
+
+      // 如果没有任何聚类ID，显示原始数据以便调试
+      if (clusters.length === 0) {
+        // 检查是否有其他聚类相关字段
+        const clusterKeys = Object.keys(value).filter(k => k.includes('cluster') || k.includes('label'))
+        if (clusterKeys.length > 0) {
+          return clusterKeys.map(k => `${k}:${value[k]}`).join(', ')
+        }
+        return '无聚类数据'
+      }
+
+      return clusters.join(', ')
+    }
+
+    // spatial: 显示经纬度
+    if (value.longitude !== undefined && value.latitude !== undefined) {
+      if (value.longitude === null || value.latitude === null) {
+        return '无坐标数据'
+      }
+      return `${value.longitude.toFixed(4)}, ${value.latitude.toFixed(4)}`
+    }
+
+    // character: 显示 Top-N 高频字符
+    if (value.top_chars !== undefined) {
+      if (!Array.isArray(value.top_chars) || value.top_chars.length === 0) {
+        return '无字符数据'
+      }
+      // 显示前5个高频字符
+      const topChars = value.top_chars.slice(0, 5)
+        .map(item => `${item.char}(${(item.frequency * 100).toFixed(1)}%)`)
+        .join(', ')
+      return topChars + (value.top_chars.length > 5 ? '...' : '')
+    }
+
+    return JSON.stringify(value)
+  }
+
+  return typeof value === 'number' ? value.toFixed(4) : String(value)
 }
 
 const formatNumber = (num) => {
@@ -622,8 +1036,7 @@ const handleApiError = (error) => {
 
 // Lifecycle
 onMounted(() => {
-  // Load regions on mount
-  loadRegions()
+  // FilterableSelect 会自动加载区域列表，无需手动加载
 })
 </script>
 
@@ -693,7 +1106,7 @@ onMounted(() => {
 }
 
 .count-badge {
-  background: linear-gradient(135deg, #4a90e2, #50c878);
+  background: #4a90e2;
   color: white;
   padding: 4px 12px;
   border-radius: 12px;
@@ -702,13 +1115,10 @@ onMounted(() => {
 }
 
 .search-bar {
-  display: flex;
-  gap: 12px;
   margin-bottom: 16px;
 }
 
 .glass-input {
-  flex: 1;
   padding: 10px 16px;
   background: rgba(255, 255, 255, 0.5);
   border: 1px solid rgba(74, 144, 226, 0.3);
@@ -721,6 +1131,64 @@ onMounted(() => {
   outline: none;
   border-color: #4a90e2;
   background: rgba(255, 255, 255, 0.8);
+}
+
+.filters-row {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  align-items: flex-end;
+}
+
+.filter-group {
+  flex: 1;
+  min-width: 150px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.filter-group label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.load-btn {
+  padding: 10px 20px;
+  white-space: nowrap;
+}
+
+.quick-select-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+}
+
+.quick-select-row label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.empty-hint {
+  padding: 40px 20px;
+  text-align: center;
+  background: rgba(243, 156, 18, 0.1);
+  border: 2px dashed rgba(243, 156, 18, 0.3);
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+
+.empty-hint p {
+  font-size: 15px;
+  color: #f39c12;
+  margin: 0;
+  font-weight: 500;
 }
 
 .filter-controls {
@@ -756,39 +1224,21 @@ onMounted(() => {
   background: rgba(255, 255, 255, 0.8);
 }
 
-.solid-button {
-  padding: 8px 16px;
-  background: linear-gradient(135deg, #4a90e2, #50c878);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.solid-button:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(74, 144, 226, 0.4);
-}
-
-.solid-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
 .solid-button.secondary {
   background: linear-gradient(135deg, #95a5a6, #7f8c8d);
 }
 
+.solid-button.secondary:hover:not(:disabled) {
+  background: linear-gradient(135deg, #a8b5b6, #8d9a9b);
+}
+
 .solid-button.small {
-  padding: 6px 12px;
+  padding: 8px 16px;
   font-size: 13px;
 }
 
 .solid-button.large {
-  padding: 12px 32px;
+  padding: 14px 32px;
   font-size: 16px;
 }
 
@@ -818,15 +1268,52 @@ onMounted(() => {
   background: rgba(74, 144, 226, 0.1);
 }
 
-.village-name {
-  flex: 1;
-  font-weight: 500;
-  color: var(--text-primary);
+.village-item input[type="checkbox"] {
+  flex-shrink: 0;
 }
 
-.village-region {
-  font-size: 13px;
+.village-info {
+  flex: 1;
+  display: flex;
+  gap: 6px;
+  min-width: 0;
+}
+
+.village-main {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.village-name {
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 14px;
+}
+
+.village-id {
+  font-size: 11px;
   color: var(--text-secondary);
+  background: rgba(74, 144, 226, 0.1);
+  padding: 2px 8px;
+  border-radius: 8px;
+  font-family: monospace;
+}
+
+.village-location {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 12px;
+}
+
+.location-item {
+  color: var(--text-secondary);
+  background: rgba(255, 255, 255, 0.5);
+  padding: 2px 8px;
+  border-radius: 6px;
+  border: 1px solid rgba(74, 144, 226, 0.2);
 }
 
 .pagination {
@@ -842,8 +1329,8 @@ onMounted(() => {
 }
 
 .feature-types {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 12px;
 }
 
@@ -851,26 +1338,36 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 12px;
+  padding: 12px 16px;
   background: rgba(255, 255, 255, 0.5);
+  border: 2px solid rgba(74, 144, 226, 0.2);
   border-radius: 8px;
   cursor: pointer;
-  transition: background 0.2s ease;
+  transition: all 0.2s ease;
 }
 
 .feature-type-item:hover {
   background: rgba(255, 255, 255, 0.7);
+  border-color: rgba(74, 144, 226, 0.4);
+}
+
+.feature-type-item input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
 }
 
 .type-label {
-  font-weight: 500;
+  font-weight: 600;
   color: var(--text-primary);
-  min-width: 100px;
+  min-width: 80px;
+  font-size: 14px;
 }
 
 .type-desc {
-  font-size: 13px;
+  font-size: 12px;
   color: var(--text-secondary);
+  flex: 1;
 }
 
 .controls-content {
@@ -879,22 +1376,42 @@ onMounted(() => {
   gap: 16px;
 }
 
-.control-row {
+.controls-row {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.control-item {
   display: flex;
   align-items: center;
   gap: 12px;
+  flex: 1;
+  min-width: 250px;
 }
 
-.control-row label {
-  min-width: 100px;
+.control-item label {
   font-weight: 500;
   color: var(--text-primary);
+  white-space: nowrap;
+}
+
+.control-item input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+.control-item span {
+  font-size: 14px;
+  color: var(--text-secondary);
 }
 
 .button-group {
   display: flex;
   gap: 12px;
   margin-top: 8px;
+  justify-content: center;
 }
 
 .summary-stats {
@@ -922,6 +1439,21 @@ onMounted(() => {
   font-size: 24px;
   font-weight: 700;
   color: #4a90e2;
+}
+
+.stat-breakdown {
+  margin-top: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-size: 11px;
+}
+
+.breakdown-item {
+  background: rgba(74, 144, 226, 0.1);
+  padding: 2px 8px;
+  border-radius: 8px;
+  color: var(--text-secondary);
 }
 
 .feature-table-wrapper {
@@ -991,7 +1523,256 @@ onMounted(() => {
   font-size: 16px;
 }
 
-/* Responsive */
+/* Aggregation Results Styles */
+.stat-badge {
+  background: rgba(74, 144, 226, 0.2);
+  color: #4a90e2;
+  padding: 6px 12px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.agg-section {
+  margin-bottom: 32px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+}
+
+.agg-section h4 {
+  font-size: 16px;
+  color: var(--text-primary);
+  margin: 0 0 16px 0;
+  padding-bottom: 8px;
+  border-bottom: 2px solid rgba(74, 144, 226, 0.2);
+}
+
+.agg-section h5 {
+  font-size: 14px;
+  color: var(--text-primary);
+  margin: 0 0 12px 0;
+}
+
+.category-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 12px;
+}
+
+.category-card {
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 8px;
+  text-align: center;
+  border: 2px solid rgba(74, 144, 226, 0.2);
+}
+
+.category-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+}
+
+.category-count {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+
+.category-percentage {
+  font-size: 16px;
+  font-weight: 700;
+  color: #4a90e2;
+}
+
+.struct-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.struct-subsection {
+  background: rgba(255, 255, 255, 0.4);
+  padding: 16px;
+  border-radius: 8px;
+}
+
+.mini-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.mini-table th,
+.mini-table td {
+  padding: 8px;
+  text-align: left;
+  border-bottom: 1px solid rgba(74, 144, 226, 0.1);
+}
+
+.mini-table th {
+  font-weight: 600;
+  color: var(--text-primary);
+  background: rgba(74, 144, 226, 0.1);
+}
+
+.cluster-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.cluster-subsection {
+  background: rgba(255, 255, 255, 0.4);
+  padding: 16px;
+  border-radius: 8px;
+}
+
+.cluster-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.cluster-badge {
+  display: flex;
+  flex-direction: column;
+  padding: 10px 14px;
+  background: rgba(74, 144, 226, 0.1);
+  border-radius: 8px;
+  border: 1px solid rgba(74, 144, 226, 0.3);
+}
+
+.cluster-id {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.cluster-count {
+  font-size: 13px;
+  color: #4a90e2;
+  font-weight: 500;
+}
+
+.coverage-stats {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+}
+
+.coverage-item {
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 12px;
+  text-align: center;
+  min-width: 120px;
+  border: 2px solid rgba(74, 144, 226, 0.2);
+}
+
+.coverage-item.highlight {
+  background: rgba(74, 144, 226, 0.1);
+  border-color: #4a90e2;
+}
+
+.coverage-label {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+
+.coverage-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: #4a90e2;
+}
+
+.char-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 10px;
+}
+
+.char-card {
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 8px;
+  text-align: center;
+  border: 2px solid rgba(74, 144, 226, 0.2);
+}
+
+.char-text {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+}
+
+.char-percentage {
+  font-size: 12px;
+  color: #4a90e2;
+  font-weight: 500;
+}
+
+.empty-cluster-hint {
+  padding: 30px 20px;
+  text-align: center;
+  background: rgba(243, 156, 18, 0.1);
+  border: 2px dashed rgba(243, 156, 18, 0.3);
+  border-radius: 8px;
+}
+
+.empty-cluster-hint p {
+  margin: 8px 0;
+  font-size: 14px;
+  color: #f39c12;
+}
+
+.empty-cluster-hint .hint-text {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+/* Responsive - Portrait orientation */
+@media (orientation: portrait) {
+  .feature-extraction-page {
+    padding: 8px;
+  }
+
+  .filters-row {
+    flex-direction: column;
+  }
+
+  .filter-group {
+    min-width: 100%;
+  }
+
+  .controls-row {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .control-item {
+    min-width: 100%;
+  }
+
+  .button-group {
+    flex-direction: column;
+  }
+
+  .chart-container {
+    height: 300px;
+  }
+
+  .feature-types {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Responsive - Small screens */
 @media (max-width: 768px) {
   .feature-extraction-page {
     padding: 12px;

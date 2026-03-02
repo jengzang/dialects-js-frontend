@@ -697,7 +697,7 @@ export default {
 .form-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 16px;
+  gap: 6px;
 }
 
 .form-row > .form-group {

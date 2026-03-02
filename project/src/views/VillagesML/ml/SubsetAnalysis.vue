@@ -3,8 +3,8 @@
       <h3 class="villagesml-subtab-title">ML計算 - 子集分析</h3>
     <!-- Header -->
     <div class="page-header">
-      <h2>🔐 子集分析 Subset Analysis</h2>
-      <p class="subtitle">對自訂村莊子集進行聚類與比較分析</p>
+<!--      <h2>🔐 子集分析 Subset Analysis</h2>-->
+<!--      <p class="subtitle">對自訂村莊子集進行聚類與比較分析</p>-->
       <div v-if="!isAuthenticated" class="auth-warning">
         <span class="lock-icon">🔒</span>
         <span>此功能需要登入</span>
@@ -15,27 +15,60 @@
     <!-- Filter Builder -->
     <div class="glass-panel filter-panel">
       <div class="panel-header">
-        <h3>篩選器構建 Filter Builder</h3>
+        <h3>📋 步驟 1：篩選器構建</h3>
         <button @click="addFilter" class="solid-button small">+ 添加篩選條件</button>
       </div>
       <div class="filter-content">
+        <div class="usage-hint">
+          <span class="hint-icon">💡</span>
+          <span class="hint-text">添加篩選條件，定義你想要分析的村莊集合</span>
+        </div>
         <div v-for="(filter, idx) in filters" :key="idx" class="filter-row">
-          <SimpleSelectDropdown :match-trigger-width="true"
+          <SimpleSelectDropdown
             v-model="filter.field"
             :options="fieldOptions"
+            @update:modelValue="handleFieldChange(idx)"
           />
 
-          <SimpleSelectDropdown :match-trigger-width="true"
+          <SimpleSelectDropdown
             v-model="filter.operator"
-            :options="operatorOptions"
+            :options="getOperatorsForFilter(filter)"
           />
 
-          <input v-model="filter.value" type="text" placeholder="值" class="glass-input">
-          <button @click="removeFilter(idx)" class="solid-button small secondary">刪除</button>
+          <!-- Region field: use FilterableSelect -->
+          <FilterableSelect
+            v-if="getFieldInputType(filter.field) === 'region'"
+            v-model="filter.value"
+            :level="filter.level || 'city'"
+            :parent="filter.parent"
+            :show-level-selector="true"
+            placeholder="選擇區域"
+            @update:level="(level) => filter.level = level"
+            @update:hierarchy="(hierarchy) => filter.hierarchy = hierarchy"
+          />
+
+          <!-- Select field: use SimpleSelectDropdown (semantic, structure) -->
+          <SimpleSelectDropdown
+            v-else-if="getFieldInputType(filter.field) === 'select'"
+            v-model="filter.value"
+            :options="getFieldOptions(filter.field)"
+            :placeholder="`選擇${FILTER_FIELDS.find(f => f.value === filter.field)?.label}`"
+          />
+
+          <!-- Text field: use text input (name, length) -->
+          <input
+            v-else
+            v-model="filter.value"
+            type="text"
+            placeholder="值"
+            class="glass-input"
+          >
+
+          <button @click="removeFilter(idx)" class="solid-button small danger">刪除</button>
         </div>
         <div class="filter-actions">
           <button @click="applyFilters" :disabled="filters.length === 0 || loading" class="solid-button primary">
-            應用篩選 Apply Filters
+            應用篩選
           </button>
           <button @click="clearFilters" class="solid-button secondary">清空篩選</button>
         </div>
@@ -46,12 +79,67 @@
       </div>
     </div>
 
+    <!-- Filtered Villages List -->
+    <div v-if="currentFilteredVillages.length > 0" class="glass-panel villages-list-panel">
+      <div class="panel-header">
+        <h3>📊 步驟 2：查看篩選結果</h3>
+        <div class="header-info">
+          <span class="total-count">
+            共 {{ currentFilteredVillages.length }} 個村莊
+          </span>
+        </div>
+      </div>
+      <div class="villages-list-content">
+        <div class="usage-hint">
+          <span class="hint-icon">💡</span>
+          <span class="hint-text">確認篩選結果無誤後，點擊下方「保存為子集 A/B」按鈕</span>
+        </div>
+        <div class="save-actions">
+          <button @click="saveAsSubsetA" :disabled="!canSaveSubset" class="solid-button primary">
+            💾 保存為子集 A
+          </button>
+          <button @click="saveAsSubsetB" :disabled="!canSaveSubset" class="solid-button primary">
+            💾 保存為子集 B
+          </button>
+        </div>
+        <div class="villages-table-wrapper">
+          <table class="glass-table">
+            <thead>
+              <tr>
+                <th>序號</th>
+                <th>村名</th>
+                <th>區域</th>
+                <th>長度</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(village, idx) in paginatedVillages" :key="village.id">
+                <td>{{ (currentPage - 1) * pageSize + idx + 1 }}</td>
+                <td class="village-name">{{ village.name }}</td>
+                <td class="village-region">{{ village.region }}</td>
+                <td>{{ village.length }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="pagination">
+          <button @click="prevPage" :disabled="currentPage === 1" class="solid-button small">上一頁</button>
+          <span class="page-info">第 {{ currentPage }} / {{ totalPages }} 頁</span>
+          <button @click="nextPage" :disabled="currentPage === totalPages" class="solid-button small">下一頁</button>
+        </div>
+      </div>
+    </div>
+
     <!-- Subset Comparison -->
     <div class="glass-panel comparison-panel">
       <div class="panel-header">
-        <h3>子集比較 Subset Comparison</h3>
+        <h3>⚖️ 步驟 3：子集比較</h3>
       </div>
       <div class="comparison-content">
+        <div class="usage-hint">
+          <span class="hint-icon">💡</span>
+          <span class="hint-text">保存兩個不同的子集後，點擊「比較子集」按鈕，系統會分析兩個子集的語義和形態差異</span>
+        </div>
         <div class="subset-selector">
           <div class="subset-card">
             <h4>子集 A</h4>
@@ -66,7 +154,7 @@
               </div>
             </div>
             <button @click="saveAsSubsetA" :disabled="!canSaveSubset" class="solid-button small">
-              保存為子集 A
+              💾 更新子集 A
             </button>
           </div>
           <div class="vs-divider">VS</div>
@@ -83,7 +171,7 @@
               </div>
             </div>
             <button @click="saveAsSubsetB" :disabled="!canSaveSubset" class="solid-button small">
-              保存為子集 B
+              💾 更新子集 B
             </button>
           </div>
         </div>
@@ -93,7 +181,7 @@
             :disabled="!canCompare || loading"
             class="solid-button primary large"
           >
-            比較子集 Compare Subsets
+            比較子集
           </button>
         </div>
       </div>
@@ -102,30 +190,68 @@
     <!-- Comparison Results -->
     <div v-if="comparisonResults" class="glass-panel results-panel">
       <div class="panel-header">
-        <h3>比較結果 Comparison Results</h3>
+        <h3>比較結果</h3>
       </div>
       <div class="results-content">
+        <!-- Performance Timings -->
+        <div v-if="comparisonResults.timings" class="timings-section">
+          <h4>⏱️ 性能統計</h4>
+          <div class="timings-grid">
+            <div class="timing-card">
+              <div class="timing-icon">📊</div>
+              <div class="timing-info">
+                <div class="timing-label">數據加載</div>
+                <div class="timing-value">{{ comparisonResults.timings.data_loading }}ms</div>
+              </div>
+            </div>
+            <div class="timing-card">
+              <div class="timing-icon">🏷️</div>
+              <div class="timing-info">
+                <div class="timing-label">語義分析</div>
+                <div class="timing-value">{{ comparisonResults.timings.semantic }}ms</div>
+              </div>
+            </div>
+            <div class="timing-card">
+              <div class="timing-icon">📐</div>
+              <div class="timing-info">
+                <div class="timing-label">形態學分析</div>
+                <div class="timing-value">{{ comparisonResults.timings.morphology }}ms</div>
+              </div>
+            </div>
+            <div class="timing-card">
+              <div class="timing-icon">🔤</div>
+              <div class="timing-info">
+                <div class="timing-label">字符分析</div>
+                <div class="timing-value">{{ comparisonResults.timings.character }}ms</div>
+              </div>
+            </div>
+            <div class="timing-card">
+              <div class="timing-icon">🗺️</div>
+              <div class="timing-info">
+                <div class="timing-label">空間分析</div>
+                <div class="timing-value">{{ comparisonResults.timings.spatial }}ms</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Metrics -->
         <div class="metrics-grid">
           <div class="metric-card">
-            <div class="metric-label">相似度</div>
-            <div class="metric-value">{{ formatNumber(comparisonResults.similarity) }}</div>
+            <div class="metric-label">子集 A 大小</div>
+            <div class="metric-value">{{ comparisonResults.group_a_size }}</div>
           </div>
           <div class="metric-card">
-            <div class="metric-label">差異度</div>
-            <div class="metric-value">{{ formatNumber(comparisonResults.difference) }}</div>
+            <div class="metric-label">子集 B 大小</div>
+            <div class="metric-value">{{ comparisonResults.group_b_size }}</div>
           </div>
           <div class="metric-card">
-            <div class="metric-label">重疊村莊</div>
-            <div class="metric-value">{{ comparisonResults.overlap_count }}</div>
+            <div class="metric-label">執行時間</div>
+            <div class="metric-value">{{ comparisonResults.execution_time_ms }}ms</div>
           </div>
           <div class="metric-card">
-            <div class="metric-label">獨特村莊 (A)</div>
-            <div class="metric-value">{{ comparisonResults.unique_a }}</div>
-          </div>
-          <div class="metric-card">
-            <div class="metric-label">獨特村莊 (B)</div>
-            <div class="metric-value">{{ comparisonResults.unique_b }}</div>
+            <div class="metric-label">緩存狀態</div>
+            <div class="metric-value">{{ comparisonResults.from_cache ? '✓' : '✗' }}</div>
           </div>
         </div>
 
@@ -134,9 +260,42 @@
           <div ref="comparisonChart" class="chart-container"></div>
         </div>
 
-        <!-- Feature Differences -->
-        <div class="feature-diff-table">
-          <h4>特徵差異 Feature Differences</h4>
+        <!-- Semantic Comparison Table -->
+        <div v-if="comparisonResults.semantic_comparison" class="feature-diff-table">
+          <h4>🏷️ 語義類別比較</h4>
+          <table class="glass-table">
+            <thead>
+              <tr>
+                <th>類別</th>
+                <th>子集 A 數量</th>
+                <th>子集 A 比例</th>
+                <th>子集 B 數量</th>
+                <th>子集 B 比例</th>
+                <th>差異</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="item in comparisonResults.semantic_comparison" :key="item.category">
+                <td>
+                  <span class="category-cell">
+                    {{ getCategoryIcon(item.category) }} {{ getCategoryName(item.category) }}
+                  </span>
+                </td>
+                <td>{{ item.group_a_count }}</td>
+                <td>{{ formatPercent(item.group_a_pct) }}</td>
+                <td>{{ item.group_b_count }}</td>
+                <td>{{ formatPercent(item.group_b_pct) }}</td>
+                <td :class="['diff-value', item.difference > 0 ? 'positive' : 'negative']">
+                  {{ formatPercent(item.difference) }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Morphology Comparison Table -->
+        <div v-if="comparisonResults.morphology_comparison" class="feature-diff-table">
+          <h4>📐 形態學特徵比較</h4>
           <table class="glass-table">
             <thead>
               <tr>
@@ -147,16 +306,112 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="(diff, feature) in comparisonResults.feature_diffs" :key="feature">
-                <td>{{ feature }}</td>
-                <td>{{ formatNumber(diff.a) }}</td>
-                <td>{{ formatNumber(diff.b) }}</td>
-                <td :class="['diff-value', diff.diff > 0 ? 'positive' : 'negative']">
-                  {{ formatNumber(diff.diff) }}
+              <tr v-for="item in comparisonResults.morphology_comparison" :key="item.feature">
+                <td>{{ formatFeatureName(item.feature) }}</td>
+                <td>{{ formatFeatureValue(item.feature, item.group_a_value) }}</td>
+                <td>{{ formatFeatureValue(item.feature, item.group_b_value) }}</td>
+                <td :class="['diff-value', item.difference > 0 ? 'positive' : 'negative']">
+                  {{ formatFeatureValue(item.feature, item.difference) }}
                 </td>
               </tr>
             </tbody>
           </table>
+        </div>
+
+        <!-- Character Comparison Table -->
+        <div v-if="comparisonResults.character_comparison" class="feature-diff-table">
+          <h4>🔤 字符特徵比較 (Top 20)</h4>
+          <table class="glass-table">
+            <thead>
+              <tr>
+                <th>字符</th>
+                <th>子集 A 頻率</th>
+                <th>子集 B 頻率</th>
+                <th>差異</th>
+                <th>Lift</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="item in comparisonResults.character_comparison.slice(0, 20)" :key="item.char">
+                <td class="char-cell">{{ item.char }}</td>
+                <td>{{ formatPercent(item.group_a_freq) }}</td>
+                <td>{{ formatPercent(item.group_b_freq) }}</td>
+                <td :class="['diff-value', item.difference > 0 ? 'positive' : 'negative']">
+                  {{ formatPercent(item.difference) }}
+                </td>
+                <td :class="['lift-value', getLiftClass(item.lift)]">
+                  {{ formatLift(item.lift) }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Spatial Comparison -->
+        <div v-if="comparisonResults.spatial_comparison" class="spatial-comparison-section">
+          <h4>🗺️ 空間特徵比較</h4>
+          <div class="spatial-metrics">
+            <div class="spatial-group">
+              <h5>子集 A 地理範圍</h5>
+              <div class="spatial-stats">
+                <div class="stat-row">
+                  <span class="stat-label">經度範圍:</span>
+                  <span class="stat-value">
+                    {{ comparisonResults.spatial_comparison.group_a.lon_min.toFixed(3) }} ~
+                    {{ comparisonResults.spatial_comparison.group_a.lon_max.toFixed(3) }}
+                    (跨度 {{ (comparisonResults.spatial_comparison.group_a.lon_max - comparisonResults.spatial_comparison.group_a.lon_min).toFixed(3) }}°)
+                  </span>
+                </div>
+                <div class="stat-row">
+                  <span class="stat-label">緯度範圍:</span>
+                  <span class="stat-value">
+                    {{ comparisonResults.spatial_comparison.group_a.lat_min.toFixed(3) }} ~
+                    {{ comparisonResults.spatial_comparison.group_a.lat_max.toFixed(3) }}
+                    (跨度 {{ (comparisonResults.spatial_comparison.group_a.lat_max - comparisonResults.spatial_comparison.group_a.lat_min).toFixed(3) }}°)
+                  </span>
+                </div>
+                <div class="stat-row">
+                  <span class="stat-label">中心點:</span>
+                  <span class="stat-value">
+                    ({{ comparisonResults.spatial_comparison.group_a.lon_mean.toFixed(3) }},
+                     {{ comparisonResults.spatial_comparison.group_a.lat_mean.toFixed(3) }})
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div class="spatial-group">
+              <h5>子集 B 地理範圍</h5>
+              <div class="spatial-stats">
+                <div class="stat-row">
+                  <span class="stat-label">經度範圍:</span>
+                  <span class="stat-value">
+                    {{ comparisonResults.spatial_comparison.group_b.lon_min.toFixed(3) }} ~
+                    {{ comparisonResults.spatial_comparison.group_b.lon_max.toFixed(3) }}
+                    (跨度 {{ (comparisonResults.spatial_comparison.group_b.lon_max - comparisonResults.spatial_comparison.group_b.lon_min).toFixed(3) }}°)
+                  </span>
+                </div>
+                <div class="stat-row">
+                  <span class="stat-label">緯度範圍:</span>
+                  <span class="stat-value">
+                    {{ comparisonResults.spatial_comparison.group_b.lat_min.toFixed(3) }} ~
+                    {{ comparisonResults.spatial_comparison.group_b.lat_max.toFixed(3) }}
+                    (跨度 {{ (comparisonResults.spatial_comparison.group_b.lat_max - comparisonResults.spatial_comparison.group_b.lat_min).toFixed(3) }}°)
+                  </span>
+                </div>
+                <div class="stat-row">
+                  <span class="stat-label">中心點:</span>
+                  <span class="stat-value">
+                    ({{ comparisonResults.spatial_comparison.group_b.lon_mean.toFixed(3) }},
+                     {{ comparisonResults.spatial_comparison.group_b.lat_mean.toFixed(3) }})
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="centroid-distance">
+            <span class="distance-label">兩組中心點距離:</span>
+            <span class="distance-value">{{ comparisonResults.spatial_comparison.centroid_distance_km.toFixed(2) }} km</span>
+          </div>
         </div>
       </div>
     </div>
@@ -164,13 +419,13 @@
     <!-- Subset Clustering -->
     <div class="glass-panel clustering-panel">
       <div class="panel-header">
-        <h3>子集聚類 Subset Clustering</h3>
+        <h3>子集聚類</h3>
       </div>
       <div class="clustering-content">
         <div class="clustering-controls">
           <div class="control-row">
             <label>選擇子集:</label>
-            <SimpleSelectDropdown :match-trigger-width="true"
+            <SimpleSelectDropdown
               v-model="clusteringSubset"
               :options="clusteringSubsetOptions"
             />
@@ -186,39 +441,70 @@
               :options="clusterAlgorithmOptions"
             />
           </div>
+          <div class="control-row feature-selector">
+            <label>聚類特徵:</label>
+            <div class="feature-checkboxes">
+              <label v-for="option in clusterFeatureOptions" :key="option.value" class="feature-checkbox">
+                <input
+                  type="checkbox"
+                  :value="option.value"
+                  v-model="clusterFeatures"
+                  class="checkbox-input"
+                >
+                <span class="checkbox-label">{{ option.label }}</span>
+                <span class="checkbox-desc">{{ option.description }}</span>
+              </label>
+            </div>
+          </div>
           <button
             @click="runSubsetClustering"
-            :disabled="!canCluster || loading"
+            :disabled="!canCluster || loading || clusterFeatures.length === 0"
             class="solid-button primary"
           >
-            執行聚類 Run Clustering
+            執行聚類
           </button>
         </div>
 
         <div v-if="clusteringResults" class="clustering-results">
-          <div class="clustering-chart">
-            <div ref="clusteringChart" class="chart-container"></div>
+          <!-- Clustering Stats -->
+          <div class="clustering-stats">
+            <div class="stat-card">
+              <div class="stat-label">匹配村莊</div>
+              <div class="stat-value">{{ clusteringResults.matched_villages }}</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">採樣村莊</div>
+              <div class="stat-value">{{ clusteringResults.sampled_villages }}</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">聚類數量</div>
+              <div class="stat-value">{{ clusteringResults.clusters.length }}</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">執行時間</div>
+              <div class="stat-value">{{ clusteringResults.execution_time_ms }}ms</div>
+            </div>
           </div>
+
+          <!-- Cluster Details -->
           <div class="cluster-summary">
-            <h4>聚類摘要 Cluster Summary</h4>
-            <table class="glass-table">
-              <thead>
-                <tr>
-                  <th>聚類 ID</th>
-                  <th>村莊數</th>
-                  <th>中心點</th>
-                  <th>內聚度</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="cluster in clusteringResults.clusters" :key="cluster.id">
-                  <td>{{ cluster.id }}</td>
-                  <td>{{ cluster.size }}</td>
-                  <td>{{ formatVector(cluster.centroid) }}</td>
-                  <td>{{ formatNumber(cluster.cohesion) }}</td>
-                </tr>
-              </tbody>
-            </table>
+            <h4>聚類詳情</h4>
+            <div class="clusters-grid">
+              <div v-for="cluster in clusteringResults.clusters" :key="cluster.cluster_id" class="cluster-card">
+                <div class="cluster-header">
+                  <span class="cluster-id">聚類 {{ cluster.cluster_id }}</span>
+                  <span class="cluster-size">{{ cluster.size }} 個村莊</span>
+                </div>
+                <div class="cluster-samples">
+                  <div class="sample-label">樣本村莊:</div>
+                  <div class="sample-villages">
+                    <span v-for="(village, idx) in cluster.sample_villages" :key="idx" class="village-tag">
+                      {{ village }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -233,16 +519,23 @@
 </template>
 
 <script setup>
-import { ref, computed, nextTick } from 'vue'
+import { ref, computed, nextTick, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
 import * as echarts from 'echarts'
 import { clusterSubset, compareSubsets as compareSubsetsAPI, searchVillages } from '@/api/index.js'
-import { showError, showSuccess, showWarning } from '@/utils/message.js'
+import { showError, showSuccess, showWarning, showInfo } from '@/utils/message.js'
 import { userStore } from '@/store/store.js'
 import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
+import FilterableSelect from '@/components/common/FilterableSelect.vue'
+import { FILTER_FIELDS, getOperatorOptions, getDefaultOperator, getFieldInputType, getFieldOptions } from '@/config/subsetFilters.js'
+import { getCategoryName, getCategoryIcon } from '@/config/villagesML.js'
 
 // Router
 const router = useRouter()
+
+// ECharts instances
+let comparisonChartInstance = null
+let clusteringChartInstance = null
 
 // Authentication
 const isAuthenticated = computed(() => userStore.isAuthenticated)
@@ -254,22 +547,18 @@ const subsetA = ref({
   filter: {
     cities: [],
     counties: [],
-    semantic_tags: [],
-    name_pattern: null,
-    sample_size: 1000
+    name_pattern: null
   },
-  villages: []  // For UI display only
+  villages: []
 })
 const subsetB = ref({
   label: '',
   filter: {
     cities: [],
     counties: [],
-    semantic_tags: [],
-    name_pattern: null,
-    sample_size: 1000
+    name_pattern: null
   },
-  villages: []  // For UI display only
+  villages: []
 })
 const currentFilteredVillages = ref([])
 const comparisonResults = ref(null)
@@ -281,24 +570,45 @@ const loadingMessage = ref('載入中...')
 const clusteringSubset = ref('A')
 const clusterK = ref(5)
 const clusterAlgorithm = ref('kmeans')
+const clusterFeatures = ref(['semantic', 'morphology'])  // 默认使用两种特征
+
+// Pagination for villages list
+const currentPage = ref(1)
+const pageSize = ref(50)
+
+// Computed
+const paginatedVillages = computed(() => {
+  const start = (currentPage.value - 1) * pageSize.value
+  const end = start + pageSize.value
+  return currentFilteredVillages.value.slice(start, end)
+})
+
+const totalPages = computed(() => {
+  return Math.ceil(currentFilteredVillages.value.length / pageSize.value)
+})
+
+const prevPage = () => {
+  if (currentPage.value > 1) {
+    currentPage.value--
+  }
+}
+
+const nextPage = () => {
+  if (currentPage.value < totalPages.value) {
+    currentPage.value++
+  }
+}
 
 // Options
-const fieldOptions = [
-  { label: '村名', value: 'name' },
-  { label: '區域', value: 'region' },
-  { label: '語義類別', value: 'semantic' },
-  { label: '結構模式', value: 'structure' },
-  { label: '名稱長度', value: 'length' }
-]
+const fieldOptions = FILTER_FIELDS.map(f => ({
+  label: f.label,
+  value: f.value
+}))
 
-const operatorOptions = [
-  { label: '包含', value: 'contains' },
-  { label: '等於', value: 'equals' },
-  { label: '開頭為', value: 'startsWith' },
-  { label: '結尾為', value: 'endsWith' },
-  { label: '大於', value: 'gt' },
-  { label: '小於', value: 'lt' }
-]
+// Dynamic operator options based on selected field
+const getOperatorsForFilter = (filter) => {
+  return getOperatorOptions(filter.field)
+}
 
 const clusteringSubsetOptions = [
   { label: '子集 A', value: 'A' },
@@ -310,6 +620,11 @@ const clusterAlgorithmOptions = [
   { label: 'K-Means', value: 'kmeans' },
   { label: 'Hierarchical', value: 'hierarchical' },
   { label: 'DBSCAN', value: 'dbscan' }
+]
+
+const clusterFeatureOptions = [
+  { label: '語義特徵', value: 'semantic', description: '九大語義類別（水系、山地、方位等）' },
+  { label: '形態學特徵', value: 'morphology', description: '名稱長度' }
 ]
 
 // Chart refs
@@ -337,11 +652,32 @@ const goToAuth = () => {
 }
 
 const addFilter = () => {
+  const defaultField = 'name'
   filters.value.push({
-    field: 'name',
-    operator: 'contains',
-    value: ''
+    field: defaultField,
+    operator: getDefaultOperator(defaultField),
+    value: '',
+    level: 'city',      // For region field
+    parent: null,       // For region field
+    hierarchy: null     // For region field
   })
+}
+
+const handleFieldChange = (idx) => {
+  const filter = filters.value[idx]
+
+  // Reset value when field changes
+  filter.value = ''
+
+  // Set default operator for the new field
+  filter.operator = getDefaultOperator(filter.field)
+
+  // Reset region-specific fields
+  if (filter.field === 'region') {
+    filter.level = 'city'
+    filter.parent = null
+    filter.hierarchy = null
+  }
 }
 
 const removeFilter = (idx) => {
@@ -360,68 +696,140 @@ const applyFilters = async () => {
   loading.value = true
   loadingMessage.value = '正在應用篩選...'
 
+  // Reset pagination
+  currentPage.value = 1
+
   try {
     // Build filter object for backend
     const filterObj = {
       cities: [],
       counties: [],
       semantic_tags: [],
+      structure_patterns: [],
       name_pattern: null,
       sample_size: 1000
     }
 
     // Build API parameters from filters
-    const params = { limit: 1000 }
+    const baseParams = {
+      page_size: 1000
+    }
+    let nameFilter = null
 
     // Extract filters
     filters.value.forEach(filter => {
       if (filter.field === 'region' && filter.operator === 'equals') {
-        params.region_name = filter.value
-        filterObj.cities.push(filter.value)
+        if (filter.hierarchy) {
+          if (filter.hierarchy.city) {
+            baseParams.city = filter.hierarchy.city
+            filterObj.cities.push(filter.hierarchy.city)
+          }
+          if (filter.hierarchy.county) {
+            baseParams.county = filter.hierarchy.county
+            filterObj.counties.push(filter.hierarchy.county)
+          }
+          if (filter.hierarchy.township) {
+            baseParams.township = filter.hierarchy.township
+          }
+        } else if (filter.value) {
+          baseParams.region_name = filter.value
+          filterObj.cities.push(filter.value)
+        }
       } else if (filter.field === 'semantic' && filter.operator === 'equals') {
         filterObj.semantic_tags.push(filter.value)
-      } else if (filter.field === 'name' && filter.operator === 'contains') {
+      } else if (filter.field === 'structure' && filter.operator === 'equals') {
+        filterObj.structure_patterns.push(filter.value)
+      } else if (filter.field === 'name') {
+        nameFilter = filter
         filterObj.name_pattern = filter.value
+        // 對於所有名稱操作符，都傳遞 keyword 給後端進行初步篩選
+        // 後端的 keyword 是 contains 搜索，可以減少返回的數據量
+        // 然後前端再進行精確的 startsWith/endsWith/equals 過濾
+        if (filter.value) {
+          baseParams.keyword = filter.value
+        }
       } else if (filter.field === 'length') {
-        if (filter.operator === 'gt') params.min_length = parseInt(filter.value)
-        else if (filter.operator === 'lt') params.max_length = parseInt(filter.value)
+        if (filter.operator === 'gt') baseParams.min_length = parseInt(filter.value)
+        else if (filter.operator === 'lt') baseParams.max_length = parseInt(filter.value)
       }
     })
 
-    // Call API to get villages for UI display
-    const response = await searchVillages(params)
-    let results = response.results.map(v => ({
-      id: v.id,
-      name: v.name,
-      region: v.region_display || v.city,
-      length: v.name.length
+    // 自動分頁加載所有數據
+    let allResults = []
+    let currentPageNum = 1
+    let totalCount = 0
+
+    // 第一次請求
+    loadingMessage.value = `正在載入第 ${currentPageNum} 頁...`
+    const firstResponse = await searchVillages({ ...baseParams, page: currentPageNum })
+    totalCount = firstResponse.total || 0
+
+    let firstPageResults = (firstResponse.data || []).map(v => ({
+      id: v.village_id,
+      name: v.village_name,
+      region: v.county ? `${v.city}-${v.county}` : v.city,
+      length: v.village_name.length
     }))
 
-    // Apply client-side filters for unsupported operators
-    filters.value.forEach(filter => {
-      if (filter.field === 'name') {
-        if (filter.operator === 'contains') {
-          results = results.filter(v => v.name.includes(filter.value))
-        } else if (filter.operator === 'startsWith') {
-          results = results.filter(v => v.name.startsWith(filter.value))
-        } else if (filter.operator === 'endsWith') {
-          results = results.filter(v => v.name.endsWith(filter.value))
-        } else if (filter.operator === 'equals') {
-          results = results.filter(v => v.name === filter.value)
+    // Apply client-side filters
+    if (nameFilter) {
+      firstPageResults = applyNameFilter(firstPageResults, nameFilter)
+    }
+
+    allResults = [...firstPageResults]
+
+    // 如果還有更多頁，繼續請求
+    const totalPages = Math.ceil(totalCount / baseParams.page_size)
+    if (totalPages > 1) {
+      showInfo(`檢測到 ${totalCount} 個村莊，正在自動載入全部數據...`)
+
+      for (let page = 2; page <= totalPages; page++) {
+        currentPageNum = page
+        loadingMessage.value = `正在載入第 ${currentPageNum}/${totalPages} 頁...`
+
+        const response = await searchVillages({ ...baseParams, page })
+        let pageResults = (response.data || []).map(v => ({
+          id: v.village_id,
+          name: v.village_name,
+          region: v.county ? `${v.city}-${v.county}` : v.city,
+          length: v.village_name.length
+        }))
+
+        // Apply client-side filters
+        if (nameFilter) {
+          pageResults = applyNameFilter(pageResults, nameFilter)
         }
+
+        allResults = [...allResults, ...pageResults]
       }
-    })
+    }
 
-    currentFilteredVillages.value = results
-    // Store the filter object for later API calls
+    currentFilteredVillages.value = allResults
     currentFilteredVillages.value.filterObj = filterObj
+    currentFilteredVillages.value.totalCount = totalCount
 
-    showSuccess(`篩選完成，找到 ${currentFilteredVillages.value.length} 個村莊`)
+    showSuccess(`篩選完成，已載入全部 ${allResults.length} 個村莊`)
   } catch (error) {
     showError(error.message || '篩選失敗')
   } finally {
     loading.value = false
   }
+}
+
+// 輔助函數：應用名稱篩選
+const applyNameFilter = (results, nameFilter) => {
+  if (!nameFilter) return results
+
+  if (nameFilter.operator === 'contains') {
+    return results.filter(v => v.name.includes(nameFilter.value))
+  } else if (nameFilter.operator === 'startsWith') {
+    return results.filter(v => v.name.startsWith(nameFilter.value))
+  } else if (nameFilter.operator === 'endsWith') {
+    return results.filter(v => v.name.endsWith(nameFilter.value))
+  } else if (nameFilter.operator === 'equals') {
+    return results.filter(v => v.name === nameFilter.value)
+  }
+  return results
 }
 
 const saveAsSubsetA = () => {
@@ -430,12 +838,16 @@ const saveAsSubsetA = () => {
     return
   }
 
+  const count = currentFilteredVillages.value.length
+
   subsetA.value = {
-    label: `子集A (${currentFilteredVillages.value.length}個村莊)`,
+    label: `子集A (${count}個村莊)`,
     filter: currentFilteredVillages.value.filterObj,
-    villages: [...currentFilteredVillages.value]
+    villages: [...currentFilteredVillages.value],
+    totalCount: count
   }
-  showSuccess(`已保存為子集 A (${subsetA.value.villages.length} 個村莊)`)
+
+  showSuccess(`已保存為子集 A (${count} 個村莊)`)
 }
 
 const saveAsSubsetB = () => {
@@ -444,12 +856,16 @@ const saveAsSubsetB = () => {
     return
   }
 
+  const count = currentFilteredVillages.value.length
+
   subsetB.value = {
-    label: `子集B (${currentFilteredVillages.value.length}個村莊)`,
+    label: `子集B (${count}個村莊)`,
     filter: currentFilteredVillages.value.filterObj,
-    villages: [...currentFilteredVillages.value]
+    villages: [...currentFilteredVillages.value],
+    totalCount: count
   }
-  showSuccess(`已保存為子集 B (${subsetB.value.villages.length} 個村莊)`)
+
+  showSuccess(`已保存為子集 B (${count} 個村莊)`)
 }
 
 const calculateAvgLength = (villages) => {
@@ -458,12 +874,27 @@ const calculateAvgLength = (villages) => {
   return (sum / villages.length).toFixed(2)
 }
 
+/**
+ * 构建子集参数
+ * 前端已自動分頁載入全部數據，直接傳遞 village_ids 數組
+ */
+const buildGroupParams = (subset) => {
+  return {
+    label: subset.label,
+    village_ids: subset.villages.map(v => v.id)
+  }
+}
+
 const compareSubsets = async () => {
   if (!canCompare.value) return
 
-  // Validate that both subsets have filter objects
-  if (!subsetA.value.filter || !subsetB.value.filter) {
-    showError('請先構建兩個子集')
+  // Validate that both subsets have data
+  if (!subsetA.value.villages || subsetA.value.villages.length === 0) {
+    showError('子集 A 為空，請先構建子集')
+    return
+  }
+  if (!subsetB.value.villages || subsetB.value.villages.length === 0) {
+    showError('子集 B 為空，請先構建子集')
     return
   }
 
@@ -471,42 +902,23 @@ const compareSubsets = async () => {
   loadingMessage.value = '正在比較子集...'
 
   try {
-    // Build parameters matching backend API spec
+    // 构建参数，启用所有对比维度
     const params = {
-      group_a: {
-        label: subsetA.value.label || '子集A',
-        filter: subsetA.value.filter
-      },
-      group_b: {
-        label: subsetB.value.label || '子集B',
-        filter: subsetB.value.filter
-      },
+      group_a: buildGroupParams(subsetA.value),
+      group_b: buildGroupParams(subsetB.value),
       analysis: {
-        semantic_distribution: true,
-        morphology_patterns: true,
-        statistical_test: 'chi_square'
+        semantic_distribution: true,      // 九大语义类别对比
+        morphology_patterns: true,        // 形态学对比（扩展）
+        character_distribution: true,     // 字符特征对比（新增）
+        spatial_distribution: true,       // 空间特征对比（新增）
+        statistical_test: 'chi_square'    // 统计检验
       }
     }
 
     const response = await compareSubsetsAPI(params)
 
-    // Update response handling for new format
-    comparisonResults.value = {
-      comparison_id: response.comparison_id,
-      group_a_size: response.group_a_size,
-      group_b_size: response.group_b_size,
-      semantic_comparison: response.semantic_comparison,
-      morphology_comparison: response.morphology_comparison,
-      significant_differences: response.significant_differences,
-      from_cache: response.from_cache || false,
-      // Keep backward compatibility with old format
-      similarity: response.similarity || 0,
-      difference: response.difference || 0,
-      overlap_count: response.overlap_count || 0,
-      unique_a: response.unique_a || response.group_a_size,
-      unique_b: response.unique_b || response.group_b_size,
-      feature_diffs: response.feature_diffs || {}
-    }
+    // 保存完整的响应数据
+    comparisonResults.value = response
 
     await nextTick()
     renderComparisonChart()
@@ -544,32 +956,35 @@ const runSubsetClustering = async () => {
       return
     }
 
+    // 验证特征选择
+    if (clusterFeatures.value.length === 0) {
+      showError('請至少選擇一種聚類特徵')
+      loading.value = false
+      return
+    }
+
     // Build parameters matching backend API spec
     const params = {
-      filter: subset.filter,
+      filter: {
+        ...subset.filter,
+        sample_size: 1000
+      },
       clustering: {
         algorithm: clusterAlgorithm.value,
         k: clusterK.value,
-        features: ['semantic', 'morphology'],
+        features: clusterFeatures.value,  // 使用用户选择的特征
         random_state: 42
       }
     }
 
     const response = await clusterSubset(params)
 
-    // Update response handling for new format
-    clusteringResults.value = {
-      subset_id: response.subset_id,
-      matched_villages: response.matched_villages,
-      sampled_villages: response.sampled_villages,
-      clusters: response.clusters,
-      metrics: response.metrics,
-      from_cache: response.from_cache || false
-    }
+    // 保存完整的响应数据
+    clusteringResults.value = response
 
     await nextTick()
     renderClusteringChart()
-    showSuccess(`聚類分析完成${response.from_cache ? ' (使用緩存)' : ''}`)
+    showSuccess(`聚類分析完成 (${response.execution_time_ms}ms)`)
   } catch (error) {
     handleApiError(error)
   } finally {
@@ -580,27 +995,72 @@ const runSubsetClustering = async () => {
 const renderComparisonChart = () => {
   if (!comparisonChart.value || !comparisonResults.value) return
 
-  const chart = echarts.init(comparisonChart.value)
+  // Dispose existing instance if any
+  if (comparisonChartInstance) {
+    comparisonChartInstance.dispose()
+    comparisonChartInstance = null
+  }
 
-  chart.setOption({
-    title: { text: '子集特徵比較', left: 'center' },
-    tooltip: { trigger: 'axis' },
+  comparisonChartInstance = echarts.init(comparisonChart.value)
+
+  // 使用 semantic_comparison 數據構建雷達圖
+  const semanticData = comparisonResults.value.semantic_comparison || []
+
+  if (semanticData.length === 0) {
+    showWarning('沒有語義比較數據')
+    return
+  }
+
+  // 提取数据并过滤 null/undefined
+  const groupAValues = semanticData.map(item => item.group_a_pct || 0)
+  const groupBValues = semanticData.map(item => item.group_b_pct || 0)
+
+  // 动态计算最大值（取所有数据的最大值，并向上取整到合适的刻度）
+  const allValues = [...groupAValues, ...groupBValues]
+  const maxValue = Math.max(...allValues)
+  const radarMax = Math.ceil(maxValue * 10) / 10  // 向上取整到 0.1
+
+  // 使用中文類別名稱和动态最大值
+  const indicators = semanticData.map(item => ({
+    name: `${getCategoryIcon(item.category)} ${getCategoryName(item.category)}`,
+    max: radarMax
+  }))
+
+  comparisonChartInstance.setOption({
+    title: { text: '子集語義特徵比較', left: 'center', textStyle: { color: '#2c3e50', fontWeight: 600 } },
+    tooltip: {
+      trigger: 'item',
+      formatter: (params) => {
+        const idx = params.dataIndex
+        const item = semanticData[idx]
+        const categoryName = getCategoryName(item.category)
+        return `${getCategoryIcon(item.category)} ${categoryName}<br/>
+                ${params.seriesName}: ${(params.value * 100).toFixed(1)}%<br/>
+                數量: ${params.seriesName === '子集 A' ? item.group_a_count : item.group_b_count}`
+      }
+    },
     legend: { data: ['子集 A', '子集 B'], bottom: 10 },
     radar: {
-      indicator: Object.keys(comparisonResults.value.feature_diffs).map(f => ({ name: f, max: 1 }))
+      indicator: indicators,
+      axisLabel: {
+        show: true,
+        formatter: (value) => `${(value * 100).toFixed(0)}%`
+      }
     },
     series: [{
       type: 'radar',
       data: [
         {
-          value: Object.values(comparisonResults.value.feature_diffs).map(d => d.a),
+          value: groupAValues,
           name: '子集 A',
-          itemStyle: { color: '#4a90e2' }
+          itemStyle: { color: '#4a90e2' },
+          areaStyle: { color: 'rgba(74, 144, 226, 0.3)' }
         },
         {
-          value: Object.values(comparisonResults.value.feature_diffs).map(d => d.b),
+          value: groupBValues,
           name: '子集 B',
-          itemStyle: { color: '#50c878' }
+          itemStyle: { color: '#ff9800' },
+          areaStyle: { color: 'rgba(255, 152, 0, 0.3)' }
         }
       ]
     }]
@@ -608,32 +1068,86 @@ const renderComparisonChart = () => {
 }
 
 const renderClusteringChart = () => {
-  if (!clusteringChart.value || !clusteringResults.value) return
-
-  const chart = echarts.init(clusteringChart.value)
-
-  // Use real scatter data from API (PCA coordinates)
-  const CLUSTER_COLORS = ['#4a90e2', '#50c878', '#f39c12', '#e74c3c', '#9b59b6', '#3498db', '#e67e22', '#1abc9c']
-  const scatterData = clusteringResults.value.clusters.map((cluster, idx) => ({
-    name: `聚類 ${cluster.id}`,
-    type: 'scatter',
-    data: cluster.points || cluster.coordinates || [], // Use real PCA coordinates from API
-    symbolSize: 15,
-    itemStyle: { color: CLUSTER_COLORS[idx % CLUSTER_COLORS.length] }
-  }))
-
-  chart.setOption({
-    title: { text: '子集聚類可視化', left: 'center' },
-    tooltip: { trigger: 'item' },
-    legend: { data: scatterData.map(s => s.name), bottom: 10 },
-    xAxis: { type: 'value', name: 'PC1' },
-    yAxis: { type: 'value', name: 'PC2' },
-    series: scatterData
-  })
+  // 新的聚类 API 响应不包含坐标数据，暂时不渲染图表
+  // 如果后续 API 添加了 PCA 坐标，可以在这里实现可视化
+  return
 }
+
+// Cleanup on unmount
+onBeforeUnmount(() => {
+  if (comparisonChartInstance) {
+    comparisonChartInstance.dispose()
+    comparisonChartInstance = null
+  }
+  if (clusteringChartInstance) {
+    clusteringChartInstance.dispose()
+    clusteringChartInstance = null
+  }
+})
 
 const formatNumber = (num) => {
   return typeof num === 'number' ? num.toFixed(4) : 'N/A'
+}
+
+const formatPercent = (num) => {
+  return typeof num === 'number' ? `${(num * 100).toFixed(2)}%` : 'N/A'
+}
+
+const formatFeatureName = (feature) => {
+  const nameMap = {
+    'avg_name_length': '平均名稱長度',
+    'length_2_pct': '2字名稱占比',
+    'length_3_pct': '3字名稱占比',
+    'length_4_pct': '4字名稱占比',
+    'length_5_pct': '5字名稱占比'
+  }
+
+  // 处理后缀特征（如 suffix_村）
+  if (feature.startsWith('suffix_')) {
+    const suffix = feature.replace('suffix_', '')
+    return `後綴「${suffix}」占比`
+  }
+
+  return nameMap[feature] || feature
+}
+
+const formatFeatureValue = (feature, value) => {
+  if (typeof value !== 'number') return 'N/A'
+
+  // 平均长度保留2位小数
+  if (feature === 'avg_name_length') {
+    return value.toFixed(2)
+  }
+
+  // 百分比特征
+  if (feature.includes('_pct') || feature.startsWith('suffix_')) {
+    return `${(value * 100).toFixed(2)}%`
+  }
+
+  return value.toFixed(4)
+}
+
+const formatLift = (lift) => {
+  if (lift === null || lift === undefined) {
+    return '∞'  // 无穷大符号，表示分母为0
+  }
+  if (lift === 0) {
+    return '0.00'
+  }
+  return lift.toFixed(2)
+}
+
+const getLiftClass = (lift) => {
+  if (lift === null || lift === undefined) {
+    return 'infinite'
+  }
+  if (lift > 1) {
+    return 'high'
+  }
+  if (lift === 0) {
+    return 'zero'
+  }
+  return 'low'
 }
 
 const formatVector = (vec) => {
@@ -652,6 +1166,9 @@ const formatFilterSummary = (filter) => {
   }
   if (filter.semantic_tags && filter.semantic_tags.length > 0) {
     parts.push(`語義: ${filter.semantic_tags.join(', ')}`)
+  }
+  if (filter.structure_patterns && filter.structure_patterns.length > 0) {
+    parts.push(`結構: ${filter.structure_patterns.join(', ')}`)
   }
   if (filter.name_pattern) {
     parts.push(`名稱: ${filter.name_pattern}`)
@@ -676,14 +1193,19 @@ const handleApiError = (error) => {
 </script>
 
 <style scoped>
+/* ========================================
+   Apple Liquid Glass Blue Style
+   ======================================== */
+
 .subset-analysis-page {
   padding: 12px;
   max-width: 1600px;
   margin: 0 auto;
 }
 
+/* Page Header */
 .page-header {
-  margin-bottom: 16px;
+  margin-bottom: 20px;
   text-align: center;
 }
 
@@ -691,6 +1213,7 @@ const handleApiError = (error) => {
   font-size: 28px;
   color: var(--text-primary);
   margin-bottom: 10px;
+  font-weight: 600;
 }
 
 .subtitle {
@@ -715,106 +1238,172 @@ const handleApiError = (error) => {
   font-size: 16px;
 }
 
+/* Glass Panel */
 .glass-panel {
   background: var(--glass-heavy);
   backdrop-filter: blur(10px);
   border: 1px solid var(--glass-border);
   border-radius: 16px;
-  padding: 16px;
+  padding: 20px;
   margin-bottom: 24px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.glass-panel:hover {
+  box-shadow: 0 12px 40px rgba(74, 144, 226, 0.15);
 }
 
 .panel-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px;
+  margin-bottom: 20px;
   padding-bottom: 12px;
   border-bottom: 2px solid rgba(74, 144, 226, 0.2);
 }
 
 .panel-header h3 {
-  font-size: 16px;
+  font-size: 18px;
+  font-weight: 600;
   color: var(--text-primary);
   margin: 0;
 }
 
+/* Filter Row */
 .filter-row {
   display: flex;
   gap: 12px;
-  margin-bottom: 12px;
+  margin-bottom: 16px;
   align-items: center;
+  flex-wrap: wrap;
 }
 
-.glass-select,
+/* Width ratio: 1:1:2:1 for field:operator:value:button */
+.filter-row > *:nth-child(1) {
+  flex: 1;
+  min-width: 120px;
+}
+
+.filter-row > *:nth-child(2) {
+  flex: 1;
+  min-width: 120px;
+}
+
+.filter-row > *:nth-child(3) {
+  flex: 2;
+  min-width: 200px;
+}
+
+.filter-row > *:nth-child(4) {
+  flex: 1;
+  min-width: 80px;
+}
+
+/* Input Styles */
 .glass-input {
-  padding: 8px 16px;
+  width: 100%;
+  padding: 10px 16px;
   background: rgba(255, 255, 255, 0.5);
   border: 1px solid rgba(74, 144, 226, 0.3);
-  border-radius: 8px;
+  border-radius: 10px;
   font-size: 14px;
   transition: all 0.3s ease;
 }
 
-.glass-select:focus,
 .glass-input:focus {
   outline: none;
   border-color: #4a90e2;
   background: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
 }
 
 .glass-input.small {
-  max-width: 100px;
+  max-width: 120px;
 }
 
+/* Button Styles */
 .solid-button {
-  padding: 8px 16px;
-  background: linear-gradient(135deg, #4a90e2, #50c878);
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #4a90e2, #357abd);
   color: white;
   border: none;
-  border-radius: 8px;
+  border-radius: 10px;
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(74, 144, 226, 0.25);
 }
 
 .solid-button:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(74, 144, 226, 0.4);
+  box-shadow: 0 6px 20px rgba(74, 144, 226, 0.45);
+  background: linear-gradient(135deg, #5ba3f5, #4a90e2);
+}
+
+.solid-button:active:not(:disabled) {
+  transform: translateY(0);
 }
 
 .solid-button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+  transform: none;
+}
+
+.solid-button.primary {
+  background: linear-gradient(135deg, #4a90e2, #2b6cb0);
+}
+
+.solid-button.primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, #5ba3f5, #4a90e2);
 }
 
 .solid-button.secondary {
-  background: linear-gradient(135deg, #95a5a6, #7f8c8d);
+  background: linear-gradient(135deg, #b0bec5, #90a4ae);
+  box-shadow: 0 4px 12px rgba(144, 164, 174, 0.25);
+}
+
+.solid-button.secondary:hover:not(:disabled) {
+  background: linear-gradient(135deg, #cfd8dc, #b0bec5);
+  box-shadow: 0 6px 20px rgba(144, 164, 174, 0.35);
+}
+
+.solid-button.danger {
+  background: linear-gradient(135deg, #e57373, #d32f2f);
+  box-shadow: 0 4px 12px rgba(229, 115, 115, 0.25);
+}
+
+.solid-button.danger:hover:not(:disabled) {
+  background: linear-gradient(135deg, #ef5350, #c62828);
+  box-shadow: 0 6px 20px rgba(229, 115, 115, 0.45);
 }
 
 .solid-button.small {
-  padding: 6px 12px;
+  padding: 8px 16px;
   font-size: 13px;
 }
 
 .solid-button.large {
-  padding: 12px 32px;
+  padding: 14px 32px;
   font-size: 16px;
 }
 
+/* Filter Actions */
 .filter-actions {
   display: flex;
   gap: 12px;
-  margin-top: 16px;
+  margin-top: 20px;
+  flex-wrap: wrap;
 }
 
 .subset-info {
-  margin-top: 16px;
-  padding: 12px;
-  background: rgba(74, 144, 226, 0.1);
-  border-radius: 8px;
+  margin-top: 20px;
+  padding: 16px;
+  background: linear-gradient(135deg, rgba(74, 144, 226, 0.12), rgba(91, 163, 245, 0.08));
+  border-radius: 12px;
+  border: 1px solid rgba(74, 144, 226, 0.25);
 }
 
 .info-label {
@@ -825,9 +1414,18 @@ const handleApiError = (error) => {
 
 .info-value {
   color: #4a90e2;
-  font-weight: 500;
+  font-weight: 600;
+  font-size: 16px;
 }
 
+.info-note {
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 400;
+  margin-left: 8px;
+}
+
+/* Subset Comparison */
 .subset-selector {
   display: flex;
   gap: 24px;
@@ -837,49 +1435,64 @@ const handleApiError = (error) => {
 
 .subset-card {
   flex: 1;
-  padding: 12px;
-  background: rgba(255, 255, 255, 0.6);
-  border-radius: 12px;
+  padding: 20px;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.5));
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
   border: 2px solid rgba(74, 144, 226, 0.2);
+  transition: all 0.3s ease;
+}
+
+.subset-card:hover {
+  border-color: rgba(74, 144, 226, 0.4);
+  box-shadow: 0 8px 24px rgba(74, 144, 226, 0.15);
 }
 
 .subset-card h4 {
   margin: 0 0 16px 0;
+  font-size: 18px;
+  font-weight: 600;
   color: var(--text-primary);
 }
 
 .subset-stats {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  margin-bottom: 16px;
+  gap: 12px;
+  margin-bottom: 20px;
 }
 
 .stat-item {
   display: flex;
   justify-content: space-between;
+  align-items: center;
 }
 
 .stat-item .label {
+  font-size: 14px;
   color: var(--text-secondary);
 }
 
 .stat-item .value {
   font-weight: 600;
-  color: var(--text-primary);
+  font-size: 16px;
+  color: #4a90e2;
 }
 
 .vs-divider {
-  font-size: 24px;
+  font-size: 28px;
   font-weight: 700;
-  color: var(--text-secondary);
+  color: #4a90e2;
+  text-shadow: 0 2px 8px rgba(74, 144, 226, 0.3);
 }
 
 .comparison-actions {
   display: flex;
   justify-content: center;
+  margin-top: 20px;
 }
 
+/* Metrics Grid */
 .metrics-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -888,65 +1501,99 @@ const handleApiError = (error) => {
 }
 
 .metric-card {
-  padding: 16px;
-  background: rgba(255, 255, 255, 0.6);
-  border-radius: 12px;
+  padding: 20px;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.5));
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
   text-align: center;
   border: 2px solid rgba(74, 144, 226, 0.2);
+  transition: all 0.3s ease;
+}
+
+.metric-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(74, 144, 226, 0.2);
+  border-color: rgba(74, 144, 226, 0.4);
 }
 
 .metric-label {
-  font-size: 14px;
+  font-size: 13px;
+  font-weight: 500;
   color: var(--text-secondary);
   margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .metric-value {
-  font-size: 24px;
+  font-size: 28px;
   font-weight: 700;
   color: #4a90e2;
+  text-shadow: 0 2px 8px rgba(74, 144, 226, 0.2);
 }
 
+/* Chart Container */
 .chart-container {
   width: 100%;
   height: 400px;
   margin-bottom: 24px;
+  border-radius: 12px;
+  overflow: hidden;
 }
 
+/* Table Styles */
 .glass-table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 16px;
+  border-radius: 12px;
+  overflow: hidden;
 }
 
 .glass-table thead {
-  background: rgba(74, 144, 226, 0.1);
+  background: linear-gradient(135deg, rgba(74, 144, 226, 0.15), rgba(91, 163, 245, 0.1));
 }
 
 .glass-table th,
 .glass-table td {
-  padding: 12px;
+  padding: 14px 16px;
   text-align: left;
   border-bottom: 1px solid rgba(74, 144, 226, 0.1);
 }
 
 .glass-table th {
   font-weight: 600;
+  font-size: 14px;
   color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.glass-table tbody tr {
+  transition: background 0.2s ease;
+}
+
+.glass-table tbody tr:hover {
+  background: rgba(74, 144, 226, 0.05);
+}
+
+.diff-value {
+  font-weight: 600;
 }
 
 .diff-value.positive {
-  color: #50c878;
+  color: #4a90e2;
 }
 
 .diff-value.negative {
-  color: #e74c3c;
+  color: #2b6cb0;
 }
 
+/* Clustering Controls */
 .clustering-controls {
   display: flex;
   gap: 16px;
-  align-items: center;
+  align-items: flex-start;
   margin-bottom: 24px;
   flex-wrap: wrap;
 }
@@ -954,21 +1601,185 @@ const handleApiError = (error) => {
 .control-row {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
 
 .control-row label {
   font-weight: 500;
+  font-size: 14px;
   color: var(--text-primary);
+  white-space: nowrap;
 }
 
+.control-row.feature-selector {
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 12px;
+  background: rgba(74, 144, 226, 0.05);
+  border-radius: 10px;
+  border: 1px solid rgba(74, 144, 226, 0.2);
+}
+
+.feature-checkboxes {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.feature-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.feature-checkbox:hover {
+  background: rgba(74, 144, 226, 0.1);
+}
+
+.checkbox-input {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: #4a90e2;
+}
+
+.checkbox-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  min-width: 100px;
+}
+
+.checkbox-desc {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+/* Clustering Results */
+.clustering-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.stat-card {
+  padding: 16px;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.5));
+  border-radius: 12px;
+  border: 2px solid rgba(74, 144, 226, 0.2);
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(74, 144, 226, 0.2);
+  border-color: rgba(74, 144, 226, 0.4);
+}
+
+.stat-card .stat-label {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.stat-card .stat-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: #4a90e2;
+}
+
+.clusters-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+}
+
+.cluster-card {
+  padding: 16px;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.5));
+  border-radius: 12px;
+  border: 2px solid rgba(74, 144, 226, 0.2);
+  transition: all 0.3s ease;
+}
+
+.cluster-card:hover {
+  border-color: rgba(74, 144, 226, 0.4);
+  box-shadow: 0 4px 12px rgba(74, 144, 226, 0.15);
+}
+
+.cluster-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(74, 144, 226, 0.2);
+}
+
+.cluster-id {
+  font-size: 16px;
+  font-weight: 600;
+  color: #4a90e2;
+}
+
+.cluster-size {
+  font-size: 14px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.cluster-samples {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sample-label {
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.sample-villages {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.village-tag {
+  display: inline-block;
+  padding: 4px 10px;
+  background: rgba(74, 144, 226, 0.1);
+  border: 1px solid rgba(74, 144, 226, 0.2);
+  border-radius: 6px;
+  font-size: 13px;
+  color: var(--text-primary);
+  transition: all 0.2s ease;
+}
+
+.village-tag:hover {
+  background: rgba(74, 144, 226, 0.2);
+  border-color: rgba(74, 144, 226, 0.4);
+}
+
+/* Loading Overlay */
 .loading-overlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.3);
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(8px);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -977,12 +1788,12 @@ const handleApiError = (error) => {
 }
 
 .spinner {
-  width: 50px;
-  height: 50px;
-  border: 4px solid rgba(255, 255, 255, 0.3);
-  border-top-color: white;
+  width: 60px;
+  height: 60px;
+  border: 4px solid rgba(255, 255, 255, 0.2);
+  border-top-color: #4a90e2;
   border-radius: 50%;
-  animation: spin 1s linear infinite;
+  animation: spin 0.8s linear infinite;
 }
 
 @keyframes spin {
@@ -991,18 +1802,29 @@ const handleApiError = (error) => {
 
 .loading-overlay p {
   color: white;
-  margin-top: 16px;
+  margin-top: 20px;
   font-size: 16px;
+  font-weight: 500;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
-/* Responsive */
+/* Responsive Design */
 @media (max-width: 768px) {
   .subset-analysis-page {
     padding: 12px;
   }
 
+  .glass-panel {
+    padding: 16px;
+  }
+
   .filter-row {
     flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filter-row > * {
+    min-width: 100%;
   }
 
   .subset-selector {
@@ -1011,6 +1833,7 @@ const handleApiError = (error) => {
 
   .vs-divider {
     transform: rotate(90deg);
+    margin: 16px 0;
   }
 
   .clustering-controls {
@@ -1018,8 +1841,292 @@ const handleApiError = (error) => {
     align-items: stretch;
   }
 
+  .control-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
   .chart-container {
     height: 300px;
+  }
+
+  .metrics-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Villages List Panel */
+.villages-list-panel {
+  margin-bottom: 24px;
+}
+
+.header-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.total-count {
+  font-size: 14px;
+  font-weight: 600;
+  color: #4a90e2;
+}
+
+.display-note {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.villages-table-wrapper {
+  overflow: auto;
+  max-height: 400px;
+  margin-bottom: 16px;
+}
+
+.village-name {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.village-region {
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(74, 144, 226, 0.1);
+}
+
+.page-info {
+  font-size: 14px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+/* Usage Hints */
+.usage-hint {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  background: linear-gradient(135deg, rgba(74, 144, 226, 0.08), rgba(91, 163, 245, 0.05));
+  border-left: 3px solid #4a90e2;
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+
+.hint-icon {
+  font-size: 18px;
+}
+
+.hint-text {
+  font-size: 14px;
+  color: var(--text-primary);
+  line-height: 1.5;
+}
+
+/* Save Actions */
+.save-actions {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin: 20px 0;
+  padding: 16px;
+  background: rgba(74, 144, 226, 0.05);
+  border-radius: 12px;
+}
+
+/* Category Cell */
+.category-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
+}
+
+/* Performance Timings */
+.timings-section {
+  margin-bottom: 24px;
+  padding: 20px;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.5));
+  border-radius: 16px;
+  border: 2px solid rgba(74, 144, 226, 0.2);
+}
+
+.timings-section h4 {
+  margin: 0 0 16px 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.timings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.timing-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: rgba(74, 144, 226, 0.05);
+  border-radius: 12px;
+  border: 1px solid rgba(74, 144, 226, 0.15);
+  transition: all 0.3s ease;
+}
+
+.timing-card:hover {
+  background: rgba(74, 144, 226, 0.1);
+  border-color: rgba(74, 144, 226, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(74, 144, 226, 0.15);
+}
+
+.timing-icon {
+  font-size: 24px;
+  line-height: 1;
+}
+
+.timing-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.timing-label {
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.timing-value {
+  font-size: 16px;
+  font-weight: 700;
+  color: #4a90e2;
+  font-family: 'Courier New', monospace;
+}
+
+.char-cell {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+  text-align: center;
+}
+
+.lift-value {
+  font-weight: 600;
+}
+
+.lift-value.high {
+  color: #4a90e2;
+}
+
+.lift-value.low {
+  color: #90a4ae;
+}
+
+.lift-value.zero {
+  color: #e57373;
+}
+
+.lift-value.infinite {
+  color: #ff9800;
+  font-size: 16px;
+}
+
+/* Spatial Comparison */
+.spatial-comparison-section {
+  margin-top: 24px;
+  padding: 20px;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.5));
+  border-radius: 16px;
+  border: 2px solid rgba(74, 144, 226, 0.2);
+}
+
+.spatial-comparison-section h4 {
+  margin: 0 0 20px 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.spatial-metrics {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.spatial-group h5 {
+  margin: 0 0 12px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #4a90e2;
+}
+
+.spatial-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: rgba(74, 144, 226, 0.05);
+  border-radius: 8px;
+}
+
+.stat-label {
+  font-size: 14px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.stat-value {
+  font-size: 14px;
+  color: var(--text-primary);
+  font-weight: 600;
+  font-family: 'Courier New', monospace;
+}
+
+.centroid-distance {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: linear-gradient(135deg, rgba(74, 144, 226, 0.15), rgba(91, 163, 245, 0.1));
+  border-radius: 12px;
+  border: 2px solid rgba(74, 144, 226, 0.3);
+}
+
+.distance-label {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.distance-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: #4a90e2;
+  text-shadow: 0 2px 8px rgba(74, 144, 226, 0.2);
+}
+
+@media (max-width: 768px) {
+  .spatial-metrics {
+    grid-template-columns: 1fr;
   }
 }
 </style>

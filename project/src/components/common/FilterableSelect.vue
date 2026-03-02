@@ -222,7 +222,7 @@ const getUniqueKey = (option) => {
 
 // Filter options based on input
 const filterOptions = () => {
-  const query = inputValue.value.toLowerCase().trim()
+  const query = (inputValue.value || '').toLowerCase().trim()
   if (!query) {
     filteredOptions.value = options.value
   } else {
@@ -629,6 +629,7 @@ onUnmounted(() => {
 }
 
 .option-content {
+  white-space: nowrap;
   display: flex;
   justify-content: space-between;
   align-items: center;

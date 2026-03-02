@@ -69,10 +69,12 @@ export async function clusterSubset(params) {
  * @param {Object} params
  * @param {Object} params.group_a - 子集A
  * @param {string} params.group_a.label - 子集A標籤
- * @param {Object} params.group_a.filter - 子集A篩選條件
+ * @param {Array<number>} params.group_a.village_ids - 子集A村莊ID列表（推薦）
+ * @param {Object} [params.group_a.filter] - 子集A篩選條件（向後兼容）
  * @param {Object} params.group_b - 子集B
  * @param {string} params.group_b.label - 子集B標籤
- * @param {Object} params.group_b.filter - 子集B篩選條件
+ * @param {Array<number>} params.group_b.village_ids - 子集B村莊ID列表（推薦）
+ * @param {Object} [params.group_b.filter] - 子集B篩選條件（向後兼容）
  * @param {Object} params.analysis - 分析配置
  * @param {boolean} params.analysis.semantic_distribution - 是否比較語義分布
  * @param {boolean} params.analysis.morphology_patterns - 是否比較形態模式
