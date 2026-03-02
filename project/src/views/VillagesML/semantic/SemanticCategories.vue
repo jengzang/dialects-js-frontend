@@ -116,7 +116,7 @@
         <template v-else>
           <div class="level-selector">
             <label>行政級別：</label>
-            <SimpleSelectDropdown :match-trigger-width="true"
+            <SimpleSelectDropdown
               v-model="rankingLevel"
               :options="rankingLevelOptions"
               @update:modelValue="loadCategoryRanking"
@@ -163,73 +163,73 @@
         </template>
       </div>
 
-      <!-- Labels Section -->
-      <div class="labels-section glass-panel">
-        <h3>語義標籤</h3>
-        <div class="labels-tabs">
-          <button
-              class="tab-button"
-              :class="{ 'active': labelsMode === 'by-category' }"
-              @click="labelsMode = 'by-category'"
-          >
-            按類別
-          </button>
-          <button
-              class="tab-button"
-              :class="{ 'active': labelsMode === 'by-char' }"
-              @click="labelsMode = 'by-char'"
-          >
-            按字符
-          </button>
-        </div>
+<!--      &lt;!&ndash; Labels Section &ndash;&gt;-->
+<!--      <div class="labels-section glass-panel">-->
+<!--        <h3>語義標籤</h3>-->
+<!--        <div class="labels-tabs">-->
+<!--          <button-->
+<!--              class="tab-button"-->
+<!--              :class="{ 'active': labelsMode === 'by-category' }"-->
+<!--              @click="labelsMode = 'by-category'"-->
+<!--          >-->
+<!--            按類別-->
+<!--          </button>-->
+<!--          <button-->
+<!--              class="tab-button"-->
+<!--              :class="{ 'active': labelsMode === 'by-char' }"-->
+<!--              @click="labelsMode = 'by-char'"-->
+<!--          >-->
+<!--            按字符-->
+<!--          </button>-->
+<!--        </div>-->
 
-        <!-- By Category -->
-        <div v-if="labelsMode === 'by-category'" class="labels-content">
-          <SimpleSelectDropdown :match-trigger-width="true"
-            v-model="selectedCategoryForLabels"
-            :options="categoryOptionsForLabels"
-            @update:modelValue="loadLabelsByCategory"
-          />
-          <div v-if="loadingLabels" class="loading-state">
-            <div class="spinner"></div>
-          </div>
-          <div v-else-if="labels.length > 0" class="labels-cloud">
-            <span
-                v-for="label in labels"
-                :key="label.label"
-                class="label-tag"
-                :style="{ fontSize: `${12 + (label.count / maxLabelCount) * 12}px` }"
-            >
-              {{ label.label }} ({{ label.count }})
-            </span>
-          </div>
-        </div>
+<!--        &lt;!&ndash; By Category &ndash;&gt;-->
+<!--        <div v-if="labelsMode === 'by-category'" class="labels-content">-->
+<!--          <SimpleSelectDropdown :match-trigger-width="true"-->
+<!--            v-model="selectedCategoryForLabels"-->
+<!--            :options="categoryOptionsForLabels"-->
+<!--            @update:modelValue="loadLabelsByCategory"-->
+<!--          />-->
+<!--          <div v-if="loadingLabels" class="loading-state">-->
+<!--            <div class="spinner"></div>-->
+<!--          </div>-->
+<!--          <div v-else-if="labels.length > 0" class="labels-cloud">-->
+<!--            <span-->
+<!--                v-for="label in labels"-->
+<!--                :key="label.label"-->
+<!--                class="label-tag"-->
+<!--                :style="{ fontSize: `${12 + (label.count / maxLabelCount) * 12}px` }"-->
+<!--            >-->
+<!--              {{ label.label }} ({{ label.count }})-->
+<!--            </span>-->
+<!--          </div>-->
+<!--        </div>-->
 
-        <!-- By Character -->
-        <div v-else class="labels-content">
-          <input
-              v-model="charForLabels"
-              type="text"
-              maxlength="1"
-              placeholder="輸入字符"
-              class="char-input"
-              @input="loadLabelsByChar"
-          />
-          <div v-if="loadingLabels" class="loading-state">
-            <div class="spinner"></div>
-          </div>
-          <div v-else-if="labels.length > 0" class="labels-list">
-            <div
-                v-for="label in labels"
-                :key="label.label"
-                class="label-item"
-            >
-              <span class="label-name">{{ label.label }}</span>
-              <span class="label-category">{{ label.category }}</span>
-            </div>
-          </div>
-        </div>
-      </div>
+<!--        &lt;!&ndash; By Character &ndash;&gt;-->
+<!--        <div v-else class="labels-content">-->
+<!--          <input-->
+<!--              v-model="charForLabels"-->
+<!--              type="text"-->
+<!--              maxlength="1"-->
+<!--              placeholder="輸入字符"-->
+<!--              class="char-input"-->
+<!--              @input="loadLabelsByChar"-->
+<!--          />-->
+<!--          <div v-if="loadingLabels" class="loading-state">-->
+<!--            <div class="spinner"></div>-->
+<!--          </div>-->
+<!--          <div v-else-if="labels.length > 0" class="labels-list">-->
+<!--            <div-->
+<!--                v-for="label in labels"-->
+<!--                :key="label.label"-->
+<!--                class="label-item"-->
+<!--            >-->
+<!--              <span class="label-name">{{ label.label }}</span>-->
+<!--              <span class="label-category">{{ label.category }}</span>-->
+<!--            </div>-->
+<!--          </div>-->
+<!--        </div>-->
+<!--      </div>-->
 
     </div>
 <!--  </ExploreLayout>-->
@@ -689,7 +689,7 @@ onMounted(() => {
   padding: 12px;
   border: 2px solid rgba(74, 144, 226, 0.3);
   border-radius: 8px;
-  font-size: 24px;
+  font-size: 16px;
   text-align: center;
   background: rgba(255, 255, 255, 0.5);
 }

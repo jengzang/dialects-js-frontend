@@ -1,5 +1,6 @@
 <template>
   <div class="search-panel glass-panel">
+    <h3 class="villagesml-subtab-title">搜索特定自然村</h3>
     <!-- Search Input -->
     <div class="search-input-group">
       <input
@@ -10,7 +11,7 @@
         @input="handleSearchInput"
       />
       <button class="search-button solid-button" @click="handleSearch">
-        🔍 搜尋
+        🔍 搜索
       </button>
     </div>
 
@@ -102,6 +103,7 @@ const handleSearchInput = () => {
 }
 
 const handleSearch = () => {
+  // console.log('[SearchPanel] handleSearch called with filters:', localFilters.value)
   villagesMLStore.searchKeyword = localKeyword.value
   villagesMLStore.searchFilters = { ...localFilters.value }
   emit('search')

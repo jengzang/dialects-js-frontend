@@ -83,7 +83,8 @@ import FilterableSelect from '@/components/common/FilterableSelect.vue'
 import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
 
 const props = defineProps({
-  loading: { type: Boolean, default: false }
+  loading: { type: Boolean, default: false },
+  hasNetwork: { type: Boolean, default: false }  // 添加 hasNetwork prop
 })
 
 const emit = defineEmits(['run'])
@@ -127,6 +128,13 @@ watch(() => settings.region_level, () => {
   settings.city = ''
   settings.county = ''
   settings.township = ''
+})
+
+// 監聽 detailMode 變化，如果已有網絡數據則自動重新生成
+watch(detailMode, () => {
+  if (props.hasNetwork && canRun.value) {
+    runAnalysis()
+  }
 })
 
 const runAnalysis = () => {

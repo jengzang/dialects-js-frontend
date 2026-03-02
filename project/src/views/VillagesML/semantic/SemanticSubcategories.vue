@@ -637,12 +637,12 @@ export default {
 
 .mode-button {
   flex: 1;
-  padding: 12px 24px;
+  padding: 8px 16px;
   border: 2px solid rgba(74, 144, 226, 0.3);
   background: rgba(255, 255, 255, 0.5);
   border-radius: 8px;
   cursor: pointer;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 500;
   transition: all 0.3s ease;
 }

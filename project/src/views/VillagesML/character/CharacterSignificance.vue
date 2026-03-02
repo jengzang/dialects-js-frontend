@@ -61,6 +61,7 @@
               v-model="regionName"
               :level="regionLevel"
               @update:level="(newLevel) => regionLevel = newLevel"
+              @update:hierarchy="(h) => regionHierarchy = h"
               placeholder="請選擇或輸入"
             />
           </div>
@@ -186,6 +187,7 @@ const queryMode = ref('by-char')
 const queryChar = ref('')
 const regionLevel = ref('city')
 const regionName = ref('')
+const regionHierarchy = ref({ city: null, county: null, township: null })
 const topN = ref(30)
 const results = ref([])
 const summary = ref(null)
@@ -222,14 +224,39 @@ const queryByChar = async () => {
 const queryByRegion = async () => {
   if (!regionName.value) return
 
-  console.log('queryByRegion called with:', regionLevel.value, regionName.value, topN.value)
+  console.log('queryByRegion called with:', {
+    regionLevel: regionLevel.value,
+    regionName: regionName.value,
+    hierarchy: regionHierarchy.value,
+    topN: topN.value
+  })
+
   loading.value = true
   try {
-    const result = await getCharSignificanceByRegion({
+    // Build query params with full hierarchy
+    const params = {
       region_level: regionLevel.value,
-      region_name: regionName.value,
       top_k: topN.value
-    })
+    }
+
+    // Add hierarchical filters based on available data
+    if (regionHierarchy.value.city) {
+      params.city = regionHierarchy.value.city
+    }
+    if (regionHierarchy.value.county) {
+      params.county = regionHierarchy.value.county
+    }
+    if (regionHierarchy.value.township) {
+      params.township = regionHierarchy.value.township
+    }
+
+    // Fallback to region_name for backward compatibility
+    if (!params.city && !params.county && !params.township) {
+      params.region_name = regionName.value
+    }
+
+    console.log('API params:', params)
+    const result = await getCharSignificanceByRegion(params)
     console.log('Significance by region result:', result)
     results.value = result || []
 
@@ -348,7 +375,7 @@ const getSignificanceBadge = (pValue) => {
 
 .char-input {
   width: auto;
-  font-size: 20px;
+  font-size: 16px;
   text-align: center;
 }
 

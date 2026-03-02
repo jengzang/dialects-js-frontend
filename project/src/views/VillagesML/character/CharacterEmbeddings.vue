@@ -28,7 +28,7 @@
             :disabled="!searchChar || loading"
             @click="searchSimilarities"
           >
-            搜尋相似字
+            搜索
           </button>
         </div>
       </div>
@@ -336,7 +336,7 @@ onMounted(() => {
   padding: 10px;
   border: 2px solid rgba(74, 144, 226, 0.3);
   border-radius: 12px;
-  font-size: 20px;
+  font-size: 16px;
   text-align: center;
   background: rgba(255, 255, 255, 0.5);
 }
@@ -403,7 +403,7 @@ onMounted(() => {
 .similarity-items {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
 }
 
 .similarity-item {
@@ -411,7 +411,7 @@ onMounted(() => {
   grid-template-columns: 40px 50px 1fr 80px;
   align-items: center;
   gap: 12px;
-  padding: 12px;
+  padding: 6px;
   background: rgba(255, 255, 255, 0.3);
   border-radius: 8px;
   transition: transform 0.3s ease;
@@ -635,17 +635,13 @@ onMounted(() => {
     font-size: 24px;
   }
 
-  .search-group {
-    flex-direction: column;
-    align-items: center;
-  }
 
   .char-input {
     width: 80px;
   }
 
   .number-input {
-    width: 100px;
+    width: 60px;
   }
 
   .embeddings-list {

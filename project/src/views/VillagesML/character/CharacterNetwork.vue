@@ -276,7 +276,7 @@ onBeforeUnmount(() => {
 .legend-item { display: flex; align-items: center; gap: 4px; }
 .legend-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; }
 
-.network-chart { width: 100%; height: clamp(320px, 55vh, 520px); }
+.network-chart { width: 100%; height: clamp(320px, 70dvh, 520px); }
 
 .empty-state { text-align: center; color: var(--text-secondary, #888); padding: 40px; }
 </style>

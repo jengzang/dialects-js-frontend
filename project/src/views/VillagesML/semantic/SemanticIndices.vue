@@ -270,6 +270,13 @@ watch(indicesRegionLevel, () => {
   indicesRegionName.value = ''
 })
 
+// Watch detailMode changes and auto-refresh table if it has data
+watch(detailMode, () => {
+  if (indices.value && indices.value.length > 0) {
+    loadIndices()
+  }
+})
+
 // Methods
 const loadIndices = async () => {
   loadingIndices.value = true
@@ -349,6 +356,7 @@ const getRegionLevelName = (level) => {
   gap: 12px;
   margin-bottom: 16px;
   align-items: center;
+  justify-content: center;
   flex-wrap: wrap;
 }
 
@@ -451,8 +459,10 @@ const getRegionLevelName = (level) => {
 
 .indices-table {
   border-radius: 12px;
-  overflow: hidden;
+  overflow-x: auto;
+  overflow-y: visible;
   margin-top: 20px;
+  -webkit-overflow-scrolling: touch;  /* 移动端平滑滚动 */
 }
 
 .indices-table .table-header,
@@ -460,13 +470,15 @@ const getRegionLevelName = (level) => {
   display: grid;
   grid-template-columns: 1.5fr 0.8fr 1.2fr 1fr 1.2fr 0.8fr;
   gap: 12px;
-  padding: 12px 16px;
+  padding: 8px 16px;
   align-items: center;
+  min-width: 700px;  /* 表格最小宽度，确保移动端可横向滚动 */
 }
 
 .indices-table .table-header:has(.col-villages),
 .indices-table .table-row:has(.col-villages) {
   grid-template-columns: 1.5fr 0.8fr 1.2fr 1fr 1.2fr 0.8fr 0.8fr;
+  min-width: 800px;  /* 有村莊數列時的最小宽度 */
 }
 
 .indices-table .table-header {
@@ -533,15 +545,37 @@ const getRegionLevelName = (level) => {
   color: var(--color-primary);
 }
 
+/* 表格横向滚动样式 */
+.indices-table::-webkit-scrollbar {
+  height: 8px;
+}
+
+.indices-table::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
+}
+
+.indices-table::-webkit-scrollbar-thumb {
+  background: rgba(74, 144, 226, 0.5);
+  border-radius: 4px;
+}
+
+.indices-table::-webkit-scrollbar-thumb:hover {
+  background: rgba(74, 144, 226, 0.7);
+}
+
 @media (max-width: 768px) {
-  .controls {
-    flex-direction: column;
+  .semantic-indices-page {
+    padding: 8px;
   }
 
-  .indices-table .table-header,
-  .indices-table .table-row {
-    grid-template-columns: 1fr;
-    gap: 8px;
+  .indices-section {
+    padding: 12px;
+  }
+
+
+  .number-input {
+    width: 100%;
   }
 }
 

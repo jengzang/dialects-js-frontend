@@ -135,6 +135,7 @@ const highlightedIndex = ref(0)
 const triggerRef = ref(null)
 const dropdownRef = ref(null)
 const dropdownStyle = ref({})
+const selectedOption = ref(null)  // Store the full selected option
 let blurTimeout = null
 
 // Level dropdown state
@@ -355,7 +356,28 @@ const positionDropdown = async () => {
 
 // Select an option
 const selectOption = (option) => {
-  inputValue.value = option.name
+  // Store the full selected option
+  selectedOption.value = option
+
+  // Build full path display based on level
+  let displayValue = option.name
+
+  if (props.level === 'county' && option.city) {
+    // 区县级：显示 城市-区县
+    displayValue = `${option.city}-${option.name}`
+  } else if (props.level === 'township') {
+    // 乡镇级：优先显示 区县-乡镇，没有区县则显示 城市-乡镇
+    if (option.county) {
+      displayValue = `${option.county}-${option.name}`
+    } else if (option.city) {
+      displayValue = `${option.city}-${option.name}`
+    }
+  }
+
+  // Input shows full path for better UX
+  inputValue.value = displayValue
+
+  // But modelValue emits the original name (data value, not display value)
   emit('update:modelValue', option.name)
 
   // Emit full hierarchical path from option object
@@ -400,7 +422,41 @@ watch(() => props.parent, () => {
 })
 
 watch(() => props.modelValue, (newValue) => {
-  inputValue.value = newValue
+  // If modelValue changes from parent, try to find the matching option and rebuild display value
+  if (!newValue) {
+    inputValue.value = ''
+    selectedOption.value = null
+    return
+  }
+
+  // If we have a selected option and its name matches, keep the display value
+  if (selectedOption.value && selectedOption.value.name === newValue) {
+    // Display value is already correct, do nothing
+    return
+  }
+
+  // Otherwise, try to find the option in the current options list
+  const matchingOption = options.value.find(opt => opt.name === newValue)
+  if (matchingOption) {
+    selectedOption.value = matchingOption
+
+    // Rebuild display value
+    let displayValue = matchingOption.name
+    if (props.level === 'county' && matchingOption.city) {
+      displayValue = `${matchingOption.city}-${matchingOption.name}`
+    } else if (props.level === 'township') {
+      if (matchingOption.county) {
+        displayValue = `${matchingOption.county}-${matchingOption.name}`
+      } else if (matchingOption.city) {
+        displayValue = `${matchingOption.city}-${matchingOption.name}`
+      }
+    }
+    inputValue.value = displayValue
+  } else {
+    // Fallback: just show the raw value
+    inputValue.value = newValue
+    selectedOption.value = null
+  }
 })
 
 // Lifecycle

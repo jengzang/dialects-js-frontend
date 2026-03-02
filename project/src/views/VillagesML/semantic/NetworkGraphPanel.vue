@@ -57,15 +57,19 @@
 <script setup>
 import { ref, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import * as echarts from 'echarts'
-import { getCategoryName, getCategoryIcon } from '@/config/villagesML.js'
+import { getCategoryDisplayName, getCategoryIcon } from '@/config/villagesML.js'
 
 const props = defineProps({
   network: { type: Object, default: null },
-  loading: { type: Boolean, default: false }
+  loading: { type: Boolean, default: false },
+  detailMode: { type: Boolean, default: false }  // 添加 detailMode prop
 })
 
 const chartRef = ref(null)
 let chartInstance = null
+
+// Helper function to get category name based on detail mode
+const getCategoryName = (category) => getCategoryDisplayName(category, props.detailMode)
 
 // 社区颜色映射
 const communityColors = [

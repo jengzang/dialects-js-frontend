@@ -14,9 +14,17 @@ let loadingPromise = null
 
 /**
  * 预加载所有区域数据
+ * @param {boolean} forceRefresh - 强制刷新，忽略缓存（开发模式用）
  * @returns {Promise<Object>} { cities, counties, townships }
  */
-export async function preloadAllRegions() {
+export async function preloadAllRegions(forceRefresh = false) {
+  // 如果强制刷新，清除所有缓存
+  if (forceRefresh) {
+    clearCache()
+    allRegionsData = null
+    loadingPromise = null
+  }
+
   // 如果已经在加载中，返回同一个 Promise
   if (loadingPromise) {
     return loadingPromise
@@ -31,15 +39,18 @@ export async function preloadAllRegions() {
   const cached = getFromCache()
   if (cached) {
     allRegionsData = cached
+    console.log('[RegionPreload] Loaded from cache:', getCacheStats())
     return cached
   }
 
   // 开始加载
+  console.log('[RegionPreload] Loading from API...')
   loadingPromise = loadAllRegionsFromAPI()
 
   try {
     allRegionsData = await loadingPromise
     saveToCache(allRegionsData)
+    console.log('[RegionPreload] Loaded and cached:', getCacheStats())
     return allRegionsData
   } finally {
     loadingPromise = null

@@ -201,15 +201,25 @@ const translatePattern = (patternStr) => {
 
 .patterns-table {
   border-radius: 12px;
-  overflow: hidden;
+  overflow-x: auto;
+  overflow-y: visible;
+  width: 100%;
+  -webkit-overflow-scrolling: touch;  /* 移动端平滑滚动 */
 }
 
 .table-header,
 .table-row {
   display: grid;
-  grid-template-columns: 2fr 1.5fr 1fr 1fr 2fr;
-  gap: 16px;
+  grid-template-columns: 2.5fr 2.5fr 1fr 1fr 2fr;
+  gap: 10px;
   padding: 12px 16px;
+  align-items: center;
+  min-width: 500px;  /* 表格最小宽度，确保移动端可横向滚动 */
+}
+
+.table-header > div,
+.table-row > div {
+  min-width: 0;  /* 允许 grid 子元素缩小 */
 }
 
 .table-header {
@@ -232,6 +242,7 @@ const translatePattern = (patternStr) => {
   display: flex;
   gap: 6px;
   flex-wrap: wrap;
+  min-width: 0;  /* 允许 flex 容器缩小 */
 }
 
 .component-tag {
@@ -239,6 +250,7 @@ const translatePattern = (patternStr) => {
   border-radius: 12px;
   font-size: 12px;
   font-weight: 500;
+  white-space: nowrap;
 }
 
 .component-tag.modifier {
@@ -251,15 +263,42 @@ const translatePattern = (patternStr) => {
   color: var(--color-primary);
 }
 
+/* 移动端横向滚动样式 */
+.patterns-table::-webkit-scrollbar {
+  height: 8px;
+}
+
+.patterns-table::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
+}
+
+.patterns-table::-webkit-scrollbar-thumb {
+  background: rgba(74, 144, 226, 0.5);
+  border-radius: 4px;
+}
+
+.patterns-table::-webkit-scrollbar-thumb:hover {
+  background: rgba(74, 144, 226, 0.7);
+}
+
 @media (max-width: 768px) {
-  .controls {
-    flex-direction: column;
+  .semantic-composition-page {
+    padding: 8px;
   }
 
-  .table-header,
-  .table-row {
-    grid-template-columns: 1fr;
-    gap: 8px;
+  .patterns-section {
+    padding: 12px;
+  }
+
+  .controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .number-input {
+    width: 100%;
   }
 }
+
 </style>

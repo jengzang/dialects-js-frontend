@@ -173,7 +173,8 @@
               <div class="strength-bar">
                 <div
                   class="strength-fill"
-                  :style="{ width: `${Math.min((item.pmi_score || 0) * 10, 100)}%` }"
+                  :class="{ 'negative': (item.pmi_score || 0) < 0 }"
+                  :style="{ width: `${getStrengthWidth(item.pmi_score)}%` }"
                 ></div>
               </div>
             </div>
@@ -240,7 +241,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed, watch } from 'vue'
 import {
   getSemanticBigrams,
   getSemanticTrigrams,
@@ -270,8 +271,20 @@ const detailMode = ref(false)
 // Lexicon modal
 const showLexiconModal = ref(false)
 
+// Computed: 计算 PMI 数据的最大绝对值
+const maxAbsPMI = computed(() => {
+  if (pmiData.value.length === 0) return 1
+  return Math.max(...pmiData.value.map(item => Math.abs(item.pmi_score || 0)))
+})
+
 // Helper function to get category name based on detail mode
 const getCategoryName = (category) => getCategoryDisplayName(category, detailMode.value)
+
+// Calculate strength bar width percentage
+const getStrengthWidth = (pmiScore) => {
+  const absPMI = Math.abs(pmiScore || 0)
+  return (absPMI / maxAbsPMI.value) * 100
+}
 
 // Methods
 const loadBigrams = async () => {
@@ -325,6 +338,24 @@ const getPMIClass = (pmi_score) => {
   if (pmi_score >= 1) return 'pmi-moderate'
   return 'pmi-weak'
 }
+
+// Watch detailMode changes and auto-refresh tables with data
+watch(detailMode, () => {
+  // 如果 bigrams 表格有数据，自动刷新
+  if (bigrams.value.length > 0) {
+    loadBigrams()
+  }
+
+  // 如果 trigrams 表格有数据，自动刷新
+  if (trigrams.value.length > 0) {
+    loadTrigrams()
+  }
+
+  // 如果 PMI 表格有数据，自动刷新
+  if (pmiData.value.length > 0) {
+    loadPMI()
+  }
+})
 </script>
 
 <style scoped>
@@ -493,7 +524,9 @@ const getPMIClass = (pmi_score) => {
 
 .pmi-results {
   border-radius: 12px;
-  overflow: hidden;
+  overflow-x: auto;
+  overflow-y: visible;
+  -webkit-overflow-scrolling: touch;  /* 移动端平滑滚动 */
 }
 
 .pmi-header,
@@ -501,8 +534,9 @@ const getPMIClass = (pmi_score) => {
   display: grid;
   grid-template-columns: 1.5fr 1fr 1fr 2fr;
   gap: 16px;
-  padding: 12px 16px;
+  padding: 8px 16px;
   align-items: center;
+  min-width: 500px;  /* 表格最小宽度，确保移动端可横向滚动 */
 }
 
 .pmi-header {
@@ -560,6 +594,29 @@ const getPMIClass = (pmi_score) => {
   transition: width 0.5s ease;
 }
 
+.strength-fill.negative {
+  background: linear-gradient(90deg, #e74c3c, #c0392b);
+}
+
+/* PMI 表格横向滚动样式 */
+.pmi-results::-webkit-scrollbar {
+  height: 8px;
+}
+
+.pmi-results::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
+}
+
+.pmi-results::-webkit-scrollbar-thumb {
+  background: rgba(74, 144, 226, 0.5);
+  border-radius: 4px;
+}
+
+.pmi-results::-webkit-scrollbar-thumb:hover {
+  background: rgba(74, 144, 226, 0.7);
+}
+
 @media (max-width: 600px) {
   .ngrams-section {
     grid-template-columns: 1fr;
@@ -567,14 +624,21 @@ const getPMIClass = (pmi_score) => {
 }
 
 @media (max-width: 768px) {
-  .controls {
-    flex-direction: column;
+  .semantic-ngrams-page {
+    padding: 8px;
   }
 
-  .pmi-header,
-  .pmi-row {
-    grid-template-columns: 1fr;
-    gap: 8px;
+  .pmi-section {
+    padding: 12px;
+  }
+
+  .controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .number-input {
+    width: 100%;
   }
 }
 

@@ -69,14 +69,16 @@
       <!-- Legacy Tab: Semantic Network -->
       <div v-else-if="activeModule === 'semantic' && activeSubtab === 'network'" class="legacy-tab">
         <h3 class="villagesml-subtab-title">語義分析 - 語義網絡</h3>
-        <div class="two-column-layout">
+        <div class="two-column-layout2">
           <SemanticSettingsPanel
             :loading="semanticLoading"
+            :has-network="!!semanticNetwork"
             @run="handleRunSemantic"
           />
           <NetworkGraphPanel
             :network="semanticNetwork"
             :loading="semanticLoading"
+            :detail-mode="semanticDetailMode"
           />
         </div>
       </div>
@@ -309,6 +311,7 @@ const searchLoading = ref(false)
 const regionalLoading = ref(false)
 const clusteringLoading = ref(false)
 const semanticLoading = ref(false)
+const semanticDetailMode = ref(false)  // 添加 detailMode 状态
 
 // Refs for component access
 const clusteringSettingsPanelRef = ref(null)
@@ -431,6 +434,9 @@ const handleRunSemantic = async (settings) => {
     router.push('/auth?redirect=/villagesML?module=compute')
     return
   }
+
+  // 保存 detailMode 状态
+  semanticDetailMode.value = settings.detail || false
 
   semanticLoading.value = true
   try {
