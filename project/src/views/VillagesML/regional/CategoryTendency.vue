@@ -96,30 +96,38 @@
     </div>
 
     <div v-else-if="ngramData.length > 0" class="ngram-results">
-      <div class="ngram-header">
-        <div class="col-rank">排名</div>
-        <div class="col-ngram">N-gram</div>
-        <div class="col-frequency">頻率</div>
-        <div class="col-percentage">百分比</div>
-        <div class="col-bar">分佈</div>
-      </div>
-      <div class="ngram-body">
-        <div
-          v-for="(item, index) in ngramData"
-          :key="index"
-          class="ngram-row"
-          :class="{ 'top-10': item.rank <= 10 }"
-        >
-          <div class="col-rank">{{ item.rank }}</div>
-          <div class="col-ngram">{{ item.ngram }}</div>
-          <div class="col-frequency">{{ item.frequency }}</div>
-          <div class="col-percentage">{{ item.percentage.toFixed(2) }}%</div>
-          <div class="col-bar">
-            <div class="bar-container">
-              <div
-                class="bar-fill"
-                :style="{ width: `${(item.percentage / maxNgramPercentage) * 100}%` }"
-              ></div>
+      <div class="table-scroll-wrapper">
+        <div class="ngram-table">
+          <div class="ngram-header">
+            <div class="col-rank">排名</div>
+            <div class="col-ngram">N-gram</div>
+            <div class="col-region">區域</div>
+            <div class="col-frequency">頻率</div>
+            <div class="col-percentage">百分比</div>
+            <div class="col-bar">分佈</div>
+          </div>
+          <div class="ngram-body">
+            <div
+              v-for="(item, index) in processedNgramData"
+              :key="index"
+              class="ngram-row"
+              :class="{ 'top-10': item.rank <= 10 }"
+            >
+              <div class="col-rank">{{ item.rank }}</div>
+              <div class="col-ngram">{{ item.ngram }}</div>
+              <div class="col-region">
+                <span class="region-badge">{{ item.region_name || item.city || item.county || item.township }}</span>
+              </div>
+              <div class="col-frequency">{{ item.frequency }}</div>
+              <div class="col-percentage">{{ item.percentage.toFixed(2) }}%</div>
+              <div class="col-bar">
+                <div class="bar-container">
+                  <div
+                    class="bar-fill"
+                    :style="{ width: `${(item.percentage / maxNgramPercentage) * 100}%` }"
+                  ></div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -170,6 +178,28 @@ const ngramLevelOptions = [
 const maxNgramPercentage = computed(() => {
   if (ngramData.value.length === 0) return 1
   return Math.max(...ngramData.value.map(item => item.percentage))
+})
+
+// 处理后的 N-gram 数据：当没有筛选父区域时，重新排序并计算全局排名
+const processedNgramData = computed(() => {
+  if (ngramData.value.length === 0) return []
+
+  // 检查是否有筛选父区域
+  const hasFilter = ngramFilterHierarchy.value?.city ||
+                    ngramFilterHierarchy.value?.county ||
+                    ngramFilterHierarchy.value?.township
+
+  // 如果有筛选，直接返回原数据（使用后端的区域内排名）
+  if (hasFilter) {
+    return ngramData.value
+  }
+
+  // 如果没有筛选，按频率重新排序并计算全局排名
+  const sorted = [...ngramData.value].sort((a, b) => b.frequency - a.frequency)
+  return sorted.map((item, index) => ({
+    ...item,
+    rank: index + 1
+  }))
 })
 
 // Methods
@@ -281,7 +311,7 @@ const loadRegionalNgrams = async () => {
   grid-template-columns: 120px 1fr 100px 120px;
   align-items: center;
   gap: 12px;
-  padding: 12px;
+  padding: 6px 12px;
   background: rgba(255, 255, 255, 0.3);
   border-radius: 8px;
   transition: background 0.3s ease;
@@ -365,17 +395,30 @@ const loadRegionalNgrams = async () => {
 }
 
 .ngram-results {
+  margin-top: 16px;
+}
+
+/* 移动端横向滚动容器 */
+.table-scroll-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.ngram-table {
   border-radius: 12px;
   overflow: hidden;
+  min-width: 700px;
 }
 
 .ngram-header,
 .ngram-row {
   display: grid;
-  grid-template-columns: 60px 150px 100px 100px 1fr;
+  grid-template-columns: 60px 150px 120px 100px 100px 1fr;
   gap: 12px;
-  padding: 12px 16px;
+  padding: 6px 12px;
   align-items: center;
+  min-width: 0;
 }
 
 .ngram-header {
@@ -402,6 +445,21 @@ const loadRegionalNgrams = async () => {
   font-weight: 600;
   color: var(--text-primary);
   font-size: 16px;
+}
+
+.col-region {
+  font-size: 13px;
+}
+
+.region-badge {
+  display: inline-block;
+  padding: 3px 8px;
+  background: rgba(74, 144, 226, 0.15);
+  color: var(--color-primary);
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
 }
 
 .bar-container {
@@ -446,11 +504,26 @@ const loadRegionalNgrams = async () => {
   .filterable-select {
     width: 100% !important;
   }
+}
 
-  .ngram-header,
-  .ngram-row {
-    grid-template-columns: 1fr;
-    gap: 8px;
+/* 移动端横向滚动条样式 */
+@media (max-aspect-ratio: 1/1) {
+  .table-scroll-wrapper::-webkit-scrollbar {
+    height: 8px;
+  }
+
+  .table-scroll-wrapper::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 4px;
+  }
+
+  .table-scroll-wrapper::-webkit-scrollbar-thumb {
+    background: rgba(74, 144, 226, 0.5);
+    border-radius: 4px;
+  }
+
+  .table-scroll-wrapper::-webkit-scrollbar-thumb:hover {
+    background: rgba(74, 144, 226, 0.7);
   }
 }
 </style>

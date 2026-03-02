@@ -524,7 +524,7 @@ export default {
           position: 'top',
           formatter: (params) => {
             const [x, y, value] = params.data
-            return `${regions[y]} vs ${regions[x]}<br/>相似度: ${(value * 100).toFixed(1)}%`
+            return `${regions[y]} vs ${regions[x]}<br/>相似度: ${(value * 100).toFixed(2)}%`
           }
         },
         grid: {
@@ -568,7 +568,7 @@ export default {
           data: data,
           label: {
             show: true,
-            formatter: (params) => (params.data[2] * 100).toFixed(0) + '%'
+            formatter: (params) => (params.data[2] * 100).toFixed(2) + '%'
           },
           emphasis: {
             itemStyle: {
@@ -656,7 +656,7 @@ export default {
 
 .mode-button {
   flex: 1;
-  padding: 12px 24px;
+  padding: 8px 16px;
   border: 2px solid rgba(74, 144, 226, 0.3);
   background: rgba(255, 255, 255, 0.5);
   border-radius: 8px;
@@ -695,9 +695,14 @@ export default {
 }
 
 .form-row {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  display: flex;
+  flex-wrap: wrap;
   gap: 16px;
+}
+
+.form-row > .form-group {
+  flex: 1;
+  min-width: 200px;
 }
 
 .select-input,

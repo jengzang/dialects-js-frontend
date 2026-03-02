@@ -47,63 +47,6 @@
       </div>
     </div>
 
-    <!-- Multi-Region Selector for Batch Analysis -->
-    <div class="glass-panel multi-region-panel">
-      <div class="panel-header">
-        <h3>批量分析（熱力圖 & 散點圖）</h3>
-      </div>
-      <div class="multi-region-content">
-        <div class="region-selector-row">
-          <FilterableSelect
-            v-model="selectedRegionToAdd"
-            v-model:level="batchLevel"
-            :show-level-selector="true"
-            :show-counts="true"
-            placeholder="選擇區域添加到列表..."
-            @update:hierarchy="(h) => selectedRegionHierarchy = h"
-          />
-          <button
-            @click="addRegionToBatch"
-            :disabled="!selectedRegionToAdd || batchRegions.length >= 20"
-            class="action-button add-button"
-          >
-            添加 ({{ batchRegions.length }}/20)
-          </button>
-        </div>
-
-        <!-- Selected Regions List -->
-        <div v-if="batchRegions.length > 0" class="selected-regions-list">
-          <div
-            v-for="(region, index) in batchRegions"
-            :key="index"
-            class="region-chip"
-          >
-            <span class="region-name">{{ region.display }}</span>
-            <button @click="removeRegionFromBatch(index)" class="remove-btn">×</button>
-          </div>
-        </div>
-
-        <!-- Batch Actions -->
-        <div v-if="batchRegions.length >= 2" class="batch-actions">
-          <button
-            @click="runBatchComparison"
-            :disabled="loading"
-            class="action-button primary"
-          >
-            <span v-if="!loading">生成熱力圖</span>
-            <span v-else>生成中...</span>
-          </button>
-          <button
-            @click="runDimensionReduction"
-            :disabled="loading"
-            class="action-button secondary"
-          >
-            <span v-if="!loading">生成散點圖 (PCA)</span>
-            <span v-else>降維中...</span>
-          </button>
-        </div>
-      </div>
-    </div>
 
     <!-- Comparison Results -->
     <div v-if="comparisonData" class="results-section">
@@ -132,6 +75,9 @@
               <div class="metric-value">{{ formatNumber(comparisonData.manhattan_distance) }}</div>
             </div>
           </div>
+        </div>
+        <div class="chart-wrapper">
+          <div ref="comparisonChart" class="chart-container-large"></div>
         </div>
       </div>
 
@@ -176,13 +122,62 @@
 <!--        </div>-->
 <!--      </div>-->
 
-      <!-- Combined Comparison Chart -->
-      <div class="glass-panel comparison-chart-panel">
-        <div class="panel-header">
-          <h3>向量對比分布</h3>
+    </div>
+
+    <!-- Multi-Region Selector for Batch Analysis -->
+    <div class="glass-panel multi-region-panel">
+      <div class="panel-header">
+        <h3>批量分析（熱力圖 & 散點圖）</h3>
+      </div>
+      <div class="multi-region-content">
+        <div class="region-selector-row">
+          <FilterableSelect
+              v-model="selectedRegionToAdd"
+              v-model:level="batchLevel"
+              :show-level-selector="true"
+              :show-counts="true"
+              placeholder="選擇區域添加到列表..."
+              @update:hierarchy="(h) => selectedRegionHierarchy = h"
+          />
+          <button
+              @click="addRegionToBatch"
+              :disabled="!selectedRegionToAdd || batchRegions.length >= 20"
+              class="action-button add-button"
+          >
+            添加 ({{ batchRegions.length }}/20)
+          </button>
         </div>
-        <div class="chart-wrapper">
-          <div ref="comparisonChart" class="chart-container-large"></div>
+
+        <!-- Selected Regions List -->
+        <div v-if="batchRegions.length > 0" class="selected-regions-list">
+          <div
+              v-for="(region, index) in batchRegions"
+              :key="index"
+              class="region-chip"
+          >
+            <span class="region-name">{{ region.display }}</span>
+            <button @click="removeRegionFromBatch(index)" class="remove-btn">×</button>
+          </div>
+        </div>
+
+        <!-- Batch Actions -->
+        <div v-if="batchRegions.length >= 2" class="batch-actions">
+          <button
+              @click="runBatchComparison"
+              :disabled="loading"
+              class="action-button primary"
+          >
+            <span v-if="!loading">生成熱力圖</span>
+            <span v-else>生成中...</span>
+          </button>
+          <button
+              @click="runDimensionReduction"
+              :disabled="loading"
+              class="action-button secondary"
+          >
+            <span v-if="!loading">生成散點圖 (PCA)</span>
+            <span v-else>降維中...</span>
+          </button>
         </div>
       </div>
     </div>
@@ -286,7 +281,10 @@ const compareVectors = async () => {
     comparisonData.value = response
 
     await nextTick()
-    renderComparisonChart()
+    // 添加额外延迟确保 DOM 完全渲染
+    setTimeout(() => {
+      renderComparisonChart()
+    }, 50)
     showSuccess('向量比較完成')
   } catch (error) {
     showError(error.message || '向量比較失敗')
@@ -396,7 +394,25 @@ const runDimensionReduction = async () => {
 
 // Render comparison chart (side-by-side)
 const renderComparisonChart = () => {
-  if (!comparisonChart.value || !comparisonData.value) return
+  if (!comparisonChart.value || !comparisonData.value) {
+    console.warn('[RegionalVectors] comparisonChart ref or data not ready', {
+      hasRef: !!comparisonChart.value,
+      hasData: !!comparisonData.value
+    })
+    return
+  }
+
+  // 确保容器有尺寸
+  const container = comparisonChart.value
+  if (container.offsetWidth === 0 || container.offsetHeight === 0) {
+    console.warn('[RegionalVectors] Chart container has no size', {
+      width: container.offsetWidth,
+      height: container.offsetHeight
+    })
+    // 延迟重试
+    setTimeout(() => renderComparisonChart(), 100)
+    return
+  }
 
   if (!comparisonChartInstance) {
     comparisonChartInstance = echarts.init(comparisonChart.value)
@@ -901,6 +917,11 @@ onUnmounted(() => {
   height: 320px;
 }
 
+.chart-wrapper {
+  width: 100%;
+  margin-top: 16px;
+}
+
 .chart-container-large {
   width: 100%;
   height: 400px;
@@ -943,13 +964,15 @@ onUnmounted(() => {
 }
 
 .similarity-metrics {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  display: flex;
+  flex-wrap: wrap;
   gap: 16px;
   margin-bottom: 24px;
 }
 
 .metric-card {
+  flex: 1;
+  min-width: 150px;
   padding: 16px;
   background: rgba(255, 255, 255, 0.6);
   border-radius: 12px;

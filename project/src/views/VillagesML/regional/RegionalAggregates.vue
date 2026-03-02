@@ -37,44 +37,46 @@
           </div>
 
         <!-- Aggregates Table -->
-        <div class="aggregates-table">
-          <div class="table-header">
-            <div class="col-region">區域</div>
-            <div class="col-villages">村莊數</div>
-            <div class="col-avg">均長</div>
-            <div class="col-categories">語義類別</div>
-            <div class="col-actions">操作</div>
-          </div>
-          <div class="table-body">
-            <div
-              v-for="(item, index) in paginatedAggregates"
-              :key="index"
-              class="table-row"
-            >
-              <div class="col-region">
-                <RegionDisplay :item="item" :skip-city="currentLevel !== 'city'" />
-              </div>
-              <div class="col-villages">{{ item.total_villages }}</div>
-              <div class="col-avg">{{ item.avg_name_length?.toFixed(2) }}</div>
-              <div class="col-categories">
-                <div class="categories-mini">
-                  <span
-                    v-for="cat in getSemCategories(item)"
-                    :key="cat.key"
-                    class="category-badge"
-                    :title="`${cat.label}: ${cat.pct.toFixed(1)}%`"
-                  >
-                  {{ cat.label }}
-                  </span>
+        <div class="table-scroll-wrapper">
+          <div class="aggregates-table">
+            <div class="table-header">
+              <div class="col-region">區域</div>
+              <div class="col-villages">村莊數</div>
+              <div class="col-avg">均長</div>
+              <div class="col-categories">語義類別</div>
+              <div class="col-actions">操作</div>
+            </div>
+            <div class="table-body">
+              <div
+                v-for="(item, index) in paginatedAggregates"
+                :key="index"
+                class="table-row"
+              >
+                <div class="col-region">
+                  <RegionDisplay :item="item" :skip-city="currentLevel !== 'city'" />
                 </div>
-              </div>
-              <div class="col-actions">
-                <button
-                  class="detail-button"
-                  @click="showDetail(item)"
-                >
-                  詳情
-                </button>
+                <div class="col-villages">{{ item.total_villages }}</div>
+                <div class="col-avg">{{ item.avg_name_length?.toFixed(2) }}</div>
+                <div class="col-categories">
+                  <div class="categories-mini">
+                    <span
+                      v-for="cat in getSemCategories(item)"
+                      :key="cat.key"
+                      class="category-badge"
+                      :title="`${cat.label}: ${cat.pct.toFixed(1)}%`"
+                    >
+                    {{ cat.label }}
+                    </span>
+                  </div>
+                </div>
+                <div class="col-actions">
+                  <button
+                    class="detail-button"
+                    @click="showDetail(item)"
+                  >
+                    詳情
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -508,7 +510,7 @@ onBeforeUnmount(() => {
 
 .summary-stats {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
   gap: 16px;
   margin-bottom: 24px;
 }
@@ -532,19 +534,28 @@ onBeforeUnmount(() => {
   color: var(--color-primary);
 }
 
+/* 移动端横向滚动容器 */
+.table-scroll-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin-bottom: 16px;
+}
+
 .aggregates-table {
   border-radius: 12px;
   overflow: hidden;
-  margin-bottom: 16px;
+  min-width: 600px;
 }
 
 .table-header,
 .table-row {
   display: grid;
-  grid-template-columns: 3fr 1fr 1fr 6fr 1fr;
+  grid-template-columns: 1.5fr 1fr 1fr 6fr 1.5fr;
   gap: 12px;
   padding: 12px 16px;
   align-items: center;
+  min-width: 0;
 }
 
 .table-header {
@@ -854,14 +865,29 @@ onBeforeUnmount(() => {
     flex-direction: column;
   }
 
-  .table-header,
-  .table-row {
-    grid-template-columns: 1fr;
-    gap: 8px;
-  }
-
   .modal-content {
     max-height: 95vh;
+  }
+}
+
+/* 移动端横向滚动条样式 */
+@media (max-aspect-ratio: 1/1) {
+  .table-scroll-wrapper::-webkit-scrollbar {
+    height: 8px;
+  }
+
+  .table-scroll-wrapper::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 4px;
+  }
+
+  .table-scroll-wrapper::-webkit-scrollbar-thumb {
+    background: rgba(74, 144, 226, 0.5);
+    border-radius: 4px;
+  }
+
+  .table-scroll-wrapper::-webkit-scrollbar-thumb:hover {
+    background: rgba(74, 144, 226, 0.7);
   }
 }
 </style>
