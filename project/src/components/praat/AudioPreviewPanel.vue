@@ -184,7 +184,7 @@
 import { ref, watch, onMounted, onBeforeUnmount, nextTick, computed } from 'vue'
 import WaveSurfer from 'wavesurfer.js'
 import RegionsPlugin from 'wavesurfer.js/dist/plugins/regions.esm.js'
-import { userStore } from '@/utils/store.js'
+import { userStore } from '@/store/store.js'
 import { showSuccess } from '@/utils/message.js'
 
 const props = defineProps({

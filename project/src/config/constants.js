@@ -44,7 +44,7 @@ export const LOCATION_LIMITS = {
     // tab1: 查字
     tab1: {
         anonymous: {
-            MAX_LOCATIONS: 300,
+            MAX_LOCATIONS: 200,
             MESSAGE: '未登錄用戶單次最多可查詢 {limit} 個地點'
         },
         user: {
@@ -60,11 +60,11 @@ export const LOCATION_LIMITS = {
     // tab2: 查中古
     tab2: {
         anonymous: {
-            MAX_LOCATIONS: 200,
+            MAX_LOCATIONS: 100,
             MESSAGE: '未登錄用戶單次最多可查詢 {limit} 個地點'
         },
         user: {
-            MAX_LOCATIONS: 600,
+            MAX_LOCATIONS: 500,
             MESSAGE: '用戶單次最多可查詢 {limit} 個地點'
         },
         admin: {

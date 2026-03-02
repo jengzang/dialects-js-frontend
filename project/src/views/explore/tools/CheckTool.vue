@@ -609,11 +609,11 @@
           <div class="modal-body">
             <div class="form-group">
               <label>替換類型</label>
-              <select v-model="replaceType" class="glass-input">
-                <option value="p">全表音標(ipa)替換</option>
-                <option value="r">入聲調替換</option>
-                <option value="s">舒聲調替換</option>
-              </select>
+              <SimpleSelectDropdown
+                v-model="replaceType"
+                :options="replaceTypeOptions"
+                class="glass-input"
+              />
             </div>
 
             <div v-if="replaceType === 'p'" class="form-group">
@@ -911,6 +911,7 @@
 import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { RecycleScroller } from 'vue-virtual-scroller'
+import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
 import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
 import {
   uploadCheckFile,
@@ -922,7 +923,7 @@ import {
   executeBatchOperation,
   downloadCheckResult
 } from '@/api/tools/index.js'
-import { userStore } from '@/utils/store.js'
+import { userStore } from '@/store/store.js'
 import { showSuccess, showError, showWarning, showConfirm } from '@/utils/message.js'
 
 const router = useRouter()
@@ -1004,6 +1005,13 @@ const filterTone = ref(new Set())
 const replaceType = ref('p')
 const replaceFrom = ref('')
 const replaceTo = ref('')
+
+// Replace type options
+const replaceTypeOptions = [
+  { label: '全表音標(ipa)替換', value: 'p' },
+  { label: '入聲調替換', value: 'r' },
+  { label: '舒聲調替換', value: 's' }
+]
 
 // 计算属性
 const totalPendingChanges = computed(() => {

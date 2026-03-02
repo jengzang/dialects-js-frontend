@@ -13,28 +13,11 @@
           </label>
 
           <div class="dropdown-wrapper" style="width: 200px">
-            <div class="dropdown" ref="regionTriggerEl" @click="toggleDropdown('region')" style="margin: 0">
-              {{ selectedRegion || '請選擇級數' }}
-              <span class="arrow">▾</span>
-            </div>
-
-            <Teleport to="body">
-              <div
-                  v-if="dropdownOpen === 'region'"
-                  class="dropdown-panel"
-                  :style="dropdownStyle.region"
-                  ref="regionDropdownEl"
-              >
-                <div
-                    class="dropdown-item"
-                    v-for="region in [1, 2, 3]"
-                    :key="region"
-                    @click="selectRegion(region)"
-                >
-                  {{ region }}級分區
-                </div>
-              </div>
-            </Teleport>
+            <SimpleSelectDropdown
+              v-model="selectedRegion"
+              :options="regionOptions"
+              placeholder="請選擇級數"
+            />
           </div>
         </div>
       </div>
@@ -63,69 +46,42 @@
 </template>
 
 <script setup>
-import { ref, reactive, nextTick, onMounted, onBeforeUnmount } from 'vue'
-import { useRouter, useRoute } from 'vue-router' // ✨ 1. 引入路由
+import { ref, computed, watch } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import LocationAndRegionInput from "@/components/query/LocationAndRegionInput.vue";
-import { mapStore, uiStore, isDivideButtonDisabled, setRunning } from "@/utils/store.js";
+import SimpleSelectDropdown from "@/components/common/SimpleSelectDropdown.vue";
+import { mapStore, uiStore, isDivideButtonDisabled, setRunning } from "@/store/store.js";
 import { getCoordinates } from '@/api/query/geo'
 import { showError } from '@/utils/message.js';
 
-// ✨ 2. 初始化路由
 const router = useRouter()
 const route = useRoute()
 
 const locationRef = ref(null)
-// 使用 uiStore 中的按钮状态（不再定义本地状态）
 const buttonState = uiStore.buttonStates.divide
 const isDisabled = isDivideButtonDisabled
-const selectedRegion = ref('')
-const dropdownOpen = ref(null)
-const regionTriggerEl = ref(null)
-const regionDropdownEl = ref(null)
+const selectedRegion = ref(null)
 const locationModel = ref({
   locations: [],
   regions: [],
   regionUsing: 'map'
 })
 
-// isLocationDisabled 状态已移至 uiStore，不再需要本地定义
-
 const emit = defineEmits(['region-selected'])
 
-const dropdownStyle = reactive({
-  region: { top: '0px', left: '0px' }
+// Region options for dropdown
+const regionOptions = [
+  { label: '1級分區', value: 1 },
+  { label: '2級分區', value: 2 },
+  { label: '3級分區', value: 3 }
+]
+
+// Watch for region selection changes
+watch(selectedRegion, (val) => {
+  if (val) {
+    emit('region-selected', val)
+  }
 })
-
-// Dropdown 邏輯
-const toggleDropdown = (type) => {
-  dropdownOpen.value = dropdownOpen.value === type ? null : type
-  nextTick(() => {
-    if (type === 'region' && regionTriggerEl.value) {
-      const rect = regionTriggerEl.value.getBoundingClientRect()
-      dropdownStyle.region = {
-        position: 'absolute',
-        top: `${rect.top + rect.height + window.scrollY}px`,
-        left: `${rect.left + window.scrollX}px`,
-        zIndex: 99999
-      }
-    }
-  })
-}
-
-const selectRegion = (val) => {
-  selectedRegion.value = val
-  dropdownOpen.value = null
-  emit('region-selected', val)
-}
-
-const onClickOutside = (event) => {
-  const targets = [regionTriggerEl.value, regionDropdownEl.value]
-  const isInsideAny = targets.some(el => el?.contains(event.target))
-  if (!isInsideAny) dropdownOpen.value = null
-}
-
-onMounted(() => document.addEventListener('click', onClickOutside))
-onBeforeUnmount(() => document.removeEventListener('click', onClickOutside))
 
 const runAction = async () => {
   setRunning('divide', true);
@@ -210,5 +166,37 @@ const runAction = async () => {
 .allmap-first:hover {
   background: linear-gradient(145deg, #4e5d5b, #212d2b);
   transform: translateY(-3px);
+}
+
+/* Dropdown 样式 */
+.dropdown-wrapper {
+  flex: 1;
+  position: relative;
+  align-items: center;
+  display: flex;
+  justify-content: center;
+}
+
+.dropdown {
+  padding: 6px 12px;
+  border-radius: var(--radius-md);
+  background: var(--glass-light);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  cursor: pointer;
+  font-size: 14px;
+  border: 1px solid rgba(200, 200, 200, 0.5);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-width: 80px;
+  margin: auto;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.dropdown:hover {
+  background: var(--glass-medium);
+  border-color: var(--color-primary);
 }
 </style>

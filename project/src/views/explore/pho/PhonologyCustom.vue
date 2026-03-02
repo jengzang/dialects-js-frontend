@@ -25,29 +25,26 @@
       <div class="column-selectors">
         <div class="selector-group">
           <label>橫向分類</label>
-          <select v-model="horizontalColumn">
-            <option v-for="col in columnOptions" :key="col" :value="col">
-              {{ col }}
-            </option>
-          </select>
+          <SimpleSelectDropdown
+            v-model="horizontalColumn"
+            :options="columnOptionsArray"
+          />
         </div>
 
         <div class="selector-group">
           <label>縱向分類</label>
-          <select v-model="verticalColumn">
-            <option v-for="col in columnOptions" :key="col" :value="col">
-              {{ col }}
-            </option>
-          </select>
+          <SimpleSelectDropdown
+            v-model="verticalColumn"
+            :options="columnOptionsArray"
+          />
         </div>
 
         <div class="selector-group">
           <label>單元格分行</label>
-          <select v-model="cellRowColumn">
-            <option v-for="col in columnOptions" :key="col" :value="col">
-              {{ col }}
-            </option>
-          </select>
+          <SimpleSelectDropdown
+            v-model="cellRowColumn"
+            :options="columnOptionsArray"
+          />
         </div>
       </div>
       <button
@@ -96,6 +93,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { getPhonologyClassificationMatrix } from '@/api/query/phonology.js'
 import PhonologyMatrix from '@/components/TableAndTree/PhonologyTable.vue'
 import LocationMultiInput from '@/components/query/LocationMultiInput.vue'
+import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
 import {
   parsePhonologyCustomParams,
   validatePhonologyParams
@@ -134,6 +132,12 @@ const featureDefaults = {
 
 // 可選的分類欄位
 const columnOptions = ['攝', '韻', '等', '呼', '入', '清濁', '系', '組', '母', '調', '部位', '方式']
+
+// Column options for dropdown
+const columnOptionsArray = columnOptions.map(col => ({
+  label: col,
+  value: col
+}))
 
 // 解析 URL 参数
 const urlParams = parsePhonologyCustomParams(route)

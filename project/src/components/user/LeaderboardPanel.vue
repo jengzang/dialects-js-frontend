@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { api } from '@/api/auth/auth.js'
+import { getLeaderboard } from '@/api'
 import { showError } from '@/utils/message.js'
 import HelpIcon from '@/components/ToastAndHelp/HelpIcon.vue'
 
@@ -17,7 +17,7 @@ const fetchLeaderboard = async () => {
   loading.value = true
   error.value = null
   try {
-    const data = await api('/auth/leaderboard')
+    const data = await getLeaderboard()
     rankingsData.value = data
   } catch (e) {
     error.value = e.message

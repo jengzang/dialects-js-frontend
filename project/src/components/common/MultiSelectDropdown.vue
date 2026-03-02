@@ -105,7 +105,7 @@ const dropdownStyle = ref({
   position: 'absolute',
   top: '0px',
   left: '0px',
-  zIndex: 99999
+  zIndex: 1000
 })
 
 // Filtered options based on search
@@ -216,7 +216,7 @@ const updatePosition = () => {
       position: 'absolute',
       top: `${top}px`,
       left: `${left}px`,
-      zIndex: 99999,
+      zIndex: 1000,
       maxHeight: props.maxHeight
     }
   })
@@ -242,22 +242,23 @@ watch(() => props.triggerEl, () => {
 .dropdown-overlay {
   position: fixed;
   inset: 0;
-  z-index: 99998;
+  z-index: 999;
   background: transparent;
 }
 
 .dropdown-panel {
-  min-width: 200px;
+  min-width: 80px;
   max-width: 300px;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(200, 200, 200, 0.3);
-  border-radius: 12px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+  border-radius: 10px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  padding: 6px 0;
 }
 
 .search-wrapper {
@@ -282,41 +283,41 @@ watch(() => props.triggerEl, () => {
 .options-list {
   max-height: 40dvh;
   overflow-y: auto;
-  padding: 4px;
+  padding: 0;
 }
 
 .dropdown-item {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 12px;
+  padding: 8px 16px;
   cursor: pointer;
-  border-radius: 8px;
   font-size: 14px;
   color: rgba(0, 0, 0, 0.85);
-  transition: background 0.2s ease;
+  transition: background-color 0.2s;
 }
 
 .dropdown-item:hover {
-  background: rgba(0, 122, 255, 0.08);
+  background-color: #e6f0ff;
 }
 
 .dropdown-item.active {
-  background: rgba(0, 122, 255, 0.12);
-  color: #007aff;
-  font-weight: 500;
+  background-color: #e6f0ff;
+  color: #02469e;
+  font-weight: bold;
 }
 
 .select-all-item {
   font-weight: 600;
   color: rgba(0, 0, 0, 0.75);
+  border-bottom: 1px solid #f0f0f0;
 }
 
 .check-icon {
   width: 16px;
   text-align: center;
   font-weight: 700;
-  color: #007aff;
+  color: #02469e;
 }
 
 .dropdown-divider {

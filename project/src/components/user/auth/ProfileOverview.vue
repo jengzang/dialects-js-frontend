@@ -125,7 +125,7 @@ import ActionButton from './ActionButton.vue'
 import TabSwitcher from './TabSwitcher.vue'
 import LeaderboardPanel from '@/components/user/LeaderboardPanel.vue'
 import HelpIcon from '@/components/ToastAndHelp/HelpIcon.vue'
-import { formatOnlineTime, fmt } from '@/utils/userStats.js'
+import { formatOnlineTime, fmt } from '@/store/userStats.js'
 
 defineProps({
   user: {

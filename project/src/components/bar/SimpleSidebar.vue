@@ -137,7 +137,7 @@ import { ref, onMounted, onBeforeUnmount, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { clearToken, getToken } from '@/api/auth/auth.js'
 import { getTodayVisits, getTotalVisits, getVisitHistory } from '@/api/logs/index.js'
-import {userStore} from "@/utils/store.js";
+import {userStore} from "@/store/store.js";
 import { menuConfig } from '@/config/menuConfig.js';
 import { WEB_BASE } from '@/env-config.js';
 

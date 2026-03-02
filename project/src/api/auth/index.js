@@ -27,5 +27,6 @@ export {
   registerUser,
   updateUsername,
   updatePassword,
-  logoutUser
+  logoutUser,
+  getLeaderboard
 } from './actions.js'

@@ -390,7 +390,7 @@ import LocationAndRegionInput from '@/components/query/LocationAndRegionInput.vu
 import HelpIcon from '@/components/ToastAndHelp/HelpIcon.vue'
 import { getCustomFeature } from '@/api/user/custom.js'
 import { getAllCustomData } from '@/api/user'
-import { userStore, resultCache, mapStore, uiStore, isCustomButtonDisabled, setRunning } from '@/utils/store.js'
+import { userStore, resultCache, mapStore, uiStore, isCustomButtonDisabled, setRunning } from '@/store/store.js'
 import { showSuccess, showError, showWarning, showInfo } from '@/utils/message.js'
 
 const router = useRouter()
@@ -1269,5 +1269,37 @@ const handleAddBatch = () => {
   color: #999;
   font-size: 14px;
   margin: 0 4px;
+}
+
+/* Dropdown 样式 */
+.dropdown-panel {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 10px;
+  padding: 6px 0;
+  position: absolute;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  min-width: 80px;
+  max-height: 40dvh;
+  overflow: auto;
+  z-index: 1000;
+}
+
+.dropdown-item {
+  padding: 8px 16px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+.dropdown-item.active {
+  background-color: #e6f0ff;
+  color: #02469e;
+  font-weight: bold;
+}
+
+.dropdown-item:hover {
+  background-color: #e6f0ff;
 }
 </style>

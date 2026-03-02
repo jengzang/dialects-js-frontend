@@ -523,82 +523,8 @@ textarea:focus {
 /* ========================================
    下拉菜单样式
    ======================================== */
-.dropdown-wrapper {
-  flex: 1;
-  position: relative;
-  align-items: center;
-  display: flex;
-  justify-content: center;
-}
-
-.dropdown {
-  padding: 6px 12px;
-  border-radius: var(--radius-md);
-  background: var(--glass-light);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  cursor: pointer;
-  font-size: 14px;
-  border: 1px solid rgba(200, 200, 200, 0.5);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  min-width: 80px;
-  margin: auto;
-  transition: all 0.2s;
-  white-space: nowrap;
-}
-
-.dropdown:hover {
-  background: var(--glass-medium);
-  border-color: var(--color-primary);
-}
-
 .arrow {
   font-size: 18px;
-}
-
-.dropdown-panel {
-  background: var(--glass-heavy);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-radius: 10px;
-  padding: 6px 0;
-  position: absolute;
-  box-shadow: var(--shadow-lg);
-  min-width: 80px;
-  max-height: 40dvh;
-  overflow: auto;
-  z-index: 1000;
-}
-
-.dropdown-item {
-  padding: 8px 16px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: background-color 0.2s;
-}
-
-.dropdown-item.active {
-  background-color: #e6f0ff;
-  color: #02469e;
-  font-weight: bold;
-}
-
-.dropdown-item:hover {
-  background-color: #e6f0ff;
-}
-
-/* 全选按钮特殊样式 */
-.select-all-item {
-  color: var(--text-tertiary);
-  font-size: 0.9em;
-  border-bottom: 1px solid #f0f0f0;
-}
-
-.check-icon {
-  width: 16px;
-  display: inline-block;
 }
 
 

@@ -440,10 +440,10 @@ export function getSignificanceLevel(pValue) {
 export const VILLAGESML_MODULES = [
   {
     id: 'search',
-    label: '搜尋探索',
+    label: '搜索',
     icon: '🔍',
     path: '/villagesML?module=search',
-    weight: 1,
+    weight: 0.8,
     mobileWeight: 1,
     weightIconOnly: 0.5,
     fontSize: 1.0,
@@ -778,18 +778,18 @@ export const VILLAGESML_MODULES = [
         hideOnMobile: false,
         hideLabelOnMobile: true
       },
-      // {
-      //   id: 'vectors',
-      //   label: '特徵向量',
-      //   icon: '📐',
-      //   path: '/villagesML?module=regional&subtab=vectors',
-      //   weight: 1,
-      //   mobileWeight: 1,
-      //   fontSize: 0.95,
-      //   mobileFontSize: 0.9,
-      //   hideOnMobile: false,
-      //   hideLabelOnMobile: true
-      // },
+      {
+        id: 'vectors',
+        label: '特徵向量',
+        icon: '📐',
+        path: '/villagesML?module=regional&subtab=vectors',
+        weight: 1,
+        mobileWeight: 1,
+        fontSize: 0.95,
+        mobileFontSize: 0.9,
+        hideOnMobile: false,
+        hideLabelOnMobile: true
+      },
       {
         id: 'tendency',
         label: '類別傾向性',
@@ -844,31 +844,6 @@ export const VILLAGESML_MODULES = [
         hideOnMobile: false,
         hideLabelOnMobile: true
       },
-      // {
-      //   id: 'features',
-      //   label: '特徵提取',
-      //   icon: '🔬',
-      //   path: '/villagesML?module=compute&subtab=features',
-      //   weight: 1,
-      //   mobileWeight: 1,
-      //   fontSize: 0.95,
-      //   mobileFontSize: 0.9,
-      //   hideOnMobile: false,
-      //   hideLabelOnMobile: true
-      // },
-      // {
-      //   id: 'subset',
-      //   label: '子集分析',
-      //   icon: '🧪',
-      //   path: '/villagesML?module=compute&subtab=subset',
-      //   weight: 1,
-      //   mobileWeight: 1,
-      //   fontSize: 0.95,
-      //   mobileFontSize: 0.9,
-      //   hideOnMobile: false,
-      //   hideLabelOnMobile: true
-      // },
-
       // ===== 新增子標籤 =====
       {
         id: 'char-tendency',
@@ -917,7 +892,33 @@ export const VILLAGESML_MODULES = [
         mobileFontSize: 0.9,
         hideOnMobile: false,
         hideLabelOnMobile: true
-      }
+      },
+
+      {
+        id: 'features',
+        label: '特徵提取',
+        icon: '🔬',
+        path: '/villagesML?module=compute&subtab=features',
+        weight: 1,
+        mobileWeight: 1,
+        fontSize: 0.95,
+        mobileFontSize: 0.9,
+        hideOnMobile: false,
+        hideLabelOnMobile: true
+      },
+      {
+        id: 'subset',
+        label: '子集分析',
+        icon: '🧪',
+        path: '/villagesML?module=compute&subtab=subset',
+        weight: 1,
+        mobileWeight: 1,
+        fontSize: 0.95,
+        mobileFontSize: 0.9,
+        hideOnMobile: false,
+        hideLabelOnMobile: true
+      },
+
     ]
   },
   {
@@ -925,7 +926,7 @@ export const VILLAGESML_MODULES = [
     label: '信息',
     icon: 'ℹ️',
     path: '/villagesML?module=system',
-    weight: 1,
+    weight: 0.8,
     mobileWeight: 1,
     weightIconOnly: 0.5,
     fontSize: 1.0,
