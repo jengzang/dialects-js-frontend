@@ -5,7 +5,7 @@
         <!-- 地圖控制面板 -->
         <div class="map-controls" v-if="!isFullScreen">
           <div class="control-group">
-            <SimpleSelectDropdown :match-trigger-width="true"
+            <SimpleSelectDropdown
               v-model="currentStyleKey"
               :options="mapStyleOptions"
               @update:modelValue="handleStyleChange"
@@ -123,6 +123,14 @@ const initMap = () => {
 const renderData = () => {
   if (!map.value) return
 
+  console.log('[SpatialMap] renderData called', {
+    mode: props.mode,
+    clustersLength: props.clusters?.length,
+    hasHotspot: !!props.hotspot,
+    pointsLength: props.points?.length,
+    layersLength: props.layers?.length
+  })
+
   // 清除舊圖層
   clearLayers()
 
@@ -134,6 +142,7 @@ const renderData = () => {
     if (props.mode === 'hotspot' && props.hotspot) {
       renderHotspot()
     } else if (props.mode === 'clusters' && props.clusters.length > 0) {
+      console.log('[SpatialMap] Rendering clusters:', props.clusters.length)
       renderClusters()
     } else if (props.mode === 'points' && props.points.length > 0) {
       renderPoints()
@@ -301,17 +310,42 @@ const showPopup = (feature, lngLat) => {
 }
 
 const clearLayers = () => {
-  // 清除舊的固定圖層
-  const layersToRemove = ['hotspot-circle', 'villages-layer', 'clusters-layer', 'clusters-labels', 'points-layer']
-  const sourcesToRemove = ['hotspot-source', 'villages-source', 'clusters-source', 'points-source']
+  if (!map.value) return
 
-  // 清除新的動態圖層
+  // 清除舊的固定圖層
+  const fixedLayersToRemove = ['hotspot-circle', 'villages-layer', 'clusters-layer', 'clusters-labels', 'points-layer']
+  const fixedSourcesToRemove = ['hotspot-source', 'villages-source', 'clusters-source', 'points-source']
+
+  // 清除所有可能的動態圖層（包括已取消選擇的）
+  const allPossibleLayers = [
+    'hotspots-layer',
+    'clusters-layer',
+    'ngrams-layer',
+    'characters-heatmap-layer',
+    'characters-points-layer',
+    'characters-layer'
+  ]
+
+  const allPossibleSources = [
+    'hotspots-source',
+    'clusters-source',
+    'ngrams-source',
+    'characters-heatmap-source',
+    'characters-points-source',
+    'characters-source'
+  ]
+
+  // 清除當前 props.layers 中的圖層
   if (props.layers && props.layers.length > 0) {
     props.layers.forEach(layer => {
-      layersToRemove.push(`${layer.id}-layer`)
-      sourcesToRemove.push(`${layer.id}-source`)
+      allPossibleLayers.push(`${layer.id}-layer`)
+      allPossibleSources.push(`${layer.id}-source`)
     })
   }
+
+  // 合併所有需要清除的圖層
+  const layersToRemove = [...new Set([...fixedLayersToRemove, ...allPossibleLayers])]
+  const sourcesToRemove = [...new Set([...fixedSourcesToRemove, ...allPossibleSources])]
 
   layersToRemove.forEach(layer => {
     if (map.value.getLayer(layer)) {
@@ -433,9 +467,26 @@ const renderHotspot = () => {
 }
 
 const renderClusters = () => {
+  console.log('[SpatialMap] renderClusters - creating GeoJSON from', props.clusters.length, 'clusters')
+
+  // 过滤掉坐标无效的聚类
+  const validClusters = props.clusters.filter(cluster =>
+    cluster.centroid_lon != null &&
+    cluster.centroid_lat != null &&
+    !isNaN(cluster.centroid_lon) &&
+    !isNaN(cluster.centroid_lat)
+  )
+
+  console.log('[SpatialMap] Valid clusters:', validClusters.length, 'out of', props.clusters.length)
+
+  if (validClusters.length === 0) {
+    console.warn('[SpatialMap] No valid clusters to render')
+    return
+  }
+
   const clustersGeoJSON = {
     type: 'FeatureCollection',
-    features: props.clusters.map(cluster => ({
+    features: validClusters.map(cluster => ({
       type: 'Feature',
       geometry: {
         type: 'Point',
@@ -448,6 +499,8 @@ const renderClusters = () => {
       }
     }))
   }
+
+  console.log('[SpatialMap] GeoJSON features:', clustersGeoJSON.features.length)
 
   map.value.addSource('clusters-source', {
     type: 'geojson',
@@ -512,6 +565,27 @@ const renderClusters = () => {
   map.value.on('mouseleave', 'clusters-layer', () => {
     map.value.getCanvas().style.cursor = ''
   })
+
+  // 计算中心点和边界
+  const bounds = new maplibregl.LngLatBounds()
+  clustersGeoJSON.features.forEach(feature => {
+    bounds.extend(feature.geometry.coordinates)
+  })
+
+  // 计算中心点
+  const center = bounds.getCenter()
+  console.log('[SpatialMap] Bounds center:', center)
+
+  // 使用 flyTo 飞到中心点，然后 fitBounds
+  map.value.flyTo({
+    center: [center.lng, center.lat],
+    zoom: 8
+  })
+
+  // 延迟调整边界，确保地图已经移动到中心
+  setTimeout(() => {
+    map.value.fitBounds(bounds, { padding: 50, maxZoom: 12, duration: 1000 })
+  }, 500)
 
   // 調整視圖
   if (clustersGeoJSON.features.length > 0) {
@@ -600,7 +674,7 @@ const resetView = () => {
 <style scoped>
 .spatial-map-container {
   width: 100%;
-  height: clamp(300px, 50vh, 500px);
+  height: 100%;
   position: relative;
   border-radius: 12px;
   overflow: hidden;
@@ -622,6 +696,7 @@ const resetView = () => {
 .map-container {
   width: 100%;
   height: 100%;
+  min-height: 400px;
 }
 
 .map-controls {

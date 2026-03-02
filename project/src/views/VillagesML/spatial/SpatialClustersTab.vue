@@ -11,9 +11,6 @@
           :options="runOptions"
         />
       </div>
-      <button class="load-button" :disabled="loading" @click="loadAll">
-        {{ loading ? '加載中...' : '加載聚類數據' }}
-      </button>
     </div>
 
     <!-- Clusters 地圖 -->
@@ -22,7 +19,7 @@
       <p>加載中...</p>
     </div>
 
-    <div v-else-if="clusters.length > 0">
+    <div v-else-if="clusters.length > 0" class="clusters-content">
       <div v-if="clustersMetadata" class="clusters-metadata">
         <span class="metadata-item"><strong>運行ID:</strong> {{ clustersMetadata.run_id }}</span>
         <span class="metadata-item"><strong>總聚類數:</strong> {{ clustersMetadata.total_clusters?.toLocaleString() }}</span>
@@ -71,7 +68,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import SpatialMap from './SpatialMap.vue'
 import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
 import { getSpatialClusters, getSpatialClustersAvailableRuns, getSpatialClustersSummary } from '@/api/index.js'
@@ -135,7 +132,20 @@ const loadAll = async () => {
   }
 }
 
-onMounted(loadAvailableRuns)
+onMounted(async () => {
+  await loadAvailableRuns()
+  // 自动加载聚类数据
+  if (selectedRunId.value) {
+    loadAll()
+  }
+})
+
+// 监听 selectedRunId 变化，自动加载数据
+watch(selectedRunId, (newRunId) => {
+  if (newRunId) {
+    loadAll()
+  }
+})
 </script>
 
 <style scoped>
@@ -181,14 +191,14 @@ h3 { font-size: 16px; margin-top: 20px; }
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-.clusters-content { margin-top: 20px; }
+.clusters-content { margin-top: 20px; width: 100%;  display: flex; flex-direction: column; }
 .clusters-metadata {
   display: flex; flex-wrap: wrap; gap: 16px; padding: 16px;
   background: rgba(74,144,226,0.1); border-radius: 8px; margin-bottom: 16px; font-size: 14px;
 }
 .metadata-item strong { color: var(--color-primary); margin-right: 4px; }
 
-.summary-panel { margin-top: 30px; padding: 12px; background: rgba(255,255,255,0.3); border-radius: 12px; }
+.summary-panel { margin-top: 30px; padding: 12px; background: rgba(255,255,255,0.3); border-radius: 12px; width:100%}
 .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px,1fr)); gap: 16px; }
 .summary-card { padding: 12px; background: rgba(255,255,255,0.5); border-radius: 12px; text-align: center; }
 .summary-icon { font-size: 32px; margin-bottom: 8px; }

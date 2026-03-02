@@ -2,13 +2,6 @@
   <div class="spatial-hotspots-tab">
 <!--      <h3 class="villagesml-subtab-title">空間分析 - 空間熱點</h3>-->
     <h2>🔥 空間熱點</h2>
-    <button
-      class="load-button"
-      :disabled="loadingHotspots"
-      @click="loadHotspots"
-    >
-      加載熱點數據
-    </button>
 
     <div v-if="loadingHotspots" class="loading-state">
       <div class="spinner"></div>
@@ -45,15 +38,8 @@
       </div>
 
       <!-- Hotspot Detail -->
-      <div v-if="selectedHotspot" class="hotspot-detail">
+      <div v-if="selectedHotspot" ref="hotspotDetailRef" class="hotspot-detail">
         <h3>熱點詳情 #{{ selectedHotspot.hotspot_id }}</h3>
-        <button
-          class="load-button"
-          :disabled="loadingHotspotDetail"
-          @click="loadHotspotDetail"
-        >
-          加載詳細信息
-        </button>
 
         <div v-if="loadingHotspotDetail" class="loading-state">
           <div class="spinner"></div>
@@ -77,12 +63,12 @@
                 {{ hotspotDetail.radius_km?.toFixed(2) || 'N/A' }} km
               </div>
             </div>
-            <div class="stat-card">
-              <div class="stat-label">中心坐標</div>
-              <div class="stat-value">
-                {{ hotspotDetail.center_lat?.toFixed(4) || 'N/A' }}, {{ hotspotDetail.center_lon?.toFixed(4) || 'N/A' }}
-              </div>
-            </div>
+<!--            <div class="stat-card">-->
+<!--              <div class="stat-label">中心坐標</div>-->
+<!--              <div class="stat-value">-->
+<!--                {{ hotspotDetail.center_lat?.toFixed(4) || 'N/A' }}, {{ hotspotDetail.center_lon?.toFixed(4) || 'N/A' }}-->
+<!--              </div>-->
+<!--            </div>-->
           </div>
 
           <!-- 熱點地圖 -->
@@ -94,7 +80,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted, nextTick } from 'vue'
 import SpatialMap from './SpatialMap.vue'
 import { getSpatialHotspots, getSpatialHotspotDetail } from '@/api/index.js'
 import { showError } from '@/utils/message.js'
@@ -105,6 +91,7 @@ const selectedHotspot = ref(null)
 const hotspotDetail = ref(null)
 const loadingHotspots = ref(false)
 const loadingHotspotDetail = ref(false)
+const hotspotDetailRef = ref(null)
 
 // Methods
 const loadHotspots = async () => {
@@ -120,23 +107,36 @@ const loadHotspots = async () => {
   }
 }
 
-const selectHotspot = (hotspot) => {
+const selectHotspot = async (hotspot) => {
   selectedHotspot.value = hotspot
   hotspotDetail.value = null
-}
 
-const loadHotspotDetail = async () => {
-  if (!selectedHotspot.value) return
-
+  // 自动加载详细信息
   loadingHotspotDetail.value = true
   try {
-    hotspotDetail.value = await getSpatialHotspotDetail(selectedHotspot.value.hotspot_id)
+    hotspotDetail.value = await getSpatialHotspotDetail(hotspot.hotspot_id)
+
+    // 竖屏时自动滚动到页面底部
+    if (window.innerHeight > window.innerWidth) {
+      // 等待 DOM 完全渲染（包括地图组件）
+      setTimeout(() => {
+        window.scrollTo({
+          top: document.documentElement.scrollHeight,
+          behavior: 'smooth'
+        })
+      }, 300)
+    }
   } catch (error) {
     showError('加載熱點詳情失敗')
   } finally {
     loadingHotspotDetail.value = false
   }
 }
+
+// 页面加载时自动加载热点数据
+onMounted(() => {
+  loadHotspots()
+})
 </script>
 
 <style scoped>
@@ -211,6 +211,8 @@ h2 {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   gap: 12px;
+  max-height: 500px;
+  overflow: auto;
 }
 
 .hotspot-card {
@@ -293,7 +295,7 @@ h2 {
 
 .detail-stats {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 12px;
   margin-bottom: 16px;
 }
@@ -312,7 +314,7 @@ h2 {
 }
 
 .stat-value {
-  font-size: 24px;
+  font-size: 20px;
   font-weight: 700;
   color: var(--color-primary);
 }
@@ -330,6 +332,9 @@ h2 {
 
   .hotspot-detail {
     padding: 12px;
+  }
+  .detail-stats{
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
   }
 }
 </style>

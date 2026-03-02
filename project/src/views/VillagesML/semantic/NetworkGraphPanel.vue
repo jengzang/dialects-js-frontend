@@ -372,7 +372,6 @@ onBeforeUnmount(() => {
   }
 
   .network-metadata {
-    flex-direction: column;
     gap: 8px;
   }
 }

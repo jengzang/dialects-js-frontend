@@ -32,15 +32,15 @@
                 />
               </div>
               <label class="checkbox-item">
-                <input type="checkbox" v-model="layers.ngrams" @change="onLayerChange">
-                <span>🟢 N-gram 分佈</span>
-              </label>
-              <label class="checkbox-item">
                 <input type="checkbox" v-model="layers.characters" @change="onLayerChange">
                 <span>🟡 字符傾向</span>
               </label>
+              <label class="checkbox-item">
+                <input type="checkbox" v-model="layers.ngrams" @change="onLayerChange">
+                <span>🟢 N-gram 分佈</span>
+              </label>
             </div>
-            <p class="layer-note">💡 提示：如需字符-聚類整合分析，請使用「空間整合」標籤頁</p>
+<!--            <p class="layer-note">💡 提示：如需字符-聚類整合分析，請使用「空間整合」標籤頁</p>-->
           </div>
 
           <!-- N-gram 過濾器 -->
@@ -59,18 +59,19 @@
           <!-- 字符過濾器 -->
           <div v-if="layers.characters" class="section">
             <h3>字符設置</h3>
-            <input
-              v-model="filters.character"
-              type="text"
-              placeholder="輸入字符（如：村）"
-              maxlength="1"
-              class="filter-input"
-            >
-            <SimpleSelectDropdown :match-trigger-width="true"
-              v-model="filters.charLevel"
-              :options="charLevelOptions"
-              class="filter-select"
-            />
+            <div class="filter-row">
+              <input
+                v-model="filters.character"
+                type="text"
+                placeholder="輸入字符（如：村）"
+                maxlength="1"
+                class="filter-input"
+              >
+              <SimpleSelectDropdown
+                v-model="filters.charLevel"
+                :options="charLevelOptions"
+              />
+            </div>
           </div>
 
           <!-- 應用按鈕 -->
@@ -102,7 +103,7 @@
               </div>
               <div v-if="layers.characters" class="legend-item">
                 <div class="legend-gradient"></div>
-                <span>字符傾向（藍→白→紅）</span>
+                <span>字符傾向熱力圖（藍→白→紅）</span>
               </div>
             </div>
           </div>
@@ -348,14 +349,15 @@ const loadHotspotsLayer = async () => {
           'interpolate',
           ['linear'],
           ['get', 'radius_km'],
-          0, 5,
-          50, 15,
-          100, 25
+          0, 8,
+          50, 18,
+          100, 28
         ],
         'circle-color': '#ff6464',
-        'circle-opacity': 0.4,
-        'circle-stroke-width': 2,
-        'circle-stroke-color': '#ff6464'
+        'circle-opacity': 0.3,
+        'circle-stroke-width': 3,
+        'circle-stroke-color': '#ff6464',
+        'circle-stroke-opacity': 0.8
       }
     })
 
@@ -404,13 +406,13 @@ const loadClustersLayer = async () => {
           'interpolate',
           ['linear'],
           ['get', 'cluster_size'],
-          0, 5,
+          0, 6,
           100, 10,
-          1000, 15,
-          10000, 20
+          1000, 14,
+          10000, 18
         ],
         'circle-color': '#4a90e2',
-        'circle-opacity': 0.7,
+        'circle-opacity': 0.5,
         'circle-stroke-width': 2,
         'circle-stroke-color': '#ffffff'
       }
@@ -490,14 +492,14 @@ const loadNgramsLayer = async () => {
       paint: {
         'circle-radius': [
           'interpolate', ['linear'], ['get', 'frequency'],
-          0, 5, 50, 10, 200, 15, 500, 20
+          0, 6, 50, 10, 200, 14, 500, 18
         ],
         'circle-color': [
           'interpolate', ['linear'], ['get', 'tendency_score'],
           0, '#90EE90', 1, '#50c878', 2, '#228B22'
         ],
-        'circle-opacity': 0.7,
-        'circle-stroke-width': 1,
+        'circle-opacity': 0.5,
+        'circle-stroke-width': 2,
         'circle-stroke-color': '#ffffff'
       }
     })
@@ -562,12 +564,52 @@ const loadCharactersLayer = async () => {
       return
     }
 
+    // 使用热力图渲染字符倾向
     mapLayers.value.push({
-      id: 'characters',
+      id: 'characters-heatmap',
+      type: 'heatmap',
+      data: { type: 'FeatureCollection', features },
+      paint: {
+        // 热力图权重基于 lift 值
+        'heatmap-weight': [
+          'interpolate', ['linear'], ['get', 'lift'],
+          0, 0,
+          4, 1
+        ],
+        // 热力图强度随缩放级别变化
+        'heatmap-intensity': [
+          'interpolate', ['linear'], ['zoom'],
+          0, 1,
+          9, 3
+        ],
+        // 热力图颜色：蓝（低）→ 白（中）→ 红（高）
+        'heatmap-color': [
+          'interpolate', ['linear'], ['heatmap-density'],
+          0, 'rgba(0, 0, 255, 0)',
+          0.2, 'rgba(0, 0, 255, 0.5)',
+          0.4, 'rgba(100, 149, 237, 0.7)',
+          0.6, 'rgba(255, 255, 255, 0.8)',
+          0.8, 'rgba(255, 107, 107, 0.7)',
+          1, 'rgba(255, 0, 0, 0.9)'
+        ],
+        // 热力图半径
+        'heatmap-radius': [
+          'interpolate', ['linear'], ['zoom'],
+          0, 15,
+          9, 30
+        ],
+        // 热力图透明度
+        'heatmap-opacity': 0.6
+      }
+    })
+
+    // 添加圆圈图层用于点击交互
+    mapLayers.value.push({
+      id: 'characters-points',
       type: 'circle',
       data: { type: 'FeatureCollection', features },
       paint: {
-        'circle-radius': 12,
+        'circle-radius': 4,
         'circle-color': [
           'interpolate', ['linear'], ['get', 'lift'],
           0, '#0000ff',
@@ -576,9 +618,9 @@ const loadCharactersLayer = async () => {
           2, '#ff6b6b',
           4, '#ff0000'
         ],
-        'circle-opacity': 0.7,
-        'circle-stroke-width': 1,
-        'circle-stroke-color': '#333333'
+        'circle-opacity': 0.4,
+        'circle-stroke-width': 2,
+        'circle-stroke-color': '#ffffff'
       }
     })
 
@@ -719,9 +761,19 @@ h2 {
 }
 
 /* 過濾器輸入 */
+.filter-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.filter-row .filter-input {
+  width: 120px;
+  margin-bottom: 0;
+}
+
 .filter-input,
 .filter-select {
-  width: 100%;
   padding: 8px 12px;
   border: 1px solid #ddd;
   border-radius: 8px;

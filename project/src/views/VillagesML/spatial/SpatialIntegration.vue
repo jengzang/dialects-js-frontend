@@ -31,19 +31,6 @@
 
       <!-- Overview Mode -->
       <div v-if="queryMode === 'overview'" class="overview-section">
-        <div class="query-form glass-panel">
-          <div class="query-header">
-            <h3>空間整合查詢</h3>
-            <p class="query-note">查詢統計顯著的字符-聚類整合數據</p>
-          </div>
-          <button
-            class="query-button"
-            :disabled="loadingIntegration"
-            @click="loadIntegration"
-          >
-            查詢顯著
-          </button>
-        </div>
 
         <div v-if="loadingIntegration" class="loading-state glass-panel">
           <div class="spinner"></div>
@@ -53,7 +40,8 @@
         <div v-else-if="integrationData && integrationData.length > 0" class="integration-results">
           <!-- Statistics -->
           <div class="stats-section glass-panel">
-            <h3>統計信息</h3>
+            <h3>空間整合查詢</h3>
+            <p class="query-note">查詢統計顯著的字符-聚類整合數據</p>
             <div class="stats-grid">
               <div class="stat-card">
                 <div class="stat-label">字符數量</div>
@@ -151,14 +139,6 @@
               :options="characterOptions"
             />
           </div>
-
-          <button
-            class="query-button"
-            :disabled="!queryChar || loadingByChar"
-            @click="loadByChar"
-          >
-            查詢
-          </button>
         </div>
 
         <div v-if="loadingByChar" class="loading-state glass-panel">
@@ -229,14 +209,6 @@
               :options="clusterOptions"
             />
           </div>
-
-          <button
-            class="query-button"
-            :disabled="!clusterId || loadingByCluster"
-            @click="loadByCluster"
-          >
-            查詢
-          </button>
         </div>
 
         <div v-if="loadingByCluster" class="loading-state glass-panel">
@@ -376,7 +348,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import ExploreLayout from '@/layouts/ExploreLayout.vue'
 import SpatialMap from './SpatialMap.vue'
 import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
@@ -676,6 +648,36 @@ const getDeviationColor = (deviation) => {
   if (deviation > -0.5) return '#e74c3c'  // 红色
   return '#c0392b'  // 深红色（负偏差）
 }
+
+// 监听 queryMode 变化，自动加载对应数据
+watch(queryMode, (newMode) => {
+  if (newMode === 'overview') {
+    loadIntegration()
+  } else if (newMode === 'by-char' && availableCharacters.value.length === 0) {
+    loadCharacters()
+  } else if (newMode === 'by-cluster' && availableClusters.value.length === 0) {
+    loadClusters()
+  }
+})
+
+// 监听 queryChar 变化，自动加载字符数据
+watch(queryChar, (newChar) => {
+  if (newChar && newChar !== '') {
+    loadByChar()
+  }
+})
+
+// 监听 clusterId 变化，自动加载聚类数据
+watch(clusterId, (newId) => {
+  if (newId) {
+    loadByCluster()
+  }
+})
+
+// 页面加载时自动加载总览数据
+onMounted(() => {
+  loadIntegration()
+})
 </script>
 
 <style scoped>
@@ -707,7 +709,7 @@ const getDeviationColor = (deviation) => {
 
 .mode-button {
   flex: 1;
-  padding: 10px 16px;
+  padding: 8px 16px;
   background: rgba(255, 255, 255, 0.5);
   border: 2px solid rgba(74, 144, 226, 0.3);
   border-radius: 8px;
