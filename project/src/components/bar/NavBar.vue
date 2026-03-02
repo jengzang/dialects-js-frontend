@@ -236,7 +236,7 @@ import { getTodayVisits, getTotalVisits, getVisitHistory } from '@/api/logs/inde
 import { menuConfig } from '@/config/menuConfig.js'
 import { MenuTabsConfig } from '@/config/TabsConfig.js'
 import { WEB_BASE } from '@/env-config.js'
-import { userStore, resultCache } from '@/utils/store.js'
+import { userStore, resultCache } from '@/store/store.js'
 const route = useRoute()
 const router = useRouter()
 const isSidebarVisible = ref(false)  // 控制边栏显示

@@ -53,7 +53,7 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-import { villagesMLStore } from '@/utils/villagesMLStore.js'
+import { villagesMLStore } from '@/store/villagesMLStore.js'
 import FilterableSelect from '@/components/common/FilterableSelect.vue'
 import { cityHasCounties } from '@/utils/region/regionPreload.js'
 

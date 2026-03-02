@@ -76,7 +76,7 @@
 
 <script setup>
 import { computed } from 'vue'
-import { villagesMLStore } from '@/utils/villagesMLStore.js'
+import { villagesMLStore } from '@/store/villagesMLStore.js'
 
 const props = defineProps({
   villages: {

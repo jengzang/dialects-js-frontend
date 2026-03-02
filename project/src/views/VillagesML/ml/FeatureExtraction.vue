@@ -229,7 +229,7 @@ import * as echarts from 'echarts'
 import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
 import { extractFeatures as apiExtractFeatures, aggregateFeatures as apiAggregateFeatures, searchVillages } from '@/api/index.js'
 import { showError, showSuccess, showWarning } from '@/utils/message.js'
-import { userStore } from '@/utils/store.js'
+import { userStore } from '@/store/store.js'
 import { getCities, getCounties, getTownships } from '@/utils/region/regionPreload.js'
 
 // Router

@@ -101,7 +101,7 @@ import { useRouter } from 'vue-router'
 import ExploreLayout from '@/layouts/ExploreLayout.vue'
 import { getMetadataOverview, getNgramStatistics } from '@/api/index.js'
 import { showError } from '@/utils/message.js'
-import { userStore } from '@/utils/store.js'
+import { userStore } from '@/store/store.js'
 
 const router = useRouter()
 const searchKeyword = ref('')

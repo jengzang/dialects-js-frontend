@@ -23,7 +23,7 @@
 
 <script setup>
 import { ref } from 'vue'
-import { villagesMLStore } from '@/utils/villagesMLStore.js'
+import { villagesMLStore } from '@/store/villagesMLStore.js'
 import FilterableSelect from '@/components/common/FilterableSelect.vue'
 
 const emit = defineEmits(['analyze'])

@@ -50,7 +50,7 @@ import { ref, computed, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import LocationAndRegionInput from "@/components/query/LocationAndRegionInput.vue";
 import SimpleSelectDropdown from "@/components/common/SimpleSelectDropdown.vue";
-import { mapStore, uiStore, isDivideButtonDisabled, setRunning } from "@/utils/store.js";
+import { mapStore, uiStore, isDivideButtonDisabled, setRunning } from "@/store/store.js";
 import { getCoordinates } from '@/api/query/geo'
 import { showError } from '@/utils/message.js';
 

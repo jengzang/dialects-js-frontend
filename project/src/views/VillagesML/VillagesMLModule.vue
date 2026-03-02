@@ -99,8 +99,8 @@
 <script setup>
 import { ref, computed, watch, onMounted, defineAsyncComponent } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { villagesMLStore } from '@/utils/villagesMLStore.js'
-import { userStore } from '@/utils/store.js'
+import { villagesMLStore } from '@/store/villagesMLStore.js'
+import { userStore } from '@/store/store.js'
 import {
   searchVillages,
   getCharTendency,

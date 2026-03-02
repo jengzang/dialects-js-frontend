@@ -28,7 +28,7 @@
 <script setup>
 import { computed, onMounted, onUnmounted } from 'vue';
 import { parseFeatureString } from '@/utils/ResultTable.js';
-import { resultCache } from '@/utils/store.js'
+import { resultCache } from '@/store/store.js'
 
 const props = defineProps(['visible', 'data', 'position']);
 const emit = defineEmits(['close', 'confirm']);

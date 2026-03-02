@@ -76,7 +76,7 @@
 <script setup>
 import { ref, computed, watch } from 'vue'
 import { getCharList } from '@/api/query/core'
-import { userStore, setTabContentDisabled } from '@/utils/store.js'
+import { userStore, setTabContentDisabled } from '@/store/store.js'
 import { ROLE_LIMITS, QUERY_CONFIG } from '@/config/constants.js'
 
 // 定义事件，用于通知父组件禁用/启用按钮

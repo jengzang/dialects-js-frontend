@@ -238,7 +238,7 @@ import { useRouter } from 'vue-router'
 import * as echarts from 'echarts'
 import { clusterSubset, compareSubsets as compareSubsetsAPI, searchVillages } from '@/api/index.js'
 import { showError, showSuccess, showWarning } from '@/utils/message.js'
-import { userStore } from '@/utils/store.js'
+import { userStore } from '@/store/store.js'
 import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
 
 // Router

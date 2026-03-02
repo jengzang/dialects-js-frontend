@@ -278,7 +278,7 @@ import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { getPartitions, getCustomRegions } from '@/api'
 import { STATIC_REGION_TREE, top_yindian } from '@/config'
-import { userStore } from '@/utils/store.js'
+import { userStore } from '@/store/store.js'
 import { showError, showSuccess, showConfirm } from '@/utils/message.js'
 import MultiSelectDropdown from '@/components/common/MultiSelectDropdown.vue'
 

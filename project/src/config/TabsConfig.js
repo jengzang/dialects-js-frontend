@@ -2,7 +2,7 @@
 // 用于控制导航栏的 tab 显示和行为
 // 供 NavBar 和未来的 explorebar 使用
 
-import { resultCache } from '@/utils/store.js'
+import { resultCache } from '@/store/store.js'
 
 export const MenuTabsConfig = [
   {

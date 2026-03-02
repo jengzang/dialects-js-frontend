@@ -390,7 +390,7 @@ import LocationAndRegionInput from '@/components/query/LocationAndRegionInput.vu
 import HelpIcon from '@/components/ToastAndHelp/HelpIcon.vue'
 import { getCustomFeature } from '@/api/user/custom.js'
 import { getAllCustomData } from '@/api/user'
-import { userStore, resultCache, mapStore, uiStore, isCustomButtonDisabled, setRunning } from '@/utils/store.js'
+import { userStore, resultCache, mapStore, uiStore, isCustomButtonDisabled, setRunning } from '@/store/store.js'
 import { showSuccess, showError, showWarning, showInfo } from '@/utils/message.js'
 
 const router = useRouter()

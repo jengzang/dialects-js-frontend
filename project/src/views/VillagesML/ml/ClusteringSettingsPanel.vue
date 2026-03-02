@@ -75,8 +75,8 @@
 
 <script setup>
 import { reactive, computed, watch, onMounted, ref } from 'vue'
-import { villagesMLStore } from '@/utils/villagesMLStore.js'
-import { userStore } from '@/utils/store.js'
+import { villagesMLStore } from '@/store/villagesMLStore.js'
+import { userStore } from '@/store/store.js'
 import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
 
 const props = defineProps({

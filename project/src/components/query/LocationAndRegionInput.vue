@@ -248,7 +248,7 @@ import { ref, nextTick ,onMounted, onActivated, watch, computed,defineProps } fr
 import { getLocations, getCustomFeature, sqlQuery, batchMatch, getPartitions, getCustomRegions } from '@/api'
 import RegionSelector from "@/components/query/RegionSelector.vue"
 import PartitionInfoModal from "@/components/query/PartitionInfoModal.vue"
-import { userStore, setLocationDisabled } from '@/utils/store.js'
+import { userStore, setLocationDisabled } from '@/store/store.js'
 import { LOCATION_LIMITS } from '@/config/constants.js'
 import { STATIC_REGION_TREE, top_yindian } from '@/config'
 import * as OpenCC from 'opencc-js'

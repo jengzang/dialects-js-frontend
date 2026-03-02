@@ -83,7 +83,7 @@ import * as echarts from 'echarts'
 import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
 import { getCharSimilarities } from '@/api/index.js'
 import { showWarning } from '@/utils/message.js'
-import { userStore } from '@/utils/store.js'
+import { userStore } from '@/store/store.js'
 
 const router = useRouter()
 

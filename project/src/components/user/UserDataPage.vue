@@ -321,7 +321,7 @@ import {
   batchDeleteCustomData
 } from '@/api/user/index.js'
 import { showSuccess, showError, showWarning, showConfirm } from '@/utils/message.js'
-import { userStore } from '@/utils/store.js'
+import { userStore } from '@/store/store.js'
 import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
 
 const router = useRouter()

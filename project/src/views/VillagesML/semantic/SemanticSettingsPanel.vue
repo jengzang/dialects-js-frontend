@@ -77,8 +77,8 @@
 
 <script setup>
 import { reactive, computed, ref, watch } from 'vue'
-import { villagesMLStore } from '@/utils/villagesMLStore.js'
-import { userStore } from '@/utils/store.js'
+import { villagesMLStore } from '@/store/villagesMLStore.js'
+import { userStore } from '@/store/store.js'
 import FilterableSelect from '@/components/common/FilterableSelect.vue'
 import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
 

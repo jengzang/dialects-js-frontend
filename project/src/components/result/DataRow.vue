@@ -95,7 +95,7 @@ import { computed, ref } from 'vue';
 import { getCorrespondingCharacters } from '@/utils/ResultTable.js';
 import { sqlQuery } from '@/api/sql';
 import { getFeatureStats } from '@/api';
-import { globalPayload } from '@/utils/store.js';
+import { globalPayload } from '@/store/store.js';
 import LocationDetailPopup from './LocationDetailPopup.vue';
 import FeatureStatsPopup from './FeatureStatsPopup.vue';
 

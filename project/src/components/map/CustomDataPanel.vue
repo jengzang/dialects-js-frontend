@@ -141,7 +141,7 @@ import { useRoute } from 'vue-router'
 import { batchMatch, getRegions } from '@/api/query/LocationAndRegion.js'
 import { submitCustomForm } from '@/api/user/custom.js'
 import { showSuccess, showError, showWarning, showInfo } from '@/utils/message.js'
-import { userStore, globalPayload, resultCache } from '@/utils/store.js'
+import { userStore, globalPayload, resultCache } from '@/store/store.js'
 import HelpIcon from '@/components/ToastAndHelp/HelpIcon.vue'
 
 const route = useRoute()

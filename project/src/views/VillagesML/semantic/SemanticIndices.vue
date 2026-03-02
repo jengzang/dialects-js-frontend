@@ -205,7 +205,7 @@ import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
 import { getSemanticIndices } from '@/api/index.js'
 import { showError } from '@/utils/message.js'
 import { getCategoryDisplayName, getSubcategoryName } from '@/config/villagesML.js'
-import { userStore } from '@/utils/store.js'
+import { userStore } from '@/store/store.js'
 import { SEMANTIC_LEXICON_V1, SEMANTIC_LEXICON_V4, CATEGORY_NAMES_ZH } from '@/config/semanticLexicon.js'
 
 // State

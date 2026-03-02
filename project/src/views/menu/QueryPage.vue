@@ -304,7 +304,7 @@ import LocationAndRegionInput from "@/components/query/LocationAndRegionInput.vu
 import ZhongguSelector from "@/components/query/ZhongguSelector.vue";
 import YinweiSelector from "@/components/query/YinweiSelector.vue";
 import FloatingDice from "@/components/query/FloatingDice.vue";
-import { globalPayload, queryStore, uiStore, isQueryButtonDisabled, setRunning, setTabContentDisabled } from '@/utils/store.js'
+import { globalPayload, queryStore, uiStore, isQueryButtonDisabled, setRunning, setTabContentDisabled } from '@/store/store.js'
 import { column_values, S2T_T2S_MAPPING } from '@/config'
 
 const locationRef = ref(null)

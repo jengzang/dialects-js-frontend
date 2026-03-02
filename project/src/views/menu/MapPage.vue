@@ -69,7 +69,7 @@
 <script setup>
 import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { mapStore, resultCache } from '@/utils/store.js'
+import { mapStore, resultCache } from '@/store/store.js'
 
 import DivideTab from "@/components/map/DivideTab.vue";
 import CustomTab from '@/components/map/CustomTab.vue'

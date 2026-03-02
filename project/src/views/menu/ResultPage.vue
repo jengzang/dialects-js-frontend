@@ -51,7 +51,7 @@ import {computed, onUnmounted, ref, watch, onMounted} from 'vue';
 import {useRoute, useRouter} from 'vue-router';
 import { searchChars, searchZhongGu, searchYinWei, searchTones } from '@/api/query/core'
 import { getCoordinates } from '@/api/query/geo'
-import {globalPayload, mapStore, resultCache} from '@/utils/store.js';
+import {globalPayload, mapStore, resultCache} from '@/store/store.js';
 import ResultList from "@/components/result/ResultList.vue";
 import CharsAndTones from "@/components/result/CharsAndTones.vue";
 import SimpleSelectDropdown from "@/components/common/SimpleSelectDropdown.vue";

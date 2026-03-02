@@ -923,7 +923,7 @@ import {
   executeBatchOperation,
   downloadCheckResult
 } from '@/api/tools/index.js'
-import { userStore } from '@/utils/store.js'
+import { userStore } from '@/store/store.js'
 import { showSuccess, showError, showWarning, showConfirm } from '@/utils/message.js'
 
 const router = useRouter()

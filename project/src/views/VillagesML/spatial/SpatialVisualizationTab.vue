@@ -164,7 +164,7 @@ import {
   getCharTendencyByChar
 } from '@/api/index.js'
 import { showError, showWarning, showConfirm } from '@/utils/message.js'
-import { userStore } from '@/utils/store.js'
+import { userStore } from '@/store/store.js'
 import {
   SPATIAL_CLUSTERING_RUN_LABELS,
   DEFAULT_SPATIAL_CLUSTERING_RUN_ID

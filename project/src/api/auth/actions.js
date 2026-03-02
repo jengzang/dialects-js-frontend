@@ -1,5 +1,5 @@
 import { api, saveToken, clearToken, update_userdatas_bytoken, ensureAuthenticated } from './auth.js'
-import { userStore } from '@/utils/store.js'
+import { userStore } from '@/store/store.js'
 
 /**
  * Login with email or username
@@ -112,3 +112,10 @@ export async function logoutUser(refreshToken) {
   }
 }
 
+/**
+ * Get leaderboard rankings
+ * @returns {Promise<Object>} Leaderboard data with rankings and total users
+ */
+export async function getLeaderboard() {
+  return await api('/auth/leaderboard')
+}

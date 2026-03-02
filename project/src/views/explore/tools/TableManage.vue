@@ -175,7 +175,7 @@
 <script setup>
 import { ref, computed, onMounted, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
-import { userStore } from '@/utils/store.js'
+import { userStore } from '@/store/store.js'
 import { getUserRole, ensureAuthenticated } from '@/api/auth/auth.js'
 import { getTableColumns } from '@/api/sql/index.js'
 import UniversalTable from '@/components/TableAndTree/UniversalTable.vue'

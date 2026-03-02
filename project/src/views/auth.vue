@@ -78,9 +78,9 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import {
-  api,
   getToken,
   getRefreshToken,
+  initUserByToken,
   loginUser,
   registerUser,
   updateUsername,
@@ -92,8 +92,8 @@ import {
   validatePassword,
   validatePasswordMatch
 } from '@/api'
-import { userStore } from '@/utils/store.js'
-import { computeQueryStats } from '@/utils/userStats.js'
+import { userStore } from '@/store/store.js'
+import { computeQueryStats } from '@/store/userStats.js'
 import { manualReport } from '@/utils/onlineTimeTracker.js'
 import { WEB_BASE } from '@/env-config.js'
 import { showConfirm, showSuccess } from '@/utils/message.js'
@@ -392,17 +392,24 @@ const logout = async () => {
 const fetchUser = async () => {
   isInitLoading.value = true
   try {
-    const res = await api('/auth/me')
-    userStore.id = res.id
-    userStore.username = res.username
-    userStore.role = res.role
-    userStore.isAuthenticated = true
-    user.value = res
-    isInitLoading.value = false
+    const { user: userData, role } = await initUserByToken({ forceRefresh: true })
+
+    if (userData) {
+      userStore.id = userData.id
+      userStore.username = userData.username
+      userStore.role = role
+      userStore.isAuthenticated = true
+      user.value = userData
+    } else {
+      userStore.isAuthenticated = false
+      userStore.role = 'anonymous'
+      setMode('login')
+    }
   } catch (e) {
     userStore.isAuthenticated = false
     userStore.role = 'anonymous'
     setMode('login')
+  } finally {
     isInitLoading.value = false
   }
 }

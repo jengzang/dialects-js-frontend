@@ -130,7 +130,7 @@
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { userStore } from '@/utils/store.js'
+import { userStore } from '@/store/store.js'
 
 // Props definition
 const props = defineProps({

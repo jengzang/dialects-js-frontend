@@ -128,7 +128,7 @@ import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { mapStyle, mapStyleConfig, calculateDenseMapCenterAndZoom } from '@/utils/MapSource.js';
 import {get_detail} from "@/utils/ResultTable.js";
-import {mapStore, userStore, resultCache} from "@/utils/store.js";
+import {mapStore, userStore, resultCache} from "@/store/store.js";
 import { showSuccess, showError, showWarning, showConfirm } from '@/utils/message.js';
 import { sqlQuery } from '@/api/sql'
 import { deleteCustomForm } from '@/api/user/custom.js'
