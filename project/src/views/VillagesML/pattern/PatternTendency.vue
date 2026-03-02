@@ -290,7 +290,7 @@ watch(
   display: grid;
   grid-template-columns: 150px 1fr 200px;
   gap: 12px;
-  padding: 12px;
+  padding: 6px 12px;
   background: rgba(255, 255, 255, 0.3);
   border-radius: 8px;
   align-items: center;
@@ -352,9 +352,6 @@ watch(
 }
 
 @media (max-width: 768px) {
-  .controls {
-    flex-direction: column;
-  }
 
 
   .tendency-item {

@@ -6,7 +6,7 @@
     <div v-if="ngramStats" class="stats-banner glass-panel">
       <div class="banner-item">
         <span class="banner-label">總 N-gram</span>
-        <span class="banner-value">{{ formatBannerNum(ngramStats.ngram_significance?.total) }}</span>
+        <span class="banner-value">{{ formatBannerNum(ngramStats.ngram_significance?.total_before_filter) }}</span>
       </div>
       <div class="banner-divider"></div>
       <div class="banner-item">
@@ -16,7 +16,9 @@
       <div class="banner-divider"></div>
       <div class="banner-item">
         <span class="banner-label">顯著率</span>
-        <span class="banner-value">{{ formatRate(ngramStats.ngram_significance?.significance_rate) }}</span>
+        <span class="banner-value">
+          {{ formatRate(100 - (ngramStats.ngram_significance?.filter_rate || 0)) }}
+        </span>
       </div>
       <div class="banner-divider"></div>
       <div class="banner-item" v-if="ngramStats.by_level">
@@ -116,7 +118,7 @@
 
     <!-- Pattern Search -->
     <div class="pattern-section glass-panel">
-      <h2>模式搜尋</h2>
+      <h2>模式搜索</h2>
       <div class="search-controls">
         <input
           v-model="searchPattern"
@@ -150,7 +152,7 @@
             :key="index"
             class="pattern-item"
           >
-            <div class="pattern-ngram clickable" @click="goToStats(item.pattern)">
+            <div class="pattern-ngram" >
               {{ item.pattern }}
               <span class="goto-icon">→</span>
             </div>
@@ -437,7 +439,7 @@ onMounted(async () => {
   display: grid;
   grid-template-columns: 60px 80px 60px 80px 80px 1fr;
   gap: 12px;
-  padding: 12px 16px;
+  padding: 6px 12px;
   align-items: center;
 }
 

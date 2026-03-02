@@ -194,19 +194,37 @@ const goToTendency = (pattern) => {
 
 .structural-list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   gap: 16px;
 }
 
 .structural-item {
+  /* 1. 基础背景：极高透明度的白色 */
+  background: rgba(255, 255, 255, 0.15);
+
+
+  /* 3. 液态玻璃边框：使用半透明实线 */
+  /* 关键点：边框颜色要比背景稍微亮一点，模拟玻璃边缘的折射 */
+  border: 1px solid rgba(255, 255, 255, 0.4);
+
+  /* 4. 增强液态感：内阴影（Inset Shadow）模拟厚度和光泽 */
+  box-shadow:
+      inset 0 0 12px rgba(255, 255, 255, 0.2), /* 内发光 */
+      0 8px 32px 0 rgba(31, 38, 135, 0.1);    /* 外层淡淡的投影，增加悬浮感 */
+
   padding: 12px;
-  background: rgba(255, 255, 255, 0.3);
   border-radius: 12px;
   transition: all 0.3s ease;
 }
 
+/* 悬停效果：增加亮度，模拟光线照射在液面上的感觉 */
 .structural-item:hover {
-  background: rgba(74, 144, 226, 0.1);
+  background: rgba(255, 255, 255, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow:
+      inset 0 0 20px rgba(255, 255, 255, 0.4),
+      0 12px 40px 0 rgba(31, 38, 135, 0.15);
+  transform: translateY(-2px); /* 轻微浮动 */
 }
 
 .item-header {
@@ -311,13 +329,4 @@ const goToTendency = (pattern) => {
   border-color: var(--color-primary);
 }
 
-@media (max-width: 768px) {
-  .controls {
-    flex-direction: column;
-  }
-
-  .select-input {
-    width: 100%;
-  }
-}
 </style>

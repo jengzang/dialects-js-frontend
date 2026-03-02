@@ -299,7 +299,7 @@ const goToTendency = (pattern) => {
 
 .pattern-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   gap: 16px;
 }
 
@@ -414,8 +414,5 @@ const goToTendency = (pattern) => {
     width: 100%;
   }
 
-  .pattern-grid {
-    grid-template-columns: 1fr;
-  }
 }
 </style>

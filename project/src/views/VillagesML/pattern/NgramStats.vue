@@ -11,15 +11,37 @@
     <!-- Shared Controls -->
     <div class="shared-controls glass-panel">
       <div class="controls">
-        <input
-          v-model="ngram"
-          type="text"
-          placeholder="輸入 N-gram"
-          class="text-input"
-        />
-        <SimpleSelectDropdown :match-trigger-width="true"
+        <!-- N-gram 选择器 -->
+        <div class="ngram-selector">
+          <SimpleSelectDropdown
+            v-if="availableNgrams.length > 0"
+            v-model="ngram"
+            :options="ngramOptions"
+            :searchable="true"
+            searchPlaceholder="搜索 N-gram..."
+            width="100%"
+          />
+          <input
+            v-else
+            v-model="ngram"
+            type="text"
+            placeholder="輸入 N-gram"
+            class="text-input"
+          />
+          <button
+            v-if="availableNgrams.length === 0"
+            class="load-list-btn"
+            :disabled="loadingNgramList"
+            @click="loadAvailableNgrams"
+            title="加載 N-gram 列表"
+          >
+            {{ loadingNgramList ? '⏳' : '📋' }}
+          </button>
+        </div>
+        <SimpleSelectDropdown
           v-model="level"
           :options="levelOptions"
+          width="120px"
         />
         <button
           class="query-button"
@@ -223,15 +245,37 @@
     <div class="significance-section glass-panel">
       <h2>顯著性分析</h2>
       <div class="controls">
-        <input
-          v-model="significanceNgram"
-          type="text"
-          placeholder="輸入 N-gram"
-          class="text-input"
-        />
-        <SimpleSelectDropdown :match-trigger-width="true"
+        <!-- N-gram 选择器 -->
+        <div class="ngram-selector">
+          <SimpleSelectDropdown
+            v-if="availableNgrams.length > 0"
+            v-model="significanceNgram"
+            :options="ngramOptions"
+            :searchable="true"
+            searchPlaceholder="搜索 N-gram..."
+            width="100%"
+          />
+          <input
+            v-else
+            v-model="significanceNgram"
+            type="text"
+            placeholder="輸入 N-gram"
+            class="text-input"
+          />
+          <button
+            v-if="availableNgrams.length === 0"
+            class="load-list-btn"
+            :disabled="loadingNgramList"
+            @click="loadAvailableNgrams"
+            title="加載 N-gram 列表"
+          >
+            {{ loadingNgramList ? '⏳' : '📋' }}
+          </button>
+        </div>
+        <SimpleSelectDropdown
           v-model="significanceLevel"
           :options="levelOptions"
+          width="120px"
         />
         <button
           class="query-button"
@@ -296,7 +340,8 @@ import RegionDisplay from '@/components/common/RegionDisplay.vue'
 import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
 import {
   getNgramTendency,
-  getNgramSignificance
+  getNgramSignificance,
+  getNgramFrequency
 } from '@/api/index.js'
 import { showError } from '@/utils/message.js'
 import { getSignificanceLabel, getSignificanceLevel, getNgramPositionLabel } from '@/config/villagesML.js'
@@ -310,6 +355,10 @@ const level = ref('city')
 const hierarchy = ref({ city: null, county: null, township: null })
 const ngramData = ref([])
 const loading = ref(false)
+
+// N-gram 列表状态
+const availableNgrams = ref([])
+const loadingNgramList = ref(false)
 
 // Section-specific State
 const regionalPositionFilter = ref('all')
@@ -329,6 +378,18 @@ const levelOptions = [
   { label: '區縣', value: 'county' },
   { label: '鄉鎮', value: 'township' }
 ]
+
+// N-gram 下拉选项
+const ngramOptions = computed(() => {
+  const options = [{ label: '請選擇 N-gram', value: '' }]
+  availableNgrams.value.forEach(item => {
+    options.push({
+      label: `${item.ngram} (${item.frequency}次,${(item.percentage).toFixed(1) }%)`,
+      value: item.ngram
+    })
+  })
+  return options
+})
 
 // Computed
 const maxRegionalFrequency = computed(() => {
@@ -375,6 +436,30 @@ const positionCounts = computed(() => {
 })
 
 // Methods
+const loadAvailableNgrams = async () => {
+  loadingNgramList.value = true
+  try {
+    // 获取 2-4 字的高频 N-gram
+    const results = await Promise.all([
+      getNgramFrequency({ n: 2, top_k: 200, position: 'all' }),
+      getNgramFrequency({ n: 3, top_k: 150, position: 'all' }),
+      getNgramFrequency({ n: 4, top_k: 100, position: 'all' })
+    ])
+
+    // 合并结果并按频率排序
+    availableNgrams.value = results
+      .flat()
+      .sort((a, b) => (b.frequency || 0) - (a.frequency || 0))
+
+    console.log(`[NgramStats] 加載了 ${availableNgrams.value.length} 個 N-gram`)
+  } catch (error) {
+    showError('加載 N-gram 列表失敗')
+    console.error('[NgramStats] 加載失敗:', error)
+  } finally {
+    loadingNgramList.value = false
+  }
+}
+
 const loadNgramData = async () => {
   if (!ngram.value) return
 
@@ -590,6 +675,36 @@ watch(
   display: flex;
   gap: 12px;
   margin-bottom: 16px;
+  align-items: center;
+}
+
+.ngram-selector {
+  flex: 2;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  min-width: 0;
+}
+
+.load-list-btn {
+  padding: 10px 14px;
+  background: rgba(74, 144, 226, 0.1);
+  border: 2px solid rgba(74, 144, 226, 0.3);
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.load-list-btn:hover:not(:disabled) {
+  background: rgba(74, 144, 226, 0.2);
+  border-color: var(--color-primary);
+}
+
+.load-list-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .select-input,
@@ -764,14 +879,14 @@ watch(
 .regional-chart {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
 }
 
 .regional-bar {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  padding: 12px;
+  padding: 8px;
   background: rgba(255, 255, 255, 0.3);
   border-radius: 8px;
   transition: background 0.3s ease;
@@ -785,7 +900,6 @@ watch(
   display: flex;
   align-items: center;
   gap: 16px;
-  margin-bottom: 8px;
 }
 
 .region-header {
@@ -796,69 +910,6 @@ watch(
   font-weight: 600;
   font-size: 15px;
   color: var(--text-primary);
-}
-
-.regional-stats {
-  display: flex;
-  gap: 16px;
-  flex-wrap: wrap;
-}
-
-.stat-item {
-  display: flex;
-  gap: 6px;
-  align-items: center;
-}
-
-.stat-label {
-  font-size: 13px;
-  color: var(--text-secondary);
-}
-
-.stat-value {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.stat-value.tendency {
-  padding: 2px 8px;
-  border-radius: 4px;
-  font-size: 13px;
-}
-
-.stat-value.strong-preference {
-  background: rgba(46, 204, 113, 0.2);
-  color: #27ae60;
-}
-
-.stat-value.moderate-preference {
-  background: rgba(52, 152, 219, 0.2);
-  color: #2980b9;
-}
-
-.stat-value.strong-avoidance {
-  background: rgba(231, 76, 60, 0.2);
-  color: #c0392b;
-}
-
-.stat-value.moderate-avoidance {
-  background: rgba(243, 156, 18, 0.2);
-  color: #d68910;
-}
-
-.regional-bar {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 12px;
-  background: rgba(255, 255, 255, 0.3);
-  border-radius: 8px;
-  transition: background 0.3s ease;
-}
-
-.regional-bar:hover {
-  background: rgba(74, 144, 226, 0.1);
 }
 
 .regional-stats {
@@ -1061,6 +1112,9 @@ watch(
     flex-direction: column;
   }
 
+  .regional-chart{
+    gap:4px;
+  }
   .select-input {
     width: 100%;
   }
