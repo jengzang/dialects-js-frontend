@@ -37,7 +37,7 @@
 <script setup>
 import { computed } from 'vue';
 import { useRouter } from 'vue-router';
-import { userStore } from '@/utils/store.js';
+import { userStore } from '@/store/store.js';
 
 const props = defineProps({
   // 认证按钮位置: 'top-right' | 'bottom-left'

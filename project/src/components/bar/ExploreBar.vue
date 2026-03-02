@@ -123,7 +123,7 @@
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ExploreTabsConfig } from '@/config/TabsConfig.js'
-import { userStore } from '@/utils/store.js'
+import { userStore } from '@/store/store.js'
 import SimpleSidebar from '@/components/bar/SimpleSidebar.vue'
 import { menuConfig } from '@/config/menuConfig.js'
 

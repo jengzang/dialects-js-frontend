@@ -236,7 +236,7 @@ import { getTodayVisits, getTotalVisits, getVisitHistory } from '@/api/logs/inde
 import { menuConfig } from '@/config/menuConfig.js'
 import { MenuTabsConfig } from '@/config/TabsConfig.js'
 import { WEB_BASE } from '@/env-config.js'
-import { userStore, resultCache } from '@/utils/store.js'
+import { userStore, resultCache } from '@/store/store.js'
 const route = useRoute()
 const router = useRouter()
 const isSidebarVisible = ref(false)  // 控制边栏显示
@@ -371,7 +371,12 @@ const onClick = async (tabConfig, navigate) => {
 }
 
 const goToAuthPage = () => {
-  router.push('/auth')
+  // 如果用户已登录，跳转到个人资料页面；否则跳转到登录页面
+  if (userStore.isAuthenticated) {
+    router.push({ path: '/auth', query: { view: 'profile' } })
+  } else {
+    router.push('/auth')
+  }
 }
 
 // 获取访问统计数据

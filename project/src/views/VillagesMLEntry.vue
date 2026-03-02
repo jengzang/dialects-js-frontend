@@ -3,5 +3,5 @@
 </template>
 
 <script setup>
-import VillagesMLModule from "@/views/explore/villages/VillagesMLModule.vue"
+import VillagesMLModule from "@/views/VillagesML/VillagesMLModule.vue"
 </script>

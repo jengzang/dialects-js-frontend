@@ -1,16 +1,24 @@
 <template>
   <div class="filterable-select" :class="{ disabled }">
     <!-- Level Selector (optional) -->
-    <select
-      v-if="showLevelSelector"
-      :value="level"
-      @change="$emit('update:level', $event.target.value)"
-      class="level-select"
-    >
-      <option value="city">城市</option>
-      <option value="county">區縣</option>
-      <option v-if="allowedLevels.includes('township')" value="township">鄉鎮</option>
-    </select>
+    <div v-if="showLevelSelector" class="level-selector-wrapper">
+      <div
+        ref="levelTriggerRef"
+        class="level-select"
+        @click="toggleLevelDropdown"
+      >
+        {{ levelLabel }}
+        <span class="arrow-icon">▾</span>
+      </div>
+
+      <SimpleDropdown
+        v-if="isLevelDropdownOpen"
+        v-model="internalLevel"
+        :options="levelOptions"
+        :triggerEl="levelTriggerRef"
+        @close="isLevelDropdownOpen = false"
+      />
+    </div>
 
     <!-- Input + Dropdown Trigger -->
     <div class="dropdown-wrapper" ref="triggerRef">
@@ -98,7 +106,8 @@
 <script setup>
 import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import { showError } from '@/utils/message.js'
-import { getCities, getCounties, getTownships } from '@/utils/regionPreload.js'
+import { getCities, getCounties, getTownships } from '@/utils/region/regionPreload.js'
+import SimpleDropdown from '@/components/common/SimpleDropdown.vue'
 
 const props = defineProps({
   modelValue: { type: String, default: '' },
@@ -126,7 +135,49 @@ const highlightedIndex = ref(0)
 const triggerRef = ref(null)
 const dropdownRef = ref(null)
 const dropdownStyle = ref({})
+const selectedOption = ref(null)  // Store the full selected option
 let blurTimeout = null
+
+// Level dropdown state
+const isLevelDropdownOpen = ref(false)
+const levelTriggerRef = ref(null)
+const internalLevel = ref(props.level)
+
+// Level options
+const levelOptions = computed(() => {
+  const options = [
+    { label: '城市', value: 'city' },
+    { label: '區縣', value: 'county' }
+  ]
+  if (props.allowedLevels.includes('township')) {
+    options.push({ label: '鄉鎮', value: 'township' })
+  }
+  return options
+})
+
+// Level label
+const levelLabel = computed(() => {
+  const option = levelOptions.value.find(opt => opt.value === internalLevel.value)
+  return option ? option.label : '城市'
+})
+
+// Toggle level dropdown
+const toggleLevelDropdown = () => {
+  if (!props.disabled) {
+    isLevelDropdownOpen.value = !isLevelDropdownOpen.value
+  }
+}
+
+// Watch internal level changes
+watch(internalLevel, (newLevel) => {
+  emit('update:level', newLevel)
+})
+
+// Watch props.level changes
+watch(() => props.level, (newLevel) => {
+  internalLevel.value = newLevel
+})
+
 
 // Load options from preloaded data
 const loadOptions = async () => {
@@ -171,7 +222,7 @@ const getUniqueKey = (option) => {
 
 // Filter options based on input
 const filterOptions = () => {
-  const query = inputValue.value.toLowerCase().trim()
+  const query = (inputValue.value || '').toLowerCase().trim()
   if (!query) {
     filteredOptions.value = options.value
   } else {
@@ -305,14 +356,35 @@ const positionDropdown = async () => {
 
 // Select an option
 const selectOption = (option) => {
-  inputValue.value = option.name
+  // Store the full selected option
+  selectedOption.value = option
+
+  // Build full path display based on level
+  let displayValue = option.name
+
+  if (props.level === 'county' && option.city) {
+    // 区县级：显示 城市-区县
+    displayValue = `${option.city}-${option.name}`
+  } else if (props.level === 'township') {
+    // 乡镇级：优先显示 区县-乡镇，没有区县则显示 城市-乡镇
+    if (option.county) {
+      displayValue = `${option.county}-${option.name}`
+    } else if (option.city) {
+      displayValue = `${option.city}-${option.name}`
+    }
+  }
+
+  // Input shows full path for better UX
+  inputValue.value = displayValue
+
+  // But modelValue emits the original name (data value, not display value)
   emit('update:modelValue', option.name)
 
-  // Emit full hierarchical path for precise queries
+  // Emit full hierarchical path from option object
   const hierarchy = {
-    city: props.level === 'city' ? option.name : props.city,
-    county: props.level === 'county' ? option.name : props.county,
-    township: props.level === 'township' ? option.name : null
+    city: option.city || null,
+    county: option.county || null,
+    township: option.township || null
   }
   emit('update:hierarchy', hierarchy)
 
@@ -350,7 +422,41 @@ watch(() => props.parent, () => {
 })
 
 watch(() => props.modelValue, (newValue) => {
-  inputValue.value = newValue
+  // If modelValue changes from parent, try to find the matching option and rebuild display value
+  if (!newValue) {
+    inputValue.value = ''
+    selectedOption.value = null
+    return
+  }
+
+  // If we have a selected option and its name matches, keep the display value
+  if (selectedOption.value && selectedOption.value.name === newValue) {
+    // Display value is already correct, do nothing
+    return
+  }
+
+  // Otherwise, try to find the option in the current options list
+  const matchingOption = options.value.find(opt => opt.name === newValue)
+  if (matchingOption) {
+    selectedOption.value = matchingOption
+
+    // Rebuild display value
+    let displayValue = matchingOption.name
+    if (props.level === 'county' && matchingOption.city) {
+      displayValue = `${matchingOption.city}-${matchingOption.name}`
+    } else if (props.level === 'township') {
+      if (matchingOption.county) {
+        displayValue = `${matchingOption.county}-${matchingOption.name}`
+      } else if (matchingOption.city) {
+        displayValue = `${matchingOption.city}-${matchingOption.name}`
+      }
+    }
+    inputValue.value = displayValue
+  } else {
+    // Fallback: just show the raw value
+    inputValue.value = newValue
+    selectedOption.value = null
+  }
 })
 
 // Lifecycle
@@ -377,8 +483,11 @@ onUnmounted(() => {
   pointer-events: none;
 }
 
-.level-select {
+.level-selector-wrapper {
   flex: 0 0 100px;
+}
+
+.level-select {
   padding: 10px 12px;
   border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 8px;
@@ -387,12 +496,21 @@ onUnmounted(() => {
   font-size: 14px;
   cursor: pointer;
   transition: all 0.3s ease;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  user-select: none;
 }
 
-.level-select:focus {
-  outline: none;
+.level-select:hover {
   border-color: var(--color-primary);
   background: rgba(255, 255, 255, 0.7);
+}
+
+.level-select .arrow-icon {
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.6);
 }
 
 .dropdown-wrapper {
@@ -414,6 +532,7 @@ onUnmounted(() => {
 
 .select-input {
   flex: 1;
+  width: 100%;
   padding: 10px 12px;
   border: none;
   background: transparent;
@@ -510,6 +629,7 @@ onUnmounted(() => {
 }
 
 .option-content {
+  white-space: nowrap;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -564,5 +684,14 @@ onUnmounted(() => {
 
 .dropdown-options::-webkit-scrollbar-thumb:hover {
   background: rgba(74, 144, 226, 0.5);
+}
+
+/* Dropdown 触发器样式 */
+.dropdown-wrapper {
+  flex: 1;
+  position: relative;
+  align-items: center;
+  display: flex;
+  justify-content: center;
 }
 </style>

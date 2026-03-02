@@ -40,13 +40,12 @@
         <div class="config-section" style="gap:25px;display: flex;justify-content: center;">
           <label>1️⃣ 选择数据库：</label>
           <div class="input-group">
-            <select v-model="selectedDbKey" @change="onDbKeyChange">
-              <option value="">-- 请选择数据库 --</option>
-              <option v-for="key in dbKeys" :key="key" :value="key">
-                {{ key }}
-              </option>
-              <option value="__custom__">✏️ 手动输入...</option>
-            </select>
+            <SimpleSelectDropdown
+              v-model="selectedDbKey"
+              :options="dbKeyOptions"
+              width="250px"
+              @update:modelValue="onDbKeyChange"
+            />
             <input
               v-if="selectedDbKey === '__custom__' || customDbKeyMode"
               v-model="customDbKey"
@@ -58,13 +57,12 @@
           </div>
           <label v-if="selectedDbKey">2️⃣ 选择表：</label>
           <div v-if="selectedDbKey" class="input-group">
-            <select v-model="selectedTable" @change="onTableChange">
-              <option value="">-- 请选择表 --</option>
-              <option v-for="table in availableTables" :key="table" :value="table">
-                {{ table }}
-              </option>
-              <option value="__custom__">✏️ 手动输入...</option>
-            </select>
+            <SimpleSelectDropdown
+              v-model="selectedTable"
+              :options="tableOptions"
+              width="250px"
+              @update:modelValue="onTableChange"
+            />
             <input
                 v-if="selectedTable === '__custom__' || customTableMode"
                 v-model="customTable"
@@ -177,10 +175,11 @@
 <script setup>
 import { ref, computed, onMounted, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
-import { userStore } from '@/utils/store.js'
+import { userStore } from '@/store/store.js'
 import { getUserRole, ensureAuthenticated } from '@/api/auth/auth.js'
 import { getTableColumns } from '@/api/sql/index.js'
 import UniversalTable from '@/components/TableAndTree/UniversalTable.vue'
+import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
 
 const router = useRouter()
 
@@ -237,6 +236,25 @@ const showFilterConfig = ref(false)  // 控制默认筛选的展开/收起
 const dbKeys = computed(() => Object.keys(DB_TABLE_MAPPING))
 const availableTables = computed(() => {
   return selectedDbKey.value ? DB_TABLE_MAPPING[selectedDbKey.value] : []
+})
+
+// Dropdown options
+const dbKeyOptions = computed(() => {
+  const options = [{ label: '-- 请选择数据库 --', value: '' }]
+  dbKeys.value.forEach(key => {
+    options.push({ label: key, value: key })
+  })
+  options.push({ label: '✏️ 手动输入...', value: '__custom__' })
+  return options
+})
+
+const tableOptions = computed(() => {
+  const options = [{ label: '-- 请选择表 --', value: '' }]
+  availableTables.value.forEach(table => {
+    options.push({ label: table, value: table })
+  })
+  options.push({ label: '✏️ 手动输入...', value: '__custom__' })
+  return options
 })
 
 // 检查是否所有列都已选中

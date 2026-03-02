@@ -74,7 +74,7 @@
 
 <script setup>
 import { computed, onMounted, onBeforeUnmount } from 'vue'
-import { userStore } from '@/utils/store.js'
+import { userStore } from '@/store/store.js'
 import { ROLE_LIMITS, LOCATION_LIMITS } from '@/config/constants.js'
 
 const props = defineProps({

@@ -513,7 +513,7 @@ import {
   batchReplacePreview,
   batchReplaceExecute
 } from '@/api/sql'
-import { userStore } from '@/utils/store.js';
+import { userStore } from '@/store/store.js';
 import { useVirtualList } from '@vueuse/core';
 import { TABLE_CONFIG } from '@/config/constants.js';
 import { showSuccess, showWarning, showInfo, showConfirm, showError } from '@/utils/message.js';

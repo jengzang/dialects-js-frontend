@@ -140,12 +140,11 @@
       </div>
       <div class="pagination-size">
         <label>每頁顯示：</label>
-        <select v-model.number="pageSize" @change="handlePageSizeChange">
-          <option :value="10">10 條</option>
-          <option :value="20">20 條</option>
-          <option :value="50">50 條</option>
-          <option :value="100">100 條</option>
-        </select>
+        <SimpleSelectDropdown
+          v-model.number="pageSize"
+          :options="pageSizeOptions"
+          @update:modelValue="handlePageSizeChange"
+        />
       </div>
     </div>
 
@@ -322,7 +321,8 @@ import {
   batchDeleteCustomData
 } from '@/api/user/index.js'
 import { showSuccess, showError, showWarning, showConfirm } from '@/utils/message.js'
-import { userStore } from '@/utils/store.js'
+import { userStore } from '@/store/store.js'
+import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -347,6 +347,14 @@ const loading = ref(false)
 const searchQuery = ref('')
 const currentPage = ref(1)
 const pageSize = ref(20)
+
+// Page size options
+const pageSizeOptions = [
+  { label: '10 條', value: 10 },
+  { label: '20 條', value: 20 },
+  { label: '50 條', value: 50 },
+  { label: '100 條', value: 100 }
+]
 
 // Computed
 const isAllSelected = computed(() => {

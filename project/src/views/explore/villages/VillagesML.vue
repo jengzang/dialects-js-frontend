@@ -9,7 +9,7 @@
 import { defineAsyncComponent } from 'vue'
 
 // Lazy load Dashboard component
-const Dashboard = defineAsyncComponent(() => import('@/components/villagesML/system/Dashboard.vue'))
+const Dashboard = defineAsyncComponent(() => import('@/views/VillagesML/system/Dashboard.vue'))
 </script>
 
 <style scoped>

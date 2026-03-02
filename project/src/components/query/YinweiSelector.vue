@@ -87,7 +87,7 @@
 <script setup>
 import { ref, computed ,watch} from 'vue';
 import { getFeatureCounts } from '@/api/query/core'
-import { userStore, setTabContentDisabled } from '@/utils/store.js'
+import { userStore, setTabContentDisabled } from '@/store/store.js'
 
 // 1. 接收父組件傳入的 locationRef
 const props = defineProps({

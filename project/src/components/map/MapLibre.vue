@@ -5,18 +5,11 @@
     <div ref="mapContainer" class="map-container">
       <div class="map-controls" v-if="!isFullScreen">
         <div class="control-group">
-          <div class="custom-select">
-            <select v-model="currentStyleKey" @change="handleStyleChange">
-              <option
-                  v-for="(name, key) in mapStyleConfig"
-                  :key="key"
-                  :value="key"
-              >
-                {{ name }}
-              </option>
-            </select>
-            <span class="arrow">▾</span>
-          </div>
+          <SimpleSelectDropdown
+            v-model="currentStyleKey"
+            :options="mapStyleOptions"
+            @update:modelValue="handleStyleChange"
+          />
         </div>
 
         <div
@@ -135,11 +128,12 @@ import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { mapStyle, mapStyleConfig, calculateDenseMapCenterAndZoom } from '@/utils/MapSource.js';
 import {get_detail} from "@/utils/ResultTable.js";
-import {mapStore, userStore, resultCache} from "@/utils/store.js";
+import {mapStore, userStore, resultCache} from "@/store/store.js";
 import { showSuccess, showError, showWarning, showConfirm } from '@/utils/message.js';
 import { sqlQuery } from '@/api/sql'
 import { deleteCustomForm } from '@/api/user/custom.js'
 import { func_mergeData } from '@/utils/MapData.js';
+import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
 
 // --- Props: 只接收數據，不負責請求 ---
 const props = defineProps({
@@ -167,6 +161,14 @@ const map = shallowRef(null);
 const currentStyleKey = ref('gaode');
 const loading = ref(false);
 const isFullScreen = ref(false);
+
+// Map style options
+const mapStyleOptions = computed(() => {
+  return Object.entries(mapStyleConfig).map(([key, name]) => ({
+    label: name,
+    value: key
+  }))
+})
 // showCustomData 改为使用 mapStore 中的状态
 
 // 2. ✨ 判斷是否為“查中古”模式

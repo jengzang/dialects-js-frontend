@@ -17,7 +17,7 @@
 </template>
 
 <script setup>
-import TabBar from '@/components/old/TabBar.vue'
+import TabBar from '@/components/bar/IntroTabBar.vue'
 import { useRouter } from 'vue-router'
 import { WEB_BASE } from '@/env-config.js'
 const router = useRouter()

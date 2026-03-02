@@ -24,7 +24,7 @@ import gdVillagesTable from "./explore/villages/gdVillagesTable.vue";
 import PhonologyMatrixPage from "./explore/pho/PhonologyPage.vue";
 import Countphos from "./explore/pho/Countphos.vue";
 import PhonologyCustom from "./explore/pho/PhonologyCustom.vue";
-import Praat from "@/views/explore/tools/Praat.vue";
+import Praat from "@/views/Praat.vue";
 import VillagesML from "@/views/explore/villages/VillagesML.vue";
 
 const route = useRoute()

@@ -19,7 +19,7 @@
 
 <script setup>
 import { computed } from 'vue'
-import { buildRegionPath, getRegionShortName, hasHierarchyInfo } from '@/utils/regionDisplay.js'
+import { buildRegionPath, getRegionShortName, hasHierarchyInfo } from '@/utils/region/regionDisplay.js'
 
 const props = defineProps({
   item: {

@@ -158,7 +158,15 @@ export async function getCharSignificanceByChar(params) {
 export async function getCharSignificanceByRegion(params) {
   const queryParams = new URLSearchParams()
   queryParams.append('region_level', params.region_level)
-  queryParams.append('region_name', params.region_name)
+
+  // 優先使用新參數（精確查詢）
+  if (params.city) queryParams.append('city', params.city)
+  if (params.county) queryParams.append('county', params.county)
+  if (params.township) queryParams.append('township', params.township)
+
+  // 向後兼容：使用 region_name（模糊查詢）
+  if (params.region_name) queryParams.append('region_name', params.region_name)
+
   if (params.top_k) queryParams.append('top_k', params.top_k)
 
   return api(`/api/villages/character/significance/by-region?${queryParams.toString()}`)

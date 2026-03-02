@@ -12,7 +12,7 @@ import VillagesMLEntry from "@/views/VillagesMLEntry.vue";
 import IntroLayout from "@/layouts/IntroLayout.vue";
 import { h, computed } from 'vue'
 import { useRoute } from 'vue-router'
-import {userStore} from "@/utils/store.js";
+import {userStore} from "@/store/store.js";
 
 // 内联定义 intro 动态组件
 const IntroEntry = {
