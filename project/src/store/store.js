@@ -20,12 +20,14 @@ export const userStore = reactive({
 // 地图状态管理
 // ========================================
 export const mapStore = reactive({
-    mode: 'base',             // 默认模式
+    mode: 'base',             // 默认模式: 'base' | 'dot' | 'feature' | 'compare'
     mapData: null,            // 存放基础地图数据 (center, zoom, locations)
     mergedData: [],           // 存放特征数据 (results)
     loading: false,           // 共享加载状态
     selectedFeature: '',      // 当前选中的特征
-    showCustomData: false     // 是否显示用户个人数据
+    showCustomData: false,    // 是否显示用户个人数据
+    compareType: '',          // 比較類型: 'chars' | 'zhonggu' | 'tones'
+    compareGroups: null       // 比较模式的组信息 { group1: {color, label}, group2: {color, label} }
 })
 
 // =================================

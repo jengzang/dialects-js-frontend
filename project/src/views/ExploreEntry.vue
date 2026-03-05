@@ -17,13 +17,9 @@ import Jyut2IpaTool from "./explore/tools/Jyut2IpaTool.vue";
 import MergeTool from "./explore/tools/MergeTool.vue";
 import gdVillages from "./explore/villages/gdVillagesTree.vue";
 import SimpleLayout from "./explore/tools/TableManage.vue";
-import ZhongGuPage from "./explore/pho/ZhongGuPage.vue";
 import YangChunSpoken from "./explore/pho/YangChunSpoken.vue";
 import YuBaoPage from "./explore/pho/YuBaoPage.vue";
 import gdVillagesTable from "./explore/villages/gdVillagesTable.vue";
-import PhonologyMatrixPage from "./explore/pho/PhonologyPage.vue";
-import Countphos from "./explore/pho/Countphos.vue";
-import PhonologyCustom from "./explore/pho/PhonologyCustom.vue";
 import Praat from "@/views/Praat.vue";
 import VillagesML from "@/views/explore/villages/VillagesML.vue";
 
@@ -70,16 +66,11 @@ const activeComponent = computed(() => {
     merge: MergeTool,
     gdVillages:gdVillages,
     manage: SimpleLayout,
-    // 从 menu 迁移过来的页面
-    ZhongGu: ZhongGuPage,
     ycSpoken: YangChunSpoken,
     YuBao: YuBaoPage,
     gdVillagesTable: gdVillagesTable,
-    phonologyMatrix: PhonologyMatrixPage,
-    Countphos: Countphos,
-    phonologyCustom:PhonologyCustom,
     praat : Praat,
   }
-  return pageMap[page] || PhonologyMatrixPage
+  return pageMap[page] || CheckTool
 })
 </script>

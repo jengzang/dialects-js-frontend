@@ -48,6 +48,9 @@
           <button class="action-btn fullscreen-btn" @click="toggleFullScreen">⛶ 全屏</button>
         </div>
       </div>
+
+      <!-- 比較模式圖例 -->
+      <MapLegend />
     </div>
 
     <button v-if="isFullScreen" class="exit-fullscreen-btn" @click="toggleFullScreen">
@@ -134,6 +137,7 @@ import { sqlQuery } from '@/api/sql'
 import { deleteCustomForm } from '@/api/user/custom.js'
 import { func_mergeData } from '@/utils/MapData.js';
 import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
+import MapLegend from './MapLegend.vue'
 
 // --- Props: 只接收數據，不負責請求 ---
 const props = defineProps({
@@ -449,6 +453,8 @@ const renderMapContent = async (shouldResetView = true) => {
     drawDotMap();
   } else if (mapStore.mode === 'feature') {
     drawFeatureMap();
+  } else if (mapStore.mode === 'compare') {
+    drawCompareMap();
   }
 };
 
@@ -823,6 +829,151 @@ const handleDetailBtnClick = (item) => {
   // console.log("觸發詳情按鈕邏輯", item);
   get_detail(item.location, item.feature, false, true);
 };
+
+// =======================================================
+// 邏輯 4: 比較模式 - 用圓點和顏色顯示比較結果
+// =======================================================
+const drawCompareMap = () => {
+  console.log('🗺️ drawCompareMap 被调用')
+  console.log('📦 mapStore.mergedData:', mapStore.mergedData)
+  console.log('📦 mergedData 长度:', mapStore.mergedData?.length)
+
+  if (!mapStore.mergedData || mapStore.mergedData.length === 0) {
+    console.warn('⚠️ mergedData 为空，无法绘制')
+    return;
+  }
+
+  const items = mapStore.mergedData;
+  console.log(`🎨 开始绘制 ${items.length} 个标记`)
+
+  items.forEach((item, index) => {
+    console.log(`  🔸 标记 ${index + 1}:`, item)
+
+    // 坐標驗證
+    if (!Array.isArray(item.coordinate) ||
+        item.coordinate.length < 2 ||
+        !Number.isFinite(item.coordinate[0]) ||
+        !Number.isFinite(item.coordinate[1])) {
+      console.warn(`  ⚠️ 标记 ${index + 1} 坐标无效:`, item.coordinate)
+      return;
+    }
+
+    // 創建圓點標記
+    const el = document.createElement('div');
+    el.className = 'marker-dot-compare';
+    el.style.backgroundColor = item.color;
+    el.style.width = '14px';
+    el.style.height = '14px';
+    el.style.borderRadius = '50%';
+    el.style.border = '2px solid white';
+    el.style.boxShadow = '0 2px 6px rgba(0,0,0,0.3)';
+    el.style.cursor = 'pointer';
+
+    // 鼠标悬停效果 - 使用 box-shadow 而不是 transform 避免位置偏移
+    el.addEventListener('mouseenter', () => {
+      el.style.boxShadow = '0 0 0 3px rgba(255,255,255,0.8), 0 4px 12px rgba(0,0,0,0.4)';
+      el.style.width = '18px';
+      el.style.height = '18px';
+      el.style.zIndex = '1000';
+    });
+    el.addEventListener('mouseleave', () => {
+      el.style.boxShadow = '0 2px 6px rgba(0,0,0,0.3)';
+      el.style.width = '14px';
+      el.style.height = '14px';
+      el.style.zIndex = 'auto';
+    });
+
+    // 創建彈窗內容
+    const popupContent = createComparePopupContent(item);
+
+    // 創建彈窗
+    const popup = new maplibregl.Popup({
+      offset: 15,
+      maxWidth: '350px',
+      className: 'compare-popup'
+    }).setHTML(popupContent);
+
+    const marker = new maplibregl.Marker({ element: el })
+      .setLngLat(item.coordinate)
+      .setPopup(popup)
+      .addTo(map.value);
+
+    currentMarkers.push(marker);
+    console.log(`  ✅ 标记 ${index + 1} 已添加到地图`)
+  });
+
+  console.log(`✅ 绘制完成，共添加 ${currentMarkers.length} 个标记`)
+};
+
+// 創建比較模式的彈窗內容
+function createComparePopupContent(item) {
+  // 根據狀態獲取圖標和文字
+  let statusIcon = '';
+  let statusText = '';
+
+  if (item.status === 'same') {
+    statusIcon = '✓';
+    statusText = '完全相同';
+  } else if (item.status === 'diff') {
+    statusIcon = '✗';
+    statusText = '完全不同';
+  } else if (item.status === 'partial') {
+    statusIcon = '≈';
+    statusText = '部分相同';
+  } else if (item.status === 'maybe') {
+    statusIcon = '?';
+    statusText = '可能合併';
+  } else if (item.status === 'high_similar') {
+    statusIcon = '≈';
+    statusText = '高度相似';
+  } else {
+    statusIcon = '?';
+    statusText = '無數據';
+  }
+
+  // 根據比較類型決定顯示內容
+  const compareType = mapStore.compareType;
+
+  let contentHTML = `
+    <div class="popup-container">
+      <div class="popup-header">
+        <strong>📍 ${item.location}</strong>
+        ${item.pair ? `<div class="sub">${item.pair}</div>` : ''}
+      </div>
+      <div class="popup-body">
+        <p><strong>特徵：</strong>${item.feature}</p>
+        <p><strong>結果：</strong>${statusIcon} ${statusText}</p>
+  `;
+
+  // 根據比較類型添加不同的詳細信息
+  if (compareType === 'chars') {
+    // 漢字比較：顯示讀音對比
+    if (item.value) {
+      contentHTML += `<p><strong>讀音對比：</strong><br/>${item.value}</p>`;
+    }
+  } else if (compareType === 'zhonggu') {
+    // 中古比較：顯示相似度百分比
+    if (item.overlap !== undefined) {
+      contentHTML += `<p><strong>相似度：</strong>${item.overlap}%</p>`;
+    }
+    if (item.value) {
+      contentHTML += `<p><strong>詳情：</strong><br/>${item.value}</p>`;
+    }
+  } else if (compareType === 'tones') {
+    // 調類比較：顯示調值對比
+    if (item.value) {
+      contentHTML += `<p><strong>調值對比：</strong><br/>${item.value}</p>`;
+    }
+  }
+
+  contentHTML += `
+      </div>
+    </div>
+  `;
+
+  return contentHTML;
+}
+
 
 
 // --- 其他 UI 邏輯 ---

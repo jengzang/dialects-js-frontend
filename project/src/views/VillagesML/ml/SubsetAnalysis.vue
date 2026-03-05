@@ -72,10 +72,10 @@
           </button>
           <button @click="clearFilters" class="solid-button secondary">清空篩選</button>
         </div>
-        <div v-if="subsetA.villages.length > 0" class="subset-info">
-          <span class="info-label">子集 A:</span>
-          <span class="info-value">{{ subsetA.villages.length }} 個村莊</span>
-        </div>
+<!--        <div v-if="subsetA.villages.length > 0" class="subset-info">-->
+<!--          <span class="info-label">子集 A:</span>-->
+<!--          <span class="info-value">{{ subsetA.villages.length }} 個村莊</span>-->
+<!--        </div>-->
       </div>
     </div>
 
@@ -1096,10 +1096,15 @@ const formatPercent = (num) => {
 const formatFeatureName = (feature) => {
   const nameMap = {
     'avg_name_length': '平均名稱長度',
+    'length_1_pct': '1字名稱占比',
     'length_2_pct': '2字名稱占比',
     'length_3_pct': '3字名稱占比',
     'length_4_pct': '4字名稱占比',
-    'length_5_pct': '5字名稱占比'
+    'length_5_pct': '5字名稱占比',
+    'length_6_pct': '6字名稱占比',
+    'length_7_pct': '7字名稱占比',
+    'length_8_pct': '8字名稱占比',
+    'length_9_pct': '9字名稱占比'
   }
 
   // 处理后缀特征（如 suffix_村）
@@ -1248,6 +1253,10 @@ const handleApiError = (error) => {
   margin-bottom: 24px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .glass-panel:hover {
@@ -1277,27 +1286,34 @@ const handleApiError = (error) => {
   margin-bottom: 16px;
   align-items: center;
   flex-wrap: wrap;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 /* Width ratio: 1:1:2:1 for field:operator:value:button */
 .filter-row > *:nth-child(1) {
   flex: 1;
   min-width: 120px;
+  max-width: 100%;
 }
 
 .filter-row > *:nth-child(2) {
   flex: 1;
   min-width: 120px;
+  max-width: 100%;
 }
 
 .filter-row > *:nth-child(3) {
   flex: 2;
   min-width: 200px;
+  max-width: 100%;
 }
 
 .filter-row > *:nth-child(4) {
   flex: 1;
   min-width: 80px;
+  max-width: 100%;
 }
 
 /* Input Styles */
@@ -1334,6 +1350,8 @@ const handleApiError = (error) => {
   cursor: pointer;
   transition: all 0.3s ease;
   box-shadow: 0 4px 12px rgba(74, 144, 226, 0.25);
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .solid-button:hover:not(:disabled) {
@@ -1544,6 +1562,7 @@ const handleApiError = (error) => {
 /* Table Styles */
 .glass-table {
   width: 100%;
+  min-width: 600px;
   border-collapse: collapse;
   margin-top: 16px;
   border-radius: 12px;
@@ -1556,7 +1575,7 @@ const handleApiError = (error) => {
 
 .glass-table th,
 .glass-table td {
-  padding: 14px 16px;
+  padding: 10px 12px;
   text-align: left;
   border-bottom: 1px solid rgba(74, 144, 226, 0.1);
 }
@@ -1596,12 +1615,17 @@ const handleApiError = (error) => {
   align-items: flex-start;
   margin-bottom: 24px;
   flex-wrap: wrap;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .control-row {
   display: flex;
   align-items: center;
   gap: 10px;
+  width: 100%;
+  max-width: 100%;
 }
 
 .control-row label {
@@ -1636,6 +1660,8 @@ const handleApiError = (error) => {
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s ease;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .feature-checkbox:hover {
@@ -1653,7 +1679,6 @@ const handleApiError = (error) => {
   font-size: 14px;
   font-weight: 600;
   color: var(--text-primary);
-  min-width: 100px;
 }
 
 .checkbox-desc {
@@ -1821,14 +1846,20 @@ const handleApiError = (error) => {
   .filter-row {
     flex-direction: column;
     align-items: stretch;
+    width: 100%;
+    gap: 8px;
   }
 
   .filter-row > * {
-    min-width: 100%;
+    min-width: 0 !important;
+    width: 100%;
+    max-width: 100%;
+    flex: none;
   }
 
   .subset-selector {
     flex-direction: column;
+    gap:6px;
   }
 
   .vs-divider {
@@ -1839,11 +1870,68 @@ const handleApiError = (error) => {
   .clustering-controls {
     flex-direction: column;
     align-items: stretch;
+    width: 100%;
+    padding: 0;
   }
 
   .control-row {
     flex-direction: column;
     align-items: flex-start;
+    width: 100%;
+    gap: 8px;
+  }
+
+  .control-row label {
+    width: 100%;
+  }
+
+  .control-row .glass-input,
+  .control-row input {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .glass-panel {
+    padding: 16px;
+    overflow-x: hidden;
+  }
+
+  .glass-panel * {
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .glass-table {
+    min-width: 500px;
+  }
+
+  .villages-table-wrapper,
+  .feature-diff-table {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .feature-checkbox {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    padding: 8px;
+  }
+
+  .feature-checkboxes {
+    width: 100%;
+  }
+
+  .solid-button {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    padding: 10px 16px;
+  }
+
+  .solid-button.primary {
+    width: 100%;
   }
 
   .chart-container {
@@ -1879,8 +1967,18 @@ const handleApiError = (error) => {
 
 .villages-table-wrapper {
   overflow: auto;
+  overflow-x: auto;
   max-height: 400px;
   margin-bottom: 16px;
+  width: 100%;
+  -webkit-overflow-scrolling: touch;
+}
+
+.feature-diff-table {
+  overflow-x: auto;
+  width: 100%;
+  margin-bottom: 16px;
+  -webkit-overflow-scrolling: touch;
 }
 
 .village-name {
