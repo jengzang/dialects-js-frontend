@@ -48,6 +48,11 @@ export default {
     const route = useRoute()
 
     const layoutComponent = computed(() => {
+      // 首页使用 SimpleLayout（无 navbar）
+      if (route.path === '/') {
+        return SimpleLayout
+      }
+
       // intro 开头的路由使用 IntroLayout
       if (route.path.startsWith('/intro')) {
         return IntroLayout

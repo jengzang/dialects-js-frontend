@@ -1,8 +1,8 @@
 <template>
   <div class="phonology-matrix-page">
-    <div class="page-header">
+    <!-- <div class="page-header">
       <h2 class="page-title">🔍️ 音系查詢</h2>
-    </div>
+    </div> -->
 
     <!-- 地点输入组件 -->
     <div class="input-section">
@@ -148,6 +148,7 @@ watch(() => route.query.loc, () => {
 
 <style scoped>
 .phonology-matrix-page {
+  margin-top: 20px;
   width: 90dvw;
 }
 
@@ -293,7 +294,7 @@ watch(() => route.query.loc, () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 50vh;
+  min-height: 30dvh;
   color: var(--text-secondary);
   font-size: 16px;
 }

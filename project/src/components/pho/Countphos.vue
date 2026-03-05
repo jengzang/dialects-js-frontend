@@ -126,9 +126,9 @@ const closeLocationModal = () => {
 
 <template>
   <div class="phonology-page">
-    <div class="page-header">
+    <!-- <div class="page-header">
       <h2 class="page-title">🧮 音節統計</h2>
-    </div>
+    </div> -->
 
     <!-- 地点输入组件 -->
     <div class="input-section">
@@ -291,6 +291,7 @@ const closeLocationModal = () => {
 
 <style scoped>
 .phonology-page {
+  margin-top: 20px;
   min-width: 80dvw;
 }
 .page-header {

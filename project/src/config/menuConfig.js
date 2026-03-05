@@ -3,14 +3,14 @@
 
 export const menuConfig = {
   // Level 1: External link to old website
-  'old-site': {
-    label: '舊版網站',
-    icon: '🕰️',
-    path: '/detail', // Will be set dynamically using window.WEB_BASE
-    external: true,
-    children: null,
-    // showIn: ['NavBar']
-  },
+  // 'old-site': {
+  //   label: '舊版網站',
+  //   icon: '🕰️',
+  //   path: '/detail', // Will be set dynamically using window.WEB_BASE
+  //   external: true,
+  //   children: null,
+  //   // showIn: ['NavBar']
+  // },
   // Special: Return to query (only in SimpleSidebar)
   'query': {
     label: '查詢',
@@ -40,6 +40,28 @@ export const menuConfig = {
     ],
     // showIn: ['SimpleSidebar']
   },
+'compare': {
+    label: '比較',
+    icon: '↔️', // 或者用 ⚖️
+    path: '/menu?tab=compare',
+    children: [
+      {
+        label: '漢字對比',
+        icon: '🔠',
+        path: '/menu?tab=compare&sub=tab1'
+      },
+      {
+        label: '中古對比',
+        icon: '📜',
+        path: '/menu?tab=compare&sub=tab2'
+      },
+      {
+        label: '調類對比',
+        icon: '📈',
+        path: '/menu?tab=compare&sub=tab4'
+      }
+    ],
+  },
 
   // Level 2: Expandable data submenu
   'data': {
@@ -50,22 +72,22 @@ export const menuConfig = {
       {
         label: '音系查詢',
         icon: '⚛️',
-        path: '/explore?page=phonologyMatrix'
+        path: '/menu?tab=pho&sub=phonologyMatrix'
       },
       {
         label: '音素分類',
         icon: '📐',
-        path: '/explore?page=phonologyCustom'
+        path: '/menu?tab=pho&sub=phonologyCustom'
       },
       {
         label: '音節統計',
         icon: '🧮',
-        path: '/explore?page=Countphos'
+        path: '/menu?tab=pho&sub=Countphos'
       },
       {
         label: '中古地位',
         icon: '✍️',
-        path: '/explore?page=ZhongGu'
+        path: '/menu?tab=pho&sub=ZhongGu'
       },
     ],
     // showIn: ['SimpleSidebar']
@@ -210,12 +232,12 @@ export const menuConfig = {
       }
     ]
   },
-  'about': {
-    label: '關於網站',
-    icon: '🌐️',
-    path: '/menu?tab=about&sub=intro',
-    children: null
-  },
+  // 'about': {
+  //   label: '關於網站',
+  //   icon: '🌐️',
+  //   path: '/menu?tab=about&sub=intro',
+  //   children: null
+  // },
   'about_ontop': {
     label: '關於網站',
     icon: '🌐️',

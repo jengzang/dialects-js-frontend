@@ -3,18 +3,21 @@
     <div class="tab-content-inner">
       <!-- Tab1: 比較漢字 -->
       <div v-show="currentTab === 'tab1'" class="page">
-        <div class="page-content-stack">
+        <div class="page-content-stack tab1-layout">
           <!-- 組1 輸入 -->
           <div class="compare-group">
             <div class="group-label">組1</div>
             <div class="query-box">
               <label class="query-label">請輸入漢字</label>
-              <textarea
-                  style="height: 5dvh"
-                  placeholder="可輸入一個或多個漢字，用逗號分隔"
+              <input
+                  class="single-char-input"
+                  type="text"
+                  maxlength="1"
+                  placeholder="??? 1 ???"
                   v-model="tabStates.tab1.group1.chars"
+                  @input="handleSingleCharInput('group1')"
                   autocomplete="off"
-              ></textarea>
+              />
             </div>
           </div>
 
@@ -30,12 +33,15 @@
             <div class="group-label">組2</div>
             <div class="query-box">
               <label class="query-label">請輸入漢字</label>
-              <textarea
-                  style="height: 5dvh"
-                  placeholder="可輸入一個或多個漢字，用逗號分隔"
+              <input
+                  class="single-char-input"
+                  type="text"
+                  maxlength="1"
+                  placeholder="??? 1 ???"
                   v-model="tabStates.tab1.group2.chars"
+                  @input="handleSingleCharInput('group2')"
                   autocomplete="off"
-              ></textarea>
+              />
             </div>
           </div>
 
@@ -44,15 +50,15 @@
             <label class="feature-label">選擇比較特徵：</label>
             <div class="feature-checkboxes">
               <label class="checkbox-item">
-                <input type="checkbox" value="聲母" v-model="tabStates.tab1.features" />
+                <input type="radio" name="tab1-feature" value="聲母" v-model="tabStates.tab1.features" />
                 <span>聲母</span>
               </label>
               <label class="checkbox-item">
-                <input type="checkbox" value="韻母" v-model="tabStates.tab1.features" />
+                <input type="radio" name="tab1-feature" value="韻母" v-model="tabStates.tab1.features" />
                 <span>韻母</span>
               </label>
               <label class="checkbox-item">
-                <input type="checkbox" value="聲調" v-model="tabStates.tab1.features" />
+                <input type="radio" name="tab1-feature" value="聲調" v-model="tabStates.tab1.features" />
                 <span>聲調</span>
               </label>
             </div>
@@ -402,10 +408,6 @@
         <small class="hint">比較兩組調類的合併關係</small>
       </div>
     </div>
-    <FloatingDice
-        :current-tab="currentTab"
-        @applyConfig="handleApplyConfig"
-    />
   </TabsContainer>
 </template>
 
@@ -415,7 +417,6 @@ import {useRoute, useRouter} from 'vue-router'
 import TabsContainer from "@/components/common/TabsContainer.vue";
 import LocationAndRegionInput from "@/components/query/LocationAndRegionInput.vue";
 import ZhongguSelector from "@/components/query/ZhongguSelector.vue";
-import FloatingDice from "@/components/query/FloatingDice.vue";
 import { globalPayload, queryStore, uiStore, isQueryButtonDisabled, setRunning, setTabContentDisabled, mapStore } from '@/store/store.js'
 import { column_values, S2T_T2S_MAPPING } from '@/config'
 import { compareChars, compareZhongGu, compareTones } from '@/api/index.js'
@@ -503,6 +504,18 @@ const tabStates = reactive({
   }
 })
 
+
+function normalizeSingleChar(value) {
+  if (!value) return ''
+  const compact = String(value).replace(/[\s,?]/g, '')
+  return compact.slice(0, 1)
+}
+
+function handleSingleCharInput(group) {
+  const current = tabStates.tab1[group].chars
+  tabStates.tab1[group].chars = normalizeSingleChar(current)
+}
+
 const cards = ['聲母', '韻母', '聲調']
 const keys = Object.keys(column_values)
 const keyValueMap = column_values
@@ -527,7 +540,7 @@ watch(() => tabStates.tab1, (newVal) => {
   // Both groups must have at least one character
   const group1Valid = newVal.group1.chars && newVal.group1.chars.trim() !== ''
   const group2Valid = newVal.group2.chars && newVal.group2.chars.trim() !== ''
-  const featuresValid = newVal.features && newVal.features.length > 0
+  const featuresValid = !!newVal.features
   setTabContentDisabled('query', 'tab1', !(group1Valid && group2Valid && featuresValid))
 }, { immediate: true, deep: true })
 
@@ -968,12 +981,12 @@ const runAction = async () => {
     // 3. 根据 tab 调用对应的 compare API
     if (currentTab.value === 'tab1') {
       // 比较汉字
-      const group1Chars = tabStates.tab1.group1.chars.split(',').map(c => c.trim()).filter(c => c)
-      const group2Chars = tabStates.tab1.group2.chars.split(',').map(c => c.trim()).filter(c => c)
+      const group1Char = normalizeSingleChar(tabStates.tab1.group1.chars)
+      const group2Char = normalizeSingleChar(tabStates.tab1.group2.chars)
 
       const params = {
-        chars: [...group1Chars, ...group2Chars],
-        features: tabStates.tab1.features,
+        chars: [group1Char, group2Char].filter(Boolean),
+        features: tabStates.tab1.features ? [tabStates.tab1.features] : [],
         locations: locationList,
         regions: regionList,
         region_mode: locationRef.value?.regionUsing || 'yindian'

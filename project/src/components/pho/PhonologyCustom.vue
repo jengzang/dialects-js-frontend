@@ -1,8 +1,8 @@
 <template>
   <div class="phonology-matrix-page">
-    <div class="page-header">
+    <!-- <div class="page-header">
       <h2 class="page-title">📐 音素分類</h2>
-    </div>
+    </div> -->
     <!-- 特徵選擇 Tab -->
     <div class="feature-tabs">
       <div

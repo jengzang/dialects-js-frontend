@@ -10,6 +10,7 @@ import MenuEntry from "@/views/MenuEntry.vue";
 import ExploreEntry from "@/views/ExploreEntry.vue";
 import VillagesMLEntry from "@/views/VillagesMLEntry.vue";
 import IntroLayout from "@/layouts/IntroLayout.vue";
+import HomePage from "@/views/HomePage.vue";
 import { h, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import {userStore} from "@/store/store.js";
@@ -32,10 +33,11 @@ const IntroEntry = {
 }
 
 const routes = [
-    // ✅ 根路由 → 直接導到 /menu?tab=query
+    // ✅ 根路由 → 首頁
     {
         path: '/',
-        redirect: { path: '/menu', query: { tab: 'query' } }
+        component: HomePage,
+        meta: { title: '方音圖鑑 - 首頁' }
     },
 
     // ✅ /menu 佔位（由 beforeEach 動態注入組件）

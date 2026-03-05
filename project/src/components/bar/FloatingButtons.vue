@@ -23,8 +23,9 @@
       <img class="logo" src="../../assets/favicon.ico" alt="Logo" />
     </button>
 
-    <!-- 打开侧边栏按钮 -->
+    <!-- 打开侧边栏按钮 - 只在非首页时显示 -->
     <button
+      v-if="!isHomePage"
       class="float-btn home-btn"
       @click="goToHome"
       title="返回首頁"
@@ -36,7 +37,7 @@
 
 <script setup>
 import { computed } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import { userStore } from '@/store/store.js';
 
 const props = defineProps({
@@ -49,6 +50,7 @@ const props = defineProps({
 });
 
 const router = useRouter();
+const route = useRoute();
 
 defineEmits(['toggle-sidebar']);
 
@@ -56,8 +58,13 @@ const authButtonPositionClass = computed(() => {
   return props.authButtonPosition === 'bottom-left' ? 'position-bottom-left' : 'position-top-right';
 });
 
+// 判断是否在首页
+const isHomePage = computed(() => {
+  return route.path === '/';
+});
+
 const goToHome = () => {
-  router.push({ path: '/menu', query: { tab: 'query' } });
+  router.push('/');
 };
 
 const goToAuth = () => {
