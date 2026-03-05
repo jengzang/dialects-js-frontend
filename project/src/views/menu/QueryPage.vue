@@ -942,7 +942,7 @@ export default {
   align-items: center;
   text-align: center;
   justify-content: center; /* 垂直置中 */
-  padding: 1rem;
+  padding: 1rem 0;
 }
 
 

@@ -246,7 +246,7 @@ watch(
   align-items: center;
   text-align: center;
   justify-content: center;
-  padding: 1rem;
+  padding: 1rem 0;
 }
 
 @keyframes fade {
