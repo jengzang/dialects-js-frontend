@@ -428,11 +428,11 @@
     >
       <div class="update-item">
         <span class="item-icon">🏠</span>
-        <span class="item-text"><strong>全新首頁</strong> - 採用蘋果液態玻璃風格設計，展示核心功能卡片、開源項目、登錄權益等，提供更直觀的導航體驗</span>
+        <span class="item-text"><strong>全新首頁</strong> - 採用液態玻璃風格設計，展示核心功能卡片、開源項目、登錄權益等，提供更直觀的導航體驗</span>
       </div>
       <div class="update-item">
         <span class="item-icon">⚖️</span>
-        <span class="item-text"><strong>方言比較功能</strong> - 支持漢字比較、中古音比較、調類比較，可在地圖上用不同顏色的圓點展示兩組數據的差異，並提供圖例說明</span>
+        <span class="item-text"><strong>方言比較功能</strong> - 支持漢字比較、中古音比較、調類比較，地圖用不同顏色的圓點展示兩組數據的差異，並提供圖例說明</span>
       </div>
       <div class="update-item">
         <span class="item-icon">🤖</span>
