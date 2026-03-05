@@ -1,6 +1,6 @@
 <template>
   <div v-if="showLegend" class="map-legend">
-    <div class="legend-title">图例</div>
+    <div class="legend-title">{{ legendTitle }}</div>
     <div class="legend-items">
       <div
         v-for="item in legendItems"
@@ -22,6 +22,18 @@ import { computed } from 'vue'
 import { mapStore } from '@/store/store.js'
 
 const showLegend = computed(() => mapStore.mode === 'compare')
+
+const legendTitle = computed(() => {
+  if (!mapStore.compareType) return '圖例'
+
+  const typeMap = {
+    'chars': '漢字比較',
+    'zhonggu': '中古比較',
+    'tones': '調類比較'
+  }
+
+  return typeMap[mapStore.compareType] || '圖例'
+})
 
 const legendItems = computed(() => {
   if (!mapStore.compareGroups) return []

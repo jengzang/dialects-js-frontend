@@ -121,6 +121,55 @@ export const LOCATION_LIMITS = {
         }
     },
 
+    // compare: 比較功能 - 細分為三個子頁面
+    // compare_tab1: 漢字比較
+    compare_tab1: {
+        anonymous: {
+            MAX_LOCATIONS: 300,
+            MESSAGE: '未登錄用戶漢字比較最多可選 {limit} 個地點'
+        },
+        user: {
+            MAX_LOCATIONS: 1000,
+            MESSAGE: '用戶漢字比較最多可選 {limit} 個地點'
+        },
+        admin: {
+            MAX_LOCATIONS: Infinity,
+            MESSAGE: ''
+        }
+    },
+
+    // compare_tab2: 中古比較
+    compare_tab2: {
+        anonymous: {
+            MAX_LOCATIONS: 200,
+            MESSAGE: '未登錄用戶中古比較最多可選 {limit} 個地點'
+        },
+        user: {
+            MAX_LOCATIONS: 600,
+            MESSAGE: '用戶中古比較最多可選 {limit} 個地點'
+        },
+        admin: {
+            MAX_LOCATIONS: Infinity,
+            MESSAGE: ''
+        }
+    },
+
+    // compare_tab4: 調類比較
+    compare_tab4: {
+        anonymous: {
+            MAX_LOCATIONS: 500,
+            MESSAGE: '未登錄用戶調類比較最多可選 {limit} 個地點'
+        },
+        user: {
+            MAX_LOCATIONS: 1200,
+            MESSAGE: '用戶調類比較最多可選 {limit} 個地點'
+        },
+        admin: {
+            MAX_LOCATIONS: Infinity,
+            MESSAGE: ''
+        }
+    },
+
     // default: 其他場景使用 tab2 的限制
     default: {
         anonymous: {

@@ -868,14 +868,19 @@ const drawCompareMap = () => {
     el.style.border = '2px solid white';
     el.style.boxShadow = '0 2px 6px rgba(0,0,0,0.3)';
     el.style.cursor = 'pointer';
-    el.style.transition = 'transform 0.2s';
 
-    // 鼠标悬停效果
+    // 鼠标悬停效果 - 使用 box-shadow 而不是 transform 避免位置偏移
     el.addEventListener('mouseenter', () => {
-      el.style.transform = 'scale(1.3)';
+      el.style.boxShadow = '0 0 0 3px rgba(255,255,255,0.8), 0 4px 12px rgba(0,0,0,0.4)';
+      el.style.width = '18px';
+      el.style.height = '18px';
+      el.style.zIndex = '1000';
     });
     el.addEventListener('mouseleave', () => {
-      el.style.transform = 'scale(1)';
+      el.style.boxShadow = '0 2px 6px rgba(0,0,0,0.3)';
+      el.style.width = '14px';
+      el.style.height = '14px';
+      el.style.zIndex = 'auto';
     });
 
     // 創建彈窗內容
@@ -918,27 +923,55 @@ function createComparePopupContent(item) {
   } else if (item.status === 'maybe') {
     statusIcon = '?';
     statusText = '可能合併';
+  } else if (item.status === 'high_similar') {
+    statusIcon = '≈';
+    statusText = '高度相似';
   } else {
     statusIcon = '?';
-    statusText = '未知';
+    statusText = '無數據';
   }
 
-  return `
+  // 根據比較類型決定顯示內容
+  const compareType = mapStore.compareType;
+
+  let contentHTML = `
     <div class="popup-container">
       <div class="popup-header">
         <strong>📍 ${item.location}</strong>
-        <div class="sub">${item.pair}</div>
+        ${item.pair ? `<div class="sub">${item.pair}</div>` : ''}
       </div>
       <div class="popup-body">
         <p><strong>特徵：</strong>${item.feature}</p>
         <p><strong>結果：</strong>${statusIcon} ${statusText}</p>
-        ${item.value ? `<p><strong>讀音對比：</strong><br/>${item.value}</p>` : ''}
-        ${item.overlap !== undefined ? `
-          <p><strong>相似度：</strong>${item.overlap}%</p>
-        ` : ''}
+  `;
+
+  // 根據比較類型添加不同的詳細信息
+  if (compareType === 'chars') {
+    // 漢字比較：顯示讀音對比
+    if (item.value) {
+      contentHTML += `<p><strong>讀音對比：</strong><br/>${item.value}</p>`;
+    }
+  } else if (compareType === 'zhonggu') {
+    // 中古比較：顯示相似度百分比
+    if (item.overlap !== undefined) {
+      contentHTML += `<p><strong>相似度：</strong>${item.overlap}%</p>`;
+    }
+    if (item.value) {
+      contentHTML += `<p><strong>詳情：</strong><br/>${item.value}</p>`;
+    }
+  } else if (compareType === 'tones') {
+    // 調類比較：顯示調值對比
+    if (item.value) {
+      contentHTML += `<p><strong>調值對比：</strong><br/>${item.value}</p>`;
+    }
+  }
+
+  contentHTML += `
       </div>
     </div>
   `;
+
+  return contentHTML;
 }
 
 

@@ -123,6 +123,25 @@ const comparisonData = computed(() => [
     user: ROLE_LIMITS.user.MAX_COMBINATIONS
   },
   {
+    feature: '🔠 漢字比較',
+    unit: '個地點',
+    anonymous: LOCATION_LIMITS.compare_tab1.anonymous.MAX_LOCATIONS,
+    user: LOCATION_LIMITS.compare_tab1.user.MAX_LOCATIONS
+  },
+  {
+    feature: '📜 中古比較',
+    unit: '個地點',
+    anonymous: LOCATION_LIMITS.compare_tab2.anonymous.MAX_LOCATIONS,
+    user: LOCATION_LIMITS.compare_tab2.user.MAX_LOCATIONS
+  },
+
+  {
+    feature: '📈 調類比較',
+    unit: '個地點',
+    anonymous: LOCATION_LIMITS.compare_tab4.anonymous.MAX_LOCATIONS,
+    user: LOCATION_LIMITS.compare_tab4.user.MAX_LOCATIONS
+  },
+  {
     feature: '🗺️ 分區圖',
     unit: '個地點',
     anonymous: LOCATION_LIMITS.divide.anonymous.MAX_LOCATIONS,

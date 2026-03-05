@@ -26,6 +26,7 @@ export const mapStore = reactive({
     loading: false,           // 共享加载状态
     selectedFeature: '',      // 当前选中的特征
     showCustomData: false,    // 是否显示用户个人数据
+    compareType: '',          // 比較類型: 'chars' | 'zhonggu' | 'tones'
     compareGroups: null       // 比较模式的组信息 { group1: {color, label}, group2: {color, label} }
 })
 

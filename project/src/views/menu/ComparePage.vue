@@ -8,12 +8,11 @@
           <div class="compare-group">
             <div class="group-label">組1</div>
             <div class="query-box">
-              <label class="query-label">請輸入漢字</label>
               <input
                   class="single-char-input"
                   type="text"
                   maxlength="1"
-                  placeholder="??? 1 ???"
+                  placeholder="請輸入漢字"
                   v-model="tabStates.tab1.group1.chars"
                   @input="handleSingleCharInput('group1')"
                   autocomplete="off"
@@ -22,22 +21,21 @@
           </div>
 
           <!-- VS 分隔符 -->
-          <div class="vs-divider">
+          <!-- <div class="vs-divider">
             <div class="vs-line"></div>
             <div class="vs-badge">⚡ VS ⚡</div>
             <div class="vs-line"></div>
-          </div>
+          </div> -->
 
           <!-- 組2 輸入 -->
           <div class="compare-group">
             <div class="group-label">組2</div>
             <div class="query-box">
-              <label class="query-label">請輸入漢字</label>
               <input
                   class="single-char-input"
                   type="text"
                   maxlength="1"
-                  placeholder="??? 1 ???"
+                  placeholder="請輸入漢字"
                   v-model="tabStates.tab1.group2.chars"
                   @input="handleSingleCharInput('group2')"
                   autocomplete="off"
@@ -341,35 +339,21 @@
           </div>
         </div>
       </div>
-
-      <!-- Tab4: 比較調類 -->
+      <!-- Tab4: ???? -->
       <div v-show="currentTab === 'tab4'" class="page">
         <div class="page-content-stack">
-          <!-- 組1 調類選擇 -->
+          <div class="tone-tip">請選擇兩個調類</div>
           <div class="compare-group">
-            <div class="group-label">組1：選擇調類</div>
+            <!-- <div class="group-label">??????</div> -->
             <div class="tone-selection">
-              <label v-for="i in 10" :key="i" class="tone-checkbox">
-                <input type="checkbox" :value="i" v-model="tabStates.tab4.group1.toneClasses" />
-                <span>T{{ i }}</span>
-              </label>
-            </div>
-          </div>
-
-          <!-- VS 分隔符 -->
-          <div class="vs-divider">
-            <div class="vs-line"></div>
-            <div class="vs-badge">⚡ VS ⚡</div>
-            <div class="vs-line"></div>
-          </div>
-
-          <!-- 組2 調類選擇 -->
-          <div class="compare-group">
-            <div class="group-label">組2：選擇調類</div>
-            <div class="tone-selection">
-              <label v-for="i in 10" :key="i" class="tone-checkbox">
-                <input type="checkbox" :value="i" v-model="tabStates.tab4.group2.toneClasses" />
-                <span>T{{ i }}</span>
+              <label v-for="(toneLabel, i) in toneClassLabels" :key="i + 1" class="tone-checkbox">
+                <input
+                  type="checkbox"
+                  :value="i + 1"
+                  v-model="tabStates.tab4.selectedToneClasses"
+                  :disabled="tabStates.tab4.selectedToneClasses.length >= 2 && !tabStates.tab4.selectedToneClasses.includes(i + 1)"
+                />
+                <span>{{ toneLabel }}</span>
               </label>
             </div>
           </div>
@@ -434,7 +418,8 @@ const tabs = [
 
 // Compute limit context based on current tab
 const locationLimitContext = computed(() => {
-  return currentTab.value  // 'tab1', 'tab2', 'tab3', or 'tab4'
+  // 映射到 constants.js 中的配置 key
+  return `compare_${currentTab.value}`  // 'compare_tab1', 'compare_tab2', 'compare_tab4'
 })
 
 // Tab1 state - dual input for character comparison
@@ -478,36 +463,30 @@ const tabStates = reactive({
     group2: {
       chars: ''
     },
-    features: ['聲母', '韻母']  // Selected features for comparison
+    features: '聲母'  // Selected feature for comparison
   },
   tab2: {
-    group1: {
+    // 當前選擇器狀態
+    current: {
       card: '韻母',
       keys: ['攝'],
       valueMap: {},
       excludeColumns: []
     },
-    group2: {
-      card: '韻母',
-      keys: ['攝'],
-      valueMap: {},
-      excludeColumns: []
-    }
+    // 組1已選項目列表
+    group1Items: [],
+    // 組2已選項目列表
+    group2Items: []
   },
   tab4: {
-    group1: {
-      toneClasses: []
-    },
-    group2: {
-      toneClasses: []
-    }
+    selectedToneClasses: []
   }
 })
 
 
 function normalizeSingleChar(value) {
   if (!value) return ''
-  const compact = String(value).replace(/[\s,?]/g, '')
+  const compact = String(value).replace(/[\s,\uFF0C]/g, '')
   return compact.slice(0, 1)
 }
 
@@ -517,6 +496,7 @@ function handleSingleCharInput(group) {
 }
 
 const cards = ['聲母', '韻母', '聲調']
+const toneClassLabels = ['陰平', '陽平', '陰上', '陽上', '陰去', '陽去', '陰入', '陽入', '輕聲', '其他調']
 const keys = Object.keys(column_values)
 const keyValueMap = column_values
 // const tab3KeyInput = ref('')
@@ -551,10 +531,8 @@ watch([tab2Group1Disabled, tab2Group2Disabled], ([group1Disabled, group2Disabled
 
 // 监听 Tab 4 的调类选择
 watch(() => tabStates.tab4, (newVal) => {
-  // Both groups must have at least one tone class selected
-  const group1Valid = newVal.group1.toneClasses && newVal.group1.toneClasses.length > 0
-  const group2Valid = newVal.group2.toneClasses && newVal.group2.toneClasses.length > 0
-  setTabContentDisabled('query', 'tab4', !(group1Valid && group2Valid))
+  const isValid = Array.isArray(newVal.selectedToneClasses) && newVal.selectedToneClasses.length === 2
+  setTabContentDisabled('query', 'tab4', !isValid)
 }, { immediate: true, deep: true })
 
 // 3️⃣ 同步当前 Tab 到 store
@@ -977,9 +955,11 @@ const runAction = async () => {
     queryStore.regions = regionList;
 
     let compareResponse = null;
+    let compareType = '';  // 記錄比較類型
 
     // 3. 根据 tab 调用对应的 compare API
     if (currentTab.value === 'tab1') {
+      compareType = 'chars';
       // 比较汉字
       const group1Char = normalizeSingleChar(tabStates.tab1.group1.chars)
       const group2Char = normalizeSingleChar(tabStates.tab1.group2.chars)
@@ -995,6 +975,7 @@ const runAction = async () => {
       compareResponse = await compareChars(params)
     }
     else if (currentTab.value === 'tab2') {
+      compareType = 'zhonggu';
       // 比较中古
       const params = {
         path_strings1: ZhongguRef1.value?.combinations || [],
@@ -1016,12 +997,10 @@ const runAction = async () => {
       compareResponse = await compareZhongGu(params)
     }
     else if (currentTab.value === 'tab4') {
+      compareType = 'tones';
       // 比较调类
       const params = {
-        tone_classes: [
-          ...tabStates.tab4.group1.toneClasses,
-          ...tabStates.tab4.group2.toneClasses
-        ],
+        tone_classes: [...tabStates.tab4.selectedToneClasses],
         locations: locationList,
         regions: regionList,
         region_mode: locationRef.value?.regionUsing || 'yindian'
@@ -1059,13 +1038,34 @@ const runAction = async () => {
       mapStore.mapData = MapData
       mapStore.mergedData = mergedData
       mapStore.mode = 'compare'
-      mapStore.compareGroups = {
-        same: { color: '#4CAF50', label: '完全相同 (≥80%)' },
-        high_similar: { color: '#FFC107', label: '高度相似 (60-79%)' },
-        partial: { color: '#FF9800', label: '部分相似 (30-59%)' },
-        diff: { color: '#F44336', label: '完全不同 (<30%)' },
-        maybe: { color: '#FF9800', label: '可能合并' },
-        unknown: { color: '#9E9E9E', label: '未知' }
+      mapStore.compareType = compareType  // 設置比較類型
+
+      // 根據比較類型設置不同的圖例
+      if (compareType === 'chars') {
+        // 漢字比較：4種狀態
+        mapStore.compareGroups = {
+          same: { color: '#4CAF50', label: '完全相同' },
+          partial: { color: '#FFC107', label: '部分相同' },
+          diff: { color: '#F44336', label: '完全不同' },
+          unknown: { color: '#9E9E9E', label: '無數據' }
+        }
+      } else if (compareType === 'zhonggu') {
+        // 中古比較：相似度百分比
+        mapStore.compareGroups = {
+          same: { color: '#4CAF50', label: '完全相同 (≥80%)' },
+          high_similar: { color: '#8BC34A', label: '高度相似 (60-79%)' },
+          partial: { color: '#FFC107', label: '部分相似 (30-59%)' },
+          diff: { color: '#F44336', label: '完全不同 (<30%)' },
+          unknown: { color: '#9E9E9E', label: '無數據' }
+        }
+      } else if (compareType === 'tones') {
+        // 調類比較：合併狀態
+        mapStore.compareGroups = {
+          same: { color: '#4CAF50', label: '完全合併' },
+          maybe: { color: '#FF9800', label: '可能合併' },
+          diff: { color: '#F44336', label: '不合併' },
+          unknown: { color: '#9E9E9E', label: '無數據' }
+        }
       }
 
       console.log('💾 已存入 mapStore, mode:', mapStore.mode)
@@ -1722,11 +1722,70 @@ export default {
 }
 
 /* ✨ 比較模式專用樣式 */
+.tab1-layout {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: stretch;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.tab1-layout .compare-group {
+  width: min(260px, 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+}
+
+.tab1-layout .vs-divider {
+  width: auto;
+  margin: 0;
+  align-self: center;
+}
+
+.tab1-layout .vs-line {
+  display: none;
+}
+
+.tab1-layout .feature-selection {
+  width: 100%;
+  order: 3;
+}
+
+.tab1-layout .group-label {
+  margin-bottom: 0;
+  white-space: nowrap;
+}
+
+.tab1-layout .query-box {
+  display: flex;
+  align-items: center;
+  margin: 0;
+}
+
+.single-char-input {
+  width: 100%;
+  max-width: 180px;
+  height: 38px;
+  border: 1px solid rgba(0, 122, 255, 0.35);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.9);
+  text-align: center;
+  font-size: 20px;
+  font-weight: 600;
+  outline: none;
+}
+
+.single-char-input:focus {
+  border-color: #007aff;
+  box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.2);
+}
+
 .compare-group {
   width: 100%;
   padding: 1rem;
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.5);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border: 1px solid rgba(200, 200, 200, 0.3);
@@ -1760,23 +1819,36 @@ export default {
 
 .vs-badge {
   padding: 0.6rem 1.5rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  background: linear-gradient(
+    145deg,
+    rgba(0, 122, 255, 0.32),
+    rgba(64, 156, 255, 0.22)
+  );
+  color: #ffffff;
   border-radius: 25px;
   font-weight: bold;
   font-size: 1.2rem;
-  box-shadow: 0 4px 20px rgba(102, 126, 234, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(10px) saturate(160%);
+  -webkit-backdrop-filter: blur(10px) saturate(160%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.35),
+    0 6px 18px rgba(0, 122, 255, 0.28);
   animation: pulse 2s ease-in-out infinite;
 }
 
 @keyframes pulse {
   0%, 100% {
     transform: scale(1);
-    box-shadow: 0 4px 20px rgba(102, 126, 234, 0.5);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.35),
+      0 6px 18px rgba(0, 122, 255, 0.28);
   }
   50% {
     transform: scale(1.05);
-    box-shadow: 0 6px 25px rgba(102, 126, 234, 0.7);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.42),
+      0 10px 24px rgba(0, 122, 255, 0.36);
   }
 }
 
@@ -1784,7 +1856,6 @@ export default {
 .feature-selection {
   width: 100%;
   padding: 1rem;
-  margin-top: 1rem;
   border-radius: 10px;
   background: rgba(255, 255, 255, 0.6);
   border: 1px solid rgba(200, 200, 200, 0.3);
@@ -1801,8 +1872,12 @@ export default {
 .feature-checkboxes {
   display: flex;
   gap: 1.5rem;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   justify-content: center;
+  overflow-x: auto;
+  overflow-y: hidden;
+  white-space: nowrap;
+  -webkit-overflow-scrolling: touch;
 }
 
 .checkbox-item {
@@ -1819,7 +1894,8 @@ export default {
   background: rgba(0, 122, 255, 0.1);
 }
 
-.checkbox-item input[type="checkbox"] {
+.checkbox-item input[type="checkbox"],
+.checkbox-item input[type="radio"] {
   width: 18px;
   height: 18px;
   cursor: pointer;
@@ -1840,6 +1916,12 @@ export default {
   padding: 1rem;
 }
 
+.tone-tip {
+  font-size: 14px;
+  color: #007aff;
+  font-weight: 600;
+}
+
 .tone-checkbox {
   display: flex;
   align-items: center;
@@ -1857,7 +1939,8 @@ export default {
   border-color: rgba(0, 122, 255, 0.5);
 }
 
-.tone-checkbox input[type="checkbox"] {
+.tone-checkbox input[type="checkbox"],
+.tone-checkbox input[type="radio"] {
   width: 18px;
   height: 18px;
   cursor: pointer;
@@ -1895,6 +1978,9 @@ export default {
 
   .tone-checkbox {
     padding: 0.5rem 1rem;
+  }
+  .tab1-layout{
+    gap:1px;
   }
 }
 

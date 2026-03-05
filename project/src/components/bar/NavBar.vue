@@ -56,16 +56,12 @@
             <li
               v-for="(item, key) in filteredMenuConfig"
               :key="key"
-              @click="handleMainClick(item, key)"
-              @mouseenter="!isMobile && item.children ? handleArrowClick(item, key, $event) : null"
+              @click="handleMainClick(item, key, $event)"
+              @mouseenter="handleItemMouseEnter(item, key, $event)"
+              @mouseleave="item.children && !isMobile ? scheduleCloseSubmenu() : null"
             >
               <span role="img" :aria-label="key">{{ item.icon }}</span>
               {{ item.label }}
-              <span
-                v-if="item.children"
-                class="menu-arrow"
-                @click.stop="handleArrowClick(item, key, $event)"
-              >▶</span>
             </li>
           </ul>
 
@@ -107,6 +103,8 @@
             left: submenuPosition.left + 'px'
           }"
           @click.stop
+          @mouseenter="!isMobile ? cancelCloseSubmenu() : null"
+          @mouseleave="!isMobile ? scheduleCloseSubmenu() : null"
         >
           <div
             v-for="(child, index) in menuConfig[activeSubmenu]?.children"
@@ -244,6 +242,7 @@ const isSidebarVisible = ref(false)  // 控制边栏显示
 // Submenu state management
 const activeSubmenu = ref(null)  // Currently open submenu key
 const submenuPosition = ref({ top: 0, left: 0 })  // Position for submenu panel
+const closeSubmenuTimeout = ref(null)  // Timeout for delayed closing
 
 // Mobile detection
 const isMobile = ref(false)
@@ -455,10 +454,16 @@ const toggleSidebar = () => {
   }
 }
 
-// 主按鈕點擊處理 - 直接導航
-const handleMainClick = (item, key) => {
-  if (item.path) {
-    // 有路徑就導航
+// 主按鈕點擊處理 - 有子菜單則展開，無子菜單則導航
+const handleMainClick = (item, key, event) => {
+  event?.stopPropagation()  // 阻止事件冒泡
+  cancelCloseSubmenu()  // 取消任何待處理的關閉
+
+  if (item.children) {
+    // 有子菜單，展開子菜單
+    handleArrowClick(item, key, event)
+  } else if (item.path) {
+    // 無子菜單且有路徑，導航
     if (item.external) {
       window.location.href = WEB_BASE + '/detail/'
     } else {
@@ -469,11 +474,21 @@ const handleMainClick = (item, key) => {
     // 沒有路徑就console
     console.log('按鈕點擊 - 需要設置導航路徑:', key, item)
   }
-  activeSubmenu.value = null
+}
+
+// 處理項目鼠標進入
+const handleItemMouseEnter = (item, key, event) => {
+  cancelCloseSubmenu()  // 取消任何待處理的關閉
+  if (!isMobile.value && item.children) {
+    handleArrowClick(item, key, event)
+  }
 }
 
 // 箭頭點擊處理 - 展開子菜單
 const handleArrowClick = (item, key, event) => {
+  event?.stopPropagation()  // 阻止事件冒泡
+  cancelCloseSubmenu()  // 取消任何待處理的關閉
+
   if (item.children) {
     // 判斷事件來源：如果是箭頭點擊，需要取 parentElement；如果是 li hover，直接用 currentTarget
     const targetElement = event.currentTarget.classList?.contains('menu-arrow')
@@ -508,6 +523,7 @@ const handleArrowClick = (item, key, event) => {
 
 // Submenu item click handler
 const handleSubmenuClick = (child) => {
+  cancelCloseSubmenu()
   if (child.external) {
     window.open(child.path, '_blank')
   } else {
@@ -517,8 +533,24 @@ const handleSubmenuClick = (child) => {
   isSidebarVisible.value = false
 }
 
+// 延遲關閉子菜單
+const scheduleCloseSubmenu = () => {
+  closeSubmenuTimeout.value = setTimeout(() => {
+    activeSubmenu.value = null
+  }, 300)  // 300ms 延遲
+}
+
+// 取消延遲關閉
+const cancelCloseSubmenu = () => {
+  if (closeSubmenuTimeout.value) {
+    clearTimeout(closeSubmenuTimeout.value)
+    closeSubmenuTimeout.value = null
+  }
+}
+
 // Close submenu when clicking outside
 const closeSubmenu = () => {
+  cancelCloseSubmenu()
   activeSubmenu.value = null
 }
 
