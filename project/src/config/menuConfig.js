@@ -38,7 +38,7 @@ export const menuConfig = {
         path:'/menu?tab=query&sub=tab4'
       },
     ],
-    showIn: ['SimpleSidebar']
+    // showIn: ['SimpleSidebar']
   },
 
   // Level 2: Expandable data submenu
@@ -68,7 +68,7 @@ export const menuConfig = {
         path: '/explore?page=ZhongGu'
       },
     ],
-    showIn: ['SimpleSidebar']
+    // showIn: ['SimpleSidebar']
   },
 
   // Level 2: Expandable data submenu
@@ -93,7 +93,7 @@ export const menuConfig = {
         path: '/explore?page=ycSpoken'
       },
     ],
-    showIn: ['SimpleSidebar']
+    // showIn: ['SimpleSidebar']
   },
 
   // Level 2: Expandable villages submenu
@@ -123,7 +123,7 @@ export const menuConfig = {
         path: '/explore?page=ycVillages'
       }
     ],
-    showIn: ['SimpleSidebar']
+    // showIn: ['SimpleSidebar']
   },
 // Level 2: Expandable tools submenu
 'tools': {
@@ -152,36 +152,36 @@ export const menuConfig = {
       path: '/explore?page=praat'
     }
   ],
-  showIn: ['SimpleSidebar']
+  // showIn: ['SimpleSidebar']
 },
-  'check':{
-    label: '字表工具',
-    icon: '📝',
-    path: '/explore?page=check',
-    children: null,
-    showIn: ['NavBar']
-  },
-  'jyut2ipa':{
-    label: '粵拼轉IPA',
-    icon: '🔤',
-    path: '/explore?page=jyut2ipa',
-    children: null,
-    showIn: ['NavBar']
-  },
-  'merge':{
-    label: '字表合併',
-    icon: '🔗',
-    path: '/explore?page=merge',
-    children: null,
-    showIn: ['NavBar']
-  },
-  'praat': {
-    label: '聲學分析',
-    icon: '👂️️',
-    path: '/explore?page=praat',
-    children: null,
-    showIn: ['NavBar']
-  },
+  // 'check':{
+  //   label: '字表工具',
+  //   icon: '📝',
+  //   path: '/explore?page=check',
+  //   children: null,
+  //   showIn: ['NavBar']
+  // },
+  // 'jyut2ipa':{
+  //   label: '粵拼轉IPA',
+  //   icon: '🔤',
+  //   path: '/explore?page=jyut2ipa',
+  //   children: null,
+  //   showIn: ['NavBar']
+  // },
+  // 'merge':{
+  //   label: '字表合併',
+  //   icon: '🔗',
+  //   path: '/explore?page=merge',
+  //   children: null,
+  //   showIn: ['NavBar']
+  // },
+  // 'praat': {
+  //   label: '聲學分析',
+  //   icon: '👂️️',
+  //   path: '/explore?page=praat',
+  //   children: null,
+  //   showIn: ['NavBar']
+  // },
   // Level 1: Direct navigation to Source page
   'source': {
     label: '資料源',

@@ -168,7 +168,7 @@ const features = [
     icon: '📐',
     title: '模式分析',
     description: '提取N-gram模式、分析結構規律、發現村名命名的語言學特徵',
-    route: '/villagesML?module=pattern&subtab=ngrams',
+    route: '/villagesML?module=pattern&subtab=frequency',
     badge: '公開',
     badgeClass: 'badge-public'
   },

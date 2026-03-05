@@ -1251,7 +1251,7 @@ defineExpose({ togglePopup, openPopup, closePopup })
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 10000;
+  z-index: 30000;
   padding: 20px;
 }
 

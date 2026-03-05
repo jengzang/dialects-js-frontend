@@ -1,17 +1,6 @@
 <template>
-  <div class="tabs-wrapper">
-    <div class="tabs">
-      <div
-          v-for="tab in tabs"
-          :key="tab.name"
-          :class="['tab', { active: currentTab === tab.name }]"
-          @click="router.replace({ query: { ...route.query, sub: tab.name } })"
-      >
-        {{ tab.label }}
-      </div>
-    </div>
-
-    <div class="tab-content">
+  <TabsContainer :tabs="tabs" :default-tab="route.query.sub || 'tab2'" v-slot="{ currentTab }">
+    <div class="tab-content-inner">
       <div v-show="currentTab === 'tab1'" class="page">
         <div class="page-content-stack">
           <!-- 🔹 輸入框區塊 -->
@@ -294,12 +283,13 @@
         :current-tab="currentTab"
         @applyConfig="handleApplyConfig"
     />
-  </div>
+  </TabsContainer>
 </template>
 
 <script setup>
-import {computed, nextTick, reactive, ref, onMounted, onBeforeUnmount, watch, onActivated} from 'vue'
+import {computed, nextTick, reactive, ref, onMounted, onBeforeUnmount, watch} from 'vue'
 import {useRoute, useRouter} from 'vue-router'
+import TabsContainer from "@/components/common/TabsContainer.vue";
 import LocationAndRegionInput from "@/components/query/LocationAndRegionInput.vue";
 import ZhongguSelector from "@/components/query/ZhongguSelector.vue";
 import YinweiSelector from "@/components/query/YinweiSelector.vue";
@@ -310,8 +300,7 @@ import { column_values, S2T_T2S_MAPPING } from '@/config'
 const locationRef = ref(null)
 const router = useRouter()
 const route = useRoute()
-// 当前选中的 Tab 页
-const currentTab = ref(route.query.sub || 'tab2')
+const currentTab = computed(() => route.query.sub || 'tab2')
 const tabs = [
   { name: 'tab1', label: '查字' },
   { name: 'tab2', label: '查中古' },
@@ -322,33 +311,6 @@ const tabs = [
 // Compute limit context based on current tab
 const locationLimitContext = computed(() => {
   return currentTab.value  // 'tab1', 'tab2', 'tab3', or 'tab4'
-})
-
-// 2. 监听路由变化（处理浏览器前进/后退，以及 Tab 点击切换）
-watch(
-    () => route.query,
-    (newQuery) => {
-      // 🛡️ 关键保护：只有当仍然在 'query' 页面时，才响应 sub 的变化
-      // 这样当你跳去 'result' 页 (tab=result) 时，虽然 sub 没了，currentTab 不会被重置
-      if (newQuery.tab === 'query' && newQuery.sub) {
-        currentTab.value = newQuery.sub
-      }
-    }
-)
-
-// 3. 当页面从缓存中恢复显示时 (KeepAlive)
-onActivated(() => {
-  // 如果当前 URL 只有 /menu?tab=query 而没有 sub 参数
-  // 我们手动把上次记住的 tab (比如 tab3) 补回 URL 上
-  if (route.query.tab === 'query' && !route.query.sub && currentTab.value) {
-    router.replace({
-      query: { ...route.query, sub: currentTab.value }
-    })
-  }
-  // 如果 URL 里有 sub (比如用户是通过带参链接进来的)，则以 URL 为准
-  else if (route.query.sub && route.query.sub !== currentTab.value) {
-    currentTab.value = route.query.sub
-  }
 })
 
 const hanziInput = ref('')
@@ -970,7 +932,7 @@ export default {
 <style scoped>
 
 /* 📄 內容區塊動畫 */
-.tab-content {
+.tab-content-inner {
   width: 100%;
   max-width: 900px;
   animation: fade 0.6s ease;

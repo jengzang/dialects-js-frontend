@@ -7,19 +7,21 @@ import { resultCache } from '@/store/store.js'
 export const MenuTabsConfig = [
   {
     tab: 'tools',
-    label: '工具集',
-    icon: '🛠️',
-    weight: 0.6,
-    mobileWeight: 1,                      // 移动端 flex 权重（可选，不设置则使用 weight）
+    label: '工具',
+    icon: '🧰️',
+    weight: 0.9,                          // 桌面端标签显示时的 flex 权重
+    mobileWeight: 0.9,                    // 移动端标签显示时的 flex 权重
+    weightIconOnly: 0.6,                  // 桌面端仅显示图标时的 flex 权重（可选，默认使用 weight）
+    mobileWeightIconOnly: 0.5,            // 移动端仅显示图标时的 flex 权重（可选，回退链：mobileWeight → weightIconOnly → weight）
     fontSize: 1.2,
-    mobileFontSize: 1.3,                  // 移动端字体大小（可选，不设置则使用 fontSize）
-    to: null,                             // 伪 tab 不需要路由
-    isPseudo: true,                       // 点击打开侧边栏，不进行路由导航
-    hideOnMobile: true,                   // 移动端完全隐藏此 tab
-    hideLabelOnMobile: false,             // 移动端是否隐藏文字（只显示图标）
-    showLabelOnlyWhenActive: false,       // 桌面端：只有选中时显示文字，未选中只显示图标
-    mobileShowLabelOnlyWhenActive: false, // 移动端：只有选中时显示文字（可选，不设置则使用 showLabelOnlyWhenActive）
-    cssClass: ''                          // 额外的 CSS class
+    mobileFontSize: 1.5,                  // 移动端使用更大的字体
+    to: { path: '/menu', query: { tab: 'tools' } },
+    isPseudo: false,
+    hideOnMobile: true,
+    hideLabelOnMobile: false,             // 移动端不隐藏标签
+    showLabelOnlyWhenActive: false,        // 桌面端：只有选中时显示文字，未选中只显示图标
+    mobileShowLabelOnlyWhenActive: true, // 移动端：始终显示文字（不同于桌面端）
+    cssClass: ''                     // 应用 'small' CSS class
   },
   {
     tab: 'data',

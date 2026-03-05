@@ -16,10 +16,10 @@ import AboutPage from "@/views/menu/AboutPage.vue";
 import SourcePage from "@/views/menu/SourcePage.vue";
 import PrivacyPage from "@/views/menu/PrivacyPage.vue";
 import SettingPage from "@/views/menu/SettingPage.vue";
-import ToolsPage from "@/views/menu/ToolsPage.vue";
-import PhoPage from "@/views/menu/PhoPage.vue";
-import WordsPage from "@/views/menu/WordsPage.vue";
-import VillagesPage from "@/views/menu/VillagesPage.vue";
+import ToolsPage from "@/views/menu/entry/ToolsPage.vue";
+import PhoPage from "@/views/menu/entry/PhoPage.vue";
+import WordsPage from "@/views/menu/entry/WordsPage.vue";
+import VillagesPage from "@/views/menu/entry/VillagesPage.vue";
 // ... 其他组件引入
 
 const route = useRoute()

@@ -1,0 +1,174 @@
+<template>
+  <div class="tabs-wrapper">
+    <div class="tabs">
+      <div
+        v-for="tab in tabs"
+        :key="tab.name"
+        :class="['tab', { active: currentTab === tab.name }]"
+        @click="handleTabClick(tab.name)"
+      >
+        {{ tab.label }}
+      </div>
+
+      <!-- 额外的 tab 右侧内容插槽 -->
+      <slot name="tab-extra"></slot>
+    </div>
+
+    <div class="tab-content">
+      <!-- 使用具名插槽渲染每个 tab 的内容 -->
+      <slot :current-tab="currentTab"></slot>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { computed } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+
+const props = defineProps({
+  // Tab 配置数组: [{ name: 'tab1', label: '标签1' }, ...]
+  tabs: {
+    type: Array,
+    required: true,
+    validator: (tabs) => {
+      return tabs.every(tab => tab.name && tab.label)
+    }
+  },
+
+  // 当前选中的 tab (支持 v-model)
+  modelValue: {
+    type: String,
+    default: ''
+  },
+
+  // 是否使用路由模式 (true: 同步到 route.query.sub, false: 仅 emit)
+  useRouter: {
+    type: Boolean,
+    default: true
+  },
+
+  // 默认选中的 tab (当 modelValue 和 route.query.sub 都为空时使用)
+  defaultTab: {
+    type: String,
+    default: ''
+  }
+})
+
+const emit = defineEmits(['update:modelValue', 'tab-change'])
+
+const route = useRoute()
+const router = useRouter()
+
+// 计算当前选中的 tab
+const currentTab = computed(() => {
+  if (props.useRouter) {
+    // 路由模式：优先使用 route.query.sub，其次 modelValue，最后 defaultTab
+    return route.query.sub || props.modelValue || props.defaultTab || (props.tabs[0]?.name || '')
+  } else {
+    // 非路由模式：使用 modelValue 或 defaultTab
+    return props.modelValue || props.defaultTab || (props.tabs[0]?.name || '')
+  }
+})
+
+// 处理 tab 点击
+const handleTabClick = (tabName) => {
+  if (props.useRouter) {
+    // 路由模式：更新 route.query.sub
+    router.replace({ query: { ...route.query, sub: tabName } })
+  }
+
+  // 触发事件
+  emit('update:modelValue', tabName)
+  emit('tab-change', tabName)
+}
+</script>
+
+<style scoped>
+/* Tabs 包装器 */
+.tabs-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0;
+  min-height: 80dvh;
+  width: 100%;
+}
+
+/* Tab 标签页样式 */
+.tabs {
+  display: flex;
+  justify-content: flex-start;
+  gap: 16px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  max-width: 100%;
+  padding: 8px 12px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.tab {
+  flex-shrink: 0;
+  white-space: nowrap;
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: 500;
+  border-radius: 16px;
+  cursor: pointer;
+  color: #444;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  transition: all 0.5s ease;
+  user-select: none;
+  border: 1px solid #007aff;
+}
+
+.tab:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #007aff;
+}
+
+.tab.active {
+  color: #fff;
+  background: rgba(0, 122, 255, 0.7);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 4px 20px rgba(0, 122, 255, 0.3);
+}
+
+/* 移动端适配 */
+@media (max-width: 600px) {
+  .tab {
+    padding: 12px 14px;
+    font-size: 14px;
+    border-radius: 12px;
+  }
+
+  .tabs {
+    gap: 6px;
+    padding: 8px 8px;
+  }
+}
+
+/* Tab 内容区域 */
+.tab-content {
+  width: 100%;
+  animation: fade 0.6s ease;
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+</style>
