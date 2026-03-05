@@ -5,7 +5,15 @@
   >
     <!-- Tab 右侧额外内容 -->
     <template #tab-extra>
-      <div v-if="currentTab === 'map' && mapStore.mode === 'feature' && availableFeatures.length > 0" class="feature-control-area">
+      <!-- 比较模式：显示比较对象 -->
+      <div v-if="currentTab === 'map' && mapStore.mode === 'compare' && comparePair" class="single-btn-wrapper">
+        <button class="feature-btn active">
+          {{ comparePair }}
+        </button>
+      </div>
+
+      <!-- Feature 模式：显示特征选择 -->
+      <div v-else-if="currentTab === 'map' && mapStore.mode === 'feature' && availableFeatures.length > 0" class="feature-control-area">
         <div v-if="availableFeatures.length > 1" class="dropdown-wrapper">
           <SimpleSelectDropdown
             v-model="selectedFeature"
@@ -131,6 +139,16 @@ const availableFeatures = computed(() => {
   if (!mapStore.mergedData || mapStore.mergedData.length === 0) return []
   const features = mapStore.mergedData.map(item => item.feature)
   return [...new Set(features)]
+})
+
+// 計算比較對象（用於 compare 模式）
+const comparePair = computed(() => {
+  if (mapStore.mode !== 'compare' || !mapStore.mergedData || mapStore.mergedData.length === 0) {
+    return ''
+  }
+  // 从第一条数据中提取比较对象
+  const firstItem = mapStore.mergedData[0]
+  return firstItem.pair || ''
 })
 
 // 計算幫助文本

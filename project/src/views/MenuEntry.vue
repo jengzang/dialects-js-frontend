@@ -10,6 +10,7 @@ import { useRoute } from 'vue-router'
 
 // 引入你的所有页面组件
 import QueryPage from './menu/QueryPage.vue'
+import ComparePage from './menu/ComparePage.vue'
 import MapPage from './menu/MapPage.vue'
 import ResultPage from './menu/ResultPage.vue'
 import AboutPage from "@/views/menu/AboutPage.vue";
@@ -32,6 +33,7 @@ const activeComponent = computed(() => {
 
   const tabMap = {
     query: QueryPage,
+    compare: ComparePage,
     map: MapPage,
     result: ResultPage,
     source:SourcePage,

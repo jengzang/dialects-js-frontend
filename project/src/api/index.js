@@ -94,6 +94,12 @@ export {
   queryPhonology
 } from './query/phonology.js'
 
+// ==================== 比较模块 ====================
+export {
+  compareChars,
+  compareZhongGu,
+  compareTones
+} from './compare/index.js'
 
 // ==================== 用户数据 ====================
 export {

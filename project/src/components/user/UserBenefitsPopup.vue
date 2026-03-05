@@ -107,7 +107,8 @@ const comparisonData = computed(() => [
   },
   {
     feature: '🎵 查調',
-    anonymous: '✅️ 不限',
+    unit: '個地點',
+    anonymous: LOCATION_LIMITS.tab4.anonymous.MAX_LOCATIONS,
     user: '✅️ 不限'
   },
   {
@@ -120,6 +121,12 @@ const comparisonData = computed(() => [
     unit: '組',
     anonymous: ROLE_LIMITS.anonymous.MAX_COMBINATIONS,
     user: ROLE_LIMITS.user.MAX_COMBINATIONS
+  },
+  {
+    feature: '🗺️ 分區圖',
+    unit: '個地點',
+    anonymous: LOCATION_LIMITS.divide.anonymous.MAX_LOCATIONS,
+    user: LOCATION_LIMITS.divide.user.MAX_LOCATIONS
   },
   {
     feature: '📊 音系查詢',
@@ -170,6 +177,11 @@ const comparisonData = computed(() => [
     feature: '🏘️ 廣東村落',
     anonymous: '✅️ 開放',
     user: '✅️ 開放'
+  },
+  {
+    feature: '🤖 機器學習',
+    anonymous: '⚠️ 部分',
+    user: '✅️ 全部'
   },
   {
     feature: '⏳ 每小時接口使用',

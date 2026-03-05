@@ -24,12 +24,12 @@ export const QUERY_CONFIG = {
 // ========================================
 export const ROLE_LIMITS = {
     anonymous: {
-        MAX_COMBINATIONS: 10,        // 最大组合数
-        MAX_RESULTS: 10              // 最大结果数
+        MAX_COMBINATIONS: 5,        // 最大组合数
+        MAX_RESULTS: 5              // 最大结果数
     },
     user: {
-        MAX_COMBINATIONS: 200,
-        MAX_RESULTS: 100
+        MAX_COMBINATIONS: 120,
+        MAX_RESULTS: 80
     },
     admin: {
         MAX_COMBINATIONS: Infinity,
@@ -48,7 +48,7 @@ export const LOCATION_LIMITS = {
             MESSAGE: '未登錄用戶單次最多可查詢 {limit} 個地點'
         },
         user: {
-            MAX_LOCATIONS: 600,
+            MAX_LOCATIONS: 800,
             MESSAGE: '用戶單次最多可查詢 {limit} 個地點'
         },
         admin: {
@@ -60,11 +60,11 @@ export const LOCATION_LIMITS = {
     // tab2: 查中古
     tab2: {
         anonymous: {
-            MAX_LOCATIONS: 100,
+            MAX_LOCATIONS: 50,
             MESSAGE: '未登錄用戶單次最多可查詢 {limit} 個地點'
         },
         user: {
-            MAX_LOCATIONS: 500,
+            MAX_LOCATIONS: 300,
             MESSAGE: '用戶單次最多可查詢 {limit} 個地點'
         },
         admin: {
@@ -80,7 +80,7 @@ export const LOCATION_LIMITS = {
             MESSAGE: '未登錄用戶查詢音位最多可選 {limit} 個地點'
         },
         user: {
-            MAX_LOCATIONS: 30,
+            MAX_LOCATIONS: 50,
             MESSAGE: '用戶查詢音位最多可選 {limit} 個地點'
         },
         admin: {
@@ -92,7 +92,7 @@ export const LOCATION_LIMITS = {
     // tab4: 查調 (無限制)
     tab4: {
         anonymous: {
-            MAX_LOCATIONS: Infinity,
+            MAX_LOCATIONS: 500,
             MESSAGE: ''
         },
         user: {
@@ -108,11 +108,11 @@ export const LOCATION_LIMITS = {
     // divide: 分區繪圖 (無限制)
     divide: {
         anonymous: {
-            MAX_LOCATIONS: Infinity,
+            MAX_LOCATIONS: 300,
             MESSAGE: ''
         },
         user: {
-            MAX_LOCATIONS: Infinity,
+            MAX_LOCATIONS: 1000,
             MESSAGE: ''
         },
         admin: {
@@ -124,11 +124,11 @@ export const LOCATION_LIMITS = {
     // default: 其他場景使用 tab2 的限制
     default: {
         anonymous: {
-            MAX_LOCATIONS: 200,
+            MAX_LOCATIONS: 10,
             MESSAGE: '未登錄用戶單次最多可查詢 {limit} 個地點'
         },
         user: {
-            MAX_LOCATIONS: 600,
+            MAX_LOCATIONS: 200,
             MESSAGE: '用戶單次最多可查詢 {limit} 個地點'
         },
         admin: {

@@ -106,6 +106,7 @@ const router = createRouter({
 })
 const MenuTitleMap = {
     query: '方音圖鑑 - 查詢',
+    compare: '方音圖鑑 - 比較',
     result: '方音圖鑑 - 結果',
     map: '方音圖鑑 - 地圖',
     about:'方音圖鑑 - 關於網站',
