@@ -207,11 +207,15 @@ defineExpose({
   line-height: 1.5;
 }
 
-.item-text {
+.update-modal .item-text {
   font-size: 0.9375rem;
   color: #1d1d1f;
-  line-height: 1.6;
+  line-height: 1.8 !important;
   font-weight: 500;
+}
+
+.update-modal .item-text * {
+  line-height: 1.8 !important;
 }
 
 .modal-footer {
@@ -337,5 +341,11 @@ defineExpose({
   .confirm-btn {
     width: 100%;
   }
+}
+
+/* 强制覆盖 body 的 line-height */
+:deep(.item-text),
+:deep(.item-text *) {
+  line-height: 1.8 !important;
 }
 </style>

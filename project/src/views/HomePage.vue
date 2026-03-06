@@ -150,7 +150,7 @@
               </a>
               <a @click.stop="navigateTo('/menu?tab=pho&sub=Countphos')" class="feature-link">
                 <span class="link-icon">📊</span>
-                <span class="link-text">音節統計 - 統計音節分佈</span>
+                <span class="link-text">音節統計 - 統計音節數量</span>
               </a>
               <a @click.stop="navigateTo('/menu?tab=pho&sub=ZhongGu')" class="feature-link">
                 <span class="link-icon">✍️</span>
@@ -180,7 +180,7 @@
               </a>
               <a @click.stop="navigateTo('/explore?page=YuBao&sub=grammar')" class="feature-link">
                 <span class="link-icon">🗣️</span>
-                <span class="link-text">語保語法 - 語保工程語法資料</span>
+                <span class="link-text">語保語法 - 語保工程句子資料</span>
               </a>
               <a @click.stop="navigateTo('/explore?page=ycSpoken')" class="feature-link">
                 <span class="link-icon">💬</span>
@@ -210,7 +210,7 @@
               </a>
               <a @click.stop="navigateTo('/explore?page=VillagesML')" class="feature-link">
                 <span class="link-icon">🤖</span>
-                <span class="link-text">機器學習 - 村落方言機器學習</span>
+                <span class="link-text">機器學習 - 自然村名機器學習</span>
               </a>
               <a @click.stop="navigateTo('/explore?page=gdVillagesTable')" class="feature-link">
                 <span class="link-icon">📊</span>
@@ -543,7 +543,7 @@ const projects = [
   {
     name: 'dialects-vue-frontend',
     url: 'https://github.com/jengzang/dialects-vue-frontend',
-    description: '前端倉庫 - 使用vue框架和原生js開發'
+    description: '前端倉庫 - 使用vue框架開發'
   },
   {
     name: 'dialects-backend',
@@ -553,12 +553,12 @@ const projects = [
   {
     name: 'dialects-build',
     url: 'https://github.com/jengzang/dialects-build',
-    description: '字表預處理倉庫 - 提取字表的聲韻調'
+    description: '字表預處理倉庫 - 提取字表的聲韻調並規整數據'
   },
   {
     name: 'villages-ML',
     url: 'https://github.com/jengzang/villages-ML',
-    description: '村落機器學習 - 方言村落數據分析'
+    description: '自然村機器學習 - 村落名稱、地理數據分析'
   }
 ]
 
@@ -993,20 +993,22 @@ onMounted(() => {
 }
 
 .expand-enter-active, .expand-leave-active {
-  transition: all 0.4s cubic-bezier(0.32, 0.72, 0, 1);
-  overflow: hidden;
+  transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+  will-change: opacity, transform;
 }
 
 .expand-enter-from, .expand-leave-to {
   opacity: 0;
-  max-height: 0;
-  transform: translateY(-10px);
+  transform: translateY(-10px) scaleY(0.95);
 }
 
 .expand-enter-to, .expand-leave-from {
   opacity: 1;
-  max-height: 600px;
-  transform: translateY(0);
+  transform: translateY(0) scaleY(1);
+}
+
+.card-body {
+  transform-origin: top;
 }
 
 /* Roadmap */

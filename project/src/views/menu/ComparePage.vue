@@ -68,7 +68,7 @@
       <div v-show="currentTab === 'tab2'" class="page" style="max-height: 50dvh;">
         <div class="page-content-stack">
           <!-- 單一中古選擇器 -->
-          <div class="compare-group">
+          <div class="compare-group" style="padding:0;">
             <!-- <div class="group-label">選擇中古音條件</div> -->
             <div class="triple-select-box">
               <!-- 卡片選擇區 -->
@@ -1838,7 +1838,7 @@ export default {
 }
 
 .compare-group {
-  width: 100%;
+  width: 98%;
   padding: 1rem;
   border-radius: 12px;
   backdrop-filter: blur(10px);
