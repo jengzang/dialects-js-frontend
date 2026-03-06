@@ -1,6 +1,9 @@
 <template>
   <div class="feature-extraction-page">
-      <h3 class="villagesml-subtab-title">ML計算 - 特徵提取</h3>
+      <h3 class="villagesml-subtab-title">
+        ML計算 - 特徵提取
+        <HelpIcon content="為自訂村莊集合提取多維特徵向量。特徵包括：語義類別（9維VTF）、字符嵌入（100維Word2Vec）、結構特徵（長度、前後綴）、空間特徵（坐標、密度）。支持導出特徵矩陣用於外部分析" />
+      </h3>
     <!-- Header -->
     <div class="page-header">
 <!--      <h2>🔐 特徵提取 Feature Extraction</h2>-->
@@ -378,6 +381,7 @@ import { useRouter } from 'vue-router'
 import * as echarts from 'echarts'
 import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
 import FilterableSelect from '@/components/common/FilterableSelect.vue'
+import HelpIcon from '@/components/ToastAndHelp/HelpIcon.vue'
 import { extractFeatures as apiExtractFeatures, aggregateFeatures as apiAggregateFeatures, searchVillages } from '@/api/index.js'
 import { showError, showSuccess, showWarning } from '@/utils/message.js'
 import { userStore } from '@/store/store.js'

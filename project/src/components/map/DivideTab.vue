@@ -90,7 +90,7 @@ const runAction = async () => {
   // This gets textarea locations + custom region locations merged in background
   const locationList = (locationRef.value?.allLocationsArray && locationRef.value.allLocationsArray.length > 0)
     ? locationRef.value.allLocationsArray.filter(Boolean)
-    : ['廣州'];  // Default fallback
+    : [];  // 空數組，不傳默認值
 
   const regionList = (locationModel.value.regions && locationModel.value.regions.length > 0)
     ? locationModel.value.regions.filter(Boolean)

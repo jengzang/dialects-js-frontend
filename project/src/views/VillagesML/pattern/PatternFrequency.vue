@@ -1,6 +1,9 @@
 <template>
   <div class="pattern-frequency-page">
-    <h3 class="villagesml-subtab-title">模式分析 - 頻率分析</h3>
+    <h3 class="villagesml-subtab-title">
+      模式分析 - 頻率分析
+      <HelpIcon content="統計村名模式的出現頻率。全局模式：分析全省範圍內最常見的模式。區域模式：分析特定區域內的高頻模式。支持設置最小佔比和返回數量" />
+    </h3>
 
     <div class="glass-panel">
       <h2>🔍 模式頻率分析</h2>
@@ -116,6 +119,7 @@
 import { ref, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import FilterableSelect from '@/components/common/FilterableSelect.vue'
+import HelpIcon from '@/components/ToastAndHelp/HelpIcon.vue'
 import {
   getPatternFrequencyGlobal,
   getPatternFrequencyRegional

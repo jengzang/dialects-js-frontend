@@ -1,6 +1,9 @@
 <template>
   <div class="spatial-clusters-tab">
-    <h2>🎯 空間聚類</h2>
+    <h2>
+      🎯 空間聚類
+      <HelpIcon content="基於地理坐標的村莊聚類分析。支持多種聚類算法（DBSCAN、HDBSCAN、K-Means等）。展示聚類中心、規模、平均距離和空間範圍統計" />
+    </h2>
 
     <!-- Run 選擇器 -->
     <div class="cluster-controls">
@@ -71,6 +74,7 @@
 import { ref, onMounted, computed, watch } from 'vue'
 import SpatialMap from './SpatialMap.vue'
 import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
+import HelpIcon from '@/components/ToastAndHelp/HelpIcon.vue'
 import { getSpatialClusters, getSpatialClustersAvailableRuns, getSpatialClustersSummary } from '@/api/index.js'
 import { showError } from '@/utils/message.js'
 import {

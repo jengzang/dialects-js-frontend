@@ -1,6 +1,9 @@
 <template>
   <div class="semantic-subcategories-page">
-    <h3 class="villagesml-subtab-title">語義分析 - 子類別分析</h3>
+    <h3 class="villagesml-subtab-title">
+      語義分析 - 子類別分析
+      <HelpIcon content="分析76個語義子類別的區域分布。區域對比模式：用雷達圖展示特定區域內某父類別下各子類別的VTF和傾向值（Z-score）。傾向排行模式：找出全省範圍內傾向值最高的Top N子類別" />
+    </h3>
 
     <!-- Mode Selector -->
     <div class="mode-selector glass-panel">
@@ -222,13 +225,15 @@ import { showError, showSuccess } from '@/utils/message.js'
 import * as echarts from 'echarts'
 import FilterableSelect from '@/components/common/FilterableSelect.vue'
 import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
+import HelpIcon from '@/components/ToastAndHelp/HelpIcon.vue'
 import { SEMANTIC_SUBCATEGORY_NAMES } from '@/config/villagesML.js'
 
 export default {
   name: 'SemanticSubcategories',
   components: {
     FilterableSelect,
-    SimpleSelectDropdown
+    SimpleSelectDropdown,
+    HelpIcon
   },
   setup() {
     // Helper function to get subcategory Chinese name

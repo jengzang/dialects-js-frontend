@@ -946,23 +946,50 @@ onMounted(() => {
   transition: all 0.2s ease;
   text-decoration: none;
   color: inherit;
+  position: relative;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.feature-link::after {
+  content: '→';
+  margin-left: auto;
+  color: rgba(0, 122, 255, 0.6);
+  font-size: 1.4rem;
+  font-weight: bold;
+  transition: all 0.2s ease;
 }
 
 .feature-link:hover {
-  background: rgba(255, 255, 255, 0.95);
+  background: rgba(0, 122, 255, 0.08);
   border-color: rgba(0, 122, 255, 0.3);
   transform: translateX(4px);
+  box-shadow: 0 4px 12px rgba(0, 122, 255, 0.15);
+}
+
+.feature-link:hover::after {
+  color: rgba(0, 122, 255, 1);
+  transform: translateX(3px);
 }
 
 .link-icon {
   font-size: 1.25rem;
   flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+.feature-link:hover .link-icon {
+  transform: scale(1.1);
 }
 
 .link-text {
   font-size: 0.9375rem;
   font-weight: 500;
   color: #1d1d1f;
+  transition: color 0.2s ease;
+}
+
+.feature-link:hover .link-text {
+  color: #007aff;
 }
 
 .expand-enter-active, .expand-leave-active {
@@ -1009,7 +1036,6 @@ onMounted(() => {
   border: 1px solid rgba(0, 122, 255, 0.12);
   border-radius: 10px;
   transition: all 0.3s ease;
-  height: 100%;
 }
 
 .roadmap-item:hover {

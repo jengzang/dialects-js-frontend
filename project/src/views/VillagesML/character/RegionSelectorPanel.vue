@@ -1,7 +1,15 @@
 <template>
   <div class="region-selector-panel glass-panel">
     <div class="panel-header">
-      <h3 class="panel-title">區域選擇</h3>
+      <h3 class="panel-title">
+        區域選擇
+        <HelpIcon
+          content="選擇分析區域（市/縣/鎮），系統將計算該字符在各區域的TF-IDF傾向性得分。支持三級行政區切換"
+          size="md"
+          fontSize="16px"
+          trigger="both"
+        />
+      </h3>
       <button class="analyze-button solid-button" @click="handleAnalyze" :disabled="!localName">
         🔍 開始分析
       </button>
@@ -25,6 +33,7 @@
 import { ref } from 'vue'
 import { villagesMLStore } from '@/store/villagesMLStore.js'
 import FilterableSelect from '@/components/common/FilterableSelect.vue'
+import HelpIcon from '@/components/ToastAndHelp/HelpIcon.vue'
 
 const emit = defineEmits(['analyze'])
 

@@ -1,6 +1,14 @@
 <template>
   <div class="search-panel glass-panel">
-    <h3 class="villagesml-subtab-title">搜索特定自然村</h3>
+    <h3 class="villagesml-subtab-title">
+      搜索特定自然村
+      <HelpIcon
+        content="支持關鍵詞模糊匹配（SQL LIKE '%keyword%'）和三級行政區（市→縣→鎮）聯動篩選"
+        size="md"
+        fontSize="16px"
+        trigger="both"
+      />
+    </h3>
     <!-- Search Input -->
     <div class="search-input-group">
       <input
@@ -56,6 +64,7 @@
 import { ref, computed } from 'vue'
 import { villagesMLStore } from '@/store/villagesMLStore.js'
 import FilterableSelect from '@/components/common/FilterableSelect.vue'
+import HelpIcon from '@/components/ToastAndHelp/HelpIcon.vue'
 import { cityHasCounties } from '@/utils/region/regionPreload.js'
 
 const emit = defineEmits(['search'])

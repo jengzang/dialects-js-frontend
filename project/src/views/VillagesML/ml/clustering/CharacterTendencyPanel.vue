@@ -1,6 +1,9 @@
 <template>
   <div class="char-tendency-panel">
-    <h3 class="villagesml-subtab-title">ML計算 - 字符傾向性聚類</h3>
+    <h3 class="villagesml-subtab-title">
+      ML計算 - 字符傾向性聚類
+      <HelpIcon content="基於字符使用傾向性的區域聚類。特徵為每個區域的字符Z分數向量（標準化偏差），衡量該區域對特定字符的偏好程度。算法：K-Means（質心聚類）、DBSCAN（密度聚類）、GMM（高斯混合模型）" />
+    </h3>
     <!-- 左側：參數設置 -->
     <div class="two-col-layout">
     <div class="settings-section glass-panel">
@@ -148,6 +151,7 @@ import { userStore } from '@/store/store.js'
 import { runCharacterTendencyClustering } from '@/api/index.js'
 import { showSuccess, showError, showWarning } from '@/utils/message.js'
 import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
+import HelpIcon from '@/components/ToastAndHelp/HelpIcon.vue'
 import AlgorithmSelector from './shared/AlgorithmSelector.vue'
 import PreprocessingSettings from './shared/PreprocessingSettings.vue'
 import ClusteringResultsPanel from '../ClusteringResultsPanel.vue'

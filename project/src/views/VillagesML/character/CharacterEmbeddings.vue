@@ -1,11 +1,27 @@
 <template>
 <!--  <ExploreLayout>-->
     <div class="character-embeddings-page">
-      <h3 class="villagesml-subtab-title">字符分析 - 嵌入相似</h3>
+      <h3 class="villagesml-subtab-title">
+        字符分析 - 嵌入相似
+        <HelpIcon
+          content="基於Word2Vec Skipgram模型（向量維度100，窗口5，最小頻率5）訓練的字符嵌入向量。使用餘弦相似度計算字符間的語義相似性，公式：cosine_sim = dot(v1, v2) / (||v1|| × ||v2||)。值域[0,1]，越接近1表示語義越相似。"
+          size="md"
+          fontSize="16px"
+          trigger="both"
+        />
+      </h3>
 
       <!-- Search Section -->
       <div class="search-section glass-panel">
-        <h2>🔍 相似字搜尋</h2>
+        <h2>
+          🔍 相似字搜尋
+          <HelpIcon
+            content="輸入單個字符，系統將返回Top-K相似字符及其相似度分數。可調整返回數量（5-50）。"
+            size="sm"
+            fontSize="14px"
+            trigger="both"
+          />
+        </h2>
         <div class="search-group">
           <input
             v-model="searchChar"
@@ -132,6 +148,7 @@
 <script setup>
 import { ref, computed, onMounted, nextTick } from 'vue'
 import ExploreLayout from '@/layouts/ExploreLayout.vue'
+import HelpIcon from '@/components/ToastAndHelp/HelpIcon.vue'
 import * as echarts from 'echarts'
 import {
   getCharEmbeddingsList,

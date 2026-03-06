@@ -1,6 +1,9 @@
 <template>
   <div class="sampled-villages-panel">
-    <h3 class="villagesml-subtab-title">ML計算 - 採樣村莊聚類</h3>
+    <h3 class="villagesml-subtab-title">
+      ML計算 - 採樣村莊聚類
+      <HelpIcon content="對採樣村莊進行聚類，適合大規模數據集。採樣策略：隨機採樣、分層採樣（按區域比例）、系統採樣（等間隔）。特徵包括語義、字符嵌入、結構。支持K-Means、DBSCAN、GMM算法" />
+    </h3>
     <div class="two-col-layout">
     <!-- 左側：參數設置 -->
     <div class="settings-section glass-panel">
@@ -96,6 +99,7 @@ import { userStore } from '@/store/store.js'
 import { runSampledVillagesClustering } from '@/api/index.js'
 import { showSuccess, showError, showWarning } from '@/utils/message.js'
 import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
+import HelpIcon from '@/components/ToastAndHelp/HelpIcon.vue'
 import AlgorithmSelector from './shared/AlgorithmSelector.vue'
 import PreprocessingSettings from './shared/PreprocessingSettings.vue'
 import FeatureToggles from './shared/FeatureToggles.vue'

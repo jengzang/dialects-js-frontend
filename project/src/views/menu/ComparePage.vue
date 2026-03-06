@@ -5,7 +5,7 @@
       <div v-show="currentTab === 'tab1'" class="page">
         <div class="page-content-stack tab1-layout">
           <!-- 組1 輸入 -->
-          <div class="compare-group">
+          <div class="compare-group group1-style">
             <div class="group-label">組1</div>
             <div class="query-box">
               <input
@@ -28,7 +28,7 @@
           </div> -->
 
           <!-- 組2 輸入 -->
-          <div class="compare-group">
+          <div class="compare-group group2-style">
             <div class="group-label">組2</div>
             <div class="query-box">
               <input
@@ -65,7 +65,7 @@
       </div>
 
       <!-- Tab2: 比較中古 --  -->
-      <div v-show="currentTab === 'tab2'" class="page" style="max-height: 55dvh;">
+      <div v-show="currentTab === 'tab2'" class="page" style="max-height: 50dvh;">
         <div class="page-content-stack">
           <!-- 單一中古選擇器 -->
           <div class="compare-group">
@@ -187,33 +187,18 @@
                   </div>
                 </div>
               </div>
-              <ZhongguSelector
-                  :active-keys="tabStates.tab2.current.keys"
-                  :value-map="tabStates.tab2.current.valueMap"
-                  :is-dropdown-open="!!dropdownOpen || excludeDropdownOpen === 'tab2_current'"
-                  :selected-card="tabStates.tab2.current.card"
-                  :exclude-columns="tabStates.tab2.current.excludeColumns"
-                  @update:runDisabled="tab2CurrentDisabled = $event"
-                  ref="ZhongguRefCurrent"
-              />
-            </div>
-          </div>
-
-          <!-- 添加按鈕 -->
-          <div class="add-buttons-row">
-            <button class="add-btn add-to-group1" @click="addToGroup('group1')" :disabled="!canAddToGroup">
-              ➕ 添加到組1
-            </button>
-            <button class="add-btn add-to-group2" @click="addToGroup('group2')" :disabled="!canAddToGroup">
-              ➕ 添加到組2
-            </button>
-          </div>
 
           <!-- 已選列表 -->
           <div class="selected-groups-container">
             <!-- 組1已選 -->
-            <div class="selected-group">
-              <div class="selected-group-header">組1已選 ({{ tabStates.tab2.group1Items.length }})</div>
+            <div class="selected-group group1-style">
+              <div class="selected-group-header">
+<!--                <span>組1已選 ({{ tabStates.tab2.group1Items.length }})</span>-->
+                <span>組1</span>
+                <button class="add-btn add-to-group1" @click="addToGroup('group1')" :disabled="!canAddToGroup">
+                  ➕ 添加
+                </button>
+              </div>
               <div class="selected-items-list">
                 <div
                     v-for="(item, index) in tabStates.tab2.group1Items"
@@ -230,8 +215,14 @@
             </div>
 
             <!-- 組2已選 -->
-            <div class="selected-group">
-              <div class="selected-group-header">組2已選 ({{ tabStates.tab2.group2Items.length }})</div>
+            <div class="selected-group group2-style">
+              <div class="selected-group-header">
+                <span>組2</span>
+<!--                <span>組2已選 ({{ tabStates.tab2.group2Items.length }})</span>-->
+                <button class="add-btn add-to-group2" @click="addToGroup('group2')" :disabled="!canAddToGroup">
+                  ➕ 添加
+                </button>
+              </div>
               <div class="selected-items-list">
                 <div
                     v-for="(item, index) in tabStates.tab2.group2Items"
@@ -247,6 +238,18 @@
               </div>
             </div>
           </div>
+
+          <ZhongguSelector
+              :active-keys="tabStates.tab2.current.keys"
+              :value-map="tabStates.tab2.current.valueMap"
+              :is-dropdown-open="!!dropdownOpen || excludeDropdownOpen === 'tab2_current'"
+              :selected-card="tabStates.tab2.current.card"
+              :exclude-columns="tabStates.tab2.current.excludeColumns"
+              @update:runDisabled="tab2CurrentDisabled = $event"
+              ref="ZhongguRefCurrent"
+          />
+            </div>
+          </div>
         </div>
       </div>
       <!-- Tab4: ???? -->
@@ -256,7 +259,12 @@
           <div class="compare-group">
             <!-- <div class="group-label">??????</div> -->
             <div class="tone-selection">
-              <label v-for="(toneLabel, i) in toneClassLabels" :key="i + 1" class="tone-checkbox">
+              <label
+                v-for="(toneLabel, i) in toneClassLabels"
+                :key="i + 1"
+                class="tone-checkbox"
+                :class="getToneCheckboxClass(i + 1)"
+              >
                 <input
                   type="checkbox"
                   :value="i + 1"
@@ -315,6 +323,7 @@ import { globalPayload, queryStore, uiStore, isQueryButtonDisabled, setRunning, 
 import { column_values, S2T_T2S_MAPPING } from '@/config'
 import { compareChars, compareZhongGu, compareTones } from '@/api/index.js'
 import { getCoordinates } from '@/api/query/geo'
+import { showWarning } from '@/utils/message.js'
 
 const locationRef = ref(null)
 const router = useRouter()
@@ -354,6 +363,7 @@ const excludeOptions = [
   { value: '多調', label: '排除多調' }
 ]
 const excludeFilterTriggerRef = reactive({
+  tab2_current: null,  // ✅ 添加 current 的 ref
   tab2_group1: null,
   tab2_group2: null
 })
@@ -412,6 +422,28 @@ function addToGroup(groupName) {
   // 從 ZhongguRefCurrent 獲取當前的 combinations
   const combinations = ZhongguRefCurrent.value?.combinations || []
 
+  // 獲取目標組的已有條件
+  const targetGroup = groupName === 'group1' ? tabStates.tab2.group1Items : tabStates.tab2.group2Items
+
+  // ✅ 檢查排除設置是否一致（方案C：強制統一）
+  if (targetGroup.length > 0) {
+    const existingExclude = targetGroup[0].excludeColumns
+    const currentExclude = current.excludeColumns
+
+    // 比較兩個數組是否相同
+    const isSame = existingExclude.length === currentExclude.length &&
+                   existingExclude.every(col => currentExclude.includes(col))
+
+    if (!isSame) {
+      showWarning(
+        `同一組內的條件必須使用相同的排除設置！\n` +
+        `已有條件排除：${existingExclude.length > 0 ? existingExclude.join(', ') : '無'}\n` +
+        `當前條件排除：${currentExclude.length > 0 ? currentExclude.join(', ') : '無'}`
+      )
+      return  // 不允許添加
+    }
+  }
+
   // 創建當前選擇的快照，包含 combinations
   const snapshot = {
     card: current.card,
@@ -422,11 +454,7 @@ function addToGroup(groupName) {
   }
 
   // 添加到對應組
-  if (groupName === 'group1') {
-    tabStates.tab2.group1Items.push(snapshot)
-  } else if (groupName === 'group2') {
-    tabStates.tab2.group2Items.push(snapshot)
-  }
+  targetGroup.push(snapshot)
 
   console.log(`已添加到${groupName}:`, snapshot)
 }
@@ -443,7 +471,8 @@ function removeFromGroup(groupName, index) {
 // 格式化已選項目顯示
 function formatSelectedItem(item) {
   const parts = []
-  parts.push(item.card)
+  // ❌ 不再顯示 card（聲韻調），因為必須相同才能比較
+  // parts.push(item.card)
 
   item.keys.forEach(key => {
     const values = item.valueMap[key]
@@ -513,6 +542,14 @@ watch(() => tabStates.tab4, (newVal) => {
   setTabContentDisabled('query', 'tab4', !isValid)
 }, { immediate: true, deep: true })
 
+// Tab4 调类复选框颜色类
+function getToneCheckboxClass(toneValue) {
+  const index = tabStates.tab4.selectedToneClasses.indexOf(toneValue)
+  if (index === 0) return 'tone-checkbox-green'
+  if (index === 1) return 'tone-checkbox-blue'
+  return ''
+}
+
 // 3️⃣ 同步当前 Tab 到 store
 watch(currentTab, (newTab) => {
   uiStore.currentSubTab.query = newTab
@@ -550,6 +587,16 @@ watch(() => tabStates.tab2.current.keys, (currentKeys) => {
     }
   })
 }, { immediate: true, deep: true })
+
+// 监听 card（聲韻調）变化，自動清空已選列表
+watch(() => tabStates.tab2.current.card, (newCard, oldCard) => {
+  // 只有在真正切換時才清空（避免初始化時清空）
+  if (oldCard && newCard !== oldCard) {
+    console.log(`🔄 聲韻調從 "${oldCard}" 切換到 "${newCard}"，清空已選列表`)
+    tabStates.tab2.group1Items = []
+    tabStates.tab2.group2Items = []
+  }
+})
 
 // 获取输入框显示的值
 function getInputDisplayValue(keyWithGroup) {
@@ -688,6 +735,7 @@ function onClickOutside(event) {
     // 检查动态的 triggers
     ...Object.values(triggerRefs.value),
     // ✨ 检查过滤器 triggers
+    excludeFilterTriggerRef.tab2_current,
     excludeFilterTriggerRef.tab2_group1,
     excludeFilterTriggerRef.tab2_group2
   ].some(el => el?.contains(event.target))
@@ -960,26 +1008,42 @@ const runAction = async () => {
         return
       }
 
-      // 使用第一個項目作為比較條件（如果需要支持多個條件，可以遍歷所有項目）
-      const group1Item = tabStates.tab2.group1Items[0]
-      const group2Item = tabStates.tab2.group2Items[0]
+      // ✅ 合併所有條件的 combinations（方案A：OR邏輯）
+      const group1Combinations = tabStates.tab2.group1Items.flatMap(item => item.combinations || [])
+      const group2Combinations = tabStates.tab2.group2Items.flatMap(item => item.combinations || [])
+
+      // ✅ 排除設置：因為已經強制統一，直接取第一個即可
+      const group1Exclude = tabStates.tab2.group1Items[0].excludeColumns
+      const group2Exclude = tabStates.tab2.group2Items[0].excludeColumns
+
+      // ✅ 卡片（聲韻調）：因為已經強制統一，直接取第一個即可
+      const group1Card = tabStates.tab2.group1Items[0].card
+      const group2Card = tabStates.tab2.group2Items[0].card
 
       const params = {
-        path_strings1: group1Item.combinations || [],
+        path_strings1: group1Combinations,
         column1: null,
         combine_query1: false,
-        exclude_columns1: group1Item.excludeColumns,
+        exclude_columns1: group1Exclude,
 
-        path_strings2: group2Item.combinations || [],
+        path_strings2: group2Combinations,
         column2: null,
         combine_query2: false,
-        exclude_columns2: group2Item.excludeColumns,
+        exclude_columns2: group2Exclude,
 
         locations: locationList,
         regions: regionList,
-        features: [group1Item.card, group2Item.card],
+        features: [group1Card, group2Card],
         region_mode: locationRef.value?.regionUsing || 'yindian'
       }
+
+      console.log('🔍 比較中古參數:', {
+        組1條件數: tabStates.tab2.group1Items.length,
+        組1組合數: group1Combinations.length,
+        組2條件數: tabStates.tab2.group2Items.length,
+        組2組合數: group2Combinations.length,
+        params
+      })
 
       console.log('📤 Tab2 API 參數:', params)
       compareResponse = await compareZhongGu(params)
@@ -1373,7 +1437,7 @@ export default {
 <style scoped>
 
 .page{
-  overflow-x: hidden!important;
+  overflow-x: hidden;
 }
 /* 📄 內容區塊動畫 */
 .tab-content-inner {
@@ -1763,7 +1827,7 @@ export default {
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.9);
   text-align: center;
-  font-size: 20px;
+  font-size: 16px;
   font-weight: 600;
   outline: none;
 }
@@ -1792,6 +1856,18 @@ export default {
   font-weight: 600;
   margin-bottom: 1rem;
   box-shadow: 0 2px 8px rgba(0, 122, 255, 0.2);
+}
+
+.group1-style .group-label {
+  background: linear-gradient(135deg, rgba(76, 175, 80, 0.15), rgba(76, 175, 80, 0.25));
+  color: #2E7D32;
+  box-shadow: 0 2px 8px rgba(76, 175, 80, 0.2);
+}
+
+.group2-style .group-label {
+  background: linear-gradient(135deg, rgba(33, 150, 243, 0.15), rgba(33, 150, 243, 0.25));
+  color: #1565C0;
+  box-shadow: 0 2px 8px rgba(33, 150, 243, 0.2);
 }
 
 .vs-divider {
@@ -1912,12 +1988,40 @@ export default {
 }
 
 .selected-group-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
   font-weight: 700;
   font-size: 1.1rem;
   color: #007aff;
   margin-bottom: 0.8rem;
   padding-bottom: 0.5rem;
   border-bottom: 2px solid rgba(0, 122, 255, 0.2);
+  white-space: nowrap;
+}
+
+.selected-group.group1-style {
+  border-color: rgba(76, 175, 80, 0.4);
+}
+
+.selected-group.group1-style .selected-group-header {
+  color: #2E7D32;
+  border-bottom-color: rgba(76, 175, 80, 0.3);
+}
+
+.selected-group.group2-style {
+  border-color: rgba(33, 150, 243, 0.4);
+}
+
+.selected-group.group2-style .selected-group-header {
+  color: #1565C0;
+  border-bottom-color: rgba(33, 150, 243, 0.3);
+}
+
+.selected-group-header .add-btn {
+  font-size: 0.85rem;
+  padding: 0.4rem 0.8rem;
   white-space: nowrap;
 }
 
@@ -1942,8 +2046,7 @@ export default {
 
 .selected-item:hover {
   background: rgba(255, 255, 255, 1);
-  border-color: rgba(0, 122, 255, 0.4);
-  transform: translateX(4px);
+  border-color: rgba(6, 56, 110, 0.4);
 }
 
 .item-label {
@@ -1978,15 +2081,16 @@ export default {
   text-align: center;
   color: #999;
   font-size: 0.9rem;
-  padding: 2rem 1rem;
+  padding: 0;
   font-style: italic;
+  white-space: nowrap;
 }
 
 /* 特徵選擇樣式 */
 .feature-selection {
   width: 100%;
-  padding: 1rem;
-  border-radius: 10px;
+  padding: 0.6rem 0.8rem;
+  border-radius: 8px;
   background: rgba(255, 255, 255, 0.6);
   border: 1px solid rgba(200, 200, 200, 0.3);
 }
@@ -1995,13 +2099,13 @@ export default {
   display: block;
   font-weight: 600;
   color: #333;
-  margin-bottom: 0.8rem;
-  font-size: 0.95rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
 }
 
 .feature-checkboxes {
   display: flex;
-  gap: 1.5rem;
+  gap: 0.8rem;
   flex-wrap: nowrap;
   justify-content: center;
   overflow-x: auto;
@@ -2013,26 +2117,30 @@ export default {
 .checkbox-item {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.4rem;
   cursor: pointer;
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
-  transition: background 0.2s;
+  padding: 0.35rem 0.7rem;
+  border-radius: 6px;
+  transition: all 0.2s;
+  background: rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(0, 122, 255, 0.15);
 }
 
 .checkbox-item:hover {
   background: rgba(0, 122, 255, 0.1);
+  border-color: rgba(0, 122, 255, 0.3);
 }
 
 .checkbox-item input[type="checkbox"],
 .checkbox-item input[type="radio"] {
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
   cursor: pointer;
+  margin: 0;
 }
 
 .checkbox-item span {
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   font-weight: 500;
   color: #333;
 }
@@ -2080,6 +2188,34 @@ export default {
   font-size: 0.95rem;
   font-weight: 600;
   color: #007aff;
+}
+
+.tone-checkbox-green {
+  background: rgba(76, 175, 80, 0.1);
+  border-color: #4CAF50;
+}
+
+.tone-checkbox-green:hover {
+  background: rgba(76, 175, 80, 0.2);
+  border-color: #4CAF50;
+}
+
+.tone-checkbox-green span {
+  color: #2E7D32;
+}
+
+.tone-checkbox-blue {
+  background: rgba(33, 150, 243, 0.1);
+  border-color: #2196F3;
+}
+
+.tone-checkbox-blue:hover {
+  background: rgba(33, 150, 243, 0.2);
+  border-color: #2196F3;
+}
+
+.tone-checkbox-blue span {
+  color: #1565C0;
 }
 
 /* 移動端適配 */

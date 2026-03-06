@@ -1,6 +1,9 @@
 <template>
   <div class="subset-analysis-page">
-      <h3 class="villagesml-subtab-title">ML計算 - 子集分析</h3>
+      <h3 class="villagesml-subtab-title">
+        ML計算 - 子集分析
+        <HelpIcon content="對自訂村莊子集進行聚類分析。支持多條件篩選（區域、語義、結構、長度等），提取特徵向量後使用K-Means、DBSCAN或GMM算法聚類。適合比較不同子集的聚類模式差異" />
+      </h3>
     <!-- Header -->
     <div class="page-header">
 <!--      <h2>🔐 子集分析 Subset Analysis</h2>-->
@@ -527,6 +530,7 @@ import { showError, showSuccess, showWarning, showInfo } from '@/utils/message.j
 import { userStore } from '@/store/store.js'
 import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
 import FilterableSelect from '@/components/common/FilterableSelect.vue'
+import HelpIcon from '@/components/ToastAndHelp/HelpIcon.vue'
 import { FILTER_FIELDS, getOperatorOptions, getDefaultOperator, getFieldInputType, getFieldOptions } from '@/config/subsetFilters.js'
 import { getCategoryName, getCategoryIcon } from '@/config/villagesML.js'
 

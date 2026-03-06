@@ -1,6 +1,9 @@
 <template>
   <div class="pattern-structural-page">
-    <h3 class="villagesml-subtab-title">模式分析 - 結構分析</h3>
+    <h3 class="villagesml-subtab-title">
+      模式分析 - 結構分析
+      <HelpIcon content="分析村名的結構模式。前綴模式：以特定字符開頭（如「新X」）。後綴模式：以特定字符結尾（如「X村」）。複合模式：包含特定字符組合的模式" />
+    </h3>
 
     <div class="glass-panel">
       <h2>🏗️ 模式結構分析</h2>
@@ -66,6 +69,7 @@
 import { ref } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
+import HelpIcon from '@/components/ToastAndHelp/HelpIcon.vue'
 import { getPatternStructural } from '@/api/index.js'
 import { showError } from '@/utils/message.js'
 

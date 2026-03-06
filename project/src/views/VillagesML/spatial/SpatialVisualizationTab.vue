@@ -1,7 +1,10 @@
 <template>
   <div class="spatial-visualization-tab">
 <!--      <h3 class="villagesml-subtab-title">空間分析 - 空間可視化</h3>-->
-    <h2>🗺️ 空間可視化</h2>
+    <h2>
+      🗺️ 空間可視化
+      <HelpIcon content="多圖層疊加可視化。支持熱點、聚類、N-gram分布、字符傾向熱力圖的組合展示。字符傾向使用藍→白→紅漸變表示Lift值（低→中→高）" />
+    </h2>
 
     <div class="viz-container">
       <!-- 左側控制面板 -->
@@ -157,6 +160,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import SpatialMap from './SpatialMap.vue'
 import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
+import HelpIcon from '@/components/ToastAndHelp/HelpIcon.vue'
 import {
   getSpatialHotspots,
   getSpatialClusters,

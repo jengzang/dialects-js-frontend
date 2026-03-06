@@ -1,6 +1,9 @@
 <template>
   <div class="regional-vectors-page">
-    <h3 class="villagesml-subtab-title">區域分析 - 特徵向量</h3>
+    <h3 class="villagesml-subtab-title">
+      區域分析 - 特徵向量
+      <HelpIcon content="基於9維語義類別特徵向量比較區域。餘弦相似度：向量夾角余弦值（0-1）。歐氏距離：向量空間直線距離。曼哈頓距離：各維度差值絕對值之和。支持批量比較熱力圖和PCA降維散點圖" />
+    </h3>
 
     <!-- Region Selector -->
     <div class="glass-panel selector-panel">
@@ -220,6 +223,7 @@ import * as echarts from 'echarts'
 import { compareRegionalVectors, batchCompareRegionalVectors, reduceRegionalVectors } from '@/api/index.js'
 import { showError, showSuccess, showWarning } from '@/utils/message.js'
 import FilterableSelect from '@/components/common/FilterableSelect.vue'
+import HelpIcon from '@/components/ToastAndHelp/HelpIcon.vue'
 import { SEMANTIC_CATEGORY_NAMES } from '@/config/villagesML.js'
 
 // State - Two Region Comparison
