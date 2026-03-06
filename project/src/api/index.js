@@ -120,8 +120,7 @@ export {
 export {
   getCustomRegions,
   createOrUpdateCustomRegion,
-  deleteCustomRegion,
-  clearCustomRegionsCache
+  deleteCustomRegion
 } from './user/custom-regions.js'
 
 // ==================== 日志统计 ====================

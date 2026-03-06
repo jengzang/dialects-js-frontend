@@ -226,6 +226,7 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import { useCustomRegionStore } from '@/store/customRegionStore'
 import {
   getCustomRegions,
   createOrUpdateCustomRegion,
@@ -237,6 +238,9 @@ import PartitionInfoModal from '@/components/query/PartitionInfoModal.vue'
 
 const router = useRouter()
 const route = useRoute()
+
+// Use custom region store for cache invalidation
+const { invalidateCache, refresh } = useCustomRegionStore()
 
 // State
 const regions = ref([])
@@ -339,7 +343,8 @@ const goBack = () => {
 const loadRegions = async () => {
   loading.value = true
   try {
-    const data = await getCustomRegions()
+    // 强制刷新缓存并获取最新数据
+    const data = await refresh()
     regions.value = data.regions || []
     // 判斷數量
     if (regions.value.length > 0) {
@@ -489,6 +494,10 @@ const saveRegion = async () => {
 
     await createOrUpdateCustomRegion(data)
     showSuccess(editingRegion.value.id ? '更新成功' : '創建成功')
+
+    // 清除缓存，确保其他地方获取到最新数据
+    invalidateCache()
+
     closeEditModal()
     await loadRegions()
   } catch (error) {
@@ -514,6 +523,10 @@ const deleteRegion = async (regionName) => {
   try {
     await deleteCustomRegion(regionName)
     showSuccess('刪除成功')
+
+    // 清除缓存，确保其他地方获取到最新数据
+    invalidateCache()
+
     await loadRegions()
   } catch (error) {
     showError('刪除失敗：' + error.message)
