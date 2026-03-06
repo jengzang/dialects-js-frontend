@@ -310,41 +310,46 @@
       </div>
     </section>
 
-    <!-- Projects Section -->
-    <section class="projects-section">
-      <h2 class="section-title">開源項目</h2>
-      <p class="section-subtitle">歡迎 Star ⭐ Fork 🍴 貢獻代碼</p>
-      <div class="projects-grid">
-        <a
-          v-for="project in projects"
-          :key="project.name"
-          :href="project.url"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="project-card"
-        >
-          <div class="project-icon">
-            <svg viewBox="0 0 16 16" fill="currentColor">
-              <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
-            </svg>
+    <!-- Roadmap Section -->
+    <section class="roadmap-section">
+      <h2 class="section-title">開發中的功能</h2>
+      <p class="section-subtitle">即將推出的新特性</p>
+      <div class="roadmap-list">
+        <div class="roadmap-item">
+          <div class="roadmap-header">
+            <div class="roadmap-icon">🎙️</div>
+            <h3 class="roadmap-title">韶子的語音學工具箱</h3>
           </div>
-          <div class="project-content">
-            <h3 class="project-name">{{ project.name }}</h3>
-            <p class="project-desc">{{ project.description }}</p>
-          </div>
-          <div class="project-arrow">→</div>
-        </a>
-      </div>
-
-      <div class="contact-card">
-        <div class="contact-icon">💬</div>
-        <div class="contact-content">
-          <h3 class="contact-title">聯繫作者</h3>
-          <p class="contact-desc">關注知乎，了解更多方言研究與GIS知識</p>
+          <p class="roadmap-desc">聲學參數批量估計、多算法基頻檢測、EGG信號分析、聲門參數提取</p>
         </div>
-        <button class="contact-btn" @click="openZhihu">
-          前往知乎
-        </button>
+        <div class="roadmap-item">
+          <div class="roadmap-header">
+            <div class="roadmap-icon">🧬</div>
+            <h3 class="roadmap-title">方言聚類分析</h3>
+          </div>
+          <p class="roadmap-desc">自定義音值音位權重、調整聚類算法參數、基於音位向量的多維度相似度計算</p>
+        </div>
+        <div class="roadmap-item">
+          <div class="roadmap-header">
+            <div class="roadmap-icon">🌳</div>
+            <h3 class="roadmap-title">方言演化樹狀圖</h3>
+          </div>
+          <p class="roadmap-desc">自定義演化模型參數、調整分支長度算法、交互式系統發生樹構建與可視化</p>
+        </div>
+        <div class="roadmap-item">
+          <div class="roadmap-header">
+            <div class="roadmap-icon">🔊</div>
+            <h3 class="roadmap-title">IPA 轉語音合成</h3>
+          </div>
+          <p class="roadmap-desc">國際音標到語音的實時轉換、多方言音色支持</p>
+        </div>
+        <div class="roadmap-item">
+          <div class="roadmap-header">
+            <div class="roadmap-icon">🤖</div>
+            <h3 class="roadmap-title">方言對話機器人</h3>
+          </div>
+          <p class="roadmap-desc">基於規整字表集的LLM微調、音色克隆、方言語音交互（遠景規劃）</p>
+        </div>
       </div>
     </section>
 
@@ -390,6 +395,44 @@
             查看詳情
           </button>
         </div>
+      </div>
+    </section>
+
+    <!-- Projects Section -->
+    <section class="projects-section">
+      <h2 class="section-title">開源項目</h2>
+      <p class="section-subtitle">歡迎 Star ⭐ Fork 🍴 貢獻代碼</p>
+      <div class="projects-grid">
+        <a
+          v-for="project in projects"
+          :key="project.name"
+          :href="project.url"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="project-card"
+        >
+          <div class="project-icon">
+            <svg viewBox="0 0 16 16" fill="currentColor">
+              <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+            </svg>
+          </div>
+          <div class="project-content">
+            <h3 class="project-name">{{ project.name }}</h3>
+            <p class="project-desc">{{ project.description }}</p>
+          </div>
+          <div class="project-arrow">→</div>
+        </a>
+      </div>
+
+      <div class="contact-card">
+        <div class="contact-icon">💬</div>
+        <div class="contact-content">
+          <h3 class="contact-title">聯繫作者</h3>
+          <p class="contact-desc">關注知乎，了解更多方言研究與GIS知識</p>
+        </div>
+        <button class="contact-btn" @click="openZhihu">
+          前往知乎
+        </button>
       </div>
     </section>
 
@@ -939,11 +982,85 @@ onMounted(() => {
   transform: translateY(0);
 }
 
+/* Roadmap */
+.roadmap-section {
+  position: relative;
+  z-index: 1;
+  padding: clamp(2rem, 6vw, 4rem) clamp(1.5rem, 4vw, 2.5rem);
+  max-width: 1100px;
+  margin: 0 auto;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.5) 0%, rgba(240, 248, 255, 0.6) 100%);
+  border-radius: 20px;
+}
+
+.roadmap-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr));
+  gap: 1rem;
+}
+
+.roadmap-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.875rem 1rem;
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(0, 122, 255, 0.12);
+  border-radius: 10px;
+  transition: all 0.3s ease;
+  height: 100%;
+}
+
+.roadmap-item:hover {
+  background: rgba(255, 255, 255, 0.75);
+  border-color: rgba(0, 122, 255, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 122, 255, 0.08);
+}
+
+.roadmap-header {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+.roadmap-icon {
+  font-size: 1.25rem;
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, rgba(0, 122, 255, 0.08) 0%, rgba(0, 95, 211, 0.12) 100%);
+  border-radius: 8px;
+}
+
+.roadmap-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.roadmap-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #007aff;
+  margin: 0;
+}
+
+.roadmap-desc {
+  font-size: 0.8rem;
+  color: rgba(0, 0, 0, 0.6);
+  line-height: 1.5;
+  margin: 0;
+}
+
 /* Projects */
 .projects-section {
   position: relative;
   z-index: 1;
-  padding: clamp(3rem, 8vw, 6rem) clamp(1.5rem, 4vw, 2.5rem);
+  padding: clamp(1.5rem, 4vw, 2.5rem) clamp(1.5rem, 4vw, 2.5rem) clamp(3rem, 8vw, 6rem);
   max-width: 1300px;
   margin: 0 auto;
 }
@@ -1093,7 +1210,7 @@ onMounted(() => {
 .login-section {
   position: relative;
   z-index: 1;
-  padding: 0 clamp(1.5rem, 4vw, 2.5rem) clamp(3rem, 8vw, 6rem);
+  padding: clamp(3rem, 8vw, 6rem) clamp(1.5rem, 4vw, 2.5rem) clamp(1.5rem, 4vw, 2.5rem);
   max-width: 1300px;
   margin: 0 auto;
 }

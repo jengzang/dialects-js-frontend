@@ -48,14 +48,39 @@ export default defineConfig(({ mode }) => {
           chunkFileNames: 'assets/[name].[hash].js',  // 在chunk文件名中添加哈希值
           assetFileNames: 'assets/[name].[hash].[ext]', // 在资产文件（如 css, images）中添加哈希值
           // 启用代码分割 - 将大型依赖拆分为独立chunks
-          manualChunks: {
-            'echarts': ['echarts'],
-            'maplibre': ['maplibre-gl'],
-            'xlsx': ['xlsx'],
-            'vue-vendor': ['vue', 'vue-router'],
-            'wavesurfer': ['wavesurfer.js']
+          manualChunks(id) {
+            // 首頁不需要的大型庫單獨打包
+            if (id.includes('echarts')) {
+              return 'echarts'
+            }
+            if (id.includes('maplibre-gl')) {
+              return 'maplibre'
+            }
+            if (id.includes('xlsx')) {
+              return 'xlsx'
+            }
+            if (id.includes('wavesurfer')) {
+              return 'wavesurfer'
+            }
+            // Vue 核心庫（首頁需要）
+            if (id.includes('node_modules/vue') || id.includes('node_modules/vue-router')) {
+              return 'vue-vendor'
+            }
+            // 其他 node_modules 依賴
+            if (id.includes('node_modules')) {
+              return 'vendor'
+            }
           }
         },
+      },
+      // 優化配置
+      chunkSizeWarningLimit: 1000, // 提高警告閾值到 1MB
+      minify: 'terser', // 使用 terser 壓縮
+      terserOptions: {
+        compress: {
+          drop_console: true, // 生產環境移除 console
+          drop_debugger: true
+        }
       }
     }
   }

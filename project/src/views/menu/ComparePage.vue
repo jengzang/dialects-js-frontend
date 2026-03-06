@@ -65,7 +65,7 @@
       </div>
 
       <!-- Tab2: 比較中古 --  -->
-      <div v-show="currentTab === 'tab2'" class="page" style="max-height: 60dvh;">
+      <div v-show="currentTab === 'tab2'" class="page" style="max-height: 55dvh;">
         <div class="page-content-stack">
           <!-- 單一中古選擇器 -->
           <div class="compare-group">
@@ -1372,6 +1372,9 @@ export default {
 
 <style scoped>
 
+.page{
+  overflow-x: hidden!important;
+}
 /* 📄 內容區塊動畫 */
 .tab-content-inner {
   width: 100%;
@@ -1861,6 +1864,7 @@ export default {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  white-space: nowrap;
 }
 
 .add-to-group1 {
@@ -1914,6 +1918,7 @@ export default {
   margin-bottom: 0.8rem;
   padding-bottom: 0.5rem;
   border-bottom: 2px solid rgba(0, 122, 255, 0.2);
+  white-space: nowrap;
 }
 
 .selected-items-list {
