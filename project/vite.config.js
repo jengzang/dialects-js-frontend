@@ -75,12 +75,9 @@ export default defineConfig(({ mode }) => {
       },
       // 優化配置
       chunkSizeWarningLimit: 1000, // 提高警告閾值到 1MB
-      minify: 'terser', // 使用 terser 壓縮
-      terserOptions: {
-        compress: {
-          drop_console: true, // 生產環境移除 console
-          drop_debugger: true
-        }
+      minify: 'esbuild', // 使用 esbuild 壓縮（更快）
+      esbuild: {
+        drop: ['console', 'debugger'], // 生產環境移除 console 和 debugger
       }
     }
   }
