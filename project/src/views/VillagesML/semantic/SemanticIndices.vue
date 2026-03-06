@@ -1,6 +1,9 @@
 <template>
   <div class="semantic-indices-page">
-    <h3 class="villagesml-subtab-title">語義分析 - 語義指數</h3>
+    <h3 class="villagesml-subtab-title">
+      語義分析 - 語義指數
+      <HelpIcon content="計算區域的語義強度指數。語義強度 = 該區域村莊名稱中，平均每個村莊包含該語義類別字符的次數。標準化指數用於跨區域比較，省內排名反映該語義類別在省內的相對強度" />
+    </h3>
 
     <!-- Detail Mode Toggle -->
     <div class="detail-toggle glass-panel">
@@ -202,6 +205,7 @@
 import { ref, watch, computed } from 'vue'
 import FilterableSelect from '@/components/common/FilterableSelect.vue'
 import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
+import HelpIcon from '@/components/ToastAndHelp/HelpIcon.vue'
 import { getSemanticIndices } from '@/api/index.js'
 import { showError } from '@/utils/message.js'
 import { getCategoryDisplayName, getSubcategoryName } from '@/config/villagesML.js'

@@ -1,6 +1,9 @@
 <template>
   <div class="hierarchical-panel">
-    <h3 class="villagesml-subtab-title">ML計算 - 層次聚類</h3>
+    <h3 class="villagesml-subtab-title">
+      ML計算 - 層次聚類
+      <HelpIcon content="市-縣-鎮三級層次聚類分析。先對市級聚類，再在每個市級聚類內對縣級聚類，最後在每個縣級聚類內對鎮級聚類。特徵包括語義類別、字符嵌入、結構特徵。適合發現多尺度的地名模式" />
+    </h3>
     <div class="two-col-layout">
     <div class="settings-section glass-panel">
       <h3 class="panel-title">層次聚類</h3>
@@ -59,6 +62,7 @@ import { villagesMLStore } from '@/store/villagesMLStore.js'
 import { userStore } from '@/store/store.js'
 import { runHierarchicalClustering } from '@/api/index.js'
 import { showSuccess, showError, showWarning } from '@/utils/message.js'
+import HelpIcon from '@/components/ToastAndHelp/HelpIcon.vue'
 import AlgorithmSelector from './shared/AlgorithmSelector.vue'
 import PreprocessingSettings from './shared/PreprocessingSettings.vue'
 import FeatureToggles from './shared/FeatureToggles.vue'

@@ -3,13 +3,21 @@
 
 export const menuConfig = {
   // Level 1: External link to old website
-  'old-site': {
-    label: '舊版網站',
-    icon: '🕰️',
-    path: '/detail', // Will be set dynamically using window.WEB_BASE
+  // 'old-site': {
+  //   label: '舊版網站',
+  //   icon: '🕰️',
+  //   path: '/detail', // Will be set dynamically using window.WEB_BASE
+  //   external: true,
+  //   children: null,
+  //   // showIn: ['NavBar']
+  // },
+    // Level 1: External link to old website
+  'home': {
+    label: '首頁',
+    icon: '🏛️',
+    path: '/', // Will be set dynamically using window.WEB_BASE
     external: true,
     children: null,
-    // showIn: ['NavBar']
   },
   // Special: Return to query (only in SimpleSidebar)
   'query': {
@@ -38,7 +46,29 @@ export const menuConfig = {
         path:'/menu?tab=query&sub=tab4'
       },
     ],
-    showIn: ['SimpleSidebar']
+    // showIn: ['SimpleSidebar']
+  },
+'compare': {
+    label: '比較',
+    icon: '↔️', // 或者用 ⚖️
+    path: '/menu?tab=compare',
+    children: [
+      {
+        label: '漢字對比',
+        icon: '🔠',
+        path: '/menu?tab=compare&sub=tab1'
+      },
+      {
+        label: '中古對比',
+        icon: '📜',
+        path: '/menu?tab=compare&sub=tab2'
+      },
+      {
+        label: '調類對比',
+        icon: '📈',
+        path: '/menu?tab=compare&sub=tab4'
+      }
+    ],
   },
 
   // Level 2: Expandable data submenu
@@ -50,25 +80,25 @@ export const menuConfig = {
       {
         label: '音系查詢',
         icon: '⚛️',
-        path: '/explore?page=phonologyMatrix'
+        path: '/menu?tab=pho&sub=phonologyMatrix'
       },
       {
         label: '音素分類',
         icon: '📐',
-        path: '/explore?page=phonologyCustom'
+        path: '/menu?tab=pho&sub=phonologyCustom'
       },
       {
         label: '音節統計',
         icon: '🧮',
-        path: '/explore?page=Countphos'
+        path: '/menu?tab=pho&sub=Countphos'
       },
       {
         label: '中古地位',
         icon: '✍️',
-        path: '/explore?page=ZhongGu'
+        path: '/menu?tab=pho&sub=ZhongGu'
       },
     ],
-    showIn: ['SimpleSidebar']
+    // showIn: ['SimpleSidebar']
   },
 
   // Level 2: Expandable data submenu
@@ -93,7 +123,7 @@ export const menuConfig = {
         path: '/explore?page=ycSpoken'
       },
     ],
-    showIn: ['SimpleSidebar']
+    // showIn: ['SimpleSidebar']
   },
 
   // Level 2: Expandable villages submenu
@@ -123,7 +153,7 @@ export const menuConfig = {
         path: '/explore?page=ycVillages'
       }
     ],
-    showIn: ['SimpleSidebar']
+    // showIn: ['SimpleSidebar']
   },
 // Level 2: Expandable tools submenu
 'tools': {
@@ -152,36 +182,36 @@ export const menuConfig = {
       path: '/explore?page=praat'
     }
   ],
-  showIn: ['SimpleSidebar']
+  // showIn: ['SimpleSidebar']
 },
-  'check':{
-    label: '字表工具',
-    icon: '📝',
-    path: '/explore?page=check',
-    children: null,
-    showIn: ['NavBar']
-  },
-  'jyut2ipa':{
-    label: '粵拼轉IPA',
-    icon: '🔤',
-    path: '/explore?page=jyut2ipa',
-    children: null,
-    showIn: ['NavBar']
-  },
-  'merge':{
-    label: '字表合併',
-    icon: '🔗',
-    path: '/explore?page=merge',
-    children: null,
-    showIn: ['NavBar']
-  },
-  'praat': {
-    label: '聲學分析',
-    icon: '👂️️',
-    path: '/explore?page=praat',
-    children: null,
-    showIn: ['NavBar']
-  },
+  // 'check':{
+  //   label: '字表工具',
+  //   icon: '📝',
+  //   path: '/explore?page=check',
+  //   children: null,
+  //   showIn: ['NavBar']
+  // },
+  // 'jyut2ipa':{
+  //   label: '粵拼轉IPA',
+  //   icon: '🔤',
+  //   path: '/explore?page=jyut2ipa',
+  //   children: null,
+  //   showIn: ['NavBar']
+  // },
+  // 'merge':{
+  //   label: '字表合併',
+  //   icon: '🔗',
+  //   path: '/explore?page=merge',
+  //   children: null,
+  //   showIn: ['NavBar']
+  // },
+  // 'praat': {
+  //   label: '聲學分析',
+  //   icon: '👂️️',
+  //   path: '/explore?page=praat',
+  //   children: null,
+  //   showIn: ['NavBar']
+  // },
   // Level 1: Direct navigation to Source page
   'source': {
     label: '資料源',
@@ -210,12 +240,12 @@ export const menuConfig = {
       }
     ]
   },
-  'about': {
-    label: '關於網站',
-    icon: '🌐️',
-    path: '/menu?tab=about&sub=intro',
-    children: null
-  },
+  // 'about': {
+  //   label: '關於網站',
+  //   icon: '🌐️',
+  //   path: '/menu?tab=about&sub=intro',
+  //   children: null
+  // },
   'about_ontop': {
     label: '關於網站',
     icon: '🌐️',

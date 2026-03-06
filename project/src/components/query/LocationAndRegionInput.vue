@@ -245,7 +245,8 @@
 
 <script setup>
 import { ref, nextTick ,onMounted, onActivated, watch, computed,defineProps } from 'vue'
-import { getLocations, getCustomFeature, sqlQuery, batchMatch, getPartitions, getCustomRegions } from '@/api'
+import { getLocations, getCustomFeature, sqlQuery, batchMatch, getPartitions } from '@/api'
+import { useCustomRegionStore } from '@/store/customRegionStore'
 import RegionSelector from "@/components/query/RegionSelector.vue"
 import PartitionInfoModal from "@/components/query/PartitionInfoModal.vue"
 import { userStore, setLocationDisabled } from '@/store/store.js'
@@ -370,29 +371,22 @@ function handleCustomRegionDataUpdate(regionObjects) {
   }
 }
 
+// Use custom region store
+const { fetchCustomRegions, customRegions } = useCustomRegionStore()
+
 // Load custom regions data when component mounts
 async function loadCustomRegionsData() {
   if (!userStore.isAuthenticated) return
 
   try {
-    const data = await getCustomRegions()
-    const regions = data.regions || []
+    // 只加载分区列表，不加载详情！
+    await fetchCustomRegions()
 
-    // Load full data for each region (including locations)
-    const fullRegions = await Promise.all(
-      regions.map(async (region) => {
-        try {
-          const fullData = await getCustomRegions(region.region_name)
-          return fullData.regions[0] || region
-        } catch (error) {
-          console.error(`Failed to load region ${region.region_name}:`, error)
-          return region
-        }
-      })
-    )
+    // 直接使用列表数据，不需要获取每个分区的详情
+    // 详情只在用户选择使用时才获取
+    customRegionsData.value = customRegions.value
 
-    customRegionsData.value = fullRegions
-    console.log(`Loaded ${fullRegions.length} custom regions with full data`)
+    console.log(`Loaded ${customRegions.value.length} custom regions (list only, no details)`)
   } catch (error) {
     console.error('Failed to load custom regions:', error)
   }

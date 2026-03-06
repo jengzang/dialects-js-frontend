@@ -1,6 +1,9 @@
 <template>
   <div class="pattern-tendency-page">
-    <h3 class="villagesml-subtab-title">模式分析 - 傾向性分析</h3>
+    <h3 class="villagesml-subtab-title">
+      模式分析 - 傾向性分析
+      <HelpIcon content="分析模式在不同區域的傾向性。Z分數≥2表示強傾向性，≥1表示中等傾向性。Z分數衡量該模式在特定區域的使用頻率是否顯著高於或低於全局平均" />
+    </h3>
 
     <div class="glass-panel">
       <h2>📊 模式傾向性分析</h2>
@@ -85,6 +88,7 @@
 import { ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
+import HelpIcon from '@/components/ToastAndHelp/HelpIcon.vue'
 import { getPatternTendency } from '@/api/index.js'
 import { showError } from '@/utils/message.js'
 

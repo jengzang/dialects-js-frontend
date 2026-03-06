@@ -1,7 +1,10 @@
 <template>
 <!--  <ExploreLayout>-->
     <div class="regional-aggregates-page">
-      <h3 class="villagesml-subtab-title">區域分析 - 🌍聚合統計</h3>
+      <h3 class="villagesml-subtab-title">
+        區域分析 - 🌍聚合統計
+        <HelpIcon content="按行政級別聚合村莊統計數據。包含村莊總數、平均名稱長度、語義類別分布等。空間聚合展示村莊密度、隔離指數和空間分散度的關係" />
+      </h3>
 <!--      <h1 class="page-title">🌍 區域聚合統計</h1>-->
 
       <!-- Aggregates Table -->
@@ -178,6 +181,7 @@ import { ref, computed, watch, nextTick, onBeforeUnmount } from 'vue'
 import ExploreLayout from '@/layouts/ExploreLayout.vue'
 import RegionDisplay from '@/components/common/RegionDisplay.vue'
 import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
+import HelpIcon from '@/components/ToastAndHelp/HelpIcon.vue'
 import * as echarts from 'echarts'
 import {
   getRegionalAggregatesCity,

@@ -1,6 +1,14 @@
 <template>
   <div class="semantic-composition-page">
-    <h3 class="villagesml-subtab-title">語義分析 - 組合模式</h3>
+    <h3 class="villagesml-subtab-title">
+      語義分析 - 組合模式
+      <HelpIcon
+        content="分析村名語義類別的組合規律。使用PMI（互信息）量化類別間關聯強度，PMI>2表示強關聯。"
+        size="md"
+        fontSize="16px"
+        trigger="both"
+      />
+    </h3>
 
     <!-- Composition Patterns -->
     <div class="patterns-section glass-panel">
@@ -77,6 +85,7 @@
 
 <script setup>
 import { ref } from 'vue'
+import HelpIcon from '@/components/ToastAndHelp/HelpIcon.vue'
 import { getSemanticCompositionPatterns } from '@/api/index.js'
 import { showError } from '@/utils/message.js'
 import { getPatternTypeName, getCategoryName } from '@/config/villagesML.js'

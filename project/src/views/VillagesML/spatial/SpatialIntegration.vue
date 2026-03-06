@@ -2,7 +2,10 @@
 <!--  <ExploreLayout>-->
     <div class="spatial-integration-page">
 <!--      <h3 class="villagesml-subtab-title">空間分析 - 空間整合</h3>-->
-      <h1 class="page-title">🌐 空間整合分析</h1>
+      <h1 class="page-title">
+        🌐 空間整合分析
+        <HelpIcon content="整合字符傾向與空間聚類數據。分析字符在特定聚類中的傾向偏差、空間一致性和統計顯著性。支持按字符或按聚類查詢" />
+      </h1>
 
       <!-- Query Mode Selector -->
       <div class="mode-selector glass-panel">
@@ -352,6 +355,7 @@ import { ref, computed, watch, onMounted } from 'vue'
 import ExploreLayout from '@/layouts/ExploreLayout.vue'
 import SpatialMap from './SpatialMap.vue'
 import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
+import HelpIcon from '@/components/ToastAndHelp/HelpIcon.vue'
 import {
   getSpatialIntegration,
   getSpatialIntegrationByChar,

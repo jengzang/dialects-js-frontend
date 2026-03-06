@@ -1,7 +1,15 @@
 <template>
   <div class="tendency-heatmap-panel glass-panel">
     <div class="panel-header">
-      <h3 class="panel-title">字傾向性熱力圖</h3>
+      <h3 class="panel-title">
+        字傾向性熱力圖
+        <HelpIcon
+          content="條形高度越高，表示該字符在該地區的使用傾向性越強（TF-IDF 值越高），由此可發現顯著的地域特色用字。本圖表僅展示排行前列的高傾向字項，綠色條柱代表正傾向（即該地區偏好使用的特徵用字）。"
+          size="md"
+          fontSize="16px"
+          trigger="both"
+        />
+      </h3>
 
       <div v-if="data.length > 0" class="metric-selector">
         <button
@@ -10,6 +18,12 @@
           @click="selectedMetric = 'z_score'"
         >
           Z-Score
+          <HelpIcon
+            content="標準化偏差，公式：z = (觀察頻率 - 期望頻率) / √(期望頻率 × (1-p))。z>2表示顯著偏好（p<0.05），z<-2表示顯著迴避。數值越大，該字符在該地區的使用傾向性越強"
+            size="sm"
+            fontSize="14px"
+            trigger="both"
+          />
         </button>
         <button
           class="metric-button"
@@ -17,6 +31,12 @@
           @click="selectedMetric = 'log_odds'"
         >
           Log Odds
+          <HelpIcon
+            content="對數幾率差，公式：log(p/(1-p)) - log(q/(1-q))。正值表示偏好，負值表示迴避。相比Lift，Log-odds對極端概率更敏感"
+            size="sm"
+            fontSize="14px"
+            trigger="both"
+          />
         </button>
       </div>
     </div>
@@ -37,6 +57,7 @@
 <script setup>
 import { ref, watch, onMounted, nextTick } from 'vue'
 import * as echarts from 'echarts'
+import HelpIcon from '@/components/ToastAndHelp/HelpIcon.vue'
 
 const props = defineProps({
   data: { type: Array, default: () => [] },

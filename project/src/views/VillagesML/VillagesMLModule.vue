@@ -51,7 +51,10 @@
 
       <!-- Legacy Tab: Clustering Analysis -->
       <div v-else-if="activeModule === 'compute' && activeSubtab === 'clustering'" class="legacy-tab">
-        <h3 class="villagesml-subtab-title">ML計算 - 聚類分析</h3>
+        <h3 class="villagesml-subtab-title">
+          ML計算 - 聚類分析
+          <HelpIcon content="基於多維特徵的區域聚類。特徵包括語義類別（9維VTF）、字符嵌入（100維Word2Vec）、結構特徵。算法：K-Means（質心聚類）、DBSCAN（密度聚類，自動確定聚類數）、GMM（高斯混合模型，軟聚類）。支持標準化、PCA降維等預處理" />
+        </h3>
         <div class="two-column-layout2">
           <ClusteringSettingsPanel
             ref="clusteringSettingsPanelRef"
@@ -68,7 +71,10 @@
 
       <!-- Legacy Tab: Semantic Network -->
       <div v-else-if="activeModule === 'semantic' && activeSubtab === 'network'" class="legacy-tab">
-        <h3 class="villagesml-subtab-title">語義分析 - 語義網絡</h3>
+        <h3 class="villagesml-subtab-title">
+          語義分析 - 語義網絡
+          <HelpIcon content="基於語義類別共現構建網絡圖。節點為語義類別，邊權重為共現頻率。計算中心性指標：度中心性（連接數）、介數中心性（橋接作用）、接近中心性（平均距離）、特徵向量中心性（影響力）。社區檢測使用Louvain算法" />
+        </h3>
         <div class="two-column-layout2">
           <SemanticSettingsPanel
             :loading="semanticLoading"
@@ -230,6 +236,7 @@ import ClusteringSettingsPanel from '@/views/VillagesML/ml/ClusteringSettingsPan
 import ClusteringResultsPanel from '@/views/VillagesML/ml/ClusteringResultsPanel.vue'
 import SemanticSettingsPanel from '@/views/VillagesML/semantic/SemanticSettingsPanel.vue'
 import NetworkGraphPanel from '@/views/VillagesML/semantic/NetworkGraphPanel.vue'
+import HelpIcon from '@/components/ToastAndHelp/HelpIcon.vue'
 
 // Module configuration (from villagesML.js)
 const modules = VILLAGESML_MODULES.map(m => ({

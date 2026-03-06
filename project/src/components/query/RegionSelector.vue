@@ -276,7 +276,8 @@
 <script setup>
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { getPartitions, getCustomRegions } from '@/api'
+import { getPartitions } from '@/api'
+import { useCustomRegionStore } from '@/store/customRegionStore'
 import { STATIC_REGION_TREE, top_yindian } from '@/config'
 import { userStore } from '@/store/store.js'
 import { showError, showSuccess, showConfirm } from '@/utils/message.js'
@@ -300,8 +301,12 @@ const router = useRouter()
    Custom Region State
    ========================= */
 const showCustomRegionPopup = ref(false)
-const customRegions = ref([])
-const loadingCustomRegions = ref(false)
+// Use custom region store
+const {
+  customRegions,
+  loading: loadingCustomRegions,
+  fetchCustomRegions
+} = useCustomRegionStore()
 
 // New: Custom region selection state
 const selectedCustomRegions = ref([])  // Committed custom regions
@@ -593,20 +598,13 @@ const customRegionOptions = computed(() => {
 async function loadCustomRegions() {
   // Authentication guard - prevent API calls for unauthenticated users
   if (!userStore.isAuthenticated) {
-    customRegions.value = []
     return
   }
 
-  if (loadingCustomRegions.value) return
-
-  loadingCustomRegions.value = true
   try {
-    const data = await getCustomRegions()
-    customRegions.value = data.regions || []
+    await fetchCustomRegions() // Use cached version
   } catch (error) {
     showError('加載自定義分區失敗：' + error.message)
-  } finally {
-    loadingCustomRegions.value = false
   }
 }
 
@@ -618,22 +616,16 @@ async function openCustomRegionPopup() {
     return
   }
 
-  // 加載自定義分區
-  loadingCustomRegions.value = true
+  // 加載自定義分區（使用缓存）
   try {
-    const data = await getCustomRegions()
-    // console.log('📦 getCustomRegions 返回數據:', data)
-    customRegions.value = data.regions || []
-    // console.log('📊 customRegions.value.length:', customRegions.value.length)
+    await fetchCustomRegions()
 
     if (customRegions.value.length === 0) {
-      // console.log('⚠️ 沒有自定義分區，準備顯示 confirm')
       // 沒有分區，詢問是否前往創建
       const confirmed = await showConfirm(
         '您還沒有創建自定義分區，是否前往創建？',
         { confirmText: '前往創建', cancelText: '取消' }
       )
-      // console.log('✅ confirm 結果:', confirmed)
       if (confirmed) {
         await router.push('/auth/regions')
       }
@@ -642,17 +634,15 @@ async function openCustomRegionPopup() {
 
     showCustomRegionPopup.value = true
   } catch (error) {
-    // console.error('❌ 加載自定義分區失敗:', error)
     showError('加載自定義分區失敗：' + error.message)
-  } finally {
-    loadingCustomRegions.value = false
   }
 }
 
 async function selectCustomRegion(region) {
   try {
     // 獲取該分區的詳細信息（包含完整地點列表）
-    const data = await getCustomRegions(region.region_name)
+    // 注意：传入 regionName 参数时不使用缓存
+    const data = await fetchCustomRegions(region.region_name)
 
     if (!data.success || data.regions.length === 0) {
       showError('獲取分區詳情失敗')
@@ -1251,7 +1241,7 @@ defineExpose({ togglePopup, openPopup, closePopup })
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 10000;
+  z-index: 30000;
   padding: 20px;
 }
 

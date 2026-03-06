@@ -94,6 +94,12 @@ export {
   queryPhonology
 } from './query/phonology.js'
 
+// ==================== 比较模块 ====================
+export {
+  compareChars,
+  compareZhongGu,
+  compareTones
+} from './compare/index.js'
 
 // ==================== 用户数据 ====================
 export {
@@ -114,8 +120,7 @@ export {
 export {
   getCustomRegions,
   createOrUpdateCustomRegion,
-  deleteCustomRegion,
-  clearCustomRegionsCache
+  deleteCustomRegion
 } from './user/custom-regions.js'
 
 // ==================== 日志统计 ====================

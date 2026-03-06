@@ -5,21 +5,37 @@
 import { resultCache } from '@/store/store.js'
 
 export const MenuTabsConfig = [
-  {
-    tab: 'tools',
-    label: '工具集',
-    icon: '🛠️',
-    weight: 0.6,
-    mobileWeight: 1,                      // 移动端 flex 权重（可选，不设置则使用 weight）
-    fontSize: 1.2,
-    mobileFontSize: 1.3,                  // 移动端字体大小（可选，不设置则使用 fontSize）
-    to: null,                             // 伪 tab 不需要路由
-    isPseudo: true,                       // 点击打开侧边栏，不进行路由导航
-    hideOnMobile: true,                   // 移动端完全隐藏此 tab
-    hideLabelOnMobile: false,             // 移动端是否隐藏文字（只显示图标）
-    showLabelOnlyWhenActive: false,       // 桌面端：只有选中时显示文字，未选中只显示图标
-    mobileShowLabelOnlyWhenActive: false, // 移动端：只有选中时显示文字（可选，不设置则使用 showLabelOnlyWhenActive）
-    cssClass: ''                          // 额外的 CSS class
+  // {
+  //   tab: 'tools',
+  //   label: '工具',
+  //   icon: '🧰️',
+  //   weight: 0.9,                          // 桌面端标签显示时的 flex 权重
+  //   mobileWeight: 0.9,                    // 移动端标签显示时的 flex 权重
+  //   weightIconOnly: 0.6,                  // 桌面端仅显示图标时的 flex 权重（可选，默认使用 weight）
+  //   mobileWeightIconOnly: 0.5,            // 移动端仅显示图标时的 flex 权重（可选，回退链：mobileWeight → weightIconOnly → weight）
+  //   fontSize: 1.2,
+  //   mobileFontSize: 1.5,                  // 移动端使用更大的字体
+  //   to: { path: '/menu', query: { tab: 'tools' } },
+  //   isPseudo: false,
+  //   hideOnMobile: true,
+  //   hideLabelOnMobile: false,             // 移动端不隐藏标签
+  //   showLabelOnlyWhenActive: false,        // 桌面端：只有选中时显示文字，未选中只显示图标
+  //   mobileShowLabelOnlyWhenActive: true, // 移动端：始终显示文字（不同于桌面端）
+  //   cssClass: ''                     // 应用 'small' CSS class
+  // },
+    {
+    tab: 'home',
+    label: '首頁',
+    icon: '🏛️',
+    weight: 0.8,                          // 桌面端标签显示时的 flex 权重
+    weightIconOnly: 0.4,                  // 桌面端仅显示图标时的 flex 权重（可选，默认使用 weight）
+    fontSize: 1.3,
+    to: { path: '/' },
+    hideOnMobile: false,
+    hideLabelOnMobile: false,             // 移动端不隐藏标签
+    showLabelOnlyWhenActive: false,        // 桌面端：只有选中时显示文字，未选中只显示图标
+    mobileShowLabelOnlyWhenActive: true, // 移动端：始终显示文字（不同于桌面端）
+    cssClass: ''                     // 应用 'small' CSS class
   },
   {
     tab: 'data',
@@ -29,7 +45,7 @@ export const MenuTabsConfig = [
     mobileWeight: 0.9,                    // 移动端标签显示时的 flex 权重
     weightIconOnly: 0.6,                  // 桌面端仅显示图标时的 flex 权重（可选，默认使用 weight）
     mobileWeightIconOnly: 0.5,            // 移动端仅显示图标时的 flex 权重（可选，回退链：mobileWeight → weightIconOnly → weight）
-    fontSize: 1.2,
+    fontSize: 1.4,
     mobileFontSize: 1.5,                  // 移动端使用更大的字体
     to: { path: '/menu', query: { tab: 'pho' } },
     isPseudo: false,
@@ -39,40 +55,43 @@ export const MenuTabsConfig = [
     mobileShowLabelOnlyWhenActive: true, // 移动端：始终显示文字（不同于桌面端）
     cssClass: ''                     // 应用 'small' CSS class
   },
+  // {
+  //   tab: 'words',
+  //   label: '詞句',
+  //   icon: '📖',
+  //   weight: 0.9,                          // 桌面端标签显示时的 flex 权重
+  //   mobileWeight: 0.9,                // 移动端标签显示时的 flex 权重
+  //   weightIconOnly: 0.6,                  // 桌面端仅显示图标时的 flex 权重（可选，默认使用 weight）
+  //   mobileWeightIconOnly: 0.4,            // 移动端仅显示图标时的 flex 权重（可选，回退链：mobileWeight → weightIconOnly → weight）
+  //   fontSize: 1.2,
+  //   mobileFontSize: 1.5,                  // 移动端使用更大的字体
+  //   to: { path: '/menu', query: { tab: 'words' } },
+  //   isPseudo: false,
+  //   hideOnMobile: false,
+  //   hideLabelOnMobile: false,             // 移动端不隐藏标签
+  //   showLabelOnlyWhenActive: false,        // 桌面端：只有选中时显示文字，未选中只显示图标
+  //   mobileShowLabelOnlyWhenActive: true, // 移动端：始终显示文字（不同于桌面端）
+  //   cssClass: ''                     // 应用 'small' CSS class
+  // },
   {
-    tab: 'words',
-    label: '詞句',
-    icon: '📖',
+    tab: 'query',
+    label: '查詢',
+    icon: '🔍️',
     weight: 0.9,                          // 桌面端标签显示时的 flex 权重
-    mobileWeight: 0.9,                // 移动端标签显示时的 flex 权重
+    mobileWeight: 0.9,                    // 移动端标签显示时的 flex 权重
     weightIconOnly: 0.6,                  // 桌面端仅显示图标时的 flex 权重（可选，默认使用 weight）
-    mobileWeightIconOnly: 0.4,            // 移动端仅显示图标时的 flex 权重（可选，回退链：mobileWeight → weightIconOnly → weight）
-    fontSize: 1.2,
+    mobileWeightIconOnly: 0.5,            // 移动端仅显示图标时的 flex 权重（可选，回退链：mobileWeight → weightIconOnly → weight）
+    fontSize: 1.4,
     mobileFontSize: 1.5,                  // 移动端使用更大的字体
-    to: { path: '/menu', query: { tab: 'words' } },
+    to: { path: '/menu', query: { tab: 'query' } },
     isPseudo: false,
     hideOnMobile: false,
     hideLabelOnMobile: false,             // 移动端不隐藏标签
     showLabelOnlyWhenActive: false,        // 桌面端：只有选中时显示文字，未选中只显示图标
     mobileShowLabelOnlyWhenActive: true, // 移动端：始终显示文字（不同于桌面端）
-    cssClass: ''                     // 应用 'small' CSS class
-  },
-  {
-    tab: 'query',
-    label: '查詢',
-    icon: '🔍️',
-    weight: 1,
-    mobileWeight: 1,
-    fontSize: 1.3,
-    mobileFontSize: 1.3,
-    to: { path: '/menu', query: { tab: 'query' } },
-    isPseudo: false,
-    hideOnMobile: false,
-    hideLabelOnMobile: false,
-    showLabelOnlyWhenActive: false,
-    mobileShowLabelOnlyWhenActive: false,
     cssClass: ''
   },
+
   {
     tab: 'result',
     label: '結果',
@@ -81,8 +100,8 @@ export const MenuTabsConfig = [
     mobileWeight: 0.9,                    // 移动端标签显示时的 flex 权重
     weightIconOnly: 0.6,                  // 桌面端仅显示图标时的 flex 权重（可选，默认使用 weight）
     mobileWeightIconOnly: 0.4,            // 移动端仅显示图标时的 flex 权重（可选，回退链：mobileWeight → weightIconOnly → weight）
-    fontSize: 1.2,
-    mobileFontSize: 1.3,
+    fontSize: 1.4,
+    mobileFontSize: 1.5,
     to: { path: '/menu', query: { tab: 'result' } },
     isPseudo: false,
     hideOnMobile: false,
@@ -96,46 +115,68 @@ export const MenuTabsConfig = [
     tab: 'map',
     label: '地圖',
     icon: '🗺️',
-    weight: 1,
-    mobileWeight: 1,
-    fontSize: 1.3,
-    mobileFontSize: 1.3,
-    to: { path: '/menu', query: { tab: 'map' } },
-    isPseudo: false,
-    hideOnMobile: false,
-    hideLabelOnMobile: false,
-    showLabelOnlyWhenActive: false,
-    mobileShowLabelOnlyWhenActive: false,
-    cssClass: ''
-  },
-  {
-    tab: 'villages',
-    label: '村落',
-    icon: '🏘️',
     weight: 0.9,                          // 桌面端标签显示时的 flex 权重
-    mobileWeight: 0.8,                // 移动端标签显示时的 flex 权重
+    mobileWeight: 0.9,                    // 移动端标签显示时的 flex 权重
     weightIconOnly: 0.6,                  // 桌面端仅显示图标时的 flex 权重（可选，默认使用 weight）
-    mobileWeightIconOnly: 0.4,            // 移动端仅显示图标时的 flex 权重（可选，回退链：mobileWeight → weightIconOnly → weight）
-    fontSize: 1.2,
+    mobileWeightIconOnly: 0.5,            // 移动端仅显示图标时的 flex 权重（可选，回退链：mobileWeight → weightIconOnly → weight）
+    fontSize: 1.4,
     mobileFontSize: 1.5,                  // 移动端使用更大的字体
-    to: { path: '/menu', query: { tab: 'villages' } },
+    to: { path: '/menu', query: { tab: 'map' } },
     isPseudo: false,
     hideOnMobile: false,
     hideLabelOnMobile: false,             // 移动端不隐藏标签
     showLabelOnlyWhenActive: false,        // 桌面端：只有选中时显示文字，未选中只显示图标
     mobileShowLabelOnlyWhenActive: true, // 移动端：始终显示文字（不同于桌面端）
-    cssClass: ''                     // 应用 'small' CSS class
+    cssClass: ''
   },
   {
+    tab: 'compare',
+    label: '比較',
+    icon: '↔️',
+   weight: 0.9,                          // 桌面端标签显示时的 flex 权重
+    mobileWeight: 0.9,                    // 移动端标签显示时的 flex 权重
+    weightIconOnly: 0.6,                  // 桌面端仅显示图标时的 flex 权重（可选，默认使用 weight）
+    mobileWeightIconOnly: 0.5,            // 移动端仅显示图标时的 flex 权重（可选，回退链：mobileWeight → weightIconOnly → weight）
+    fontSize: 1.4,
+    mobileFontSize: 1.5,                  // 移动端使用更大的字体
+    to: { path: '/menu', query: { tab: 'compare' } },
+    isPseudo: false,
+       hideOnMobile: false,
+    hideLabelOnMobile: false,             // 移动端不隐藏标签
+    showLabelOnlyWhenActive: false,        // 桌面端：只有选中时显示文字，未选中只显示图标
+    mobileShowLabelOnlyWhenActive: true, // 移动端：始终显示文字（不同于桌面端）
+    cssClass: ''
+  },
+  // {
+  //   tab: 'villages',
+  //   label: '村落',
+  //   icon: '🏘️',
+  //   weight: 0.9,                          // 桌面端标签显示时的 flex 权重
+  //   mobileWeight: 0.8,                // 移动端标签显示时的 flex 权重
+  //   weightIconOnly: 0.6,                  // 桌面端仅显示图标时的 flex 权重（可选，默认使用 weight）
+  //   mobileWeightIconOnly: 0.4,            // 移动端仅显示图标时的 flex 权重（可选，回退链：mobileWeight → weightIconOnly → weight）
+  //   fontSize: 1.2,
+  //   mobileFontSize: 1.5,                  // 移动端使用更大的字体
+  //   to: { path: '/menu', query: { tab: 'villages' } },
+  //   isPseudo: false,
+  //   hideOnMobile: false,
+  //   hideLabelOnMobile: false,             // 移动端不隐藏标签
+  //   showLabelOnlyWhenActive: false,        // 桌面端：只有选中时显示文字，未选中只显示图标
+  //   mobileShowLabelOnlyWhenActive: true, // 移动端：始终显示文字（不同于桌面端）
+  //   cssClass: ''                     // 应用 'small' CSS class
+  // },
+  {
     tab: 'about',
-    label: '關於網站',
+    label: '關於',
     icon: '🌐️',
     weight: 0.8,                          // 桌面端标签显示时的 flex 权重
     weightIconOnly: 0.25,                  // 桌面端仅显示图标时的 flex 权重（可选，默认使用 weight）
     fontSize: 1.2,
     to: { path: '/menu', query: { tab: 'about' } },
-    hideOnMobile: true,
-    showLabelOnlyWhenActive: true,        // 桌面端：只有选中时显示文字，未选中只显示图标
+    hideOnMobile: false,
+    hideLabelOnMobile: false,             // 移动端不隐藏标签
+    showLabelOnlyWhenActive: false,        // 桌面端：只有选中时显示文字，未选中只显示图标
+    mobileShowLabelOnlyWhenActive: true, // 移动端：始终显示文字（不同于桌面端）
     cssClass: ''                     // 应用 'small' CSS class
   },
 ]
@@ -145,6 +186,20 @@ export const MenuTabsConfig = [
  * 对应 menuConfig.js 中有 children 的 4 个分类
  */
 export const ExploreTabsConfig = [
+  // {
+  //   tab: 'home',
+  //   label: '首頁',
+  //   icon: '🏠️',
+  //   weight: 0.8,                          // 桌面端标签显示时的 flex 权重
+  //   weightIconOnly: 0.4,                  // 桌面端仅显示图标时的 flex 权重（可选，默认使用 weight）
+  //   fontSize: 1.3,
+  //   to: { path: '/' },
+  //   hideOnMobile: false,
+  //   hideLabelOnMobile: false,             // 移动端不隐藏标签
+  //   showLabelOnlyWhenActive: false,        // 桌面端：只有选中时显示文字，未选中只显示图标
+  //   mobileShowLabelOnlyWhenActive: true, // 移动端：始终显示文字（不同于桌面端）
+  //   cssClass: ''                     // 应用 'small' CSS class
+  // },
   {
     tab: 'tools',
     label: '工具',
@@ -163,22 +218,40 @@ export const ExploreTabsConfig = [
     mobileShowLabelOnlyWhenActive: true
   },
   {
-    tab: 'data',
-    label: '音系',
-    icon: '🧬',
-    weight: 1,                          // 桌面端标签显示时的 flex 权重
-    mobileWeight: 1,                // 移动端标签显示时的 flex 权重
-    weightIconOnly: 0.6,                  // 桌面端仅显示图标时的 flex 权重（可选，默认使用 weight）
-    mobileWeightIconOnly: 0.55,            // 移动端仅显示图标时的 flex 权重（可选，回退链：mobileWeight → weightIconOnly → weight）
+    tab: 'praat',
+    label: 'praat', // 或者直接用 'Praat'
+    icon: '🎙️',        // 模拟声谱图/音高曲线，或者使用 〰️ (波浪) 或 📊
+    weight: 1,
+    mobileWeight: 1,
+    weightIconOnly: 0.6,
+    mobileWeightIconOnly: 0.6,
     fontSize: 1.2,
-    mobileFontSize: 1.2,
-    to: { path: '/menu', query: { tab: 'pho' } },
+    mobileFontSize: 1.3,
+    // 关键：修改跳转路径
+    to: { path: '/explore', query: { page: 'praat' } }, 
     isPseudo: false,
     hideOnMobile: false,
     hideLabelOnMobile: false,
     showLabelOnlyWhenActive: false,
     mobileShowLabelOnlyWhenActive: true
   },
+  // {
+  //   tab: 'data',
+  //   label: '音系',
+  //   icon: '🧬',
+  //   weight: 1,                          // 桌面端标签显示时的 flex 权重
+  //   mobileWeight: 1,                // 移动端标签显示时的 flex 权重
+  //   weightIconOnly: 0.6,                  // 桌面端仅显示图标时的 flex 权重（可选，默认使用 weight）
+  //   mobileWeightIconOnly: 0.55,            // 移动端仅显示图标时的 flex 权重（可选，回退链：mobileWeight → weightIconOnly → weight）
+  //   fontSize: 1.2,
+  //   mobileFontSize: 1.2,
+  //   to: { path: '/menu', query: { tab: 'pho' } },
+  //   isPseudo: false,
+  //   hideOnMobile: false,
+  //   hideLabelOnMobile: false,
+  //   showLabelOnlyWhenActive: false,
+  //   mobileShowLabelOnlyWhenActive: true
+  // },
   {
     tab: 'words',
     label: '詞句',

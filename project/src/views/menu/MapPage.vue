@@ -1,16 +1,19 @@
 <template>
-  <div class="tabs-wrapper">
-    <div class="tabs">
-      <div
-          v-for="tab in tabs"
-          :key="tab.name"
-          :class="['tab', { active: currentTab === tab.name }]"
-          @click="router.replace({ query: { ...route.query, sub: tab.name } })"
-      >
-        {{ tab.label }}
+  <TabsContainer
+    :tabs="tabs"
+    default-tab="map"
+  >
+    <!-- Tab 右侧额外内容 -->
+    <template #tab-extra>
+      <!-- 比较模式：显示比较对象 -->
+      <div v-if="currentTab === 'map' && mapStore.mode === 'compare' && comparePair" class="single-btn-wrapper">
+        <button class="feature-btn active">
+          {{ comparePair }}
+        </button>
       </div>
 
-      <div v-if="currentTab === 'map' && mapStore.mode === 'feature' && availableFeatures.length > 0" class="feature-control-area">
+      <!-- Feature 模式：显示特征选择 -->
+      <div v-else-if="currentTab === 'map' && mapStore.mode === 'feature' && availableFeatures.length > 0" class="feature-control-area">
         <div v-if="availableFeatures.length > 1" class="dropdown-wrapper">
           <SimpleSelectDropdown
             v-model="selectedFeature"
@@ -33,37 +36,37 @@
             icon-color="#007aff"
             style="margin-left: 5px;"
         />
+      </div>
+    </template>
 
-    </div>
-    </div>
-
-    <div class="tab-content" style="justify-items: center; position: relative;">
-
-      <!-- 使用 v-show 代替 v-if，保持组件状态 -->
-      <MapLibre
-          v-show="currentTab === 'map'"
-          :active-feature="selectedFeature"
-          :is-custom="true"
-          :dot-level="selectedLevel"
-          @map-click="handleMapClick"
-      />
-      <DivideTab
-          v-show="currentTab === 'divide'"
-          @region-selected="(val) => selectedLevel = val"
-      />
-      <CustomTab
-          v-show="currentTab === 'custom'"
-      />
-      <!-- 自定義數據提交面板（只在 map tab 顯示） -->
-      <CustomDataPanel
-          v-if="currentTab === 'map'"
-          :map-click-coordinates="mapClickCoordinates"
-          :selected-feature="selectedFeature"
-          @submit-success="handleSubmitSuccess"
-      />
-
-    </div>
-  </div>
+    <!-- Tab 内容 -->
+    <template #default="{ currentTab }">
+      <div class="tab-content" style="justify-items: center; position: relative;">
+        <!-- 使用 v-show 代替 v-if，保持组件状态 -->
+        <MapLibre
+            v-show="currentTab === 'map'"
+            :active-feature="selectedFeature"
+            :is-custom="true"
+            :dot-level="selectedLevel"
+            @map-click="handleMapClick"
+        />
+        <DivideTab
+            v-show="currentTab === 'divide'"
+            @region-selected="(val) => selectedLevel = val"
+        />
+        <CustomTab
+            v-show="currentTab === 'custom'"
+        />
+        <!-- 自定義數據提交面板（只在 map tab 顯示） -->
+        <CustomDataPanel
+            v-if="currentTab === 'map'"
+            :map-click-coordinates="mapClickCoordinates"
+            :selected-feature="selectedFeature"
+            @submit-success="handleSubmitSuccess"
+        />
+      </div>
+    </template>
+  </TabsContainer>
 </template>
 
 <script setup>
@@ -71,6 +74,7 @@ import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { mapStore, resultCache } from '@/store/store.js'
 
+import TabsContainer from '@/components/common/TabsContainer.vue'
 import DivideTab from "@/components/map/DivideTab.vue";
 import CustomTab from '@/components/map/CustomTab.vue'
 import MapLibre from "@/components/map/MapLibre.vue";
@@ -87,7 +91,7 @@ const route = useRoute()
 // 地圖點擊坐標
 const mapClickCoordinates = ref(null)
 
-// Tab 邏輯
+// Tab 邏輯 (需要保留，因为 tab-extra 插槽中要用)
 const currentTab = computed(() => {
   return route.query.sub || 'map'
 })
@@ -106,7 +110,6 @@ const handleMapClick = (coordinates) => {
 // 處理提交成功事件
 const handleSubmitSuccess = async (response) => {
   showSuccess('自定義數據提交成功！')
-  // console.log('提交成功:', response)
 
   // 自动打开自定义数据开关
   mapStore.showCustomData = true;
@@ -136,6 +139,16 @@ const availableFeatures = computed(() => {
   if (!mapStore.mergedData || mapStore.mergedData.length === 0) return []
   const features = mapStore.mergedData.map(item => item.feature)
   return [...new Set(features)]
+})
+
+// 計算比較對象（用於 compare 模式）
+const comparePair = computed(() => {
+  if (mapStore.mode !== 'compare' || !mapStore.mergedData || mapStore.mergedData.length === 0) {
+    return ''
+  }
+  // 从第一条数据中提取比较对象
+  const firstItem = mapStore.mergedData[0]
+  return firstItem.pair || ''
 })
 
 // 計算幫助文本
@@ -183,15 +196,11 @@ watch(
     // 只在 map tab 中触发
     if (route.query.sub !== 'map') return
 
-    // console.log('检测到特征参数，开始加载:', newFeature)
-
     try {
       // 提取路由参数
       const locations = route.query.locations?.split(',').filter(Boolean) || []
       const regions = route.query.regions?.split(',').filter(Boolean) || []
       const regionMode = route.query.regionMode || 'map'
-
-      // console.log('加载参数:', { feature: newFeature, locations, regions, regionMode })
 
       // 调用 addCustomFeatureData 加载数据
       await addCustomFeatureData([newFeature], locations, regions, regionMode)
@@ -207,8 +216,6 @@ watch(
       mapStore.mode = 'feature'
 
       showSuccess(`已加载特征：${newFeature}`)
-
-      // console.log('✅ 特征加载成功')
 
       // 清除路由参数（避免刷新重复加载）
       await router.replace({
@@ -239,7 +246,7 @@ watch(
   align-items: center;
   text-align: center;
   justify-content: center;
-  padding: 1rem;
+  padding: 1rem 0;
 }
 
 @keyframes fade {
@@ -284,11 +291,6 @@ watch(
   transform: translateY(-2px);
 }
 
-@keyframes fade {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
 /* Dropdown 样式 */
 .dropdown-wrapper {
   flex: 1;
@@ -321,4 +323,3 @@ watch(
   border-color: var(--color-primary);
 }
 </style>
-

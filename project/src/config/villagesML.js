@@ -446,12 +446,14 @@ export const VILLAGESML_MODULES = [
     weight: 0.8,
     mobileWeight: 1,
     weightIconOnly: 0.5,
+    mobileWeightIconOnly: 0.4,
     fontSize: 1.0,
-    mobileFontSize: 1.0,
+    mobileFontSize: 0.9,
     requireAuth: false,
     hideOnMobile: false,
-    hideLabelOnMobile: true,
+    // hideLabelOnMobile: true,
     showLabelOnlyWhenActive: false,
+    mobileShowLabelOnlyWhenActive:true,
     subtabs: []
   },
   {
@@ -462,12 +464,14 @@ export const VILLAGESML_MODULES = [
     weight: 1.2,
     mobileWeight: 1,
     weightIconOnly: 0.5,
+    mobileWeightIconOnly: 0.5,
     fontSize: 1.0,
-    mobileFontSize: 1.0,
+    mobileFontSize: 0.9,
     requireAuth: false,
     hideOnMobile: false,
-    hideLabelOnMobile: true,
+    // hideLabelOnMobile: true,
     showLabelOnlyWhenActive: false,
+    mobileShowLabelOnlyWhenActive:true,
     subtabs: [
       {
         id: 'frequency',
@@ -528,12 +532,14 @@ export const VILLAGESML_MODULES = [
     weight: 1.2,
     mobileWeight: 1,
     weightIconOnly: 0.5,
+    mobileWeightIconOnly: 0.5,
     fontSize: 1.0,
-    mobileFontSize: 1.0,
+    mobileFontSize: 0.9,
     requireAuth: false,
     hideOnMobile: false,
-    hideLabelOnMobile: true,
+    // hideLabelOnMobile: true,
     showLabelOnlyWhenActive: false,
+    mobileShowLabelOnlyWhenActive:true,
     subtabs: [
       {
         id: 'categories',
@@ -617,12 +623,14 @@ export const VILLAGESML_MODULES = [
     weight: 1.2,
     mobileWeight: 1,
     weightIconOnly: 0.5,
+    mobileWeightIconOnly: 0.5,
     fontSize: 1.0,
-    mobileFontSize: 1.0,
+    mobileFontSize: 0.9,
     requireAuth: false,
     hideOnMobile: false,
-    hideLabelOnMobile: true,
+    // hideLabelOnMobile: true,
     showLabelOnlyWhenActive: false,
+    mobileShowLabelOnlyWhenActive:true,
     subtabs: [
       {
         id: 'hotspots',
@@ -682,12 +690,14 @@ export const VILLAGESML_MODULES = [
     weight: 1.2,
     mobileWeight: 1,
     weightIconOnly: 0.5,
+    mobileWeightIconOnly: 0.5,
     fontSize: 1.0,
-    mobileFontSize: 1.0,
+    mobileFontSize: 0.9,
     requireAuth: false,
     hideOnMobile: false,
-    hideLabelOnMobile: true,
+    // hideLabelOnMobile: true,
     showLabelOnlyWhenActive: false,
+    mobileShowLabelOnlyWhenActive:true,
     subtabs: [
       {
         id: 'frequency',
@@ -759,12 +769,14 @@ export const VILLAGESML_MODULES = [
     weight: 1.2,
     mobileWeight: 1,
     weightIconOnly: 0.5,
+    mobileWeightIconOnly: 0.5,
     fontSize: 1.0,
-    mobileFontSize: 1.0,
+    mobileFontSize: 0.9,
     requireAuth: false,
     hideOnMobile: false,
-    hideLabelOnMobile: true,
+    // hideLabelOnMobile: true,
     showLabelOnlyWhenActive: false,
+    mobileShowLabelOnlyWhenActive:true,
     subtabs: [
       {
         id: 'aggregates',
@@ -824,12 +836,14 @@ export const VILLAGESML_MODULES = [
     weight: 1.2,
     mobileWeight: 1,
     weightIconOnly: 0.5,
+    mobileWeightIconOnly: 0.5,
     fontSize: 1.0,
-    mobileFontSize: 1.0,
+    mobileFontSize: 0.9,
     requireAuth: false,
     hideOnMobile: false,
-    hideLabelOnMobile: true,
+    // hideLabelOnMobile: true,
     showLabelOnlyWhenActive: false,
+    mobileShowLabelOnlyWhenActive:true,
     subtabs: [
       // ===== 現有子標籤（修改標籤名稱）=====
       {
@@ -921,22 +935,22 @@ export const VILLAGESML_MODULES = [
 
     ]
   },
-  {
-    id: 'system',
-    label: '信息',
-    icon: 'ℹ️',
-    path: '/villagesML?module=system',
-    weight: 0.8,
-    mobileWeight: 1,
-    weightIconOnly: 0.5,
-    fontSize: 1.0,
-    mobileFontSize: 1.0,
-    requireAuth: false,
-    hideOnMobile: false,
-    hideLabelOnMobile: true,
-    showLabelOnlyWhenActive: false,
-    subtabs: []
-  }
+  // {
+  //   id: 'system',
+  //   label: '信息',
+  //   icon: 'ℹ️',
+  //   path: '/villagesML?module=system',
+  //   weight: 0.8,
+  //   mobileWeight: 1,
+  //   weightIconOnly: 0.5,
+  //   fontSize: 1.0,
+  //   mobileFontSize: 1.0,
+  //   requireAuth: false,
+  //   hideOnMobile: false,
+  //   hideLabelOnMobile: true,
+  //   showLabelOnlyWhenActive: false,
+  //   subtabs: []
+  // }
 ]
 
 /**

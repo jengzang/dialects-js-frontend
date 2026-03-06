@@ -1,6 +1,9 @@
 <template>
   <div class="feature-extraction-page">
-      <h3 class="villagesml-subtab-title">ML計算 - 特徵提取</h3>
+      <h3 class="villagesml-subtab-title">
+        ML計算 - 特徵提取
+        <HelpIcon content="為自訂村莊集合提取多維特徵向量。特徵包括：語義類別（9維VTF）、字符嵌入（100維Word2Vec）、結構特徵（長度、前後綴）、空間特徵（坐標、密度）。支持導出特徵矩陣用於外部分析" />
+      </h3>
     <!-- Header -->
     <div class="page-header">
 <!--      <h2>🔐 特徵提取 Feature Extraction</h2>-->
@@ -211,16 +214,16 @@
           <table class="glass-table">
             <thead>
               <tr>
-                <th>ID</th>
                 <th>村名</th>
+                <th>ID</th>
                 <th>區域</th>
                 <th v-for="(type, idx) in selectedFeatureTypes" :key="idx">{{ getFeatureLabel(type) }}</th>
               </tr>
             </thead>
             <tbody>
               <tr v-for="result in paginatedResults" :key="result.village_id">
-                <td>{{ result.village_id }}</td>
                 <td>{{ result.village_name }}</td>
+                <td>{{ result.village_id }}</td>
                 <td>{{ result.region }}</td>
                 <td v-for="(type, idx) in selectedFeatureTypes" :key="idx">
                   {{ formatFeatureValue(result.features[type]) }}
@@ -378,6 +381,7 @@ import { useRouter } from 'vue-router'
 import * as echarts from 'echarts'
 import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
 import FilterableSelect from '@/components/common/FilterableSelect.vue'
+import HelpIcon from '@/components/ToastAndHelp/HelpIcon.vue'
 import { extractFeatures as apiExtractFeatures, aggregateFeatures as apiAggregateFeatures, searchVillages } from '@/api/index.js'
 import { showError, showSuccess, showWarning } from '@/utils/message.js'
 import { userStore } from '@/store/store.js'
@@ -1459,10 +1463,12 @@ onMounted(() => {
 .feature-table-wrapper {
   overflow-x: auto;
   margin-bottom: 16px;
+  -webkit-overflow-scrolling: touch;
 }
 
 .glass-table {
   width: 100%;
+  min-width: 800px;
   border-collapse: collapse;
 }
 
@@ -1470,6 +1476,7 @@ onMounted(() => {
   background: rgba(74, 144, 226, 0.1);
   position: sticky;
   top: 0;
+  z-index: 10;
 }
 
 .glass-table th,
@@ -1477,11 +1484,19 @@ onMounted(() => {
   padding: 12px;
   text-align: left;
   border-bottom: 1px solid rgba(74, 144, 226, 0.1);
+  white-space: nowrap;
 }
 
 .glass-table th {
   font-weight: 600;
   color: var(--text-primary);
+  min-width: 100px;
+}
+
+.glass-table td {
+  max-width: 300px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .chart-container {
@@ -1535,7 +1550,7 @@ onMounted(() => {
 
 .agg-section {
   margin-bottom: 32px;
-  padding: 20px;
+  padding: 12px;
   background: rgba(255, 255, 255, 0.3);
   border-radius: 12px;
 }
@@ -1626,13 +1641,15 @@ onMounted(() => {
 
 .cluster-subsection {
   background: rgba(255, 255, 255, 0.4);
-  padding: 16px;
+  padding: 12px;
   border-radius: 8px;
 }
 
 .cluster-badges {
   display: flex;
   flex-wrap: wrap;
+  max-height: 400px;
+  overflow: auto;
   gap: 8px;
 }
 
@@ -1788,6 +1805,54 @@ onMounted(() => {
 
   .chart-container {
     height: 300px;
+  }
+
+  /* 移动端表格优化 */
+  .feature-table-wrapper {
+    margin: 0 -12px;
+    padding: 0 12px;
+  }
+
+  .glass-table {
+    min-width: 600px;
+    font-size: 13px;
+  }
+
+  .glass-table th,
+  .glass-table td {
+    padding: 8px;
+    min-width: 80px;
+  }
+
+  .glass-table th:first-child,
+  .glass-table td:first-child {
+    position: sticky;
+    left: 0;
+    background: rgba(255, 255, 255, 0.95);
+    z-index: 5;
+    box-shadow: 2px 0 4px rgba(0, 0, 0, 0.05);
+  }
+
+  .glass-table thead th:first-child {
+    z-index: 15;
+  }
+
+  /* 聚合结果移动端优化 */
+  .category-grid {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  }
+
+  .struct-grid,
+  .cluster-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .coverage-stats {
+    flex-direction: column;
+  }
+
+  .char-grid {
+    grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
   }
 }
 </style>

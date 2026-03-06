@@ -1,6 +1,14 @@
 <template>
   <div class="character-network-page">
-    <h3 class="villagesml-subtab-title">字符分析 - 字符網絡</h3>
+    <h3 class="villagesml-subtab-title">
+      字符分析 - 字符網絡
+      <HelpIcon
+        content="基於字符嵌入向量構建相似性網絡圖。節點表示字符，邊表示相似關係，邊粗細反映相似度強度。支持多層擴展（深度1-4），從根節點逐層展開相似字符。顏色表示層級：根節點（藍色）→第1層（綠色）→第2層（黃色）→第3層（紅色）→第4層（紫色）"
+        size="md"
+        fontSize="16px"
+        trigger="both"
+      />
+    </h3>
 
     <!-- Auth warning -->
     <div v-if="!isAuthenticated" class="auth-warning">
@@ -81,6 +89,7 @@ import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import * as echarts from 'echarts'
 import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
+import HelpIcon from '@/components/ToastAndHelp/HelpIcon.vue'
 import { getCharSimilarities } from '@/api/index.js'
 import { showWarning } from '@/utils/message.js'
 import { userStore } from '@/store/store.js'
