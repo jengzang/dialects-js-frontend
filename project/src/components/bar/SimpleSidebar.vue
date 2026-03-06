@@ -199,7 +199,9 @@ const handleMainClick = (item, key, event) => {
   } else if (item.path) {
     // 無子菜單且有路徑，導航
     if (item.external) {
-      window.location.href = WEB_BASE + '/detail/'
+      const targetUrl = WEB_BASE + item.path
+      console.log('🔗 External navigation:', { key, path: item.path, WEB_BASE, targetUrl })
+      window.location.href = targetUrl
     } else {
       router.push(item.path)
       closeSidebar()

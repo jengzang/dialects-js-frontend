@@ -11,6 +11,14 @@ export const menuConfig = {
   //   children: null,
   //   // showIn: ['NavBar']
   // },
+    // Level 1: External link to old website
+  'home': {
+    label: '首頁',
+    icon: '🏛️',
+    path: '/', // Will be set dynamically using window.WEB_BASE
+    external: true,
+    children: null,
+  },
   // Special: Return to query (only in SimpleSidebar)
   'query': {
     label: '查詢',

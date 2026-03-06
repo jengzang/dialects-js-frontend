@@ -7,18 +7,23 @@
     <section class="hero-section">
       <div class="hero-content">
         <img src="@/assets/title.png" alt="方音圖鑑" class="hero-logo" />
-        <h1 class="hero-title">🗺️ 方音圖鑑</h1>
+        <h1 class="hero-title">方言比較 · 地理語言學</h1>
         <p class="hero-subtitle">✨ 探索方言的歷史層次 · 🎵 觸摸漢字的音韻之美</p>
         <div class="hero-actions">
           <button class="btn-primary" @click="navigateTo('/menu?tab=query')">
             <span class="btn-icon">🚀</span>
             <span class="btn-text">開始探索</span>
           </button>
+          <!-- <button class="btn-primary btn-explore" @click="navigateTo('/explore?page=YuBao')">
+            <span class="btn-icon">🧰</span>
+            <span class="btn-text">拓展工具</span>
+          </button> -->
           <button class="btn-secondary" @click="scrollToFeatures">
             <span class="btn-icon">📖</span>
-            <span class="btn-text">了解功能</span>
+            <span class="btn-text">功能簡介</span>
           </button>
         </div>
+        <img src="@/assets/BlueCircle.png" alt="Blue Circle" class="hero-decoration" />
       </div>
     </section>
 
@@ -295,6 +300,10 @@
                 <span class="link-icon">❤️</span>
                 <span class="link-text">喜歡作者 - 支持與關注</span>
               </a>
+              <a @click.stop="navigateTo('/menu?tab=source')" class="feature-link">
+                <span class="link-icon">📚</span>
+                <span class="link-text">資料來源 - 查閱字表來源與相關信息</span>
+              </a>
             </div>
           </transition>
         </div>
@@ -394,9 +403,11 @@
           <span class="footer-divider">·</span>
           <a @click="navigateTo('/menu?tab=privacy')" class="footer-link">隱私政策</a>
           <span class="footer-divider">·</span>
-          <a href="https://github.com/jengzang/dialects-js-frontend" target="_blank" class="footer-link">舊版網站</a>
+          <a @click="navigateTo('/menu?tab=setting')" class="footer-link">設置</a>
           <span class="footer-divider">·</span>
-          <a @click="showSupport = true" class="footer-link">讚賞作者</a>
+          <a href="https://dialects.yzup.top/detail/" target="_blank" class="footer-link">舊版網站</a>
+          <span class="footer-divider">·</span>
+          <a @click="showSupport = true" class="footer-link">支持作者</a>
         </div>
 
         <!-- Visit Stats -->
@@ -405,7 +416,7 @@
         </div>
 
         <div class="footer-info">
-          <p class="footer-text">© 2026 方音圖鑑 · 由一名本科生開發運營</p>
+          <p class="footer-text">© 2026 方音圖鑑 · 由不羈(jengzang)開發</p>
           <p class="footer-text">{{ CURRENT_VERSION }} · 最後更新：{{ LAST_UPDATE_DATE }}</p>
           <p class="footer-text">粵ICP備2025466875號</p>
         </div>
@@ -448,14 +459,14 @@
             <button class="modal-close" @click="showSupport = false">✕</button>
             <h3 class="modal-title">☕️ 請作者喝杯咖啡</h3>
             <p class="modal-subtitle">感謝您的支持！💖</p>
-            <div class="qr-grid">
-              <div class="qr-box">
+            <div class="donate-qr-grid">
+              <div class="donate-qr-box">
                 <img src="@/assets/weixin.png" alt="微信收款碼" />
-                <p class="qr-label">微信</p>
+                <p class="donate-qr-label">微信</p>
               </div>
-              <div class="qr-box">
+              <div class="donate-qr-box">
                 <img src="@/assets/zfb.jpg" alt="支付寶收款碼" />
-                <p class="qr-label">支付寶</p>
+                <p class="donate-qr-label">支付寶</p>
               </div>
             </div>
           </div>
@@ -602,7 +613,7 @@ onMounted(() => {
 }
 
 .hero-logo {
-  width: clamp(180px, 35vw, 350px);
+  width: clamp(220px, 40vw, 380px);
   height: auto;
   margin-bottom: 1.5rem;
   filter: drop-shadow(0 4px 12px rgba(0, 122, 255, 0.15));
@@ -610,10 +621,11 @@ onMounted(() => {
 }
 
 .hero-title {
-  font-size: clamp(2rem, 5vw, 3.5rem);
-  font-weight: 700;
-  color: #007aff;
+  font-size: clamp(1.25rem, 3vw, 1.75rem);
+  font-weight: 600;
+  color: rgba(0, 122, 255, 0.85);
   margin-bottom: 0.75rem;
+  letter-spacing: 0.05em;
 }
 
 .hero-subtitle {
@@ -629,6 +641,19 @@ onMounted(() => {
   gap: 1rem;
   justify-content: center;
   flex-wrap: wrap;
+  margin-bottom: 2rem;
+}
+
+.hero-decoration {
+  max-height: 100px;
+  width: auto;
+  opacity: 0.9;
+  animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
 }
 
 .btn-primary, .btn-secondary {
@@ -650,9 +675,18 @@ onMounted(() => {
   box-shadow: 0 4px 16px rgba(0, 122, 255, 0.3);
 }
 
+.btn-primary.btn-explore {
+  background: linear-gradient(135deg, #34c759 0%, #28a745 100%);
+  box-shadow: 0 4px 16px rgba(52, 199, 89, 0.3);
+}
+
 .btn-primary:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 24px rgba(0, 122, 255, 0.4);
+}
+
+.btn-primary.btn-explore:hover {
+  box-shadow: 0 6px 24px rgba(52, 199, 89, 0.4);
 }
 
 .btn-secondary {
@@ -778,11 +812,11 @@ onMounted(() => {
 }
 
 .feature-card:hover .card-icon {
-  transform: scale(1.05);
+  transform: scale(1.2);
 }
 
 .feature-card.expanded .card-icon {
-  transform: scale(1.03);
+  transform: scale(1.1);
 }
 
 .card-info {
@@ -983,6 +1017,12 @@ onMounted(() => {
   font-size: 1.25rem;
   color: #007aff;
   transition: transform 0.3s ease;
+}
+
+@media (max-width: 768px) {
+  .project-arrow {
+    display: none;
+  }
 }
 
 .project-card:hover .project-arrow {
@@ -1260,6 +1300,8 @@ onMounted(() => {
   padding: 2.5rem 2rem;
   max-width: 450px;
   width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
   border: 1px solid rgba(0, 122, 255, 0.2);
 }
@@ -1298,19 +1340,34 @@ onMounted(() => {
   margin-bottom: 2rem;
 }
 
-.qr-grid {
+.donate-qr-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 1.25rem;
 }
 
-.qr-box img {
-  width: 100%;
-  border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+.donate-qr-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-.qr-label {
+.donate-qr-box img {
+  width: 100%;
+  max-width: 150px;
+  height: auto;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.donate-qr-box img:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+.donate-qr-label {
   margin-top: 0.625rem;
   font-size: 0.9375rem;
   font-weight: 600;
@@ -1333,6 +1390,13 @@ onMounted(() => {
 /* Responsive */
 @media (orientation: portrait) {
   .hero-section { min-height: 75vh; }
+  .hero-logo {
+    width: clamp(260px, 50vw, 400px);
+  }
+  .hero-actions{
+    gap: 0.75rem;
+    align-items: center;
+  }
   .features-grid, .projects-grid { grid-template-columns: 1fr; }
   .projects-grid { gap: 0.75rem; }
   .project-card {
@@ -1341,15 +1405,26 @@ onMounted(() => {
     padding: 0.875rem 1rem;
     gap: 0.75rem;
   }
+  .project-name{
+    margin:0;
+  }
   .contact-card {
     flex-direction: column;
     text-align: center;
     padding: 1.25rem;
+    gap:10px;
   }
-  .login-card {
+  .contact-title{
+    margin:0;
+  }
+  .login-card { 
     flex-direction: column;
     text-align: center;
     padding: 1.5rem;
+    gap:10px;
+  }
+  .login-title{
+    margin:0;
   }
   .login-benefits {
     grid-template-columns: 1fr;
@@ -1357,9 +1432,26 @@ onMounted(() => {
   .login-actions {
     width: 100%;
   }
-  .qr-grid { grid-template-columns: 1fr; }
-  .footer-links { flex-direction: column; gap: 0.625rem; }
+  .footer-links {  gap: 0.625rem; }
   .footer-divider { display: none; }
+
+  /* Modal 移動端優化 */
+  .modal-overlay {
+    padding: 0;
+  }
+
+  .modal-content {
+    padding: 2rem 1.5rem;
+    width: auto;
+  }
+
+  .modal-title {
+    font-size: 1.5rem;
+  }
+
+  .donate-qr-box img {
+    max-width: 120px;
+  }
 }
 
 @media (max-width: 600px) {

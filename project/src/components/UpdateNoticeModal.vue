@@ -103,7 +103,6 @@ defineExpose({
   align-items: center;
   justify-content: center;
   z-index: 10000;
-  padding: 1.5rem;
 }
 
 .update-modal {

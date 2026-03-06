@@ -30,7 +30,7 @@
       @click="goToHome"
       title="返回首頁"
     >
-      🏠
+      🏛️
     </button>
   </div>
 </template>
