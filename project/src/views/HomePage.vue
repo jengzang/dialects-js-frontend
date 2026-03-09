@@ -520,11 +520,17 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, defineAsyncComponent } from 'vue'
 import { useRouter } from 'vue-router'
-import UserBenefitsPopup from '@/components/user/UserBenefitsPopup.vue'
-import UpdateNoticeModal from '@/components/UpdateNoticeModal.vue'
 import { getTodayVisits, getTotalVisits } from '@/api/logs/index.js'
+
+// ✅ 条件渲染的组件懒加载
+const UserBenefitsPopup = defineAsyncComponent(() =>
+  import('@/components/user/UserBenefitsPopup.vue')
+)
+const UpdateNoticeModal = defineAsyncComponent(() =>
+  import('@/components/UpdateNoticeModal.vue')
+)
 
 const router = useRouter()
 const featuresSection = ref(null)

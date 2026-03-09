@@ -1,19 +1,23 @@
 // src/router.js
 import {createRouter, createWebHashHistory, createWebHistory} from 'vue-router'
-import LikeAuthor from './views/intro/LikeAuthor.vue'
-import Suggestions from './views/intro/Suggestions.vue'
-import Thanks from './views/intro/Thanks.vue'
-import Auth from './views/Auth.vue'
-import UserDataPage from './components/user/UserDataPage.vue'
-import UserRegionPage from './components/user/UserRegionPage.vue'
-import MenuEntry from "@/views/MenuEntry.vue";
-import ExploreEntry from "@/views/ExploreEntry.vue";
-import VillagesMLEntry from "@/views/VillagesMLEntry.vue";
-import IntroLayout from "@/layouts/IntroLayout.vue";
-import HomePage from "@/views/HomePage.vue";
 import { h, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import {userStore} from "@/store/store.js";
+
+// ✅ 首页直接导入（关键路径）
+import HomePage from "@/views/HomePage.vue";
+
+// ✅ 其他页面懒加载（按需加载）
+const LikeAuthor = () => import('./views/intro/LikeAuthor.vue')
+const Suggestions = () => import('./views/intro/Suggestions.vue')
+const Thanks = () => import('./views/intro/Thanks.vue')
+const Auth = () => import('./views/Auth.vue')
+const UserDataPage = () => import('./components/user/UserDataPage.vue')
+const UserRegionPage = () => import('./components/user/UserRegionPage.vue')
+const MenuEntry = () => import("@/views/MenuEntry.vue")
+const ExploreEntry = () => import("@/views/ExploreEntry.vue")
+const VillagesMLEntry = () => import("@/views/VillagesMLEntry.vue")
+const IntroLayout = () => import("@/layouts/IntroLayout.vue")
 
 // 内联定义 intro 动态组件
 const IntroEntry = {
