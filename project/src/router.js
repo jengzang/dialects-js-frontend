@@ -1,80 +1,68 @@
-// src/router.js
-import {createRouter, createWebHashHistory, createWebHistory} from 'vue-router'
+﻿// src/router.js
+import { createRouter, createWebHistory } from 'vue-router'
 import { h, computed } from 'vue'
 import { useRoute } from 'vue-router'
-import {userStore} from "@/store/store.js";
+import { userStore } from '@/store/store.js'
+import { showWarning } from '@/utils/message.js'
 
-// ✅ 首页直接导入（关键路径）
-import HomePage from "@/views/HomePage.vue";
+import HomePage from '@/views/HomePage.vue'
 
-// ✅ 其他页面懒加载（按需加载）
 const LikeAuthor = () => import('./views/intro/LikeAuthor.vue')
 const Suggestions = () => import('./views/intro/Suggestions.vue')
 const Thanks = () => import('./views/intro/Thanks.vue')
-const Auth = () => import('./views/Auth.vue')
+const Auth = () => import('./views/auth.vue')
 const UserDataPage = () => import('./components/user/UserDataPage.vue')
 const UserRegionPage = () => import('./components/user/UserRegionPage.vue')
-const MenuEntry = () => import("@/views/MenuEntry.vue")
-const ExploreEntry = () => import("@/views/ExploreEntry.vue")
-const VillagesMLEntry = () => import("@/views/VillagesMLEntry.vue")
-const IntroLayout = () => import("@/layouts/IntroLayout.vue")
+const MenuEntry = () => import('@/views/MenuEntry.vue')
+const ExploreEntry = () => import('@/views/ExploreEntry.vue')
+const VillagesMLEntry = () => import('@/views/VillagesMLEntry.vue')
+const IntroLayout = () => import('@/layouts/IntroLayout.vue')
 
-// 内联定义 intro 动态组件
 const IntroEntry = {
-    setup() {
-        const route = useRoute()
-        const activeComponent = computed(() => {
-            const tab = route.query.tab
-            const tabMap = {
-                like: LikeAuthor,
-                suggestions: Suggestions,
-                thanks: Thanks
-            }
-            return tabMap[tab] || LikeAuthor
-        })
-        return () => h(activeComponent.value)
-    }
+  setup() {
+    const route = useRoute()
+    const activeComponent = computed(() => {
+      const tab = route.query.tab
+      const tabMap = {
+        like: LikeAuthor,
+        suggestions: Suggestions,
+        thanks: Thanks,
+      }
+      return tabMap[tab] || LikeAuthor
+    })
+    return () => h(activeComponent.value)
+  },
 }
 
 const routes = [
-    // ✅ 根路由 → 首頁
-    {
-        path: '/',
-        component: HomePage,
-        meta: { title: '方音圖鑑 - 首頁' }
-    },
-
-    // ✅ /menu 佔位（由 beforeEach 動態注入組件）
-    {
-        path: '/menu',
-        component: MenuEntry
-    },
-
-    // ✅ /explore 探索页面（使用 SimpleLayout）
-    {
-        path: '/explore',
-        component: ExploreEntry
-    },
-
-    // ✅ /villagesML 村落機器學習（使用 SimpleLayout）
-    {
-        path: '/villagesML',
-        component: VillagesMLEntry
-    },
-
-    {
-        path: '/intro',
-        component: IntroLayout,
-        children: [
-            {
-                path: '',
-                component: IntroEntry
-            }
-        ]
-    },
-
-    // 其他頁面
-    {
+  {
+    path: '/',
+    component: HomePage,
+    meta: { title: '方音圖鑑 - 首頁' }
+  },
+  {
+    path: '/menu',
+    component: MenuEntry,
+  },
+  {
+    path: '/explore',
+    component: ExploreEntry,
+  },
+  {
+    path: '/villagesML',
+    component: VillagesMLEntry,
+  },
+  {
+    path: '/intro',
+    component: IntroLayout,
+    children: [
+      {
+        path: '',
+        component: IntroEntry,
+      },
+    ],
+  },
+{
         path: '/auth',
         component: Auth,
         meta: { title: '方音圖鑑 - 登錄' }
@@ -101,15 +89,14 @@ const routes = [
 ]
 
 const router = createRouter({
-    base:'/',
-    history: createWebHistory(),
-    // ❗hash 模式不需要傳 base，傳 '/' 會被忽略
-    // history: createWebHashHistory(),
-    routes,
-    scrollBehavior() {
-        return { top: 0 }
-    }
+  base: '/',
+  history: createWebHistory(),
+  routes,
+  scrollBehavior() {
+    return { top: 0 }
+  },
 })
+
 const MenuTitleMap = {
     query: '方音圖鑑 - 查詢',
     compare: '方音圖鑑 - 比較',
@@ -147,11 +134,10 @@ const ExploreTitleMap = {
 router.beforeEach((to, from, next) => {
     let title = '方音圖鑑'; // 默认标题
 
-    if (to.meta.title) {
-        title = to.meta.title;
-    }
-
-    // 如果是 /menu 页面，检查查询参数
+  if (to.meta.title) {
+    title = to.meta.title
+  }
+ // 如果是 /menu 页面，检查查询参数
     if (to.path === '/menu') {
         const tab = to.query.tab; // 获取 `tab` 参数
         title = MenuTitleMap[tab] || '方音圖鑑'; // 根据 `tab` 获取对应的标题，如果没有匹配到则使用默认标题
@@ -165,7 +151,7 @@ router.beforeEach((to, from, next) => {
     if (to.path === '/auth/data' || to.path === '/auth/regions') {
         // 如果未登錄，直接攔截並跳轉到登錄頁
         if (!userStore.isAuthenticated) {
-            showWarningToast('未授權訪問，跳回登錄頁');
+            showWarning('未授權訪問，跳回登錄頁');
             return next({ path: '/auth', replace: true });
         }
     }
@@ -177,28 +163,4 @@ router.beforeEach((to, from, next) => {
     next();
 });
 
-// ✅ 根據 query.tab 動態切換組件（/intro 與 /menu 各自映射）
-// router.beforeEach((to, from, next) => {
-//     if (!to.matched.length) return next()
-//
-//     if (to.path === '/menu') {
-//         const tab = to.query.tab
-//         const tabMap = {
-//             query: QueryPage,
-//             map: MapPage,
-//             about: AboutPage,
-//             result: ResultPage,
-//             source:SourcePage,
-//             privacy: PrivacyPage,
-//             setting:SettingPage,
-//         }
-//         to.matched[0].components = {
-//             default: tabMap[tab] || QueryPage
-//         }
-//     }
-//
-//     next()
-// })
-
 export default router
-

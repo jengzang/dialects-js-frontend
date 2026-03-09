@@ -34,7 +34,7 @@ watch(() => route.query, (query) => {
     if (query.subtab) {
       newQuery.subtab = query.subtab
     }
-    window.location.href = `/villagesML?${new URLSearchParams(newQuery).toString()}`
+    router.replace({ path: '/villagesML', query: newQuery })
   }
 }, { immediate: true })
 
