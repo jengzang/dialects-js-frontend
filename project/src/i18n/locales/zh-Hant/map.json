@@ -1,0 +1,138 @@
+{
+  "tabs": {
+    "map": "地圖",
+    "divide": "分區圖",
+    "custom": "自定義"
+  },
+  "placeholder": {
+    "selectFeature": "請選擇特徵"
+  },
+  "messages": {
+    "submitSuccess": "自定義數據提交成功！",
+    "dataRefreshed": "✅ 數據已刷新",
+    "dataRefreshFailed": "❌ 刷新數據失敗:",
+    "featureLoaded": "已加載特征：{feature}",
+    "featureLoadFailed": "❌ 加载特征失败:",
+    "loadFeatureFailed": "加载特征失败：{error}"
+  },
+  "help": {
+    "noFeature": "如果你想添加個人自定義數據，請先選擇特徵",
+    "withFeature": "如果你想添加個人自定義數據，特徵需填入：{feature}"
+  },
+  "customDataPanel": {
+    "title": "提交自定義數據",
+    "labels": {
+      "location": "地點",
+      "region": "分區",
+      "coordinates": "經緯度",
+      "featureType": "聲/韻/調",
+      "featureField": "當前查詢",
+      "value": "值",
+      "description": "說明"
+    },
+    "placeholders": {
+      "location": "輸入地點名稱...",
+      "region": "選擇地點後自動填充...",
+      "coordinates": "點擊地圖自動填入...",
+      "featureType": "如：聲母、韻母、聲調",
+      "featureField": "如：流攝、一等、開...",
+      "value": "如：p、a、55...",
+      "description": "選填：補充說明..."
+    },
+    "buttons": {
+      "submit": "提交數據",
+      "expand": "+",
+      "collapse": "×"
+    },
+    "helpText": {
+      "region": "推薦填入完整的地圖集分區/音典分區，例如\"客家話-粵台片-梅惠小片\"",
+      "value": "填入的值將顯示在地圖上"
+    },
+    "validation": {
+      "locationRequired": "請填寫地點（簡稱）",
+      "regionRequired": "請填寫分區",
+      "coordinatesRequired": "請填寫經緯度",
+      "featureTypeRequired": "請填寫聲韻調",
+      "featureFieldRequired": "請填寫特徵",
+      "valueRequired": "請填寫值",
+      "loginRequired": "提交個人數據需登錄"
+    },
+    "messages": {
+      "submitSuccess": "提交成功！",
+      "submitFailed": "提交失敗：{message}",
+      "submitError": "提交時發生錯誤：{error}",
+      "regionNotFound": "未找到對應的分區",
+      "regionRequestFailed": "請求失敗",
+      "locationMatchFailed": "地點匹配失敗"
+    }
+  },
+  "divideTab": {
+    "title": "分區繪圖",
+    "hint": "按照不同分區層級，繪製方言分佈點圖<br>程序自動分配不同顏色",
+    "labels": {
+      "regionLevel": "繪圖分區級數"
+    },
+    "placeholders": {
+      "selectLevel": "請選擇級數"
+    },
+    "options": {
+      "level1": "1級分區",
+      "level2": "2級分區",
+      "level3": "3級分區"
+    },
+    "buttons": {
+      "run": "🌍繪圖",
+      "running": "🔄 運行中..."
+    },
+    "messages": {
+      "dataFetchFailed": "獲取數據失敗: {error}"
+    }
+  },
+  "customTab": {
+    "title": "搜索自定義特徵",
+    "labels": {
+      "featureSearch": "特徵搜索",
+      "login": "🔐 登錄"
+    },
+    "placeholders": {
+      "featureSearch": "請輸入特徵關鍵詞..."
+    },
+    "badges": {
+      "loginRequired": "🔒 登錄用戶方可添加個人數據",
+      "noData": "📝 請先點擊下方按鈕添加數據",
+      "dataCount": "📊 您共有 {count} 條個人數據"
+    },
+    "selected": "✅ 已選擇：{feature}",
+    "buttons": {
+      "run": "🚀 運行查詢",
+      "running": "🔄 運行中...",
+      "addSingle": "📝 逐條添加",
+      "addBatch": "📋 批量添加",
+      "help": "?"
+    },
+    "divider": "添加新的自定義數據",
+    "helpTrigger": "不知道如何添加數據❓點此查看使用說明",
+    "helpIcons": {
+      "addSingle": "跳轉至地圖頁面，點擊地圖即可獲取經緯度",
+      "addBatch": "批量添加多條數據，支持從excel粘貼"
+    },
+    "validation": {
+      "selectFeature": "请先选择一个特征",
+      "loginFirst": "請先登錄"
+    },
+    "messages": {
+      "noMatch": "未找到匹配的特征",
+      "searchFailed": "搜索失敗：{error}",
+      "loading": "正在加载特征数据...",
+      "fetchCountFailed": "獲取數據總量失敗"
+    }
+  },
+  "legend": {
+    "title": "圖例",
+    "compareTypes": {
+      "chars": "漢字比較",
+      "zhonggu": "中古比較",
+      "tones": "調類比較"
+    }
+  }
+}

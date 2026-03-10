@@ -6,12 +6,12 @@
       <!-- ✅ 地點輸入框 -->
       <div class="location-input">
         <div class="location-header">
-          <label for="locations">地點</label>
+          <label for="locations">{{ $t('query.components.locationAndRegionInput.locationLabel') }}</label>
           <button
               class="select-location-btn"
               @click="openPartitionModalWithSelection"
               type="button"
-              title="從分區選擇地點"
+              :title="$t('query.components.locationAndRegionInput.selectLocationTitle')"
           >
             選擇地點
           </button>
@@ -20,7 +20,7 @@
           <textarea
               id="locations"
               ref="inputEl"
-              placeholder="請輸入地點(可匹配)"
+              :placeholder="$t('query.components.locationAndRegionInput.locationPlaceholder')"
               v-model="inputValue"
               @keyup="onKeyup"
               @blur="onBlur"
@@ -62,7 +62,7 @@
                 :class="{ active: regionUsing === tab }"
                 @click="onTabClick(tab)"
             >
-              {{ tab === 'map' ? '地圖集' : '音典' }}
+              {{ tab === 'map' ? $t('query.components.locationAndRegionInput.mapTab') : $t('query.components.locationAndRegionInput.yindianTab') }}
             </button>
           </div>
 
@@ -70,7 +70,7 @@
           <button
               class="info-btn"
               @click="openPartitionInfoModal"
-              title="查看分區詳情"
+              :title="$t('query.components.locationAndRegionInput.viewPartitionDetails')"
           >
             <span class="icon">ℹ️</span>
           </button>
@@ -80,7 +80,7 @@
         <RegionSelector
             :mode="regionUsing"
             v-model:selected="selectedValue"
-            :placeholder="regionUsing === 'map' ? '請選擇地圖集分區' : '請選擇音典分區'"
+            :placeholder="regionUsing === 'map' ? $t('query.components.locationAndRegionInput.selectMapPartition') : $t('query.components.locationAndRegionInput.selectYindianPartition')"
             @selectCustomRegion="handleCustomRegionSelect"
             @update:customRegions="handleCustomRegionUpdate"
             @update:customRegionData="handleCustomRegionDataUpdate"
@@ -91,7 +91,7 @@
       <!-- NEW MODE: Textarea input (for CustomTab) -->
       <div v-else class="region-input-section">
         <div class="region-input-header">
-          <label class="region-label">分區</label>
+          <label class="region-label">{{ $t('query.components.locationAndRegionInput.partitionLabel') }}</label>
           <button
               class="info-btn"
               @click="openPartitionInfoModal"
@@ -107,7 +107,7 @@
               v-model="regionInputValue"
               @input="onRegionInput"
               @blur="onRegionBlur"
-              placeholder="輸入分區名稱，空格分隔（如：粵語）"
+              :placeholder="$t('query.components.locationAndRegionInput.partitionPlaceholder')"
               class="textarea"
               rows="3"
           ></textarea>
@@ -126,7 +126,7 @@
                   @mousedown.prevent="selectRegionSuggestion(suggestion)"
               >
                 <span class="suggestion-text">{{ suggestion.display }}</span>
-                <span class="suggestion-source">{{ suggestion.source === 'map' ? '地圖集' : '音典' }}</span>
+                <span class="suggestion-source">{{ suggestion.source === 'map' ? $t('query.components.locationAndRegionInput.mapSource') : $t('query.components.locationAndRegionInput.yindianSource') }}</span>
               </div>
             </div>
           </Teleport>
@@ -136,7 +136,7 @@
     <!-- ✅ 底部提示欄：已選擇地點數 -->
     <div class="bottom-hint" >
       <div class="hint-main">
-        您已選擇 <span class="hint-num">{{ totalCount }}</span> 個地點
+        {{ $t('query.components.locationAndRegionInput.selectedCount', { count: totalCount }) }}
       </div>
       <!-- ✅ 新增：深灰色預覽行（最多顯示 4 個 + 省略號 + 展開） -->
       <div v-if="locationsResult.length" class="hint-preview">
@@ -261,6 +261,8 @@ const s2t = OpenCC.Converter({ from: 'cn', to: 'tw' })  // 简 → 繁
 // const MAP_TREE = STATIC_REGION_TREE;
 // const YINDIAN_TREE = top_yindian;
 // 接收外部传入的地點和分區
+const { t } = useI18n()
+
 const props = defineProps({
   modelValue: {
     type: Object,

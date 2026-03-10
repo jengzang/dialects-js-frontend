@@ -1,68 +1,175 @@
 <template>
   <div class="page-root">
-  <h2 class="tabs-title">⚙️ 設置頁面</h2>
-  <div class="coming-soon-container">
-    <div class="coming-soon-message">
-      <p>该页面待完善</p>
+    <h2 class="tabs-title">⚙️ {{ $t('navigation.tabs.settings') }}</h2>
+
+    <div class="settings-container">
+      <!-- 语言设置区域 -->
+      <div class="setting-section">
+        <h3 class="section-title">🌐 {{ $t('settings.language.title') }}</h3>
+        <p class="section-description">{{ $t('settings.language.description') }}</p>
+
+        <div class="language-options">
+          <div
+            v-for="lang in languages"
+            :key="lang.code"
+            class="language-card"
+            :class="{ active: currentLocale === lang.code }"
+            @click="changeLanguage(lang.code)"
+          >
+            <div class="language-flag">{{ lang.flag }}</div>
+            <div class="language-info">
+              <div class="language-name">{{ lang.name }}</div>
+              <div class="language-code">{{ lang.code }}</div>
+            </div>
+            <div class="language-check" v-if="currentLocale === lang.code">
+              ✓
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
   </div>
 </template>
 
+<script setup>
+import { ref, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { setLocale } from '@/i18n'
+import { SUPPORTED_LOCALES } from '@/i18n/localeDetector'
+import { showSuccess } from '@/utils/message'
+
+const { locale, t } = useI18n()
+
+// 当前语言
+const currentLocale = computed(() => locale.value)
+
+// 语言列表
+const languages = ref([
+  SUPPORTED_LOCALES['zh-Hant'],
+  SUPPORTED_LOCALES['zh-CN'],
+  SUPPORTED_LOCALES['en']
+])
+
+/**
+ * 切换语言
+ */
+function changeLanguage(newLocale) {
+  if (newLocale === currentLocale.value) {
+    return
+  }
+
+  setLocale(newLocale)
+  showSuccess(t('messages.success.languageChanged'))
+}
+</script>
+
 <style scoped>
-/* 背景设置 */
-.coming-soon-container {
-  position: absolute;
-  top: 26dvh;
-  left: 0;
-  width: 100%;
-  height: 74dvh;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(0, 122, 255, 0.15));
+.settings-container {
+  padding: 20px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.setting-section {
+  background: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(10px);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.section-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #333;
+  margin: 0 0 8px 0;
+}
+
+.section-description {
+  font-size: 14px;
+  color: #666;
+  margin: 0 0 20px 0;
+}
+
+.language-options {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.language-card {
+  display: flex;
   align-items: center;
-  z-index: 99;
-}
-
-/* 提示框样式 */
-.coming-soon-message {
-  font-size: 28px;
-  font-weight: bold;
-  color: #ffffff;
-  text-align: center;
-  padding: 30px 50px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.8);
+  border: 2px solid #e0e0e0;
   border-radius: 12px;
-  background: rgba(0, 0, 0, 0.6);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-  transform: scale(0);
-  animation: scaleIn 1s ease-out forwards, glowAnimation 1.5s infinite alternate;
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
 
-/* 提示文本的动画效果 */
-@keyframes scaleIn {
-  0% {
-    transform: scale(0);
-  }
-  100% {
-    transform: scale(1);
-  }
+.language-card:hover {
+  background: rgba(255, 255, 255, 1);
+  border-color: #007aff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 122, 255, 0.2);
 }
 
-@keyframes glowAnimation {
-  0% {
-    text-shadow: 0 0 10px rgba(255, 255, 255, 0.8), 0 0 20px rgba(255, 255, 255, 0.6), 0 0 30px rgba(0, 122, 255, 0.9);
-  }
-  100% {
-    text-shadow: 0 0 20px rgba(255, 255, 255, 1), 0 0 40px rgba(255, 255, 255, 0.7), 0 0 60px rgba(0, 122, 255, 1);
-  }
+.language-card.active {
+  background: linear-gradient(135deg, rgba(0, 122, 255, 0.1), rgba(0, 122, 255, 0.05));
+  border-color: #007aff;
+  box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
 }
 
-/* 自适应样式，保证在小屏设备上也能很好展示 */
+.language-flag {
+  font-size: 32px;
+  margin-right: 16px;
+}
+
+.language-info {
+  flex: 1;
+}
+
+.language-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 4px;
+}
+
+.language-code {
+  font-size: 12px;
+  color: #999;
+}
+
+.language-check {
+  font-size: 24px;
+  color: #007aff;
+  font-weight: bold;
+}
+
+/* 响应式设计 */
 @media (max-width: 480px) {
-  .coming-soon-message {
-    font-size: 22px;
-    padding: 20px 30px;
+  .settings-container {
+    padding: 12px;
+  }
+
+  .setting-section {
+    padding: 16px;
+  }
+
+  .language-flag {
+    font-size: 28px;
+    margin-right: 12px;
+  }
+
+  .language-name {
+    font-size: 14px;
+  }
+
+  .language-code {
+    font-size: 11px;
   }
 }
 </style>

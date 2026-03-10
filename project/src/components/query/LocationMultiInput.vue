@@ -3,18 +3,18 @@
     <div class="input-section">
       <div class="input-header">
         <div class="header-left">
-          <label for="location-input">地點</label>
+          <label for="location-input">{{ $t('query.components.locationMultiInput.label') }}</label>
           <button
               class="select-location-btn"
               @click="openPartitionModalWithSelection"
               type="button"
-              title="從分區選擇地點"
+              :title="$t('query.components.locationMultiInput.selectButtonTitle')"
           >
-            選擇地點
+            {{ $t('query.components.locationMultiInput.selectButton') }}
           </button>
         </div>
         <div v-if="matchedLocations.length" class="locations-inline">
-          <span class="count-inline">{{ matchedLocations.length }}個地點</span>
+          <span class="count-inline">{{ $t('query.components.locationMultiInput.locationCount', { count: matchedLocations.length }) }}</span>
           <span class="preview-inline">{{ previewText }}</span>
           <button
             v-if="matchedLocations.length > 3"
@@ -22,7 +22,7 @@
             @click="showModal = true"
             type="button"
           >
-            展開
+            {{ $t('query.components.locationMultiInput.expandButton') }}
           </button>
         </div>
       </div>
@@ -35,7 +35,7 @@
         v-model="inputValue"
         @keyup="onKeyup"
         @blur="onBlur"
-        placeholder="請輸入地點（空格分隔，可自動匹配）"
+        :placeholder="$t('query.components.locationMultiInput.placeholder')"
         rows="3"
       ></textarea>
       <span v-if="showSuccessCheckmark" class="success-checkmark">✓</span>
@@ -72,7 +72,7 @@
       >
         <div class="modal-content">
           <div class="modal-header">
-            <h3>已匹配地點（{{ matchedLocations.length }}）</h3>
+            <h3>{{ $t('query.components.locationMultiInput.modalTitle', { count: matchedLocations.length }) }}</h3>
             <button class="close-btn" @click="showModal = false">×</button>
           </div>
           <div class="modal-body">
@@ -107,8 +107,11 @@
 
 <script setup>
 import { ref, computed, watch, nextTick } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { getLocations, batchMatch, sqlQuery } from '@/api'
 import PartitionInfoModal from '@/components/query/PartitionInfoModal.vue'
+
+const { t } = useI18n()
 
 const props = defineProps({
   modelValue: {
@@ -273,7 +276,7 @@ function fetchSuggestion() {
       })
     })
     .catch(err => {
-      console.error('获取建议失败:', err)
+      console.error(t('query.components.locationMultiInput.errorFetchSuggestions'), err)
     })
 }
 
@@ -315,7 +318,10 @@ async function fetchMatchedLocations(queries) {
 
     // 检查是否超过最大限制
     if (uniqueLocations.length > props.maxLocations) {
-      warningMessage.value = `匹配到${uniqueLocations.length}个地点，已自动截取前${props.maxLocations}个`
+      warningMessage.value = t('query.components.locationMultiInput.warningMaxLocations', {
+        total: uniqueLocations.length,
+        max: props.maxLocations
+      })
       matchedLocations.value = uniqueLocations.slice(0, props.maxLocations)
     } else {
       warningMessage.value = ''
@@ -324,7 +330,7 @@ async function fetchMatchedLocations(queries) {
 
     emit('update:matchedLocations', matchedLocations.value)
   } catch (err) {
-    console.error('获取匹配地点失败:', err)
+    console.error(t('query.components.locationMultiInput.errorFetchLocations'), err)
     matchedLocations.value = []
     warningMessage.value = ''
     emit('update:matchedLocations', [])
@@ -409,8 +415,8 @@ const fetchPartitionData = async () => {
     // 保存到 sessionStorage
     sessionStorage.setItem('partition_data_cache', JSON.stringify(partitionData.value))
   } catch (error) {
-    console.error('获取分区数据失败:', error)
-    partitionTreeError.value = '獲取分區數據失敗，請稍後再試'
+    console.error(t('query.components.locationMultiInput.errorFetchPartitions'), error)
+    partitionTreeError.value = t('query.components.locationMultiInput.errorPartitionMessage')
   } finally {
     isLoadingPartitions.value = false
   }

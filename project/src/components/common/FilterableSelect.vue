@@ -28,7 +28,7 @@
         @focus="handleFocus"
         @blur="handleBlur"
         @keydown="handleKeydown"
-        :placeholder="placeholder"
+        :placeholder="placeholder || $t('common.components.filterableSelect.placeholder')"
         :disabled="disabled"
         class="select-input"
       />
@@ -53,12 +53,12 @@
         <!-- Loading State -->
         <div v-if="loading" class="dropdown-loading">
           <div class="spinner"></div>
-          <span>載入中...</span>
+          <span>{{ $t('common.components.filterableSelect.loading') }}</span>
         </div>
 
         <!-- Empty State -->
         <div v-else-if="filteredOptions.length === 0" class="dropdown-empty">
-          {{ inputValue ? '無匹配結果' : '無可用選項' }}
+          {{ inputValue ? $t('common.components.filterableSelect.noResults') : $t('common.components.filterableSelect.noOptions') }}
         </div>
 
         <!-- Options List -->
@@ -93,7 +93,7 @@
                 <span class="option-main">{{ option.name }}</span>
               </span>
               <span v-if="showCounts && option.village_count" class="option-count">
-                {{ option.village_count }}村
+                {{ option.village_count }}{{ $t('common.components.filterableSelect.villageCount') }}
               </span>
             </div>
           </div>
@@ -105,9 +105,12 @@
 
 <script setup>
 import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { showError } from '@/utils/message.js'
 import { getCities, getCounties, getTownships } from '@/utils/region/regionPreload.js'
 import SimpleDropdown from '@/components/common/SimpleDropdown.vue'
+
+const { t } = useI18n()
 
 const props = defineProps({
   modelValue: { type: String, default: '' },
@@ -116,7 +119,7 @@ const props = defineProps({
   // Hierarchical context for precise queries
   city: { type: String, default: null },
   county: { type: String, default: null },
-  placeholder: { type: String, default: '請選擇或輸入' },
+  placeholder: { type: String, default: '' },
   showCounts: { type: Boolean, default: true },
   showLevelSelector: { type: Boolean, default: true },
   allowedLevels: { type: Array, default: () => ['city', 'county', 'township'] },
@@ -146,11 +149,11 @@ const internalLevel = ref(props.level)
 // Level options
 const levelOptions = computed(() => {
   const options = [
-    { label: '城市', value: 'city' },
-    { label: '區縣', value: 'county' }
+    { label: t('common.components.filterableSelect.levelCity'), value: 'city' },
+    { label: t('common.components.filterableSelect.levelCounty'), value: 'county' }
   ]
   if (props.allowedLevels.includes('township')) {
-    options.push({ label: '鄉鎮', value: 'township' })
+    options.push({ label: t('common.components.filterableSelect.levelTownship'), value: 'township' })
   }
   return options
 })
@@ -158,7 +161,7 @@ const levelOptions = computed(() => {
 // Level label
 const levelLabel = computed(() => {
   const option = levelOptions.value.find(opt => opt.value === internalLevel.value)
-  return option ? option.label : '城市'
+  return option ? option.label : t('common.components.filterableSelect.levelCity')
 })
 
 // Toggle level dropdown
@@ -200,7 +203,7 @@ const loadOptions = async () => {
     filterOptions()
   } catch (error) {
     console.error('Failed to load regions:', error)
-    showError('載入區域列表失敗')
+    showError(t('common.components.filterableSelect.loadError'))
     options.value = []
   } finally {
     loading.value = false

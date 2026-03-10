@@ -1,0 +1,38 @@
+// src/i18n/locales/en/index.js
+// English language pack entry
+
+import common from './common.json'
+import navigation from './navigation.json'
+import messages from './messages.json'
+import query from './query.json'
+import auth from './auth.json'
+import map from './map.json'
+import compare from './compare.json'
+import about from './about.json'
+import privacy from './privacy.json'
+import source from './source.json'
+import phonology from './phonology.json'
+import praat from './praat.json'
+import home from './home.json'
+import tools from './tools.json'
+import words from './words.json'
+import villages from './villages.json'
+
+export default {
+  common,
+  navigation,
+  messages,
+  query,
+  auth,
+  map,
+  compare,
+  about,
+  privacy,
+  source,
+  phonology,
+  praat,
+  home,
+  tools,
+  words,
+  villages
+}

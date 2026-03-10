@@ -1,0 +1,63 @@
+{
+  "button": {
+    "confirm": "Confirm",
+    "cancel": "Cancel",
+    "submit": "Submit",
+    "reset": "Reset",
+    "search": "Search",
+    "close": "Close",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "ok": "OK"
+  },
+  "label": {
+    "loading": "Loading...",
+    "noData": "No Data",
+    "error": "Error",
+    "success": "Success",
+    "warning": "Warning",
+    "info": "Info",
+    "today": "Today",
+    "totalVisits": "Total Visits"
+  },
+  "placeholder": {
+    "input": "Please enter",
+    "select": "Please select",
+    "search": "Please enter search content"
+  },
+  "components": {
+    "multiSelect": {
+      "selectAll": "Select All",
+      "deselectAll": "Deselect All",
+      "searchPlaceholder": "Search...",
+      "noResults": "No matching results",
+      "placeholder": "Please select"
+    },
+    "dropdown": {
+      "placeholder": "Please select",
+      "searchPlaceholder": "Search...",
+      "noResults": "No matching results"
+    },
+    "filterableSelect": {
+      "placeholder": "Select or enter",
+      "loading": "Loading...",
+      "noResults": "No matching results",
+      "noOptions": "No available options",
+      "levelCity": "City",
+      "levelCounty": "County",
+      "levelTownship": "Township",
+      "villageCount": "villages",
+      "loadError": "Failed to load region list"
+    },
+    "regionDisplay": {
+      "separator": " > "
+    },
+    "tabs": {
+      "defaultLabel": "Tab"
+    }
+  }
+}

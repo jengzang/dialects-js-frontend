@@ -1,0 +1,82 @@
+{
+  "menu": {
+    "home": "Home",
+    "query": "Query",
+    "compare": "Compare",
+    "data": "Phonology",
+    "words": "Words",
+    "villages": "Villages",
+    "tools": "Tools",
+    "source": "Sources",
+    "about": "About",
+    "about_ontop": "About"
+  },
+  "submenu": {
+    "query": {
+      "tab1": "Character Query",
+      "tab2": "Middle Chinese Query",
+      "tab3": "Phoneme Query",
+      "tab4": "Tone Query"
+    },
+    "compare": {
+      "tab1": "Character Comparison",
+      "tab2": "Middle Chinese Comparison",
+      "tab4": "Tone Category Comparison"
+    },
+    "data": {
+      "phonologyMatrix": "Phonology Query",
+      "phonologyCustom": "Phoneme Classification",
+      "Countphos": "Syllable Statistics",
+      "ZhongGu": "Middle Chinese Position"
+    },
+    "words": {
+      "vocabulary": "Language Preservation Vocabulary",
+      "grammar": "Language Preservation Grammar",
+      "ycSpoken": "Yangchun Colloquial Words"
+    },
+    "villages": {
+      "gdVillages": "Guangdong Villages",
+      "VillagesML": "Machine Learning",
+      "gdVillagesTable": "Guangdong Villages Table",
+      "ycVillages": "Yangchun Villages"
+    },
+    "tools": {
+      "check": "Character List Tool",
+      "jyut2ipa": "Jyutping to IPA",
+      "merge": "Character List Merge",
+      "praat": "Acoustic Analysis"
+    },
+    "source": {
+      "source": "Data Sources",
+      "privacy": "Privacy Policy",
+      "suggestion": "Suggestions",
+      "like": "Support Author"
+    },
+    "about": {
+      "intro": "Introduction",
+      "reflection": "Reflections",
+      "suggestion": "Suggestions",
+      "like": "Support Author"
+    }
+  },
+  "tabs": {
+    "home": "Home",
+    "phonology": "Phonology",
+    "query": "Query",
+    "results": "Results",
+    "map": "Map",
+    "compare": "Compare",
+    "about": "About",
+    "tools": "Tools",
+    "praat": "Praat",
+    "phrases": "Phrases",
+    "villages": "Villages",
+    "aboutWebsite": "About Website"
+  },
+  "settings": {
+    "language": {
+      "title": "Language Settings",
+      "description": "Choose your preferred interface language"
+    }
+  }
+}

@@ -1,0 +1,82 @@
+{
+  "menu": {
+    "home": "首页",
+    "query": "查询",
+    "compare": "比较",
+    "data": "音系",
+    "words": "词句",
+    "villages": "自然村",
+    "tools": "工具",
+    "source": "资料源",
+    "about": "关于网站",
+    "about_ontop": "关于网站"
+  },
+  "submenu": {
+    "query": {
+      "tab1": "查字",
+      "tab2": "查中古",
+      "tab3": "查音位",
+      "tab4": "查调"
+    },
+    "compare": {
+      "tab1": "汉字对比",
+      "tab2": "中古对比",
+      "tab4": "调类对比"
+    },
+    "data": {
+      "phonologyMatrix": "音系查询",
+      "phonologyCustom": "音素分类",
+      "Countphos": "音节统计",
+      "ZhongGu": "中古地位"
+    },
+    "words": {
+      "vocabulary": "语保词汇",
+      "grammar": "语保语法",
+      "ycSpoken": "阳春口语词"
+    },
+    "villages": {
+      "gdVillages": "广东自然村",
+      "VillagesML": "机器学习",
+      "gdVillagesTable": "全粤村情表格",
+      "ycVillages": "阳春自然村"
+    },
+    "tools": {
+      "check": "字表工具",
+      "jyut2ipa": "粤拼转IPA",
+      "merge": "字表合并",
+      "praat": "声学分析"
+    },
+    "source": {
+      "source": "字表来源",
+      "privacy": "隐私政策",
+      "suggestion": "提出建议",
+      "like": "喜欢作者"
+    },
+    "about": {
+      "intro": "简介",
+      "reflection": "感悟",
+      "suggestion": "提出建议",
+      "like": "喜欢作者"
+    }
+  },
+  "tabs": {
+    "home": "首页",
+    "phonology": "音系",
+    "query": "查询",
+    "results": "结果",
+    "map": "地图",
+    "compare": "比较",
+    "about": "关于",
+    "tools": "工具",
+    "praat": "praat",
+    "phrases": "词句",
+    "villages": "村落",
+    "aboutWebsite": "关于网站"
+  },
+  "settings": {
+    "language": {
+      "title": "语言设置",
+      "description": "选择您偏好的界面语言"
+    }
+  }
+}

@@ -1,0 +1,147 @@
+{
+  "phonology": {
+    "zhonggu": {
+      "title": "中古音韵数据",
+      "toggleAnnotations": {
+        "show": "显示释义",
+        "hide": "隐藏释义"
+      },
+      "classifications": {
+        "rhyme": "韵摄分类",
+        "initial": "声纽分类",
+        "voicing": "清浊分类"
+      },
+      "search": {
+        "placeholder": "搜索已加载的数据...",
+        "noResults": "没有找到匹配的结果"
+      },
+      "states": {
+        "selectClassification": "请选择一种分类方式",
+        "selectHint": "点击上方的分类选项卡以查看数据",
+        "loading": "正在加载 {name} 数据...",
+        "loadingHint": "数据量较大，请稍候...",
+        "dataFormatError": "数据格式错误",
+        "loadFailed": "加载失败，请重试"
+      },
+      "actions": {
+        "retry": "重试"
+      }
+    },
+    "matrix": {
+      "title": "音系查询",
+      "features": {
+        "initial": "声母",
+        "final": "韵母",
+        "tone": "声调"
+      },
+      "columns": {
+        "horizontal": "横向分类",
+        "vertical": "纵向分类",
+        "cellRow": "单元格分行"
+      },
+      "columnOptions": {
+        "rhyme": "摄",
+        "rhymeDetail": "韵",
+        "grade": "等",
+        "openness": "呼",
+        "entering": "入",
+        "voicing": "清浊",
+        "series": "系",
+        "group": "组",
+        "initial": "母",
+        "tone": "调",
+        "place": "部位",
+        "manner": "方式"
+      },
+      "actions": {
+        "query": "查询",
+        "loading": "加载中...",
+        "retry": "重试"
+      },
+      "states": {
+        "emptyInput": "请输入地点并点击查询",
+        "minLocationError": "请至少输入一个地点",
+        "loadError": "加载数据时发生错误",
+        "apiError": "API 返回的数据为空",
+        "missingMatrix": "API 返回的数据缺少 matrix 属性"
+      }
+    },
+    "custom": {
+      "title": "音素分类",
+      "features": {
+        "initial": "声母",
+        "final": "韵母",
+        "tone": "声调"
+      },
+      "columns": {
+        "horizontal": "横向分类",
+        "vertical": "纵向分类",
+        "cellRow": "单元格分行"
+      },
+      "columnOptions": {
+        "rhyme": "摄",
+        "rhymeDetail": "韵",
+        "grade": "等",
+        "openness": "呼",
+        "entering": "入",
+        "voicing": "清浊",
+        "series": "系",
+        "group": "组",
+        "initial": "母",
+        "tone": "调",
+        "place": "部位",
+        "manner": "方式"
+      },
+      "actions": {
+        "query": "查询",
+        "loading": "加载中...",
+        "retry": "重试"
+      },
+      "states": {
+        "emptyInput": "请输入地点并点击查询",
+        "minLocationError": "请至少输入一个地点",
+        "loadError": "加载数据时发生错误",
+        "apiError": "API 返回的数据为空",
+        "missingMatrix": "API 返回的数据缺少 matrix 属性"
+      }
+    },
+    "countphos": {
+      "title": "音节统计",
+      "subtitle": "所有地点的音节统计（共 {count} 个地点）",
+      "features": {
+        "initial": "声母",
+        "final": "韵母",
+        "tone": "声调"
+      },
+      "stats": {
+        "total": "总数",
+        "locationCount": "地点数",
+        "more": "+{count} 更多"
+      },
+      "sections": {
+        "aggregated": "汇总统计",
+        "locations": "地点详情",
+        "locationsSubtitle": "每个地点的音节统计"
+      },
+      "modal": {
+        "title": "{featureType} - {syllable}"
+      },
+      "actions": {
+        "query": "查询",
+        "loading": "加载中...",
+        "retry": "重试"
+      },
+      "states": {
+        "emptyInput": "请输入地点并点击查询",
+        "minLocationError": "请至少输入一个地点",
+        "loadError": "加载数据时发生错误"
+      }
+    }
+  },
+  "tabs": {
+    "matrix": "音系",
+    "custom": "音素分类",
+    "count": "音节数",
+    "zhonggu": "汉字类别"
+  }
+}

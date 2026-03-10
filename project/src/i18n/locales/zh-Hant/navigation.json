@@ -1,0 +1,82 @@
+{
+  "menu": {
+    "home": "首頁",
+    "query": "查詢",
+    "compare": "比較",
+    "data": "音系",
+    "words": "詞句",
+    "villages": "自然村",
+    "tools": "工具",
+    "source": "資料源",
+    "about": "關於網站",
+    "about_ontop": "關於網站"
+  },
+  "submenu": {
+    "query": {
+      "tab1": "查字",
+      "tab2": "查中古",
+      "tab3": "查音位",
+      "tab4": "查調"
+    },
+    "compare": {
+      "tab1": "漢字對比",
+      "tab2": "中古對比",
+      "tab4": "調類對比"
+    },
+    "data": {
+      "phonologyMatrix": "音系查詢",
+      "phonologyCustom": "音素分類",
+      "Countphos": "音節統計",
+      "ZhongGu": "中古地位"
+    },
+    "words": {
+      "vocabulary": "語保詞彙",
+      "grammar": "語保語法",
+      "ycSpoken": "陽春口語詞"
+    },
+    "villages": {
+      "gdVillages": "廣東自然村",
+      "VillagesML": "機器學習",
+      "gdVillagesTable": "全粵村情表格",
+      "ycVillages": "陽春自然村"
+    },
+    "tools": {
+      "check": "字表工具",
+      "jyut2ipa": "粵拼轉IPA",
+      "merge": "字表合併",
+      "praat": "聲學分析"
+    },
+    "source": {
+      "source": "字表來源",
+      "privacy": "隱私政策",
+      "suggestion": "提出建議",
+      "like": "喜歡作者"
+    },
+    "about": {
+      "intro": "簡介",
+      "reflection": "感悟",
+      "suggestion": "提出建議",
+      "like": "喜歡作者"
+    }
+  },
+  "tabs": {
+    "home": "首頁",
+    "phonology": "音系",
+    "query": "查詢",
+    "results": "結果",
+    "map": "地圖",
+    "compare": "比較",
+    "about": "關於",
+    "tools": "工具",
+    "praat": "praat",
+    "phrases": "詞句",
+    "villages": "村落",
+    "aboutWebsite": "關於網站"
+  },
+  "settings": {
+    "language": {
+      "title": "語言設置",
+      "description": "選擇您偏好的界面語言"
+    }
+  }
+}

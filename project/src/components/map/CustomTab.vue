@@ -2,10 +2,10 @@
   <div>
       <div class="page-content-stack">
       <div class="page-footer">
-        <h3 style="margin:0">搜索自定義特徵</h3>
-        <div class="help-icon-head" @click="openHelpModal" title="查看使用說明">?</div>
+        <h3 style="margin:0">{{ t('map.customTab.title') }}</h3>
+        <div class="help-icon-head" @click="openHelpModal">{{ t('map.customTab.buttons.help') }}</div>
         <div class="button-row" v-if="!userStore.isAuthenticated">
-          <button class="enter-btn" @click="handleLogin">🔐 登錄</button>
+          <button class="enter-btn" @click="handleLogin">{{ t('map.customTab.labels.login') }}</button>
         </div>
       </div>
 
@@ -19,16 +19,16 @@
         <!-- 特征搜索输入框 -->
         <div class="feature-search-container">
           <div class="label-row">
-            <label for="featureSearch" class="query-label">特徵搜索</label>
+            <label for="featureSearch" class="query-label">{{ t('map.customTab.labels.featureSearch') }}</label>
 
             <span v-if="!userStore.isAuthenticated" class="data-count-badge warning">
-              🔒 登錄用戶方可添加個人數據
+              {{ t('map.customTab.badges.loginRequired') }}
             </span>
             <span v-else-if="userTotalCount === 0" class="data-count-badge hint">
-              📝 請先點擊下方按鈕添加數據
+              {{ t('map.customTab.badges.noData') }}
             </span>
             <span v-else class="data-count-badge success">
-              📊 您共有 {{ userTotalCount }} 條個人數據
+              {{ t('map.customTab.badges.dataCount', { count: userTotalCount }) }}
             </span>
           </div>
           <div class="search-input-wrapper">
@@ -36,7 +36,7 @@
               id="featureSearch"
               v-model="featureSearchInput"
               type="text"
-              placeholder="請輸入特徵關鍵詞..."
+              :placeholder="t('map.customTab.placeholders.featureSearch')"
               @input="handleFeatureInput"
               @focus="handleInputFocus"
               class="feature-search-input"
@@ -66,7 +66,7 @@
 
         <!-- 已选择的特征显示 -->
         <div v-if="selectedFeature" class="selected-feature">
-          ✅ 已選擇：<strong>{{ selectedFeature }}</strong>
+          {{ t('map.customTab.selected', { feature: selectedFeature }) }}
         </div>
 
         <!-- 运行查询按钮 -->
@@ -76,20 +76,20 @@
             @click="handleRunQuery"
             :disabled="isDisabled"
           >
-            <span v-if="buttonState.isRunning">🔄 運行中...</span>
-            <span v-else>🚀 運行查詢</span>
+            <span v-if="buttonState.isRunning">{{ t('map.customTab.buttons.running') }}</span>
+            <span v-else>{{ t('map.customTab.buttons.run') }}</span>
           </button>
         </div>
 
         <!-- 分隔线 -->
         <div class="divider">
-          <span> 添加新的自定義數據 </span>
+          <span>{{ t('map.customTab.divider') }}</span>
         </div>
 
         <!-- 使用说明链接 -->
         <div class="help-trigger-wrapper">
           <span class="help-trigger" @click="openHelpModal">
-            不知道如何添加數據❓點此查看使用說明
+            {{ t('map.customTab.helpTrigger') }}
           </span>
         </div>
 
@@ -97,10 +97,10 @@
         <div class="button-group">
           <div class="button-with-help">
             <button class="action-btn add-single-btn" @click="handleAddSingle">
-              📝 逐條添加
+              {{ t('map.customTab.buttons.addSingle') }}
             </button>
             <HelpIcon
-              content="跳轉至地圖頁面，點擊地圖即可獲取經緯度"
+              :content="t('map.customTab.helpIcons.addSingle')"
               size="md"
               trigger="both"
             />
@@ -108,10 +108,10 @@
 
           <div class="button-with-help">
             <button class="action-btn add-batch-btn" @click="handleAddBatch">
-              📋 批量添加
+              {{ t('map.customTab.buttons.addBatch') }}
             </button>
             <HelpIcon
-              content="批量添加多條數據，支持從excel粘貼"
+              :content="t('map.customTab.helpIcons.addBatch')"
               size="md"
               trigger="both"
             />
@@ -386,6 +386,7 @@
 <script setup>
 import { ref, reactive, nextTick, onMounted, onBeforeUnmount, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import LocationAndRegionInput from '@/components/query/LocationAndRegionInput.vue'
 import HelpIcon from '@/components/ToastAndHelp/HelpIcon.vue'
 import { getCustomFeature } from '@/api/user/custom.js'
@@ -395,6 +396,7 @@ import { showSuccess, showError, showWarning, showInfo } from '@/utils/message.j
 
 const router = useRouter()
 const route = useRoute()
+const { t } = useI18n()
 
 // 地点和分区数据
 const locationData = ref({
@@ -520,11 +522,11 @@ const searchCustomFeatures = async () => {
     } else {
       featureSuggestions.value = []
       showSuggestions.value = false
-      showInfo('未找到匹配的特征')
+      showInfo(t('map.customTab.messages.noMatch'))
     }
   } catch (error) {
     console.error('搜索特征失败:', error)
-    showError('搜索失败：' + error.message)
+    showError(t('map.customTab.messages.searchFailed', { error: error.message }))
     featureSuggestions.value = []
     showSuggestions.value = false
   } finally {
@@ -591,7 +593,7 @@ onBeforeUnmount(() => {
 // 运行查询
 const handleRunQuery = () => {
   if (!selectedFeature.value) {
-    showWarning('请先选择一个特征')
+    showWarning(t('map.customTab.validation.selectFeature'))
     return
   }
 
@@ -628,7 +630,7 @@ const handleRunQuery = () => {
     // 跳转到地图页面
     router.replace({ query })
 
-    showSuccess('正在加载特征数据...')
+    showSuccess(t('map.customTab.messages.loading'))
 
     // 清空選中的特徵
     selectedFeature.value = ''
@@ -640,7 +642,7 @@ const handleRunQuery = () => {
     }, 1000)
   } catch (error) {
     console.error('跳转失败:', error)
-    showError('操作失败：' + error.message)
+    showError(t('map.customTab.messages.searchFailed', { error: error.message }))
     setRunning('custom', false)
   }
 }
@@ -666,7 +668,7 @@ const handleAddSingle = () => {
 const handleAddBatch = () => {
   // 检查是否已登录
   if (!userStore.isAuthenticated) {
-    showWarning('請先登錄')
+    showWarning(t('map.customTab.validation.loginFirst'))
     router.push('/auth')
     return
   }

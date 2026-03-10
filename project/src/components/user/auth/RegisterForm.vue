@@ -1,11 +1,11 @@
 <template>
   <div class="register-form">
     <h3 class="form-title">
-      註冊
+      {{ $t('auth.register.title') }}
       <button
         class="benefit-circle-btn"
         @click="$emit('showBenefits')"
-        title="查看用戶與遊客權益對比"
+        :title="$t('auth.register.viewBenefits')"
       >
         🎁
       </button>
@@ -15,7 +15,7 @@
     <FormInput
       v-model="localUsername"
       type="text"
-      placeholder="用戶名"
+      :placeholder="$t('auth.register.username')"
       icon="👤"
       :error="error"
     />
@@ -24,7 +24,7 @@
     <FormInput
       v-model="localEmail"
       type="email"
-      placeholder="郵箱"
+      :placeholder="$t('auth.register.email')"
       icon="📧"
       :error="error"
     />
@@ -33,7 +33,7 @@
     <FormInput
       v-model="localPassword"
       type="password"
-      placeholder="密碼"
+      :placeholder="$t('auth.register.password')"
       :showPasswordToggle="true"
       :error="error"
     />
@@ -42,7 +42,7 @@
     <FormInput
       v-model="localConfirmPassword"
       type="password"
-      placeholder="確認密碼"
+      :placeholder="$t('auth.register.confirmPassword')"
       :showPasswordToggle="true"
       :error="error"
     />
@@ -50,7 +50,7 @@
     <!-- Submit Button -->
     <div class="form-row">
       <button class="btn-search" @click="handleSubmit" :disabled="loading">
-        註冊
+        {{ $t('auth.register.button') }}
       </button>
     </div>
 
@@ -60,7 +60,7 @@
 
     <!-- Switch to Login -->
     <p>
-      <a href="#" @click.prevent="$emit('switchToLogin')">已有帳號？登錄</a>
+      <a href="#" @click.prevent="$emit('switchToLogin')">{{ $t('auth.register.hasAccount') }}</a>
     </p>
   </div>
 </template>

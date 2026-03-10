@@ -6,13 +6,13 @@
         <div class="page-content-stack tab1-layout">
           <!-- 組1 輸入 -->
           <div class="compare-group group1-style">
-            <div class="group-label">組1</div>
+            <div class="group-label">{{ $t('compare.group.label1') }}</div>
             <div class="query-box">
               <input
                   class="single-char-input"
                   type="text"
                   maxlength="1"
-                  placeholder="請輸入漢字"
+                  :placeholder="$t('compare.placeholder.enterChar')"
                   v-model="tabStates.tab1.group1.chars"
                   @input="handleSingleCharInput('group1')"
                   autocomplete="off"
@@ -29,13 +29,13 @@
 
           <!-- 組2 輸入 -->
           <div class="compare-group group2-style">
-            <div class="group-label">組2</div>
+            <div class="group-label">{{ $t('compare.group.label2') }}</div>
             <div class="query-box">
               <input
                   class="single-char-input"
                   type="text"
                   maxlength="1"
-                  placeholder="請輸入漢字"
+                  :placeholder="$t('compare.placeholder.enterChar')"
                   v-model="tabStates.tab1.group2.chars"
                   @input="handleSingleCharInput('group2')"
                   autocomplete="off"
@@ -45,19 +45,19 @@
 
           <!-- 特徵選擇 -->
           <div class="feature-selection">
-            <label class="feature-label">選擇比較特徵：</label>
+            <label class="feature-label">{{ $t('compare.feature.selectLabel') }}</label>
             <div class="feature-checkboxes">
               <label class="checkbox-item">
                 <input type="radio" name="tab1-feature" value="聲母" v-model="tabStates.tab1.features" />
-                <span>聲母</span>
+                <span>{{ $t('compare.feature.initial') }}</span>
               </label>
               <label class="checkbox-item">
                 <input type="radio" name="tab1-feature" value="韻母" v-model="tabStates.tab1.features" />
-                <span>韻母</span>
+                <span>{{ $t('compare.feature.final') }}</span>
               </label>
               <label class="checkbox-item">
                 <input type="radio" name="tab1-feature" value="聲調" v-model="tabStates.tab1.features" />
-                <span>聲調</span>
+                <span>{{ $t('compare.feature.tone') }}</span>
               </label>
             </div>
           </div>
@@ -85,7 +85,7 @@
                       }"
                       @click="tabStates.tab2.current.card = item"
                   >
-                    {{ item }}
+                    {{ getCardLabel(item) }}
                   </div>
                 </div>
 
@@ -95,7 +95,7 @@
                      style="margin: 0;padding: 8px 10px;min-width: 60px;max-height:30px"
                      :class="{ disabled: buttonState.isRunning }"
                 >
-                  {{ getExcludeDisplayText('tab2', 'current') || '不排除' }}
+                  {{ getExcludeDisplayText('tab2', 'current') || $t('compare.excludeOptions.noExclude') }}
                   <span class="arrow">▾</span>
                 </div>
 
@@ -143,7 +143,7 @@
                           @focus="handleInputFocus(key + '_current')"
                           @blur="handleInputBlur(key + '_current')"
                           @click.stop
-                          :placeholder="`輸/選 [${key}]`"
+                          :placeholder="$t('compare.placeholder.inputOrSelect', { key })"
                           class="dropdown-input"
                       />
                       <span class="arrow-trigger" @click.stop="toggleDropdown('value', key + '_current')">
@@ -164,7 +164,7 @@
                         >
                           <span v-if="isAllSelected(key, 'current')">☑</span>
                           <span v-else>☐</span>
-                          全選
+                          {{ $t('compare.excludeOptions.selectAll') }}
                         </div>
 
                         <div class="dropdown-divider"></div>
@@ -194,9 +194,9 @@
             <div class="selected-group group1-style">
               <div class="selected-group-header">
 <!--                <span>組1已選 ({{ tabStates.tab2.group1Items.length }})</span>-->
-                <span>組1</span>
+                <span>{{ $t('compare.group.label1') }}</span>
                 <button class="add-btn add-to-group1" @click="addToGroup('group1')" :disabled="!canAddToGroup">
-                  ➕ 添加
+                  {{ $t('compare.button.add') }}
                 </button>
               </div>
               <div class="selected-items-list">
@@ -209,7 +209,7 @@
                   <button class="remove-btn" @click="removeFromGroup('group1', index)">✕</button>
                 </div>
                 <div v-if="tabStates.tab2.group1Items.length === 0" class="empty-hint">
-                  尚未添加任何條件
+                  {{ $t('compare.messages.noConditionsAdded') }}
                 </div>
               </div>
             </div>
@@ -217,10 +217,10 @@
             <!-- 組2已選 -->
             <div class="selected-group group2-style">
               <div class="selected-group-header">
-                <span>組2</span>
+                <span>{{ $t('compare.group.label2') }}</span>
 <!--                <span>組2已選 ({{ tabStates.tab2.group2Items.length }})</span>-->
                 <button class="add-btn add-to-group2" @click="addToGroup('group2')" :disabled="!canAddToGroup">
-                  ➕ 添加
+                  {{ $t('compare.button.add') }}
                 </button>
               </div>
               <div class="selected-items-list">
@@ -233,7 +233,7 @@
                   <button class="remove-btn" @click="removeFromGroup('group2', index)">✕</button>
                 </div>
                 <div v-if="tabStates.tab2.group2Items.length === 0" class="empty-hint">
-                  尚未添加任何條件
+                  {{ $t('compare.messages.noConditionsAdded') }}
                 </div>
               </div>
             </div>
@@ -252,10 +252,10 @@
           </div>
         </div>
       </div>
-      <!-- Tab4: ???? -->
+      <!-- Tab4: 比較調類 -->
       <div v-show="currentTab === 'tab4'" class="page">
         <div class="page-content-stack">
-          <div class="tone-tip">請選擇兩個調類</div>
+          <div class="tone-tip">{{ $t('compare.messages.selectTwoToneClasses') }}</div>
           <div class="compare-group">
             <!-- <div class="group-label">??????</div> -->
             <div class="tone-selection">
@@ -293,9 +293,9 @@
             :disabled="buttonState.isRunning || isRunDisabled"
             :class="{ disabled: isRunDisabled }"
         >
-          <span v-if="buttonState.isRunning">🔄 運行中...</span>
-          <span v-else-if="isRunDisabled">🚫 輸入不合規</span>
-          <span v-else>🚀 開始比較</span>
+          <span v-if="buttonState.isRunning">{{ $t('compare.button.running') }}</span>
+          <span v-else-if="isRunDisabled">{{ $t('compare.button.invalid') }}</span>
+          <span v-else>{{ $t('compare.button.startCompare') }}</span>
         </button>
       </div>
 
@@ -316,6 +316,7 @@
 <script setup>
 import {computed, nextTick, reactive, ref, onMounted, onBeforeUnmount, watch} from 'vue'
 import {useRoute, useRouter} from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import TabsContainer from "@/components/common/TabsContainer.vue";
 import LocationAndRegionInput from "@/components/query/LocationAndRegionInput.vue";
 import ZhongguSelector from "@/components/query/ZhongguSelector.vue";
@@ -325,15 +326,16 @@ import { compareChars, compareZhongGu, compareTones } from '@/api/index.js'
 import { getCoordinates } from '@/api/query/geo'
 import { showWarning } from '@/utils/message.js'
 
+const { t } = useI18n()
 const locationRef = ref(null)
 const router = useRouter()
 const route = useRoute()
 const currentTab = computed(() => route.query.sub || 'tab2')
-const tabs = [
-  { name: 'tab1', label: '比較漢字' },
-  { name: 'tab2', label: '比較中古' },
-  { name: 'tab4', label: '比較調類' }
-]
+const tabs = computed(() => [
+  { name: 'tab1', label: t('compare.tabs.tab1') },
+  { name: 'tab2', label: t('compare.tabs.tab2') },
+  { name: 'tab4', label: t('compare.tabs.tab4') }
+])
 
 // Compute limit context based on current tab
 const locationLimitContext = computed(() => {
@@ -355,13 +357,13 @@ const hanziInput = ref({
 const dropdownOpen = ref(null)
 
 // ✨ 過濾器相關狀態
-const excludeOptions = [
-  { value: '多地位標記', label: '所有多地位' },
-  { value: '多等', label: '排除多等' },
-  { value: '多韻', label: '排除多韻' },
-  { value: '多聲母', label: '排除多聲母' },
-  { value: '多調', label: '排除多調' }
-]
+const excludeOptions = computed(() => [
+  { value: '多地位標記', label: t('compare.excludeOptions.allMulti') },
+  { value: '多等', label: t('compare.excludeOptions.excludeMultiGrade') },
+  { value: '多韻', label: t('compare.excludeOptions.excludeMultiRime') },
+  { value: '多聲母', label: t('compare.excludeOptions.excludeMultiInitial') },
+  { value: '多調', label: t('compare.excludeOptions.excludeMultiTone') }
+])
 const excludeFilterTriggerRef = reactive({
   tab2_current: null,  // ✅ 添加 current 的 ref
   tab2_group1: null,
@@ -383,12 +385,12 @@ const tabStates = reactive({
     group2: {
       chars: ''
     },
-    features: '聲母'  // Selected feature for comparison
+    features: '聲母'  // Internal value in Chinese for API
   },
   tab2: {
     // 當前選擇器狀態
     current: {
-      card: '韻母',
+      card: '韻母',  // Internal value in Chinese for API
       keys: ['攝'],
       valueMap: {},
       excludeColumns: []
@@ -435,10 +437,13 @@ function addToGroup(groupName) {
                    existingExclude.every(col => currentExclude.includes(col))
 
     if (!isSame) {
+      const existingText = existingExclude.length > 0 ? existingExclude.join(', ') : t('compare.excludeOptions.noExclude')
+      const currentText = currentExclude.length > 0 ? currentExclude.join(', ') : t('compare.excludeOptions.noExclude')
       showWarning(
-        `同一組內的條件必須使用相同的排除設置！\n` +
-        `已有條件排除：${existingExclude.length > 0 ? existingExclude.join(', ') : '無'}\n` +
-        `當前條件排除：${currentExclude.length > 0 ? currentExclude.join(', ') : '無'}`
+        t('compare.messages.excludeSettingsMismatch', {
+          existing: existingText,
+          current: currentText
+        })
       )
       return  // 不允許添加
     }
@@ -503,7 +508,28 @@ function handleSingleCharInput(group) {
 }
 
 const cards = ['聲母', '韻母', '聲調']
-const toneClassLabels = ['陰平', '陽平', '陰上', '陽上', '陰去', '陽去', '陰入', '陽入', '輕聲', '其他調']
+const toneClassLabels = computed(() => [
+  t('compare.toneClasses.yinping'),
+  t('compare.toneClasses.yangping'),
+  t('compare.toneClasses.yinshang'),
+  t('compare.toneClasses.yangshang'),
+  t('compare.toneClasses.yinqu'),
+  t('compare.toneClasses.yangqu'),
+  t('compare.toneClasses.yinru'),
+  t('compare.toneClasses.yangru'),
+  t('compare.toneClasses.qingsheng'),
+  t('compare.toneClasses.other')
+])
+
+// Helper function to get translated card label
+const getCardLabel = (card) => {
+  const cardMap = {
+    '聲母': t('compare.cards.initial'),
+    '韻母': t('compare.cards.final'),
+    '聲調': t('compare.cards.tone')
+  }
+  return cardMap[card] || card
+}
 const keys = Object.keys(column_values)
 const keyValueMap = column_values
 // const tab3KeyInput = ref('')
@@ -1096,27 +1122,27 @@ const runAction = async () => {
       if (compareType === 'chars') {
         // 漢字比較：4種狀態
         mapStore.compareGroups = {
-          same: { color: '#4CAF50', label: '完全相同' },
-          partial: { color: '#FFC107', label: '部分相同' },
-          diff: { color: '#F44336', label: '完全不同' },
-          unknown: { color: '#9E9E9E', label: '無數據' }
+          same: { color: '#4CAF50', label: t('compare.legend.same') },
+          partial: { color: '#FFC107', label: t('compare.legend.partial') },
+          diff: { color: '#F44336', label: t('compare.legend.diff') },
+          unknown: { color: '#9E9E9E', label: t('compare.legend.unknown') }
         }
       } else if (compareType === 'zhonggu') {
         // 中古比較：相似度百分比
         mapStore.compareGroups = {
-          same: { color: '#4CAF50', label: '完全相同 (≥80%)' },
-          high_similar: { color: '#8BC34A', label: '高度相似 (60-79%)' },
-          partial: { color: '#FFC107', label: '部分相似 (30-59%)' },
-          diff: { color: '#F44336', label: '完全不同 (<30%)' },
-          unknown: { color: '#9E9E9E', label: '無數據' }
+          same: { color: '#4CAF50', label: t('compare.legend.samePercent') },
+          high_similar: { color: '#8BC34A', label: t('compare.legend.highSimilar') },
+          partial: { color: '#FFC107', label: t('compare.legend.partialSimilar') },
+          diff: { color: '#F44336', label: t('compare.legend.diffPercent') },
+          unknown: { color: '#9E9E9E', label: t('compare.legend.unknown') }
         }
       } else if (compareType === 'tones') {
         // 調類比較：合併狀態
         mapStore.compareGroups = {
-          same: { color: '#4CAF50', label: '完全合併' },
-          maybe: { color: '#FF9800', label: '可能合併' },
-          diff: { color: '#F44336', label: '不合併' },
-          unknown: { color: '#9E9E9E', label: '無數據' }
+          same: { color: '#4CAF50', label: t('compare.legend.merged') },
+          maybe: { color: '#FF9800', label: t('compare.legend.maybeMerged') },
+          diff: { color: '#F44336', label: t('compare.legend.notMerged') },
+          unknown: { color: '#9E9E9E', label: t('compare.legend.unknown') }
         }
       }
 

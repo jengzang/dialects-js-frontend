@@ -1,22 +1,24 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import UniversalTable from "@/components/TableAndTree/UniversalTable.vue";
 
+const { t } = useI18n()
 const router = useRouter()
 
 // ✅ 存储总记录数
 const totalRecords = ref(0)
 
 const dataColumns = [
-  {key: '簡稱', label: '方言點', filterable: false, width: 1},
-  {key: '地圖集二分區', label: '地圖集分區', filterable: true, width: 1.5},
-  {key: '音典分區', label: '音典分區', filterable: true, width: 1.5},
-  {key: '字表來源（母本）', label: '字表來源', filterable: false, width: 3},
-  {key: '省', label: '省', filterable: true, width: 0.8},
-  {key: '市', label: '市', filterable: true, width: 0.8},
-  {key: '縣', label: '縣', filterable: true, width: 0.8},
-  {key: '鎮', label: '鎮', filterable: true, width: 0.8},
+  {key: '簡稱', label: t('source.columns.location'), filterable: false, width: 1},
+  {key: '地圖集二分區', label: t('source.columns.atlasRegion'), filterable: true, width: 1.5},
+  {key: '音典分區', label: t('source.columns.dictRegion'), filterable: true, width: 1.5},
+  {key: '字表來源（母本）', label: t('source.columns.source'), filterable: false, width: 3},
+  {key: '省', label: t('source.columns.province'), filterable: true, width: 0.8},
+  {key: '市', label: t('source.columns.city'), filterable: true, width: 0.8},
+  {key: '縣', label: t('source.columns.county'), filterable: true, width: 0.8},
+  {key: '鎮', label: t('source.columns.town'), filterable: true, width: 0.8},
   // {key: '經緯度', label: '經緯度', filterable: false, width: 2},
 ];
 
@@ -47,9 +49,9 @@ const handleTotalUpdate = (total) => {
   <div style="width: 100%;justify-content: center;align-items:center;display: flex;flex-direction: column">
     <div class="header-row">
 
-      <h2 class="tabs-title">📚 資料來源</h2>
+      <h2 class="tabs-title">{{ t('source.title') }}</h2>
       <a class="privacy-link" @click="goToPrivacy">
-        想要引用?了解隱私政策?
+        {{ t('source.privacyLink') }}
       </a>
 
     </div>
@@ -66,7 +68,7 @@ const handleTotalUpdate = (total) => {
         :default-filter="defaultFilter"
         @update:total="handleTotalUpdate"
     />
-    <p>截至2026.2，共 {{ totalRecords }} 份字表</p>
+    <p>{{ t('source.totalRecords', { count: totalRecords }) }}</p>
   </div>
 </template>
 

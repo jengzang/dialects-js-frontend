@@ -5,11 +5,11 @@
         <div class="page-content-stack">
           <!-- 🔹 輸入框區塊 -->
           <div class="query-box">
-            <label class="query-label" for="hanzi-input">請輸入待查漢字</label>
+            <label class="query-label" for="hanzi-input">{{ $t('query.tab1.label') }}</label>
             <textarea
                 id="hanzi-input"
                 style="height: 5dvh"
-                placeholder="可輸入一個或多個漢字"
+                :placeholder="$t('query.tab1.placeholder')"
                 v-model="hanziInput"
                 autocomplete="off"
             ></textarea>
@@ -46,7 +46,7 @@
                      style="margin: 0;padding: 8px 10px;min-width: 60px;max-height:30px "
                      :class="{ disabled: buttonState.isRunning }"
                 >
-                  {{ getExcludeDisplayText('tab2') || '不排除' }}
+                  {{ getExcludeDisplayText('tab2') || $t('query.tab2.noExclude') }}
                   <span class="arrow">▾</span>
                 </div>
 
@@ -98,7 +98,7 @@
                         @focus="handleInputFocus(key)"
                         @blur="handleInputBlur(key)"
                         @click.stop
-                        :placeholder="`輸/選 [${key}]`"
+                        :placeholder="$t('query.tab3.inputPlaceholder', { key })"
                         class="dropdown-input"
                     />
                     <span class="arrow-trigger" @click.stop="toggleDropdown('value',key)">
@@ -119,7 +119,7 @@
                       >
                         <span v-if="isAllSelected(key)">☑</span>
                         <span v-else>☐</span>
-                        全選
+                        {{ $t('query.tab2.selectAll') }}
                       </div>
 
                       <div class="dropdown-divider"></div>
@@ -187,7 +187,7 @@
                     style="margin: 0;padding: 8px 10px;min-width: 60px;max-height:30px "
                     :class="{ disabled: buttonState.isRunning }"
                 >
-                  {{ getExcludeDisplayText('tab3') || '不排除' }}
+                  {{ getExcludeDisplayText('tab3') || $t('query.tab3.noExclude') }}
                   <span class="arrow">▾</span>
                 </div>
 
@@ -229,8 +229,7 @@
 
               <div class="info-text" style="margin: 15px 0">
                 <span class="info-icon">ℹ️</span>
-                <span>
-                  分析<strong>{{ tabStates.tab3.card }}</strong>音節的中古來源，即當今的同<strong>{{ tabStates.tab3.card }}</strong>字分別來自哪些中古[<strong>{{ selectedKeysString }}</strong>]
+                <span v-html="$t('query.tab3.analysisText', { card: tabStates.tab3.card, keys: selectedKeysString })">
                 </span>
               </div>
               <!-- 🔄 輸入框 -->
@@ -260,23 +259,23 @@
             :disabled="buttonState.isRunning || isRunDisabled"
             :class="{ disabled: isRunDisabled }"
         >
-          <span v-if="buttonState.isRunning">🔄 運行中...</span>
-          <span v-else-if="isRunDisabled">🚫 輸入不合規</span>
-          <span v-else>🚀 單擊運行</span>
+          <span v-if="buttonState.isRunning">{{ $t('query.button.running') }}</span>
+          <span v-else-if="isRunDisabled">{{ $t('query.button.invalid') }}</span>
+          <span v-else>{{ $t('query.button.run') }}</span>
         </button>
       </div>
       <!-- 🔹 建議與操作區 -->
       <div v-if="currentTab === 'tab1'" class="page-footer" style="margin-top: 20px">
-        <small class="hint">查詢漢字的讀音、地位及注釋</small>
+        <small class="hint">{{ $t('query.tab1.description') }}</small>
       </div>
       <div v-else-if="currentTab === 'tab2'" class="page-footer" style="margin-top: 20px">
-        <small class="hint">中古➡️讀音•按中古地位整理讀音</small>
+        <small class="hint">{{ $t('query.tab2.description') }}</small>
       </div>
       <div v-else-if="currentTab === 'tab3'" class="page-footer" style="margin-top: 20px">
-        <small class="hint">讀音➡️中古•分析音位的中古來源</small>
+        <small class="hint">{{ $t('query.tab3.description') }}</small>
       </div>
       <div v-else-if="currentTab === 'tab4'" class="page-footer" style="margin-top: 20px">
-        <small class="hint">查詢各點的調類、調值</small>
+        <small class="hint">{{ $t('query.tab4.description') }}</small>
       </div>
     </div>
     <FloatingDice
@@ -289,6 +288,7 @@
 <script setup>
 import {computed, nextTick, reactive, ref, onMounted, onBeforeUnmount, watch} from 'vue'
 import {useRoute, useRouter} from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import TabsContainer from "@/components/common/TabsContainer.vue";
 import LocationAndRegionInput from "@/components/query/LocationAndRegionInput.vue";
 import ZhongguSelector from "@/components/query/ZhongguSelector.vue";
@@ -297,15 +297,17 @@ import FloatingDice from "@/components/query/FloatingDice.vue";
 import { globalPayload, queryStore, uiStore, isQueryButtonDisabled, setRunning, setTabContentDisabled } from '@/store/store.js'
 import { column_values, S2T_T2S_MAPPING } from '@/config'
 
+const { t } = useI18n()
+
 const locationRef = ref(null)
 const router = useRouter()
 const route = useRoute()
 const currentTab = computed(() => route.query.sub || 'tab2')
 const tabs = [
-  { name: 'tab1', label: '查字' },
-  { name: 'tab2', label: '查中古' },
-  { name: 'tab3', label: '查音位' },
-  { name: 'tab4', label: '查調' }
+  { name: 'tab1', label: t('query.tab1.title') },
+  { name: 'tab2', label: t('query.tab2.title') },
+  { name: 'tab3', label: t('query.tab3.title') },
+  { name: 'tab4', label: t('query.tab4.title') }
 ]
 
 // Compute limit context based on current tab
@@ -324,11 +326,11 @@ const dropdownOpen = ref(null)
 
 // ✨ 過濾器相關狀態
 const excludeOptions = [
-  { value: '多地位標記', label: '所有多地位' },
-  { value: '多等', label: '排除多等' },
-  { value: '多韻', label: '排除多韻' },
-  { value: '多聲母', label: '排除多聲母' },
-  { value: '多調', label: '排除多調' }
+  { value: '多地位標記', label: t('query.tab2.excludeOptions.allMulti') },
+  { value: '多等', label: t('query.tab2.excludeOptions.excludeMultiGrade') },
+  { value: '多韻', label: t('query.tab2.excludeOptions.excludeMultiRime') },
+  { value: '多聲母', label: t('query.tab2.excludeOptions.excludeMultiInitial') },
+  { value: '多調', label: t('query.tab2.excludeOptions.excludeMultiTone') }
 ]
 const excludeFilterTriggerRef = reactive({ tab2: null, tab3: null })
 const excludeDropdownOpen = ref(null) // 'tab2' 或 'tab3' 或 null
@@ -341,20 +343,20 @@ const excludeDropdownStyle = ref({
 
 const tabStates = reactive({
   tab2: {
-    card: '韻母',
-    keys: ['攝'],
+    card: t('query.tab2.cards.initial'),
+    keys: [t('query.tab2.cards.rime')],
     valueMap: {}, // Tab2 专用的下拉菜单选择值
     excludeColumns: [] // ✨ 新增：多音字过滤选项
   },
   tab3: {
-    card: '韻母',
-    keys: ['攝'], // Tab3 专用的键名
+    card: t('query.tab3.cards.final'),
+    keys: [t('query.tab2.cards.rime')], // Tab3 专用的键名
     excludeColumns: [] // ✨ 新增：多音字过滤选项
     // Tab3 没有 valueMap 下拉框，如果有也放在这
   }
 })
 
-const cards = ['聲母', '韻母', '聲調']
+const cards = [t('query.tab3.cards.initial'), t('query.tab3.cards.final'), t('query.tab3.cards.tone')]
 const keys = Object.keys(column_values)
 const keyValueMap = column_values
 const tab3KeyTriggerEl = ref(null)
@@ -670,7 +672,7 @@ function getDisplayText(key) {
   // 2. 全选
   const allOptions = keyValueMap[key] || []
   if (allOptions.length > 0 && list.length === allOptions.length) {
-    return '全選'
+    return t('query.tab2.selectAll')
   }
   // 3. 超过三个：截取前三个 + 省略号
   if (list.length > 3) {
@@ -752,7 +754,7 @@ const runAction = async () => {
     if (!locationRef.value?.selectedValue ||
         (Array.isArray(locationRef.value?.selectedValue) && locationRef.value.selectedValue.every(item => item === ''))) {
       // 如果沒有選區域，或者區域是空的，回傳輸入框的值 (預設 '廣州')
-      return locationRef.value?.allLocationsString || '廣州';
+      return locationRef.value?.allLocationsString || t('query.tab3.defaultLocation');
     } else {
       // 否則回傳輸入框的值 (這裡邏輯可能視你具體需求微調，目前保持原樣)
       return locationRef.value?.allLocationsString;
@@ -775,7 +777,7 @@ const runAction = async () => {
   if (currentTab.value === 'tab2') {
 
     // 假設 selectedCard.value 是一個字串，後端 features 需要 List
-    const featureList = tabStates.tab2.card ? [tabStates.tab2.card] : ['韻母'];
+    const featureList = tabStates.tab2.card ? [tabStates.tab2.card] : [t('query.tab3.cards.final')];
 
     // 這裡對應後端的 path_strings
     const pathStrings = ZhongguRef.value?.combinations || [];
@@ -803,7 +805,7 @@ const runAction = async () => {
   }
 
   else if (currentTab.value === 'tab3') {
-    const featureList = tabStates.tab3.card ? [tabStates.tab3.card] : ['韻母'];
+    const featureList = tabStates.tab3.card ? [tabStates.tab3.card] : [t('query.tab3.cards.final')];
     const selectedKeys = selectedKeysString.value.replace(/·/g, '');
     const phos = YinweiSelectorRef.value.tab3KeyInput;
 

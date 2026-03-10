@@ -3,20 +3,20 @@
     <div class="page" style="max-width: 90%;overflow: hidden">
       <div class="page-content-stack">
         <div class="page-footer" style="flex-direction: column">
-          <p style="margin:0">分區繪圖</p>
-          <small class="hint">按照不同分區層級，繪製方言分佈點圖<br>程序自動分配不同顏色</small>
+          <p style="margin:0">{{ t('map.divideTab.title') }}</p>
+          <small class="hint" v-html="t('map.divideTab.hint')"></small>
         </div>
 
         <div class="dropdown-row horizontal-dropdown" style="margin-top: 12px;">
           <label class="query-label" style="margin:0;font-size: 14px;">
-            繪圖分區級數
+            {{ t('map.divideTab.labels.regionLevel') }}
           </label>
 
           <div class="dropdown-wrapper" style="width: 200px">
             <SimpleSelectDropdown
               v-model="selectedRegion"
               :options="regionOptions"
-              placeholder="請選擇級數"
+              :placeholder="t('map.divideTab.placeholders.selectLevel')"
             />
           </div>
         </div>
@@ -38,8 +38,8 @@
           :disabled="buttonState.isRunning || isDisabled"
           :class="{ 'disabled-style': isDisabled }"
       >
-        <span v-if="buttonState.isRunning">🔄 運行中...</span>
-        <span v-else>🌍繪圖</span>
+        <span v-if="buttonState.isRunning">{{ t('map.divideTab.buttons.running') }}</span>
+        <span v-else>{{ t('map.divideTab.buttons.run') }}</span>
       </button>
     </div>
   </div>
@@ -48,6 +48,7 @@
 <script setup>
 import { ref, computed, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import LocationAndRegionInput from "@/components/query/LocationAndRegionInput.vue";
 import SimpleSelectDropdown from "@/components/common/SimpleSelectDropdown.vue";
 import { mapStore, uiStore, isDivideButtonDisabled, setRunning } from "@/store/store.js";
@@ -56,6 +57,7 @@ import { showError } from '@/utils/message.js';
 
 const router = useRouter()
 const route = useRoute()
+const { t } = useI18n()
 
 const locationRef = ref(null)
 const buttonState = uiStore.buttonStates.divide
@@ -70,11 +72,11 @@ const locationModel = ref({
 const emit = defineEmits(['region-selected'])
 
 // Region options for dropdown
-const regionOptions = [
-  { label: '1級分區', value: 1 },
-  { label: '2級分區', value: 2 },
-  { label: '3級分區', value: 3 }
-]
+const regionOptions = computed(() => [
+  { label: t('map.divideTab.options.level1'), value: 1 },
+  { label: t('map.divideTab.options.level2'), value: 2 },
+  { label: t('map.divideTab.options.level3'), value: 3 }
+])
 
 // Watch for region selection changes
 watch(selectedRegion, (val) => {
@@ -117,7 +119,7 @@ const runAction = async () => {
 
   } catch (error) {
     console.error(error);
-    showError("獲取數據失敗: " + error.message);
+    showError(t('map.divideTab.messages.dataFetchFailed', { error: error.message }));
   } finally {
     setRunning('divide', false);
   }

@@ -1,0 +1,138 @@
+{
+  "tabs": {
+    "map": "Map",
+    "divide": "Regional Map",
+    "custom": "Custom"
+  },
+  "placeholder": {
+    "selectFeature": "Please select a feature"
+  },
+  "messages": {
+    "submitSuccess": "Custom data submitted successfully!",
+    "dataRefreshed": "✅ Data refreshed",
+    "dataRefreshFailed": "❌ Failed to refresh data:",
+    "featureLoaded": "Feature loaded: {feature}",
+    "featureLoadFailed": "❌ Failed to load feature:",
+    "loadFeatureFailed": "Failed to load feature: {error}"
+  },
+  "help": {
+    "noFeature": "If you want to add custom data, please select a feature first",
+    "withFeature": "If you want to add custom data, the feature should be: {feature}"
+  },
+  "customDataPanel": {
+    "title": "Submit Custom Data",
+    "labels": {
+      "location": "Location",
+      "region": "Region",
+      "coordinates": "Coordinates",
+      "featureType": "Initial/Final/Tone",
+      "featureField": "Current Query",
+      "value": "Value",
+      "description": "Description"
+    },
+    "placeholders": {
+      "location": "Enter location name...",
+      "region": "Auto-filled after selecting location...",
+      "coordinates": "Click map to auto-fill...",
+      "featureType": "e.g.: Initial, Final, Tone",
+      "featureField": "e.g.: Liu Rhyme, Grade 1, Open...",
+      "value": "e.g.: p, a, 55...",
+      "description": "Optional: Additional notes..."
+    },
+    "buttons": {
+      "submit": "Submit Data",
+      "expand": "+",
+      "collapse": "×"
+    },
+    "helpText": {
+      "region": "Recommended to fill in complete atlas region/phonetic region, e.g., \"Hakka-Yue-Tai-Mei-Hui\"",
+      "value": "The value entered will be displayed on the map"
+    },
+    "validation": {
+      "locationRequired": "Please fill in location (abbreviation)",
+      "regionRequired": "Please fill in region",
+      "coordinatesRequired": "Please fill in coordinates",
+      "featureTypeRequired": "Please fill in initial/final/tone",
+      "featureFieldRequired": "Please fill in feature",
+      "valueRequired": "Please fill in value",
+      "loginRequired": "Login required to submit personal data"
+    },
+    "messages": {
+      "submitSuccess": "Submitted successfully!",
+      "submitFailed": "Submission failed: {message}",
+      "submitError": "Error occurred during submission: {error}",
+      "regionNotFound": "Corresponding region not found",
+      "regionRequestFailed": "Request failed",
+      "locationMatchFailed": "Location matching failed"
+    }
+  },
+  "divideTab": {
+    "title": "Regional Mapping",
+    "hint": "Draw dialect distribution maps by different regional levels<br>Colors are automatically assigned by the program",
+    "labels": {
+      "regionLevel": "Regional Level for Mapping"
+    },
+    "placeholders": {
+      "selectLevel": "Please select level"
+    },
+    "options": {
+      "level1": "Level 1 Region",
+      "level2": "Level 2 Region",
+      "level3": "Level 3 Region"
+    },
+    "buttons": {
+      "run": "🌍 Draw Map",
+      "running": "🔄 Running..."
+    },
+    "messages": {
+      "dataFetchFailed": "Failed to fetch data: {error}"
+    }
+  },
+  "customTab": {
+    "title": "Search Custom Features",
+    "labels": {
+      "featureSearch": "Feature Search",
+      "login": "🔐 Login"
+    },
+    "placeholders": {
+      "featureSearch": "Enter feature keywords..."
+    },
+    "badges": {
+      "loginRequired": "🔒 Login required to add personal data",
+      "noData": "📝 Please click the button below to add data first",
+      "dataCount": "📊 You have {count} personal data entries"
+    },
+    "selected": "✅ Selected: {feature}",
+    "buttons": {
+      "run": "🚀 Run Query",
+      "running": "🔄 Running...",
+      "addSingle": "📝 Add Single Entry",
+      "addBatch": "📋 Batch Add",
+      "help": "?"
+    },
+    "divider": "Add New Custom Data",
+    "helpTrigger": "Don't know how to add data❓Click here for instructions",
+    "helpIcons": {
+      "addSingle": "Jump to map page, click on map to get coordinates",
+      "addBatch": "Batch add multiple entries, supports pasting from Excel"
+    },
+    "validation": {
+      "selectFeature": "Please select a feature first",
+      "loginFirst": "Please login first"
+    },
+    "messages": {
+      "noMatch": "No matching features found",
+      "searchFailed": "Search failed: {error}",
+      "loading": "Loading feature data...",
+      "fetchCountFailed": "Failed to fetch data count"
+    }
+  },
+  "legend": {
+    "title": "Legend",
+    "compareTypes": {
+      "chars": "Character Comparison",
+      "zhonggu": "Middle Chinese Comparison",
+      "tones": "Tone Category Comparison"
+    }
+  }
+}

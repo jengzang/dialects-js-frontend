@@ -1,0 +1,35 @@
+{
+  "success": {
+    "saved": "保存成功",
+    "deleted": "删除成功",
+    "updated": "更新成功",
+    "created": "创建成功",
+    "copied": "复制成功",
+    "languageChanged": "语言切换成功"
+  },
+  "error": {
+    "saveFailed": "保存失败",
+    "deleteFailed": "删除失败",
+    "updateFailed": "更新失败",
+    "createFailed": "创建失败",
+    "loadFailed": "加载失败",
+    "networkError": "网络错误",
+    "unknownError": "未知错误"
+  },
+  "warning": {
+    "unsavedChanges": "有未保存的更改",
+    "confirmDelete": "确定要删除吗？",
+    "confirmAction": "确定要执行此操作吗？"
+  },
+  "info": {
+    "processing": "处理中...",
+    "loading": "加载中...",
+    "noData": "暂无数据"
+  },
+  "confirm": {
+    "title": "确认",
+    "delete": "确定要删除吗？",
+    "cancel": "确定要取消吗？",
+    "leave": "确定要离开吗？"
+  }
+}

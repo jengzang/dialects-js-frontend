@@ -42,7 +42,7 @@
       <div class="logo-container" style="color: #005fd3;border-radius: 30px" @click="goToAuthPage">
         <!-- 显示用户名或"登录" -->
         <span class="login-text">
-          {{ userStore.username || '登錄' }}
+          {{ userStore.username || t('auth.login.title') }}
         </span>
       </div>
     </div>
@@ -229,12 +229,15 @@
 <script setup>
 import { ref , onMounted, onBeforeUnmount, computed} from 'vue'
 import {useRoute, useRouter} from 'vue-router'
+import { useI18n } from 'vue-i18n'
 // import { clearToken, getToken, saveToken } from '../../api/auth/auth.js'
 import { getTodayVisits, getTotalVisits, getVisitHistory } from '@/api/logs/index.js'
 import { menuConfig } from '@/config/menuConfig.js'
-import { MenuTabsConfig } from '@/config/TabsConfig.js'
+import { useMenuTabsConfig } from '@/config/TabsConfig.js'
 import { WEB_BASE } from '@/env-config.js'
 import { userStore, resultCache } from '@/store/store.js'
+
+const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
 const isSidebarVisible = ref(false)  // 控制边栏显示
@@ -271,16 +274,19 @@ const isStatsExpanded = ref(false)
 const visitHistory = ref([])
 const loadingStats = ref(false)
 
-// 过滤可见的 tabs
+// 过滤可见的 tabs 并动态翻译 label
 const visibleTabs = computed(() => {
-  return MenuTabsConfig.filter(tab => {
+  return useMenuTabsConfig().filter(tab => {
     // 如果有 visibleWhen 函数，执行它
     if (typeof tab.visibleWhen === 'function') {
       return tab.visibleWhen()
     }
     // 没有 visibleWhen 则默认可见
     return true
-  })
+  }).map(tab => ({
+    ...tab,
+    label: t(`navigation.tabs.${tab.tab}`)
+  }))
 })
 
 // 使用过滤后的 tabs

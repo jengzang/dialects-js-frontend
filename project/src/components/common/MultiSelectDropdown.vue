@@ -18,7 +18,7 @@
           @click="toggleSelectAll"
         >
           <span>{{ isAllSelected ? '☑' : '☐' }}</span>
-          {{ isAllSelected ? '取消全選' : '全選' }}
+          {{ isAllSelected ? $t('common.components.multiSelect.deselectAll') : $t('common.components.multiSelect.selectAll') }}
         </div>
 
         <div class="dropdown-divider"></div>
@@ -28,7 +28,7 @@
           <input
             type="text"
             v-model="searchQuery"
-            placeholder="搜索..."
+            :placeholder="$t('common.components.multiSelect.searchPlaceholder')"
             class="search-input"
             @click.stop
           />
@@ -48,7 +48,7 @@
           </div>
 
           <div v-if="filteredOptions.length === 0" class="empty-message">
-            無匹配結果
+            {{ $t('common.components.multiSelect.noResults') }}
           </div>
         </div>
       </div>
@@ -58,6 +58,9 @@
 
 <script setup>
 import { ref, computed, watch, nextTick, onMounted, onBeforeUnmount } from 'vue'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const props = defineProps({
   modelValue: {
@@ -74,7 +77,7 @@ const props = defineProps({
   },
   placeholder: {
     type: String,
-    default: '請選擇'
+    default: ''
   },
   disabled: {
     type: Boolean,

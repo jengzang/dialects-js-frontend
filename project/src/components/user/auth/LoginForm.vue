@@ -1,11 +1,11 @@
 <template>
   <div class="login-form">
     <h3 class="form-title">
-      登錄
+      {{ $t('auth.login.title') }}
       <button
         class="benefit-circle-btn"
         @click="$emit('showBenefits')"
-        title="查看用戶與遊客權益對比"
+        :title="$t('auth.login.viewBenefits')"
       >
         🎁
       </button>
@@ -23,14 +23,14 @@
       <FormInput
         v-model="localEmail"
         type="email"
-        placeholder="郵箱"
+        :placeholder="$t('auth.login.email')"
         icon="📧"
         :error="error"
       />
       <FormInput
         v-model="localPassword"
         type="password"
-        placeholder="密碼"
+        :placeholder="$t('auth.login.password')"
         :showPasswordToggle="true"
         :error="error"
       />
@@ -41,14 +41,14 @@
       <FormInput
         v-model="localUsername"
         type="text"
-        placeholder="用戶名"
+        :placeholder="$t('auth.login.username')"
         icon="👤"
         :error="error"
       />
       <FormInput
         v-model="localPassword"
         type="password"
-        placeholder="密碼"
+        :placeholder="$t('auth.login.password')"
         :showPasswordToggle="true"
         :error="error"
       />
@@ -58,7 +58,7 @@
     <div class="form-row">
       <button class="btn-search" @click="handleSubmit" :disabled="loading">
         <span v-if="loading" class="login-spinner"></span>
-        <span v-else>登入</span>
+        <span v-else>{{ $t('auth.login.button') }}</span>
       </button>
     </div>
 
@@ -68,15 +68,18 @@
 
     <!-- Switch to Register -->
     <p>
-      <a href="#" @click.prevent="$emit('switchToRegister')">沒有帳號？註冊一個</a>
+      <a href="#" @click.prevent="$emit('switchToRegister')">{{ $t('auth.login.noAccount') }}</a>
     </p>
   </div>
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import FormInput from './FormInput.vue'
 import TabSwitcher from './TabSwitcher.vue'
+
+const { t } = useI18n()
 
 const props = defineProps({
   loading: {
@@ -99,10 +102,10 @@ const props = defineProps({
 
 const emit = defineEmits(['submit', 'switchToRegister', 'update:loginMode', 'showBenefits'])
 
-const tabs = [
-  { label: '📧 使用郵箱', value: 'email' },
-  { label: '👤 使用用戶名', value: 'username' }
-]
+const tabs = computed(() => [
+  { label: t('auth.login.modes.email'), value: 'email' },
+  { label: t('auth.login.modes.username'), value: 'username' }
+])
 
 const localEmail = ref('')
 const localUsername = ref('')

@@ -1,0 +1,147 @@
+{
+  "phonology": {
+    "zhonggu": {
+      "title": "中古音韻數據",
+      "toggleAnnotations": {
+        "show": "顯示釋義",
+        "hide": "隱藏釋義"
+      },
+      "classifications": {
+        "rhyme": "韻攝分類",
+        "initial": "聲鈕分類",
+        "voicing": "清濁分類"
+      },
+      "search": {
+        "placeholder": "搜索已加載的數據...",
+        "noResults": "沒有找到匹配的結果"
+      },
+      "states": {
+        "selectClassification": "請選擇一種分類方式",
+        "selectHint": "點擊上方的分類選項卡以查看數據",
+        "loading": "正在加載 {name} 數據...",
+        "loadingHint": "數據量較大，請稍候...",
+        "dataFormatError": "數據格式錯誤",
+        "loadFailed": "加載失敗，請重試"
+      },
+      "actions": {
+        "retry": "重試"
+      }
+    },
+    "matrix": {
+      "title": "音系查詢",
+      "features": {
+        "initial": "聲母",
+        "final": "韻母",
+        "tone": "聲調"
+      },
+      "columns": {
+        "horizontal": "橫向分類",
+        "vertical": "縱向分類",
+        "cellRow": "單元格分行"
+      },
+      "columnOptions": {
+        "rhyme": "攝",
+        "rhymeDetail": "韻",
+        "grade": "等",
+        "openness": "呼",
+        "entering": "入",
+        "voicing": "清濁",
+        "series": "系",
+        "group": "組",
+        "initial": "母",
+        "tone": "調",
+        "place": "部位",
+        "manner": "方式"
+      },
+      "actions": {
+        "query": "查詢",
+        "loading": "加載中...",
+        "retry": "重試"
+      },
+      "states": {
+        "emptyInput": "請輸入地點並點擊查詢",
+        "minLocationError": "請至少輸入一個地點",
+        "loadError": "加載數據時發生錯誤",
+        "apiError": "API 返回的數據為空",
+        "missingMatrix": "API 返回的數據缺少 matrix 屬性"
+      }
+    },
+    "custom": {
+      "title": "音素分類",
+      "features": {
+        "initial": "聲母",
+        "final": "韻母",
+        "tone": "聲調"
+      },
+      "columns": {
+        "horizontal": "橫向分類",
+        "vertical": "縱向分類",
+        "cellRow": "單元格分行"
+      },
+      "columnOptions": {
+        "rhyme": "攝",
+        "rhymeDetail": "韻",
+        "grade": "等",
+        "openness": "呼",
+        "entering": "入",
+        "voicing": "清濁",
+        "series": "系",
+        "group": "組",
+        "initial": "母",
+        "tone": "調",
+        "place": "部位",
+        "manner": "方式"
+      },
+      "actions": {
+        "query": "查詢",
+        "loading": "加載中...",
+        "retry": "重試"
+      },
+      "states": {
+        "emptyInput": "請輸入地點並點擊查詢",
+        "minLocationError": "請至少輸入一個地點",
+        "loadError": "加載數據時發生錯誤",
+        "apiError": "API 返回的數據為空",
+        "missingMatrix": "API 返回的數據缺少 matrix 屬性"
+      }
+    },
+    "countphos": {
+      "title": "音節統計",
+      "subtitle": "所有地點的音節統計（共 {count} 個地點）",
+      "features": {
+        "initial": "聲母",
+        "final": "韻母",
+        "tone": "聲調"
+      },
+      "stats": {
+        "total": "總數",
+        "locationCount": "地點數",
+        "more": "+{count} 更多"
+      },
+      "sections": {
+        "aggregated": "匯總統計",
+        "locations": "地點詳情",
+        "locationsSubtitle": "每個地點的音節統計"
+      },
+      "modal": {
+        "title": "{featureType} - {syllable}"
+      },
+      "actions": {
+        "query": "查詢",
+        "loading": "加載中...",
+        "retry": "重試"
+      },
+      "states": {
+        "emptyInput": "請輸入地點並點擊查詢",
+        "minLocationError": "請至少輸入一個地點",
+        "loadError": "加載數據時發生錯誤"
+      }
+    }
+  },
+  "tabs": {
+    "matrix": "音系",
+    "custom": "音素分類",
+    "count": "音節數",
+    "zhonggu": "漢字類別"
+  }
+}

@@ -1,0 +1,59 @@
+{
+  "title": "📜 Privacy Policy & Citation",
+  "langToggle": {
+    "zh": "English",
+    "en": "中文"
+  },
+  "citation": {
+    "title": "📖 Citation",
+    "text": "Yang, Zheng. 2026. Dialects Atlas. Retrieved from https://dialects.yzup.top",
+    "copyButton": "📋 Copy Citation",
+    "copySuccess": "Copied to clipboard!",
+    "note": "If you use data from this website in academic papers, research reports, or other publications, please cite it according to the format above."
+  },
+  "privacy": {
+    "title": "🔒 Privacy Policy",
+    "dataCollection": {
+      "title": "Data Collection and Use",
+      "intro": "Dialects Atlas (dialects.yzup.top) is committed to protecting user privacy. We solemnly promise:",
+      "minimal": "<strong>Minimal Data Collection</strong>: This website only collects necessary technical information (such as access logs, browser type) to maintain normal website operation and improve user experience.",
+      "noPersonal": "<strong>No Personal Identification Information</strong>: We do not actively collect personally identifiable information (such as name, phone number, birthday, etc.).",
+      "security": "<strong>Data Security</strong>: All collected data is protected using industry-standard security measures to prevent unauthorized access, disclosure, modification, or destruction."
+    },
+    "cookies": {
+      "title": "Use of Cookies",
+      "intro": "This website may use Cookies and similar technologies to:",
+      "login": "Remember your login status",
+      "analytics": "Analyze website traffic and user behavior patterns to improve service quality",
+      "personalization": "Provide personalized user experience",
+      "note": "You can manage or disable Cookies through browser settings, but this may affect the normal use of some website functions."
+    },
+    "commitment": {
+      "title": "Data Protection Commitment",
+      "intro": "We promise:",
+      "noSell": "✓ <strong>Not to sell or rent user data</strong> to any third party",
+      "noLeak": "✓ <strong>Not to disclose personal privacy information</strong>, unless required by law or with explicit user consent",
+      "review": "✓ <strong>Regular security review</strong> to ensure data protection mechanisms remain effective",
+      "transparent": "✓ <strong>Transparent communication</strong>: users will be promptly notified of any significant changes to the privacy policy"
+    },
+    "rights": {
+      "title": "User Rights",
+      "intro": "You have the right to:",
+      "know": "Know what data we have collected about you",
+      "correct": "Request correction or deletion of inaccurate data",
+      "optOut": "Opt out of certain data collection activities"
+    },
+    "contact": {
+      "title": "Contact Information",
+      "intro": "If you have any questions or comments about this privacy policy, please contact us:",
+      "website": "Website: ",
+      "github": "GitHub: ",
+      "zhihu": "Zhihu: "
+    },
+    "lastUpdated": "<strong>Last Updated</strong>: January 2026"
+  },
+  "disclaimer": {
+    "title": "⚠️ Disclaimer",
+    "text": "The dialect data provided on this website is for academic research and cultural exchange purposes only. While we strive for accuracy and completeness of data, we do not guarantee absolute accuracy. Users are responsible for any consequences arising from the use of data from this website."
+  }
+}

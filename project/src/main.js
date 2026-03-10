@@ -10,14 +10,18 @@ import './style.css'
 // 🍎 导入全局消息系统（会自动挂载到 window）
 import './utils/message.js'
 
+// 🌐 导入 i18n 国际化
+import i18n from './i18n'
+
 // 1. 導入你的組件
 import PanelManager from "./components/result/PanelManager.vue"
 
 // 2. 建立 App 實例
 const app = createApp(App)
 
-// 3. 使用插件 (Router, Naive UI)
+// 3. 使用插件 (Router, i18n)
 app.use(router)
+app.use(i18n)
 
 // 4. ★ 註冊全局組件
 // 第一個參數是你在 Template 中使用的標籤名稱 (例如 <PanelManager />)

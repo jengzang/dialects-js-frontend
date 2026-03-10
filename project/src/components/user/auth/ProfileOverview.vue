@@ -1,7 +1,7 @@
 <template>
   <div class="profile-overview">
     <!-- Welcome Header -->
-    <h3 id="login-title">👋{{ user.username }} 歡迎回來✨</h3>
+    <h3 id="login-title">{{ $t('auth.profile.welcome', { username: user.username }) }}</h3>
 
     <!-- Tab Switcher + Benefits Button -->
     <div class="header-controls">
@@ -14,7 +14,7 @@
       <button
         class="benefit-circle-btn"
         @click="$emit('showBenefits')"
-        title="查看用戶與遊客權益對比"
+        :title="$t('auth.profile.viewBenefits')"
       >
         🎁
       </button>
@@ -24,14 +24,13 @@
     <div v-if="currentTab === 'overview'">
       <!-- User Info -->
       <div class="profile-user-info">
-        <div class="user-info-badge">
-          🎖️ 您是本站的第 <span class="user-number">{{ user.id }}</span> 位註冊用戶
+        <div class="user-info-badge" v-html="$t('auth.profile.userNumber', { id: user.id })">
         </div>
         <p class="user-info-details" style="margin:2px">
-          🗓️ 註冊時間：{{ fmt(user.created_at) }}
+          {{ $t('auth.profile.registerTime', { time: fmt(user.created_at) }) }}
         </p>
         <p class="user-info-details" style="margin:2px">
-          ⏱️ 在線時長：{{ formatOnlineTime(user.total_online_seconds) }}
+          {{ $t('auth.profile.onlineTime', { time: formatOnlineTime(user.total_online_seconds) }) }}
         </p>
       </div>
 
@@ -39,21 +38,21 @@
       <div class="stats-card">
         <div class="stats-card-header">
           <help-icon
-            content="統計的是網站核心查詢功能，與排行榜中的總查詢次數不同"
+            :content="$t('auth.profile.queryStatsNote')"
             size="md"
             fontSize="16px"
             iconColor="#c7254e"
             trigger="both"
           />
-          📊 查詢統計
+          {{ $t('auth.profile.queryStats') }}
           <button class="stats-toggle-btn" @click="$emit('toggleStats')">
-            {{ statsExpanded ? '收起' : '展開' }}
+            {{ statsExpanded ? $t('auth.profile.collapse') : $t('auth.profile.expand') }}
             <span class="stats-toggle-icon">{{ statsExpanded ? '▲' : '▼' }}</span>
           </button>
         </div>
 
         <div class="stats-total">
-          總查詢次數
+          {{ $t('auth.profile.totalQueries') }}
           <span class="stats-total-number">{{ queryStats.total }}</span>
         </div>
 
@@ -85,30 +84,30 @@
       <!-- Action Buttons -->
       <div class="action-buttons">
         <ActionButton variant="info" @click="$emit('goToUserData')">
-          📊 個人數據
+          {{ $t('auth.profile.buttons.userData') }}
         </ActionButton>
         <ActionButton variant="teal" @click="$emit('goToUserRegions')">
-          🗂️ 個人分區
+          {{ $t('auth.profile.buttons.userRegions') }}
         </ActionButton>
         <ActionButton variant="blue" @click="$emit('goToModifyProfile')">
-          🛠 修改資料
+          {{ $t('auth.profile.buttons.modifyProfile') }}
         </ActionButton>
         <ActionButton variant="danger" @click="$emit('logout')">
-          🚪 退出登錄
+          {{ $t('auth.profile.buttons.logout') }}
         </ActionButton>
         <ActionButton
           v-if="user?.role === 'admin'"
           variant="green"
           @click="$emit('goToAdminPanel')"
         >
-          🧑‍💻 後台管理
+          {{ $t('auth.profile.buttons.adminPanel') }}
         </ActionButton>
         <ActionButton
           v-if="user?.role === 'admin'"
           variant="yellow"
           @click="$emit('goToTableManager')"
         >
-          📈 表格管理
+          {{ $t('auth.profile.buttons.tableManager') }}
         </ActionButton>
       </div>
     </div>
@@ -121,11 +120,15 @@
 </template>
 
 <script setup>
+import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import ActionButton from './ActionButton.vue'
 import TabSwitcher from './TabSwitcher.vue'
 import LeaderboardPanel from '@/components/user/LeaderboardPanel.vue'
 import HelpIcon from '@/components/ToastAndHelp/HelpIcon.vue'
 import { formatOnlineTime, fmt } from '@/store/userStats.js'
+
+const { t } = useI18n()
 
 defineProps({
   user: {
@@ -158,10 +161,10 @@ defineEmits([
   'showBenefits'
 ])
 
-const tabs = [
-  { label: '📊 個人信息', value: 'overview' },
-  { label: '🏆 排行榜', value: 'leaderboard' }
-]
+const tabs = computed(() => [
+  { label: t('auth.profile.tabs.info'), value: 'overview' },
+  { label: t('auth.profile.tabs.ranking'), value: 'leaderboard' }
+])
 </script>
 
 <style scoped>

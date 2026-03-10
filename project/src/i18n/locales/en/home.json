@@ -1,0 +1,179 @@
+{
+  "hero": {
+    "title": "Dialect Comparison · Geolinguistics",
+    "subtitle": "✨ Explore the Historical Layers of Dialects · 🎵 Touch the Phonological Beauty of Chinese Characters",
+    "startExploring": "Start Exploring",
+    "expandTools": "Extended Tools",
+    "featuresIntro": "Features Overview"
+  },
+  "features": {
+    "sectionTitle": "Core Features",
+    "query": {
+      "title": "Query & Analysis",
+      "desc": "Multi-dimensional dialect phonology queries",
+      "searchChar": "Character Search - Query pronunciation and position",
+      "searchMiddle": "Middle Chinese Search - Organize readings by Middle Chinese position",
+      "searchPhoneme": "Phoneme Search - Analyze Middle Chinese origins of phonemes",
+      "searchTone": "Tone Search - Query tone values and categories"
+    },
+    "compare": {
+      "title": "Dialect Comparison",
+      "desc": "Compare phonological features across dialects",
+      "compareChar": "Character Comparison - Compare pronunciation differences",
+      "compareMiddle": "Middle Chinese Comparison - Compare Middle Chinese evolution",
+      "compareTone": "Tone Comparison - Compare tonal systems"
+    },
+    "map": {
+      "title": "Map Visualization",
+      "desc": "Geolinguistic perspective presentation",
+      "dialectMap": "Dialect Map - Display query results on map",
+      "regionMap": "Regional Mapping - Draw dialect maps by region",
+      "customMap": "Custom Mapping - Add personal data for mapping"
+    },
+    "phonology": {
+      "title": "Phonological Analysis",
+      "desc": "Dialect phonological structure research",
+      "phonologyQuery": "Phonology Query - View dialect phonology tables",
+      "phonemeClassify": "Phoneme Classification - Custom phoneme classification",
+      "syllableCount": "Syllable Statistics - Count syllable quantities",
+      "middlePosition": "Middle Chinese Position - Query Middle Chinese position of characters"
+    },
+    "words": {
+      "title": "Lexical Data",
+      "desc": "Dialect vocabulary and grammar data",
+      "yubaoVocab": "Yubao Vocabulary - Language Protection Project vocabulary data",
+      "yubaoGrammar": "Yubao Grammar - Language Protection Project sentence data",
+      "ycSpoken": "Yangchun Colloquial - Yangchun dialect colloquial vocabulary"
+    },
+    "villages": {
+      "title": "Village Data",
+      "desc": "Village place name analysis and dialect mapping",
+      "gdVillages": "Guangdong Villages - Guangdong village tree diagram",
+      "villagesML": "Machine Learning - Village name machine learning",
+      "gdVillagesTable": "Guangdong Village Table - Detailed Guangdong village table",
+      "ycVillages": "Yangchun Villages - Yangchun village data"
+    },
+    "tools": {
+      "title": "Character Table Tools",
+      "desc": "Character table conversion, merging, checking tools",
+      "tableProcess": "Table Processing - Table checking and format conversion",
+      "jyut2ipa": "Jyutping to IPA - Convert Jyutping to International Phonetic Alphabet",
+      "tableMerge": "Table Merging - Merge multiple character tables"
+    },
+    "praat": {
+      "title": "Praat Acoustic Analysis",
+      "desc": "Experimental phonetics tools and data analysis"
+    },
+    "about": {
+      "title": "About Website",
+      "desc": "Website introduction and data sources",
+      "intro": "Introduction - Website features overview",
+      "reflection": "Reflections - Development insights and acknowledgments",
+      "suggestion": "Suggestions - Feedback and suggestions",
+      "likeAuthor": "Support Author - Support and follow",
+      "source": "Data Sources - View character table sources and related information"
+    }
+  },
+  "roadmap": {
+    "sectionTitle": "Features in Development",
+    "sectionSubtitle": "Upcoming new features",
+    "phoneticsToolbox": {
+      "title": "Shaozi's Phonetics Toolbox",
+      "desc": "Batch acoustic parameter estimation, multi-algorithm pitch detection, EGG signal analysis, glottal parameter extraction"
+    },
+    "dialectClustering": {
+      "title": "Dialect Clustering Analysis",
+      "desc": "Custom phonetic value and phoneme weights, adjust clustering algorithm parameters, multi-dimensional similarity calculation based on phoneme vectors"
+    },
+    "evolutionTree": {
+      "title": "Dialect Evolution Tree",
+      "desc": "Custom evolution model parameters, adjust branch length algorithms, interactive phylogenetic tree construction and visualization"
+    },
+    "ipaTTS": {
+      "title": "IPA to Speech Synthesis",
+      "desc": "Real-time conversion from International Phonetic Alphabet to speech, multi-dialect voice support"
+    },
+    "dialectBot": {
+      "title": "Dialect Chatbot",
+      "desc": "LLM fine-tuning based on standardized character tables, voice cloning, dialect voice interaction (long-term plan)"
+    }
+  },
+  "login": {
+    "title": "Login to Unlock More Features",
+    "desc": "View detailed permission comparison and understand full benefits after login",
+    "benefits": {
+      "customMap": "Custom map drawing",
+      "customRegion": "Custom dialect regions",
+      "moreLocations": "Increased query location limit",
+      "praatTools": "Praat acoustic tools",
+      "tableTools": "Character table processing tools",
+      "queryHistory": "Query history and leaderboard"
+    },
+    "loginNow": "Login Now",
+    "viewDetails": "View Details"
+  },
+  "intro": {
+    "thanks": {
+      "aboutTitle": "ℹ️ About Website",
+      "aboutDesc": "\"Dialects Atlas\" is an online tool focused on Middle Chinese position analysis, dialect comparison, and geolinguistics, dedicated to presenting the phonological layers and phonemic distributions of various dialect points in a clear and interactive manner.",
+      "feature1": "Feature 1: <strong>Middle Chinese Search</strong> (organize readings by Middle Chinese position). Users can input various combinations for analysis, currently supporting categories such as rhyme group, rhyme, grade, division, tone, series, group, initial, voicing, place of articulation, manner of articulation, etc. The website will analyze initials/finals/tones based on the input combinations and present the results in tables and maps.",
+      "feature2": "Feature 2: <strong>Phoneme Search</strong> (analyze Middle Chinese origins of phonemes). Users can input the above categories, and the website will analyze the Middle Chinese origins of the input phonetic values (phonemes) and present the results in tables and maps.",
+      "feature3": "Feature 3: <strong>Tone Search</strong> (query tone values and categories). The website will organize tone values and categories based on the user's selected region and location, with different tone categories marked in different colors.",
+      "feature4": "Feature 4: <strong>Character Search</strong> (query character pronunciation and position). Query based on user-input Chinese characters, ultimately presenting the phonetic values, annotations, and Middle Chinese positions of characters at various locations.",
+      "feature5": "Feature 5: <strong>Regional Mapping</strong> (draw dialect maps by atlas regions/phonetic dictionary regions).",
+      "feature6": "Feature 6: <strong>Custom Mapping</strong> (users add personal data for mapping). Users can select points and annotate on the map themselves, and the website will automatically assign colors based on feature values.",
+      "feature7": "<strong>Blue text</strong> in tables (positions, phonetic values, etc.) are generally clickable. After clicking, a detailed query will be performed in a new popup, making it easy to compare and analyze with the original results.",
+      "feature8": "Points on the map can also be clicked to query detailed information.",
+      "welcomeText": "Welcome to explore \"Dialects Atlas\" and touch the historical layers of dialects together!",
+      "devTitle": "🧑‍💻 Development Reflections",
+      "devPara1": "Initially, I just wanted to create a handy tool for my own research, but unknowingly, I explored a vast universe. From the first line of code to the first feature, from naive ideas to a gradually enriched system, day and night alternating at the keyboard, my vision gradually took root from nothingness. Watching this website is like watching my own child learning to walk, step by step forming its own outline. Every button, every interaction, is imprinted with a period of time. I was exhausted trying to implement the desired query logic, and I was also delighted when the visual effects were successfully presented—these bits and pieces have become her blood and flesh, soul and spirit.",
+      "devPara2": "In fact, this is also a journey of self-transformation. From knowing nothing about front-end development, to exploring DOM, trying virtual scrolling, advancing to using frameworks, and even appreciating the subtleties of JWT and ORM. I learned while building, matured through mistakes. The most fascinating part is that the bricks I used to build all this are the knowledge I longed to learn: building the website deepened my understanding of phonology, and studying phonology drove the iteration of code. Technology is no longer cold commands to me, but a vessel carrying culture; culture is no longer distant literature to me, gradually becoming an interactive, traceable, and touchable entity.",
+      "devPara3": "This is my answer written with code and passion, a sincere gift from an ordinary student to the field of dialects. Thank you to everyone who encounters it. I hope this still immature creation can stir a ripple of curiosity in your heart, or save you a moment of time searching through materials—this is the meaning of her existence.",
+      "devPara4": "May the dialects from all directions live on forever;<br>May the beauty of Chinese characters be cherished forever;<br>May the flame of civilization endure in every interaction and resonance.",
+      "thanksTitle": "🙏 Special Thanks",
+      "mcpdict": "MCPDict",
+      "mcpdictDesc": "Most of the data on this website comes from",
+      "mcpdictData": "MCPDict open source data",
+      "jyutjam": "Jyutjam",
+      "jyutjamDesc": "Provided a communication platform and",
+      "jyutdict": "Jyutdict",
+      "yubao": "Language Protection",
+      "yubaoDesc": "Screened some data",
+      "xiaoxue": "Xiaoxue",
+      "xiaoxueDesc": "Screened some data",
+      "yueminke": "Yue-Min-Hakka Dialect System",
+      "yueminkeDesc": "Screened some data",
+      "testers": "Testers",
+      "testersDesc": "Netizens who tested and provided suggestions before the official launch!",
+      "friends": "Friends ❤️",
+      "friendsDesc": "All friends who supported, encouraged, and helped me during the project development!",
+      "you": "You ❤️",
+      "youDesc": "And of course, you who are reading this!"
+    },
+    "suggestions": {
+      "title": "💬 I Have Suggestions",
+      "desc": "Found a bug? Have suggestions?<br />Welcome to submit via GitHub Issue!",
+      "subtext": "👇 Click the cards below to jump to the corresponding repository",
+      "frontendCard": "🐞 Website has bugs❓<br />💡 Have suggestions for interaction or UI❓",
+      "frontendLink": "👉 Submit Issue to frontend repository",
+      "buildCard": "🔤 Questions about character tables❓<br />🎯 Errors in initial/final/tone extraction❓",
+      "buildLink": "👉 Submit Issue to character table processing repository"
+    },
+    "likeAuthor": {
+      "title": "❤️ Support Author",
+      "follow": "Follow",
+      "starText": "\"If you think the project is good, can you give it a ⭐️!\"",
+      "frontendRepo": "Frontend repository - Developed with Vue framework and native JS",
+      "backendRepo": "Backend repository - Based on FastAPI",
+      "buildRepo": "Character table preprocessing repository - Extract initials, finals, and tones from character tables",
+      "villagesMLRepo": "Village Machine Learning - Village name and geographic data analysis",
+      "supportText": "\"If the website is helpful to you, you can buy the author a coffee☕️. Your support will be the motivation for the author to continue maintaining🙏\"",
+      "supportButton": "🙌 Support",
+      "supportNote": "\"Note: This site is developed and operated by an undergraduate student. From character table processing, backend API to frontend interface, all completed by one person; the expenses for servers and domain names are also saved from living expenses💸\"",
+      "modalTitle": "☕️ Buy Author a Coffee",
+      "modalSubtitle": "Thank you for your support! 💖",
+      "weixinAlt": "WeChat payment QR code",
+      "alipayAlt": "Alipay payment QR code"
+    }
+  }
+}

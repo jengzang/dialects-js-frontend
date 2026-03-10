@@ -1,8 +1,8 @@
 <template>
   <div class="suggestion-box">
-    <h2 class="tabs-title">💬 我有建議</h2>
-    <p>發現 bug？有建議？<br />歡迎通過 GitHub Issue 提出！</p>
-    <p class="subtext">👇 點擊下方卡片跳轉對應倉庫</p>
+    <h2 class="tabs-title">{{ $t('home.intro.suggestions.title') }}</h2>
+    <p v-html="$t('home.intro.suggestions.desc')"></p>
+    <p class="subtext">{{ $t('home.intro.suggestions.subtext') }}</p>
     <div class="card-links">
       <a
           href="https://github.com/jengzang/dialects-js-frontend/issues"
@@ -10,8 +10,8 @@
           rel="noopener"
           class="card"
       >
-        🐞 網頁運行有 bug❓<br />💡 對交互、UI 有建議❓
-        <span class="thanks-link">👉 到前端倉庫提 Issue</span>
+        <span v-html="$t('home.intro.suggestions.frontendCard')"></span>
+        <span class="thanks-link">{{ $t('home.intro.suggestions.frontendLink') }}</span>
       </a>
       <a
           href="https://github.com/jengzang/dialects-build/issues"
@@ -19,8 +19,8 @@
           rel="noopener"
           class="card"
       >
-        🔤 對字表有疑問❓<br />🎯 聲/韻/調 提取出錯❓
-        <span class="thanks-link">👉 到字表處理倉庫提 Issue</span>
+        <span v-html="$t('home.intro.suggestions.buildCard')"></span>
+        <span class="thanks-link">{{ $t('home.intro.suggestions.buildLink') }}</span>
       </a>
     </div>
   </div>

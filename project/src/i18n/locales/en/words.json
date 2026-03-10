@@ -1,0 +1,18 @@
+{
+  "title": "Vocabulary & Grammar",
+  "yuBaoVocabulary": {
+    "icon": "📖",
+    "name": "YuBao Vocabulary",
+    "desc": "YuBao 1000 word list"
+  },
+  "yuBaoGrammar": {
+    "icon": "🗣️",
+    "name": "YuBao Grammar",
+    "desc": "YuBao 50 sentence grammar data"
+  },
+  "ycSpoken": {
+    "icon": "💬",
+    "name": "Yangchun Spoken Words",
+    "desc": "Guangdong Yangchun spoken word list"
+  }
+}

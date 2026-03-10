@@ -25,7 +25,7 @@
       </div>
 
       <div v-else class="region-placeholder">
-        {{ placeholder }}
+        {{ placeholder || $t('query.components.regionSelector.placeholder') }}
       </div>
 
       <div class="region-caret">⌵</div>
@@ -39,7 +39,7 @@
           <!-- 第一行：标题 + 按钮 -->
           <div class="topbar-row topbar-row-1">
             <div class="topbar-title">
-              已選分區
+              {{ $t('query.components.regionSelector.selectedRegions') }}
               <span class="topbar-count">({{ draftSelected.length }})</span>
             </div>
 
@@ -50,10 +50,10 @@
                   @click="clearDraft"
                   :disabled="draftSelected.length === 0"
               >
-                清空
+                {{ $t('query.components.regionSelector.clear') }}
               </button>
               <button class="topbar-btn" type="button" @click="confirmAndClose">
-                確認
+                {{ $t('query.components.regionSelector.confirm') }}
               </button>
             </div>
           </div>
@@ -85,7 +85,7 @@
               </span>
             </div>
             <div class="topbar-empty" v-else>
-              尚未選擇分區
+              {{ $t('query.components.regionSelector.noSelection') }}
             </div>
 
             <!-- Right: Custom Region Button -->
@@ -122,7 +122,7 @@
           <!-- 自定義分區觸發按鈕 -->
           <div class="custom-region-trigger" @click.stop="openCustomRegionPopup">
             <div class="custom-region-icon">🗂️</div>
-            <div class="custom-region-label">我的自定義分區</div>
+            <div class="custom-region-label">{{ $t('query.components.regionSelector.myCustomRegions') }}</div>
             <div class="custom-region-arrow">→</div>
           </div>
 
@@ -276,12 +276,15 @@
 <script setup>
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { getPartitions } from '@/api'
 import { useCustomRegionStore } from '@/store/customRegionStore'
 import { STATIC_REGION_TREE, top_yindian } from '@/config'
 import { userStore } from '@/store/store.js'
 import { showError, showSuccess, showConfirm } from '@/utils/message.js'
 import MultiSelectDropdown from '@/components/common/MultiSelectDropdown.vue'
+
+const { t } = useI18n()
 
 // 全局已有（你原来 Cascader 就这么用的）
 const STATIC_TREE = STATIC_REGION_TREE ?? {}
@@ -290,7 +293,7 @@ const TOP_YINDIAN = top_yindian ?? []
 const props = defineProps({
   mode: { type: String, required: true },
   selected: { type: Array, default: () => [] },
-  placeholder: { type: String, default: '請選擇分區' }
+  placeholder: { type: String, default: '' }
 })
 
 const emit = defineEmits(['update:selected', 'selectCustomRegion', 'update:customRegions'])
@@ -566,7 +569,7 @@ const customRegionButtonState = computed(() => {
   if (!userStore.isAuthenticated) {
     return {
       color: 'red',
-      text: '登錄即可自定義分區',
+      text: t('query.components.regionSelector.customRegionButton.notLoggedIn'),
       icon: '🔒'
     }
   }
@@ -574,14 +577,14 @@ const customRegionButtonState = computed(() => {
   if (customRegions.value.length === 0) {
     return {
       color: 'blue',
-      text: '創建自定義分區',
+      text: t('query.components.regionSelector.customRegionButton.create'),
       icon: '➕'
     }
   }
 
   return {
     color: 'green',
-    text: '使用自定義分區',
+    text: t('query.components.regionSelector.customRegionButton.use'),
     icon: '🗂️'
   }
 })

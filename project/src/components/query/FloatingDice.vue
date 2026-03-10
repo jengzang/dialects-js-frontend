@@ -2,12 +2,12 @@
   <div v-if="isVisible" class="floating-tools">
 
     <button v-if="currentTab === 'tab2' || currentTab === 'tab3'"
-            class="close-btn" style="top:0;right: 0;height: 22px;width: 22px" @click="isVisible = false" title="關閉工具欄">
+            class="close-btn" style="top:0;right: 0;height: 22px;width: 22px" @click="isVisible = false" :title="$t('query.components.floatingDice.closeButton')">
       ✕
     </button>
 
     <button v-if="currentTab === 'tab2' || currentTab === 'tab3'"
-            class="dice-btn tool-btn" @click="handleRoll" title="隨機範例">
+            class="dice-btn tool-btn" @click="handleRoll" :title="$t('query.components.floatingDice.randomExample')">
       🎲
     </button>
 
@@ -16,9 +16,9 @@
           v-if="currentTab === 'tab2'"
           class="help-btn tool-btn"
           @click="isHelpOpen = true"
-          title="使用說明"
+          :title="$t('query.components.floatingDice.usageGuide')"
       >
-        使用說明
+        {{ $t('query.components.floatingDice.usageGuide') }}
       </button>
     </Transition>
   </div>
@@ -29,30 +29,30 @@
         <div class="glass-card">
           <button class="close-btn" @click="isHelpOpen = false">✕</button>
 
-          <h2 class="modal-title">查詢說明</h2>
+          <h2 class="modal-title">{{ $t('query.components.floatingDice.modalTitle') }}</h2>
 
           <div class="scroll-content">
             <div id='display-detail3' class="panel-content">
-              <p style="margin: 0">一些示例<br><span class="example-input"><strong>「泥」</strong></span> 使用 <span class="example-desc">泥母</span> 進行分析。</p>
-              <p style="margin: 0"><span class="example-input"><strong>「豪」</strong></span> 使用 <span class="example-desc">豪韻</span> 進行分析。</p>
+              <p style="margin: 0">{{ $t('query.components.floatingDice.examples.title') }}<br>{{ $t('query.components.floatingDice.examples.example1') }}</p>
+              <p style="margin: 0">{{ $t('query.components.floatingDice.examples.example2') }}</p>
               <p style="margin: 0"><span class="example-input"><strong>「蟹 + (全選)等」</strong></span> 使用 <span class="example-desc">蟹攝一、二、三、四等</span> 進行分析("-"代表全匹配,“-”後需輸入中古類別)</p>
-              <p style="margin: 0"><span class="example-input"><strong>「次浊 + (全選)調」</strong></span> 使用 <span class="example-desc">次濁聲母+平上去入</span> 進行分析。</p>
-              <p style="margin: 0"><span class="example-input"><strong>「宕 江」</strong></span> 使用合併後的 <span class="example-desc">宕、江攝</span> 轄字進行分析(中間空格代表一起分析，回車則是按照不同特徵處理)</p>
-              <p style="margin: 0"><span class="example-input"><strong>「庄組」</strong></span> 使用 <span class="example-desc">庄組</span> 進行分析（如果只輸入「庄」，會使用 <span class="example-desc">庄母</span> 分析）。</p>
-              <p style="margin: 0"><span class="example-input"><strong>「流開一」</strong></span> 使用 <span class="example-desc">流攝開口一等字</span> 進行分析。</p>
-              <p style="margin: 0"><span class="example-input"><strong>「假 + 知組 章組」</strong></span> 使用 <span class="example-desc">假攝的知、章組</span> 轄字進行分析。</p>
-              <p style="margin: 0"><span class="example-input"><strong>「塞擦」</strong></span> 提取 <span class="example-desc">塞擦音</span> 進行分析。</p>
+              <p style="margin: 0">{{ $t('query.components.floatingDice.examples.example4') }}</p>
+              <p style="margin: 0">{{ $t('query.components.floatingDice.examples.example5') }}</p>
+              <p style="margin: 0">{{ $t('query.components.floatingDice.examples.example6') }}</p>
+              <p style="margin: 0">{{ $t('query.components.floatingDice.examples.example7') }}</p>
+              <p style="margin: 0">{{ $t('query.components.floatingDice.examples.example8') }}</p>
+              <p style="margin: 0">{{ $t('query.components.floatingDice.examples.example9') }}</p>
               <p style="margin: 0"><span class="example-input"><strong>「(全選)部位」</strong></span> 分析 <span class="example-desc">所有發聲部位</span> ，包括“唇齒、喉、捲舌、腭、軟腭、雙唇、齒”。</p>
 
               <div class="divider"></div>
 
-              <p style="margin-bottom:8px;font-size: 17px; font-weight: bold;">支持的輸入見下表（簡體也可以）</p>
+              <p style="margin-bottom:8px;font-size: 17px; font-weight: bold;">{{ $t('query.components.floatingDice.supportedInputs') }}</p>
               <div class="table-wrapper">
                 <table class="feature-table">
                   <thead>
                   <tr>
-                    <th width="60">類別</th>
-                    <th>對應值</th>
+                    <th width="60">{{ $t('query.components.floatingDice.tableHeaders.category') }}</th>
+                    <th>{{ $t('query.components.floatingDice.tableHeaders.values') }}</th>
                   </tr>
                   </thead>
                   <tbody>
@@ -75,16 +75,16 @@
 
               <div class="divider"></div>
 
-              <p><span class="example-desc">點擊按鈕即可查詢！</span></p>
+              <p><span class="example-desc">{{ $t('query.components.floatingDice.notes.note1') }}</span></p>
               <p>在分析結果界面，像這樣的 <span class="example-input"><strong>藍色字</strong></span> 都是
                 <span class="example-desc">可點擊</span>的。<br>單擊後可在浮窗中選擇特徵，即可再次生成新窗口，進行<span class="example-desc">細分查詢</span>
                 。<br>這樣的窗口可以<span class="example-desc">無限生成</span>(瀏覽器帶得動的話)，可以同時對比多個地點/特徵。</p>
-              <p>✔ 注1：<span class="example-desc">移動端</span>界面可能顯示不全，請多滑動/拖動。</p>
+              <p>{{ $t('query.components.floatingDice.notes.note5') }}</p>
               <p>✔ 注2：點擊 <span class="example-input">分區 ▼</span> 按鈕，會出分區彈窗，用戶可<span class="example-desc">單擊</span>選擇所需分區。如要顯示下一級分區:<br>
                 ※ <span class="example-desc">電腦端</span>只需將<span class="example-desc">光標</span>移到對應分區上即可；<br>
                 ※ <span class="example-desc">移動端</span>則需要<span class="example-desc">點擊箭頭⌵</span>對應分區</p>
 <!--              <p>更詳細的使用說明，可點擊屏幕上方 <span class="example-input"> ❓使用說明 </span> 按鈕，點擊後會跳轉至詳細教程文章</p>-->
-              <p>點擊🎲 可隨機生成分析示例</p>
+              <p>{{ $t('query.components.floatingDice.notes.note9') }}</p>
             </div>
           </div>
         </div>
@@ -95,6 +95,9 @@
 
 <script setup>
 import { ref } from 'vue'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const props = defineProps({
   currentTab: {

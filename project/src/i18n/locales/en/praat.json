@@ -1,0 +1,393 @@
+{
+  "praat": {
+    "main": {
+      "title": "Praat Acoustic Analysis",
+      "description": "Upload audio or record to perform acoustic feature analysis",
+      "tabs": {
+        "upload": "Upload/Record",
+        "results": "Analysis Results",
+        "vowelSpace": "Vowel Space",
+        "pitchTone": "Pitch & Tone"
+      },
+      "settings": {
+        "title": "Analysis Settings",
+        "button": "Analysis Settings"
+      },
+      "mode": {
+        "single": "Single Syllable",
+        "continuous": "Continuous Speech"
+      },
+      "actions": {
+        "startAnalysis": "Start Analysis",
+        "pleaseSelectAudio": "Please select audio first",
+        "uploading": "Uploading...",
+        "cancel": "Cancel Analysis"
+      },
+      "status": {
+        "preparingUpload": "Preparing to upload audio...",
+        "uploading": "Uploading audio...",
+        "creatingJob": "Creating analysis job...",
+        "startingAnalysis": "Starting analysis...",
+        "analyzing": "Analysis in progress...",
+        "processingAudio": "Processing audio data",
+        "pollingFailed": "Continuous query failed, please check network connection or retry",
+        "pollingFailedCount": "Job status query failed ({count} times), polling stopped"
+      },
+      "errors": {
+        "loginRequired": "Please login first!",
+        "analysisStartFailed": "Failed to start analysis",
+        "analysisFailed": "Analysis job failed",
+        "resultsFetchFailed": "Failed to fetch analysis results",
+        "cancelFailed": "Failed to cancel job",
+        "durationExceeded": "Audio duration is {duration} seconds, exceeding the 3-second limit. Spectrogram analysis does not support audio longer than 3 seconds. Please disable the spectrogram module in settings and try again."
+      },
+      "noResults": {
+        "title": "No Analysis Results Yet",
+        "text": "Please upload audio and start analysis first"
+      }
+    },
+    "audioInput": {
+      "title": "Audio Input",
+      "upload": {
+        "text": "Drag audio file here or click to select",
+        "hint": "Supports WAV, MP3, M4A, WebM, OGG, FLAC, AAC formats",
+        "icon": "🎵"
+      },
+      "recording": {
+        "or": "Or",
+        "start": "Start Recording",
+        "stop": "Stop Recording",
+        "timer": "Recording... {time}s"
+      },
+      "fileInfo": {
+        "selected": "📁 {name}",
+        "size": "{size}"
+      },
+      "errors": {
+        "fileSizeExceeded": "File size exceeds 50MB limit",
+        "unsupportedFormat": "Unsupported audio format, please upload WAV, MP3, M4A, WebM, OGG, FLAC or AAC files",
+        "processingFailed": "Failed to process audio file: {error}",
+        "readFailed": "Unable to read audio file",
+        "microphoneAccessDenied": "Unable to access microphone, please check permissions"
+      }
+    },
+    "audioPreview": {
+      "title": "🎵 Audio Preview",
+      "segmentCount": "({count} segments)",
+      "modes": {
+        "auto": "Segmentation Results",
+        "manual": "Manual Segmentation"
+      },
+      "manual": {
+        "fullWaveform": "Full Waveform ({duration}s)",
+        "hint": "💡 Drag on the waveform to create segments, select one segment and click 'Confirm Segment'",
+        "confirmButton": "✓ Confirm Segment",
+        "processing": "Processing...",
+        "clearButton": "🗑️ Clear All",
+        "candidateSegments": "Candidate Segments ({count}) - Please select one",
+        "segment": "Segment {index}",
+        "selected": "✓ Selected",
+        "start": "Start",
+        "end": "End",
+        "duration": "Duration: {duration}s",
+        "errors": {
+          "durationExceeded": "Segment cannot exceed 10 seconds",
+          "overlap": "Segments cannot overlap",
+          "invalidTimeRange": "Start time must be less than end time",
+          "noSelection": "Please select a segment first",
+          "segmentNotFound": "Selected segment does not exist",
+          "durationExceededConfirm": "Selected segment exceeds 10 seconds, please adjust before confirming"
+        },
+        "success": {
+          "confirmed": "Manual segment confirmed"
+        }
+      },
+      "auto": {
+        "info": "ℹ️ Usage Tip: Recommended to use 'Single Syllable' analysis mode with precise rime core extraction. Automatic rime core detection may have errors. This feature requires high recording quality; noise may affect analysis accuracy.",
+        "selectHint": "Please select a segment to analyze.",
+        "segment": "Segment {index}",
+        "selected": "✓ Selected",
+        "badges": {
+          "original": "Original Audio",
+          "autoSplit": "Auto-Split",
+          "manual": "Manual",
+          "unknown": "Unknown"
+        }
+      }
+    },
+    "settings": {
+      "title": "Analysis Settings",
+      "modules": {
+        "label": "Analysis Modules",
+        "basic": "Basic Info",
+        "pitch": "Pitch Analysis",
+        "intensity": "Intensity Analysis",
+        "formant": "Formant Analysis",
+        "voiceQuality": "Voice Quality",
+        "segments": "Segmentation",
+        "spectrogram": "Spectrogram"
+      },
+      "resolutionPresets": {
+        "label": "Resolution Presets",
+        "quick": {
+          "title": "⚡ Quick Preview",
+          "desc": "10ms step · 100Hz output",
+          "description": "Quick preview, suitable for viewing overall trends"
+        },
+        "standard": {
+          "title": "⚖️ Standard Analysis",
+          "desc": "5ms step · 200Hz output",
+          "description": "Standard analysis, balancing accuracy and performance"
+        },
+        "high": {
+          "title": "💎 High Precision",
+          "desc": "2ms step · 500Hz output",
+          "description": "High precision, suitable for detailed analysis (large data)"
+        }
+      },
+      "pitch": {
+        "label": "Pitch Settings",
+        "minF0": "Min F0 (Hz)",
+        "maxF0": "Max F0 (Hz)",
+        "timeStep": "Time Step (s)",
+        "manualOverride": "Manual changes will override presets"
+      },
+      "formant": {
+        "label": "Formant Settings",
+        "maxFormants": "Max Formants",
+        "maxFreq": "Max Frequency (Hz)",
+        "maxFreqHint": "Male 4500; Female 5500; Child 8000",
+        "timeStep": "Time Step (s)",
+        "manualOverride": "Manual changes will override presets"
+      },
+      "intensity": {
+        "label": "Intensity Settings",
+        "minPitch": "Min Pitch (Hz)"
+      },
+      "output": {
+        "label": "Output Options",
+        "samplingRate": "Output Sampling Rate (Hz)",
+        "samplingRatePlaceholder": "Higher value = more points",
+        "samplingRateHint": "Current: {rate}Hz ({interval}ms interval)",
+        "includeTimeseries": "Include Time Series Data",
+        "includeSummary": "Include Summary"
+      }
+    },
+    "jobStatus": {
+      "title": "Job Status",
+      "jobId": "Job ID:",
+      "cancel": "Cancel Analysis",
+      "loading": {
+        "title": "Analysis in Progress...",
+        "text": "{stage}",
+        "defaultText": "Processing audio data",
+        "progress": "{progress}%"
+      },
+      "error": {
+        "title": "Analysis Failed",
+        "text": "{error}",
+        "defaultText": "Unknown error"
+      },
+      "completed": {
+        "title": "Analysis Completed"
+      }
+    },
+    "results": {
+      "title": "Analysis Results",
+      "basicInfo": {
+        "title": "Basic Information",
+        "duration": "Audio Duration",
+        "durationValue": "{duration} seconds",
+        "sampleRate": "Sample Rate",
+        "sampleRateValue": "{rate} Hz",
+        "avgIntensity": "Average Intensity",
+        "avgIntensityValue": "{intensity} dB",
+        "intensityRange": "Intensity Range",
+        "intensityRangeValue": "{min} - {max} dB"
+      },
+      "toneFeatures": {
+        "title": "Tone Features",
+        "f0Start": "Initial F0",
+        "f0StartValue": "{f0} Hz",
+        "f0End": "Final F0",
+        "f0EndValue": "{f0} Hz",
+        "f0Slope": "F0 Slope",
+        "f0SlopeValue": "{slope}",
+        "contour5pt": "5-Point Contour",
+        "contour5ptValue": "{contour}"
+      },
+      "charts": {
+        "pitch": {
+          "title": "Pitch Trajectory",
+          "yAxis": "Fundamental Frequency (Hz)",
+          "xAxis": "Time (seconds)",
+          "seriesName": "F0"
+        },
+        "intensity": {
+          "title": "Intensity Trajectory",
+          "yAxis": "Intensity (dB)",
+          "xAxis": "Time (seconds)",
+          "seriesName": "Intensity"
+        },
+        "formant": {
+          "title": "Formant Trajectories (F1-F5)",
+          "yAxis": "Frequency (Hz)",
+          "xAxis": "Time (seconds)"
+        },
+        "spectrogram": {
+          "title": "Spectrogram",
+          "loadButton": "Show Spectrogram",
+          "loadHint": "Spectrogram data is large, rendering may take a moment",
+          "xAxis": "Time (s)",
+          "yAxis": "Frequency (Hz)",
+          "visualMap": {
+            "high": "High",
+            "low": "Low"
+          },
+          "tooltip": "Time: {time}s<br/>Frequency: {freq}Hz<br/>Energy: {energy}dB"
+        }
+      },
+      "voiceQuality": {
+        "title": "Voice Quality Assessment",
+        "hnr": {
+          "label": "Harmonics-to-Noise Ratio (HNR)",
+          "value": "{hnr} dB",
+          "status": {
+            "good": "Good",
+            "fair": "Fair",
+            "poor": "Poor"
+          }
+        },
+        "jitter": {
+          "label": "Jitter",
+          "value": "{jitter}%",
+          "status": {
+            "good": "Good",
+            "fair": "Fair",
+            "poor": "Poor"
+          }
+        },
+        "shimmer": {
+          "label": "Shimmer",
+          "value": "{shimmer}%",
+          "status": {
+            "good": "Good",
+            "fair": "Fair",
+            "poor": "Poor"
+          }
+        }
+      }
+    },
+    "vowelSpace": {
+      "title": "F1-F2 Vowel Space",
+      "usageHint": "💡 Usage Tip: Recommended to use 'Single Syllable' analysis mode with precise rime core extraction. Automatic rime core detection may have errors. This feature requires high recording quality; noise may affect analysis accuracy.",
+      "controls": {
+        "segmentedDisplay": "Segmented Display",
+        "showReferenceVowels": "Show Reference Vowels"
+      },
+      "segments": {
+        "title": "Select Speech Segments",
+        "noSegments": "No vowel segments detected (rime_core, syllable_like, or voiced)",
+        "selectAll": "Show All",
+        "segment": "Segment {index} ({type})",
+        "timeRange": "{start}-{end}s"
+      },
+      "stats": {
+        "title": "Statistics",
+        "noSelection": "Please select at least one speech segment",
+        "f1Mean": "F1 Mean:",
+        "f1MeanValue": "{f1} Hz",
+        "f2Mean": "F2 Mean:",
+        "f2MeanValue": "{f2} Hz",
+        "dataPoints": "Data Points:",
+        "dataPointsValue": "{count}"
+      },
+      "chart": {
+        "titleSegmented": "F1-F2 Vowel Space (By Segment)",
+        "titleAll": "F1-F2 Vowel Space (All Data)",
+        "xAxis": "F2 (Hz)",
+        "yAxis": "F1 (Hz)",
+        "allDataPoints": "All Data Points",
+        "referenceVowels": "IPA Reference Vowels",
+        "tooltip": "{name}<br/>F1: {f1} Hz<br/>F2: {f2} Hz<br/>Time: {time}s",
+        "tooltipReference": "{symbol}<br/>F1: {f1} Hz<br/>F2: {f2} Hz"
+      },
+      "description": "The vowel space plot shows the distribution of F1 (first formant) and F2 (second formant). Following phonetic conventions, both axes are inverted (high to low). Lines show vowel trajectories over time, with arrows indicating time direction. Gray markers indicate IPA reference vowel positions."
+    },
+    "pitchTone": {
+      "title": "Shi Feng T-Value Analyzer",
+      "noData": {
+        "icon": "📊",
+        "text": "Please upload audio and complete Praat analysis first"
+      },
+      "step1": {
+        "number": "1",
+        "title": "Select and Label Pitch",
+        "hint": "Drag on the chart to select a stable pitch region (horizontal selection)",
+        "chart": {
+          "title": "Pitch Trajectory and Selection",
+          "xAxis": "Time (seconds)",
+          "yAxis": "Fundamental Frequency (Hz)",
+          "seriesName": "F0",
+          "toolbox": {
+            "zoom": "Zoom",
+            "back": "Restore",
+            "restore": "Reset"
+          }
+        },
+        "controls": {
+          "selectionStatus": {
+            "active": "✅ Selected {count} points",
+            "idle": "Waiting for selection..."
+          },
+          "toneNameInput": "Enter tone name (e.g., Tone 1)",
+          "addButton": "➕ Add to List"
+        },
+        "savedList": {
+          "title": "Collected Tones ({count})",
+          "clearAll": "Clear All",
+          "empty": "No data yet, please select on the chart above and add",
+          "tagName": "{name}",
+          "tagCount": "{count} segments"
+        }
+      },
+      "step2": {
+        "number": "2",
+        "title": "Start T-Value Analysis",
+        "hint": "Calculate and generate 5-point tone contours for each tone class",
+        "analyzeButton": "🚀 Start Analysis ({count} tone classes)"
+      },
+      "step3": {
+        "number": "3",
+        "title": "Analysis Results",
+        "hint": "5-point tone contours (preserving original duration, aligned at start)",
+        "stats": {
+          "ceiling": "Reference Ceiling: {max} Hz",
+          "floor": "Reference Floor: {min} Hz"
+        },
+        "exportButton": "📊 Export to Excel",
+        "chart": {
+          "title": "Shi Feng T-Value Curves",
+          "xAxis": "Time (ms)",
+          "yAxis": "5-Point Scale (T)",
+          "tooltip": "Time: {time} ms<br/>{name}: {value}",
+          "toolbox": {
+            "zoom": "Zoom",
+            "back": "Restore",
+            "restore": "Reset",
+            "saveAsImage": "Save as Image"
+          }
+        },
+        "export": {
+          "success": "Excel file exported",
+          "noData": "No analysis results to export",
+          "fileName": "Dialect_Atlas_T-Value_Tone_{timestamp}.xlsx",
+          "sheetName": "Shi Feng T-Value Analysis",
+          "columns": {
+            "time": "Time (ms)"
+          }
+        }
+      }
+    }
+  }
+}

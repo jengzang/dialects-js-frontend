@@ -1,0 +1,18 @@
+{
+  "title": "词汇与语法",
+  "yuBaoVocabulary": {
+    "icon": "📖",
+    "name": "语保词汇",
+    "desc": "语保1000词表"
+  },
+  "yuBaoGrammar": {
+    "icon": "🗣️",
+    "name": "语保语法",
+    "desc": "语保50条句子语法资料"
+  },
+  "ycSpoken": {
+    "icon": "💬",
+    "name": "阳春口语词",
+    "desc": "广东阳春口语单字词表"
+  }
+}

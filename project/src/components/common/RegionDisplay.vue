@@ -19,7 +19,10 @@
 
 <script setup>
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { buildRegionPath, getRegionShortName, hasHierarchyInfo } from '@/utils/region/regionDisplay.js'
+
+const { t } = useI18n()
 
 const props = defineProps({
   item: {

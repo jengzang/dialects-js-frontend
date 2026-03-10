@@ -32,11 +32,11 @@
         <div class="visit-stats">
           <div class="stats-summary">
             <div class="stat-item">
-              <span class="stat-label">今日</span>
+              <span class="stat-label">{{ t('common.label.today') }}</span>
               <span class="stat-value">{{ todayVisits }}</span>
             </div>
             <div class="stat-item">
-              <span class="stat-label">總訪問</span>
+              <span class="stat-label">{{ t('common.label.totalVisits') }}</span>
               <span class="stat-value">{{ totalVisits }}</span>
             </div>
             <button class="expand-btn" @click="toggleStatsPanel">
@@ -133,12 +133,14 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount, computed } from 'vue';
 import { useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import { clearToken, getToken } from '@/api/auth/auth.js'
 import { getTodayVisits, getTotalVisits, getVisitHistory } from '@/api/logs/index.js'
 import {userStore} from "@/store/store.js";
-import { menuConfig } from '@/config/menuConfig.js';
+import { useMenuConfig } from '@/config/menuConfig.js';
 import { WEB_BASE } from '@/env-config.js';
 
+const { t } = useI18n();
 const router = useRouter();
 const props = defineProps({
   isOpen: Boolean,
@@ -163,9 +165,11 @@ const checkMobile = () => {
 }
 
 // Filter menu items for SimpleSidebar (exclude items that should only show in NavBar)
+const menuConfigData = useMenuConfig();
 const filteredMenuConfig = computed(() => {
+  const config = menuConfigData.value;
   const filtered = {}
-  for (const [key, item] of Object.entries(menuConfig)) {
+  for (const [key, item] of Object.entries(config)) {
     // If showIn is not specified, show in all components
     // If showIn is specified, only show if 'SimpleSidebar' is in the array
     if (!item.showIn || item.showIn.includes('SimpleSidebar')) {

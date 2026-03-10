@@ -1,0 +1,23 @@
+{
+  "title": "Natural Villages",
+  "gdVillages": {
+    "icon": "🏘️",
+    "name": "Guangdong Villages",
+    "desc": "Guangdong Province natural villages tree view"
+  },
+  "villagesML": {
+    "icon": "🤖",
+    "name": "Village Analysis",
+    "desc": "Machine learning and NLP analysis of Guangdong villages"
+  },
+  "gdVillagesTable": {
+    "icon": "📈",
+    "name": "Village Data Table",
+    "desc": "Guangdong Province natural villages table data"
+  },
+  "ycVillages": {
+    "icon": "🏠",
+    "name": "Yangchun Villages",
+    "desc": "Yangchun County natural villages (from county records)"
+  }
+}

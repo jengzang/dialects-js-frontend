@@ -5,10 +5,10 @@
         <!-- 头部 -->
         <div class="modal-header">
 <!--          <div class="header-left">-->
-            <div class="modal-title">🗂️ 分區詳情</div>
+            <div class="modal-title">{{ $t('query.components.partitionModal.title') }}</div>
             <!-- 选择模式开关 -->
             <div class="selection-mode-toggle">
-              <label class="toggle-label">開啟選擇</label>
+              <label class="toggle-label">{{ $t('query.components.partitionModal.enableSelection') }}</label>
               <button
                   class="toggle-switch"
                   :class="{ active: selectionMode }"
@@ -32,7 +32,7 @@
                 :class="{ active: activeTab === tab }"
                 @click="activeTab = tab"
             >
-              {{ tab === 'map' ? '地圖集二分區' : '音典分區' }}
+              {{ tab === 'map' ? $t('query.components.partitionModal.mapPartition') : $t('query.components.partitionModal.dictPartition') }}
             </button>
           </div>
 
@@ -43,7 +43,7 @@
               @click="confirmSelection"
               type="button"
           >
-            確認選擇 ({{ selectedLocations.size }})
+            {{ $t('query.components.partitionModal.confirmSelection', { count: selectedLocations.size }) }}
           </button>
         </div>
 
@@ -51,7 +51,7 @@
         <div class="modal-body">
           <div v-if="isLoading" class="loading-state">
             <div class="spinner"></div>
-            <span>加載中...</span>
+            <span>{{ $t('query.components.partitionModal.loading') }}</span>
           </div>
 
           <div v-else-if="errorMessage" class="error-state">
@@ -78,6 +78,9 @@
 
 <script setup>
 import { ref, computed, watch, defineComponent, h, nextTick } from 'vue'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const props = defineProps({
   modelValue: {

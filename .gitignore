@@ -58,3 +58,4 @@ coverage/
 nul
 *.bak
 *.orig
+project/lint-report.json

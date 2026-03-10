@@ -122,24 +122,29 @@
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { ExploreTabsConfig } from '@/config/TabsConfig.js'
+import { useI18n } from 'vue-i18n'
+import { useExploreTabsConfig } from '@/config/TabsConfig.js'
 import { userStore } from '@/store/store.js'
 import SimpleSidebar from '@/components/bar/SimpleSidebar.vue'
-import { menuConfig } from '@/config/menuConfig.js'
+import { useMenuConfig } from '@/config/menuConfig.js'
 
+const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
 
-// 过滤可见的 tabs (支持 visibleWhen 函数)
+// 过滤可见的 tabs 并动态翻译 label
 const visibleTabs = computed(() => {
-  return ExploreTabsConfig.filter(tab => {
+  return useExploreTabsConfig().filter(tab => {
     // 如果有 visibleWhen 函数，执行它
     if (typeof tab.visibleWhen === 'function') {
       return tab.visibleWhen()
     }
     // 没有 visibleWhen 则默认可见
     return true
-  })
+  }).map(tab => ({
+    ...tab,
+    label: t(`navigation.tabs.${tab.tab}`)
+  }))
 })
 
 const tabs = visibleTabs
@@ -167,9 +172,10 @@ const tabToMenuConfigMap = {
 }
 
 // Helper function to get children from menuConfig
+const menuConfigData = useMenuConfig()
 const getTabChildren = (tabKey) => {
   const menuKey = tabToMenuConfigMap[tabKey]
-  return menuKey ? menuConfig[menuKey]?.children : null
+  return menuKey ? menuConfigData.value[menuKey]?.children : null
 }
 
 // Lifecycle hooks

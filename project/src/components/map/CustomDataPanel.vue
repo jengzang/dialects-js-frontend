@@ -1,30 +1,25 @@
 <template>
   <Teleport to="body">
-    <!-- 展开/收起按钮（独立于面板，始终可见）只在 tab=map 且 sub=map 时显示 -->
     <button v-if="shouldShowPanel" class="expand-button" :class="{ open: isPanelOpen }" @click="togglePanel">
-      {{ isPanelOpen ? '×' : '+' }}
+      {{ isPanelOpen ? t('map.customDataPanel.buttons.collapse') : t('map.customDataPanel.buttons.expand') }}
     </button>
 
-    <!-- 右侧面板 -->
     <div v-if="shouldShowPanel" :class="['custom-data-panel', { open: isPanelOpen }]">
-      <!-- 面板内容 -->
       <div v-if="isPanelOpen" class="panelContent">
-        <h3 class="panel-title">提交自定義數據</h3>
+        <h3 class="panel-title">{{ t('map.customDataPanel.title') }}</h3>
 
         <form @submit.prevent="handleSubmit" class="data-form">
-          <!-- 地点输入框（带自动完成） -->
           <div class="form-group">
-            <label for="location-input">地點<span class="required">*</span></label>
+            <label for="location-input">{{ t('map.customDataPanel.labels.location') }}<span class="required">*</span></label>
             <input
                 id="location-input"
                 v-model="formData.location"
                 type="text"
-                placeholder="輸入地點名稱..."
+                :placeholder="t('map.customDataPanel.placeholders.location')"
                 autocomplete="off"
                 @input="handleLocationInput"
                 @blur="hideSuggestions"
             />
-            <!-- 建议列表 -->
             <div v-if="showSuggestions && suggestions.length > 0" class="suggestions-box">
               <div
                   v-for="item in suggestions"
@@ -37,97 +32,90 @@
             </div>
           </div>
 
-          <!-- 音典分区输入框（自动填充） -->
           <div class="form-group">
             <label for="region-input">
               <HelpIcon
-                  content="推薦填入完整的地圖集分區/音典分區，例如“客家話-粵台片-梅惠小片"
+                  :content="t('map.customDataPanel.helpText.region')"
                   size="sm"
                   placement="right"
                   icon="?"
                   icon-color="#007aff"
                   style="margin-right: 2px; vertical-align: bottom;"
               />
-              分區<span class="required">*</span>
+              {{ t('map.customDataPanel.labels.region') }}<span class="required">*</span>
             </label>
             <input
                 id="region-input"
                 v-model="formData.region"
                 type="text"
-                placeholder="選擇地點後自動填充..."
+                :placeholder="t('map.customDataPanel.placeholders.region')"
             />
           </div>
 
-          <!-- 坐标输入框 -->
           <div class="form-group">
-            <label for="coordinates-input">經緯度<span class="required">*</span></label>
+            <label for="coordinates-input">{{ t('map.customDataPanel.labels.coordinates') }}<span class="required">*</span></label>
             <input
                 id="coordinates-input"
                 v-model="formData.coordinates"
                 type="text"
-                placeholder="點擊地圖自動填入..."
+                :placeholder="t('map.customDataPanel.placeholders.coordinates')"
             />
           </div>
 
-          <!-- 特征类型输入框（自动填充时只读） -->
           <div class="form-group">
-            <label for="feature-type-input">聲/韻/調<span class="required">*</span></label>
+            <label for="feature-type-input">{{ t('map.customDataPanel.labels.featureType') }}<span class="required">*</span></label>
             <input
                 id="feature-type-input"
                 v-model="formData.featureType"
                 type="text"
-                placeholder="如：聲母、韻母、聲調"
+                :placeholder="t('map.customDataPanel.placeholders.featureType')"
                 autocomplete="off"
                 :readonly="formData.featureType.trim() !== ''"
             />
           </div>
 
-          <!-- 特征子字段输入框（自动填充时只读） -->
           <div class="form-group">
-            <label for="feature-field-input">當前查詢<span class="required">*</span></label>
+            <label for="feature-field-input">{{ t('map.customDataPanel.labels.featureField') }}<span class="required">*</span></label>
             <input
                 id="feature-field-input"
                 v-model="formData.featureField"
                 type="text"
-                placeholder="如：流攝、一等、開..."
+                :placeholder="t('map.customDataPanel.placeholders.featureField')"
                 :readonly="formData.featureField.trim() !== ''"
             />
           </div>
 
-          <!-- 值输入框 -->
           <div class="form-group">
             <label for="value-input">
               <HelpIcon
-                  content="填入的值將顯示在地圖上"
+                  :content="t('map.customDataPanel.helpText.value')"
                   size="sm"
                   placement="right"
                   icon="?"
                   icon-color="#007aff"
                   style="margin-right: 2px; vertical-align: bottom;"
               />
-              值<span class="required">*</span></label>
+              {{ t('map.customDataPanel.labels.value') }}<span class="required">*</span></label>
             <input
                 id="value-input"
                 v-model="formData.value"
                 type="text"
-                placeholder="如：p、a、55..."
+                :placeholder="t('map.customDataPanel.placeholders.value')"
             />
           </div>
 
-          <!-- 说明输入框 -->
           <div class="form-group">
-            <label for="description-input">說明</label>
+            <label for="description-input">{{ t('map.customDataPanel.labels.description') }}</label>
             <textarea
                 id="description-input"
                 v-model="formData.description"
-                placeholder="選填：補充說明..."
+                :placeholder="t('map.customDataPanel.placeholders.description')"
                 rows="3"
             />
           </div>
 
-          <!-- 提交按钮 -->
           <button type="submit" class="submit-btn">
-            提交數據
+            {{ t('map.customDataPanel.buttons.submit') }}
           </button>
         </form>
       </div>
@@ -138,6 +126,7 @@
 <script setup>
 import { ref, reactive, watch, computed } from 'vue'
 import { useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { batchMatch, getRegions } from '@/api/query/LocationAndRegion.js'
 import { submitCustomForm } from '@/api/user/custom.js'
 import { showSuccess, showError, showWarning, showInfo } from '@/utils/message.js'
@@ -145,8 +134,8 @@ import { userStore, globalPayload, resultCache } from '@/store/store.js'
 import HelpIcon from '@/components/ToastAndHelp/HelpIcon.vue'
 
 const route = useRoute()
+const { t } = useI18n()
 
-// Props: 接收地图点击坐标和选中的特征
 const props = defineProps({
   mapClickCoordinates: {
     type: Object,
@@ -158,77 +147,60 @@ const props = defineProps({
   }
 })
 
-// Emits
 const emit = defineEmits(['submit-success', 'panel-toggle'])
 
-// 面板状态
 const isPanelOpen = ref(false)
 
-// 计算是否应该显示按钮和面板（只在从查中古/查音位跳转过来时显示）
 const shouldShowPanel = computed(() => {
-  // 必须在 map tab 的 map sub-tab
   const isMapTab = route.query.tab === 'map' && (route.query.sub === 'map' || !route.query.sub)
   if (!isMapTab) return false
 
-  // 必须有查询上下文（从查中古或查音位跳转过来）
   const queryMode = resultCache.mode || ''
   const hasQueryContext = queryMode === '查中古' || queryMode === '查音位'
 
   return hasQueryContext
 })
 
-// 表单数据
 const formData = reactive({
   location: '',
   region: '',
   coordinates: '',
-  featureType: '',    // 特征大类（如 "声母"）
-  featureField: '',   // 特征子字段（如 "舌尖"，可选）
+  featureType: '',
+  featureField: '',
   value: '',
   description: ''
 })
 
-// 建议列表
 const suggestions = ref([])
 const showSuggestions = ref(false)
 
-
-// 防抖定时器
 let debounceTimer = null
 
-// 切换面板展开/收起
 const togglePanel = () => {
   isPanelOpen.value = !isPanelOpen.value
   emit('panel-toggle', isPanelOpen.value)
 }
 
-// 监听地图点击坐标，自动填入
 watch(() => props.mapClickCoordinates, (newVal) => {
   if (newVal && isPanelOpen.value) {
-    // 保留6位小数
     const lng = newVal.lng.toFixed(6)
     const lat = newVal.lat.toFixed(6)
     formData.coordinates = `${lng}, ${lat}`
   }
 })
 
-// 监听 selectedFeature，自动填入
 watch(() => props.selectedFeature, (newFeature) => {
   if (!newFeature) return
 
-  // featureField = selectedFeature
   formData.featureField = newFeature
 
-  // featureType 从 resultCache.features 获取
   if (resultCache.features && resultCache.features.length > 0) {
-    formData.featureType = resultCache.features[0]  // 取第一个特征类型
-    // console.log('✅ 自动填入特征:', 'featureType=', resultCache.features[0], ', featureField=', newFeature)
+    formData.featureType = resultCache.features[0]
   } else {
     console.warn('⚠️ resultCache.features 为空，无法填入 featureType')
   }
 }, { immediate: true })
 
-// 监听 openPanel 查询参数，自动展开面板
 watch(() => route.query.openPanel, (newVal) => {
   if (newVal === 'true' && !isPanelOpen.value) {
     isPanelOpen.value = true
@@ -236,7 +208,6 @@ watch(() => route.query.openPanel, (newVal) => {
   }
 }, { immediate: true })
 
-// 地点输入处理（防抖）
 const handleLocationInput = () => {
   showSuggestions.value = false
 
@@ -252,7 +223,6 @@ const handleLocationInput = () => {
       const response = await batchMatch(query, false)
       if (response && response.length > 0) {
         const items = response[0].items || []
-        // 过滤掉已存在的项
         suggestions.value = Array.from(new Set(items)).filter(item => item !== query)
         showSuggestions.value = suggestions.value.length > 0
       }
@@ -262,82 +232,74 @@ const handleLocationInput = () => {
   }, 300)
 }
 
-// 选择建议项
 const selectSuggestion = async (item) => {
   formData.location = item
   showSuggestions.value = false
 
-  // 自动获取音典分区
   try {
     const response = await getRegions(item)
     if (response && response['音典分區']) {
       formData.region = response['音典分區']
     } else {
-      formData.region = '未找到對應的分區'
+      formData.region = t('map.customDataPanel.messages.regionNotFound')
     }
   } catch (error) {
     console.error('获取分区失败:', error)
-    formData.region = '請求失敗'
+    formData.region = t('map.customDataPanel.messages.regionRequestFailed')
   }
 }
 
-// 隐藏建议列表
 const hideSuggestions = () => {
   setTimeout(() => {
     showSuggestions.value = false
   }, 200)
 }
 
-// 表单验证
 const validateForm = () => {
   if (!formData.location.trim()) {
-    showWarning('請填寫地點（簡稱）')
+    showWarning(t('map.customDataPanel.validation.locationRequired'))
     return false
   }
   if (!formData.region.trim()) {
-    showWarning('請填寫分區')
+    showWarning(t('map.customDataPanel.validation.regionRequired'))
     return false
   }
   if (!formData.coordinates.trim()) {
-    showWarning('請填寫經緯度')
+    showWarning(t('map.customDataPanel.validation.coordinatesRequired'))
     return false
   }
   if (!formData.featureType.trim()) {
-    showWarning('請填寫聲韻調')
+    showWarning(t('map.customDataPanel.validation.featureTypeRequired'))
     return false
   }
   if (!formData.featureField.trim()) {
-    showWarning('請填寫特徵')
+    showWarning(t('map.customDataPanel.validation.featureFieldRequired'))
     return false
   }
   if (!formData.value.trim()) {
-    showWarning('請填寫值')
+    showWarning(t('map.customDataPanel.validation.valueRequired'))
     return false
   }
   return true
 }
 
-// 提交表单
 const handleSubmit = async () => {
-  // 检查用户是否登录
   if (!userStore.isAuthenticated) {
-    showWarning('提交個人數據需登錄')
+    showWarning(t('map.customDataPanel.validation.loginRequired'))
     return
   }
 
-  // 表单验证
   if (!validateForm()) {
     return
   }
 
   try {
-
     const payload = {
       location: formData.location.trim(),
       region: formData.region.trim(),
       coordinates: formData.coordinates.trim(),
-      phonology: formData.featureType.trim(),    // ← 使用中文字段名
-      feature: formData.featureField.trim(),     // ← 使用中文字段名
+      phonology: formData.featureType.trim(),
+      feature: formData.featureField.trim(),
       value: formData.value.trim(),
       description: formData.description.trim() || null
     }
@@ -345,21 +307,18 @@ const handleSubmit = async () => {
     const response = await submitCustomForm(payload)
 
     if (response.success) {
-      showSuccess('提交成功！')
-      // 清空表单（可选）
+      showSuccess(t('map.customDataPanel.messages.submitSuccess'))
       resetForm()
-      // 触发父组件刷新
       emit('submit-success', response)
     } else {
-      showError('提交失敗：' + response.message)
+      showError(t('map.customDataPanel.messages.submitFailed', { message: response.message }))
     }
   } catch (error) {
     console.error('提交失败:', error)
-    showError('提交時發生錯誤：' + error.message)
+    showError(t('map.customDataPanel.messages.submitError', { error: error.message }))
   }
 }
 
-// 重置表单
 const resetForm = () => {
   formData.location = ''
   formData.region = ''

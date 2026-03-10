@@ -13,7 +13,8 @@
 </template>
 
 <script setup>
-import { KeepAlive } from 'vue'
+import { KeepAlive, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 import TabsContainer from '@/components/common/TabsContainer.vue'
 import PhonologyMatrixPage from '@/components/pho/PhonologyPage.vue'
@@ -21,16 +22,17 @@ import PhonologyCustomPage from '@/components/pho/PhonologyCustom.vue'
 import CountphosPage from '@/components/pho/Countphos.vue'
 import ZhongGuPage from '@/components/pho/ZhongGuPage.vue'
 
+const { t } = useI18n()
 const route = useRoute()
 
 const defaultTab = route.query.sub || 'phonologyMatrix'
 
-const tabs = [
-  { name: 'phonologyMatrix', label: '音系' },
-  { name: 'phonologyCustom', label: '音素分類' },
-  { name: 'Countphos', label: '音節數' },
-  { name: 'ZhongGu', label: '漢字類別' }
-]
+const tabs = computed(() => [
+  { name: 'phonologyMatrix', label: t('phonology.tabs.matrix') },
+  { name: 'phonologyCustom', label: t('phonology.tabs.custom') },
+  { name: 'Countphos', label: t('phonology.tabs.count') },
+  { name: 'ZhongGu', label: t('phonology.tabs.zhonggu') }
+])
 
 const tabComponentMap = {
   phonologyMatrix: PhonologyMatrixPage,

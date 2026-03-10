@@ -1,0 +1,23 @@
+{
+  "title": "Toolbox",
+  "dataCheck": {
+    "icon": "🔍",
+    "name": "Data Check",
+    "desc": "Check data accuracy and format"
+  },
+  "jyutpingToIpa": {
+    "icon": "🔄",
+    "name": "Jyutping to IPA",
+    "desc": "Convert Jyutping to IPA"
+  },
+  "mergeTables": {
+    "icon": "🔗",
+    "name": "Merge Tables",
+    "desc": "Merge multiple data tables"
+  },
+  "praatAnalysis": {
+    "icon": "👂️",
+    "name": "Acoustic Analysis",
+    "desc": "Analyze pitch, formants, etc. using Praat"
+  }
+}

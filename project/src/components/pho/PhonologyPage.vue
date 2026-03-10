@@ -17,19 +17,19 @@
         :disabled="matchedLocations.length === 0 || loading || isMatching"
       >
         <span v-if="isMatching" class="btn-spinner"></span>
-        <span v-else-if="loading">加載中...</span>
-        <span v-else>查詢</span>
+        <span v-else-if="loading">{{ $t('phonology.matrix.actions.loading') }}</span>
+        <span v-else>{{ $t('phonology.matrix.actions.query') }}</span>
       </button>
     </div>
 
     <div v-if="loading" class="loading">
       <div class="spinner"></div>
-      <p>加載中...</p>
+      <p>{{ $t('phonology.matrix.actions.loading') }}</p>
     </div>
 
     <div v-else-if="error" class="error">
       <p>{{ error }}</p>
-      <button @click="loadData" class="retry-btn">重試</button>
+      <button @click="loadData" class="retry-btn">{{ $t('phonology.matrix.actions.retry') }}</button>
     </div>
 
     <div v-else-if="matrixData" class="matrix-container">
@@ -45,7 +45,7 @@
     </div>
 
     <div v-else class="empty">
-      <p>請輸入地點並點擊查詢</p>
+      <p>{{ $t('phonology.matrix.states.emptyInput') }}</p>
     </div>
   </div>
 </template>
@@ -53,6 +53,7 @@
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { getPhonologyMatrix } from '@/api/query/phonology.js'
 import PhonologyMatrix from '@/components/TableAndTree/PhonologyTable.vue'
 import LocationMultiInput from '@/components/query/LocationMultiInput.vue'
@@ -60,6 +61,7 @@ import { parseLocationsFromUrl, updateUrlWithLocations } from '@/api/urlParams.j
 
 const route = useRoute()
 const router = useRouter()
+const { t } = useI18n()
 
 const loading = ref(false)
 const error = ref(null)
@@ -90,7 +92,7 @@ const handleIsMatching = (matching) => {
 
 const loadData = async () => {
   if (matchedLocations.value.length === 0) {
-    error.value = '請至少輸入一個地點'
+    error.value = t('phonology.matrix.states.minLocationError')
     return
   }
 
@@ -113,7 +115,7 @@ const loadData = async () => {
     updateUrlWithLocations(router, matchedLocations.value)
   } catch (err) {
     console.error('加載音韻矩陣失敗:', err)
-    error.value = err.message || '加載數據時發生錯誤'
+    error.value = err.message || t('phonology.matrix.states.loadError')
   } finally {
     loading.value = false
   }

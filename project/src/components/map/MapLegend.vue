@@ -19,20 +19,23 @@
 
 <script setup>
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { mapStore } from '@/store/store.js'
+
+const { t } = useI18n()
 
 const showLegend = computed(() => mapStore.mode === 'compare')
 
 const legendTitle = computed(() => {
-  if (!mapStore.compareType) return '圖例'
+  if (!mapStore.compareType) return t('map.legend.title')
 
   const typeMap = {
-    'chars': '漢字比較',
-    'zhonggu': '中古比較',
-    'tones': '調類比較'
+    'chars': t('map.legend.compareTypes.chars'),
+    'zhonggu': t('map.legend.compareTypes.zhonggu'),
+    'tones': t('map.legend.compareTypes.tones')
   }
 
-  return typeMap[mapStore.compareType] || '圖例'
+  return typeMap[mapStore.compareType] || t('map.legend.title')
 })
 
 const legendItems = computed(() => {

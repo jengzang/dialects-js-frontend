@@ -1,0 +1,23 @@
+{
+  "title": "工具箱",
+  "dataCheck": {
+    "icon": "🔍",
+    "name": "字表檢查",
+    "desc": "檢查字表正確性和格式"
+  },
+  "jyutpingToIpa": {
+    "icon": "🔄",
+    "name": "粵拼轉IPA",
+    "desc": "將粵拼轉換為國際音標"
+  },
+  "mergeTables": {
+    "icon": "🔗",
+    "name": "字表合併",
+    "desc": "合併多個字表數據"
+  },
+  "praatAnalysis": {
+    "icon": "👂️",
+    "name": "聲學分析",
+    "desc": "基於praat進行基頻、共振峰等分析"
+  }
+}

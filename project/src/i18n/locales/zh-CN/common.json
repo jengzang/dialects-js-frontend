@@ -1,0 +1,63 @@
+{
+  "button": {
+    "confirm": "确定",
+    "cancel": "取消",
+    "submit": "提交",
+    "reset": "重置",
+    "search": "搜索",
+    "close": "关闭",
+    "save": "保存",
+    "delete": "删除",
+    "edit": "编辑",
+    "back": "返回",
+    "next": "下一步",
+    "previous": "上一步",
+    "ok": "好的"
+  },
+  "label": {
+    "loading": "加载中...",
+    "noData": "暂无数据",
+    "error": "错误",
+    "success": "成功",
+    "warning": "警告",
+    "info": "提示",
+    "today": "今日",
+    "totalVisits": "总访问"
+  },
+  "placeholder": {
+    "input": "请输入",
+    "select": "请选择",
+    "search": "请输入搜索内容"
+  },
+  "components": {
+    "multiSelect": {
+      "selectAll": "全选",
+      "deselectAll": "取消全选",
+      "searchPlaceholder": "搜索...",
+      "noResults": "无匹配结果",
+      "placeholder": "请选择"
+    },
+    "dropdown": {
+      "placeholder": "请选择",
+      "searchPlaceholder": "搜索...",
+      "noResults": "无匹配结果"
+    },
+    "filterableSelect": {
+      "placeholder": "请选择或输入",
+      "loading": "载入中...",
+      "noResults": "无匹配结果",
+      "noOptions": "无可用选项",
+      "levelCity": "城市",
+      "levelCounty": "区县",
+      "levelTownship": "乡镇",
+      "villageCount": "村",
+      "loadError": "载入区域列表失败"
+    },
+    "regionDisplay": {
+      "separator": " > "
+    },
+    "tabs": {
+      "defaultLabel": "标签"
+    }
+  }
+}

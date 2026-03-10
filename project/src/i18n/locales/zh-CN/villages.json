@@ -1,0 +1,23 @@
+{
+  "title": "自然村",
+  "gdVillages": {
+    "icon": "🏘️",
+    "name": "广东自然村",
+    "desc": "广东省自然村树状图"
+  },
+  "villagesML": {
+    "icon": "🤖",
+    "name": "广东自然村分析",
+    "desc": "广东自然村数据机器学习、NLP等"
+  },
+  "gdVillagesTable": {
+    "icon": "📈",
+    "name": "全粤村情表格",
+    "desc": "广东省自然村表格数据"
+  },
+  "ycVillages": {
+    "icon": "🏠",
+    "name": "阳春自然村",
+    "desc": "广东省阳春县自然村(来自县志)"
+  }
+}

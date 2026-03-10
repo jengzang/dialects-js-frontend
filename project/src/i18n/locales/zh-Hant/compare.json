@@ -1,0 +1,78 @@
+{
+  "tabs": {
+    "tab1": "比較漢字",
+    "tab2": "比較地位",
+    "tab4": "比較調類"
+  },
+  "group": {
+    "label1": "組1",
+    "label2": "組2"
+  },
+  "placeholder": {
+    "enterChar": "請輸入漢字",
+    "enterMiddleChinese": "請輸入中古音",
+    "inputOrSelect": "輸/選 [{key}]"
+  },
+  "feature": {
+    "label": "特徵",
+    "selectLabel": "選擇比較特徵：",
+    "initial": "聲母",
+    "final": "韻母",
+    "tone": "聲調"
+  },
+  "button": {
+    "compare": "比較",
+    "running": "🔄 運行中...",
+    "invalid": "🚫 輸入不合規",
+    "run": "🚀 單擊運行",
+    "startCompare": "🚀 開始比較",
+    "add": "➕ 添加"
+  },
+  "messages": {
+    "pleaseEnterBothGroups": "請輸入兩組漢字",
+    "pleaseSelectFeature": "請選擇特徵",
+    "pleaseEnterBothGroupsMiddleChinese": "請輸入兩組中古音",
+    "noConditionsAdded": "尚未添加任何條件",
+    "excludeSettingsMismatch": "同一組內的條件必須使用相同的排除設置！\\n已有條件排除：{existing}\\n當前條件排除：{current}",
+    "selectTwoToneClasses": "請選擇兩個調類"
+  },
+  "cards": {
+    "initial": "聲母",
+    "final": "韻母",
+    "tone": "聲調"
+  },
+  "toneClasses": {
+    "yinping": "陰平",
+    "yangping": "陽平",
+    "yinshang": "陰上",
+    "yangshang": "陽上",
+    "yinqu": "陰去",
+    "yangqu": "陽去",
+    "yinru": "陰入",
+    "yangru": "陽入",
+    "qingsheng": "輕聲",
+    "other": "其他調"
+  },
+  "excludeOptions": {
+    "noExclude": "不排除",
+    "selectAll": "全選",
+    "allMulti": "所有多地位",
+    "excludeMultiGrade": "排除多等",
+    "excludeMultiRime": "排除多韻",
+    "excludeMultiInitial": "排除多聲母",
+    "excludeMultiTone": "排除多調"
+  },
+  "legend": {
+    "same": "完全相同",
+    "partial": "部分相同",
+    "diff": "完全不同",
+    "unknown": "無數據",
+    "highSimilar": "高度相似 (60-79%)",
+    "partialSimilar": "部分相似 (30-59%)",
+    "samePercent": "完全相同 (≥80%)",
+    "diffPercent": "完全不同 (<30%)",
+    "merged": "完全合併",
+    "maybeMerged": "可能合併",
+    "notMerged": "不合併"
+  }
+}

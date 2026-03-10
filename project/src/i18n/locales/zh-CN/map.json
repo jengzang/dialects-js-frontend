@@ -1,0 +1,138 @@
+{
+  "tabs": {
+    "map": "地图",
+    "divide": "分区图",
+    "custom": "自定义"
+  },
+  "placeholder": {
+    "selectFeature": "请选择特征"
+  },
+  "messages": {
+    "submitSuccess": "自定义数据提交成功！",
+    "dataRefreshed": "✅ 数据已刷新",
+    "dataRefreshFailed": "❌ 刷新数据失败:",
+    "featureLoaded": "已加载特征：{feature}",
+    "featureLoadFailed": "❌ 加载特征失败:",
+    "loadFeatureFailed": "加载特征失败：{error}"
+  },
+  "help": {
+    "noFeature": "如果你想添加个人自定义数据，请先选择特征",
+    "withFeature": "如果你想添加个人自定义数据，特征需填入：{feature}"
+  },
+  "customDataPanel": {
+    "title": "提交自定义数据",
+    "labels": {
+      "location": "地点",
+      "region": "分区",
+      "coordinates": "经纬度",
+      "featureType": "声/韵/调",
+      "featureField": "当前查询",
+      "value": "值",
+      "description": "说明"
+    },
+    "placeholders": {
+      "location": "输入地点名称...",
+      "region": "选择地点后自动填充...",
+      "coordinates": "点击地图自动填入...",
+      "featureType": "如：声母、韵母、声调",
+      "featureField": "如：流摄、一等、开...",
+      "value": "如：p、a、55...",
+      "description": "选填：补充说明..."
+    },
+    "buttons": {
+      "submit": "提交数据",
+      "expand": "+",
+      "collapse": "×"
+    },
+    "helpText": {
+      "region": "推荐填入完整的地图集分区/音典分区，例如\"客家话-粤台片-梅惠小片\"",
+      "value": "填入的值将显示在地图上"
+    },
+    "validation": {
+      "locationRequired": "请填写地点（简称）",
+      "regionRequired": "请填写分区",
+      "coordinatesRequired": "请填写经纬度",
+      "featureTypeRequired": "请填写声韵调",
+      "featureFieldRequired": "请填写特征",
+      "valueRequired": "请填写值",
+      "loginRequired": "提交个人数据需登录"
+    },
+    "messages": {
+      "submitSuccess": "提交成功！",
+      "submitFailed": "提交失败：{message}",
+      "submitError": "提交时发生错误：{error}",
+      "regionNotFound": "未找到对应的分区",
+      "regionRequestFailed": "请求失败",
+      "locationMatchFailed": "地点匹配失败"
+    }
+  },
+  "divideTab": {
+    "title": "分区绘图",
+    "hint": "按照不同分区层级，绘制方言分布点图<br>程序自动分配不同颜色",
+    "labels": {
+      "regionLevel": "绘图分区级数"
+    },
+    "placeholders": {
+      "selectLevel": "请选择级数"
+    },
+    "options": {
+      "level1": "1级分区",
+      "level2": "2级分区",
+      "level3": "3级分区"
+    },
+    "buttons": {
+      "run": "🌍绘图",
+      "running": "🔄 运行中..."
+    },
+    "messages": {
+      "dataFetchFailed": "获取数据失败: {error}"
+    }
+  },
+  "customTab": {
+    "title": "搜索自定义特征",
+    "labels": {
+      "featureSearch": "特征搜索",
+      "login": "🔐 登录"
+    },
+    "placeholders": {
+      "featureSearch": "请输入特征关键词..."
+    },
+    "badges": {
+      "loginRequired": "🔒 登录用户方可添加个人数据",
+      "noData": "📝 请先点击下方按钮添加数据",
+      "dataCount": "📊 您共有 {count} 条个人数据"
+    },
+    "selected": "✅ 已选择：{feature}",
+    "buttons": {
+      "run": "🚀 运行查询",
+      "running": "🔄 运行中...",
+      "addSingle": "📝 逐条添加",
+      "addBatch": "📋 批量添加",
+      "help": "?"
+    },
+    "divider": "添加新的自定义数据",
+    "helpTrigger": "不知道如何添加数据❓点此查看使用说明",
+    "helpIcons": {
+      "addSingle": "跳转至地图页面，点击地图即可获取经纬度",
+      "addBatch": "批量添加多条数据，支持从excel粘贴"
+    },
+    "validation": {
+      "selectFeature": "请先选择一个特征",
+      "loginFirst": "请先登录"
+    },
+    "messages": {
+      "noMatch": "未找到匹配的特征",
+      "searchFailed": "搜索失败：{error}",
+      "loading": "正在加载特征数据...",
+      "fetchCountFailed": "获取数据总量失败"
+    }
+  },
+  "legend": {
+    "title": "图例",
+    "compareTypes": {
+      "chars": "汉字比较",
+      "zhonggu": "中古比较",
+      "tones": "调类比较"
+    }
+  }
+}

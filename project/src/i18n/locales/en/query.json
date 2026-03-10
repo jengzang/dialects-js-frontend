@@ -1,0 +1,217 @@
+{
+  "title": "Query",
+  "tab1": {
+    "title": "Character Query",
+    "label": "Please enter Chinese characters",
+    "placeholder": "Enter one or more characters",
+    "button": "Query",
+    "description": "Query pronunciation, position and notes of characters"
+  },
+  "tab2": {
+    "title": "Middle Chinese Query",
+    "placeholder": "Please enter Middle Chinese pronunciation",
+    "button": "Query",
+    "description": "Middle Chinese➡️Pronunciation • Organize by Middle Chinese position",
+    "noExclude": "No Exclusion",
+    "selectAll": "Select All",
+    "cards": {
+      "initial": "Final",
+      "rime": "Rime Group"
+    },
+    "excludeOptions": {
+      "allMulti": "All Multi-positions",
+      "excludeMultiGrade": "Exclude Multi-grade",
+      "excludeMultiRime": "Exclude Multi-rime",
+      "excludeMultiInitial": "Exclude Multi-initial",
+      "excludeMultiTone": "Exclude Multi-tone"
+    }
+  },
+  "tab3": {
+    "title": "Phoneme Query",
+    "placeholder": "Please enter phoneme",
+    "button": "Query",
+    "description": "Pronunciation➡️Middle Chinese • Analyze phoneme origins",
+    "noExclude": "No Exclusion",
+    "selectAll": "Select All",
+    "analysisText": "Analyze the Middle Chinese origins of <strong>{card}</strong> syllables, i.e., which Middle Chinese [<strong>{keys}</strong>] the current <strong>{card}</strong> characters come from",
+    "inputPlaceholder": "Enter/Select [{key}]",
+    "cards": {
+      "initial": "Initial",
+      "final": "Final",
+      "tone": "Tone"
+    },
+    "defaultLocation": "Guangzhou"
+  },
+  "tab4": {
+    "title": "Tone Query",
+    "placeholder": "Please enter tone",
+    "button": "Query",
+    "description": "Query tone categories and values of each location"
+  },
+  "button": {
+    "running": "🔄 Running...",
+    "invalid": "🚫 Invalid Input",
+    "run": "🚀 Click to Run"
+  },
+  "components": {
+    "locationInput": {
+      "label": "Location",
+      "selectButton": "Select Location",
+      "selectButtonTitle": "Select location from partition",
+      "placeholder": "Enter location (matchable)",
+      "successPrefix": "✅"
+    },
+    "locationMultiInput": {
+      "label": "Location",
+      "selectButton": "Select Location",
+      "selectButtonTitle": "Select location from partition",
+      "locationCount": "{count} locations",
+      "expandButton": "Expand",
+      "placeholder": "Enter locations (space-separated, auto-match supported)",
+      "modalTitle": "Matched Locations ({count})",
+      "warningMaxLocations": "Matched {total} locations, automatically truncated to first {max}",
+      "errorFetchSuggestions": "Failed to fetch suggestions",
+      "errorFetchLocations": "Failed to fetch matched locations",
+      "errorFetchPartitions": "Failed to fetch partition data",
+      "errorPartitionMessage": "Failed to fetch partition data, please try again later"
+    },
+    "regionSelector": {
+      "placeholder": "Select partition",
+      "selectedTitle": "Selected Partitions",
+      "selectedCount": "({count})",
+      "clearButton": "Clear",
+      "confirmButton": "Confirm",
+      "emptyState": "No partition selected",
+      "customRegionButton": {
+        "notLoggedIn": "Login to use custom partitions",
+        "noRegions": "Create custom partition",
+        "hasRegions": "Use custom partition"
+      },
+      "customRegionModal": {
+        "title": "🗂️ My Custom Partitions",
+        "loading": "Loading...",
+        "empty": "You haven't created any custom partitions yet",
+        "createButton": "Create Now",
+        "manageButton": "Manage Partitions",
+        "locationCount": "{count} locations"
+      },
+      "tabs": {
+        "map": "Atlas Partition 2",
+        "yindian": "Phonetic Dictionary Partition"
+      }
+    },
+    "yinweiSelector": {
+      "label": "Syllable to Query",
+      "helpTrigger": "Don't know what syllable to input❓",
+      "placeholder": "Please enter syllable to query, e.g. \"a\"",
+      "modalTitle": "Syllable Query Assistant",
+      "emptyState": "Please select location or partition first! After selection, you can view syllables contained in the location.",
+      "queryButton": "Query",
+      "queryingButton": "Querying...",
+      "initial": "Initial",
+      "final": "Final",
+      "tone": "Tone",
+      "errorFetch": "Feature count fetch error",
+      "queryFailed": "Query failed"
+    },
+    "zhongguSelector": {
+      "possibleCombinations": "May generate {count} combinations",
+      "actualMatches": ", actually matched {count} groups",
+      "outputFormat": ", will organize output by selected combination {format}",
+      "detailsButton": "⤢ Details",
+      "querying": "Querying data...",
+      "noMatches": "No matching characters",
+      "pleaseSelect": "Please select conditions above to search",
+      "detailsTitle": "Search Details",
+      "charCount": "{count} chars",
+      "tooManyCombinations": "Too many combinations ({count}>{limit}), please narrow search scope",
+      "queryFailed": "Data query failed, please try again later",
+      "tooManyResultsAnonymous": "Too many results ({count}>{limit}), login to query more combinations",
+      "tooManyResults": "Too many results ({count}>{limit}), please reduce combinations"
+    },
+    "partitionModal": {
+      "title": "🗂️ Partition Details",
+      "selectionToggle": "Enable Selection",
+      "confirmButton": "Confirm Selection ({count})",
+      "loading": "Loading...",
+      "error": "❌",
+      "tabs": {
+        "map": "Atlas Partition 2",
+        "yindian": "Phonetic Dictionary Partition"
+      },
+      "icons": {
+        "folder": "📁",
+        "file": "📂"
+      }
+    },
+    "floatingDice": {
+      "closeButton": "Close Toolbar",
+      "diceButton": "Random Example",
+      "helpButton": "Instructions",
+      "modalTitle": "Query Instructions",
+      "examples": {
+        "title": "Some Examples",
+        "example1": "\"泥\" uses Ni initial for analysis.",
+        "example2": "\"豪\" uses Hao rime for analysis.",
+        "example3": "\"蟹 + (Select All) Grade\" uses Xie rime group grades 1, 2, 3, 4 for analysis (\"-\" means match all, Middle Chinese category required after \"-\")",
+        "example4": "\"次浊 + (Select All) Tone\" uses voiced aspirated initials + level, rising, departing, entering tones for analysis.",
+        "example5": "\"宕 江\" uses merged Dang and Jiang rime groups for analysis (space means analyze together, Enter means treat as different features)",
+        "example6": "\"庄組\" uses Zhuang group for analysis (if only \"庄\" is entered, Zhuang initial will be used).",
+        "example7": "\"流開一\" uses Liu rime group open mouth grade 1 characters for analysis.",
+        "example8": "\"假 + 知組 章組\" uses Jia rime group's Zhi and Zhang groups for analysis.",
+        "example9": "\"塞擦\" extracts affricates for analysis.",
+        "example10": "\"(Select All) Place\" analyzes all articulation places, including \"labiodental, glottal, retroflex, palatal, velar, bilabial, dental\"."
+      },
+      "tableTitle": "Supported inputs (Simplified Chinese also accepted)",
+      "tableHeaders": {
+        "category": "Category",
+        "values": "Corresponding Values"
+      },
+      "notes": {
+        "note1": "Click the button to query!",
+        "note2": "In the analysis results, blue text like this is clickable.",
+        "note3": "Click to select features in a popup, then generate a new window for detailed query.",
+        "note4": "Such windows can be generated infinitely (if your browser can handle it), allowing simultaneous comparison of multiple locations/features.",
+        "note5": "✔ Note 1: Mobile interface may not display fully, please scroll/drag more.",
+        "note6": "✔ Note 2: Click the Partition ▼ button to open partition popup, users can click to select desired partition. To display next level partition:",
+        "note7": "※ Desktop: just move cursor to the corresponding partition;",
+        "note8": "※ Mobile: need to click arrow ⌵ for corresponding partition",
+        "note9": "Click 🎲 to randomly generate analysis examples"
+      }
+    },
+    "locationAndRegionInput": {
+      "locationLabel": "Location",
+      "selectLocationButton": "Select Location",
+      "selectLocationTitle": "Select location from partition",
+      "locationPlaceholder": "Enter location (auto-match supported)",
+      "mapTab": "Atlas",
+      "yindianTab": "Yindian",
+      "viewPartitionDetails": "View partition details",
+      "selectMapPartition": "Please select atlas partition",
+      "selectYindianPartition": "Please select yindian partition",
+      "partitionLabel": "Partition",
+      "partitionPlaceholder": "Enter partition names, space-separated (e.g.: Cantonese)",
+      "selectedCount": "You have selected {count} locations",
+      "mapSource": "Atlas",
+      "yindianSource": "Yindian"
+    }
+  },
+  "result": {
+    "loading": "Analyzing...",
+    "longWaitWarning": "⚠️ The current request involves a large dataset and may take longer.<br>Consider reducing query conditions to improve speed.",
+    "noData": "No data available, please start a query",
+    "goToQuery": "Go to Query",
+    "pleaseQuery": "Please query first",
+    "tabs": {
+      "tab1": "Search Characters",
+      "tab2": "Search Middle Chinese",
+      "tab3": "Search Phonemes",
+      "tab4": "Search Tones"
+    },
+    "toneType": {
+      "default": "Default",
+      "value": "Tone Value",
+      "category": "Tone Category"
+    }
+  }
+}

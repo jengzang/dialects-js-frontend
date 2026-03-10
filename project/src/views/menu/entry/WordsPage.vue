@@ -1,24 +1,24 @@
 <template>
   <div class="words-page">
-      <h2 class="page-title">詞彙與語法</h2>
+      <h2 class="page-title">{{ $t('words.title') }}</h2>
 
       <div class="words-grid">
         <button class="word-btn" @click="handleYuBaoVocabulary">
-          <div class="word-icon">📖</div>
-          <div class="word-name">語保詞彙</div>
-          <div class="word-desc">語保1000詞表</div>
+          <div class="word-icon">{{ $t('words.yuBaoVocabulary.icon') }}</div>
+          <div class="word-name">{{ $t('words.yuBaoVocabulary.name') }}</div>
+          <div class="word-desc">{{ $t('words.yuBaoVocabulary.desc') }}</div>
         </button>
 
         <button class="word-btn" @click="handleYuBaoGrammar">
-          <div class="word-icon">🗣️</div>
-          <div class="word-name">語保語法</div>
-          <div class="word-desc">語保50條句子語法資料</div>
+          <div class="word-icon">{{ $t('words.yuBaoGrammar.icon') }}</div>
+          <div class="word-name">{{ $t('words.yuBaoGrammar.name') }}</div>
+          <div class="word-desc">{{ $t('words.yuBaoGrammar.desc') }}</div>
         </button>
 
         <button class="word-btn" @click="handleYcSpoken">
-          <div class="word-icon">💬</div>
-          <div class="word-name">陽春口語詞</div>
-          <div class="word-desc">廣東陽春口語單字詞表</div>
+          <div class="word-icon">{{ $t('words.ycSpoken.icon') }}</div>
+          <div class="word-name">{{ $t('words.ycSpoken.name') }}</div>
+          <div class="word-desc">{{ $t('words.ycSpoken.desc') }}</div>
         </button>
 
       </div>
@@ -48,98 +48,73 @@ const handleYuBaoGrammar = () => {
   min-width: 80dvw;
   display: flex;
   justify-content: center;
-  flex-direction: column;
   align-items: center;
+  flex-direction: column;
   padding: 20px;
-  min-height: 70dvh;
 }
 
 .page-title {
-  margin: 0 0 40px 0;
-  font-size: 28px;
+  font-size: 32px;
   font-weight: 700;
-  color: #0b2540;
+  color: #1d1d1f;
+  margin-bottom: 30px;
   text-align: center;
 }
 
 .words-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 24px;
+  gap: 20px;
   width: 100%;
+  max-width: 1000px;
 }
 
 .word-btn {
-  padding: 24px 16px;
-  border: 2px solid rgba(255, 255, 255, 0.4);
-  border-radius: 20px;
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.15));
+  background: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04);
+  border: 2px solid rgba(0, 122, 255, 0.2);
+  border-radius: 16px;
+  padding: 30px 20px;
   cursor: pointer;
   transition: all 0.3s ease;
+  text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 12px;
-  text-align: center;
 }
 
 .word-btn:hover {
   transform: translateY(-4px);
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15), 0 4px 8px rgba(0, 0, 0, 0.08);
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.3));
-  border-color: rgba(0, 122, 255, 0.3);
-}
-
-.word-btn:active {
-  transform: translateY(-2px);
+  border-color: #007aff;
+  box-shadow: 0 8px 24px rgba(0, 122, 255, 0.2);
+  background: rgba(255, 255, 255, 1);
 }
 
 .word-icon {
   font-size: 48px;
-  line-height: 1;
+  margin-bottom: 8px;
 }
 
 .word-name {
   font-size: 20px;
-  font-weight: 700;
-  color: #005fd3;
+  font-weight: 600;
+  color: #1d1d1f;
 }
 
 .word-desc {
-  font-size: 13px;
+  font-size: 14px;
   color: #666;
-  line-height: 1.4;
+  line-height: 1.5;
 }
 
-/* 移动端适配 */
-@media (max-aspect-ratio: 1/1) {
-  .page-title {
-    font-size: 24px;
-    margin-bottom: 15px;
-  }
-
+@media (max-width: 768px) {
   .words-grid {
     grid-template-columns: 1fr;
-    gap: 16px;
   }
 
-  .word-btn {
-    padding: 12px 12px;
-  }
-
-  .word-icon {
-    font-size: 30px;
-  }
-
-  .word-name {
-    font-size: 18px;
-  }
-
-  .word-desc {
-    font-size: 12px;
+  .page-title {
+    font-size: 24px;
   }
 }
 </style>

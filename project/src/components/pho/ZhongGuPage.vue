@@ -3,13 +3,13 @@
     <!-- Header Section -->
     <div class="header-section">
       <div class="title-row">
-        <h2 style="margin: 0;">中古音韻數據</h2>
+        <h2 style="margin: 0;">{{ $t('phonology.zhonggu.title') }}</h2>
         <button
             class="annotation-toggle"
             :class="{ 'active': showAnnotations }"
             @click="toggleAnnotations"
         >
-          {{ showAnnotations ? '顯示釋義' : '隱藏釋義' }}
+          {{ showAnnotations ? $t('phonology.zhonggu.toggleAnnotations.show') : $t('phonology.zhonggu.toggleAnnotations.hide') }}
         </button>
       </div>
 
@@ -41,7 +41,7 @@
         <input
             type="text"
             v-model="searchQuery"
-            placeholder="搜索已加載的數據..."
+            :placeholder="$t('phonology.zhonggu.search.placeholder')"
             class="glass-input"
             :disabled="!activeClassification || !loadedData[activeClassification]"
         />
@@ -53,15 +53,15 @@
       <!-- Default State: No Classification Selected -->
       <div v-if="!activeClassification" class="empty-state">
         <div class="empty-state-icon">📚</div>
-        <div class="empty-state-text">請選擇一種分類方式</div>
-        <div class="empty-state-hint">點擊上方的分類選項卡以查看數據</div>
+        <div class="empty-state-text">{{ $t('phonology.zhonggu.states.selectClassification') }}</div>
+        <div class="empty-state-hint">{{ $t('phonology.zhonggu.states.selectHint') }}</div>
       </div>
 
       <!-- Loading State -->
       <div v-else-if="loadingStates[activeClassification]" class="loading-state">
         <div class="loading-spinner"></div>
-        <p>正在加載 {{ CLASSIFICATION_TYPES[activeClassification].name }} 數據...</p>
-        <p class="loading-hint">數據量較大，請稍候...</p>
+        <p>{{ $t('phonology.zhonggu.states.loading', { name: CLASSIFICATION_TYPES[activeClassification].name }) }}</p>
+        <p class="loading-hint">{{ $t('phonology.zhonggu.states.loadingHint') }}</p>
       </div>
 
       <!-- Error State -->
@@ -69,14 +69,14 @@
         <div class="error-icon">⚠️</div>
         <p class="error-message">{{ loadErrors[activeClassification] }}</p>
         <button @click="retryLoad(activeClassification)" class="retry-btn">
-          重試
+          {{ $t('phonology.zhonggu.actions.retry') }}
         </button>
       </div>
 
       <!-- Tree Container -->
       <div v-else-if="loadedData[activeClassification]" class="tree-container">
         <div v-if="getDisplayData.length === 0" class="empty-search-state">
-          沒有找到匹配的結果
+          {{ $t('phonology.zhonggu.search.noResults') }}
         </div>
         <CharTreeItem
             v-for="item in getDisplayData"
@@ -92,13 +92,16 @@
 
 <script setup>
 import {computed, ref} from 'vue';
+import { useI18n } from 'vue-i18n';
 import CharTreeItem from '@/components/TableAndTree/CharTreeItem.vue';
 import {loadFullTree} from '@/api/sql/index.js';
 
+const { t } = useI18n();
+
 // Classification Types Configuration
-const CLASSIFICATION_TYPES = {
+const CLASSIFICATION_TYPES = computed(() => ({
   rhyme: {
-    name: '韻攝分類',
+    name: t('phonology.zhonggu.classifications.rhyme'),
     payload: {
       db_key: "chars",
       table_name: "characters",
@@ -107,7 +110,7 @@ const CLASSIFICATION_TYPES = {
     }
   },
   initial: {
-    name: '聲鈕分類',
+    name: t('phonology.zhonggu.classifications.initial'),
     payload: {
       db_key: "chars",
       table_name: "characters",
@@ -116,7 +119,7 @@ const CLASSIFICATION_TYPES = {
     }
   },
   voicing: {
-    name: '清濁分類',
+    name: t('phonology.zhonggu.classifications.voicing'),
     payload: {
       db_key: "chars",
       table_name: "characters",
@@ -124,7 +127,7 @@ const CLASSIFICATION_TYPES = {
       data_columns: [12, 13]
     }
   }
-};
+}));
 
 // State Management
 const activeClassification = ref(null);
@@ -174,7 +177,7 @@ const loadClassificationData = async (type) => {
   loadingStates.value[type] = true;
   loadErrors.value[type] = null;
 
-  const config = CLASSIFICATION_TYPES[type];
+  const config = CLASSIFICATION_TYPES.value[type];
 
   try {
     const result = await loadFullTree(config.payload)
@@ -182,11 +185,11 @@ const loadClassificationData = async (type) => {
     if (result && result.tree) {
       loadedData.value[type] = normalizeTreeData(result.tree);
     } else {
-      throw new Error('數據格式錯誤');
+      throw new Error(t('phonology.zhonggu.states.dataFormatError'));
     }
   } catch (error) {
-    console.error(`❌ 加載 ${config.name} 失敗:`, error);
-    loadErrors.value[type] = error.message || '加載失敗，請重試';
+    console.error(`❌ ${t('phonology.zhonggu.states.loading', { name: config.name })} ${t('phonology.zhonggu.states.loadFailed')}:`, error);
+    loadErrors.value[type] = error.message || t('phonology.zhonggu.states.loadFailed');
   } finally {
     loadingStates.value[type] = false;
   }

@@ -16,8 +16,8 @@
       :options="options"
       :triggerEl="triggerRef"
       :searchable="searchable"
-      :searchPlaceholder="searchPlaceholder"
-      :placeholder="placeholder"
+      :searchPlaceholder="searchPlaceholder || $t('common.components.dropdown.searchPlaceholder')"
+      :placeholder="placeholder || $t('common.components.dropdown.placeholder')"
       :matchTriggerWidth="matchTriggerWidth"
       @update:modelValue="handleUpdate"
       @close="handleClose"
@@ -27,7 +27,10 @@
 
 <script setup>
 import { ref, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import SimpleDropdown from './SimpleDropdown.vue'
+
+const { t } = useI18n()
 
 const props = defineProps({
   modelValue: {
@@ -41,7 +44,7 @@ const props = defineProps({
   },
   placeholder: {
     type: String,
-    default: '请选择'
+    default: ''
   },
   disabled: {
     type: Boolean,
@@ -53,7 +56,7 @@ const props = defineProps({
   },
   searchPlaceholder: {
     type: String,
-    default: '搜索...'
+    default: ''
   },
   matchTriggerWidth: {
     type: Boolean,
@@ -76,10 +79,10 @@ const displayLabel = computed(() => {
   // Only show placeholder if modelValue is null or undefined
   // Empty string ('') is a valid value
   if (props.modelValue === null || props.modelValue === undefined) {
-    return props.placeholder
+    return props.placeholder || t('common.components.dropdown.placeholder')
   }
   const option = props.options.find(opt => opt.value === props.modelValue)
-  return option?.label || props.placeholder
+  return option?.label || props.placeholder || t('common.components.dropdown.placeholder')
 })
 
 const containerStyle = computed(() => {

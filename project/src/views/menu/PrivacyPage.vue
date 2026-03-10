@@ -1,10 +1,20 @@
 <script setup>
-import { ref } from 'vue'
+import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 
-const currentLang = ref('zh')
+const { t, locale } = useI18n()
 
 const toggleLang = () => {
-  currentLang.value = currentLang.value === 'zh' ? 'en' : 'zh'
+  locale.value = locale.value === 'zh-Hant' ? 'en' : 'zh-Hant'
+}
+
+const currentLangLabel = computed(() => {
+  return locale.value === 'zh-Hant' ? t('privacy.langToggle.zh') : t('privacy.langToggle.en')
+})
+
+const copyCitation = () => {
+  navigator.clipboard.writeText(t('privacy.citation.text'))
+  alert(t('privacy.citation.copySuccess'))
 }
 </script>
 
@@ -13,196 +23,95 @@ const toggleLang = () => {
     <div class="privacy-content glass-container">
       <!-- 标题和语言切换 -->
       <div class="header">
-        <h1 class="title">{{ currentLang === 'zh' ? '📜 隱私政策與引用說明' : '📜 Privacy Policy & Citation' }}</h1>
+        <h1 class="title">{{ t('privacy.title') }}</h1>
         <button class="lang-toggle" @click="toggleLang">
-          {{ currentLang === 'zh' ? 'English' : '中文' }}
+          {{ currentLangLabel }}
         </button>
       </div>
 
-      <!-- 中文版 -->
-      <div v-if="currentLang === 'zh'" class="content-section">
+      <div class="content-section">
         <!-- 引用建议 -->
         <section class="section">
-          <h2>📖 引用建議</h2>
+          <h2>{{ t('privacy.citation.title') }}</h2>
           <div class="citation-box">
             <p class="citation-text">
-              楊錚，2026，方音圖鑑。查詢網址 <a href="https://dialects.yzup.top" target="_blank">https://dialects.yzup.top</a>
+              {{ t('privacy.citation.text') }}
             </p>
-            <button class="copy-btn" @click="() => {
-              navigator.clipboard.writeText('楊錚，2026，方音圖鑑。查詢網址 https://dialects.yzup.top')
-              alert('已複製到剪貼板！')
-            }">
-              📋 複製引用
+            <button class="copy-btn" @click="copyCitation">
+              {{ t('privacy.citation.copyButton') }}
             </button>
           </div>
           <p class="note">
-            若您在學術論文、研究報告或其他出版物中使用本網站資料，請按照上述格式進行引用。
+            {{ t('privacy.citation.note') }}
           </p>
         </section>
 
         <!-- 隐私政策 -->
         <section class="section">
-          <h2>🔒 隱私政策</h2>
+          <h2>{{ t('privacy.privacy.title') }}</h2>
 
-          <h3>資料收集與使用</h3>
+          <h3>{{ t('privacy.privacy.dataCollection.title') }}</h3>
           <p>
-            「方音圖鑑」（dialects.yzup.top）致力於保護用戶隱私。我們鄭重承諾：
+            {{ t('privacy.privacy.dataCollection.intro') }}
           </p>
           <ul>
-            <li><strong>最小化資料收集</strong>：本網站僅收集必要的技術資訊（如訪問日誌、瀏覽器類型）以維護網站正常運行和改善用戶體驗。</li>
-            <li><strong>無個人身份資訊</strong>：我們不主動收集可識別個人身份的資訊（如姓名、電話號碼、出生年月等）。</li>
-            <li><strong>數據安全</strong>：所有收集的資料均採用業界標準的安全措施進行保護，防止未經授權的訪問、披露、修改或破壞。</li>
+            <li v-html="t('privacy.privacy.dataCollection.minimal')"></li>
+            <li v-html="t('privacy.privacy.dataCollection.noPersonal')"></li>
+            <li v-html="t('privacy.privacy.dataCollection.security')"></li>
           </ul>
 
-          <h3>Cookies 使用</h3>
+          <h3>{{ t('privacy.privacy.cookies.title') }}</h3>
           <p>
-            本網站可能使用 Cookies 和類似技術來：
+            {{ t('privacy.privacy.cookies.intro') }}
           </p>
           <ul>
-            <li>記住您的登錄狀態</li>
-            <li>分析網站流量和用戶行為模式，以改進服務質量</li>
-            <li>提供個性化的用戶體驗</li>
+            <li>{{ t('privacy.privacy.cookies.login') }}</li>
+            <li>{{ t('privacy.privacy.cookies.analytics') }}</li>
+            <li>{{ t('privacy.privacy.cookies.personalization') }}</li>
           </ul>
           <p class="note">
-            您可以通過瀏覽器設置管理或禁用 Cookies，但這可能影響部分網站功能的正常使用。
+            {{ t('privacy.privacy.cookies.note') }}
           </p>
 
-
-          <h3>資料保護承諾</h3>
+          <h3>{{ t('privacy.privacy.commitment.title') }}</h3>
           <p>
-            我們承諾：
+            {{ t('privacy.privacy.commitment.intro') }}
           </p>
           <ul>
-            <li>✓ <strong>不出售或出租用戶資料</strong>給任何第三方</li>
-            <li>✓ <strong>不洩露個人隱私資訊</strong>，除非法律要求或經用戶明確同意</li>
-            <li>✓ <strong>定期審查安全措施</strong>，確保資料保護機制持續有效</li>
-            <li>✓ <strong>透明溝通</strong>，如隱私政策有重大變更，將及時通知用戶</li>
+            <li v-html="t('privacy.privacy.commitment.noSell')"></li>
+            <li v-html="t('privacy.privacy.commitment.noLeak')"></li>
+            <li v-html="t('privacy.privacy.commitment.review')"></li>
+            <li v-html="t('privacy.privacy.commitment.transparent')"></li>
           </ul>
 
-          <h3>用戶權利</h3>
+          <h3>{{ t('privacy.privacy.rights.title') }}</h3>
           <p>
-            您有權：
+            {{ t('privacy.privacy.rights.intro') }}
           </p>
           <ul>
-            <li>了解我們收集了哪些與您相關的資料</li>
-            <li>要求更正或刪除不準確的資料</li>
-            <li>選擇退出某些資料收集活動</li>
+            <li>{{ t('privacy.privacy.rights.know') }}</li>
+            <li>{{ t('privacy.privacy.rights.correct') }}</li>
+            <li>{{ t('privacy.privacy.rights.optOut') }}</li>
           </ul>
 
-          <h3>聯繫方式</h3>
+          <h3>{{ t('privacy.privacy.contact.title') }}</h3>
           <p>
-            如對本隱私政策有任何疑問或意見，請通過以下方式聯繫我們：
+            {{ t('privacy.privacy.contact.intro') }}
           </p>
           <ul>
-            <li>網站：<a href="https://dialects.yzup.top" target="_blank">https://dialects.yzup.top</a></li>
-            <li>github：<a href="https://github.com/jengzang" target="_blank">https://github.com/jengzang</a></li>
-            <li>知乎：<a href="https://www.zhihu.com/people/da-shu-18-11" target="_blank">https://www.zhihu.com/people/da-shu-18-11</a></li>
+            <li>{{ t('privacy.privacy.contact.website') }}<a href="https://dialects.yzup.top" target="_blank">https://dialects.yzup.top</a></li>
+            <li>{{ t('privacy.privacy.contact.github') }}<a href="https://github.com/jengzang" target="_blank">https://github.com/jengzang</a></li>
+            <li>{{ t('privacy.privacy.contact.zhihu') }}<a href="https://www.zhihu.com/people/da-shu-18-11" target="_blank">https://www.zhihu.com/people/da-shu-18-11</a></li>
           </ul>
 
-          <p class="update-note">
-            <strong>最後更新時間</strong>：2026年1月
-          </p>
+          <p class="update-note" v-html="t('privacy.privacy.lastUpdated')"></p>
         </section>
 
         <!-- 免责声明 -->
         <section class="section">
-          <h2>⚠️ 免責聲明</h2>
+          <h2>{{ t('privacy.disclaimer.title') }}</h2>
           <p>
-            本網站提供的方言資料僅供學術研究和文化交流使用。雖然我們力求資料的準確性和完整性，但不對資料的絕對準確性做出保證。使用本網站資料產生的任何後果，由使用者自行承擔。
-          </p>
-        </section>
-      </div>
-
-      <!-- English Version -->
-      <div v-if="currentLang === 'en'" class="content-section">
-        <!-- Citation -->
-        <section class="section">
-          <h2>📖 Citation</h2>
-          <div class="citation-box">
-            <p class="citation-text">
-              Yang, Zheng. 2026. <em>Dialects Atlas</em>. Retrieved from <a href="https://dialects.yzup.top" target="_blank">https://dialects.yzup.top</a>
-            </p>
-            <button class="copy-btn" @click="() => {
-              navigator.clipboard.writeText('Yang, Zheng. 2026. Dialects Atlas. Retrieved from https://dialects.yzup.top')
-              alert('Copied to clipboard!')
-            }">
-              📋 Copy Citation
-            </button>
-          </div>
-          <p class="note">
-            If you use data from this website in academic papers, research reports, or other publications, please cite it according to the format above.
-          </p>
-        </section>
-
-        <!-- Privacy Policy -->
-        <section class="section">
-          <h2>🔒 Privacy Policy</h2>
-
-          <h3>Data Collection and Use</h3>
-          <p>
-            Dialects Atlas (dialects.yzup.top) is committed to protecting user privacy. We solemnly promise:
-          </p>
-          <ul>
-            <li><strong>Minimal Data Collection</strong>: This website only collects necessary technical information (such as access logs, browser type) to maintain normal website operation and improve user experience.</li>
-            <li><strong>No Personal Identification Information</strong>: We do not actively collect personally identifiable information (such as name, phone number, birthday, etc.).</li>
-            <li><strong>Data Security</strong>: All collected data is protected using industry-standard security measures to prevent unauthorized access, disclosure, modification, or destruction.</li>
-          </ul>
-
-          <h3>Use of Cookies</h3>
-          <p>
-            This website may use Cookies and similar technologies to:
-          </p>
-          <ul>
-            <li>Remember your login status</li>
-            <li>Analyze website traffic and user behavior patterns to improve service quality</li>
-            <li>Provide personalized user experience</li>
-          </ul>
-          <p class="note">
-            You can manage or disable Cookies through browser settings, but this may affect the normal use of some website functions.
-          </p>
-
-
-          <h3>Data Protection Commitment</h3>
-          <p>
-            We promise:
-          </p>
-          <ul>
-            <li>✓ <strong>Not to sell or rent user data</strong> to any third party</li>
-            <li>✓ <strong>Not to disclose personal privacy information</strong>, unless required by law or with explicit user consent</li>
-            <li>✓ <strong>Regular security review</strong> to ensure data protection mechanisms remain effective</li>
-            <li>✓ <strong>Transparent communication</strong>: users will be promptly notified of any significant changes to the privacy policy</li>
-          </ul>
-
-          <h3>User Rights</h3>
-          <p>
-            You have the right to:
-          </p>
-          <ul>
-            <li>Know what data we have collected about you</li>
-            <li>Request correction or deletion of inaccurate data</li>
-            <li>Opt out of certain data collection activities</li>
-          </ul>
-
-          <h3>Contact Information</h3>
-          <p>
-            If you have any questions or comments about this privacy policy, please contact us:
-          </p>
-          <ul>
-            <li>Website: <a href="https://dialects.yzup.top" target="_blank">https://dialects.yzup.top</a></li>
-            <li>GitHub: <a href="https://github.com/jengzang" target="_blank">https://github.com/jengzang</a></li>
-            <li>Zhihu: <a href="https://www.zhihu.com/people/da-shu-18-11" target="_blank">https://www.zhihu.com/people/da-shu-18-11</a></li>
-          </ul>
-
-          <p class="update-note">
-            <strong>Last Updated</strong>: January 2026
-          </p>
-        </section>
-
-        <!-- Disclaimer -->
-        <section class="section">
-          <h2>⚠️ Disclaimer</h2>
-          <p>
-            The dialect data provided on this website is for academic research and cultural exchange purposes only. While we strive for accuracy and completeness of data, we do not guarantee absolute accuracy. Users are responsible for any consequences arising from the use of data from this website.
+            {{ t('privacy.disclaimer.text') }}
           </p>
         </section>
       </div>

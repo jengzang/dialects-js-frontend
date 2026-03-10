@@ -3,7 +3,7 @@
     <!-- Loading State -->
     <div v-if="isInitLoading" class="loading-container">
       <div class="login-spinner"></div>
-      <p>正在同步數據...</p>
+      <p>{{ $t('auth.loading.syncData') }}</p>
     </div>
 
     <!-- Main Content -->
@@ -77,6 +77,7 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import {
   getToken,
   getRefreshToken,
@@ -107,6 +108,7 @@ import UserBenefitsPopup from '@/components/user/UserBenefitsPopup.vue'
 
 const router = useRouter()
 const route = useRoute()
+const { t } = useI18n()
 
 // State
 const isInitLoading = ref(false)
@@ -164,7 +166,7 @@ const handleLogin = async (credentials) => {
   success.value = ''
 
   if (!validatePassword(credentials.password)) {
-    error.value = '密碼不得少於 6 位'
+    error.value = t('auth.validation.passwordMinLength')
     return
   }
 
@@ -175,13 +177,13 @@ const handleLogin = async (credentials) => {
     await fetchUser()
     await getUserRole()
 
-    showSuccess('登录成功')
-    success.value = '✅ 登錄成功<br>即將刷新頁面'
+    showSuccess(t('auth.messages.loginSuccess'))
+    success.value = t('auth.messages.loginSuccessDetail')
     setTimeout(() => {
       window.location.reload()
     }, 1000)
   } catch (e) {
-    let msg = '未知錯誤'
+    let msg = t('auth.validation.unknownError')
     if (typeof e?.message === 'string') {
       try {
         const data = JSON.parse(e.message)
@@ -193,7 +195,7 @@ const handleLogin = async (credentials) => {
       msg = e.detail
     }
     if (msg.includes('Invalid credentials')) {
-      error.value = '用戶名不存在或密碼錯誤！'
+      error.value = t('auth.validation.loginFailed')
     } else {
       error.value = msg
     }
@@ -208,22 +210,22 @@ const handleRegister = async ({ username, email, password, confirmPassword }) =>
 
   // Validation
   if (!validateUsername(username)) {
-    error.value = '用戶名長度不得少於 3 個字符或超過 50 個字符'
+    error.value = t('auth.validation.usernameLength')
     return
   }
 
   if (!validateEmail(email)) {
-    error.value = '請輸入正確的郵箱'
+    error.value = t('auth.validation.emailInvalid')
     return
   }
 
   if (!validatePassword(password)) {
-    error.value = '密碼不得少於 6 位'
+    error.value = t('auth.validation.passwordMinLength')
     return
   }
 
   if (!validatePasswordMatch(password, confirmPassword)) {
-    error.value = '兩次輸入的密碼不一致，請重新輸入'
+    error.value = t('auth.validation.passwordMismatch')
     return
   }
 
@@ -231,8 +233,8 @@ const handleRegister = async ({ username, email, password, confirmPassword }) =>
 
   try {
     await registerUser({ username, email, password })
-    showSuccess('注册成功！请登录')
-    success.value = '✅ 註冊成功，請登錄👤<br> ⏳ 一秒後將自動跳轉到登錄頁面。'
+    showSuccess(t('auth.messages.registerSuccess'))
+    success.value = t('auth.messages.registerSuccessDetail')
 
     setTimeout(() => {
       setMode('login')
@@ -242,9 +244,9 @@ const handleRegister = async ({ username, email, password, confirmPassword }) =>
   } catch (e) {
     const msg = e.message || ''
     if (msg.includes('Username already exists')) {
-      error.value = '該用戶名已被佔用，請更換一個'
+      error.value = t('auth.validation.usernameExists')
     } else if (msg.includes('Email already exists')) {
-      error.value = '該郵箱已註冊，可直接登錄'
+      error.value = t('auth.validation.emailExists')
     } else {
       error.value = msg
     }
@@ -258,14 +260,14 @@ const handleSaveUsername = async ({ newUsername }) => {
   success.value = ''
 
   if (!validateUsername(newUsername)) {
-    error.value = '請輸入新的用戶名（3-50個字符）'
+    error.value = t('auth.confirm.modifyUsername.prompt')
     return
   }
 
-  const confirmed = await showConfirm(`確定要將用戶名修改為「${newUsername}」嗎？`, {
-    title: '修改用戶名',
-    confirmText: '確定修改',
-    cancelText: '取消'
+  const confirmed = await showConfirm(t('auth.confirm.modifyUsername.message', { username: newUsername }), {
+    title: t('auth.confirm.modifyUsername.title'),
+    confirmText: t('auth.confirm.modifyUsername.confirm'),
+    cancelText: t('auth.confirm.modifyUsername.cancel')
   })
 
   if (!confirmed) return
@@ -274,7 +276,7 @@ const handleSaveUsername = async ({ newUsername }) => {
 
   try {
     await updateUsername(newUsername, user.value.email)
-    success.value = '✅ 用戶名更新成功！<br>👤 您需重新登錄<br>⏳ 兩秒後將自動跳轉到登錄頁面。'
+    success.value = t('auth.messages.usernameUpdateSuccess')
 
     setTimeout(async () => {
       setMode('profile')
@@ -286,12 +288,12 @@ const handleSaveUsername = async ({ newUsername }) => {
     try {
       const errorDetails = JSON.parse(e.message)
       if (errorDetails.detail) {
-        error.value = `❌ 錯誤：${errorDetails.detail}`
+        error.value = t('auth.messages.errorDetail', { detail: errorDetails.detail })
       } else {
-        error.value = '發生未知錯誤'
+        error.value = t('auth.validation.unknownError')
       }
     } catch {
-      error.value = '發生錯誤，無法解析響應'
+      error.value = t('auth.messages.parseError')
     }
   } finally {
     loading.value = false
@@ -303,19 +305,19 @@ const handleSavePassword = async ({ currentPassword, newPassword }) => {
   success.value = ''
 
   if (!currentPassword) {
-    error.value = '請輸入當前密碼'
+    error.value = t('auth.confirm.modifyPassword.promptCurrent')
     return
   }
 
   if (!validatePassword(newPassword)) {
-    error.value = '新密碼必須至少6個字符'
+    error.value = t('auth.confirm.modifyPassword.promptNew')
     return
   }
 
-  const confirmed = await showConfirm('確定要修改密碼嗎？', {
-    title: '修改密碼',
-    confirmText: '確定修改',
-    cancelText: '取消'
+  const confirmed = await showConfirm(t('auth.confirm.modifyPassword.message'), {
+    title: t('auth.confirm.modifyPassword.title'),
+    confirmText: t('auth.confirm.modifyPassword.confirm'),
+    cancelText: t('auth.confirm.modifyPassword.cancel')
   })
 
   if (!confirmed) return
@@ -328,7 +330,7 @@ const handleSavePassword = async ({ currentPassword, newPassword }) => {
       newPassword,
       email: user.value.email
     })
-    success.value = '✅ 密碼更新成功！<br>👤 ⏳ 兩秒後將自動跳轉到個人資料頁面。'
+    success.value = t('auth.messages.passwordUpdateSuccess')
 
     setTimeout(async () => {
       setMode('profile')
@@ -340,12 +342,12 @@ const handleSavePassword = async ({ currentPassword, newPassword }) => {
     try {
       const errorDetails = JSON.parse(e.message)
       if (errorDetails.detail) {
-        error.value = `❌ 錯誤：${errorDetails.detail}`
+        error.value = t('auth.messages.errorDetail', { detail: errorDetails.detail })
       } else {
-        error.value = '發生未知錯誤'
+        error.value = t('auth.validation.unknownError')
       }
     } catch {
-      error.value = '發生錯誤，無法解析響應'
+      error.value = t('auth.messages.parseError')
     }
   } finally {
     loading.value = false
@@ -353,10 +355,10 @@ const handleSavePassword = async ({ currentPassword, newPassword }) => {
 }
 
 const logout = async () => {
-  const confirmed = await showConfirm('確定要退出登錄嗎？', {
-    title: '退出確認',
-    confirmText: '退出',
-    cancelText: '取消'
+  const confirmed = await showConfirm(t('auth.confirm.logout.message'), {
+    title: t('auth.confirm.logout.title'),
+    confirmText: t('auth.confirm.logout.confirm'),
+    cancelText: t('auth.confirm.logout.cancel')
   })
 
   if (!confirmed) return
@@ -383,7 +385,7 @@ const logout = async () => {
     // Redirect to login page instead of reloading
     setView('login')
   } catch (error) {
-    console.error('退出登录失败:', error)
+    console.error(t('auth.messages.logoutFailed'), error)
   } finally {
     loading.value = false
   }

@@ -1,0 +1,15 @@
+{
+  "title": "📚 资料来源",
+  "privacyLink": "想要引用?了解隐私政策?",
+  "totalRecords": "截至2026.2，共 {count} 份字表",
+  "columns": {
+    "location": "方言点",
+    "atlasRegion": "地图集分区",
+    "dictRegion": "音典分区",
+    "source": "字表来源",
+    "province": "省",
+    "city": "市",
+    "county": "县",
+    "town": "镇"
+  }
+}
