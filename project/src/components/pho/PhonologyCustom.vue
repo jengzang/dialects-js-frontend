@@ -24,7 +24,7 @@
       <!-- 分類欄位選擇 -->
       <div class="column-selectors">
         <div class="selector-group">
-          <label>{{ $t('phonology.custom.columns.horizontal') }}</label>
+          <label>{{ $t('phonology.phonology.custom.columns.horizontal') }}</label>
           <SimpleSelectDropdown
             v-model="horizontalColumn"
             :options="columnOptionsArray"
@@ -32,7 +32,7 @@
         </div>
 
         <div class="selector-group">
-          <label>{{ $t('phonology.custom.columns.vertical') }}</label>
+          <label>{{ $t('phonology.phonology.custom.columns.vertical') }}</label>
           <SimpleSelectDropdown
             v-model="verticalColumn"
             :options="columnOptionsArray"
@@ -40,7 +40,7 @@
         </div>
 
         <div class="selector-group">
-          <label>{{ $t('phonology.custom.columns.cellRow') }}</label>
+          <label>{{ $t('phonology.phonology.custom.columns.cellRow') }}</label>
           <SimpleSelectDropdown
             v-model="cellRowColumn"
             :options="columnOptionsArray"
@@ -53,20 +53,20 @@
           :disabled="matchedLocations.length === 0 || loading || isMatching"
       >
         <span v-if="isMatching" class="btn-spinner"></span>
-        <span v-else-if="loading">{{ $t('phonology.custom.actions.loading') }}</span>
-        <span v-else>{{ $t('phonology.custom.actions.query') }}</span>
+        <span v-else-if="loading">{{ $t('phonology.phonology.custom.actions.loading') }}</span>
+        <span v-else>{{ $t('phonology.phonology.custom.actions.query') }}</span>
       </button>
     </div>
 
 
     <div v-if="loading" class="loading">
       <div class="spinner"></div>
-      <p>{{ $t('phonology.custom.actions.loading') }}</p>
+      <p>{{ $t('phonology.phonology.custom.actions.loading') }}</p>
     </div>
 
     <div v-else-if="error" class="error">
       <p>{{ error }}</p>
-      <button @click="loadData" class="retry-btn">{{ $t('phonology.custom.actions.retry') }}</button>
+      <button @click="loadData" class="retry-btn">{{ $t('phonology.phonology.custom.actions.retry') }}</button>
     </div>
 
     <div v-else-if="matrixData" class="matrix-container">
@@ -82,7 +82,7 @@
     </div>
 
     <div v-else class="empty">
-      <p>{{ $t('phonology.custom.states.emptyInput') }}</p>
+      <p>{{ $t('phonology.phonology.custom.states.emptyInput') }}</p>
     </div>
   </div>
 </template>
@@ -112,7 +112,7 @@ const shouldSyncUrl = ref(false)
 
 // 特徵選擇（聲母/韻母/聲調） - Keep original values for API
 const FEATURE_KEYS = ['聲母', '韻母', '聲調']
-const features = computed(() => FEATURE_KEYS.map(key => t(`phonology.custom.features.${getFeatureKey(key)}`)))
+const features = computed(() => FEATURE_KEYS.map(key => t(`phonology.phonology.custom.features.${getFeatureKey(key)}`)))
 
 // Helper to get translation key from Chinese value
 const getFeatureKey = (chineseValue) => {
@@ -150,7 +150,7 @@ const featureDefaults = {
 }
 
 // 可選的分類欄位
-const columnOptions = computed(() => COLUMN_KEYS.map(key => t(`phonology.custom.columnOptions.${getColumnKey(key)}`)))
+const columnOptions = computed(() => COLUMN_KEYS.map(key => t(`phonology.phonology.custom.columnOptions.${getColumnKey(key)}`)))
 
 // Column options for dropdown
 const columnOptionsArray = computed(() => columnOptions.value.map(col => ({
@@ -304,12 +304,12 @@ watch([horizontalColumnChinese, verticalColumnChinese, cellRowColumnChinese], ()
 const transformMatrixData = (apiData) => {
   // 驗證數據結構
   if (!apiData) {
-    throw new Error(t('phonology.custom.states.apiError'))
+    throw new Error(t('phonology.phonology.custom.states.apiError'))
   }
 
   if (!apiData.matrix) {
     console.error('API 數據結構:', apiData)
-    throw new Error(t('phonology.custom.states.missingMatrix'))
+    throw new Error(t('phonology.phonology.custom.states.missingMatrix'))
   }
 
   // 轉換 matrix：提取 feature_value 的 keys 並附加字數
@@ -339,7 +339,7 @@ const transformMatrixData = (apiData) => {
 
 const loadData = async () => {
   if (matchedLocations.value.length === 0) {
-    error.value = t('phonology.custom.states.minLocationError')
+    error.value = t('phonology.phonology.custom.states.minLocationError')
     return
   }
 
@@ -371,7 +371,7 @@ const loadData = async () => {
 
   } catch (err) {
     console.error('加載音韻矩陣失敗:', err)
-    error.value = err.message || t('phonology.custom.states.loadError')
+    error.value = err.message || t('phonology.phonology.custom.states.loadError')
   } finally {
     loading.value = false
   }

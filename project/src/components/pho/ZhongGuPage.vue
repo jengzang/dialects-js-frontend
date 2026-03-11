@@ -3,13 +3,13 @@
     <!-- Header Section -->
     <div class="header-section">
       <div class="title-row">
-        <h2 style="margin: 0;">{{ $t('phonology.zhonggu.title') }}</h2>
+        <h2 style="margin: 0;">{{ $t('phonology.phonology.zhonggu.title') }}</h2>
         <button
             class="annotation-toggle"
             :class="{ 'active': showAnnotations }"
             @click="toggleAnnotations"
         >
-          {{ showAnnotations ? $t('phonology.zhonggu.toggleAnnotations.show') : $t('phonology.zhonggu.toggleAnnotations.hide') }}
+          {{ showAnnotations ? $t('phonology.phonology.zhonggu.toggleAnnotations.show') : $t('phonology.phonology.zhonggu.toggleAnnotations.hide') }}
         </button>
       </div>
 
@@ -41,7 +41,7 @@
         <input
             type="text"
             v-model="searchQuery"
-            :placeholder="$t('phonology.zhonggu.search.placeholder')"
+            :placeholder="$t('phonology.phonology.zhonggu.search.placeholder')"
             class="glass-input"
             :disabled="!activeClassification || !loadedData[activeClassification]"
         />
@@ -53,15 +53,15 @@
       <!-- Default State: No Classification Selected -->
       <div v-if="!activeClassification" class="empty-state">
         <div class="empty-state-icon">📚</div>
-        <div class="empty-state-text">{{ $t('phonology.zhonggu.states.selectClassification') }}</div>
-        <div class="empty-state-hint">{{ $t('phonology.zhonggu.states.selectHint') }}</div>
+        <div class="empty-state-text">{{ $t('phonology.phonology.zhonggu.states.selectClassification') }}</div>
+        <div class="empty-state-hint">{{ $t('phonology.phonology.zhonggu.states.selectHint') }}</div>
       </div>
 
       <!-- Loading State -->
       <div v-else-if="loadingStates[activeClassification]" class="loading-state">
         <div class="loading-spinner"></div>
-        <p>{{ $t('phonology.zhonggu.states.loading', { name: CLASSIFICATION_TYPES[activeClassification].name }) }}</p>
-        <p class="loading-hint">{{ $t('phonology.zhonggu.states.loadingHint') }}</p>
+        <p>{{ $t('phonology.phonology.zhonggu.states.loading', { name: CLASSIFICATION_TYPES[activeClassification].name }) }}</p>
+        <p class="loading-hint">{{ $t('phonology.phonology.zhonggu.states.loadingHint') }}</p>
       </div>
 
       <!-- Error State -->
@@ -69,14 +69,14 @@
         <div class="error-icon">⚠️</div>
         <p class="error-message">{{ loadErrors[activeClassification] }}</p>
         <button @click="retryLoad(activeClassification)" class="retry-btn">
-          {{ $t('phonology.zhonggu.actions.retry') }}
+          {{ $t('phonology.phonology.zhonggu.actions.retry') }}
         </button>
       </div>
 
       <!-- Tree Container -->
       <div v-else-if="loadedData[activeClassification]" class="tree-container">
         <div v-if="getDisplayData.length === 0" class="empty-search-state">
-          {{ $t('phonology.zhonggu.search.noResults') }}
+          {{ $t('phonology.phonology.zhonggu.search.noResults') }}
         </div>
         <CharTreeItem
             v-for="item in getDisplayData"
@@ -101,7 +101,7 @@ const { t } = useI18n();
 // Classification Types Configuration
 const CLASSIFICATION_TYPES = computed(() => ({
   rhyme: {
-    name: t('phonology.zhonggu.classifications.rhyme'),
+    name: t('phonology.phonology.zhonggu.classifications.rhyme'),
     payload: {
       db_key: "chars",
       table_name: "characters",
@@ -110,7 +110,7 @@ const CLASSIFICATION_TYPES = computed(() => ({
     }
   },
   initial: {
-    name: t('phonology.zhonggu.classifications.initial'),
+    name: t('phonology.phonology.zhonggu.classifications.initial'),
     payload: {
       db_key: "chars",
       table_name: "characters",
@@ -119,7 +119,7 @@ const CLASSIFICATION_TYPES = computed(() => ({
     }
   },
   voicing: {
-    name: t('phonology.zhonggu.classifications.voicing'),
+    name: t('phonology.phonology.zhonggu.classifications.voicing'),
     payload: {
       db_key: "chars",
       table_name: "characters",
@@ -185,11 +185,11 @@ const loadClassificationData = async (type) => {
     if (result && result.tree) {
       loadedData.value[type] = normalizeTreeData(result.tree);
     } else {
-      throw new Error(t('phonology.zhonggu.states.dataFormatError'));
+      throw new Error(t('phonology.phonology.zhonggu.states.dataFormatError'));
     }
   } catch (error) {
-    console.error(`❌ ${t('phonology.zhonggu.states.loading', { name: config.name })} ${t('phonology.zhonggu.states.loadFailed')}:`, error);
-    loadErrors.value[type] = error.message || t('phonology.zhonggu.states.loadFailed');
+    console.error(`❌ ${t('phonology.phonology.zhonggu.states.loading', { name: config.name })} ${t('phonology.phonology.zhonggu.states.loadFailed')}:`, error);
+    loadErrors.value[type] = error.message || t('phonology.phonology.zhonggu.states.loadFailed');
   } finally {
     loadingStates.value[type] = false;
   }

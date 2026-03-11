@@ -17,19 +17,19 @@
         :disabled="matchedLocations.length === 0 || loading || isMatching"
       >
         <span v-if="isMatching" class="btn-spinner"></span>
-        <span v-else-if="loading">{{ $t('phonology.matrix.actions.loading') }}</span>
-        <span v-else>{{ $t('phonology.matrix.actions.query') }}</span>
+        <span v-else-if="loading">{{ $t('phonology.phonology.matrix.actions.loading') }}</span>
+        <span v-else>{{ $t('phonology.phonology.matrix.actions.query') }}</span>
       </button>
     </div>
 
     <div v-if="loading" class="loading">
       <div class="spinner"></div>
-      <p>{{ $t('phonology.matrix.actions.loading') }}</p>
+      <p>{{ $t('phonology.phonology.matrix.actions.loading') }}</p>
     </div>
 
     <div v-else-if="error" class="error">
       <p>{{ error }}</p>
-      <button @click="loadData" class="retry-btn">{{ $t('phonology.matrix.actions.retry') }}</button>
+      <button @click="loadData" class="retry-btn">{{ $t('phonology.phonology.matrix.actions.retry') }}</button>
     </div>
 
     <div v-else-if="matrixData" class="matrix-container">
@@ -45,7 +45,7 @@
     </div>
 
     <div v-else class="empty">
-      <p>{{ $t('phonology.matrix.states.emptyInput') }}</p>
+      <p>{{ $t('phonology.phonology.matrix.states.emptyInput') }}</p>
     </div>
   </div>
 </template>
@@ -92,7 +92,7 @@ const handleIsMatching = (matching) => {
 
 const loadData = async () => {
   if (matchedLocations.value.length === 0) {
-    error.value = t('phonology.matrix.states.minLocationError')
+    error.value = t('phonology.phonology.matrix.states.minLocationError')
     return
   }
 
@@ -115,7 +115,7 @@ const loadData = async () => {
     updateUrlWithLocations(router, matchedLocations.value)
   } catch (err) {
     console.error('加載音韻矩陣失敗:', err)
-    error.value = err.message || t('phonology.matrix.states.loadError')
+    error.value = err.message || t('phonology.phonology.matrix.states.loadError')
   } finally {
     loading.value = false
   }

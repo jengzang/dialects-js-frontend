@@ -43,7 +43,7 @@ const handleIsMatching = (matching) => {
 
 const loadData = async () => {
   if (matchedLocations.value.length === 0) {
-    error.value = t('phonology.countphos.states.minLocationError')
+    error.value = t('phonology.phonology.countphos.states.minLocationError')
     return
   }
 
@@ -64,7 +64,7 @@ const loadData = async () => {
 
   } catch (err) {
     console.error('加載失敗:', err)
-    error.value = err.message || t('phonology.countphos.states.loadError')
+    error.value = err.message || t('phonology.phonology.countphos.states.loadError')
   } finally {
     loading.value = false
   }
@@ -73,9 +73,9 @@ const loadData = async () => {
 // 計算匯總統計數據
 const calculateAggregatedData = (data) => {
   const aggregated = {
-    [t('phonology.countphos.features.initial')]: {},
-    [t('phonology.countphos.features.final')]: {},
-    [t('phonology.countphos.features.tone')]: {}
+    [t('phonology.phonology.countphos.features.initial')]: {},
+    [t('phonology.phonology.countphos.features.final')]: {},
+    [t('phonology.phonology.countphos.features.tone')]: {}
   }
 
   // 遍歷每個地點的數據
@@ -147,26 +147,26 @@ const closeLocationModal = () => {
           :disabled="matchedLocations.length === 0 || loading || isMatching"
       >
         <span v-if="isMatching" class="btn-spinner"></span>
-        <span v-else-if="loading">{{ $t('phonology.countphos.actions.loading') }}</span>
-        <span v-else>{{ $t('phonology.countphos.actions.query') }}</span>
+        <span v-else-if="loading">{{ $t('phonology.phonology.countphos.actions.loading') }}</span>
+        <span v-else>{{ $t('phonology.phonology.countphos.actions.query') }}</span>
       </button>
     </div>
 
     <div v-if="loading" class="loading">
       <div class="spinner"></div>
-      <p>{{ $t('phonology.countphos.actions.loading') }}</p>
+      <p>{{ $t('phonology.phonology.countphos.actions.loading') }}</p>
     </div>
 
     <div v-else-if="error" class="error">
       <p>{{ error }}</p>
-      <button @click="loadData" class="retry-btn">{{ $t('phonology.countphos.actions.retry') }}</button>
+      <button @click="loadData" class="retry-btn">{{ $t('phonology.phonology.countphos.actions.retry') }}</button>
     </div>
 
     <div v-else-if="Object.keys(featureData).length > 0" class="results-container">
       <!-- 匯總統計部分 -->
       <section class="aggregated-section">
 <!--        <h3 class="section-title">匯總統計</h3>-->
-        <h3 class="section-title">{{ $t('phonology.countphos.subtitle', { count: matchedLocations.length }) }}</h3>
+        <h3 class="section-title">{{ $t('phonology.phonology.countphos.subtitle', { count: matchedLocations.length }) }}</h3>
 
         <div
             v-for="(features, featureType) in aggregatedData"
@@ -183,11 +183,11 @@ const closeLocationModal = () => {
               <div class="syllable-name">{{ syllable }}</div>
               <div class="syllable-stats">
                 <span class="stat-item">
-                  <span class="stat-label">{{ $t('phonology.countphos.stats.total') }}:</span>
+                  <span class="stat-label">{{ $t('phonology.phonology.countphos.stats.total') }}:</span>
                   <span class="stat-value">{{ stats.totalCount }}</span>
                 </span>
                 <span class="stat-item">
-                  <span class="stat-label">{{ $t('phonology.countphos.stats.locationCount') }}:</span>
+                  <span class="stat-label">{{ $t('phonology.phonology.countphos.stats.locationCount') }}:</span>
                   <span class="stat-value">{{ stats.locationCount }}</span>
                 </span>
               </div>
@@ -206,7 +206,7 @@ const closeLocationModal = () => {
                     class="expand-btn"
                     @click="openLocationModal(syllable, featureType, stats)"
                 >
-                  {{ $t('phonology.countphos.stats.more', { count: stats.locations.length - 10 }) }}
+                  {{ $t('phonology.phonology.countphos.stats.more', { count: stats.locations.length - 10 }) }}
                 </button>
               </div>
             </div>
@@ -216,8 +216,8 @@ const closeLocationModal = () => {
 
       <!-- 地點詳情部分 -->
       <section class="locations-section">
-        <h3 class="section-title">{{ $t('phonology.countphos.sections.locations') }}</h3>
-        <p class="section-subtitle">{{ $t('phonology.countphos.sections.locationsSubtitle') }}</p>
+        <h3 class="section-title">{{ $t('phonology.phonology.countphos.sections.locations') }}</h3>
+        <p class="section-subtitle">{{ $t('phonology.phonology.countphos.sections.locationsSubtitle') }}</p>
 
         <div
             v-for="(locationData, locationName) in featureData"
@@ -248,7 +248,7 @@ const closeLocationModal = () => {
     </div>
 
     <div v-else class="empty">
-      <p>{{ $t('phonology.countphos.states.emptyInput') }}</p>
+      <p>{{ $t('phonology.phonology.countphos.states.emptyInput') }}</p>
     </div>
 
     <!-- 地点详情弹窗 -->
@@ -258,7 +258,7 @@ const closeLocationModal = () => {
           <!-- 头部 -->
           <div class="modal-header">
             <div class="modal-title">
-              {{ $t('phonology.countphos.modal.title', { featureType: modalData.featureType, syllable: modalData.syllable }) }}
+              {{ $t('phonology.phonology.countphos.modal.title', { featureType: modalData.featureType, syllable: modalData.syllable }) }}
             </div>
             <button class="modal-close" type="button" @click="closeLocationModal">×</button>
           </div>
@@ -267,11 +267,11 @@ const closeLocationModal = () => {
           <div class="modal-body">
             <div class="modal-stats">
               <span class="modal-stat-item">
-                <span class="modal-stat-label">{{ $t('phonology.countphos.stats.total') }}:</span>
+                <span class="modal-stat-label">{{ $t('phonology.phonology.countphos.stats.total') }}:</span>
                 <span class="modal-stat-value">{{ modalData.totalCount }}</span>
               </span>
               <span class="modal-stat-item">
-                <span class="modal-stat-label">{{ $t('phonology.countphos.stats.locationCount') }}:</span>
+                <span class="modal-stat-label">{{ $t('phonology.phonology.countphos.stats.locationCount') }}:</span>
                 <span class="modal-stat-value">{{ modalData.locations.length }}</span>
               </span>
             </div>
