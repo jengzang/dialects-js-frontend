@@ -78,5 +78,14 @@
       "title": "語言設置",
       "description": "選擇您偏好的界面語言"
     }
-  }
+  },
+  "stats": {
+    "today": "今日",
+    "totalVisits": "總訪問",
+    "historyTitle": "訪問統計歷史",
+    "loading": "加載中...",
+    "todayVisits": "今日訪問",
+    "historyRecords": "歷史記錄"
+  },
+  "login": "登錄"
 }

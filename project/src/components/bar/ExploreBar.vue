@@ -40,7 +40,7 @@
       </nav>
 
       <div class="login-container" @click="goToAuthPage">
-        <span class="login-text">{{ userStore.username || '登錄' }}</span>
+        <span class="login-text">{{ userStore.username || t('navigation.login') }}</span>
       </div>
     </div>
 
@@ -79,7 +79,7 @@
       </nav>
 
       <div class="login-container" @click="goToAuthPage">
-        <span class="login-text">{{ userStore.username || '登錄' }}</span>
+        <span class="login-text">{{ userStore.username || t('navigation.login') }}</span>
       </div>
     </div>
 

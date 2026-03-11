@@ -56,11 +56,11 @@
       <div v-if="isStatsExpanded" class="glass-modal-overlay" @click.self="closeStatsPanel">
         <div class="glass-card stats-modal-card">
           <button class="close-btn" @click="closeStatsPanel">&times;</button>
-          <h3 class="modal-title">📊 訪問統計歷史</h3>
+          <h3 class="modal-title">📊 {{ t('navigation.stats.historyTitle') }}</h3>
 
           <div v-if="loadingStats" class="loading-state">
             <div class="loading-spinner"></div>
-            <p>加載中...</p>
+            <p>{{ t('navigation.stats.loading') }}</p>
           </div>
 
           <div v-else class="stats-content">
@@ -68,21 +68,21 @@
               <div class="stat-card">
                 <div class="stat-icon">📅</div>
                 <div class="stat-info">
-                  <span class="stat-label-large">今日訪問</span>
+                  <span class="stat-label-large">{{ t('navigation.stats.todayVisits') }}</span>
                   <span class="stat-value-large">{{ todayVisits }}</span>
                 </div>
               </div>
               <div class="stat-card">
                 <div class="stat-icon">🌐</div>
                 <div class="stat-info">
-                  <span class="stat-label-large">總訪問</span>
+                  <span class="stat-label-large">{{ t('navigation.stats.totalVisits') }}</span>
                   <span class="stat-value-large">{{ totalVisits }}</span>
                 </div>
               </div>
             </div>
 
             <div class="history-section">
-              <h4 class="section-title">歷史記錄</h4>
+              <h4 class="section-title">{{ t('navigation.stats.historyRecords') }}</h4>
               <div class="history-list">
                 <div v-for="item in visitHistory" :key="item.date" class="history-item-modal">
                   <span class="history-date">{{ item.date }}</span>

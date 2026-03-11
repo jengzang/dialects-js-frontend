@@ -78,5 +78,14 @@
       "title": "Language Settings",
       "description": "Choose your preferred interface language"
     }
-  }
+  },
+  "stats": {
+    "today": "Today",
+    "totalVisits": "Total Visits",
+    "historyTitle": "Visit Statistics History",
+    "loading": "Loading...",
+    "todayVisits": "Today's Visits",
+    "historyRecords": "History Records"
+  },
+  "login": "Login"
 }

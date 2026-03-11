@@ -78,5 +78,14 @@
       "title": "语言设置",
       "description": "选择您偏好的界面语言"
     }
-  }
+  },
+  "stats": {
+    "today": "今日",
+    "totalVisits": "总访问",
+    "historyTitle": "访问统计历史",
+    "loading": "加载中...",
+    "todayVisits": "今日访问",
+    "historyRecords": "历史记录"
+  },
+  "login": "登录"
 }
