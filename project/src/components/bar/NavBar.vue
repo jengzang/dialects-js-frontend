@@ -274,7 +274,7 @@ const isStatsExpanded = ref(false)
 const visitHistory = ref([])
 const loadingStats = ref(false)
 
-// 过滤可见的 tabs 并动态翻译 label
+// 过滤可见的 tabs（label 已在 TabsConfig 中定义）
 const visibleTabs = computed(() => {
   return useMenuTabsConfig().filter(tab => {
     // 如果有 visibleWhen 函数，执行它
@@ -283,10 +283,7 @@ const visibleTabs = computed(() => {
     }
     // 没有 visibleWhen 则默认可见
     return true
-  }).map(tab => ({
-    ...tab,
-    label: t(`navigation.tabs.${tab.tab}`)
-  }))
+  })
 })
 
 // 使用过滤后的 tabs

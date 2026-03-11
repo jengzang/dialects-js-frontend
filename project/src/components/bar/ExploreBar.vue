@@ -132,7 +132,7 @@ const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
 
-// 过滤可见的 tabs 并动态翻译 label
+// 过滤可见的 tabs（label 已在 TabsConfig 中定义）
 const visibleTabs = computed(() => {
   return useExploreTabsConfig().filter(tab => {
     // 如果有 visibleWhen 函数，执行它
@@ -141,10 +141,7 @@ const visibleTabs = computed(() => {
     }
     // 没有 visibleWhen 则默认可见
     return true
-  }).map(tab => ({
-    ...tab,
-    label: t(`navigation.tabs.${tab.tab}`)
-  }))
+  })
 })
 
 const tabs = visibleTabs
