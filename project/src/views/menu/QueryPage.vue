@@ -229,8 +229,7 @@
 
               <div class="info-text" style="margin: 15px 0">
                 <span class="info-icon">ℹ️</span>
-                <span v-html="$t('query.tab3.analysisText', { card: tabStates.tab3.card, keys: selectedKeysString })">
-                </span>
+                <span>{{ $t('query.tab3.analysisText', { card: tabStates.tab3.card, keys: selectedKeysString }) }}</span>
               </div>
               <!-- 🔄 輸入框 -->
               <YinweiSelector

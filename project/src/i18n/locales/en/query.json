@@ -33,7 +33,7 @@
     "description": "Pronunciation➡️Middle Chinese • Analyze phoneme origins",
     "noExclude": "No Exclusion",
     "selectAll": "Select All",
-    "analysisText": "Analyze the Middle Chinese origins of <strong>{card}</strong> syllables, i.e., which Middle Chinese [<strong>{keys}</strong>] the current <strong>{card}</strong> characters come from",
+    "analysisText": "Analyze the Middle Chinese origins of 【{card}】 syllables, i.e., which Middle Chinese 【{keys}】 the current 【{card}】 characters come from",
     "inputPlaceholder": "Enter/Select [{key}]",
     "cards": {
       "initial": "Initial",

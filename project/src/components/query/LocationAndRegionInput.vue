@@ -245,6 +245,7 @@
 
 <script setup>
 import { ref, nextTick ,onMounted, onActivated, watch, computed,defineProps } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { getLocations, getCustomFeature, sqlQuery, batchMatch, getPartitions } from '@/api'
 import { useCustomRegionStore } from '@/store/customRegionStore'
 import RegionSelector from "@/components/query/RegionSelector.vue"

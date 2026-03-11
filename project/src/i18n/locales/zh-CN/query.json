@@ -33,7 +33,7 @@
     "description": "读音➡️中古•分析音位的中古来源",
     "noExclude": "不排除",
     "selectAll": "全选",
-    "analysisText": "分析<strong>{card}</strong>音节的中古来源，即当今的同<strong>{card}</strong>字分别来自哪些中古[<strong>{keys}</strong>]",
+    "analysisText": "分析【{card}】音节的中古来源，即当今的同【{card}】字分别来自哪些中古【{keys}】",
     "inputPlaceholder": "输/选 [{key}]",
     "cards": {
       "initial": "声母",
