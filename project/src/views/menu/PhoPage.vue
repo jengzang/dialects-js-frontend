@@ -28,10 +28,10 @@ const route = useRoute()
 const defaultTab = route.query.sub || 'phonologyMatrix'
 
 const tabs = computed(() => [
-  { name: 'phonologyMatrix', label: t('phonology.tabs.matrix') },
-  { name: 'phonologyCustom', label: t('phonology.tabs.custom') },
-  { name: 'Countphos', label: t('phonology.tabs.count') },
-  { name: 'ZhongGu', label: t('phonology.tabs.zhonggu') }
+  { name: 'phonologyMatrix', label: t('tabs.matrix') },
+  { name: 'phonologyCustom', label: t('tabs.custom') },
+  { name: 'Countphos', label: t('tabs.count') },
+  { name: 'ZhongGu', label: t('tabs.zhonggu') }
 ])
 
 const tabComponentMap = {
