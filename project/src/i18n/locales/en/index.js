@@ -18,6 +18,7 @@ import tools from './tools.json'
 import words from './words.json'
 import villages from './villages.json'
 import result from './result.json'
+import tableTree from './tableTree.json'
 
 export default {
   common,
@@ -36,5 +37,6 @@ export default {
   tools,
   words,
   villages,
-  result
+  result,
+  tableTree
 }
