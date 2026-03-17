@@ -504,11 +504,11 @@
             <p class="modal-subtitle">感謝您的支持！💖</p>
             <div class="donate-qr-grid">
               <div class="donate-qr-box">
-                <img src="@/assets/weixin.png" alt="微信收款碼" />
+                <img src="../assets/picture/weixin.png" alt="微信收款碼" />
                 <p class="donate-qr-label">微信</p>
               </div>
               <div class="donate-qr-box">
-                <img src="@/assets/zfb.jpg" alt="支付寶收款碼" />
+                <img src="../assets/picture/zfb.jpg" alt="支付寶收款碼" />
                 <p class="donate-qr-label">支付寶</p>
               </div>
             </div>

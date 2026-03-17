@@ -135,7 +135,7 @@
 <script setup>
 import { ref, computed, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import * as echarts from 'echarts'
-import referenceVowelsData from '@/assets/vowels.json'
+import referenceVowelsData from '@/assets/data/vowels.json'
 
 const props = defineProps({
   results: {

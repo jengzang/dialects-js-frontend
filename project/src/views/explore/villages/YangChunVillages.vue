@@ -37,7 +37,7 @@
 <script setup>
 import {ref, computed} from 'vue';
 import TreeItem from '@/components/TableAndTree/TreeItem.vue'; // 👈 導入剛才創建的子組件
-import villageData from '@/assets/yc_villages.json'; // 👈 導入你的 JSON
+import villageData from '@/assets/data/yc_villages.json'; // 👈 導入你的 JSON
 import { useRouter } from 'vue-router';
 const router = useRouter();
 
