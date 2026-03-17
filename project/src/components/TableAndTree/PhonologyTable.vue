@@ -2,99 +2,30 @@
   <div class="phonology-matrix">
     <div v-if="location" class="location-header">
       <div class="location-title">{{ location }}</div>
-      <button class="tone-search-btn" @click="handleShowDetails" :disabled="isLoading">
-        {{ isLoading ? '查詢中...' : '詳情' }}
-      </button>
+      <button class="tone-search-btn" @click="handleShowDetails" :disabled="isLoading">{{ isLoading ? t('result.phonologyTable.loadingButton') : t('result.phonologyTable.detailButton') }}</button>
     </div>
 
-    <Teleport to="body">
-      <div v-if="showModal" class="modal-overlay" @click="closeModal">
-        <div class="modal-content" @click.stop>
-          <div class="modal-header">
-            <h3>📍 {{ location }}</h3>
-            <button class="close-btn" @click="closeModal">&times;</button>
-          </div>
-
-          <div v-if="isLoading" class="modal-body">
-            <div class="popup-loading">
-              <div class="mini-spinner"></div>
-              <span>加載中...</span>
-            </div>
-          </div>
-
-          <div v-else-if="locationData && locationData.data && locationData.data.length > 0" class="modal-body">
-            <div class="info-section">
-              <div class="info-title">{{ locationData.data[0].語言 }}</div>
-
-              <div class="info-item">
-                <span class="info-label">地圖集二分區：</span>
-                <span class="info-value">{{ locationData.data[0].地圖集二分區 || '無' }}</span>
-              </div>
-
-              <div class="info-item">
-                <span class="info-label">音典分區：</span>
-                <span class="info-value">{{ locationData.data[0].音典分區 || '無' }}</span>
-              </div>
-
-              <div class="info-item">
-                <span class="info-label">字表來源：</span>
-                <span class="info-value">{{ locationData.data[0]['字表來源（母本）'] || '無' }}</span>
-              </div>
-
-              <div class="info-item">
-                <span class="info-label">經緯度：</span>
-                <span class="info-value">{{ formatCoordinates(locationData.data[0].經緯度) }}</span>
-              </div>
-
-              <div class="info-item">
-                <span class="info-label">行政區劃：</span>
-                <span class="info-value">{{ formatAdministrativeRegion(locationData.data[0]) }}</span>
-              </div>
-            </div>
-
-            <div class="tone-section" v-if="getToneData(locationData.data[0]).length > 0">
-              <div class="section-title">調值信息</div>
-              <table class="tone-mini-table">
-                <thead>
-                  <tr>
-                    <th>調類</th>
-                    <th>調值</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="(tone, index) in getToneData(locationData.data[0])" :key="index">
-                    <td>{{ tone.label }}</td>
-                    <td>{{ tone.value }}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <div v-else class="modal-body">
-            <div class="popup-no-data">暫無數據</div>
-          </div>
-
-          <div class="modal-footer">
-            <button class="modal-close-btn" @click="closeModal">關閉</button>
-          </div>
-        </div>
-      </div>
-    </Teleport>
+    <LocationDetailPopup
+      :visible="showModal"
+      :location-name="location"
+      :data="locationData"
+      :loading="isLoading"
+      @close="closeModal"
+    />
 
     <div class="matrix-wrapper">
       <table class="matrix-table">
         <thead>
         <tr>
-          <th class="corner-cell" style="white-space: nowrap">分類特徵</th>
+          <th class="corner-cell" style="white-space: nowrap">{{ t('result.phonologyTable.matrixFeature') }}</th>
           <th v-for="initial in initials" :key="initial" class="initial-header">
-            {{ initial || '零聲母' }}
+            {{ initial || t('result.phonologyTable.zeroInitial') }}
           </th>
         </tr>
         </thead>
         <tbody>
         <tr v-for="final in visibleFinals" :key="final">
-          <th class="final-header">{{ final || '零韻母' }}</th>
+          <th class="final-header">{{ final || t('result.phonologyTable.zeroFinal') }}</th>
           <td
               v-for="initial in initials"
               :key="`${initial}-${final}`"
@@ -124,7 +55,11 @@
 
 <script setup>
 import { ref, computed, onMounted, nextTick } from 'vue';
+import { useI18n } from 'vue-i18n';
+import LocationDetailPopup from '@/components/result/LocationDetailPopup.vue';
 import { sqlQuery } from '@/api/sql';
+
+const { t } = useI18n();
 
 const props = defineProps({
   location: {

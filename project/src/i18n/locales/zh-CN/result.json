@@ -1,0 +1,140 @@
+{
+  "terms": {
+    "none": "无",
+    "location": "地点",
+    "feature": "特征",
+    "features": {
+      "initial": "声母",
+      "final": "韵母",
+      "tone": "声调"
+    },
+    "fields": {
+      "she": "摄",
+      "rime": "韵",
+      "opening": "呼",
+      "grade": "等",
+      "entering": "入",
+      "toneCategory": "调",
+      "place": "部位",
+      "manner": "方式",
+      "voicing": "清浊",
+      "series": "系",
+      "group": "组",
+      "initialClass": "母"
+    }
+  },
+  "resultList": {
+    "emptyState": "请先查询",
+    "locationLabel": "地点",
+    "locationPlaceholder": "输入地点名称...",
+    "filter": {
+      "default": "筛选",
+      "selected": "已选：{values}",
+      "selectedWithMore": "已选：{values}…"
+    },
+    "displayMode": {
+      "full": "全显",
+      "main": "主体"
+    }
+  },
+  "valuePopup": {
+    "modes": {
+      "phonological": "音本位",
+      "character": "字本位",
+      "unknown": "未知模式"
+    },
+    "descriptions": {
+      "phonologicalInput": "以待查音节输入 {value}",
+      "characterInput": "以中古地位输入 {value}",
+      "allSyllables": "查询所有相关音节",
+      "groupByFeature": "按当前特征查看全部音节",
+      "unknown": "无法判定查询模式"
+    },
+    "buttons": {
+      "query": "查询{mode}"
+    }
+  },
+  "featurePopup": {
+    "queryLabel": "查询",
+    "queryHint": "{feature} +（点按下方按钮选择补充栏位）"
+  },
+  "dataRow": {
+    "countRatio": "字数/占比",
+    "buttons": {
+      "stats": "统计",
+      "details": "详情"
+    }
+  },
+  "locationDetailPopup": {
+    "title": "地点 {name}",
+    "loading": "加载中...",
+    "noData": "暂无数据",
+    "fields": {
+      "mapPartition": "地图集二分区：",
+      "yindianPartition": "音典分区：",
+      "source": "字表来源：",
+      "coordinates": "经纬度：",
+      "region": "行政区划："
+    },
+    "toneSection": {
+      "title": "调值信息",
+      "headers": {
+        "class": "调类",
+        "value": "调值"
+      }
+    }
+  },
+  "featureStatsPopup": {
+    "title": "{location} · {featureKey}-{featureVal} 统计",
+    "loading": "加载中...",
+    "noData": "暂无资料",
+    "statCount": "{count} 字 ({ratio}%)"
+  },
+  "panelManager": {
+    "loading": "查询中..."
+  },
+  "loading": "正在分析中...",
+  "longWaitWarning": "⚠️ 当前请求数据量较大，运算需时较长。<br>建议适当减少查询条件以提升速度。",
+  "noData": "暂无数据，请发起查询",
+  "goToQuery": "前往查询",
+  "pleaseQuery": "请先查询",
+  "tabs": {
+    "tab1": "查字",
+    "tab2": "查中古",
+    "tab3": "查音位",
+    "tab4": "查调"
+  },
+  "toneType": {
+    "default": "默认",
+    "value": "调值",
+    "category": "调类"
+  },
+  "charsAndTones": {
+    "tooltip": {
+      "conversionFailed": "可能转换失败：找不到对应资料"
+    },
+    "noCharData": "当前字表没有这个字",
+    "noToneValue": "无",
+    "toneHeaders": {
+      "location": "地点",
+      "yinPing": "阴平",
+      "yangPing": "阳平",
+      "yinShang": "阴上",
+      "yangShang": "阳上",
+      "yinQu": "阴去",
+      "yangQu": "阳去",
+      "yinRu": "阴入",
+      "yangRu": "阳入",
+      "otherTone": "其他调",
+      "neutralTone": "轻声"
+    }
+  },
+  "phonologyTable": {
+    "detailButton": "详情",
+    "loadingButton": "查询中...",
+    "queryFailed": "查询失败，请稍后再试",
+    "matrixFeature": "分类特征",
+    "zeroInitial": "零声母",
+    "zeroFinal": "零韵母"
+  }
+}

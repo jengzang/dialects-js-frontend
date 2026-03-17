@@ -1,0 +1,140 @@
+{
+  "terms": {
+    "none": "無",
+    "location": "地點",
+    "feature": "特徵",
+    "features": {
+      "initial": "聲母",
+      "final": "韻母",
+      "tone": "聲調"
+    },
+    "fields": {
+      "she": "攝",
+      "rime": "韻",
+      "opening": "呼",
+      "grade": "等",
+      "entering": "入",
+      "toneCategory": "調",
+      "place": "部位",
+      "manner": "方式",
+      "voicing": "清濁",
+      "series": "系",
+      "group": "組",
+      "initialClass": "母"
+    }
+  },
+  "resultList": {
+    "emptyState": "請先查詢",
+    "locationLabel": "地點",
+    "locationPlaceholder": "輸入地點名稱...",
+    "filter": {
+      "default": "篩選",
+      "selected": "已選：{values}",
+      "selectedWithMore": "已選：{values}…"
+    },
+    "displayMode": {
+      "full": "全顯",
+      "main": "主體"
+    }
+  },
+  "valuePopup": {
+    "modes": {
+      "phonological": "音本位",
+      "character": "字本位",
+      "unknown": "未知模式"
+    },
+    "descriptions": {
+      "phonologicalInput": "以待查音節輸入 {value}",
+      "characterInput": "以中古地位輸入 {value}",
+      "allSyllables": "查詢所有相關音節",
+      "groupByFeature": "按當前特徵查看全部音節",
+      "unknown": "無法判定查詢模式"
+    },
+    "buttons": {
+      "query": "查詢{mode}"
+    }
+  },
+  "featurePopup": {
+    "queryLabel": "查詢",
+    "queryHint": "{feature} +（點按下方按鈕選擇補充欄位）"
+  },
+  "dataRow": {
+    "countRatio": "字數/佔比",
+    "buttons": {
+      "stats": "統計",
+      "details": "詳情"
+    }
+  },
+  "locationDetailPopup": {
+    "title": "地點 {name}",
+    "loading": "載入中...",
+    "noData": "暫無數據",
+    "fields": {
+      "mapPartition": "地圖集二分區：",
+      "yindianPartition": "音典分區：",
+      "source": "字表來源：",
+      "coordinates": "經緯度：",
+      "region": "行政區劃："
+    },
+    "toneSection": {
+      "title": "調值信息",
+      "headers": {
+        "class": "調類",
+        "value": "調值"
+      }
+    }
+  },
+  "featureStatsPopup": {
+    "title": "{location} · {featureKey}-{featureVal} 統計",
+    "loading": "載入中...",
+    "noData": "暫無資料",
+    "statCount": "{count} 字 ({ratio}%)"
+  },
+  "panelManager": {
+    "loading": "查詢中..."
+  },
+  "loading": "正在分析中...",
+  "longWaitWarning": "⚠️ 當前請求數據量較大，運算需時較長。<br>建議適當減少查詢條件以提升速度。",
+  "noData": "暫無數據，請發起查詢",
+  "goToQuery": "前往查詢",
+  "pleaseQuery": "請先查詢",
+  "tabs": {
+    "tab1": "查字",
+    "tab2": "查中古",
+    "tab3": "查音位",
+    "tab4": "查調"
+  },
+  "toneType": {
+    "default": "默認",
+    "value": "調值",
+    "category": "調類"
+  },
+  "charsAndTones": {
+    "tooltip": {
+      "conversionFailed": "可能轉換失敗：找不到對應資料"
+    },
+    "noCharData": "當前字表沒有這個字",
+    "noToneValue": "無",
+    "toneHeaders": {
+      "location": "地點",
+      "yinPing": "陰平",
+      "yangPing": "陽平",
+      "yinShang": "陰上",
+      "yangShang": "陽上",
+      "yinQu": "陰去",
+      "yangQu": "陽去",
+      "yinRu": "陰入",
+      "yangRu": "陽入",
+      "otherTone": "其他調",
+      "neutralTone": "輕聲"
+    }
+  },
+  "phonologyTable": {
+    "detailButton": "詳情",
+    "loadingButton": "查詢中...",
+    "queryFailed": "查詢失敗，請稍後再試",
+    "matrixFeature": "分類特徵",
+    "zeroInitial": "零聲母",
+    "zeroFinal": "零韻母"
+  }
+}

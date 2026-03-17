@@ -1,23 +1,23 @@
 <template>
   <Teleport to="body">
     <div
-        v-if="visible"
-        class="popup-vue popup-animated"
-        :style="{ position: 'fixed', top: `${position.top}px`, left: `${position.left}px`, zIndex: 999999 }"
-        @click.stop
+      v-if="visible"
+      class="popup-vue popup-animated"
+      :style="{ position: 'fixed', top: `${position.top}px`, left: `${position.left}px`, zIndex: 999999 }"
+      @click.stop
     >
       <div class="popup-content">
-        <p>📍 地點: {{ data.location }}</p>
-        <p>🧩 特征: {{ checkedFeatures }}</p>
-        <p>🔍 查詢: {{ data.feature }} + (單擊按鈕選擇)</p>
+        <p>{{ t('result.terms.location') }}: {{ data.location }}</p>
+        <p>{{ t('result.terms.feature') }}: {{ checkedFeatures }}</p>
+        <p>{{ t('result.featurePopup.queryLabel') }}: {{ t('result.featurePopup.queryHint', { feature: data.feature || '' }) }}</p>
 
         <template v-for="field in unmatchedFields" :key="field">
           <button
-              class="mini-button"
-              style="font-size: 16px; margin: 0 2px;"
-              @click="handleFieldClick(field)"
+            class="mini-button"
+            style="font-size: 16px; margin: 0 2px;"
+            @click="handleFieldClick(field)"
           >
-            {{ field }}
+            {{ translateResultTerm(t, field) }}
           </button>
         </template>
       </div>
@@ -27,19 +27,24 @@
 
 <script setup>
 import { computed, onMounted, onUnmounted } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { parseFeatureString } from '@/utils/ResultTable.js';
-import { resultCache } from '@/store/store.js'
+import { resultCache } from '@/store/store.js';
+import { translateResultTerm, translateResultTerms } from '@/utils/resultI18n.js';
 
-const props = defineProps(['visible', 'data', 'position']);
-const emit = defineEmits(['close', 'confirm']);
-
-const checkedFeatures = computed(() => {
-  const features = resultCache.features || [];
-  return features.length > 0 ? features.join('·') : '（無）';
+const props = defineProps({
+  visible: { type: Boolean, default: false },
+  data: { type: Object, default: () => ({}) },
+  position: { type: Object, default: () => ({ top: 0, left: 0 }) }
 });
 
+const emit = defineEmits(['close', 'confirm']);
+const { t } = useI18n();
+
+const checkedFeatures = computed(() => translateResultTerms(t, resultCache.features));
+
 const unmatchedFields = computed(() => {
-  return parseFeatureString(props.data.feature).unmatched_fields || [];
+  return parseFeatureString(props.data?.feature || '').unmatched_fields || [];
 });
 
 const handleFieldClick = (field) => {
@@ -52,6 +57,7 @@ const handleGlobalClick = (e) => {
     emit('close');
   }
 };
+
 onMounted(() => document.addEventListener('click', handleGlobalClick));
 onUnmounted(() => document.removeEventListener('click', handleGlobalClick));
 </script>

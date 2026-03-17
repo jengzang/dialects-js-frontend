@@ -36,7 +36,7 @@
           <span v-else>{{ statsButtonText }}</span>
         </button>
 
-        <p>字數/佔比: {{ item.字數 }} ║ {{ (item.佔比 * 100).toFixed(1) }}%</p>
+        <p>{{ t('result.dataRow.countRatio') }}: {{ item['\u5b57\u6578'] }} | {{ (item['\u4f54\u6bd4'] * 100).toFixed(1) }}%</p>
       </div>
 
       <!-- 簡要統計：在容器外面 -->
@@ -92,12 +92,14 @@
 
 <script setup>
 import { computed, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { getCorrespondingCharacters } from '@/utils/ResultTable.js';
 import { sqlQuery } from '@/api/sql';
 import { getFeatureStats } from '@/api';
 import { globalPayload } from '@/store/store.js';
 import LocationDetailPopup from './LocationDetailPopup.vue';
 import FeatureStatsPopup from './FeatureStatsPopup.vue';
+import { translateResultTerm } from '@/utils/resultI18n.js';
 
 const props = defineProps({
   item: { type: Object, required: true },
@@ -106,6 +108,7 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['trigger-popup']);
+const { t } = useI18n();
 
 const featureKey = computed(() => Object.keys(props.item.分組值 || {})[0]);
 const featureVal = computed(() => (props.item.分組值 || {})[featureKey.value]);
@@ -197,17 +200,10 @@ const featureStatsPopup = ref({
 // 計算按鈕文字
 const statsButtonText = computed(() => {
   if (featureStatsPopup.value.fetched) {
-    return '詳情';
+    return t('result.dataRow.buttons.details');
   }
 
-  // 從 globalPayload 獲取當前查詢的特徵
-  const currentFeatures = globalPayload.value?.features || [];
-
-  // 判斷當前查詢的是哪個特徵
-  if (currentFeatures.includes('韻母')) return '聲/調';
-  if (currentFeatures.includes('聲調')) return '聲/韻';
-  if (currentFeatures.includes('聲母')) return '韻/調';
-  return '詳情';
+  return t('result.dataRow.buttons.stats');
 });
 
 // 計算要查詢的特徵列表（排除當前特徵）
@@ -246,7 +242,7 @@ const briefStats = computed(() => {
         .map(([value]) => value);
 
       if (sorted.length > 0) {
-        parts.push(`${featureName}: ${sorted.join(', ')}`);
+        parts.push(`${translateResultTerm(t, featureName)}: ${sorted.join(', ')}`);
       }
     }
   });

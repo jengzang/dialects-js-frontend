@@ -10,7 +10,7 @@
         }"
     >
       <div v-if="!hasData" class="empty-tip" style="padding: 20px; text-align: center; color: #666;">
-        請先查詢
+        {{ t('result.resultList.emptyState') }}
       </div>
 
       <div v-else class="result-panel-vue" :style="{ height: panelHeight }">
@@ -34,7 +34,7 @@
           @click="startEditingLocation"
           style="cursor: pointer;"
         >
-          📍 {{ currentStickyLocation }}
+          {{ t('result.resultList.locationLabel') }} {{ currentStickyLocation }}
         </span>
 
         <!-- Edit mode -->
@@ -46,7 +46,7 @@
           @keyup.enter="submitLocationEdit"
           @keyup.esc="cancelLocationEdit"
           class="location-edit-input"
-          placeholder="輸入地點名稱..."
+          :placeholder="t('result.resultList.locationPlaceholder')"
         />
 
         <div class="stickybar-filter-wrapper" ref="filterWrapperRef">
@@ -69,7 +69,7 @@
           <div class="custom-switch" :class="{ open: !isCondensedMode }">
             <div class="custom-slider"></div>
           </div>
-          <span class="switch-text">{{ !isCondensedMode ? '全顯' : '主體' }}</span>
+          <span class="switch-text">{{ !isCondensedMode ? t('result.resultList.displayMode.full') : t('result.resultList.displayMode.main') }}</span>
         </div>
       </div>
     </div>
@@ -94,6 +94,7 @@
 
 <script setup>
 import { ref, computed, watch, onMounted, nextTick, onUnmounted } from 'vue';
+import { useI18n } from 'vue-i18n';
 import DataRow from './DataRow.vue';
 import { parseFeatureString,get_detail } from '@/utils/ResultTable.js';
 import ValuePopup from "./ValuePopup.vue";
@@ -103,6 +104,8 @@ const props = defineProps({
   data: { type: Array, default: () => [] },
   isCondensed: { type: Boolean, default: false }
 });
+
+const { t } = useI18n();
 
 // === 核心数据 (保持不变) ===
 const tableData = ref([]);
@@ -169,9 +172,11 @@ const sortedData = computed(() => {
 });
 const displayedData = computed(() => sortedData.value.slice(0, visibleRows.value));
 const filterTriggerText = computed(() => {
-  if (selectedValues.value.length === 0) return '🎯 篩選';
+  if (selectedValues.value.length === 0) return t('result.resultList.filter.default');
   const recent = selectedValues.value.slice(-3);
-  return `🎯 已選：${recent.join('|')}${selectedValues.value.length > 3 ? '…' : ''}`;
+  return selectedValues.value.length > 3
+    ? t('result.resultList.filter.selectedWithMore', { values: recent.join('|') })
+    : t('result.resultList.filter.selected', { values: recent.join('|') });
 });
 const shouldShowLocation = (item, index) => {
   if (index === 0) return true;

@@ -1,0 +1,140 @@
+{
+  "terms": {
+    "none": "None",
+    "location": "Location",
+    "feature": "Feature",
+    "features": {
+      "initial": "Initial",
+      "final": "Final",
+      "tone": "Tone"
+    },
+    "fields": {
+      "she": "Rhyme Group",
+      "rime": "Rime",
+      "opening": "Opening",
+      "grade": "Grade",
+      "entering": "Entering",
+      "toneCategory": "Tone Category",
+      "place": "Place",
+      "manner": "Manner",
+      "voicing": "Voicing",
+      "series": "Series",
+      "group": "Group",
+      "initialClass": "Initial Class"
+    }
+  },
+  "resultList": {
+    "emptyState": "Please run a query first",
+    "locationLabel": "Location",
+    "locationPlaceholder": "Enter a location name...",
+    "filter": {
+      "default": "Filter",
+      "selected": "Selected: {values}",
+      "selectedWithMore": "Selected: {values}…"
+    },
+    "displayMode": {
+      "full": "Full",
+      "main": "Main"
+    }
+  },
+  "valuePopup": {
+    "modes": {
+      "phonological": "Phonological View",
+      "character": "Character View",
+      "unknown": "Unknown Mode"
+    },
+    "descriptions": {
+      "phonologicalInput": "Use {value} as the syllable input",
+      "characterInput": "Use {value} as the Middle Chinese input",
+      "allSyllables": "Query all related syllables",
+      "groupByFeature": "View all syllables grouped by the current feature",
+      "unknown": "Unable to determine the query mode"
+    },
+    "buttons": {
+      "query": "Query {mode}"
+    }
+  },
+  "featurePopup": {
+    "queryLabel": "Query",
+    "queryHint": "{feature} + (tap a button below to add an extra field)"
+  },
+  "dataRow": {
+    "countRatio": "Count/Ratio",
+    "buttons": {
+      "stats": "Stats",
+      "details": "Details"
+    }
+  },
+  "locationDetailPopup": {
+    "title": "Location {name}",
+    "loading": "Loading...",
+    "noData": "No data",
+    "fields": {
+      "mapPartition": "Map partition:",
+      "yindianPartition": "Yindian partition:",
+      "source": "Source table:",
+      "coordinates": "Coordinates:",
+      "region": "Administrative region:"
+    },
+    "toneSection": {
+      "title": "Tone Values",
+      "headers": {
+        "class": "Tone Class",
+        "value": "Tone Value"
+      }
+    }
+  },
+  "featureStatsPopup": {
+    "title": "{location} · {featureKey}-{featureVal} Statistics",
+    "loading": "Loading...",
+    "noData": "No data",
+    "statCount": "{count} chars ({ratio}%)"
+  },
+  "panelManager": {
+    "loading": "Querying..."
+  },
+  "loading": "Analyzing...",
+  "longWaitWarning": "⚠️ The current request involves a large dataset and may take longer.<br>Consider reducing query conditions to improve speed.",
+  "noData": "No data available, please start a query",
+  "goToQuery": "Go to Query",
+  "pleaseQuery": "Please query first",
+  "tabs": {
+    "tab1": "Search Characters",
+    "tab2": "Search Middle Chinese",
+    "tab3": "Search Phonemes",
+    "tab4": "Search Tones"
+  },
+  "toneType": {
+    "default": "Default",
+    "value": "Tone Value",
+    "category": "Tone Category"
+  },
+  "charsAndTones": {
+    "tooltip": {
+      "conversionFailed": "Possible mismatch: no matching data found"
+    },
+    "noCharData": "This character is not available in the current character list",
+    "noToneValue": "None",
+    "toneHeaders": {
+      "location": "Location",
+      "yinPing": "Yin Ping",
+      "yangPing": "Yang Ping",
+      "yinShang": "Yin Shang",
+      "yangShang": "Yang Shang",
+      "yinQu": "Yin Qu",
+      "yangQu": "Yang Qu",
+      "yinRu": "Yin Ru",
+      "yangRu": "Yang Ru",
+      "otherTone": "Other Tone",
+      "neutralTone": "Neutral Tone"
+    }
+  },
+  "phonologyTable": {
+    "detailButton": "Details",
+    "loadingButton": "Querying...",
+    "queryFailed": "Query failed, please try again later",
+    "matrixFeature": "Feature Class",
+    "zeroInitial": "Zero Initial",
+    "zeroFinal": "Zero Final"
+  }
+}

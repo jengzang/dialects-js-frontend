@@ -17,6 +17,7 @@ import home from './home.json'
 import tools from './tools.json'
 import words from './words.json'
 import villages from './villages.json'
+import result from './result.json'
 
 export default {
   common,
@@ -34,5 +35,6 @@ export default {
   home,
   tools,
   words,
-  villages
+  villages,
+  result
 }

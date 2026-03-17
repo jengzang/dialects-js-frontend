@@ -6,7 +6,7 @@
         <input
             v-model="searchText"
             @input="handleSearch"
-            placeholder="搜索..."
+            :placeholder="t('tableTree.universalTable.toolbar.searchPlaceholder')"
             class="search-input"
         />
       </div>
@@ -15,7 +15,7 @@
           <span class="icon">📤</span><span class="btn-text">Excel</span>
         </button>
         <button class="glass-btn primary" @click="openAddModal">
-          <span class="icon">＋</span> <span class="btn-text">新增</span>
+          <span class="icon">＋</span> <span class="btn-text">{{ t('tableTree.universalTable.toolbar.add') }}</span>
         </button>
         <button
           class="glass-btn"
@@ -24,16 +24,16 @@
           @click="toggleEditMode"
         >
           <span class="icon">{{ isEditMode ? '✕' : '✎' }}</span>
-          <span class="btn-text">{{ isEditMode ? '取消' : '編輯' }}</span>
+          <span class="btn-text">{{ isEditMode ? t('common.button.cancel') : t('common.button.edit') }}</span>
         </button>
         <button
           v-if="isEditMode"
           class="glass-btn secondary"
           @click="openBatchReplaceModal"
-          title="批量查找替換"
+          :title="t('tableTree.universalTable.toolbar.batchReplace')"
         >
           <span class="icon">🔄</span>
-          <span class="btn-text">批量替換</span>
+          <span class="btn-text">{{ t('tableTree.universalTable.toolbar.batchReplace') }}</span>
         </button>
         <button
           v-if="isEditMode"
@@ -42,7 +42,7 @@
           :disabled="Object.keys(changedCells).length === 0"
         >
           <span class="icon">✓</span>
-          <span class="btn-text">提交 ({{ Object.keys(changedCells).length }})</span>
+          <span class="btn-text">{{ t('tableTree.universalTable.toolbar.submitWithCount', { count: changedRowCount }) }}</span>
         </button>
       </div>
     </div>
@@ -50,11 +50,11 @@
     <div class="table-scroll-area">
       <div v-if="isLoading" class="loading-overlay">
         <div class="spinner"></div>
-        <span>數據加載中...</span>
+        <span>{{ t('tableTree.universalTable.states.loadingData') }}</span>
       </div>
 
       <div v-else-if="tableData.length === 0" class="empty-state">
-        <span>📭 暫無數據</span>
+        <span>📭 {{ t('tableTree.universalTable.states.noData') }}</span>
       </div>
       <table>
         <colgroup>
@@ -85,7 +85,7 @@
               </div>
             </div>
           </th>
-          <th v-if="userStore.role === 'admin'" class="action-th">操作</th>
+          <th v-if="userStore.role === 'admin'" class="action-th">{{ t('tableTree.universalTable.toolbar.action') }}</th>
         </tr>
         </thead>
 
@@ -102,7 +102,7 @@
             {{ row[col.key] }}
           </td>
           <td v-if="userStore.role === 'admin'" class="action-td">
-            <button class="icon-action-btn delete" @click="handleDelete(row)">✕</button>
+            <button class="icon-action-btn delete" :title="t('common.button.delete')" @click="handleDelete(row)">✕</button>
           </td>
         </tr>
         </tbody>
@@ -131,7 +131,7 @@
       </div>
       <button class="page-btn" @click="changePage(1)" :disabled="currentPage >= totalPages">→</button>
       <button class="fullscreen-toggle-btn" @click="toggleFullscreen">
-        {{ isFullscreen ? '退出' : '⛶ 全屏' }}
+        {{ isFullscreen ? t('tableTree.universalTable.toolbar.exit') : `⛶ ${t('tableTree.universalTable.toolbar.fullscreen')}` }}
       </button>
     </div>
 
@@ -143,11 +143,11 @@
             <div class="table-scroll-area fullscreen-table">
               <div v-if="isLoading" class="loading-overlay">
                 <div class="spinner"></div>
-                <span>數據加載中...</span>
+                <span>{{ t('tableTree.universalTable.states.loadingData') }}</span>
               </div>
 
               <div v-else-if="tableData.length === 0" class="empty-state">
-                <span>📭 暫無數據</span>
+                <span>📭 {{ t('tableTree.universalTable.states.noData') }}</span>
               </div>
               <table>
                 <colgroup>
@@ -178,7 +178,7 @@
                       </div>
                     </div>
                   </th>
-                  <th v-if="userStore.role === 'admin'" class="action-th">操作</th>
+                  <th v-if="userStore.role === 'admin'" class="action-th">{{ t('tableTree.universalTable.toolbar.action') }}</th>
                 </tr>
                 </thead>
 
@@ -195,7 +195,7 @@
                     {{ row[col.key] }}
                   </td>
                   <td v-if="userStore.role === 'admin'" class="action-td">
-                    <button class="icon-action-btn delete" @click="handleDelete(row)">✕</button>
+                    <button class="icon-action-btn delete" :title="t('common.button.delete')" @click="handleDelete(row)">✕</button>
                   </td>
                 </tr>
                 </tbody>
@@ -224,7 +224,7 @@
               </div>
               <button class="page-btn" @click="changePage(1)" :disabled="currentPage >= totalPages">→</button>
               <button class="fullscreen-toggle-btn exit-btn" @click="toggleFullscreen">
-                退出全屏
+                {{ t('tableTree.universalTable.toolbar.exitFullscreen') }}
               </button>
             </div>
           </div>

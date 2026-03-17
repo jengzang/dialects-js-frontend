@@ -21,7 +21,7 @@
                 <span
                   class="pronunciation"
                   :class="{ 'conversion-failed': isConversionFailed(syl, item.location) }"
-                  :title="isConversionFailed(syl, item.location) ? '可能有誤：未匹配到對應數據' : ''"
+                  :title="isConversionFailed(syl, item.location) ? t('result.charsAndTones.tooltip.conversionFailed') : ''"
                 >
                   {{ getDisplaySyllable(syl, item.location) }}
                 </span>
@@ -35,7 +35,7 @@
         </div>
 
         <div v-else-if="shouldShowChar(index) && !hasAnyDataForChar(index)" class="no-data-warning">
-          當前字表暫無該字
+          {{ t('result.charsAndTones.noCharData') }}
         </div>
       </template>
     </div>
@@ -77,6 +77,7 @@
 
 <script setup>
 import { computed, ref, onMounted, onUnmounted } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 const props = defineProps({
   data: {
@@ -98,6 +99,8 @@ const props = defineProps({
     default: '默認'
   }
 });
+
+const { t } = useI18n();
 
 // ================= 通用數據處理 =================
 const processedData = computed(() => {
@@ -241,7 +244,21 @@ const isConversionFailed = (syllable, location) => {
 // 舊的 getNotesTitle 和 hasNotes 函數已刪除，因為不再需要 tooltip
 
 // ================= TAB 4: 查調邏輯 =================
-const toneHeaders = ['地點', '陰平', '陽平', '陰上', '陽上', '陰去', '陽去', '陰入', '陽入', '其他調', '輕聲'];
+const toneHeaders = computed(() => [
+  t('result.charsAndTones.toneHeaders.location'),
+  t('result.charsAndTones.toneHeaders.yinPing'),
+  t('result.charsAndTones.toneHeaders.yangPing'),
+  t('result.charsAndTones.toneHeaders.yinShang'),
+  t('result.charsAndTones.toneHeaders.yangShang'),
+  t('result.charsAndTones.toneHeaders.yinQu'),
+  t('result.charsAndTones.toneHeaders.yangQu'),
+  t('result.charsAndTones.toneHeaders.yinRu'),
+  t('result.charsAndTones.toneHeaders.yangRu'),
+  t('result.charsAndTones.toneHeaders.otherTone'),
+  t('result.charsAndTones.toneHeaders.neutralTone')
+]);
+
+const noToneValue = computed(() => t('result.charsAndTones.noToneValue'));
 
 const colorArray = [
   { name: "Orange", hex: "#f58231" },
@@ -263,13 +280,13 @@ const getToneValues = (tones) => {
   const keys = ['T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8', 'T9', 'T10'];
   return keys.map(k => {
     const found = tones.find(t => Object.keys(t)[0] === k);
-    return found ? found[k] : '無';
+    return found ? found[k] : noToneValue.value;
   });
 };
 
 // 獲取單元格樣式 (背景色、斜線等)
 const getToneStyle = (val, colIndex) => {
-  if (!val || val === "無") {
+  if (!val || val === noToneValue.value) {
     return {
       backgroundColor: 'transparent',
       border: '1px solid #000',
@@ -305,7 +322,7 @@ const getToneStyle = (val, colIndex) => {
 
 // 格式化文字 (去除 ` 符號)
 const formatToneText = (val) => {
-  if (!val || val === "無") return "";
+  if (!val || val === noToneValue.value) return '';
   if (val.startsWith("`")) return val.replace(/`/g, '');
   return val;
 };
