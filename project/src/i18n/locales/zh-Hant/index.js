@@ -19,6 +19,7 @@ import words from './words.json'
 import villages from './villages.json'
 import result from './result.json'
 import tableTree from './tableTree.json'
+import user from './user.json'
 
 export default {
   common,
@@ -38,5 +39,6 @@ export default {
   words,
   villages,
   result,
-  tableTree
+  tableTree,
+  user
 }

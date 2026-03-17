@@ -1,0 +1,311 @@
+{
+  "benefitsPopup": {
+    "title": "Member Feature Comparison",
+    "comparisonTitle": "Features and Quota Comparison",
+    "table": {
+      "feature": "Feature",
+      "visitor": "Guest",
+      "member": "Member"
+    },
+    "notice": "Members get higher query quotas, more tools, and personal-data features. VillagesML-related capabilities remain out of scope for this localization pass.",
+    "coreFeaturesTitle": "Core Member Features",
+    "ctaButton": "Sign in or register to unlock full access",
+    "ctaHint": "After registration, member quotas and personalized features are available immediately.",
+    "format": {
+      "limitWithUnit": "{value} {unit}",
+      "upgradePercent": "+{value}%"
+    },
+    "units": {
+      "location": "locations",
+      "group": "groups",
+      "second": "seconds / hour",
+      "mb": "MB"
+    },
+    "status": {
+      "unlimited": "Unlimited",
+      "userOnly": "Members only",
+      "open": "Available",
+      "partial": "Partially available",
+      "full": "Fully available"
+    },
+    "items": {
+      "queryChars": "Character lookup",
+      "queryMiddleChinese": "Middle Chinese lookup",
+      "queryPhoneme": "Phoneme lookup",
+      "queryTone": "Tone lookup",
+      "customRegions": "Custom regions",
+      "locationCombination": "Location combinations",
+      "compareChars": "Character comparison",
+      "compareMiddleChinese": "Middle Chinese comparison",
+      "compareToneCategory": "Tone-category comparison",
+      "regionalMap": "Regional map",
+      "phonologyQuery": "Phonology query",
+      "phonemeClassification": "Phoneme classification",
+      "syllableStats": "Syllable statistics",
+      "customData": "Custom data",
+      "praatAnalysis": "Acoustic analysis",
+      "charListCheck": "Character-list check",
+      "jyutpingToIPA": "Jyutping to IPA",
+      "mergeCharList": "Merge character lists",
+      "corpusQuery": "Corpus query",
+      "guangdongVillages": "Guangdong villages",
+      "machineLearning": "Machine learning",
+      "hourlyApiUsage": "Hourly API quota",
+      "maxJsonResponse": "Max JSON response"
+    },
+    "coreFeatures": {
+      "phonologyQuery": "Phonology queries",
+      "geoVisualization": "Geographic visualization",
+      "phonologyAnalysis": "Phonology analysis",
+      "charTableTools": "Character-table tools",
+      "acousticAnalysis": "Acoustic analysis",
+      "guangdongVillages": "Guangdong villages",
+      "customData": "Custom data",
+      "dataExport": "Data export"
+    }
+  },
+  "regionPage": {
+    "title": "Personal Region Management",
+    "usernameFallback": "User",
+    "searchPlaceholder": "Search region names...",
+    "stats": {
+      "regionCount": "Total regions",
+      "locationCount": "Total locations"
+    },
+    "actions": {
+      "create": "New region",
+      "refresh": "Refresh"
+    },
+    "empty": {
+      "noMatch": "No matching regions found",
+      "noRegions": "No regions have been created yet",
+      "createFirst": "Create your first region"
+    },
+    "modal": {
+      "createTitle": "Create Region",
+      "editTitle": "Edit Region"
+    },
+    "form": {
+      "nameLabel": "Region name *",
+      "namePlaceholder": "Example: Pearl River Delta Cantonese",
+      "nameLockedHint": "Note: region names cannot be changed",
+      "descriptionLabel": "Description (optional)",
+      "descriptionPlaceholder": "Briefly describe what this region is for...",
+      "locationsLabel": "Locations *",
+      "selectLocationsButton": "Select locations",
+      "selectLocationsTitle": "Select locations from the region tree",
+      "locationInputPlaceholder": "Enter location names separated by spaces\nExample: Guangzhou Hong Kong Shenzhen Macao\nOr click the button to select from the tree",
+      "locationHint": "Separate locations with spaces. The system will deduplicate them automatically. You can also select from the region tree.",
+      "manualCount": "Manual input: {count}",
+      "treeCount": "Matched in tree: {count}"
+    },
+    "format": {
+      "locationCount": "{count} locations",
+      "createdAt": "Created on {date}"
+    },
+    "messages": {
+      "loadSuccessCount": "Loaded successfully: {count} regions",
+      "noRegionsWarning": "Please add a custom region",
+      "loadFailed": "Failed to load regions: {message}",
+      "partitionDataFailed": "Failed to fetch partition data. Please try again later.",
+      "createSuccess": "Created successfully",
+      "updateSuccess": "Updated successfully",
+      "saveFailed": "Failed to save: {message}",
+      "duplicateConfirmTitle": "Duplicate region name",
+      "duplicateConfirmMessage": "A region named \"{name}\" already exists. Overwrite it?",
+      "duplicateConfirmAction": "Overwrite",
+      "deleteConfirmTitle": "Delete confirmation",
+      "deleteConfirmMessage": "Are you sure you want to delete the region \"{name}\"? This cannot be undone.",
+      "deleteSuccess": "Deleted successfully",
+      "deleteFailed": "Failed to delete: {message}"
+    }
+  },
+  "dataPage": {
+    "title": "Personal Data Management",
+    "usernameFallback": "User",
+    "searchPlaceholder": "Search by short name, region, feature, value...",
+    "stats": {
+      "totalRows": "Total: {count} rows",
+      "selectedRows": "Selected: {count} rows"
+    },
+    "toolbar": {
+      "batchAdd": "Batch add",
+      "batchEdit": "Batch edit",
+      "batchDelete": "Batch delete",
+      "refresh": "Refresh"
+    },
+    "table": {
+      "shortName": "Short name",
+      "region": "Region",
+      "coordinates": "Coordinates",
+      "phonology": "Initial-Final-Tone",
+      "feature": "Feature",
+      "value": "Value",
+      "note": "Note",
+      "createdAt": "Created at",
+      "actions": "Actions",
+      "shortNameRequired": "Short name *",
+      "regionRequired": "Region *",
+      "coordinatesRequired": "Coordinates *",
+      "featureRequired": "Feature *",
+      "valueRequired": "Value *"
+    },
+    "empty": {
+      "noMatch": "No matching records found"
+    },
+    "pagination": {
+      "showing": "Showing {start}-{end} of {total}",
+      "first": "First",
+      "previous": "Previous",
+      "next": "Next",
+      "last": "Last",
+      "pageSizeLabel": "Rows per page:",
+      "pageSizeOption": "{count} rows"
+    },
+    "batchEdit": {
+      "title": "Batch Edit ({count} rows)",
+      "hint": "Tip: the original records will be deleted first, then the edited records will be created.",
+      "save": "Save changes ({count} valid)"
+    },
+    "batchCreate": {
+      "title": "Batch Add Data",
+      "hint": "Tip: you can paste directly from Excel. Maximum 50 rows per submission.",
+      "addRow": "Add row",
+      "clear": "Clear",
+      "currentRows": "Current: {count} rows",
+      "submit": "Submit ({count} valid)"
+    },
+    "singleEdit": {
+      "title": "Edit Record"
+    },
+    "form": {
+      "shortName": "Short name",
+      "regionPlaceholder": "Region (set)",
+      "coordinatesPlaceholder": "23.13,113.26",
+      "phonologyPlaceholder": "Initial / final / tone",
+      "featurePlaceholder": "Shan she",
+      "valuePlaceholder": "an",
+      "notePlaceholder": "Note"
+    },
+    "messages": {
+      "fetchSuccess": "Data loaded successfully",
+      "noDataWarning": "No data is available for the current user. Please add some first.",
+      "fetchFailed": "Failed to load data: {message}",
+      "updateSuccess": "Updated successfully",
+      "updateFailed": "Failed to update: {message}",
+      "clearRowsTitle": "Clear rows",
+      "clearRowsConfirm": "Are you sure you want to clear all rows?",
+      "pastedRows": "Pasted {count} rows",
+      "invalidBatchData": "Please enter valid data. Required fields: short name, region, coordinates, feature, and value.",
+      "maxBatchLimit": "You can submit at most 50 rows at a time.",
+      "batchCreateSuccess": "Batch created successfully: {count} rows",
+      "batchCreateFailed": "Batch create failed: {message}",
+      "selectForEdit": "Please select records to edit first",
+      "batchEditTitle": "Confirm batch edit",
+      "batchEditConfirm": "Are you sure you want to update {count} records? The original records will be deleted and replaced.",
+      "batchEditSuccess": "Batch edit succeeded: {count} rows",
+      "batchEditFailed": "Batch edit failed: {message}",
+      "selectForDelete": "Please select records to delete first",
+      "batchDeleteTitle": "Confirm batch delete",
+      "batchDeleteConfirm": "Are you sure you want to delete {count} records?",
+      "deleteSuccess": "Deleted successfully",
+      "deleteFailed": "Failed to delete: {message}",
+      "authRequired": "Please sign in first"
+    }
+  },
+  "leaderboard": {
+    "title": "My Ranking Stats",
+    "loading": "Loading ranking data...",
+    "retry": "Retry",
+    "loadFailedToast": "Failed to load ranking data: {message}",
+    "errorDetail": "Failed to load ranking data: {message}",
+    "gapLabel": "Gap to previous",
+    "firstPlaceLabel": "First place",
+    "totalUsers": "{value} users are included in the ranking",
+    "columns": {
+      "category": "Category",
+      "metric": "Metric",
+      "rank": "Rank",
+      "count": "Count",
+      "gap": "Gap",
+      "firstPlace": "First place"
+    },
+    "rank": {
+      "first": "🥇 Rank 1",
+      "second": "🥈 Rank 2",
+      "third": "🥉 Rank 3",
+      "default": "Rank {rank}"
+    },
+    "format": {
+      "count": "{value} times",
+      "hoursMinutes": "{hours}h {minutes}m",
+      "minutesSeconds": "{minutes}m {seconds}s",
+      "noGap": "—"
+    },
+    "topMetrics": {
+      "onlineTime": {
+        "label": "Online time"
+      },
+      "totalQueries": {
+        "label": "Total queries",
+        "tooltip": "This differs from the total shown in personal info and also includes language-preservation queries and various table queries."
+      }
+    },
+    "categories": {
+      "summary": "{label} (Total)",
+      "phonology": {
+        "label": "Phonology queries",
+        "items": {
+          "zhonggu": "Middle Chinese",
+          "yinwei": "Phonemes",
+          "diwei": "Statuses",
+          "combination": "Status combos",
+          "syllable": "Syllables",
+          "compareZhonggu": "Compare Middle Chinese"
+        },
+        "tooltips": {
+          "diwei": "Includes detailed popup queries and related requests from the legacy site."
+        }
+      },
+      "charsTones": {
+        "label": "Character and tone queries",
+        "items": {
+          "chars": "Characters",
+          "tones": "Tones",
+          "compareChars": "Compare characters",
+          "compareTones": "Compare tone classes"
+        }
+      },
+      "analysis": {
+        "label": "Phonology analysis",
+        "items": {
+          "matrix": "Phonology matrix",
+          "classification": "Phoneme classes",
+          "counts": "Syllable stats"
+        }
+      },
+      "tools": {
+        "label": "Tool usage",
+        "items": {
+          "check": "Character-list check",
+          "jyut2ipa": "Jyutping conversion",
+          "merge": "Merge character lists",
+          "praat": "Acoustic analysis"
+        }
+      },
+      "other": {
+        "label": "Other queries",
+        "items": {
+          "coordinates": "Coordinate lookup",
+          "table": "Table lookup",
+          "tree": "Tree lookup"
+        },
+        "tooltips": {
+          "coordinates": "Used to fetch map coordinates for Middle Chinese, phoneme, character, tone, partition-map, and custom-map queries.",
+          "table": "Includes table-based queries such as language-preservation vocabulary and grammar, sources, Guangdong village tables, and Yangchun spoken-word lists.",
+          "tree": "Includes tree-based queries such as Guangdong natural-village trees and Middle Chinese status trees."
+        }
+      }
+    }
+  }
+}

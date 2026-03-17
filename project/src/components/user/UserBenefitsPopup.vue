@@ -3,69 +3,72 @@
     <Transition name="popup-fade">
       <div v-if="visible" class="benefits-popup-overlay" @click.self="closePopup">
         <div class="benefits-popup popup-animated">
-          <!-- Fixed Header -->
           <div class="popup-header">
-            <h3>✨ 登錄解鎖更多功能</h3>
-            <button class="popup-close-btn" @click="closePopup">✕</button>
+            <h3>{{ t('user.benefitsPopup.title') }}</h3>
+            <button
+              class="popup-close-btn"
+              :aria-label="t('common.button.close')"
+              @click="closePopup"
+            >
+              ×
+            </button>
           </div>
 
-          <!-- Scrollable Content -->
           <div class="popup-content">
-            <!-- Comparison Table -->
             <div class="benefits-section">
-            <h4 class="section-title">🎯 權限對比</h4>
-            <div class="comparison-table-wrapper">
-              <table class="comparison-table">
-                <thead>
-                  <tr>
-                    <th>功能</th>
-                    <th class="visitor-col">🚶 遊客</th>
-                    <th class="member-col">👑 用戶</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="item in comparisonData" :key="item.feature" class="table-row">
-                    <td class="feature-name">{{ item.feature }}</td>
-                    <td class="visitor-cell" :class="getCellClass('anonymous', item)">
-                      {{ formatLimit(item.anonymous, item.unit) }}
-                    </td>
-                    <td class="member-cell" :class="getCellClass('user', item)">
-                      <span class="member-value">{{ formatLimit(item.user, item.unit) }}</span>
-                      <span v-if="item.user !== Infinity && item.user > item.anonymous" class="upgrade-badge">
-                        ↑ {{ Math.round((item.user / item.anonymous - 1) * 100) }}%
-                      </span>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <!-- 说明文案 -->
-          <div class="benefits-notice">
-            <p>💡 登錄解鎖更多權益！為保證流暢體驗，目前多地點併發查詢及進階分析功能僅對登錄用戶開放🚀
-              （訪客仍可無限次使用基礎查詢功能）</p>
-          </div>
-
-          <!-- Core Features -->
-          <div class="benefits-section">
-            <h4 class="section-title">🌟 核心功能</h4>
-            <div class="features-grid">
-              <div v-for="feature in coreFeatures" :key="feature.name" class="feature-item">
-                <span class="feature-icon">{{ feature.icon }}</span>
-                <span class="feature-text">{{ feature.name }}</span>
+              <h4 class="section-title">{{ t('user.benefitsPopup.comparisonTitle') }}</h4>
+              <div class="comparison-table-wrapper">
+                <table class="comparison-table">
+                  <thead>
+                    <tr>
+                      <th>{{ t('user.benefitsPopup.table.feature') }}</th>
+                      <th class="visitor-col">{{ t('user.benefitsPopup.table.visitor') }}</th>
+                      <th class="member-col">{{ t('user.benefitsPopup.table.member') }}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="item in comparisonData" :key="item.key" class="table-row">
+                      <td class="feature-name">{{ item.feature }}</td>
+                      <td class="visitor-cell" :class="getCellClass('anonymous', item)">
+                        {{ formatLimit(item.anonymous, item.unit) }}
+                      </td>
+                      <td class="member-cell" :class="getCellClass('user', item)">
+                        <span class="member-value">{{ formatLimit(item.user, item.unit) }}</span>
+                        <span v-if="shouldShowUpgradeBadge(item)" class="upgrade-badge">
+                          {{
+                            t('user.benefitsPopup.format.upgradePercent', {
+                              value: getUpgradePercentage(item)
+                            })
+                          }}
+                        </span>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
             </div>
-          </div>
 
-          <!-- Call to Action (only for anonymous) -->
-          <div v-if="!isAuthenticated" class="benefits-cta">
-            <button class="btn-register" @click="goToRegister">
-              🚀 立即註冊，解鎖用戶權限
-            </button>
-            <p class="cta-hint">完全免費，30秒完成註冊</p>
+            <div class="benefits-notice">
+              <p>{{ t('user.benefitsPopup.notice') }}</p>
+            </div>
+
+            <div class="benefits-section">
+              <h4 class="section-title">{{ t('user.benefitsPopup.coreFeaturesTitle') }}</h4>
+              <div class="features-grid">
+                <div v-for="feature in coreFeatures" :key="feature.key" class="feature-item">
+                  <span class="feature-icon">{{ feature.icon }}</span>
+                  <span class="feature-text">{{ feature.name }}</span>
+                </div>
+              </div>
+            </div>
+
+            <div v-if="!isAuthenticated" class="benefits-cta">
+              <button class="btn-register" @click="goToRegister">
+                {{ t('user.benefitsPopup.ctaButton') }}
+              </button>
+              <p class="cta-hint">{{ t('user.benefitsPopup.ctaHint') }}</p>
+            </div>
           </div>
-          </div><!-- End of popup-content -->
         </div>
       </div>
     </Transition>
@@ -73,174 +76,243 @@
 </template>
 
 <script setup>
-import { computed, onMounted, onBeforeUnmount } from 'vue'
-import { userStore } from '@/store/store.js'
+import { computed, onBeforeUnmount, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { ROLE_LIMITS, LOCATION_LIMITS } from '@/config/constants.js'
+import { userStore } from '@/store/store.js'
 
 const props = defineProps({
   visible: { type: Boolean, default: false }
 })
 
 const emit = defineEmits(['close', 'register'])
+const { t, locale } = useI18n()
 
 const isAuthenticated = computed(() => userStore.isAuthenticated)
 
-// 权限对比数据（只显示匿名和注册用户）
+const LIMIT_TAGS = {
+  unlimited: 'unlimited',
+  userOnly: 'userOnly',
+  open: 'open',
+  partial: 'partial',
+  full: 'full'
+}
+
 const comparisonData = computed(() => [
   {
-    feature: '🔍 查字',
-    unit: '個地點',
+    key: 'queryChars',
+    feature: t('user.benefitsPopup.items.queryChars'),
+    unit: 'location',
     anonymous: LOCATION_LIMITS.tab1.anonymous.MAX_LOCATIONS,
     user: LOCATION_LIMITS.tab1.user.MAX_LOCATIONS
   },
   {
-    feature: '📜 查中古',
-    unit: '個地點',
+    key: 'queryMiddleChinese',
+    feature: t('user.benefitsPopup.items.queryMiddleChinese'),
+    unit: 'location',
     anonymous: LOCATION_LIMITS.tab2.anonymous.MAX_LOCATIONS,
     user: LOCATION_LIMITS.tab2.user.MAX_LOCATIONS
   },
   {
-    feature: '🔊 查音位',
-    unit: '個地點',
+    key: 'queryPhoneme',
+    feature: t('user.benefitsPopup.items.queryPhoneme'),
+    unit: 'location',
     anonymous: LOCATION_LIMITS.tab3.anonymous.MAX_LOCATIONS,
     user: LOCATION_LIMITS.tab3.user.MAX_LOCATIONS
   },
   {
-    feature: '🎵 查調',
-    unit: '個地點',
+    key: 'queryTone',
+    feature: t('user.benefitsPopup.items.queryTone'),
+    unit: 'location',
     anonymous: LOCATION_LIMITS.tab4.anonymous.MAX_LOCATIONS,
-    user: '✅️ 不限'
+    user: LIMIT_TAGS.unlimited
   },
   {
-    feature: '🗂️ 自定義分區',
-    anonymous: '🔒 用戶',
-    user: '✅️ 開放'
+    key: 'customRegions',
+    feature: t('user.benefitsPopup.items.customRegions'),
+    anonymous: LIMIT_TAGS.userOnly,
+    user: LIMIT_TAGS.open
   },
   {
-    feature: '🧩 地位組合',
-    unit: '組',
+    key: 'locationCombination',
+    feature: t('user.benefitsPopup.items.locationCombination'),
+    unit: 'group',
     anonymous: ROLE_LIMITS.anonymous.MAX_COMBINATIONS,
     user: ROLE_LIMITS.user.MAX_COMBINATIONS
   },
   {
-    feature: '🔠 漢字比較',
-    unit: '個地點',
+    key: 'compareChars',
+    feature: t('user.benefitsPopup.items.compareChars'),
+    unit: 'location',
     anonymous: LOCATION_LIMITS.compare_tab1.anonymous.MAX_LOCATIONS,
     user: LOCATION_LIMITS.compare_tab1.user.MAX_LOCATIONS
   },
   {
-    feature: '📜 中古比較',
-    unit: '個地點',
+    key: 'compareMiddleChinese',
+    feature: t('user.benefitsPopup.items.compareMiddleChinese'),
+    unit: 'location',
     anonymous: LOCATION_LIMITS.compare_tab2.anonymous.MAX_LOCATIONS,
     user: LOCATION_LIMITS.compare_tab2.user.MAX_LOCATIONS
   },
-
   {
-    feature: '📈 調類比較',
-    unit: '個地點',
+    key: 'compareToneCategory',
+    feature: t('user.benefitsPopup.items.compareToneCategory'),
+    unit: 'location',
     anonymous: LOCATION_LIMITS.compare_tab4.anonymous.MAX_LOCATIONS,
     user: LOCATION_LIMITS.compare_tab4.user.MAX_LOCATIONS
   },
   {
-    feature: '🗺️ 分區圖',
-    unit: '個地點',
+    key: 'regionalMap',
+    feature: t('user.benefitsPopup.items.regionalMap'),
+    unit: 'location',
     anonymous: LOCATION_LIMITS.divide.anonymous.MAX_LOCATIONS,
     user: LOCATION_LIMITS.divide.user.MAX_LOCATIONS
   },
   {
-    feature: '📊 音系查詢',
-    anonymous: '✅️ 開放',
-    user: '✅️ 開放'
+    key: 'phonologyQuery',
+    feature: t('user.benefitsPopup.items.phonologyQuery'),
+    anonymous: LIMIT_TAGS.open,
+    user: LIMIT_TAGS.open
   },
   {
-    feature: '🎯 音素分類',
-    anonymous: '✅️ 開放',
-    user: '✅️ 開放'
+    key: 'phonemeClassification',
+    feature: t('user.benefitsPopup.items.phonemeClassification'),
+    anonymous: LIMIT_TAGS.open,
+    user: LIMIT_TAGS.open
   },
   {
-    feature: '📈 音節統計',
-    anonymous: '✅️ 開放',
-    user: '✅️ 開放'
+    key: 'syllableStats',
+    feature: t('user.benefitsPopup.items.syllableStats'),
+    anonymous: LIMIT_TAGS.open,
+    user: LIMIT_TAGS.open
   },
   {
-    feature: '💠 自定義數據',
-    anonymous: '🔒 用戶',
-    user: '✅️ 開放'
+    key: 'customData',
+    feature: t('user.benefitsPopup.items.customData'),
+    anonymous: LIMIT_TAGS.userOnly,
+    user: LIMIT_TAGS.open
   },
   {
-    feature: '🎙️ Praat分析',
-    anonymous: '🔒 用戶',
-    user: '✅️ 開放'
+    key: 'praatAnalysis',
+    feature: t('user.benefitsPopup.items.praatAnalysis'),
+    anonymous: LIMIT_TAGS.userOnly,
+    user: LIMIT_TAGS.open
   },
   {
-    feature: '✏️ 字表檢查',
-    anonymous: '🔒 用戶',
-    user: '✅️ 開放'
+    key: 'charListCheck',
+    feature: t('user.benefitsPopup.items.charListCheck'),
+    anonymous: LIMIT_TAGS.userOnly,
+    user: LIMIT_TAGS.open
   },
   {
-    feature: '🔤 粵拼轉IPA',
-    anonymous: '🔒 用戶',
-    user: '✅️ 開放'
+    key: 'jyutpingToIPA',
+    feature: t('user.benefitsPopup.items.jyutpingToIPA'),
+    anonymous: LIMIT_TAGS.userOnly,
+    user: LIMIT_TAGS.open
   },
   {
-    feature: '🔗 字表合併',
-    anonymous: '🔒 用戶',
-    user: '✅️ 開放'
+    key: 'mergeCharList',
+    feature: t('user.benefitsPopup.items.mergeCharList'),
+    anonymous: LIMIT_TAGS.userOnly,
+    user: LIMIT_TAGS.open
   },
   {
-    feature: '🗂️ 語保查詢',
-    anonymous: '✅️ 開放',
-    user: '✅️ 開放'
+    key: 'corpusQuery',
+    feature: t('user.benefitsPopup.items.corpusQuery'),
+    anonymous: LIMIT_TAGS.open,
+    user: LIMIT_TAGS.open
   },
   {
-    feature: '🏘️ 廣東村落',
-    anonymous: '✅️ 開放',
-    user: '✅️ 開放'
+    key: 'guangdongVillages',
+    feature: t('user.benefitsPopup.items.guangdongVillages'),
+    anonymous: LIMIT_TAGS.open,
+    user: LIMIT_TAGS.open
   },
   {
-    feature: '🤖 機器學習',
-    anonymous: '⚠️ 部分',
-    user: '✅️ 全部'
+    key: 'machineLearning',
+    feature: t('user.benefitsPopup.items.machineLearning'),
+    anonymous: LIMIT_TAGS.partial,
+    user: LIMIT_TAGS.full
   },
   {
-    feature: '⏳ 每小時接口使用',
-    unit: '秒',
+    key: 'hourlyApiUsage',
+    feature: t('user.benefitsPopup.items.hourlyApiUsage'),
+    unit: 'second',
     anonymous: 300,
     user: 2000
   },
   {
-    feature: '📦 最大返回json',
-    unit: 'MB',
+    key: 'maxJsonResponse',
+    feature: t('user.benefitsPopup.items.maxJsonResponse'),
+    unit: 'mb',
     anonymous: 1,
     user: 6
   }
 ])
 
-// 核心功能列表
-const coreFeatures = [
-  { icon: '🔍', name: '音韻查詢' },
-  { icon: '🗺️', name: '地理可視化' },
-  { icon: '📊', name: '音系分析' },
-  { icon: '✒️', name: '字表工具' },
-  { icon: '🎙️', name: '聲學分析' },
-  { icon: '🏘️', name: '廣東村落' },
-  { icon: '📁', name: '自定義數據' },
-  { icon: '📈', name: '數據導出' }
-]
+const coreFeatures = computed(() => [
+  { key: 'phonologyQuery', icon: '🔍' },
+  { key: 'geoVisualization', icon: '🗺️' },
+  { key: 'phonologyAnalysis', icon: '📊' },
+  { key: 'charTableTools', icon: '✒️' },
+  { key: 'acousticAnalysis', icon: '🎙️' },
+  { key: 'guangdongVillages', icon: '🏘️' },
+  { key: 'customData', icon: '📁' },
+  { key: 'dataExport', icon: '📈' }
+].map((item) => ({
+  ...item,
+  name: t(`user.benefitsPopup.coreFeatures.${item.key}`)
+})))
+
+const statusMap = computed(() => ({
+  [LIMIT_TAGS.unlimited]: t('user.benefitsPopup.status.unlimited'),
+  [LIMIT_TAGS.userOnly]: t('user.benefitsPopup.status.userOnly'),
+  [LIMIT_TAGS.open]: t('user.benefitsPopup.status.open'),
+  [LIMIT_TAGS.partial]: t('user.benefitsPopup.status.partial'),
+  [LIMIT_TAGS.full]: t('user.benefitsPopup.status.full')
+}))
+
+const unitMap = computed(() => ({
+  location: t('user.benefitsPopup.units.location'),
+  group: t('user.benefitsPopup.units.group'),
+  second: t('user.benefitsPopup.units.second'),
+  mb: t('user.benefitsPopup.units.mb')
+}))
+
+const formatNumber = (value) => Number(value).toLocaleString(locale.value)
 
 const formatLimit = (value, unit = '') => {
-  if (value === Infinity) return '無限制'
-  if (typeof value === 'string') return value  // 处理 "✅️ 開放" 和 "🔒 僅用戶" 等字符串
-  return `${value}${unit}`
+  if (typeof value === 'string') {
+    return statusMap.value[value] || value
+  }
+
+  const translatedUnit = unit ? unitMap.value[unit] : ''
+  const formattedValue = formatNumber(value)
+
+  return translatedUnit
+    ? t('user.benefitsPopup.format.limitWithUnit', {
+        value: formattedValue,
+        unit: translatedUnit
+      })
+    : formattedValue
 }
 
 const getCellClass = (role, item) => {
-  const currentRole = userStore.role
+  const currentRole = userStore.role === 'admin' ? 'user' : userStore.role
   return {
     'cell-highlight': role === currentRole,
-    'cell-unlimited': item[role] === Infinity
+    'cell-unlimited': item[role] === LIMIT_TAGS.unlimited
   }
 }
+
+const shouldShowUpgradeBadge = (item) => (
+  typeof item.user === 'number' &&
+  typeof item.anonymous === 'number' &&
+  item.anonymous > 0 &&
+  item.user > item.anonymous
+)
+
+const getUpgradePercentage = (item) => Math.round((item.user / item.anonymous - 1) * 100)
 
 const closePopup = () => {
   emit('close')
@@ -251,9 +323,8 @@ const goToRegister = () => {
   closePopup()
 }
 
-// ESC 键关闭
-const handleKeydown = (e) => {
-  if (e.key === 'Escape' && props.visible) {
+const handleKeydown = (event) => {
+  if (event.key === 'Escape' && props.visible) {
     closePopup()
   }
 }
@@ -268,7 +339,6 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
-/* Overlay */
 .benefits-popup-overlay {
   position: fixed;
   top: 0;
@@ -283,7 +353,6 @@ onBeforeUnmount(() => {
   z-index: 999999;
 }
 
-/* Popup Container - Apple Liquid Glass Style */
 .benefits-popup {
   position: relative;
   background: rgba(255, 255, 255, 0.95);
@@ -293,7 +362,7 @@ onBeforeUnmount(() => {
   max-width: 700px;
   width: 90%;
   max-height: 85vh;
-  overflow: hidden; /* 改为 hidden，滚动由内部 popup-content 处理 */
+  overflow: hidden;
   box-shadow:
     0 1px 2px rgba(0, 0, 0, 0.04),
     0 8px 32px rgba(0, 0, 0, 0.12),
@@ -304,9 +373,8 @@ onBeforeUnmount(() => {
   flex-direction: column;
 }
 
-/* Popup Header - 固定不滚动 */
 .popup-header {
-  flex-shrink: 0; /* 防止被压缩 */
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -350,7 +418,6 @@ onBeforeUnmount(() => {
   transform: scale(1.1);
 }
 
-/* Popup Content - 可滚动区域 */
 .popup-content {
   flex: 1;
   overflow-y: auto;
@@ -359,7 +426,6 @@ onBeforeUnmount(() => {
   -webkit-overflow-scrolling: touch;
 }
 
-/* 自定义滚动条样式 */
 .popup-content::-webkit-scrollbar {
   width: 8px;
 }
@@ -378,7 +444,6 @@ onBeforeUnmount(() => {
   background: rgba(255, 149, 0, 0.5);
 }
 
-/* Sections */
 .benefits-section {
   margin-bottom: 28px;
 }
@@ -395,7 +460,6 @@ onBeforeUnmount(() => {
   letter-spacing: -0.01em;
 }
 
-/* Comparison Table */
 .comparison-table-wrapper {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
@@ -508,7 +572,6 @@ onBeforeUnmount(() => {
   font-size: 16px;
 }
 
-/* Features Grid */
 .features-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -543,7 +606,6 @@ onBeforeUnmount(() => {
   color: #1d1d1f;
 }
 
-/* Call to Action */
 .benefits-cta {
   margin-top: 24px;
   text-align: center;
@@ -580,9 +642,8 @@ onBeforeUnmount(() => {
   font-weight: 500;
 }
 
-/* 说明文案 */
 .benefits-notice {
-  margin: 20px 0 20px 0;
+  margin: 20px 0;
   padding: 14px 18px;
   background: linear-gradient(135deg, rgba(255, 149, 0, 0.08), rgba(255, 149, 0, 0.04));
   border-left: 3px solid #ff9500;
@@ -597,7 +658,6 @@ onBeforeUnmount(() => {
   font-weight: 500;
 }
 
-/* Animations */
 .popup-fade-enter-active,
 .popup-fade-leave-active {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -622,16 +682,17 @@ onBeforeUnmount(() => {
     opacity: 0;
     transform: scale(0.9) translateY(-30px);
   }
+
   50% {
     transform: scale(1.02) translateY(5px);
   }
+
   100% {
     opacity: 1;
     transform: scale(1) translateY(0);
   }
 }
 
-/* Responsive - Mobile */
 @media (max-aspect-ratio: 1/1) {
   .benefits-popup {
     width: 95%;
@@ -691,7 +752,6 @@ onBeforeUnmount(() => {
   }
 }
 
-/* Scrollbar Styling */
 .benefits-popup::-webkit-scrollbar {
   width: 8px;
 }
