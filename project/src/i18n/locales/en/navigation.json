@@ -87,5 +87,14 @@
     "todayVisits": "Today's Visits",
     "historyRecords": "History Records"
   },
-  "login": "Login"
+  "login": "Login",
+  "actions": {
+    "openMenu": "Open menu",
+    "backHome": "Back to home"
+  },
+  "introTabs": {
+    "like": "Support",
+    "suggestions": "Suggestions",
+    "thanks": "Thanks"
+  }
 }

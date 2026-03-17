@@ -98,6 +98,17 @@
       "tabs": {
         "map": "地图集二分区",
         "yindian": "音典分区"
+      },
+      "myCustomRegions": "我的自定义分区",
+      "customRegionSelectPlaceholder": "选择自定义分区",
+      "expandChildren": "展开",
+      "messages": {
+        "loadCustomRegionsFailed": "加载自定义分区失败：{message}",
+        "loginRequired": "请先登录以使用自定义分区功能",
+        "noCustomRegionsConfirm": "您还没有创建自定义分区，是否前往创建？",
+        "loadRegionDetailsFailed": "获取分区详情失败",
+        "selectedCustomRegion": "已选择自定义分区：{name}",
+        "selectRegionFailed": "选择分区失败：{message}"
       }
     },
     "yinweiSelector": {
@@ -193,7 +204,12 @@
       "partitionPlaceholder": "输入分区名称，空格分隔（如：粤语）",
       "selectedCount": "您已选择 {count} 个地点",
       "mapSource": "地图集",
-      "yindianSource": "音典"
+      "yindianSource": "音典",
+      "expandButton": "展开",
+      "customLocationsLabel": "自定义地点：",
+      "selectedLocationsModalTitle": "已选择地点（{count}）",
+      "customLocationsModalTitle": "自定义地点（{count}）",
+      "requireInput": "请输入地点或分区"
     }
   },
   "result": {

@@ -10,7 +10,7 @@
     <div v-if="isOpen" class="sidebar">
       <!-- 标题图片 (可选) -->
       <div v-if="showTitle" class="sidebar-header">
-        <img src="../../assets/title.png" alt="Title" class="title-img" />
+        <img src="../../assets/picture/title.png" alt="Title" class="title-img" />
       </div>
 
       <div class="sidebar-content">

@@ -6,7 +6,7 @@
     <!-- Hero Section -->
     <section class="hero-section">
       <div class="hero-content">
-        <img src="@/assets/title.png" alt="方音圖鑑" class="hero-logo" />
+        <img src="@/assets/picture/title.png" :alt="$t('home.hero.logoAlt')" class="hero-logo" />
         <h1 class="hero-title">{{ $t('home.hero.title') }}</h1>
         <p class="hero-subtitle">{{ $t('home.hero.subtitle') }}</p>
         <div class="hero-actions">
@@ -23,7 +23,7 @@
             <span class="btn-text">{{ $t('home.hero.featuresIntro') }}</span>
           </button>
         </div>
-        <img src="@/assets/BlueCircle.png" alt="Blue Circle" class="hero-decoration" />
+        <img src="@/assets/picture/BlueCircle.png" :alt="$t('home.hero.decorationAlt')" class="hero-decoration" />
       </div>
     </section>
 
@@ -400,11 +400,11 @@
 
     <!-- Projects Section -->
     <section class="projects-section">
-      <h2 class="section-title">開源項目</h2>
-      <p class="section-subtitle">歡迎 Star ⭐ Fork 🍴 貢獻代碼</p>
+      <h2 class="section-title">{{ $t('home.projects.sectionTitle') }}</h2>
+      <p class="section-subtitle">{{ $t('home.projects.sectionSubtitle') }}</p>
       <div class="projects-grid">
         <a
-          v-for="project in projects"
+          v-for="project in localizedProjects"
           :key="project.name"
           :href="project.url"
           target="_blank"
@@ -427,11 +427,11 @@
       <div class="contact-card">
         <div class="contact-icon">💬</div>
         <div class="contact-content">
-          <h3 class="contact-title">聯繫作者</h3>
-          <p class="contact-desc">關注知乎，了解更多方言研究與GIS知識</p>
+          <h3 class="contact-title">{{ $t('home.contact.title') }}</h3>
+          <p class="contact-desc">{{ $t('home.contact.desc') }}</p>
         </div>
         <button class="contact-btn" @click="openZhihu">
-          前往知乎
+          {{ $t('home.contact.button') }}
         </button>
       </div>
     </section>
@@ -440,28 +440,28 @@
     <footer class="footer">
       <div class="footer-content">
         <div class="footer-links">
-          <a @click="navigateTo('/menu?tab=about')" class="footer-link">關於網站</a>
+          <a @click="navigateTo('/menu?tab=about')" class="footer-link">{{ $t('home.footer.links.about') }}</a>
           <span class="footer-divider">·</span>
-          <a @click="navigateTo('/menu?tab=source')" class="footer-link">資料來源</a>
+          <a @click="navigateTo('/menu?tab=source')" class="footer-link">{{ $t('home.footer.links.source') }}</a>
           <span class="footer-divider">·</span>
-          <a @click="navigateTo('/menu?tab=privacy')" class="footer-link">隱私政策</a>
+          <a @click="navigateTo('/menu?tab=privacy')" class="footer-link">{{ $t('home.footer.links.privacy') }}</a>
           <span class="footer-divider">·</span>
-          <a @click="navigateTo('/menu?tab=setting')" class="footer-link">設置</a>
+          <a @click="navigateTo('/menu?tab=setting')" class="footer-link">{{ $t('home.footer.links.setting') }}</a>
           <span class="footer-divider">·</span>
-          <a href="https://dialects.yzup.top/detail/" target="_blank" class="footer-link">舊版網站</a>
+          <a href="https://dialects.yzup.top/detail/" target="_blank" class="footer-link">{{ $t('home.footer.links.oldSite') }}</a>
           <span class="footer-divider">·</span>
-          <a @click="showSupport = true" class="footer-link">支持作者</a>
+          <a @click="showSupport = true" class="footer-link">{{ $t('home.footer.links.support') }}</a>
         </div>
 
         <!-- Visit Stats -->
         <div class="footer-stats">
-          <span class="stat-text">今日訪問 {{ todayVisits }} · 總訪問 {{ totalVisits }}</span>
+          <span class="stat-text">{{ $t('home.footer.stats', { today: todayVisits, total: totalVisits }) }}</span>
         </div>
 
         <div class="footer-info">
-          <p class="footer-text">© 2026 方音圖鑑 · 由不羈(jengzang)開發</p>
-          <p class="footer-text">{{ CURRENT_VERSION }} · 最後更新：{{ LAST_UPDATE_DATE }}</p>
-          <p class="footer-text">粵ICP備2025466875號</p>
+          <p class="footer-text">{{ $t('home.footer.copyright') }}</p>
+          <p class="footer-text">{{ $t('home.footer.versionInfo', { version: CURRENT_VERSION, date: LAST_UPDATE_DATE }) }}</p>
+          <p class="footer-text">{{ $t('home.footer.icp') }}</p>
         </div>
       </div>
     </footer>
@@ -477,20 +477,20 @@
     <UpdateNoticeModal
       :visible="showUpdateNotice"
       version="v4.1.0"
-      title="🎊 網站更新通知"
+      :title="$t('home.updateNotice.title')"
       @close="showUpdateNotice = false"
     >
       <div class="update-item">
         <span class="item-icon">🏠</span>
-        <span class="item-text"><strong>全新首頁</strong> - 採用液態玻璃風格設計，展示核心功能卡片、開源項目、登錄權益等，提供更直觀的導航體驗</span>
+        <span class="item-text"><strong>{{ $t('home.updateNotice.items.homepage.title') }}</strong> - {{ $t('home.updateNotice.items.homepage.description') }}</span>
       </div>
       <div class="update-item">
         <span class="item-icon">⚖️</span>
-        <span class="item-text"><strong>方言比較功能</strong> - 支持漢字比較、中古音比較、調類比較，地圖用不同顏色的圓點展示兩組數據的差異，並提供圖例說明</span>
+        <span class="item-text"><strong>{{ $t('home.updateNotice.items.compare.title') }}</strong> - {{ $t('home.updateNotice.items.compare.description') }}</span>
       </div>
       <div class="update-item">
         <span class="item-icon">🤖</span>
-        <span class="item-text"><strong>自然村機器學習分析</strong> - 新增村落方言數據的機器學習分析功能，幫助研究者發現方言分布的潛在規律和模式</span>
+        <span class="item-text"><strong>{{ $t('home.updateNotice.items.villages.title') }}</strong> - {{ $t('home.updateNotice.items.villages.description') }}</span>
       </div>
     </UpdateNoticeModal>
 
@@ -499,17 +499,17 @@
       <transition name="modal">
         <div v-if="showSupport" class="modal-overlay" @click="showSupport = false">
           <div class="modal-content" @click.stop>
-            <button class="modal-close" @click="showSupport = false">✕</button>
-            <h3 class="modal-title">☕️ 請作者喝杯咖啡</h3>
-            <p class="modal-subtitle">感謝您的支持！💖</p>
+            <button class="modal-close" @click="showSupport = false">{{ $t('common.button.close') }}</button>
+            <h3 class="modal-title">{{ $t('home.supportModal.title') }}</h3>
+            <p class="modal-subtitle">{{ $t('home.supportModal.subtitle') }}</p>
             <div class="donate-qr-grid">
               <div class="donate-qr-box">
-                <img src="../assets/picture/weixin.png" alt="微信收款碼" />
-                <p class="donate-qr-label">微信</p>
+                <img src="../assets/picture/weixin.png" :alt="$t('home.supportModal.weixinAlt')" />
+                <p class="donate-qr-label">{{ $t('home.supportModal.weixinLabel') }}</p>
               </div>
               <div class="donate-qr-box">
-                <img src="../assets/picture/zfb.jpg" alt="支付寶收款碼" />
-                <p class="donate-qr-label">支付寶</p>
+                <img src="../assets/picture/zfb.jpg" :alt="$t('home.supportModal.alipayAlt')" />
+                <p class="donate-qr-label">{{ $t('home.supportModal.alipayLabel') }}</p>
               </div>
             </div>
           </div>
@@ -520,7 +520,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, defineAsyncComponent } from 'vue'
+import { computed, ref, onMounted, defineAsyncComponent } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { getTodayVisits, getTotalVisits } from '@/api/logs/index.js'
@@ -569,6 +569,25 @@ const projects = [
     description: t('home.intro.likeAuthor.villagesMLRepo')
   }
 ]
+
+const localizedProjects = computed(() => [
+  {
+    ...projects[0],
+    description: t('home.intro.likeAuthor.frontendRepo')
+  },
+  {
+    ...projects[1],
+    description: t('home.intro.likeAuthor.backendRepo')
+  },
+  {
+    ...projects[2],
+    description: t('home.intro.likeAuthor.buildRepo')
+  },
+  {
+    ...projects[3],
+    description: t('home.intro.likeAuthor.villagesMLRepo')
+  }
+])
 
 function navigateTo(path) {
   router.push(path)

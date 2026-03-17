@@ -4,7 +4,9 @@
     "subtitle": "✨ 探索方言的歷史層次 · 🎵 觸摸漢字的音韻之美",
     "startExploring": "開始探索",
     "expandTools": "拓展工具",
-    "featuresIntro": "功能簡介"
+    "featuresIntro": "功能簡介",
+    "logoAlt": "方音圖鑑標誌",
+    "decorationAlt": "藍色圓環裝飾"
   },
   "features": {
     "sectionTitle": "核心功能",
@@ -175,5 +177,53 @@
       "weixinAlt": "微信收款碼",
       "alipayAlt": "支付寶收款碼"
     }
+  },
+  "projects": {
+    "sectionTitle": "開源項目",
+    "sectionSubtitle": "歡迎 Star、Fork 與貢獻代碼"
+  },
+  "contact": {
+    "title": "聯繫作者",
+    "desc": "關注知乎，了解更多方言研究與GIS知識",
+    "button": "前往知乎"
+  },
+  "footer": {
+    "links": {
+      "about": "關於網站",
+      "source": "資料來源",
+      "privacy": "隱私政策",
+      "setting": "設定",
+      "oldSite": "舊版網站",
+      "support": "支持作者"
+    },
+    "stats": "今日訪問 {today} · 總訪問 {total}",
+    "copyright": "© 2026 方音圖鑑 · 由不羈(jengzang)開發",
+    "versionInfo": "{version} · 最後更新：{date}",
+    "icp": "粵ICP備2025466875號"
+  },
+  "updateNotice": {
+    "title": "🎊 網站更新通知",
+    "items": {
+      "homepage": {
+        "title": "全新首頁",
+        "description": "採用液態玻璃風格設計，展示核心功能卡片、開源項目、登入權益等，提供更直觀的導航體驗"
+      },
+      "compare": {
+        "title": "方言比較功能",
+        "description": "支持漢字比較、中古音比較、調類比較，地圖用不同顏色的圓點展示兩組數據的差異，並提供圖例說明"
+      },
+      "villages": {
+        "title": "自然村機器學習分析",
+        "description": "新增村落方言數據的機器學習分析功能，幫助研究者發現方言分布的潛在規律和模式"
+      }
+    }
+  },
+  "supportModal": {
+    "title": "☕️ 請作者喝杯咖啡",
+    "subtitle": "感謝您的支持！ 💖",
+    "weixinAlt": "微信收款碼",
+    "weixinLabel": "微信",
+    "alipayAlt": "支付寶收款碼",
+    "alipayLabel": "支付寶"
   }
 }

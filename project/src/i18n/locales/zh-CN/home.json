@@ -4,7 +4,9 @@
     "subtitle": "✨ 探索方言的历史层次 · 🎵 触摸汉字的音韵之美",
     "startExploring": "开始探索",
     "expandTools": "拓展工具",
-    "featuresIntro": "功能简介"
+    "featuresIntro": "功能简介",
+    "logoAlt": "方音图鉴标志",
+    "decorationAlt": "蓝色圆环装饰"
   },
   "features": {
     "sectionTitle": "核心功能",
@@ -175,5 +177,53 @@
       "weixinAlt": "微信收款码",
       "alipayAlt": "支付宝收款码"
     }
+  },
+  "projects": {
+    "sectionTitle": "开源项目",
+    "sectionSubtitle": "欢迎 Star、Fork 与贡献代码"
+  },
+  "contact": {
+    "title": "联系作者",
+    "desc": "关注知乎，了解更多方言研究与GIS知识",
+    "button": "前往知乎"
+  },
+  "footer": {
+    "links": {
+      "about": "关于网站",
+      "source": "资料来源",
+      "privacy": "隐私政策",
+      "setting": "设置",
+      "oldSite": "旧版网站",
+      "support": "支持作者"
+    },
+    "stats": "今日访问 {today} · 总访问 {total}",
+    "copyright": "© 2026 方音图鉴 · 由不羁(jengzang)开发",
+    "versionInfo": "{version} · 最后更新：{date}",
+    "icp": "粤ICP备2025466875号"
+  },
+  "updateNotice": {
+    "title": "🎊 网站更新通知",
+    "items": {
+      "homepage": {
+        "title": "全新首页",
+        "description": "采用液态玻璃风格设计，展示核心功能卡片、开源项目、登录权益等，提供更直观的导航体验"
+      },
+      "compare": {
+        "title": "方言比较功能",
+        "description": "支持汉字比较、中古音比较、调类比较，地图用不同颜色的圆点展示两组数据的差异，并提供图例说明"
+      },
+      "villages": {
+        "title": "自然村机器学习分析",
+        "description": "新增村落方言数据的机器学习分析功能，帮助研究者发现方言分布的潜在规律和模式"
+      }
+    }
+  },
+  "supportModal": {
+    "title": "☕️ 请作者喝杯咖啡",
+    "subtitle": "感谢您的支持！ 💖",
+    "weixinAlt": "微信收款码",
+    "weixinLabel": "微信",
+    "alipayAlt": "支付宝收款码",
+    "alipayLabel": "支付宝"
   }
 }

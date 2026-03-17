@@ -87,5 +87,14 @@
     "todayVisits": "今日访问",
     "historyRecords": "历史记录"
   },
-  "login": "登录"
+  "login": "登录",
+  "actions": {
+    "openMenu": "打开菜单",
+    "backHome": "返回首页"
+  },
+  "introTabs": {
+    "like": "支持作者",
+    "suggestions": "提出建议",
+    "thanks": "鸣谢"
+  }
 }

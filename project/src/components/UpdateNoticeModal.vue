@@ -3,11 +3,11 @@
     <Transition name="modal-fade">
       <div v-if="visible" class="update-modal-overlay" @click.self="handleClose">
         <div class="update-modal">
-          <button class="modal-close-btn" @click="handleClose">✕</button>
+          <button class="modal-close-btn" @click="handleClose">{{ $t('common.button.close') }}</button>
 
           <div class="modal-header">
             <div class="update-icon">🎉</div>
-            <h2 class="modal-title">{{ title }}</h2>
+            <h2 class="modal-title">{{ title || $t('common.updateNotice.title') }}</h2>
             <p class="update-version">{{ version }}</p>
           </div>
 
@@ -16,7 +16,7 @@
               <!-- 默认内容，可以被外部覆盖 -->
               <div class="update-item">
                 <span class="item-icon">✨</span>
-                <span class="item-text">新增功能示例</span>
+                <span class="item-text">{{ $t('common.updateNotice.defaultItem') }}</span>
               </div>
             </slot>
           </div>
@@ -24,10 +24,10 @@
           <div class="modal-footer">
             <label class="no-show-checkbox">
               <input type="checkbox" v-model="dontShowAgain" />
-              <span>不再顯示此版本更新</span>
+              <span>{{ $t('common.updateNotice.dontShowAgain') }}</span>
             </label>
             <button class="confirm-btn" @click="handleConfirm">
-              知道了
+              {{ $t('common.updateNotice.confirm') }}
             </button>
           </div>
         </div>
@@ -37,7 +37,7 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import { ref } from 'vue'
 
 const props = defineProps({
   visible: {

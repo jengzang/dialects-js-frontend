@@ -13,7 +13,7 @@
               type="button"
               :title="$t('query.components.locationAndRegionInput.selectLocationTitle')"
           >
-            選擇地點
+            {{ $t('query.components.locationAndRegionInput.selectLocationButton') }}
           </button>
         </div>
         <div class="textarea-wrapper">
@@ -95,7 +95,7 @@
           <button
               class="info-btn"
               @click="openPartitionInfoModal"
-              title="查看分區詳情"
+              :title="$t('query.components.locationAndRegionInput.viewPartitionDetails')"
           >
             <span class="icon">ℹ️</span>
           </button>
@@ -149,12 +149,12 @@
             type="button"
             @click="openModal"
         >
-          展開
+          {{ $t('query.components.locationAndRegionInput.expandButton') }}
         </button>
       </div>
       <!-- 🔥 自定義特徵地點預覽（僅輸入模式） -->
       <div v-if="useInputMode && customFeatureLocations.length" class="hint-preview custom-preview">
-        <span class="preview-label">自定義地點：</span>
+        <span class="preview-label">{{ $t('query.components.locationAndRegionInput.customLocationsLabel') }}</span>
         <span class="preview-text">
           {{ customPreviewText }}
         </span>
@@ -164,7 +164,7 @@
             type="button"
             @click="openCustomModal"
         >
-          展開
+          {{ $t('query.components.locationAndRegionInput.expandButton') }}
         </button>
       </div>
       <!-- ✅ 對應 showToast 的提示行 -->
@@ -179,8 +179,8 @@
         >
           <div class="glass-modal" role="dialog" aria-modal="true">
             <div class="modal-header">
-              <div class="modal-title">已選擇地點（{{ locationsResult.length }}）</div>
-              <button class="modal-close" type="button" @click="closeModal">×</button>
+              <div class="modal-title">{{ $t('query.components.locationAndRegionInput.selectedLocationsModalTitle', { count: locationsResult.length }) }}</div>
+              <button class="modal-close" type="button" @click="closeModal">{{ $t('common.button.close') }}</button>
             </div>
 
             <div class="modal-body">
@@ -208,8 +208,8 @@
       >
         <div class="glass-modal" role="dialog" aria-modal="true">
           <div class="modal-header">
-            <div class="modal-title">自定義地點（{{ customFeatureLocations.length }}）</div>
-            <button class="modal-close" type="button" @click="closeCustomModal">×</button>
+            <div class="modal-title">{{ $t('query.components.locationAndRegionInput.customLocationsModalTitle', { count: customFeatureLocations.length }) }}</div>
+            <button class="modal-close" type="button" @click="closeCustomModal">{{ $t('common.button.close') }}</button>
           </div>
 
           <div class="modal-body">
@@ -912,7 +912,7 @@ async function fetchLocationsResult() {
 
   // 3️⃣ 若兩者皆空，直接返回（對齊 isEmptyInput 判斷）
   if (locations.length === 0 && regions.length === 0 && customRegionLocationsArray.length === 0) {
-    limitHint.value = '請輸入地點或分區'
+    limitHint.value = t('query.components.locationAndRegionInput.requireInput')
     selectedCount.value = null
     locationsResult.value = []
 
@@ -965,7 +965,7 @@ async function fetchLocationsResult() {
 
   } catch (err) {
     console.error('❌ 請求錯誤:', err)
-    limitHint.value = err.message || '地點查詢失敗，請稍後再試'
+    limitHint.value = t('query.components.locationMultiInput.errorFetchLocations')
     selectedCount.value = null
     locationsResult.value = []
     customFeatureLocations.value = []
@@ -1246,7 +1246,7 @@ const fetchPartitionData = async () => {
     sessionStorage.setItem('partition_data_cache', JSON.stringify(partitionData.value))
   } catch (error) {
     console.error('获取分区数据失败:', error)
-    partitionTreeError.value = '獲取分區數據失敗，請稍後再試'
+    partitionTreeError.value = t('query.components.locationMultiInput.errorPartitionMessage')
   } finally {
     isLoadingPartitions.value = false
   }

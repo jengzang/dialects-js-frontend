@@ -34,7 +34,10 @@
     "pleaseEnterBothGroupsMiddleChinese": "請輸入兩組中古音",
     "noConditionsAdded": "尚未添加任何條件",
     "excludeSettingsMismatch": "同一組內的條件必須使用相同的排除設置！\\n已有條件排除：{existing}\\n當前條件排除：{current}",
-    "selectTwoToneClasses": "請選擇兩個調類"
+    "selectTwoToneClasses": "請選擇兩個調類",
+    "tab1Hint": "比較同一漢字在不同地點的讀音差異。",
+    "tab2Hint": "比較同一中古地位在不同地點的演變情況。",
+    "tab4Hint": "比較兩個調類在不同地點是合流還是分立。"
   },
   "cards": {
     "initial": "聲母",

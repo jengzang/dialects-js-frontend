@@ -102,6 +102,8 @@
     "qrModal": {
       "title": "☕️ 請作者喝杯咖啡",
       "subtitle": "感謝您的支持！ 💖"
-    }
+    },
+    "weixinAlt": "微信收款二維碼",
+    "alipayAlt": "支付寶收款二維碼"
   }
 }

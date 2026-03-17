@@ -7,7 +7,7 @@
           <img class="logo" src="../../assets/favicon.ico" alt="Logo" />
         </div>
         <div class="title">
-          <img src="../../assets/title.png" alt="Title" />
+          <img src="../../assets/picture/title.png" alt="Title" />
         </div>
       </div>
       <nav class="navbar-btn">
@@ -42,7 +42,7 @@
       <div class="logo-container" style="color: #005fd3;border-radius: 30px" @click="goToAuthPage">
         <!-- 显示用户名或"登录" -->
         <span class="login-text">
-          {{ userStore.username || t('auth.login.title') }}
+          {{ userStore.username || t('navigation.login') }}
         </span>
       </div>
     </div>
@@ -107,7 +107,7 @@
           @mouseleave="!isMobile ? scheduleCloseSubmenu() : null"
         >
           <div
-            v-for="(child, index) in menuConfig[activeSubmenu]?.children"
+            v-for="(child, index) in menuConfigData[activeSubmenu]?.children"
             :key="index"
             class="submenu-item"
             @click="handleSubmenuClick(child)"
@@ -179,7 +179,7 @@
             <img class="logo" src="../../assets/favicon.ico" alt="Logo" />
           </div>
           <div class="title">
-            <img src="../../assets/title.png" alt="Title" />
+            <img src="../../assets/picture/title.png" alt="Title" />
           </div>
         </div>
         <div class="logo-container" style="color: #005fd3; border-radius: 30px;height: 5dvh" @click="goToAuthPage">
@@ -232,7 +232,7 @@ import {useRoute, useRouter} from 'vue-router'
 import { useI18n } from 'vue-i18n'
 // import { clearToken, getToken, saveToken } from '../../api/auth/auth.js'
 import { getTodayVisits, getTotalVisits, getVisitHistory } from '@/api/logs/index.js'
-import { menuConfig } from '@/config/menuConfig.js'
+import { useMenuConfig } from '@/config/menuConfig.js'
 import { useMenuTabsConfig } from '@/config/TabsConfig.js'
 import { WEB_BASE } from '@/env-config.js'
 import { userStore, resultCache } from '@/store/store.js'
@@ -241,6 +241,7 @@ const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
 const isSidebarVisible = ref(false)  // 控制边栏显示
+const menuConfigRef = useMenuConfig()
 
 // Submenu state management
 const activeSubmenu = ref(null)  // Currently open submenu key
@@ -257,7 +258,7 @@ const checkMobile = () => {
 // Filter menu items for NavBar (exclude items that should only show in SimpleSidebar)
 const filteredMenuConfig = computed(() => {
   const filtered = {}
-  for (const [key, item] of Object.entries(menuConfig)) {
+  for (const [key, item] of Object.entries(menuConfigRef.value)) {
     // If showIn is not specified, show in all components
     // If showIn is specified, only show if 'NavBar' is in the array
     if (!item.showIn || item.showIn.includes('NavBar')) {
@@ -266,6 +267,8 @@ const filteredMenuConfig = computed(() => {
   }
   return filtered
 })
+
+const menuConfigData = computed(() => menuConfigRef.value)
 
 // 访问统计相关
 const todayVisits = ref(0)

@@ -68,8 +68,8 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import weixinQR from '@/assets/weixin.png'
-import alipayQR from '@/assets/zfb.jpg'
+import weixinQR from '@/assets/picture/weixin.png'
+import alipayQR from '@/assets/picture/zfb.jpg'
 
 const { t } = useI18n()
 const showQRCodes = ref(false)

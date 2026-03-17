@@ -59,5 +59,11 @@
     "tabs": {
       "defaultLabel": "標籤"
     }
+  },
+  "updateNotice": {
+    "title": "更新通知",
+    "defaultItem": "新功能提示",
+    "dontShowAgain": "不再顯示此版本更新",
+    "confirm": "知道了"
   }
 }

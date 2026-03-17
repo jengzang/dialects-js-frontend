@@ -39,7 +39,7 @@
           <!-- 第一行：标题 + 按钮 -->
           <div class="topbar-row topbar-row-1">
             <div class="topbar-title">
-              {{ $t('query.components.regionSelector.selectedRegions') }}
+              {{ $t('query.components.regionSelector.selectedTitle') }}
               <span class="topbar-count">({{ draftSelected.length }})</span>
             </div>
 
@@ -50,10 +50,10 @@
                   @click="clearDraft"
                   :disabled="draftSelected.length === 0"
               >
-                {{ $t('query.components.regionSelector.clear') }}
+                {{ $t('query.components.regionSelector.clearButton') }}
               </button>
               <button class="topbar-btn" type="button" @click="confirmAndClose">
-                {{ $t('query.components.regionSelector.confirm') }}
+                {{ $t('query.components.regionSelector.confirmButton') }}
               </button>
             </div>
           </div>
@@ -85,7 +85,7 @@
               </span>
             </div>
             <div class="topbar-empty" v-else>
-              {{ $t('query.components.regionSelector.noSelection') }}
+              {{ $t('query.components.regionSelector.emptyState') }}
             </div>
 
             <!-- Right: Custom Region Button -->
@@ -108,7 +108,7 @@
                   v-model="draftCustomRegions"
                   :options="customRegionOptions"
                   :triggerEl="customRegionButtonRef"
-                  placeholder="選擇自定義分區"
+                  :placeholder="$t('query.components.regionSelector.customRegionSelectPlaceholder')"
                   align="right"
                   direction="down"
                   @close="customRegionDropdownOpen = false"
@@ -150,7 +150,7 @@
                   v-if="item.hasChildren"
                   class="partition-arrow"
                   @click.stop="expand(item, 1, $event)"
-                  title="展開"
+                  :title="$t('query.components.regionSelector.expandChildren')"
               >
                 ⌵
               </div>
@@ -186,7 +186,7 @@
                   v-if="item.hasChildren"
                   class="partition-arrow"
                   @click.stop="expand(item, 2, $event)"
-                  title="展開"
+                  :title="$t('query.components.regionSelector.expandChildren')"
               >
                 ⌵
               </div>
@@ -227,20 +227,20 @@
       <div v-if="showCustomRegionPopup" class="custom-region-overlay" @click.self="showCustomRegionPopup = false">
         <div class="custom-region-popup" @mousedown.stop>
           <div class="popup-header">
-            <h3>🗂️ 我的自定義分區</h3>
-            <button class="close-btn" @click="showCustomRegionPopup = false">✕</button>
+            <h3>{{ $t('query.components.regionSelector.customRegionModal.title') }}</h3>
+            <button class="close-btn" @click="showCustomRegionPopup = false">{{ $t('common.button.close') }}</button>
           </div>
 
           <div class="popup-content">
             <div v-if="loadingCustomRegions" class="loading">
               <div class="spinner"></div>
-              <p>加載中...</p>
+              <p>{{ $t('query.components.regionSelector.customRegionModal.loading') }}</p>
             </div>
 
             <div v-else-if="customRegions.length === 0" class="empty-custom-regions">
-              <p>您還沒有創建自定義分區</p>
+              <p>{{ $t('query.components.regionSelector.customRegionModal.empty') }}</p>
               <button class="btn-create" @click="goToManagePage">
-                前往創建
+                {{ $t('query.components.regionSelector.customRegionModal.createButton') }}
               </button>
             </div>
 
@@ -253,7 +253,7 @@
               >
                 <div class="region-name">{{ region.region_name }}</div>
                 <div class="region-info">
-                  {{ region.location_count || region.locations?.length || 0 }} 個地點
+                  {{ $t('query.components.regionSelector.customRegionModal.locationCount', { count: region.location_count || region.locations?.length || 0 }) }}
                   <span v-if="region.description" class="region-desc">
                     · {{ region.description }}
                   </span>
@@ -264,7 +264,7 @@
 
           <div class="popup-footer">
             <button class="btn-manage" @click="goToManagePage">
-              管理我的分區
+              {{ $t('query.components.regionSelector.customRegionModal.manageButton') }}
             </button>
           </div>
         </div>
@@ -577,14 +577,14 @@ const customRegionButtonState = computed(() => {
   if (customRegions.value.length === 0) {
     return {
       color: 'blue',
-      text: t('query.components.regionSelector.customRegionButton.create'),
+      text: t('query.components.regionSelector.customRegionButton.noRegions'),
       icon: '➕'
     }
   }
 
   return {
     color: 'green',
-    text: t('query.components.regionSelector.customRegionButton.use'),
+    text: t('query.components.regionSelector.customRegionButton.hasRegions'),
     icon: '🗂️'
   }
 })
@@ -607,14 +607,14 @@ async function loadCustomRegions() {
   try {
     await fetchCustomRegions() // Use cached version
   } catch (error) {
-    showError('加載自定義分區失敗：' + error.message)
+    showError(t('query.components.regionSelector.messages.loadCustomRegionsFailed', { message: error.message }))
   }
 }
 
 async function openCustomRegionPopup() {
   // 檢查是否登錄
   if (!userStore.isAuthenticated) {
-    showError('請先登錄以使用自定義分區功能')
+    showError('query.components.regionSelector.messages.loginRequired')
     await router.push('/auth?view=login')
     return
   }
@@ -626,8 +626,8 @@ async function openCustomRegionPopup() {
     if (customRegions.value.length === 0) {
       // 沒有分區，詢問是否前往創建
       const confirmed = await showConfirm(
-        '您還沒有創建自定義分區，是否前往創建？',
-        { confirmText: '前往創建', cancelText: '取消' }
+        t('query.components.regionSelector.messages.noCustomRegionsConfirm'),
+        { confirmText: 'query.components.regionSelector.customRegionModal.createButton', cancelText: 'common.button.cancel' }
       )
       if (confirmed) {
         await router.push('/auth/regions')
@@ -637,7 +637,7 @@ async function openCustomRegionPopup() {
 
     showCustomRegionPopup.value = true
   } catch (error) {
-    showError('加載自定義分區失敗：' + error.message)
+    showError(t('query.components.regionSelector.messages.loadCustomRegionsFailed', { message: error.message }))
   }
 }
 
@@ -648,7 +648,7 @@ async function selectCustomRegion(region) {
     const data = await fetchCustomRegions(region.region_name)
 
     if (!data.success || data.regions.length === 0) {
-      showError('獲取分區詳情失敗')
+      showError('query.components.regionSelector.messages.loadRegionDetailsFailed')
       return
     }
 
@@ -665,9 +665,9 @@ async function selectCustomRegion(region) {
       locations: locations
     })
 
-    showSuccess(`已選擇自定義分區：${selectedRegion.region_name}`)
+    showSuccess(t('query.components.regionSelector.messages.selectedCustomRegion', { name: selectedRegion.region_name }))
   } catch (error) {
-    showError('選擇分區失敗：' + error.message)
+    showError(t('query.components.regionSelector.messages.selectRegionFailed', { message: error.message }))
   }
 }
 
@@ -681,7 +681,7 @@ function goToManagePage() {
 const handleCustomRegionButtonClick = async () => {
   // Red state: Not logged in → redirect to auth
   if (!userStore.isAuthenticated) {
-    showError('請先登錄以使用自定義分區功能')
+    showError('query.components.regionSelector.messages.loginRequired')
     await router.push('/auth?view=login')
     return
   }

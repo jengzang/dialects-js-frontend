@@ -98,6 +98,17 @@
       "tabs": {
         "map": "Atlas Partition 2",
         "yindian": "Phonetic Dictionary Partition"
+      },
+      "myCustomRegions": "My Custom Partitions",
+      "customRegionSelectPlaceholder": "Select custom partitions",
+      "expandChildren": "Expand",
+      "messages": {
+        "loadCustomRegionsFailed": "Failed to load custom partitions: {message}",
+        "loginRequired": "Please log in to use custom partitions",
+        "noCustomRegionsConfirm": "You have not created any custom partitions yet. Go create one now?",
+        "loadRegionDetailsFailed": "Failed to load partition details",
+        "selectedCustomRegion": "Selected custom partition: {name}",
+        "selectRegionFailed": "Failed to select partition: {message}"
       }
     },
     "yinweiSelector": {
@@ -193,7 +204,12 @@
       "partitionPlaceholder": "Enter partition names, space-separated (e.g.: Cantonese)",
       "selectedCount": "You have selected {count} locations",
       "mapSource": "Atlas",
-      "yindianSource": "Yindian"
+      "yindianSource": "Yindian",
+      "expandButton": "Expand",
+      "customLocationsLabel": "Custom locations:",
+      "selectedLocationsModalTitle": "Selected Locations ({count})",
+      "customLocationsModalTitle": "Custom Locations ({count})",
+      "requireInput": "Please enter a location or partition"
     }
   },
   "result": {

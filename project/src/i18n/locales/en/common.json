@@ -59,5 +59,11 @@
     "tabs": {
       "defaultLabel": "Tab"
     }
+  },
+  "updateNotice": {
+    "title": "Update Notice",
+    "defaultItem": "New features are available in this version.",
+    "dontShowAgain": "Don't show this version again",
+    "confirm": "Got it"
   }
 }

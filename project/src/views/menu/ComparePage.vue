@@ -301,13 +301,13 @@
 
       <!-- 提示區 -->
       <div v-if="currentTab === 'tab1'" class="page-footer" style="margin-top: 20px">
-        <small class="hint">比較兩組漢字的音韻特徵差異</small>
+        <small class="hint">{{ $t('compare.messages.tab1Hint') }}</small>
       </div>
       <div v-else-if="currentTab === 'tab2'" class="page-footer" style="margin-top: 20px">
-        <small class="hint">比較兩組中古音條件的讀音差異</small>
+        <small class="hint">{{ $t('compare.messages.tab2Hint') }}</small>
       </div>
       <div v-else-if="currentTab === 'tab4'" class="page-footer" style="margin-top: 20px">
-        <small class="hint">比較兩組調類的合併關係</small>
+        <small class="hint">{{ $t('compare.messages.tab4Hint') }}</small>
       </div>
     </div>
   </TabsContainer>

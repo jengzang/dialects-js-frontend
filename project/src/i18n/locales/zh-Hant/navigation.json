@@ -87,5 +87,14 @@
     "todayVisits": "今日訪問",
     "historyRecords": "歷史記錄"
   },
-  "login": "登錄"
+  "login": "登錄",
+  "actions": {
+    "openMenu": "開啟選單",
+    "backHome": "返回首頁"
+  },
+  "introTabs": {
+    "like": "支持作者",
+    "suggestions": "提出建議",
+    "thanks": "鳴謝"
+  }
 }

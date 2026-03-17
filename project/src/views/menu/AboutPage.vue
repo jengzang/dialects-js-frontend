@@ -10,6 +10,31 @@
         <h2 class="tabs-title">{{ $t('about.intro.title') }}</h2>
         <p style=" text-align: left;">{{ $t('about.intro.description') }}</p>
         <ul class="customlist">
+          <li>
+            <span v-html="$t('about.intro.features.feature1.title')"></span>
+            {{ $t('about.intro.features.feature1.description') }}
+          </li>
+          <li>
+            <span v-html="$t('about.intro.features.feature2.title')"></span>
+            {{ $t('about.intro.features.feature2.description') }}
+          </li>
+          <li>
+            <span v-html="$t('about.intro.features.feature3.title')"></span>
+            {{ $t('about.intro.features.feature3.description') }}
+          </li>
+          <li>
+            <span v-html="$t('about.intro.features.feature4.title')"></span>
+            {{ $t('about.intro.features.feature4.description') }}
+          </li>
+          <li v-html="$t('about.intro.features.feature5.title')"></li>
+          <li>
+            <span v-html="$t('about.intro.features.feature6.title')"></span>
+            {{ $t('about.intro.features.feature6.description') }}
+          </li>
+          <li v-html="$t('about.intro.features.blueText')"></li>
+          <li>{{ $t('about.intro.features.mapClick') }}</li>
+        </ul>
+        <ul v-if="false" class="customlist">
           <li>功能1：<strong>查中古</strong>（按中古地位整理讀音）。
             使用者可輸入各種組合進行分析，目前支持攝、韻、等、呼、調、系、組、母、清濁、發音部位、發聲方式等類別。
             網站會按輸入的組合分析聲母/韻母/聲調，並把結果呈現在表格和地圖中。</li>
@@ -116,7 +141,7 @@
 
         <a
             class="project-card"
-            v-for="project in projects"
+            v-for="project in localizedProjects"
             :key="project.name"
             :href="project.url"
             target="_blank"
@@ -136,10 +161,7 @@
             {{ $t('about.like.supportButton') }}
           </button>
           <br />
-          <span class="support-note">
-          「注：本站由一名本科生開發運營，從字表處理、後端API到前端界面皆一人完成；
-          服務器和域名的開銷，也是從生活費中省出來的💸」
-        </span>
+          <span class="support-note">{{ $t('about.like.supportNote') }}</span>
         </p>
         <p></p>
         <p></p>
@@ -152,7 +174,7 @@
     <div v-if="showQRCodes" class="qr-modal">
       <div class="qr-modal-content">
         <!-- ❌ 右上角關閉 -->
-        <button class="qr-close-btn" @click="showQRCodes = false">✖️</button>
+        <button class="qr-close-btn" @click="showQRCodes = false">{{ $t('common.button.close') }}</button>
 
         <!-- 標題 -->
         <h3 class="qr-title">{{ $t('about.like.qrModal.title') }}</h3>
@@ -160,10 +182,10 @@
         <!-- 二維碼區 -->
         <div class="qr-image-group">
           <div class="qr-box">
-            <img :src="weixinQR" alt="微信收款碼" />
+            <img :src="weixinQR" :alt="$t('about.like.weixinAlt')" />
           </div>
           <div class="qr-box">
-            <img :src="alipayQR" alt="支付寶收款碼" />
+            <img :src="alipayQR" :alt="$t('about.like.alipayAlt')" />
           </div>
         </div>
       </div>
@@ -175,14 +197,14 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import weixinQR from '@/assets/weixin.png'
-import alipayQR from '@/assets/zfb.jpg'
+import weixinQR from '@/assets/picture/weixin.png'
+import alipayQR from '@/assets/picture/zfb.jpg'
 import TabsContainer from '@/components/common/TabsContainer.vue'
 
 const { t } = useI18n()
 const showQRCodes = ref(false)
 
-const tabs = ref([
+const tabs = computed(() => [
   { name: 'intro', label: t('about.tabs.intro') },
   { name: 'reflection', label: t('about.tabs.reflection') },
   { name: 'suggestion', label: t('about.tabs.suggestion') },
@@ -206,6 +228,21 @@ const projects = [
     description: '字表預處理倉庫 - 提取字表的聲韻調'
   },
 ]
+
+const localizedProjects = computed(() => [
+  {
+    ...projects[0],
+    description: t('about.like.projects.frontend.description')
+  },
+  {
+    ...projects[1],
+    description: t('about.like.projects.backend.description')
+  },
+  {
+    ...projects[2],
+    description: t('about.like.projects.build.description')
+  },
+])
 
 function followClicked() {
   window.open('https://www.zhihu.com/people/da-shu-18-11', '_blank');
