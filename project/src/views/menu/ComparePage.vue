@@ -121,71 +121,17 @@
 
               <!-- 鍵名 + 鍵值 -->
               <div class="dropdown-row">
-                <div class="button-group">
-                  <div v-for="key in keys" :key="key" class="key-item">
-                    <button
-                        :class="['key-button', { active: tabStates.tab2.current.keys.includes(key) }]"
-                        @click="toggleKeySelection(key, tabStates.tab2.current.keys)"
-                    >
-                      {{ key }}
-                    </button>
-                  </div>
-                </div>
-                <div class="key-dropdown-group">
-                  <div v-for="key in tabStates.tab2.current.keys" :key="key" class="key-value-dropdown">
-                    <div class="dropdown-wrapper"
-                         :ref="(el) => setTriggerRef(el, key + '_current')"
-                    >
-                      <input
-                          type="text"
-                          :value="getInputDisplayValue(key + '_current')"
-                          @input="handleDropdownInput($event, key + '_current')"
-                          @focus="handleInputFocus(key + '_current')"
-                          @blur="handleInputBlur(key + '_current')"
-                          @click.stop
-                          :placeholder="$t('compare.placeholder.inputOrSelect', { key })"
-                          class="dropdown-input"
-                      />
-                      <span class="arrow-trigger" @click.stop="toggleDropdown('value', key + '_current')">
-                        <span class="arrow-icon">▼</span>
-                      </span>
-                    </div>
-
-                    <Teleport to="body">
-                      <div
-                          v-if="dropdownOpen === 'value' && currentActiveKey === key + '_current'"
-                          class="dropdown-panel"
-                          :style="dropdownStyle.value"
-                      >
-                        <div
-                            class="dropdown-item select-all-item"
-                            :class="{ active: isAllSelected(key, 'current') }"
-                            @click="toggleSelectAll(key, 'current')"
-                        >
-                          <span v-if="isAllSelected(key, 'current')">☑</span>
-                          <span v-else>☐</span>
-                          {{ $t('compare.excludeOptions.selectAll') }}
-                        </div>
-
-                        <div class="dropdown-divider"></div>
-
-                        <div
-                            class="dropdown-item"
-                            v-for="value in getFilteredOptions(key + '_current')"
-                            :key="value"
-                            :class="{ active: isSelected(value, key, 'current') }"
-                            @click="selectValue(value, key, 'current')"
-                        >
-                          <span class="check-icon">{{ isSelected(value, key, 'current') ? '✓' : '' }}</span>
-                          {{ value }}
-                        </div>
-                      </div>
-                    </Teleport>
-                    <div class="key-name">
-                      <strong class="key-name-text">{{ key }}</strong>
-                    </div>
-                  </div>
-                </div>
+                <KeyButtonGroup
+                  :available-keys="availableKeys"
+                  v-model="tabStates.tab2.current.keys"
+                  :exclusive-rules="exclusiveRules"
+                  :single-select-keys="singleSelectKeys"
+                />
+                <DropdownValueSelector
+                  :selected-keys="tabStates.tab2.current.keys"
+                  v-model="tabStates.tab2.current.valueMap"
+                  :key-value-map="keyValueMap"
+                />
               </div>
 
           <!-- 已選列表 -->
@@ -320,6 +266,8 @@ import { useI18n } from 'vue-i18n'
 import TabsContainer from "@/components/common/TabsContainer.vue";
 import LocationAndRegionInput from "@/components/query/LocationAndRegionInput.vue";
 import ZhongguSelector from "@/components/query/ZhongguSelector.vue";
+import KeyButtonGroup from "@/components/query/KeyButtonGroup.vue";
+import DropdownValueSelector from "@/components/query/DropdownValueSelector.vue";
 import { globalPayload, queryStore, uiStore, isQueryButtonDisabled, setRunning, setTabContentDisabled, mapStore } from '@/store/store.js'
 import { column_values, S2T_T2S_MAPPING } from '@/config'
 import { compareChars, compareZhongGu, compareTones } from '@/api/index.js'
@@ -349,12 +297,14 @@ const hanziInput = ref({
   group2: ''
 })
 
-// const selectedCard = ref('韻母')
-// const selectedKey = ref(['攝']);
-// const selectedValue = ref('流')
-// const selectedValueMap = ref({});
-
-const dropdownOpen = ref(null)
+// Configuration for KeyButtonGroup
+const exclusiveRules = {
+  groups: [['攝', '韻'], ['系', '組', '母'], ['入', '調']]
+}
+const singleSelectKeys = ['攝', '韻', '系', '組', '母', '入', '調']
+const availableKeys = ['攝', '韻', '等', '呼', '清濁', '系', '組', '母', '入', '調', '部位', '方式']
+const keys = Object.keys(column_values)
+const keyValueMap = column_values
 
 // ✨ 過濾器相關狀態
 const excludeOptions = computed(() => [
@@ -530,15 +480,6 @@ const getCardLabel = (card) => {
   }
   return cardMap[card] || card
 }
-const keys = Object.keys(column_values)
-const keyValueMap = column_values
-// const tab3KeyInput = ref('')
-// const tab3SelectedKey = ref(Object.keys(column_values)[0])
-// const tab3KeyDropdownEl = ref(null)
-// const valueDropdownEl = ref(null)
-// const keyDropdownEl = ref(null)
-// const valueTriggerEl = ref(null)
-const keyTriggerEl = ref(null)
 
 // 1️⃣ 使用 uiStore 中的按钮状态（不再定义本地状态）
 // 直接从 store 获取状态引用
