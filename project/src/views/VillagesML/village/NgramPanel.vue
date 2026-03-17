@@ -1,10 +1,19 @@
 <template>
   <div class="ngram-panel glass-panel">
-    <h3 class="panel-title">📐 N-gram 分解</h3>
+    <div class="panel-header">
+      <h3 class="panel-title">📐 N-gram 分解</h3>
+      <button
+        v-if="!data && !loading"
+        class="load-button"
+        @click="handleLoadNgrams"
+      >
+        🔍 計算 N-gram
+      </button>
+    </div>
 
     <div v-if="loading" class="loading-state">
       <div class="spinner"></div>
-      <p>加載中...</p>
+      <p>計算中，請稍候...</p>
     </div>
 
     <div v-else-if="data" class="ngram-content">
@@ -66,7 +75,7 @@
     </div>
 
     <div v-else class="empty-state">
-      <p>暫無數據</p>
+      <p>點擊上方按鈕計算 N-gram 分解</p>
     </div>
   </div>
 </template>
@@ -86,6 +95,12 @@ defineProps({
     default: false
   }
 })
+
+const emit = defineEmits(['load-ngrams'])
+
+const handleLoadNgrams = () => {
+  emit('load-ngrams')
+}
 
 const parseBigrams = (bigrams) => {
   try {
@@ -110,11 +125,40 @@ const parseTrigrams = (trigrams) => {
   padding: 24px;
 }
 
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
 .panel-title {
   font-size: 20px;
   font-weight: 600;
   color: var(--text-primary);
-  margin-bottom: 20px;
+  margin: 0;
+}
+
+.load-button {
+  padding: 10px 20px;
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(74, 144, 226, 0.3);
+}
+
+.load-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(74, 144, 226, 0.4);
+}
+
+.load-button:active {
+  transform: translateY(0);
 }
 
 .loading-state {
