@@ -188,7 +188,7 @@
           <ZhongguSelector
               :active-keys="tabStates.tab2.current.keys"
               :value-map="tabStates.tab2.current.valueMap"
-              :is-dropdown-open="!!dropdownOpen || excludeDropdownOpen === 'tab2_current'"
+              :is-dropdown-open="excludeDropdownOpen === 'tab2_current'"
               :selected-card="tabStates.tab2.current.card"
               :exclude-columns="tabStates.tab2.current.excludeColumns"
               @update:runDisabled="tab2CurrentDisabled = $event"
@@ -525,36 +525,6 @@ watch(currentTab, (newTab) => {
 // 4️⃣ 🔥 最终计算属性：控制按钮是否禁用（使用 store 的 computed helper）
 const isRunDisabled = isQueryButtonDisabled
 
-
-// 1. 新增：用来存储循环中 Trigger 元素的 Map
-const triggerRefs = ref({})
-// 2. 新增：用来记录当前具体打开的是哪个 key
-const currentActiveKey = ref(null)
-// 3. 新增：存储每个 key 的输入值
-const dropdownInputs = ref({})
-// 4. 新增：存储每个 key 是否正在编辑
-const isEditing = ref({})
-// 5. 修改：Ref 绑定函数（用于在 template 中收集 DOM）
-const setTriggerRef = (el, key) => {
-  if (el) {
-    triggerRefs.value[key] = el
-  }
-}
-
-// 监听 keys 变化，初始化输入框 (for current selector)
-watch(() => tabStates.tab2.current.keys, (currentKeys) => {
-  // Initialize for current selector
-  currentKeys.forEach(key => {
-    const keyWithGroup = key + '_current'
-    if (!(keyWithGroup in dropdownInputs.value)) {
-      dropdownInputs.value[keyWithGroup] = ''
-    }
-    if (!(keyWithGroup in isEditing.value)) {
-      isEditing.value[keyWithGroup] = false
-    }
-  })
-}, { immediate: true, deep: true })
-
 // 监听 card（聲韻調）变化，自動清空已選列表
 watch(() => tabStates.tab2.current.card, (newCard, oldCard) => {
   // 只有在真正切換時才清空（避免初始化時清空）
@@ -564,82 +534,6 @@ watch(() => tabStates.tab2.current.card, (newCard, oldCard) => {
     tabStates.tab2.group2Items = []
   }
 })
-
-// 获取输入框显示的值
-function getInputDisplayValue(keyWithGroup) {
-  // 如果正在编辑，显示用户输入的内容
-  if (isEditing.value[keyWithGroup]) {
-    return dropdownInputs.value[keyWithGroup] || ''
-  }
-  // 如果不在编辑，显示已选中的内容
-  // 提取纯净的 key 和 group
-  const key = keyWithGroup.replace(/_(group[12]|current)$/, '')
-  let group = 'group1'
-  if (keyWithGroup.endsWith('_group1')) {
-    group = 'group1'
-  } else if (keyWithGroup.endsWith('_group2')) {
-    group = 'group2'
-  } else if (keyWithGroup.endsWith('_current')) {
-    group = 'current'
-  }
-  return getDisplayText(key, group)
-}
-
-// 处理输入框获得焦点
-function handleInputFocus(key) {
-  isEditing.value[key] = true
-  dropdownInputs.value[key] = ''
-}
-
-// 处理输入框失去焦点
-function handleInputBlur(key) {
-  // 延迟执行，避免点击下拉选项时立即触发
-  setTimeout(() => {
-    isEditing.value[key] = false
-    dropdownInputs.value[key] = ''
-  }, 200)
-}
-
-
-// 处理输入框输入
-function handleDropdownInput(event, key) {
-  const inputValue = event.target.value
-  dropdownInputs.value[key] = inputValue
-
-  // 有输入时自动打开下拉框显示过滤后的选项
-  if (inputValue.trim()) {
-    if (dropdownOpen.value !== 'value' || currentActiveKey.value !== key) {
-      toggleDropdown('value', key)
-    }
-  } else {
-    // 输入为空时关闭下拉框
-    if (dropdownOpen.value === 'value' && currentActiveKey.value === key) {
-      dropdownOpen.value = null
-      currentActiveKey.value = null
-    }
-  }
-}
-
-// 获取过滤后的选项
-function getFilteredOptions(keyWithGroup) {
-  // Extract the actual key name (remove _group1, _group2, or _current suffix)
-  const key = keyWithGroup.replace(/_(group[12]|current)$/, '')
-  const rawInput = (dropdownInputs.value[keyWithGroup] || '').trim();
-  const allOptions = keyValueMap[key] || [];
-
-  if (!rawInput) return allOptions;
-
-  // 將輸入字串拆解，並嘗試尋找每個字的對應字
-  // 例如輸入「齐」，transformedInput 會變成 「齊」
-  const transformedInput = rawInput.split('').map(char => {
-    return S2T_T2S_MAPPING[char] || char;
-  }).join('');
-
-  // 執行過濾：原樣匹配 OR 轉換後匹配
-  return allOptions.filter(opt => {
-    return opt.includes(rawInput) || opt.includes(transformedInput);
-  });
-}
 
 const locationModel = ref({
   locations: [],
