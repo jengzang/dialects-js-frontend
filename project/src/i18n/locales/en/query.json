@@ -178,6 +178,56 @@
         "category": "Category",
         "values": "Corresponding Values"
       },
+      "inputRows": {
+        "she": {
+          "category": "She",
+          "values": "通、宕、江、止、遇、蟹、流、山、效、咸、深、臻、曾、梗、果、假"
+        },
+        "yun": {
+          "category": "Rime",
+          "values": "之、仙、佳、侯、侵、元、先、冬、凡、刪、咍、咸、唐、嚴、夬、宵、寒、尤、山、幽、庚、廢、微、支、文、東、模、欣、歌、江、泰、添、灰、痕、登、皆、真、祭、耕、肴、脂、臻、蒸、蕭、虞、覃、談、豪、銜、鍾、陽、青、魂、魚、鹽、麻、齊、#清(清有歧義，需用#指定清韻)"
+        },
+        "hu": {
+          "category": "Opening",
+          "values": "合、開"
+        },
+        "deng": {
+          "category": "Division",
+          "values": "一、二、三、三A、三B、三C、三銳、四 (enter \"三\" to include all third-division syllables; specify \"ABC銳\" to distinguish chongniu, for example \"三A\")"
+        },
+        "ru": {
+          "category": "Entering",
+          "values": "舒、入"
+        },
+        "diao": {
+          "category": "Tone",
+          "values": "平、上、去、入"
+        },
+        "buwei": {
+          "category": "Place",
+          "values": "雙唇、齒、唇齒、喉、捲舌、腭、軟腭"
+        },
+        "fangshi": {
+          "category": "Manner",
+          "values": "塞、塞擦、擦、近、鼻"
+        },
+        "qingzhuo": {
+          "category": "Voicing",
+          "values": "全清、全濁、次清、次濁"
+        },
+        "xi": {
+          "category": "Xi",
+          "values": "幫、知、端、見"
+        },
+        "zu": {
+          "category": "Zu",
+          "values": "幫、非、端、泥、精、莊、知、章、見、曉、影、日"
+        },
+        "mu": {
+          "category": "Initial",
+          "values": "幫、滂、並、明、非、敷、奉、微、端、透、定、泥、知、徹、澄、娘、精、從、心、邪、莊、初、崇、俟、生、章、昌、常、書、日、船、見、溪、群、疑、影、曉、匣、云、以、來、@清(清有歧義，需用@指定清母)"
+        }
+      },
       "notes": {
         "note1": "Click the button to query!",
         "note2": "In the analysis results, blue text like this is clickable.",

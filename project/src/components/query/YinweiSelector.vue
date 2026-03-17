@@ -10,7 +10,7 @@
     <textarea
         id="tab3-key-input"
         v-model="tab3KeyInput"
-        placeholder="請輸入待查音節，例如“a”"
+        :placeholder="$t('query.components.yinweiSelector.placeholder')"
         style="max-height: 5dvh"
         autocomplete="off"
     ></textarea>
@@ -20,7 +20,14 @@
     <Transition name="fade-scale">
       <div v-if="isHelpModalOpen" class="glass-modal-overlay" @click.self="closeHelpModal">
         <div class="glass-card">
-          <button class="close-btn" @click="closeHelpModal">&times;</button>
+          <button
+            class="close-btn"
+            @click="closeHelpModal"
+            :title="$t('common.button.close')"
+            :aria-label="$t('common.button.close')"
+          >
+            &times;
+          </button>
           <h3 class="modal-title">{{ $t('query.components.yinweiSelector.modalTitle') }}</h3>
             <div v-if="!hasLocations" class="empty-state">
               <div class="icon-warn">⚠️</div>
@@ -86,8 +93,11 @@
 
 <script setup>
 import { ref, computed ,watch} from 'vue';
+import { useI18n } from 'vue-i18n'
 import { getFeatureCounts } from '@/api/query/core'
 import { userStore, setTabContentDisabled } from '@/store/store.js'
+
+const { t } = useI18n()
 
 // 1. 接收父組件傳入的 locationRef
 const props = defineProps({

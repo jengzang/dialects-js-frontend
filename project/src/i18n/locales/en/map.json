@@ -5,19 +5,19 @@
     "custom": "Custom"
   },
   "placeholder": {
-    "selectFeature": "Please select a feature"
+    "selectFeature": "Please select a feature first"
   },
   "messages": {
     "submitSuccess": "Custom data submitted successfully!",
-    "dataRefreshed": "✅ Data refreshed",
-    "dataRefreshFailed": "❌ Failed to refresh data:",
+    "dataRefreshed": "Data refreshed",
+    "dataRefreshFailed": "Failed to refresh data:",
     "featureLoaded": "Feature loaded: {feature}",
-    "featureLoadFailed": "❌ Failed to load feature:",
+    "featureLoadFailed": "Failed to load feature:",
     "loadFeatureFailed": "Failed to load feature: {error}"
   },
   "help": {
-    "noFeature": "If you want to add custom data, please select a feature first",
-    "withFeature": "If you want to add custom data, the feature should be: {feature}"
+    "noFeature": "Please select a feature before adding custom data",
+    "withFeature": "To add custom data, the feature will be: {feature}"
   },
   "customDataPanel": {
     "title": "Submit Custom Data",
@@ -25,55 +25,55 @@
       "location": "Location",
       "region": "Region",
       "coordinates": "Coordinates",
-      "featureType": "Initial/Final/Tone",
-      "featureField": "Current Query",
+      "featureType": "Feature Type",
+      "featureField": "Current Feature",
       "value": "Value",
       "description": "Description"
     },
     "placeholders": {
-      "location": "Enter location name...",
-      "region": "Auto-filled after selecting location...",
-      "coordinates": "Click map to auto-fill...",
-      "featureType": "e.g.: Initial, Final, Tone",
-      "featureField": "e.g.: Liu Rhyme, Grade 1, Open...",
-      "value": "e.g.: p, a, 55...",
-      "description": "Optional: Additional notes..."
+      "location": "Enter a location name...",
+      "region": "Auto-filled after selecting a location...",
+      "coordinates": "Click the map to auto-fill...",
+      "featureType": "e.g. Initial, Final, Tone, Lexicon",
+      "featureField": "e.g. Liu She, First Division, Open...",
+      "value": "e.g. p, a, 55...",
+      "description": "Optional: add notes..."
     },
     "buttons": {
       "submit": "Submit Data",
       "expand": "+",
-      "collapse": "×"
+      "collapse": "-"
     },
     "helpText": {
-      "region": "Recommended to fill in complete atlas region/phonetic region, e.g., \"Hakka-Yue-Tai-Mei-Hui\"",
-      "value": "The value entered will be displayed on the map"
+      "region": "Recommended: use the full atlas region or phonetic region, for example \"Hakka-Yuetai-Meihui\".",
+      "value": "The value entered here will be shown directly on the map."
     },
     "validation": {
-      "locationRequired": "Please fill in location (abbreviation)",
-      "regionRequired": "Please fill in region",
-      "coordinatesRequired": "Please fill in coordinates",
-      "featureTypeRequired": "Please fill in initial/final/tone",
-      "featureFieldRequired": "Please fill in feature",
-      "valueRequired": "Please fill in value",
+      "locationRequired": "Please fill in the location",
+      "regionRequired": "Please fill in the region",
+      "coordinatesRequired": "Please fill in the coordinates",
+      "featureTypeRequired": "Please fill in the feature type",
+      "featureFieldRequired": "Please fill in the feature",
+      "valueRequired": "Please fill in the value",
       "loginRequired": "Login required to submit personal data"
     },
     "messages": {
       "submitSuccess": "Submitted successfully!",
       "submitFailed": "Submission failed: {message}",
-      "submitError": "Error occurred during submission: {error}",
-      "regionNotFound": "Corresponding region not found",
-      "regionRequestFailed": "Request failed",
+      "submitError": "An error occurred during submission: {error}",
+      "regionNotFound": "Matching region not found",
+      "regionRequestFailed": "Region lookup failed",
       "locationMatchFailed": "Location matching failed"
     }
   },
   "divideTab": {
     "title": "Regional Mapping",
-    "hint": "Draw dialect distribution maps by different regional levels<br>Colors are automatically assigned by the program",
+    "hint": "Draw dialect distribution maps by different regional levels.<br>Colors are assigned automatically.",
     "labels": {
-      "regionLevel": "Regional Level for Mapping"
+      "regionLevel": "Regional Level"
     },
     "placeholders": {
-      "selectLevel": "Please select level"
+      "selectLevel": "Please select a level"
     },
     "options": {
       "level1": "Level 1 Region",
@@ -81,8 +81,8 @@
       "level3": "Level 3 Region"
     },
     "buttons": {
-      "run": "🌍 Draw Map",
-      "running": "🔄 Running..."
+      "run": "Draw Map",
+      "running": "Drawing..."
     },
     "messages": {
       "dataFetchFailed": "Failed to fetch data: {error}"
@@ -92,39 +92,203 @@
     "title": "Search Custom Features",
     "labels": {
       "featureSearch": "Feature Search",
-      "login": "🔐 Login"
+      "login": "Login"
     },
     "placeholders": {
       "featureSearch": "Enter feature keywords..."
     },
     "badges": {
-      "loginRequired": "🔒 Login required to add personal data",
-      "noData": "📝 Please click the button below to add data first",
-      "dataCount": "📊 You have {count} personal data entries"
+      "loginRequired": "Login required to manage personal data",
+      "noData": "No personal data yet. Add some entries first.",
+      "dataCount": "You currently have {count} personal entries"
     },
-    "selected": "✅ Selected: {feature}",
+    "selected": "Selected feature: {feature}",
     "buttons": {
-      "run": "🚀 Run Query",
-      "running": "🔄 Running...",
-      "addSingle": "📝 Add Single Entry",
-      "addBatch": "📋 Batch Add",
-      "help": "?"
+      "run": "Run Query",
+      "running": "Running...",
+      "addSingle": "Add One",
+      "addBatch": "Batch Add",
+      "help": "Help"
     },
     "divider": "Add New Custom Data",
-    "helpTrigger": "Don't know how to add data❓Click here for instructions",
+    "helpTrigger": "Not sure how to add data? Open the guide",
     "helpIcons": {
-      "addSingle": "Jump to map page, click on map to get coordinates",
-      "addBatch": "Batch add multiple entries, supports pasting from Excel"
+      "addSingle": "Go to the map page and click the map to fill coordinates automatically.",
+      "addBatch": "Add multiple rows at once. Supports pasting directly from Excel."
     },
     "validation": {
       "selectFeature": "Please select a feature first",
-      "loginFirst": "Please login first"
+      "loginFirst": "Please log in first"
     },
     "messages": {
       "noMatch": "No matching features found",
       "searchFailed": "Search failed: {error}",
       "loading": "Loading feature data...",
-      "fetchCountFailed": "Failed to fetch data count"
+      "fetchCountFailed": "Failed to fetch personal data count"
+    },
+    "helpModal": {
+      "title": "Guide to Custom Data",
+      "sections": {
+        "overview": {
+          "title": "Start Here",
+          "items": {
+            "privateSpace": {
+              "label": "Private space: ",
+              "text": "Your custom data belongs to your account and is only visible after login."
+            },
+            "mapRendering": {
+              "label": "Map rendering: ",
+              "text": "The system groups by \"Feature\" and shows \"Value\" directly on each map point."
+            }
+          }
+        },
+        "fieldGuide": {
+          "title": "How to Read the Fields",
+          "items": {
+            "feature": {
+              "label": "Feature: ",
+              "text": "The searchable category, such as \"Liu She\", \"Hao Rime\", or \"Yesterday\"."
+            },
+            "value": {
+              "label": "Value: ",
+              "text": "The text displayed on the map, such as \"iu\", \"tasty\", or \"53\"."
+            },
+            "featureType": {
+              "label": "Feature Type: ",
+              "text": "A broad class such as Initial, Final, Tone, or Lexicon."
+            },
+            "location": {
+              "label": "Location: ",
+              "text": "The place name shown on the map."
+            },
+            "region": {
+              "label": "Region: ",
+              "text": "The dataset scope or collection name, such as \"Yue-Gaoyang\" or \"2025 Fieldwork\"."
+            }
+          },
+          "examples": {
+            "middleChinese": "Recommended use: supplement locations that are missing from the public atlas or character tables.",
+            "personalCorpus": "If you know a site's reading or lexical form but the website does not include it yet, add it here as your own layer."
+          }
+        },
+        "customCollection": {
+          "title": "Build Your Own Dataset",
+          "intro": "When you want to organize fieldwork, vocabulary, place names, or any other mappable notes, you can think of the fields like this:",
+          "items": {
+            "region": {
+              "label": "Region: ",
+              "text": "Use it as a folder or project name, for example \"2025 Fieldwork\"."
+            },
+            "featureType": {
+              "label": "Feature Type: ",
+              "text": "Leave it blank, or use a broad class such as \"Lexicon\"."
+            },
+            "feature": {
+              "label": "Feature: ",
+              "text": "Use it as the search key, such as \"Yesterday\", \"Play\", or \"Zhi · Jing Group · Open\"."
+            },
+            "value": {
+              "label": "Value: ",
+              "text": "Use it as the map label, such as \"congri\", \"nau\", or \"ei\"."
+            }
+          },
+          "notes": {
+            "scope": "Enter the dataset name in the region field so later searches stay inside that personal collection.",
+            "search": "The search box matches \"Feature\", not \"Value\".",
+            "display": "\"Value\" is shown directly on the map, so it works well for pronunciations, lexical forms, scores, or short notes."
+          }
+        },
+        "dailyUsage": {
+          "title": "It Also Works as a Life Map",
+          "intro": "You can use the same system as a private map for food spots, landmarks, interviews, or other personal notes.",
+          "connectors": {
+            "regionToLocation": "Contains multiple locations",
+            "locationToData": "Add labels to each location"
+          },
+          "cards": {
+            "region": {
+              "label": "Region",
+              "text": "Like a folder or project name",
+              "example": "Example: My Food Map"
+            },
+            "location": {
+              "label": "Location",
+              "text": "Like a place or store name",
+              "example": "Example: Lao Wang Barbecue"
+            },
+            "feature": {
+              "label": "Feature",
+              "text": "A searchable tag or category",
+              "example": "Example: Rating / Type"
+            },
+            "value": {
+              "label": "Value",
+              "text": "The text shown directly on the map",
+              "example": "Example: Tasty / Barbecue"
+            }
+          },
+          "result": "For example, if the region is \"My Food Map\" and the feature is \"Rating\", searching that feature will show your note at each saved location."
+        },
+        "steps": {
+          "title": "How to Add Data",
+          "items": {
+            "mode": {
+              "label": "1. Choose a mode: ",
+              "text": "\"Add One\" is better for precise coordinates, while \"Batch Add\" is better when you already have many rows in Excel."
+            },
+            "coordinates": {
+              "label": "2. Get coordinates: ",
+              "text": "In single-entry mode, open the panel and click the target position on the map to fill coordinates automatically."
+            },
+            "save": {
+              "label": "3. Save: ",
+              "text": "Submit after checking the fields, and the record will be stored in your personal dataset."
+            }
+          }
+        }
+      }
+    }
+  },
+  "yuBaoMap": {
+    "loading": {
+      "mapData": "Loading map data..."
+    },
+    "controls": {
+      "location": "Location",
+      "pronunciation": "Pronunciation",
+      "definition": "Definition"
+    },
+    "buttons": {
+      "reset": "Reset View",
+      "fullscreen": "Fullscreen",
+      "exitFullscreen": "Exit Fullscreen"
+    },
+    "popup": {
+      "title": "Details",
+      "clusteredCount": "This position combines {count} data points"
+    },
+    "fields": {
+      "location": "Location:",
+      "pronunciation": "Pronunciation:",
+      "word": "Word:",
+      "note": "Note:",
+      "category": "Category:",
+      "sentence": "Sentence:"
+    }
+  },
+  "villageMapPopup": {
+    "title": "Village Distribution Map",
+    "count": "{count} villages",
+    "toggle": {
+      "toDialectTitle": "Switch to dialect",
+      "toNameTitle": "Switch to village name",
+      "name": "Village Name",
+      "dialect": "Dialect"
+    },
+    "buttons": {
+      "reset": "Reset View",
+      "fullscreen": "Fullscreen",
+      "exitFullscreen": "Exit Fullscreen"
     }
   },
   "legend": {

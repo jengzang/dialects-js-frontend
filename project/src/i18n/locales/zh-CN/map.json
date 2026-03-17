@@ -1,137 +1,301 @@
 {
   "tabs": {
     "map": "地图",
-    "divide": "分区图",
+    "divide": "分区地图",
     "custom": "自定义"
   },
   "placeholder": {
-    "selectFeature": "请选择特征"
+    "selectFeature": "请先选择一个特征"
   },
   "messages": {
     "submitSuccess": "自定义数据提交成功！",
-    "dataRefreshed": "✅ 数据已刷新",
-    "dataRefreshFailed": "❌ 刷新数据失败:",
+    "dataRefreshed": "数据已重新整理",
+    "dataRefreshFailed": "重新整理数据失败：",
     "featureLoaded": "已加载特征：{feature}",
-    "featureLoadFailed": "❌ 加载特征失败:",
+    "featureLoadFailed": "加载特征失败：",
     "loadFeatureFailed": "加载特征失败：{error}"
   },
   "help": {
-    "noFeature": "如果你想添加个人自定义数据，请先选择特征",
-    "withFeature": "如果你想添加个人自定义数据，特征需填入：{feature}"
+    "noFeature": "若要新增自定义数据，请先选择一个特征",
+    "withFeature": "若要新增自定义数据，特征将会是：{feature}"
   },
   "customDataPanel": {
     "title": "提交自定义数据",
     "labels": {
-      "location": "地点",
+      "location": "地点简称",
       "region": "分区",
-      "coordinates": "经纬度",
-      "featureType": "声/韵/调",
-      "featureField": "当前查询",
+      "coordinates": "坐标",
+      "featureType": "声韵调 / 类别",
+      "featureField": "当前查询特征",
       "value": "值",
       "description": "说明"
     },
     "placeholders": {
       "location": "输入地点名称...",
-      "region": "选择地点后自动填充...",
+      "region": "选择地点后自动填入...",
       "coordinates": "点击地图自动填入...",
-      "featureType": "如：声母、韵母、声调",
-      "featureField": "如：流摄、一等、开...",
-      "value": "如：p、a、55...",
-      "description": "选填：补充说明..."
+      "featureType": "例如：声母、韵母、调值、词汇",
+      "featureField": "例如：流摄、一等、开口...",
+      "value": "例如：p、a、55...",
+      "description": "可选：补充注记..."
     },
     "buttons": {
       "submit": "提交数据",
       "expand": "+",
-      "collapse": "×"
+      "collapse": "-"
     },
     "helpText": {
-      "region": "推荐填入完整的地图集分区/音典分区，例如\"客家话-粤台片-梅惠小片\"",
-      "value": "填入的值将显示在地图上"
+      "region": "建议填写完整图集分区或语音分区，例如「客家话-粤台片-梅惠小片」。",
+      "value": "这里填入的值会直接显示在地图上。"
     },
     "validation": {
       "locationRequired": "请填写地点（简称）",
       "regionRequired": "请填写分区",
-      "coordinatesRequired": "请填写经纬度",
-      "featureTypeRequired": "请填写声韵调",
+      "coordinatesRequired": "请填写坐标",
+      "featureTypeRequired": "请填写声韵调或类别",
       "featureFieldRequired": "请填写特征",
       "valueRequired": "请填写值",
-      "loginRequired": "提交个人数据需登录"
+      "loginRequired": "登录后才能提交个人数据"
     },
     "messages": {
       "submitSuccess": "提交成功！",
       "submitFailed": "提交失败：{message}",
       "submitError": "提交时发生错误：{error}",
-      "regionNotFound": "未找到对应的分区",
-      "regionRequestFailed": "请求失败",
+      "regionNotFound": "找不到对应分区",
+      "regionRequestFailed": "分区查询失败",
       "locationMatchFailed": "地点匹配失败"
     }
   },
   "divideTab": {
     "title": "分区绘图",
-    "hint": "按照不同分区层级，绘制方言分布点图<br>程序自动分配不同颜色",
+    "hint": "按不同分区层级绘制方言分布图。<br>颜色会由系统自动分配。",
     "labels": {
-      "regionLevel": "绘图分区级数"
+      "regionLevel": "绘图区层级"
     },
     "placeholders": {
-      "selectLevel": "请选择级数"
+      "selectLevel": "请选择层级"
     },
     "options": {
-      "level1": "1级分区",
-      "level2": "2级分区",
-      "level3": "3级分区"
+      "level1": "一级分区",
+      "level2": "二级分区",
+      "level3": "三级分区"
     },
     "buttons": {
-      "run": "🌍绘图",
-      "running": "🔄 运行中..."
+      "run": "绘制地图",
+      "running": "绘制中..."
     },
     "messages": {
-      "dataFetchFailed": "获取数据失败: {error}"
+      "dataFetchFailed": "获取数据失败：{error}"
     }
   },
   "customTab": {
     "title": "搜索自定义特征",
     "labels": {
       "featureSearch": "特征搜索",
-      "login": "🔐 登录"
+      "login": "登录"
     },
     "placeholders": {
-      "featureSearch": "请输入特征关键词..."
+      "featureSearch": "输入特征关键词..."
     },
     "badges": {
-      "loginRequired": "🔒 登录用户方可添加个人数据",
-      "noData": "📝 请先点击下方按钮添加数据",
-      "dataCount": "📊 您共有 {count} 条个人数据"
+      "loginRequired": "登录后才能管理个人数据",
+      "noData": "尚未建立个人数据，请先新增",
+      "dataCount": "你目前有 {count} 条个人数据"
     },
-    "selected": "✅ 已选择：{feature}",
+    "selected": "已选特征：{feature}",
     "buttons": {
-      "run": "🚀 运行查询",
-      "running": "🔄 运行中...",
-      "addSingle": "📝 逐条添加",
-      "addBatch": "📋 批量添加",
-      "help": "?"
+      "run": "执行查询",
+      "running": "查询中...",
+      "addSingle": "逐条新增",
+      "addBatch": "批量新增",
+      "help": "说明"
     },
-    "divider": "添加新的自定义数据",
-    "helpTrigger": "不知道如何添加数据❓点此查看使用说明",
+    "divider": "新增自定义数据",
+    "helpTrigger": "不知道怎样新增数据？点这里查看说明",
     "helpIcons": {
-      "addSingle": "跳转至地图页面，点击地图即可获取经纬度",
-      "addBatch": "批量添加多条数据，支持从excel粘贴"
+      "addSingle": "跳转到地图页后，直接点击地图即可自动填入坐标。",
+      "addBatch": "一次新增多条数据，支持从 Excel 直接粘贴。"
     },
     "validation": {
       "selectFeature": "请先选择一个特征",
       "loginFirst": "请先登录"
     },
     "messages": {
-      "noMatch": "未找到匹配的特征",
+      "noMatch": "找不到匹配的特征",
       "searchFailed": "搜索失败：{error}",
       "loading": "正在加载特征数据...",
-      "fetchCountFailed": "获取数据总量失败"
+      "fetchCountFailed": "获取个人数据条数失败"
+    },
+    "helpModal": {
+      "title": "自定义数据使用说明",
+      "sections": {
+        "overview": {
+          "title": "先理解这个区块",
+          "items": {
+            "privateSpace": {
+              "label": "私人资料库：",
+              "text": "这里的数据只属于你的账号，登录后才能查看与编辑。"
+            },
+            "mapRendering": {
+              "label": "地图呈现：",
+              "text": "系统会依据你填写的「特征」分组，并把「值」直接显示在地图点位上。"
+            }
+          }
+        },
+        "fieldGuide": {
+          "title": "字段怎样理解",
+          "items": {
+            "feature": {
+              "label": "特征：",
+              "text": "用来分类与搜索，例如「流摄」、「豪韵」或「昨天」。"
+            },
+            "value": {
+              "label": "值：",
+              "text": "地图上真正显示的内容，例如「iu」、「好吃」或「53」。"
+            },
+            "featureType": {
+              "label": "声韵调 / 类别：",
+              "text": "给数据一个大类，例如声母、韵母、调值或词汇。"
+            },
+            "location": {
+              "label": "地点简称：",
+              "text": "地图上显示的地点名称，建议填你最常用的称呼。"
+            },
+            "region": {
+              "label": "分区：",
+              "text": "你的数据集范围或名称，例如「粤语-高阳片」或「2025田调」。"
+            }
+          },
+          "examples": {
+            "middleChinese": "建议用法：补充公共地图或字表里尚未收录的地点数据。",
+            "personalCorpus": "如果你知道某地的读音或词形，但网站暂未收录，可以在这里自行补入。"
+          }
+        },
+        "customCollection": {
+          "title": "建立自己的数据集",
+          "intro": "当你想整理个人田调、词汇、地名或任何可上图的信息时，可以这样理解各字段：",
+          "items": {
+            "region": {
+              "label": "分区：",
+              "text": "把它当成文件夹名称，例如「2025田调」。"
+            },
+            "featureType": {
+              "label": "声韵调 / 类别：",
+              "text": "可留空；若想粗略分类，也可填「词汇」等大类。"
+            },
+            "feature": {
+              "label": "特征：",
+              "text": "把它当成搜索键，例如「昨天」、「玩耍」或「止・精组・开口」。"
+            },
+            "value": {
+              "label": "值：",
+              "text": "把它当成地图标签，例如「从日」、「嬲」或「ei」。"
+            }
+          },
+          "notes": {
+            "scope": "先在分区输入框填入你的数据集名称，之后搜索就能只针对这个数据集。",
+            "search": "搜索框查的是「特征」，不是「值」。",
+            "display": "「值」会直接显示在地图点上，适合放音值、词形、评分或简短注记。"
+          }
+        },
+        "dailyUsage": {
+          "title": "不做方言研究也能用",
+          "intro": "这套机制也可以当成私人生活地图，例如美食地图、景点收藏或采访记录。",
+          "connectors": {
+            "regionToLocation": "可包含多个地点",
+            "locationToData": "再给这个地点加标签"
+          },
+          "cards": {
+            "region": {
+              "label": "分区 (Region)",
+              "text": "相当于文件夹名称",
+              "example": "例：我的美食地图"
+            },
+            "location": {
+              "label": "地点 (Location)",
+              "text": "相当于店名或地点名",
+              "example": "例：老王烧烤"
+            },
+            "feature": {
+              "label": "特征",
+              "text": "相当于分类标签（搜索用）",
+              "example": "例：评价 / 类型"
+            },
+            "value": {
+              "label": "值",
+              "text": "相当于地图上显示的内容",
+              "example": "例：好吃 / 烧烤"
+            }
+          },
+          "result": "例如把分区填成「我的美食地图」，再搜索特征「评价」，地图上就会在各店名位置显示你填入的评语。"
+        },
+        "steps": {
+          "title": "新增数据步骤",
+          "items": {
+            "mode": {
+              "label": "1. 选择模式：",
+              "text": "「逐条新增」适合精确点选坐标；「批量新增」适合从 Excel 或表格粘贴多条数据。"
+            },
+            "coordinates": {
+              "label": "2. 获取坐标：",
+              "text": "在单笔模式下，打开面板后直接点击地图位置即可自动填入经纬度。"
+            },
+            "save": {
+              "label": "3. 提交保存：",
+              "text": "确认字段无误后送出，数据就会保存到你的个人资料库。"
+            }
+          }
+        }
+      }
+    }
+  },
+  "yuBaoMap": {
+    "loading": {
+      "mapData": "加载地图数据中..."
+    },
+    "controls": {
+      "location": "地名",
+      "pronunciation": "语音",
+      "definition": "释义"
+    },
+    "buttons": {
+      "reset": "复位",
+      "fullscreen": "全屏",
+      "exitFullscreen": "退出全屏"
+    },
+    "popup": {
+      "title": "详细信息",
+      "clusteredCount": "此位置聚合了 {count} 个数据点"
+    },
+    "fields": {
+      "location": "地点：",
+      "pronunciation": "发音：",
+      "word": "字：",
+      "note": "注释：",
+      "category": "分区：",
+      "sentence": "句式："
+    }
+  },
+  "villageMapPopup": {
+    "title": "村落分布地图",
+    "count": "{count} 个村落",
+    "toggle": {
+      "toDialectTitle": "切换到方言",
+      "toNameTitle": "切换到村名",
+      "name": "村名",
+      "dialect": "方言"
+    },
+    "buttons": {
+      "reset": "复位",
+      "fullscreen": "全屏",
+      "exitFullscreen": "退出全屏"
     }
   },
   "legend": {
     "title": "图例",
     "compareTypes": {
-      "chars": "汉字比较",
-      "zhonggu": "中古比较",
+      "chars": "字表比较",
+      "zhonggu": "中古音比较",
       "tones": "调类比较"
     }
   }
