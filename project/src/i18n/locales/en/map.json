@@ -249,6 +249,78 @@
       }
     }
   },
+  "mapLibre": {
+    "common": {
+      "none": "None"
+    },
+    "controls": {
+      "personalData": "Personal Data",
+      "show": "Show",
+      "hide": "Hide",
+      "viewPlaceNames": "View Place Names",
+      "enabled": "On",
+      "disabled": "Off"
+    },
+    "buttons": {
+      "reset": "Reset View",
+      "fullscreen": "Fullscreen",
+      "exitFullscreen": "Exit Fullscreen",
+      "delete": "Delete",
+      "detail": "Details"
+    },
+    "loading": {
+      "rendering": "Rendering map..."
+    },
+    "locationPopup": {
+      "title": "{location} - Details",
+      "loading": "Loading...",
+      "noData": "No data available",
+      "fields": {
+        "mapRegion2": "Map Atlas Region 2:",
+        "phoneticRegion": "Phonetic Region:",
+        "characterSource": "Character Table Source:",
+        "coordinates": "Coordinates:",
+        "adminRegion": "Administrative Region:",
+        "toneCategory": "Tone Category",
+        "toneValue": "Tone Value"
+      }
+    },
+    "popup": {
+      "note": "Note: {note}"
+    },
+    "confirm": {
+      "deleteMessage": "Location: {location}\nFeature: {feature}  Value: {value}\n\nThis action cannot be undone!",
+      "title": "Confirm Deletion",
+      "confirmText": "Delete",
+      "cancelText": "Cancel"
+    },
+    "messages": {
+      "anonymousNoCustomData": "Anonymous users cannot view personal data.",
+      "queryLocationFailed": "Query failed: {error}",
+      "deleteInvalid": "Delete failed: location, feature, or value is empty.",
+      "deleteSuccess": "Deleted successfully!\n{message}",
+      "deleteFailed": "Delete failed: {message}",
+      "deleteError": "An error occurred during deletion."
+    },
+    "compare": {
+      "status": {
+        "same": "Exactly the same",
+        "diff": "Completely different",
+        "partial": "Partially the same",
+        "maybe": "Possibly mergeable",
+        "highSimilar": "Highly similar",
+        "noData": "No data"
+      },
+      "fields": {
+        "feature": "Feature:",
+        "result": "Result:",
+        "readingComparison": "Reading Comparison:",
+        "similarity": "Similarity:",
+        "detail": "Details:",
+        "toneComparison": "Tone Comparison:"
+      }
+    }
+  },
   "yuBaoMap": {
     "loading": {
       "mapData": "Loading map data..."

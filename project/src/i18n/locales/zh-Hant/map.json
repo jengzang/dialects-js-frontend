@@ -249,6 +249,78 @@
       }
     }
   },
+  "mapLibre": {
+    "common": {
+      "none": "無"
+    },
+    "controls": {
+      "personalData": "用戶個人資料",
+      "show": "顯示",
+      "hide": "隱藏",
+      "viewPlaceNames": "查看地名",
+      "enabled": "開啟",
+      "disabled": "關閉"
+    },
+    "buttons": {
+      "reset": "復位",
+      "fullscreen": "全屏",
+      "exitFullscreen": "退出全屏",
+      "delete": "刪除",
+      "detail": "詳情"
+    },
+    "loading": {
+      "rendering": "地圖渲染中..."
+    },
+    "locationPopup": {
+      "title": "{location} - 詳細資訊",
+      "loading": "載入中...",
+      "noData": "暫無資料",
+      "fields": {
+        "mapRegion2": "地圖集二分區：",
+        "phoneticRegion": "音典分區：",
+        "characterSource": "字表來源：",
+        "coordinates": "經緯度：",
+        "adminRegion": "行政區劃：",
+        "toneCategory": "調類",
+        "toneValue": "調值"
+      }
+    },
+    "popup": {
+      "note": "說明: {note}"
+    },
+    "confirm": {
+      "deleteMessage": "地點: {location}\n特徵: {feature}  值: {value}\n\n刪除後將無法恢復！",
+      "title": "確認刪除",
+      "confirmText": "刪除",
+      "cancelText": "取消"
+    },
+    "messages": {
+      "anonymousNoCustomData": "未登入用戶無法查看用戶個人資料！",
+      "queryLocationFailed": "查詢失敗：{error}",
+      "deleteInvalid": "刪除失敗，地點/特徵/值存在空值",
+      "deleteSuccess": "刪除成功！\n{message}",
+      "deleteFailed": "刪除失敗：{message}",
+      "deleteError": "刪除時發生錯誤！"
+    },
+    "compare": {
+      "status": {
+        "same": "完全相同",
+        "diff": "完全不同",
+        "partial": "部分相同",
+        "maybe": "可能合併",
+        "highSimilar": "高度相似",
+        "noData": "無數據"
+      },
+      "fields": {
+        "feature": "特徵：",
+        "result": "結果：",
+        "readingComparison": "讀音對比：",
+        "similarity": "相似度：",
+        "detail": "詳情：",
+        "toneComparison": "調值對比："
+      }
+    }
+  },
   "yuBaoMap": {
     "loading": {
       "mapData": "載入地圖資料中..."
