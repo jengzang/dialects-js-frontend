@@ -233,9 +233,13 @@ import FloatingDice from "@/components/query/FloatingDice.vue";
 import KeyButtonGroup from "@/components/query/KeyButtonGroup.vue";
 import DropdownValueSelector from "@/components/query/DropdownValueSelector.vue";
 import { globalPayload, queryStore, uiStore, isQueryButtonDisabled, setRunning, setTabContentDisabled } from '@/store/store.js'
-import { column_values, S2T_T2S_MAPPING } from '@/config'
+import { S2T_T2S_MAPPING } from '@/config'
+import { useQueryConfig } from '@/composables/useQueryConfig'
 
 const { t } = useI18n()
+
+// 使用查询配置 Composable
+const { keyValueMap, availableKeys, exclusiveRules, singleSelectKeys } = useQueryConfig()
 
 const locationRef = ref(null)
 const router = useRouter()
@@ -288,15 +292,6 @@ const tabStates = reactive({
 })
 
 const cards = [t('query.tab3.cards.initial'), t('query.tab3.cards.final'), t('query.tab3.cards.tone')]
-const keys = Object.keys(column_values)
-const keyValueMap = column_values
-
-// Configuration for KeyButtonGroup
-const exclusiveRules = {
-  groups: [['攝', '韻'], ['系', '組', '母'], ['入', '調']]
-}
-const singleSelectKeys = ['攝', '韻', '系', '組', '母', '入', '調']
-const availableKeys = ['攝', '韻', '等', '呼', '清濁', '系', '組', '母', '入', '調', '部位', '方式']
 
 const tab3KeyTriggerEl = ref(null)
 const keyTriggerEl = ref(null)

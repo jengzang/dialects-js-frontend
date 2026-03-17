@@ -269,12 +269,16 @@ import ZhongguSelector from "@/components/query/ZhongguSelector.vue";
 import KeyButtonGroup from "@/components/query/KeyButtonGroup.vue";
 import DropdownValueSelector from "@/components/query/DropdownValueSelector.vue";
 import { globalPayload, queryStore, uiStore, isQueryButtonDisabled, setRunning, setTabContentDisabled, mapStore } from '@/store/store.js'
-import { column_values, S2T_T2S_MAPPING } from '@/config'
+import { S2T_T2S_MAPPING } from '@/config'
 import { compareChars, compareZhongGu, compareTones } from '@/api/index.js'
 import { getCoordinates } from '@/api/query/geo'
 import { showWarning } from '@/utils/message.js'
+import { useQueryConfig } from '@/composables/useQueryConfig'
 
 const { t } = useI18n()
+
+// 使用查询配置 Composable
+const { keyValueMap, availableKeys, exclusiveRules, singleSelectKeys } = useQueryConfig()
 const locationRef = ref(null)
 const router = useRouter()
 const route = useRoute()
@@ -296,15 +300,6 @@ const hanziInput = ref({
   group1: '',
   group2: ''
 })
-
-// Configuration for KeyButtonGroup
-const exclusiveRules = {
-  groups: [['攝', '韻'], ['系', '組', '母'], ['入', '調']]
-}
-const singleSelectKeys = ['攝', '韻', '系', '組', '母', '入', '調']
-const availableKeys = ['攝', '韻', '等', '呼', '清濁', '系', '組', '母', '入', '調', '部位', '方式']
-const keys = Object.keys(column_values)
-const keyValueMap = column_values
 
 // ✨ 過濾器相關狀態
 const excludeOptions = computed(() => [

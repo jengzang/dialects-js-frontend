@@ -43,6 +43,48 @@ export const column_values= {
     '方式': ['塞', '塞擦', '擦', '近', '鼻']
 }
 
+// ==================== 查询配置 ====================
+
+/**
+ * 可用的键列表（按显示顺序）
+ * 用于 KeyButtonGroup 组件的 availableKeys 属性
+ */
+export const AVAILABLE_KEYS = [
+    '攝', '韻', '等', '呼', '清濁',
+    '系', '組', '母',
+    '入', '調',
+    '部位', '方式'
+]
+
+/**
+ * 键的互斥规则配置
+ * 用于 KeyButtonGroup 组件的 exclusiveRules 属性
+ * 同一组内的键互斥，只能选择其中一个
+ */
+export const KEY_EXCLUSIVE_RULES = {
+    groups: [
+        ['攝', '韻'],      // 攝和韻互斥
+        ['系', '組', '母'],  // 系、組、母互斥
+        ['入', '調']        // 入和調互斥
+    ]
+}
+
+/**
+ * 单选限制的键列表
+ * 用于 KeyButtonGroup 组件的 singleSelectKeys 属性
+ * 这些键只能选择一个值
+ */
+export const SINGLE_SELECT_KEYS = ['攝', '韻', '系', '組', '母', '入', '調']
+
+/**
+ * 键的分组配置（用于UI展示或逻辑分组）
+ */
+export const KEY_GROUPS = {
+    '韵摄相关': ['攝', '韻', '等', '呼'],
+    '声母相关': ['清濁', '系', '組', '母', '部位', '方式'],
+    '声调相关': ['入', '調']
+}
+
 
 export const STATIC_REGION_TREE = {
     "東北官話": {
