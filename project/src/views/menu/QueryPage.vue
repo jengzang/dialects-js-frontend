@@ -36,7 +36,7 @@
                             }"
                     @click="tabStates.tab2.card = item"
                 >
-                  {{ item }}
+                  {{ translateResultTerm(t, item) }}
                 </div>
               </div>
 
@@ -117,7 +117,7 @@
                             }"
                     @click="tabStates.tab3.card = item"
                 >
-                  {{ item }}
+                  {{ translateResultTerm(t, item) }}
                 </div>
               </div>
 
@@ -235,6 +235,7 @@ import DropdownValueSelector from "@/components/query/DropdownValueSelector.vue"
 import { globalPayload, queryStore, uiStore, isQueryButtonDisabled, setRunning, setTabContentDisabled } from '@/store/store.js'
 import { S2T_T2S_MAPPING } from '@/config'
 import { useQueryConfig } from '@/utils/useQueryConfig'
+import { translateResultTerm } from '@/utils/resultI18n.js'
 
 const { t } = useI18n()
 
@@ -278,20 +279,20 @@ const excludeDropdownStyle = ref({
 
 const tabStates = reactive({
   tab2: {
-    card: t('query.tab2.cards.initial'),
-    keys: [t('query.tab2.cards.rime')],
+    card: '韻母',
+    keys: ['攝'],
     valueMap: {}, // Tab2 专用的下拉菜单选择值
     excludeColumns: [] // ✨ 新增：多音字过滤选项
   },
   tab3: {
-    card: t('query.tab3.cards.final'),
-    keys: [t('query.tab2.cards.rime')], // Tab3 专用的键名
+    card: '韻母',
+    keys: ['攝'], // Tab3 专用的键名
     excludeColumns: [] // ✨ 新增：多音字过滤选项
     // Tab3 没有 valueMap 下拉框，如果有也放在这
   }
 })
 
-const cards = [t('query.tab3.cards.initial'), t('query.tab3.cards.final'), t('query.tab3.cards.tone')]
+const cards = ['聲母', '韻母', '聲調']
 
 const tab3KeyTriggerEl = ref(null)
 const keyTriggerEl = ref(null)
@@ -432,7 +433,7 @@ const runAction = async () => {
   if (currentTab.value === 'tab2') {
 
     // 假設 selectedCard.value 是一個字串，後端 features 需要 List
-    const featureList = tabStates.tab2.card ? [tabStates.tab2.card] : [t('query.tab3.cards.final')];
+    const featureList = tabStates.tab2.card ? [tabStates.tab2.card] : ['韻母'];
 
     // 這裡對應後端的 path_strings
     const pathStrings = ZhongguRef.value?.combinations || [];
@@ -460,7 +461,7 @@ const runAction = async () => {
   }
 
   else if (currentTab.value === 'tab3') {
-    const featureList = tabStates.tab3.card ? [tabStates.tab3.card] : [t('query.tab3.cards.final')];
+    const featureList = tabStates.tab3.card ? [tabStates.tab3.card] : ['韻母'];
     const selectedKeys = selectedKeysString.value.replace(/·/g, '');
     const phos = YinweiSelectorRef.value.tab3KeyInput;
 
