@@ -22,6 +22,7 @@ import YuBaoPage from "./explore/pho/YuBaoPage.vue";
 import gdVillagesTable from "./explore/villages/gdVillagesTable.vue";
 import Praat from "@/views/Praat.vue";
 import VillagesML from "@/views/explore/villages/VillagesML.vue";
+import CharacterClassification from "./explore/pho/CharacterClassification.vue";
 
 const route = useRoute()
 const router = useRouter()
@@ -70,6 +71,7 @@ const activeComponent = computed(() => {
     YuBao: YuBaoPage,
     gdVillagesTable: gdVillagesTable,
     praat : Praat,
+    CharacterClassification: CharacterClassification,
   }
   return pageMap[page] || CheckTool
 })

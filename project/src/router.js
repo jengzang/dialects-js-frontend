@@ -126,8 +126,8 @@ const ExploreTitleMap = {
     phonologyCustom: '方音圖鑑 - 自定義音素表',
     Countphos: '方音圖鑑 - 音節統計',
     praat: '方音圖鑑 - 實驗語音學',
-    VillagesML: '方音圖鑑 - 自然村機器學習'
-
+    VillagesML: '方音圖鑑 - 自然村機器學習',
+    CharacterClassification: '方音圖鑑 - 漢字類別'
 };
 
 // 全局导航守卫

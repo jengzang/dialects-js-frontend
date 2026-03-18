@@ -27,7 +27,12 @@
       "phonologyMatrix": "音系查询",
       "phonologyCustom": "音素分类",
       "Countphos": "音节统计",
-      "ZhongGu": "中古地位"
+      "ZhongGu": "中古地位",
+      "CharacterClassification": "汉字类别",
+      "MiddleChinese": "中古汉语",
+      "OldChinese": "上古汉语",
+      "EarlyModernChinese": "近古汉语",
+      "CantoneseRhymeBooks": "粤语韵书"
     },
     "words": {
       "vocabulary": "语保词汇",

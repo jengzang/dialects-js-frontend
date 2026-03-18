@@ -93,6 +93,33 @@ export function useMenuConfig() {
           icon: '✍️',
           path: '/menu?tab=pho&sub=ZhongGu'
         },
+        {
+          label: t('navigation.submenu.data.CharacterClassification'),
+          icon: '📚',
+          path: '/explore?page=CharacterClassification',
+          children: [
+            {
+              label: t('navigation.submenu.data.MiddleChinese'),
+              icon: '📜',
+              path: '/explore?page=CharacterClassification&sub=zhonggu'
+            },
+            {
+              label: t('navigation.submenu.data.OldChinese'),
+              icon: '🏛️',
+              path: '/explore?page=CharacterClassification&sub=shanggu'
+            },
+            {
+              label: t('navigation.submenu.data.EarlyModernChinese'),
+              icon: '📖',
+              path: '/explore?page=CharacterClassification&sub=jingu'
+            },
+            {
+              label: t('navigation.submenu.data.CantoneseRhymeBooks'),
+              icon: '🎵',
+              path: '/explore?page=CharacterClassification&sub=yueyun'
+            }
+          ]
+        },
       ],
     },
     'words': {
@@ -268,6 +295,17 @@ export const menuConfig = {
       { label: '音素分類', icon: '📐', path: '/menu?tab=pho&sub=phonologyCustom' },
       { label: '音節統計', icon: '🧮', path: '/menu?tab=pho&sub=Countphos' },
       { label: '中古地位', icon: '✍️', path: '/menu?tab=pho&sub=ZhongGu' },
+      {
+        label: '漢字類別',
+        icon: '📚',
+        path: '/explore?page=CharacterClassification',
+        children: [
+          { label: '中古漢語', icon: '📜', path: '/explore?page=CharacterClassification&sub=zhonggu' },
+          { label: '上古漢語', icon: '🏛️', path: '/explore?page=CharacterClassification&sub=shanggu' },
+          { label: '近古漢語', icon: '📖', path: '/explore?page=CharacterClassification&sub=jingu' },
+          { label: '粵語韻書', icon: '🎵', path: '/explore?page=CharacterClassification&sub=yueyun' }
+        ]
+      },
     ],
   },
   'words': {

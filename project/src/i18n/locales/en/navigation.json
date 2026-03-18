@@ -27,7 +27,12 @@
       "phonologyMatrix": "Phonology Query",
       "phonologyCustom": "Phoneme Classification",
       "Countphos": "Syllable Statistics",
-      "ZhongGu": "Middle Chinese Position"
+      "ZhongGu": "Middle Chinese Position",
+      "CharacterClassification": "Character Classification",
+      "MiddleChinese": "Middle Chinese",
+      "OldChinese": "Old Chinese",
+      "EarlyModernChinese": "Early Modern Chinese",
+      "CantoneseRhymeBooks": "Cantonese Rhyme Books"
     },
     "words": {
       "vocabulary": "Language Preservation Vocabulary",
