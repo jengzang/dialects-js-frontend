@@ -59,9 +59,9 @@
     },
     "about": {
       "intro": "簡介",
-      "reflection": "感悟",
       "suggestion": "提出建議",
-      "like": "喜歡作者"
+      "like": "喜歡作者",
+      "setting": "設置"
     }
   },
   "tabs": {

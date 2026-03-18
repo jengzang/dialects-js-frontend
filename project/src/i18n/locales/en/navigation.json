@@ -59,9 +59,9 @@
     },
     "about": {
       "intro": "Introduction",
-      "reflection": "Reflections",
       "suggestion": "Suggestions",
-      "like": "Support Author"
+      "like": "Support Author",
+      "setting": "Settings"
     }
   },
   "tabs": {

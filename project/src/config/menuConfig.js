@@ -236,11 +236,6 @@ export function useMenuConfig() {
           path: '/menu?tab=about&sub=intro'
         },
         {
-          label: t('navigation.submenu.about.reflection'),
-          icon: '🙏',
-          path: '/menu?tab=about&sub=reflection'
-        },
-        {
           label: t('navigation.submenu.about.suggestion'),
           icon: '💬',
           path: '/menu?tab=about&sub=suggestion'
@@ -249,6 +244,11 @@ export function useMenuConfig() {
           label: t('navigation.submenu.about.like'),
           icon: '❤️',
           path: '/menu?tab=about&sub=like'
+        },
+        {
+          label: t('navigation.submenu.about.setting'),
+          icon: '⚙️',
+          path: '/menu?tab=about&sub=setting'
         }
       ],
       showIn:['none']
@@ -357,9 +357,9 @@ export const menuConfig = {
     path: '/menu?tab=about&sub=intro',
     children:[
       { label: '簡介', icon: 'ℹ️', path: '/menu?tab=about&sub=intro' },
-      { label: '感悟', icon: '🙏', path: '/menu?tab=about&sub=reflection' },
       { label: '提出建議', icon: '💬', path: '/menu?tab=about&sub=suggestion' },
-      { label: '喜歡作者', icon: '❤️', path: '/menu?tab=about&sub=like' }
+      { label: '喜歡作者', icon: '❤️', path: '/menu?tab=about&sub=like' },
+      { label: '設置', icon: '⚙️', path: '/menu?tab=about&sub=setting' }
     ],
     showIn:['none']
   },

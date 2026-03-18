@@ -535,7 +535,22 @@ const handleMainClick = (item, key, event) => {
     if (item.external) {
       window.location.href = WEB_BASE + item.path
     } else {
-      router.push(item.path)
+      // 檢查是否有保存的 sub 參數
+      const url = new URL(item.path, window.location.origin)
+      const tab = url.searchParams.get('tab')
+
+      if (tab && item.children && item.children.length > 0) {
+        // 如果有 tab 且有子菜單，嘗試從 sessionStorage 獲取最後訪問的 sub
+        const lastSub = sessionStorage.getItem(`lastVisitedSub_${tab}`)
+        if (lastSub) {
+          url.searchParams.set('sub', lastSub)
+          router.push(url.pathname + url.search)
+        } else {
+          router.push(item.path)
+        }
+      } else {
+        router.push(item.path)
+      }
       isSidebarVisible.value = false
     }
   } else {
@@ -595,6 +610,15 @@ const handleSubmenuClick = (child) => {
   if (child.external) {
     window.open(child.path, '_blank')
   } else {
+    // 保存當前選擇的 sub 到 sessionStorage
+    const url = new URL(child.path, window.location.origin)
+    const tab = url.searchParams.get('tab')
+    const sub = url.searchParams.get('sub')
+
+    if (tab && sub) {
+      sessionStorage.setItem(`lastVisitedSub_${tab}`, sub)
+    }
+
     router.push(child.path)
   }
   activeSubmenu.value = null

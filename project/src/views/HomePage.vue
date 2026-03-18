@@ -446,7 +446,7 @@
           <span class="footer-divider">·</span>
           <a @click="navigateTo('/menu?tab=privacy')" class="footer-link">{{ $t('home.footer.links.privacy') }}</a>
           <span class="footer-divider">·</span>
-          <a @click="navigateTo('/menu?tab=setting')" class="footer-link">{{ $t('home.footer.links.setting') }}</a>
+          <a @click="navigateTo('/menu?tab=about&sub=setting')" class="footer-link">{{ $t('home.footer.links.setting') }}</a>
           <span class="footer-divider">·</span>
           <a href="https://dialects.yzup.top/detail/" target="_blank" class="footer-link">{{ $t('home.footer.links.oldSite') }}</a>
           <span class="footer-divider">·</span>
