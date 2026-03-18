@@ -542,7 +542,7 @@ const startAnalysis = async () => {
     startPolling()
   } catch (error) {
     console.error('Start analysis error:', error)
-    showError(error.message || '啟動分析失敗')
+    showError(error.message || t('praat.main.errors.analysisStartFailed'))
     activeTab.value = 'results'
     isUploading.value = false
     jobStatus.value = 'error'
@@ -577,7 +577,7 @@ const startPolling = () => {
         isAnalyzing.value = false  // ✅ 分析完成，清除标志
       } else if (status.status === 'failed' || status.status === 'error' || status.status === 'canceled') {
         stopPolling()
-        showError(status.error || '分析任務失敗')
+        showError(status.error || t('praat.main.errors.analysisFailed'))
         isAnalyzing.value = false  // ✅ 分析失败，清除标志
       }
     } catch (error) {
@@ -590,8 +590,8 @@ const startPolling = () => {
       if (pollingFailCount.value >= MAX_POLLING_FAILURES) {
         stopPolling()
         jobStatus.value = 'error'
-        jobError.value = '連續查詢失敗，請檢查網絡連接或重試'
-        showError(`任務狀態查詢失敗 (${MAX_POLLING_FAILURES}次)，已停止輪詢`)
+        jobError.value = t('praat.main.status.pollingFailed')
+        showError(t('praat.main.status.pollingFailedCount', { count: MAX_POLLING_FAILURES }))
         isAnalyzing.value = false  // ✅ 轮询失败，清除标志
       }
     }
@@ -612,7 +612,7 @@ const fetchResults = async () => {
     // No auto-close - user controls tab visibility
   } catch (error) {
     console.error('Fetch results error:', error)
-    showError('獲取分析結果失敗')
+    showError(t('praat.main.errors.resultsFetchFailed'))
   }
 }
 
@@ -626,7 +626,7 @@ const cancelAnalysis = async () => {
     isAnalyzing.value = false  // ✅ 取消分析，清除标志
   } catch (error) {
     console.error('Cancel error:', error)
-    showError('取消任務失敗')
+    showError(t('praat.main.errors.cancelFailed'))
   }
 }
 

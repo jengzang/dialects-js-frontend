@@ -2,7 +2,7 @@
   <div class="settings-panel">
     <!-- Module Selection -->
     <div class="setting-group">
-      <label class="setting-label">分析模塊</label>
+      <label class="setting-label">{{ t('praat.settings.modules.label') }}</label>
       <div class="module-checkboxes">
         <label class="checkbox-option" v-for="module in availableModules"
                :key="module.value">
@@ -15,7 +15,7 @@
 
     <!-- Resolution Presets (移到前面，更显眼) -->
     <div class="setting-group">
-      <label class="setting-label">分辨率预设</label>
+      <label class="setting-label">{{ t('praat.settings.resolutionPresets.label') }}</label>
       <div class="resolution-presets">
         <label class="radio-option" :class="{ active:
   currentResolutionMode === 'quick' }">
@@ -26,8 +26,8 @@
               @change="applyResolutionPreset"
           >
           <span class="radio-label">
-              <span class="radio-title">⚡ 快速预览</span>
-              <span class="radio-desc">10ms 步长 · 100Hz 输出</span>
+              <span class="radio-title">{{ resolutionPresets.quick.title }}</span>
+              <span class="radio-desc">{{ resolutionPresets.quick.desc }}</span>
             </span>
         </label>
 
@@ -40,8 +40,8 @@
               @change="applyResolutionPreset"
           >
           <span class="radio-label">
-              <span class="radio-title">⚖️ 标准分析</span>
-              <span class="radio-desc">5ms 步长 · 200Hz 输出</span>
+              <span class="radio-title">{{ resolutionPresets.standard.title }}</span>
+              <span class="radio-desc">{{ resolutionPresets.standard.desc }}</span>
             </span>
         </label>
 
@@ -54,8 +54,8 @@
               @change="applyResolutionPreset"
           >
           <span class="radio-label">
-              <span class="radio-title">💎 高精度</span>
-              <span class="radio-desc">2ms 步长 · 500Hz 输出</span>
+              <span class="radio-title">{{ resolutionPresets.high.title }}</span>
+              <span class="radio-desc">{{ resolutionPresets.high.desc }}</span>
             </span>
         </label>
       </div>
@@ -67,20 +67,20 @@
     <!-- Pitch Settings -->
     <div v-if="localSettings.modules.includes('pitch')"
          class="setting-group">
-      <label class="setting-label">基頻設置</label>
+      <label class="setting-label">{{ t('praat.settings.pitch.label') }}</label>
       <div class="param-grid">
         <div class="param-item">
-          <label>最小基頻 (Hz)</label>
+          <label>{{ t('praat.settings.pitch.minF0') }}</label>
           <input type="number"
                  v-model.number="localSettings.pitch_options.f0_min" min="50" max="300" />
         </div>
         <div class="param-item">
-          <label>最大基頻 (Hz)</label>
+          <label>{{ t('praat.settings.pitch.maxF0') }}</label>
           <input type="number"
                  v-model.number="localSettings.pitch_options.f0_max" min="200" max="800" />
         </div>
         <div class="param-item">
-          <label>時間步長 (s)</label>
+          <label>{{ t('praat.settings.pitch.timeStep') }}</label>
           <input
               type="number"
               v-model.number="localSettings.pitch_options.time_step"
@@ -89,7 +89,7 @@
               step="0.001"
               @input="onManualChange"
           />
-          <span class="hint-text">手动修改会覆盖预设</span>
+          <span class="hint-text">{{ t('praat.settings.pitch.manualOverride') }}</span>
         </div>
       </div>
     </div>
@@ -97,23 +97,23 @@
     <!-- Formant Settings -->
     <div v-if="localSettings.modules.includes('formant')"
          class="setting-group">
-      <label class="setting-label">共振峰設置</label>
+      <label class="setting-label">{{ t('praat.settings.formant.label') }}</label>
       <div class="param-grid">
         <div class="param-item">
-          <label>最大共振峰數</label>
+          <label>{{ t('praat.settings.formant.maxFormants') }}</label>
           <input type="number"
                  v-model.number="localSettings.formant_options.max_formants" min="3"
                  max="7" />
         </div>
         <div class="param-item">
-          <label>最大頻率 (Hz)</label>
-          <label>男人4500；女人5500；兒童8000</label>
+          <label>{{ t('praat.settings.formant.maxFreq') }}</label>
+          <label class="hint-text">{{ t('praat.settings.formant.maxFreqHint') }}</label>
           <input type="number"
                  v-model.number="localSettings.formant_options.max_freq_hz" min="3000"
                  max="8000" step="100" />
         </div>
         <div class="param-item">
-          <label>時間步長 (s)</label>
+          <label>{{ t('praat.settings.formant.timeStep') }}</label>
           <input
               type="number"
               v-model.number="localSettings.formant_options.time_step"
@@ -122,7 +122,7 @@
               step="0.001"
               @input="onManualChange"
           />
-          <span class="hint-text">手动修改会覆盖预设</span>
+          <span class="hint-text">{{ t('praat.settings.formant.manualOverride') }}</span>
         </div>
       </div>
     </div>
@@ -130,10 +130,10 @@
     <!-- Intensity Settings -->
     <div v-if="localSettings.modules.includes('intensity')"
          class="setting-group">
-      <label class="setting-label">強度設置</label>
+      <label class="setting-label">{{ t('praat.settings.intensity.label') }}</label>
       <div class="param-grid">
         <div class="param-item">
-          <label>最小基頻 (Hz)</label>
+          <label>{{ t('praat.settings.intensity.minPitch') }}</label>
           <input type="number"
                  v-model.number="localSettings.intensity_options.min_pitch" min="50"
                  max="200" />
@@ -143,22 +143,25 @@
 
     <!-- Output Options -->
     <div class="setting-group">
-      <label class="setting-label">輸出選項</label>
+      <label class="setting-label">{{ t('praat.settings.output.label') }}</label>
       <div class="param-grid">
         <div class="param-item">
-          <label>輸出採樣率 (Hz)</label>
+          <label>{{ t('praat.settings.output.samplingRate') }}</label>
           <input
               type="number"
-              placeholder="數值越大點越多"
+              :placeholder="t('praat.settings.output.samplingRatePlaceholder')"
               v-model.number="localSettings.output_options.downsample_hz"
               min="10"
               max="1000"
               @input="onManualChange"
           />
           <span class="hint-text">
-              当前: {{ localSettings.output_options.downsample_hz }}Hz
-              ({{ (1000 /
-              localSettings.output_options.downsample_hz).toFixed(1) }}ms 间隔)
+              {{
+                t('praat.settings.output.samplingRateHint', {
+                  rate: localSettings.output_options.downsample_hz,
+                  interval: (1000 / localSettings.output_options.downsample_hz).toFixed(1)
+                })
+              }}
             </span>
         </div>
       </div>
@@ -166,12 +169,12 @@
         <label class="checkbox-option">
           <input type="checkbox"
                  v-model="localSettings.output_options.include_timeseries" />
-          <span>包含時間序列數據</span>
+          <span>{{ t('praat.settings.output.includeTimeseries') }}</span>
         </label>
         <label class="checkbox-option">
           <input type="checkbox"
                  v-model="localSettings.output_options.include_summary" />
-          <span>包含摘要信息</span>
+          <span>{{ t('praat.settings.output.includeSummary') }}</span>
         </label>
       </div>
     </div>
@@ -179,7 +182,8 @@
 </template>
 
 <script setup>
-import { reactive, watch, ref, onMounted } from 'vue'
+import { computed, reactive, watch, ref, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 const props = defineProps({
   settings: {
@@ -189,35 +193,41 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['update:settings'])
+const { t } = useI18n()
 
-const availableModules = [
-  { value: 'basic', label: '基本信息' },
-  { value: 'pitch', label: '基頻分析' },
-  { value: 'intensity', label: '強度分析' },
-  { value: 'formant', label: '共振峰分析' },
-  { value: 'voice_quality', label: '音質分析' },
-  { value: 'segments', label: '音段分析' },
-  { value: 'spectrogram', label: '頻譜圖分析' }
-]
+const availableModules = computed(() => ([
+  { value: 'basic', label: t('praat.settings.modules.basic') },
+  { value: 'pitch', label: t('praat.settings.modules.pitch') },
+  { value: 'intensity', label: t('praat.settings.modules.intensity') },
+  { value: 'formant', label: t('praat.settings.modules.formant') },
+  { value: 'voice_quality', label: t('praat.settings.modules.voiceQuality') },
+  { value: 'segments', label: t('praat.settings.modules.segments') },
+  { value: 'spectrogram', label: t('praat.settings.modules.spectrogram') }
+]))
 
-// 预设配置（扩展版）
-const resolutionPresets = {
-  'quick': {
+const resolutionPresets = computed(() => ({
+  quick: {
     time_step: 0.01,
     downsample_hz: 100,
-    description: '快速预览，适合快速查看整体趋势'
+    title: t('praat.settings.resolutionPresets.quick.title'),
+    desc: t('praat.settings.resolutionPresets.quick.desc'),
+    description: t('praat.settings.resolutionPresets.quick.description')
   },
-  'standard': {
+  standard: {
     time_step: 0.005,
     downsample_hz: 200,
-    description: '标准分析，平衡精度和性能'
+    title: t('praat.settings.resolutionPresets.standard.title'),
+    desc: t('praat.settings.resolutionPresets.standard.desc'),
+    description: t('praat.settings.resolutionPresets.standard.description')
   },
-  'high': {
+  high: {
     time_step: 0.002,
     downsample_hz: 500,
-    description: '高精度，适合精细分析（数据量大）'
+    title: t('praat.settings.resolutionPresets.high.title'),
+    desc: t('praat.settings.resolutionPresets.high.desc'),
+    description: t('praat.settings.resolutionPresets.high.description')
   }
-}
+}))
 
 const localSettings = reactive(JSON.parse(JSON.stringify(props.settings)))
 
@@ -233,7 +243,7 @@ const detectCurrentMode = () => {
 
   if (currentTimeStep === 0.01 && currentDownsample === 100) {
     return 'quick'
-  } else if (currentTimeStep === 0.001 && currentDownsample === 1000) {
+  } else if (currentTimeStep === 0.002 && currentDownsample === 500) {
     return 'high'
   } else {
     return 'standard'
@@ -245,7 +255,7 @@ currentResolutionMode.value = detectCurrentMode()
 
 // 应用预设函数
 const applyResolutionPreset = () => {
-  const preset = resolutionPresets[currentResolutionMode.value]
+  const preset = resolutionPresets.value[currentResolutionMode.value]
   if (!preset) return
 
   // 1. 更新 formant time_step

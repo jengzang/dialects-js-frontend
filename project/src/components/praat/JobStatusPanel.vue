@@ -2,21 +2,21 @@
   <div v-if="jobId && isVisible" class="job-status-panel glass-panel">
     <div class="panel-header">
       <div class="job-info">
-        <span class="job-label">任務 ID:</span>
+        <span class="job-label">{{ t('praat.jobStatus.jobId') }}</span>
         <span class="job-id">{{ jobId }}</span>
       </div>
       <button v-if="status === 'queued' || status === 'running'"
               class="cancel-button"
               @click="$emit('cancel')">
-        取消分析
+        {{ t('praat.jobStatus.cancel') }}
       </button>
     </div>
 
     <!-- Loading State -->
     <div v-if="status === 'queued' || status === 'running'" class="loading-content">
       <div class="loading-spinner"></div>
-      <h3 class="loading-title">分析進行中...</h3>
-      <p class="loading-text">{{ stage || '正在處理音頻數據' }}</p>
+      <h3 class="loading-title">{{ t('praat.jobStatus.loading.title') }}</h3>
+      <p class="loading-text">{{ stage || t('praat.jobStatus.loading.defaultText') }}</p>
       <div class="loading-progress">
         <div class="progress-bar">
           <div class="progress-fill" :style="{ width: `${progress}%` }"></div>
@@ -28,20 +28,21 @@
     <!-- Error State -->
     <div v-else-if="status === 'error' || status === 'failed'" class="error-content">
       <div class="error-icon">❌</div>
-      <h3 class="error-title">分析失敗</h3>
-      <p class="error-text">{{ error || '未知錯誤' }}</p>
+      <h3 class="error-title">{{ t('praat.jobStatus.error.title') }}</h3>
+      <p class="error-text">{{ error || t('praat.jobStatus.error.defaultText') }}</p>
     </div>
 
     <!-- Completed State -->
     <div v-else-if="status === 'completed' || status === 'done'" class="completed-content">
       <div class="completed-icon">✅</div>
-      <h3 class="completed-title">分析完成</h3>
+      <h3 class="completed-title">{{ t('praat.jobStatus.completed.title') }}</h3>
     </div>
   </div>
 </template>
 
 <script setup>
 import { ref, watch, onUnmounted } from "vue"
+import { useI18n } from 'vue-i18n'
 
 const props = defineProps({
   jobId: { type: String, default: null },
@@ -52,6 +53,7 @@ const props = defineProps({
 })
 
 defineEmits(['cancel'])
+const { t } = useI18n()
 const isVisible = ref(true)
 let timer = null
 

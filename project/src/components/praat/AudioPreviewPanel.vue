@@ -1,8 +1,8 @@
 <template>
   <div v-if="effectiveSegments.length > 0 || audioBlob" class="audio-preview-panel">
     <h3 class="panel-title">
-      🎵 音頻預覽
-      <span v-if="effectiveSegments.length > 1" class="segment-count">({{ effectiveSegments.length }} 個片段)</span>
+      🎵 {{ t('praat.audioPreview.title') }}
+      <span v-if="effectiveSegments.length > 1" class="segment-count">{{ t('praat.audioPreview.segmentCount', { count: effectiveSegments.length }) }}</span>
     </h3>
 
     <!-- Mode Toggle -->
@@ -11,13 +11,13 @@
         :class="{ active: mode === 'auto' }"
         @click="switchMode('auto')"
         class="mode-button">
-        分段結果
+        {{ t('praat.audioPreview.modes.auto') }}
       </button>
       <button
         :class="{ active: mode === 'manual' }"
         @click="switchMode('manual')"
         class="mode-button">
-        手動分段
+        {{ t('praat.audioPreview.modes.manual') }}
       </button>
     </div>
 
@@ -26,10 +26,10 @@
       <!-- Full Waveform Section -->
       <div class="full-waveform-section">
         <div class="waveform-header">
-          <h4>完整波形 ({{ totalDuration.toFixed(1) }}秒)</h4>
+          <h4>{{ t('praat.audioPreview.manual.fullWaveform', { duration: totalDuration.toFixed(1) }) }}</h4>
         </div>
         <div ref="fullWaveformContainer" class="full-waveform"></div>
-        <p class="hint">💡 拖動波形創建分段，選擇一個分段後點擊「確認分段」</p>
+        <p class="hint">💡 {{ t('praat.audioPreview.manual.hint') }}</p>
       </div>
 
       <!-- Control Buttons -->
@@ -39,11 +39,11 @@
           class="btn-confirm glass-button"
           :disabled="!selectedRegionId || isConfirming"
         >
-          <span v-if="isConfirming">處理中...</span>
-          <span v-else>✓ 確認分段</span>
+          <span v-if="isConfirming">{{ t('praat.audioPreview.manual.processing') }}</span>
+          <span v-else>✓ {{ t('praat.audioPreview.manual.confirmButton') }}</span>
         </button>
         <button @click="clearAllRegions" class="btn-clear glass-button">
-          🗑️ 清除全部
+          🗑️ {{ t('praat.audioPreview.manual.clearButton') }}
         </button>
       </div>
 
@@ -54,7 +54,7 @@
 
       <!-- Selected Regions List -->
       <div v-if="manualRegions.length > 0" class="regions-list">
-        <h4>候選分段 ({{ manualRegions.length }}) - 請選擇一個</h4>
+        <h4>{{ t('praat.audioPreview.manual.candidateSegments', { count: manualRegions.length }) }}</h4>
         <div
           v-for="(region, index) in manualRegions"
           :key="region.id"
@@ -64,11 +64,11 @@
         >
           <div class="region-header">
             <span class="region-badge" :style="{ backgroundColor: region.color }">
-              分段 {{ index + 1 }}
+              {{ t('praat.audioPreview.manual.segment', { index: index + 1 }) }}
             </span>
-            <span class="region-duration">{{ region.duration.toFixed(1) }}秒</span>
+            <span class="region-duration">{{ t('praat.audioPreview.manual.duration', { duration: region.duration.toFixed(1) }) }}</span>
             <div class="region-actions">
-              <span v-if="selectedRegionId === region.id" class="selected-indicator">✓ 已選擇</span>
+              <span v-if="selectedRegionId === region.id" class="selected-indicator">✓ {{ t('praat.audioPreview.manual.selected') }}</span>
               <button @click.stop="deleteRegion(region.id)" class="btn-delete">
                 🗑️
               </button>
@@ -81,7 +81,7 @@
           <!-- Time Controls -->
           <div class="time-controls">
             <label>
-              開始: <input
+              {{ t('praat.audioPreview.manual.start') }}: <input
                 type="number"
                 v-model.number="region.start"
                 @change="updateRegionTime(region)"
@@ -91,7 +91,7 @@
               />s
             </label>
             <label>
-              結束: <input
+              {{ t('praat.audioPreview.manual.end') }}: <input
                 type="number"
                 v-model.number="region.end"
                 @change="updateRegionTime(region)"
@@ -100,7 +100,7 @@
                 :max="totalDuration"
               />s
             </label>
-            <span class="duration-display">時長: {{ region.duration.toFixed(1) }}s</span>
+            <span class="duration-display">{{ t('praat.audioPreview.manual.duration', { duration: region.duration.toFixed(1) }) }}</span>
           </div>
 
           <!-- Playback Controls -->
@@ -123,7 +123,7 @@
     <div v-else class="auto-mode">
       <div v-if="effectiveSegments.length > 1" class="info-banner">
         <span class="info-icon">ℹ️</span>
-        <span>請選擇要分析的片段。</span>
+        <span>{{ t('praat.audioPreview.auto.selectHint') }}</span>
       </div>
 
       <div class="segments-container">
@@ -138,7 +138,7 @@
         >
           <div class="segment-header">
             <div class="segment-info">
-              <span class="segment-number">片段 {{ index + 1 }}</span>
+              <span class="segment-number">{{ t('praat.audioPreview.auto.segment', { index: index + 1 }) }}</span>
               <span class="segment-badge" :class="`badge-${segment.origin || 'unknown'}`">
                 {{ getSegmentBadgeText(segment.origin) }}
               </span>
@@ -150,7 +150,7 @@
               </span>
             </div>
             <div class="segment-actions">
-              <span v-if="selectedIndex === index" class="selected-badge">✓ 已選擇</span>
+              <span v-if="selectedIndex === index" class="selected-badge">✓ {{ t('praat.audioPreview.auto.selected') }}</span>
               <span class="drag-hint">⋮⋮</span>
             </div>
           </div>
@@ -182,6 +182,7 @@
 
 <script setup>
 import { ref, watch, onMounted, onBeforeUnmount, nextTick, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import WaveSurfer from 'wavesurfer.js'
 import RegionsPlugin from 'wavesurfer.js/dist/plugins/regions.esm.js'
 import { userStore } from '@/store/store.js'
@@ -199,6 +200,7 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['segment-selected', 'manual-segments-ready'])
+const { t } = useI18n()
 
 // Auto mode state
 const waveformRefs = ref([])
@@ -233,14 +235,14 @@ const effectiveSegments = computed(() => {
   if (props.segments && props.segments.length > 0) {
     return props.segments
   } else if (props.audioBlob) {
-    return [{
-      blob: props.audioBlob,
-      duration: 0,
-      startTime: 0,
-      endTime: 0,
-      index: 0,
-      name: 'Original Audio'
-    }]
+      return [{
+        blob: props.audioBlob,
+        duration: 0,
+        startTime: 0,
+        endTime: 0,
+        index: 0,
+        name: t('praat.audioPreview.auto.badges.original')
+      }]
   }
   return []
 })
@@ -248,11 +250,11 @@ const effectiveSegments = computed(() => {
 // Helper function to get segment badge text
 const getSegmentBadgeText = (origin) => {
   const badges = {
-    'original': '原始音頻',
-    'auto-split': '自動分段',
-    'manual': '手動分段'
+    original: t('praat.audioPreview.auto.badges.original'),
+    'auto-split': t('praat.audioPreview.auto.badges.autoSplit'),
+    manual: t('praat.audioPreview.auto.badges.manual')
   }
-  return badges[origin] || '未知'
+  return badges[origin] || t('praat.audioPreview.auto.badges.unknown')
 }
 
 // Helper to set region waveform refs
@@ -334,14 +336,14 @@ const handleRegionCreated = async (region) => {
 
   // Validate duration (管理员不受限制)
   if (duration > 10 && !isAdmin) {
-    validationError.value = '分段不能超過 10 秒'
+    validationError.value = t('praat.audioPreview.manual.errors.durationExceeded')
     region.remove()
     return
   }
 
   // Check for overlaps
   if (hasOverlap(region)) {
-    validationError.value = '分段不能重疊'
+    validationError.value = t('praat.audioPreview.manual.errors.overlap')
     region.remove()
     return
   }
@@ -387,14 +389,14 @@ const handleRegionUpdated = (region) => {
 
   // Validate duration (管理员不受限制)
   if (duration > 10 && !isAdmin) {
-    validationError.value = '分段不能超過 10 秒'
+    validationError.value = t('praat.audioPreview.manual.errors.durationExceeded')
     region.update({ start: regionData.start, end: regionData.end })
     return
   }
 
   // Check for overlaps
   if (hasOverlap(region)) {
-    validationError.value = '分段不能重疊'
+    validationError.value = t('praat.audioPreview.manual.errors.overlap')
     region.update({ start: regionData.start, end: regionData.end })
     return
   }
@@ -416,7 +418,7 @@ const handleRegionUpdated = (region) => {
 // Update region time from input
 const updateRegionTime = (regionData) => {
   if (regionData.start >= regionData.end) {
-    validationError.value = '開始時間必須小於結束時間'
+    validationError.value = t('praat.audioPreview.manual.errors.invalidTimeRange')
     return
   }
 
@@ -425,7 +427,7 @@ const updateRegionTime = (regionData) => {
 
   // 管理员不受 10 秒限制
   if (duration > 10 && !isAdmin) {
-    validationError.value = '分段不能超過 10 秒'
+    validationError.value = t('praat.audioPreview.manual.errors.durationExceeded')
     return
   }
 
@@ -674,14 +676,14 @@ const resetToOriginal = () => {
 // Confirm manual segments and switch to results view
 const confirmManualSegments = async () => {
   if (!selectedRegionId.value) {
-    validationError.value = '請先選擇一個分段'
+    validationError.value = t('praat.audioPreview.manual.errors.noSelection')
     return
   }
 
   // Get the selected region
   const selectedRegion = manualRegions.value.find(r => r.id === selectedRegionId.value)
   if (!selectedRegion) {
-    validationError.value = '所選分段不存在'
+    validationError.value = t('praat.audioPreview.manual.errors.segmentNotFound')
     return
   }
 
@@ -689,7 +691,7 @@ const confirmManualSegments = async () => {
   const duration = selectedRegion.end - selectedRegion.start
   const isAdmin = userStore.role === 'admin'
   if (duration > 10 && !isAdmin) {
-    validationError.value = '所選分段超過 10 秒，請調整後再確認'
+    validationError.value = t('praat.audioPreview.manual.errors.durationExceededConfirm')
     return
   }
 
@@ -717,7 +719,7 @@ const confirmManualSegments = async () => {
     // Wait for parent to update and watch to trigger
     await nextTick()
 
-    showSuccess('已確認手動分段')
+    showSuccess(t('praat.audioPreview.manual.success.confirmed'))
   } finally {
     isConfirming.value = false
   }

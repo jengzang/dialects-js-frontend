@@ -406,7 +406,7 @@ function addToGroup(groupName) {
   // 添加到對應組
   targetGroup.push(snapshot)
 
-  console.log(`已添加到${groupName}:`, snapshot)
+  // console.log(`已添加到${groupName}:`, snapshot)
 }
 
 // 從組中移除
@@ -860,7 +860,7 @@ const runAction = async () => {
 
       // 檢查是否有選擇項目
       if (tabStates.tab2.group1Items.length === 0 || tabStates.tab2.group2Items.length === 0) {
-        console.error('❌ 組1或組2沒有選擇任何條件')
+        // console.error('❌ 組1或組2沒有選擇任何條件')
         return
       }
 
@@ -893,15 +893,15 @@ const runAction = async () => {
         region_mode: locationRef.value?.regionUsing || 'yindian'
       }
 
-      console.log('🔍 比較中古參數:', {
-        組1條件數: tabStates.tab2.group1Items.length,
-        組1組合數: group1Combinations.length,
-        組2條件數: tabStates.tab2.group2Items.length,
-        組2組合數: group2Combinations.length,
-        params
-      })
+      // console.log('🔍 比較中古參數:', {
+      //   組1條件數: tabStates.tab2.group1Items.length,
+      //   組1組合數: group1Combinations.length,
+      //   組2條件數: tabStates.tab2.group2Items.length,
+      //   組2組合數: group2Combinations.length,
+      //   params
+      // })
 
-      console.log('📤 Tab2 API 參數:', params)
+      // console.log('📤 Tab2 API 參數:', params)
       compareResponse = await compareZhongGu(params)
     }
     else if (currentTab.value === 'tab4') {
@@ -922,10 +922,10 @@ const runAction = async () => {
     const resultsArray = compareResponse.results || compareResponse.comparison
 
     if (compareResponse && resultsArray) {
-      console.log('📊 Compare API 响应:', compareResponse)
+      // console.log('📊 Compare API 响应:', compareResponse)
 
       const locations = resultsArray.map(r => r.location)
-      console.log('📍 提取的地点列表:', locations)
+      // console.log('📍 提取的地点列表:', locations)
 
       // 5. 调用 getCoordinates 获取坐标数据
       const MapData = await getCoordinates({
@@ -935,12 +935,12 @@ const runAction = async () => {
         iscustom: "true",
         flag: "False"
       })
-      console.log('🗺️ 坐标数据:', MapData)
+      // console.log('🗺️ 坐标数据:', MapData)
 
       // 6. 处理比较结果并分配颜色
       const mergedData = processCompareResults(resultsArray, MapData)
-      console.log('✨ 合并后的数据:', mergedData)
-      console.log('📦 mergedData 长度:', mergedData.length)
+      // console.log('✨ 合并后的数据:', mergedData)
+      // console.log('📦 mergedData 长度:', mergedData.length)
 
       // 7. 存入 mapStore
       mapStore.mapData = MapData
@@ -970,14 +970,14 @@ const runAction = async () => {
         // 調類比較：合併狀態
         mapStore.compareGroups = {
           same: { color: '#4CAF50', label: t('compare.legend.merged') },
-          maybe: { color: '#FF9800', label: t('compare.legend.maybeMerged') },
+          maybe: { color: '#8BC34A', label: t('compare.legend.maybeMerged') },  // 使用黃綠色，與中古比較的高度相似顏色一致
           diff: { color: '#F44336', label: t('compare.legend.notMerged') },
           unknown: { color: '#9E9E9E', label: t('compare.legend.unknown') }
         }
       }
 
-      console.log('💾 已存入 mapStore, mode:', mapStore.mode)
-      console.log('💾 mapStore.mergedData 长度:', mapStore.mergedData.length)
+      // console.log('💾 已存入 mapStore, mode:', mapStore.mode)
+      // console.log('💾 mapStore.mergedData 长度:', mapStore.mergedData.length)
 
       // 8. 跳转到地图页面
       await router.replace({
@@ -985,7 +985,7 @@ const runAction = async () => {
         query: { tab: 'map' }
       });
     } else {
-      console.error('❌ Compare API 响应无效:', compareResponse)
+      // console.error('❌ Compare API 响应无效:', compareResponse)
     }
 
   } catch (error) {
@@ -997,9 +997,9 @@ const runAction = async () => {
 
 // 处理比较结果并生成地图数据
 function processCompareResults(results, mapData) {
-  console.log('🔄 开始处理比较结果...')
-  console.log('📥 输入 results:', results)
-  console.log('📥 输入 mapData:', mapData)
+  // console.log('🔄 开始处理比较结果...')
+  // console.log('📥 输入 results:', results)
+  // console.log('📥 输入 mapData:', mapData)
 
   const mergedData = []
 
@@ -1013,87 +1013,87 @@ function processCompareResults(results, mapData) {
       coordMap.set(locationName, coordinate)
     })
   }
-  console.log('🗺️ 坐标映射表:', coordMap)
+  // console.log('🗺️ 坐标映射表:', coordMap)
 
   results.forEach(result => {
     const location = result.location
-    console.log(`🔍 处理地点: ${location}`)
+    // console.log(`🔍 处理地点: ${location}`)
 
     // 从 coordMap 中查找坐标
     const coordinate = coordMap.get(location)
     if (!coordinate) {
-      console.warn(`⚠️ 未找到地点 ${location} 的坐标数据`)
+      // console.warn(`⚠️ 未找到地点 ${location} 的坐标数据`)
       return
     }
-    console.log(`✅ 找到坐标:`, coordinate)
+    // console.log(`✅ 找到坐标:`, coordinate)
 
     // 检查是否有 comparisons 或 features（ZhongGu 格式直接在 result 下有 features）
     if (result.comparisons && Array.isArray(result.comparisons)) {
       // chars/tones 格式：有 comparisons 数组
       result.comparisons.forEach(comparison => {
         const pair = comparison.pair
-        console.log(`  📌 比较对: ${pair ? pair.join(' vs ') : '未知'}`)
+        // console.log(`  📌 比较对: ${pair ? pair.join(' vs ') : '未知'}`)
 
         // 判断是 features 格式（chars）还是 comparison 格式（tones）
         if (comparison.features) {
           // chars API 格式：有多个 features
-          console.log(`  📋 使用 features 格式`)
+          // console.log(`  📋 使用 features 格式`)
 
           if (typeof comparison.features !== 'object') {
-            console.warn(`  ⚠️ features 不是对象:`, comparison.features)
+            // console.warn(`  ⚠️ features 不是对象:`, comparison.features)
             return
           }
 
           // 处理每个特征
           Object.entries(comparison.features).forEach(([feature, featureData]) => {
             const status = featureData.status
-            console.log(`    🔸 特征: ${feature}, 状态: ${status}`)
+            // console.log(`    🔸 特征: ${feature}, 状态: ${status}`)
 
             const item = createComparisonItem(location, coordinate, feature, featureData.status, featureData, pair)
             if (item) {
-              console.log(`    ➕ 添加数据项:`, item)
+              // console.log(`    ➕ 添加数据项:`, item)
               mergedData.push(item)
             }
           })
         } else if (comparison.comparison) {
           // tones API 格式：只有一个 comparison
-          console.log(`  📋 使用 comparison 格式`)
+          // console.log(`  📋 使用 comparison 格式`)
 
           const compData = comparison.comparison
           const status = compData.status
-          console.log(`    🔸 状态: ${status}`)
+          // console.log(`    🔸 状态: ${status}`)
 
           const item = createComparisonItem(location, coordinate, '调类比较', status, compData, pair)
           if (item) {
-            console.log(`    ➕ 添加数据项:`, item)
+            // console.log(`    ➕ 添加数据项:`, item)
             mergedData.push(item)
           }
         } else {
-          console.warn(`  ⚠️ comparison 既没有 features 也没有 comparison:`, comparison)
+          // console.warn(`  ⚠️ comparison 既没有 features 也没有 comparison:`, comparison)
         }
       })
     } else if (result.features) {
       // ZhongGu 格式：直接在 result 下有 features
-      console.log(`  📋 使用 ZhongGu 格式（features 在 result 下）`)
+      // console.log(`  📋 使用 ZhongGu 格式（features 在 result 下）`)
 
       Object.entries(result.features).forEach(([feature, featureData]) => {
-        console.log(`    🔸 特征: ${feature}`)
+        // console.log(`    🔸 特征: ${feature}`)
 
         // ZhongGu 格式：featureData 包含 group1 和 group2
         if (featureData.group1 && featureData.group2) {
           const item = createZhongGuComparisonItem(location, coordinate, feature, featureData)
           if (item) {
-            console.log(`    ➕ 添加数据项:`, item)
+            // console.log(`    ➕ 添加数据项:`, item)
             mergedData.push(item)
           }
         }
       })
     } else {
-      console.warn(`⚠️ 地点 ${location} 既没有 comparisons 也没有 features`)
+      // console.warn(`⚠️ 地点 ${location} 既没有 comparisons 也没有 features`)
     }
   })
 
-  console.log(`✅ 处理完成，共生成 ${mergedData.length} 条数据`)
+  // console.log(`✅ 处理完成，共生成 ${mergedData.length} 条数据`)
   return mergedData
 }
 
@@ -1196,7 +1196,7 @@ function createZhongGuComparisonItem(location, coordinate, feature, featureData)
     }
   })
 
-  console.log(`    📊 加权重叠度: ${overlap.toFixed(2)}%`)
+  // console.log(`    📊 加权重叠度: ${overlap.toFixed(2)}%`)
 
   // 根据重叠度分配颜色和状态
   let color, status, statusText

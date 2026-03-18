@@ -1,11 +1,11 @@
 <template>
   <div class="vowel-space-panel glass-panel">
     <div style="display: flex;align-items: center;flex-direction: column;justify-content: center;">
-      <h2 class="panel-title">F1-F2 元音空間</h2>
+      <h2 class="panel-title">{{ t('praat.vowelSpace.title') }}</h2>
 
       <!-- Usage Hint -->
       <div class="usage-hint">
-        💡 使用建議：推薦使用「單音節」分析模式，需精確截取韻核(rime_core)，本網站自動截取的韻核可能有誤差。此功能對錄音質量要求較高，噪音可能影響分析準確度。
+        💡 {{ t('praat.vowelSpace.usageHint') }}
       </div>
 
       <!-- Control Buttons -->
@@ -15,9 +15,9 @@
           class="vowel-switch-container"
           :class="{ disabled: vowelSegments.length === 0 }"
           @click="vowelSegments.length > 0 && (showSegmented = !showSegmented)"
-          :title="vowelSegments.length === 0 ? '未檢測到有效語音段，無法切換' : ''"
+          :title="vowelSegments.length === 0 ? t('praat.vowelSpace.controls.segmentedDisabled') : ''"
         >
-          <span class="switch-label-text">分段顯示</span>
+          <span class="switch-label-text">{{ t('praat.vowelSpace.controls.segmentedDisplay') }}</span>
           <div class="custom-switch" :class="{ 'open': showSegmented }">
             <span class="custom-slider">
 <!--              <span class="switch-text">-->
@@ -33,17 +33,17 @@
             type="checkbox"
             v-model="showReferenceVowels"
           />
-          <span class="segment-label">顯示參考元音</span>
+          <span class="segment-label">{{ t('praat.vowelSpace.controls.showReferenceVowels') }}</span>
         </label>
       </div>
     </div>
 
     <!-- Segment Selector Section (only show when segmented mode is on) -->
     <div v-if="showSegmented" class="segment-selector-section">
-      <h3 class="section-title">選擇語音段</h3>
+      <h3 class="section-title">{{ t('praat.vowelSpace.segments.title') }}</h3>
 
       <div v-if="vowelSegments.length === 0" class="no-segments-message">
-        未檢測到元音段（rime_core、syllable_like 或 voiced）
+        {{ t('praat.vowelSpace.segments.noSegments') }}
       </div>
 
       <div v-else class="segment-list">
@@ -54,7 +54,7 @@
             :checked="showAll"
             @change="toggleAll"
           />
-          <span class="segment-label">全部顯示</span>
+          <span class="segment-label">{{ t('praat.vowelSpace.segments.selectAll') }}</span>
         </label>
 
         <!-- Individual Segment Checkboxes -->
@@ -73,7 +73,7 @@
             {{ seg.label }} ({{ seg.timeRange }})
           </span>
           <span class="segment-type-badge" :class="`type-${seg.type}`">
-            {{ seg.type }}
+            {{ getSegmentTypeLabel(seg.type) }}
           </span>
         </label>
       </div>
@@ -86,10 +86,10 @@
 
     <!-- Statistics Section (only show when segmented mode is on) -->
     <div v-if="showSegmented" class="stats-section">
-      <h3 class="section-title">統計信息</h3>
+      <h3 class="section-title">{{ t('praat.vowelSpace.stats.title') }}</h3>
 
       <div v-if="selectedSegments.size === 0" class="no-selection-message">
-        請選擇至少一個語音段
+        {{ t('praat.vowelSpace.stats.noSelection') }}
       </div>
 
       <div v-else class="stats-grid">
@@ -104,16 +104,16 @@
           </div>
           <div class="stat-values">
             <div class="stat-item">
-              <span class="stat-key">F1 平均:</span>
-              <span class="stat-value">{{ data.stats.f1Mean.toFixed(0) }} Hz</span>
+              <span class="stat-key">{{ t('praat.vowelSpace.stats.f1Mean') }}</span>
+              <span class="stat-value">{{ t('praat.vowelSpace.stats.f1MeanValue', { f1: data.stats.f1Mean.toFixed(0) }) }}</span>
             </div>
             <div class="stat-item">
-              <span class="stat-key">F2 平均:</span>
-              <span class="stat-value">{{ data.stats.f2Mean.toFixed(0) }} Hz</span>
+              <span class="stat-key">{{ t('praat.vowelSpace.stats.f2Mean') }}</span>
+              <span class="stat-value">{{ t('praat.vowelSpace.stats.f2MeanValue', { f2: data.stats.f2Mean.toFixed(0) }) }}</span>
             </div>
             <div class="stat-item">
-              <span class="stat-key">數據點:</span>
-              <span class="stat-value">{{ data.stats.count }}</span>
+              <span class="stat-key">{{ t('praat.vowelSpace.stats.dataPoints') }}</span>
+              <span class="stat-value">{{ t('praat.vowelSpace.stats.dataPointsValue', { count: data.stats.count }) }}</span>
             </div>
           </div>
         </div>
@@ -123,10 +123,9 @@
     <!-- Description -->
     <div class="description-section">
       <p class="description-text">
-        元音空間圖顯示 F1(第一共振峰)和 F2(第二共振峰)的分布。
-        根據語音學慣例，兩個軸都是反向的（從高到低）。
-        <span v-if="showSegmented">連線顯示元音在時間上的軌跡變化，箭頭指示時間方向。</span>
-        <span v-if="showReferenceVowels">灰色標記為 IPA 參考元音位置。</span>
+        {{ t('praat.vowelSpace.description.intro') }}
+        <span v-if="showSegmented">{{ t('praat.vowelSpace.description.segmented') }}</span>
+        <span v-if="showReferenceVowels">{{ t('praat.vowelSpace.description.reference') }}</span>
       </p>
     </div>
   </div>
@@ -135,6 +134,7 @@
 <script setup>
 import { ref, computed, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import * as echarts from 'echarts'
+import { useI18n } from 'vue-i18n'
 import referenceVowelsData from '@/assets/data/vowels.json'
 
 const props = defineProps({
@@ -143,6 +143,7 @@ const props = defineProps({
     default: null
   }
 })
+const { t } = useI18n()
 
 const chartContainer = ref(null)
 let chart = null
@@ -164,6 +165,15 @@ const segmentColors = [
   '#5ac8fa',  // Cyan
 ]
 
+const getSegmentTypeLabel = (type) => {
+  const labels = {
+    rime_core: t('praat.vowelSpace.segments.segmentTypes.rimeCore'),
+    syllable_like: t('praat.vowelSpace.segments.segmentTypes.syllableLike'),
+    voiced: t('praat.vowelSpace.segments.segmentTypes.voiced')
+  }
+  return labels[type] || type
+}
+
 const getSegmentColor = (segmentId) => {
   return segmentColors[segmentId % segmentColors.length]
 }
@@ -176,8 +186,14 @@ const vowelSegments = computed(() => {
     .map((seg, idx) => ({
       ...seg,
       id: idx,
-      label: `Segment ${idx + 1} (${seg.type})`,
-      timeRange: `${seg.start_s.toFixed(2)}-${seg.end_s.toFixed(2)}s`
+      label: t('praat.vowelSpace.segments.segment', {
+        index: idx + 1,
+        type: getSegmentTypeLabel(seg.type)
+      }),
+      timeRange: t('praat.vowelSpace.segments.timeRange', {
+        start: seg.start_s.toFixed(2),
+        end: seg.end_s.toFixed(2)
+      })
     }))
 })
 
@@ -327,7 +343,7 @@ const initChart = () => {
   } else {
     // Scatter mode: all points together
     series = [{
-      name: '所有數據點',
+      name: t('praat.vowelSpace.chart.allDataPoints'),
       type: 'scatter',
       data: allVowelSpaceData.value,
       symbolSize: 6,
@@ -341,7 +357,7 @@ const initChart = () => {
   // Add reference vowels if enabled
   if (showReferenceVowels.value) {
     series.push({
-      name: 'IPA 參考元音',
+      name: t('praat.vowelSpace.chart.referenceVowels'),
       type: 'scatter',
       data: referenceVowelsData.map(v => [v.F2, v.F1]),
       symbolSize: 10,
@@ -374,23 +390,37 @@ const initChart = () => {
 
   const option = {
     title: {
-      text: showSegmented.value ? 'F1-F2 元音空間 (按語音段)' : 'F1-F2 元音空間 (全部數據)',
+      text: showSegmented.value
+        ? t('praat.vowelSpace.chart.titleSegmented')
+        : t('praat.vowelSpace.chart.titleAll'),
       left: 'center',
       top: 10
     },
     tooltip: {
       trigger: 'item',
       formatter: (params) => {
-        if (params.seriesName === 'IPA 參考元音') {
+        if (params.seriesName === t('praat.vowelSpace.chart.referenceVowels')) {
           const vowel = referenceVowelsData[params.dataIndex]
-          return `${vowel.symbol}<br/>F1: ${vowel.F1} Hz<br/>F2: ${vowel.F2} Hz`
+          return t('praat.vowelSpace.chart.tooltipReference', {
+            symbol: vowel.symbol,
+            f1: vowel.F1,
+            f2: vowel.F2
+          })
         }
         const [f2, f1, time] = params.value
-        let result = `${params.seriesName}<br/>F1: ${f1.toFixed(0)} Hz<br/>F2: ${f2.toFixed(0)} Hz`
         if (time !== undefined) {
-          result += `<br/>時間: ${time.toFixed(2)}s`
+          return t('praat.vowelSpace.chart.tooltip', {
+            name: params.seriesName,
+            f1: f1.toFixed(0),
+            f2: f2.toFixed(0),
+            time: time.toFixed(2)
+          })
         }
-        return result
+        return t('praat.vowelSpace.chart.tooltipNoTime', {
+          name: params.seriesName,
+          f1: f1.toFixed(0),
+          f2: f2.toFixed(0)
+        })
       }
     },
     legend: {
@@ -400,7 +430,7 @@ const initChart = () => {
     },
     xAxis: {
       type: 'value',
-      name: 'F2 (Hz)',
+      name: t('praat.vowelSpace.chart.xAxis'),
       nameLocation: 'middle',
       nameGap: 30,
       inverse: true,
@@ -428,7 +458,7 @@ const initChart = () => {
     },
     yAxis: {
       type: 'value',
-      name: 'F1 (Hz)',
+      name: t('praat.vowelSpace.chart.yAxis'),
       nameLocation: 'middle',
       nameGap: 40,
       inverse: true,
