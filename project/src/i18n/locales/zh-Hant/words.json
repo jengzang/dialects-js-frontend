@@ -10,9 +10,71 @@
     "name": "語保語法",
     "desc": "語保50條句子語法資料"
   },
+  "yuBaoPage": {
+    "viewAll": "查看全部",
+    "search": {
+      "vocabularyPlaceholder": "請輸入詞彙（支持模糊匹配、繁簡通用）",
+      "grammarPlaceholder": "請輸入語法句式（支持模糊匹配、繁簡通用）",
+      "localFilterPlaceholder": "在此結果中二次篩選...",
+      "modalPlaceholder": "在列表中搜索..."
+    },
+    "viewModes": {
+      "table": "表格",
+      "card": "卡片",
+      "map": "地圖"
+    },
+    "types": {
+      "vocabulary": "詞彙",
+      "grammar": "語法句式"
+    },
+    "states": {
+      "loadingData": "加載數據中...",
+      "loadingCards": "加載卡片中...",
+      "enterSearch": "請輸入搜索內容",
+      "chooseSuggestion": "請從建議列表中選擇",
+      "queryHint": "在上方輸入框中輸入{type}進行查詢",
+      "clickSuggestion": "輸入內容後點擊下拉建議中的選項",
+      "loadingMore": "正在加載更多...",
+      "loadedAll": "—— 已加載全部數據 ——",
+      "noFilterResult": "沒有匹配 \"{query}\" 的結果",
+      "noData": "沒有找到相關數據"
+    },
+    "filter": {
+      "showingCount": "顯示 {visible} / {total} 條"
+    },
+    "modal": {
+      "allItemsTitle": "{name} - 全部條目",
+      "total": "共 {count} 條"
+    },
+    "columns": {
+      "province": "省",
+      "city": "市",
+      "county": "縣",
+      "town": "鎮",
+      "village": "村",
+      "character": "字",
+      "pronunciation": "發音",
+      "note": "注釋",
+      "region1": "分區1",
+      "region2": "分區2",
+      "region3": "分區3"
+    }
+  },
   "ycSpoken": {
     "icon": "💬",
     "name": "陽春口語詞",
-    "desc": "廣東陽春口語單字詞表"
+    "desc": "廣東陽春口語單字詞表",
+    "columns": {
+      "character": "字",
+      "jyutping": "粵拼",
+      "source": "來源",
+      "initial": "聲",
+      "final": "韻",
+      "tone": "調",
+      "partOfSpeech": "詞性",
+      "definition": "釋義",
+      "examples": "例詞例句",
+      "review": "待校"
+    }
   }
 }

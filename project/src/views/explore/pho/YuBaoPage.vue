@@ -17,7 +17,7 @@
         </div>
 
         <!-- 查看全部按钮 -->
-        <button class="view-all-btn" @click="showAllModal = true" title="查看全部">
+        <button class="view-all-btn" @click="showAllModal = true" :title="t('words.yuBaoPage.viewAll')">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <rect x="3" y="3" width="18" height="18" rx="2"/>
             <line x1="3" y1="9" x2="21" y2="9"/>
@@ -38,7 +38,7 @@
                 @input="onVocabularyInput"
                 @focus="onVocabularyFocus"
                 @blur="onBlur"
-                placeholder="請輸入詞彙（支持模糊匹配、繁簡通用）"
+                :placeholder="t('words.yuBaoPage.search.vocabularyPlaceholder')"
                 class="search-input"
                 rows="1"
             ></textarea>
@@ -51,7 +51,7 @@
                 @input="onGrammarInput"
                 @focus="onGrammarFocus"
                 @blur="onBlur"
-                placeholder="請輸入語法句式（支持模糊匹配、繁簡通用）"
+                :placeholder="t('words.yuBaoPage.search.grammarPlaceholder')"
                 class="search-input"
                 rows="1"
             ></textarea>
@@ -97,7 +97,7 @@
               class="mode-btn"
               :class="{ active: viewMode === 'table' }"
               @click="viewMode = 'table'"
-              title="表格"
+              :title="t('words.yuBaoPage.viewModes.table')"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <rect x="3" y="3" width="18" height="18" rx="2"/>
@@ -112,7 +112,7 @@
               class="mode-btn"
               :class="{ active: viewMode === 'card' }"
               @click="viewMode = 'card'"
-              title="卡片"
+              :title="t('words.yuBaoPage.viewModes.card')"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <rect x="3" y="3" width="7" height="7" rx="1"/>
@@ -126,7 +126,7 @@
               class="mode-btn"
               :class="{ active: viewMode === 'map' }"
               @click="viewMode = 'map'"
-              title="地圖"
+              :title="t('words.yuBaoPage.viewModes.map')"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
@@ -142,7 +142,7 @@
     <div v-if="isLoading" class="content-area">
       <div class="loading-state">
         <div class="spinner"></div>
-        <span>加載數據中...</span>
+        <span>{{ t('words.yuBaoPage.states.loadingData') }}</span>
       </div>
     </div>
 
@@ -153,7 +153,7 @@
         :table-name="activeTab === 'vocabulary' ? 'vocabulary' : 'grammar'"
         :columns="currentColumns"
         :default-filter="currentDefaultFilter"
-        :key="`${activeTab}-${vocabularyInput || grammarInput}`"
+        :key="`${activeTab}-${currentInputValue}`"
     />
 
     <!-- 表格模式 - 输入无效时的提示 -->
@@ -164,12 +164,12 @@
           <line x1="12" y1="8" x2="12" y2="12"/>
           <line x1="12" y1="16" x2="12.01" y2="16"/>
         </svg>
-        <p v-if="!vocabularyInput.trim() && !grammarInput.trim()">請輸入搜索內容</p>
-        <p v-else>請從建議列表中選擇</p>
-        <small v-if="!vocabularyInput.trim() && !grammarInput.trim()">
-          在上方輸入框中輸入{{ activeTab === 'vocabulary' ? '詞彙' : '語法句式' }}進行查詢
+        <p v-if="!currentInputValue">{{ t('words.yuBaoPage.states.enterSearch') }}</p>
+        <p v-else>{{ t('words.yuBaoPage.states.chooseSuggestion') }}</p>
+        <small v-if="!currentInputValue">
+          {{ t('words.yuBaoPage.states.queryHint', { type: currentSearchTypeLabel }) }}
         </small>
-        <small v-else>輸入內容後點擊下拉建議中的選項</small>
+        <small v-else>{{ t('words.yuBaoPage.states.clickSuggestion') }}</small>
       </div>
     </div>
 
@@ -180,7 +180,7 @@
 
         <div v-if="isLoadingCards" class="cards-loading">
           <div class="spinner"></div>
-          <span>加載卡片中...</span>
+          <span>{{ t('words.yuBaoPage.states.loadingCards') }}</span>
         </div>
 
         <template v-else-if="cardData.length > 0">
@@ -194,13 +194,13 @@
               <input
                   v-model="localFilterQuery"
                   type="text"
-                  placeholder="在此結果中二次篩選..."
+                  :placeholder="t('words.yuBaoPage.search.localFilterPlaceholder')"
                   class="local-filter-input"
               />
               <button v-if="localFilterQuery" @click="localFilterQuery = ''" class="clear-filter-btn">×</button>
             </div>
             <span class="filter-count" v-if="localFilterQuery">
-        顯示 {{ filteredCardData.length }} / {{ cardData.length }} 條
+        {{ t('words.yuBaoPage.filter.showingCount', { visible: filteredCardData.length, total: cardData.length }) }}
       </span>
           </div>
           <div class="cards-grid">
@@ -248,13 +248,13 @@
           <div ref="loadMoreTrigger" class="load-more-trigger">
             <div v-if="hasMore" class="loading-status">
               <div class="mini-spinner"></div>
-              <span>正在加载更多...</span>
+              <span>{{ t('words.yuBaoPage.states.loadingMore') }}</span>
             </div>
-            <span v-else-if="filteredCardData.length > 0" class="no-more">—— 已加载全部数据 ——</span>
+            <span v-else-if="filteredCardData.length > 0" class="no-more">{{ t('words.yuBaoPage.states.loadedAll') }}</span>
           </div>
 
           <div v-if="filteredCardData.length === 0" class="empty-state">
-            <p>沒有匹配 "{{ localFilterQuery }}" 的結果</p>
+            <p>{{ t('words.yuBaoPage.states.noFilterResult', { query: localFilterQuery }) }}</p>
           </div>
 
         </template>
@@ -265,9 +265,9 @@
             <line x1="12" y1="8" x2="12" y2="12"/>
             <line x1="12" y1="16" x2="12.01" y2="16"/>
           </svg>
-          <p v-if="!vocabularyInput.trim() && !grammarInput.trim()">請輸入搜索內容</p>
-          <p v-else-if="!isValidInput">請從建議列表中選擇</p>
-          <p v-else>沒有找到相關數據</p>
+          <p v-if="!currentInputValue">{{ t('words.yuBaoPage.states.enterSearch') }}</p>
+          <p v-else-if="!isValidInput">{{ t('words.yuBaoPage.states.chooseSuggestion') }}</p>
+          <p v-else>{{ t('words.yuBaoPage.states.noData') }}</p>
         </div>
       </div>
 
@@ -277,7 +277,7 @@
     <div v-else-if="viewMode === 'map'" class="map-mode">
       <div v-if="isLoadingCards" class="cards-loading">
         <div class="spinner"></div>
-        <span>加載數據中...</span>
+        <span>{{ t('words.yuBaoPage.states.loadingData') }}</span>
       </div>
       <template v-else>
         <div v-if="!isValidInput || cardData.length === 0" class="empty-state">
@@ -286,11 +286,11 @@
             <line x1="12" y1="8" x2="12" y2="12"/>
             <line x1="12" y1="16" x2="12.01" y2="16"/>
           </svg>
-          <p v-if="!vocabularyInput.trim() && !grammarInput.trim()">請輸入搜索內容</p>
-          <p v-else-if="!isValidInput">請從建議列表中選擇</p>
-          <p v-else>沒有找到相關數據</p>
-          <small v-if="!vocabularyInput.trim() && !grammarInput.trim()">
-            在上方輸入框中輸入{{ activeTab === 'vocabulary' ? '詞彙' : '語法句式' }}進行查詢
+          <p v-if="!currentInputValue">{{ t('words.yuBaoPage.states.enterSearch') }}</p>
+          <p v-else-if="!isValidInput">{{ t('words.yuBaoPage.states.chooseSuggestion') }}</p>
+          <p v-else>{{ t('words.yuBaoPage.states.noData') }}</p>
+          <small v-if="!currentInputValue">
+            {{ t('words.yuBaoPage.states.queryHint', { type: currentSearchTypeLabel }) }}
           </small>
         </div>
         <YuBaoMap
@@ -307,7 +307,7 @@
       <div v-if="showAllModal" class="modal-overlay" @click.self="showAllModal = false">
         <div class="modal-content">
           <div class="modal-header">
-            <h3>{{ activeTab === 'vocabulary' ? '語保詞彙' : '語保語法' }} - 全部條目</h3>
+            <h3>{{ t('words.yuBaoPage.modal.allItemsTitle', { name: activeTabLabel }) }}</h3>
             <button class="modal-close" @click="showAllModal = false">×</button>
           </div>
           <div class="modal-body">
@@ -315,7 +315,7 @@
               <input
                   v-model="modalSearchQuery"
                   type="text"
-                  placeholder="在列表中搜索..."
+                  :placeholder="t('words.yuBaoPage.search.modalPlaceholder')"
                   class="modal-search-input"
               />
             </div>
@@ -330,7 +330,7 @@
               </div>
             </div>
             <div class="modal-footer">
-              共 {{ filteredAllItems.length }} 條
+              {{ t('words.yuBaoPage.modal.total', { count: filteredAllItems.length }) }}
             </div>
           </div>
         </div>
@@ -341,6 +341,7 @@
 
 <script setup>
 import { ref, nextTick, onMounted, watch, computed, onUnmounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import { sqlQuery, distinctQuery } from '@/api/sql/index.js'
 import * as OpenCC from 'opencc-js'
@@ -350,6 +351,7 @@ import YuBaoMap from '@/components/map/YuBaoMap.vue'
 
 const route = useRoute()
 const router = useRouter()
+const { t } = useI18n()
 const converter = OpenCC.Converter({ from: 'tw', to: 'cn' })
 
 // --- 基础状态 ---
@@ -387,38 +389,56 @@ let observer = null; // ✅ 修正：必须在这里显式声明 observer
 const isInternalLoading = ref(false); // 内部锁
 
 // --- 表格配置 ---
-const vocabularyColumns = [
-  { key: 'province', label: '省', filterable: true, width: 0.8 },
-  { key: 'city', label: '市', filterable: true, width: 0.8 },
-  { key: 'county', label: '縣', filterable: true, width: 0.8 },
-  { key: 'village', label: '鎮', filterable: true, width: 0.8 },
-  { key: 'location', label: '村', filterable: false, width: 1.2 },
-  { key: 'note2', label: '字', filterable: true, width: 1.2 },
-  { key: 'pronunciation', label: '發音', filterable: false, width: 1.5 },
-  { key: 'note1', label: '注釋', filterable: false, width: 1.5 },
-  { key: 'lang_cat1', label: '分區1', filterable: true, width: 1 },
-  { key: 'lang_cat2', label: '分區2', filterable: true, width: 1 },
-  { key: 'lang_cat3', label: '分區3', filterable: true, width: 1 },
-]
-const grammarColumns = [
-  { key: 'form_a', label: '省', filterable: true, width: 1 },
-  { key: 'form_b', label: '市', filterable: true, width: 1 },
-  { key: 'form_c', label: '縣', filterable: true, width: 1 },
-  { key: 'form_d', label: '鎮', filterable: true, width: 1 },
-  { key: 'form_e', label: '村', filterable: false, width: 1 },
-  { key: 'memo', label: '注釋', filterable: false, width: 3 },
-  { key: 'phonetic', label: '發音', filterable: false, width: 4 },
-  { key: 'lang_cat1', label: '分區1', filterable: true, width: 1 },
-  { key: 'lang_cat2', label: '分區2', filterable: true, width: 1 },
-  { key: 'lang_cat3', label: '分區3', filterable: true, width: 1 },
-]
+const vocabularyColumns = computed(() => [
+  { key: 'province', label: t('words.yuBaoPage.columns.province'), filterable: true, width: 0.8 },
+  { key: 'city', label: t('words.yuBaoPage.columns.city'), filterable: true, width: 0.8 },
+  { key: 'county', label: t('words.yuBaoPage.columns.county'), filterable: true, width: 0.8 },
+  { key: 'village', label: t('words.yuBaoPage.columns.town'), filterable: true, width: 0.8 },
+  { key: 'location', label: t('words.yuBaoPage.columns.village'), filterable: false, width: 1.2 },
+  { key: 'note2', label: t('words.yuBaoPage.columns.character'), filterable: true, width: 1.2 },
+  { key: 'pronunciation', label: t('words.yuBaoPage.columns.pronunciation'), filterable: false, width: 1.5 },
+  { key: 'note1', label: t('words.yuBaoPage.columns.note'), filterable: false, width: 1.5 },
+  { key: 'lang_cat1', label: t('words.yuBaoPage.columns.region1'), filterable: true, width: 1 },
+  { key: 'lang_cat2', label: t('words.yuBaoPage.columns.region2'), filterable: true, width: 1 },
+  { key: 'lang_cat3', label: t('words.yuBaoPage.columns.region3'), filterable: true, width: 1 },
+])
+const grammarColumns = computed(() => [
+  { key: 'form_a', label: t('words.yuBaoPage.columns.province'), filterable: true, width: 1 },
+  { key: 'form_b', label: t('words.yuBaoPage.columns.city'), filterable: true, width: 1 },
+  { key: 'form_c', label: t('words.yuBaoPage.columns.county'), filterable: true, width: 1 },
+  { key: 'form_d', label: t('words.yuBaoPage.columns.town'), filterable: true, width: 1 },
+  { key: 'form_e', label: t('words.yuBaoPage.columns.village'), filterable: false, width: 1 },
+  { key: 'memo', label: t('words.yuBaoPage.columns.note'), filterable: false, width: 3 },
+  { key: 'phonetic', label: t('words.yuBaoPage.columns.pronunciation'), filterable: false, width: 4 },
+  { key: 'lang_cat1', label: t('words.yuBaoPage.columns.region1'), filterable: true, width: 1 },
+  { key: 'lang_cat2', label: t('words.yuBaoPage.columns.region2'), filterable: true, width: 1 },
+  { key: 'lang_cat3', label: t('words.yuBaoPage.columns.region3'), filterable: true, width: 1 },
+])
 
 // --- 计算属性 ---
 
 // 计算属性：当前表格列配置
 const currentColumns = computed(() => {
-  return activeTab.value === 'vocabulary' ? vocabularyColumns : grammarColumns
+  return activeTab.value === 'vocabulary' ? vocabularyColumns.value : grammarColumns.value
 })
+
+const currentInputValue = computed(() => (
+  activeTab.value === 'vocabulary'
+    ? vocabularyInput.value.trim()
+    : grammarInput.value.trim()
+))
+
+const currentSearchTypeLabel = computed(() => (
+  activeTab.value === 'vocabulary'
+    ? t('words.yuBaoPage.types.vocabulary')
+    : t('words.yuBaoPage.types.grammar')
+))
+
+const activeTabLabel = computed(() => (
+  activeTab.value === 'vocabulary'
+    ? t('words.yuBaoVocabulary.name')
+    : t('words.yuBaoGrammar.name')
+))
 
 // 检查输入是否有效（是否在数据列表中完全匹配）
 const isValidInput = computed(() => {
@@ -448,10 +468,10 @@ const currentDefaultFilter = computed(() => {
 })
 
 // Tab 配置
-const tabs = [
-  { key: 'vocabulary', label: '語保詞彙' },
-  { key: 'grammar', label: '語保語法' }
-]
+const tabs = computed(() => [
+  { key: 'vocabulary', label: t('words.yuBaoVocabulary.name') },
+  { key: 'grammar', label: t('words.yuBaoGrammar.name') }
+])
 
 // 計算屬性：根據關鍵詞過濾 cardData
 const filteredCardData = computed(() => {
@@ -493,7 +513,7 @@ function switchTab(tabKey) {
 
 // 监听路由变化
 watch(() => route.query.sub, (newSub) => {
-  if (newSub && tabs.some(t => t.key === newSub)) {
+  if (newSub && tabs.value.some(tab => tab.key === newSub)) {
     activeTab.value = newSub
   }
 })

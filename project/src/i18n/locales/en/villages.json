@@ -19,5 +19,46 @@
     "icon": "🏠",
     "name": "Yangchun Villages",
     "desc": "Yangchun County natural villages (from county records)"
+  },
+  "pages": {
+    "gdTree": {
+      "title": "Guangdong Village Tree",
+      "subtitle": "Click \"Load\" to expand a city's village data",
+      "searchPlaceholder": "Search loaded villages...",
+      "loadingCities": "Loading city list...",
+      "retry": "Retry",
+      "load": "Load",
+      "loading": "Loading...",
+      "loaded": "Loaded",
+      "fetching": "Fetching data...",
+      "noResults": "No matching results found",
+      "noData": "No data available",
+      "errors": {
+        "invalidCityList": "Unexpected city list format returned",
+        "loadCities": "Failed to load the city list. Please retry.",
+        "invalidCityData": "Unexpected data format returned, or the city has no data",
+        "loadCity": "Load failed. Please retry."
+      }
+    },
+    "gdTable": {
+      "title": "Guangdong Village Overview",
+      "columns": {
+        "prefecture": "Prefecture",
+        "county": "County",
+        "town": "Township",
+        "adminVillage": "Administrative Village",
+        "naturalVillage": "Natural Village",
+        "dialect": "Dialect",
+        "longitude": "Longitude",
+        "latitude": "Latitude"
+      }
+    },
+    "yangChun": {
+      "title": "Yangchun Administrative Divisions",
+      "source": "Source: Yangchun County Annals (1996)",
+      "searchPlaceholder": "Search village committees, communities, or natural villages...",
+      "noResults": "No matching results found",
+      "unknownNode": "Unknown Node"
+    }
   }
 }

@@ -10,9 +10,71 @@
     "name": "YuBao Grammar",
     "desc": "YuBao 50 sentence grammar data"
   },
+  "yuBaoPage": {
+    "viewAll": "View all",
+    "search": {
+      "vocabularyPlaceholder": "Enter a vocabulary item (supports fuzzy matching and simplified/traditional variants)",
+      "grammarPlaceholder": "Enter a grammar pattern (supports fuzzy matching and simplified/traditional variants)",
+      "localFilterPlaceholder": "Filter within these results...",
+      "modalPlaceholder": "Search in the list..."
+    },
+    "viewModes": {
+      "table": "Table",
+      "card": "Cards",
+      "map": "Map"
+    },
+    "types": {
+      "vocabulary": "vocabulary",
+      "grammar": "grammar patterns"
+    },
+    "states": {
+      "loadingData": "Loading data...",
+      "loadingCards": "Loading cards...",
+      "enterSearch": "Please enter a search term",
+      "chooseSuggestion": "Please select from the suggestion list",
+      "queryHint": "Enter {type} in the input above to query",
+      "clickSuggestion": "After typing, click an item from the suggestion list",
+      "loadingMore": "Loading more...",
+      "loadedAll": "All data loaded",
+      "noFilterResult": "No results matched \"{query}\"",
+      "noData": "No related data found"
+    },
+    "filter": {
+      "showingCount": "Showing {visible} / {total}"
+    },
+    "modal": {
+      "allItemsTitle": "{name} - All entries",
+      "total": "{count} items"
+    },
+    "columns": {
+      "province": "Province",
+      "city": "City",
+      "county": "County",
+      "town": "Town",
+      "village": "Village",
+      "character": "Character",
+      "pronunciation": "Pronunciation",
+      "note": "Note",
+      "region1": "Region 1",
+      "region2": "Region 2",
+      "region3": "Region 3"
+    }
+  },
   "ycSpoken": {
     "icon": "💬",
     "name": "Yangchun Spoken Words",
-    "desc": "Guangdong Yangchun spoken word list"
+    "desc": "Guangdong Yangchun spoken word list",
+    "columns": {
+      "character": "Character",
+      "jyutping": "Jyutping",
+      "source": "Source",
+      "initial": "Initial",
+      "final": "Final",
+      "tone": "Tone",
+      "partOfSpeech": "Part of Speech",
+      "definition": "Definition",
+      "examples": "Examples",
+      "review": "Review"
+    }
   }
 }

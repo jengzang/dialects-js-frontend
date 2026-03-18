@@ -10,9 +10,71 @@
     "name": "语保语法",
     "desc": "语保50条句子语法资料"
   },
+  "yuBaoPage": {
+    "viewAll": "查看全部",
+    "search": {
+      "vocabularyPlaceholder": "请输入词汇（支持模糊匹配、繁简通用）",
+      "grammarPlaceholder": "请输入语法句式（支持模糊匹配、繁简通用）",
+      "localFilterPlaceholder": "在此结果中二次筛选...",
+      "modalPlaceholder": "在列表中搜索..."
+    },
+    "viewModes": {
+      "table": "表格",
+      "card": "卡片",
+      "map": "地图"
+    },
+    "types": {
+      "vocabulary": "词汇",
+      "grammar": "语法句式"
+    },
+    "states": {
+      "loadingData": "加载数据中...",
+      "loadingCards": "加载卡片中...",
+      "enterSearch": "请输入搜索内容",
+      "chooseSuggestion": "请从建议列表中选择",
+      "queryHint": "在上方输入框中输入{type}进行查询",
+      "clickSuggestion": "输入内容后点击下拉建议中的选项",
+      "loadingMore": "正在加载更多...",
+      "loadedAll": "—— 已加载全部数据 ——",
+      "noFilterResult": "没有匹配 \"{query}\" 的结果",
+      "noData": "没有找到相关数据"
+    },
+    "filter": {
+      "showingCount": "显示 {visible} / {total} 条"
+    },
+    "modal": {
+      "allItemsTitle": "{name} - 全部条目",
+      "total": "共 {count} 条"
+    },
+    "columns": {
+      "province": "省",
+      "city": "市",
+      "county": "县",
+      "town": "镇",
+      "village": "村",
+      "character": "字",
+      "pronunciation": "发音",
+      "note": "注释",
+      "region1": "分区1",
+      "region2": "分区2",
+      "region3": "分区3"
+    }
+  },
   "ycSpoken": {
     "icon": "💬",
     "name": "阳春口语词",
-    "desc": "广东阳春口语单字词表"
+    "desc": "广东阳春口语单字词表",
+    "columns": {
+      "character": "字",
+      "jyutping": "粤拼",
+      "source": "来源",
+      "initial": "声",
+      "final": "韵",
+      "tone": "调",
+      "partOfSpeech": "词性",
+      "definition": "释义",
+      "examples": "例词例句",
+      "review": "待校"
+    }
   }
 }

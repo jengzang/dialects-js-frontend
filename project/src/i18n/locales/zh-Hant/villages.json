@@ -19,5 +19,46 @@
     "icon": "🏠",
     "name": "陽春自然村",
     "desc": "廣東省陽春縣自然村(來自縣志)"
+  },
+  "pages": {
+    "gdTree": {
+      "title": "廣東自然村樹狀圖",
+      "subtitle": "點擊「加載」按鈕展開城市資料",
+      "searchPlaceholder": "搜索已加載的村落...",
+      "loadingCities": "正在加載城市列表...",
+      "retry": "重試",
+      "load": "加載",
+      "loading": "加載中...",
+      "loaded": "✓ 已加載",
+      "fetching": "正在獲取數據...",
+      "noResults": "沒有找到匹配的結果",
+      "noData": "暫無數據",
+      "errors": {
+        "invalidCityList": "返回的城市列表格式錯誤",
+        "loadCities": "無法加載城市列表，請重試",
+        "invalidCityData": "返回的數據格式錯誤或城市無數據",
+        "loadCity": "加載失敗，請重試"
+      }
+    },
+    "gdTable": {
+      "title": "全粵村情",
+      "columns": {
+        "prefecture": "地級",
+        "county": "縣級",
+        "town": "鎮級",
+        "adminVillage": "行政村",
+        "naturalVillage": "自然村",
+        "dialect": "方言",
+        "longitude": "經度",
+        "latitude": "緯度"
+      }
+    },
+    "yangChun": {
+      "title": "陽春行政規劃",
+      "source": "數據源：《陽春縣志》(1996)",
+      "searchPlaceholder": "搜索村委、社區或自然村...",
+      "noResults": "沒有找到匹配的結果",
+      "unknownNode": "未知節點"
+    }
   }
 }
