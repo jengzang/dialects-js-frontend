@@ -1,8 +1,7 @@
 // 整理數據,用於地圖繪製
 import { queryStore, mapStore, resultCache, userStore } from '../../store/store.js'
-import { getCustomData } from '../../api/user/custom.js'
 
-export async function func_mergeData(resultData = null, mapData = null) {
+export async function func_mergeData(resultData = null, mapData = null, customData = null) {
     // 1) 数据来源：优先参数，否则 fallback 到 window
     const latestResults = resultData ?? window.latestResults;
     const locations_data = mapData ?? window.locations_data;
@@ -119,41 +118,11 @@ export async function func_mergeData(resultData = null, mapData = null) {
         }
     }
 
-    const locations = queryStore.locations;
-    const regions = queryStore.regions;
-    const uniqueFeatures = [...new Set(latestResults.map(result => result.特徵值))];
-
-    // 创建请求参数
-    const queryParams = {
-        locations: locations,
-        regions: regions,
-        need_features: uniqueFeatures
-    };
-
-    let shouldContinue = true;
-    let result = null;
-    try {
-        // 如果用户未登录，直接返回，不查询个人数据
-        if (!userStore.isAuthenticated || userStore.role === 'anonymous') {
-            shouldContinue = false;
-            console.log('用戶未登錄，不查詢個人數據');
-            throw new Error('用戶未登錄');
-        }
-
-        // 使用统一的 api 函数
-        result = await getCustomData(queryParams);
-
-    } catch (error) {
-        shouldContinue = false;
-        console.log('查詢個人數據失敗:', error.message || error);
-    }
-    if (shouldContinue && Array.isArray(result)) {
-        mergeBackendData(result, mergedData,
+    if (Array.isArray(customData) && customData.length > 0) {
+        mergeBackendData(customData, mergedData,
             mergedData.length > 0 ? mergedData[0].zoomLevel : 10,
             mergedData.length > 0 ? mergedData[0].centerCoordinate : [0, 0]
         );
-    } else {
-        console.log("當前地點/分區選擇不包含自定義數據", result);
     }
 
     assignColorToMergedData(mergedData);

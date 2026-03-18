@@ -52,7 +52,7 @@ import { useI18n } from 'vue-i18n';
 import {useRoute, useRouter} from 'vue-router';
 import { searchChars, searchZhongGu, searchYinWei, searchTones } from '@/api/query/core'
 import { getCoordinates } from '@/api/query/geo'
-import {globalPayload, mapStore, resultCache} from '@/store/store.js';
+import {globalPayload, mapStore, resultCache, userStore} from '@/store/store.js';
 import ResultList from "@/components/result/ResultList.vue";
 import CharsAndTones from "@/components/result/CharsAndTones.vue";
 import SimpleSelectDropdown from "@/components/common/SimpleSelectDropdown.vue";
@@ -205,7 +205,8 @@ watch(
 
           const response = await searchZhongGu({
             ...payload.value,
-            exclude_columns: payload.value.exclude_columns || []
+            exclude_columns: payload.value.exclude_columns || [],
+            include_custom: userStore.isAuthenticated && userStore.role !== 'anonymous'
           })
 
           if (seq !== requestSeq) return;
@@ -215,7 +216,7 @@ watch(
             latestResults.value = Array.isArray(results.value) ? results.value.flat() : [];
 
             // ✅ 修复：func_mergeData 是 async，必须 await
-            mergedData = await func_mergeData(latestResults.value, MapData);
+            mergedData = await func_mergeData(latestResults.value, MapData, response.custom_data || []);
             // console.log(mergedData)
             if (seq !== requestSeq) return;
 
