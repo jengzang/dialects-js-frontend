@@ -83,7 +83,7 @@ import CustomDataPanel from '@/components/map/CustomDataPanel.vue'
 import HelpIcon from '@/components/ToastAndHelp/HelpIcon.vue'
 import SimpleSelectDropdown from "@/components/common/SimpleSelectDropdown.vue";
 import { showSuccess, showError } from '@/utils/message.js'
-import { func_mergeData, addCustomFeatureData } from '@/utils/MapData.js'
+import { func_mergeData, addCustomFeatureData } from '@/utils/map/MapData.js'
 
 const { t } = useI18n()
 const selectedLevel = ref(3)

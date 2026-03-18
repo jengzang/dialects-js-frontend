@@ -132,13 +132,13 @@ import { ref, onMounted, onBeforeUnmount, shallowRef, nextTick, watch, computed 
 import { useI18n } from 'vue-i18n';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
-import { mapStyle, mapStyleConfig, calculateDenseMapCenterAndZoom } from '@/utils/MapSource.js';
+import { mapStyle, mapStyleConfig, calculateDenseMapCenterAndZoom } from '@/utils/map/MapSource.js';
 import {get_detail} from "@/utils/ResultTable.js";
 import {mapStore, userStore, resultCache} from "@/store/store.js";
 import { showSuccess, showError, showWarning, showConfirm } from '@/utils/message.js';
 import { sqlQuery } from '@/api/sql'
 import { deleteCustomForm } from '@/api/user/custom.js'
-import { func_mergeData } from '@/utils/MapData.js';
+import { func_mergeData } from '@/utils/map/MapData.js';
 import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
 import MapLegend from './MapLegend.vue'
 

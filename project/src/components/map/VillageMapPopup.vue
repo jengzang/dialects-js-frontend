@@ -60,7 +60,7 @@ import { ref, computed, watch, shallowRef, onMounted, onBeforeUnmount, nextTick 
 import { useI18n } from 'vue-i18n'
 import maplibregl from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
-import { mapStyle, mapStyleConfig, calculateDenseMapCenterAndZoom } from '@/utils/MapSource.js'
+import { mapStyle, mapStyleConfig, calculateDenseMapCenterAndZoom } from '@/utils/map/MapSource.js'
 import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
 
 const props = defineProps({

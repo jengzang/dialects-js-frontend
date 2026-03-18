@@ -51,10 +51,9 @@
           <li>{{ $t('about.intro.features.mapClick') }}</li>
         </ul>
         <p style=" text-align: left;font-weight: bold;text-decoration: underline">{{ $t('about.intro.footer') }}</p>
-      </div>
+      
 
-      <!-- 新的"感悟"页面 -->
-      <div v-if="currentTab === 'reflection'" class="thanks-container">
+        <!-- 感悟部分 -->
         <h2 class="tabs-title" style="margin-top: 20px">{{ $t('about.reflection.title') }}</h2>
         <p class="thoughts" style="text-align: left">{{ $t('about.reflection.paragraph1') }}</p>
         <p class="thoughts" style="text-align: left">{{ $t('about.reflection.paragraph2') }}</p>
@@ -96,8 +95,6 @@
           </li>
         </ul>
         <p style="font-size:2rem;margin-top:0.5rem;margin-bottom: 3rem">💖🌟🥳</p>
-      </div>
-
       <!-- 新的"建議"页面 -->
       <div v-if="currentTab === 'suggestion'" class="page2">
         <div class="suggestion-box">
@@ -236,7 +233,6 @@ const showQRCodes = ref(false)
 
 const tabs = computed(() => [
   { name: 'intro', label: t('about.tabs.intro') },
-  { name: 'reflection', label: t('about.tabs.reflection') },
   { name: 'suggestion', label: t('about.tabs.suggestion') },
   { name: 'like', label: t('about.tabs.like') },
   { name: 'setting', label: t('about.tabs.setting') },

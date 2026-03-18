@@ -56,7 +56,7 @@ import {globalPayload, mapStore, resultCache} from '@/store/store.js';
 import ResultList from "@/components/result/ResultList.vue";
 import CharsAndTones from "@/components/result/CharsAndTones.vue";
 import SimpleSelectDropdown from "@/components/common/SimpleSelectDropdown.vue";
-import {generateTonesMergedData,generateCharsMergedData,func_mergeData} from "@/utils/MapData.js";
+import {generateTonesMergedData,generateCharsMergedData,func_mergeData} from "@/utils/map/MapData.js";
 
 const { t } = useI18n();
 const route = useRoute();

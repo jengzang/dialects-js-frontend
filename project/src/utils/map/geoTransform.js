@@ -1,7 +1,7 @@
 // utils/geoTransform.js
 // 區域坐標轉換工具 - 將區域語言學數據轉換為 GeoJSON
 
-import { searchVillages } from '@/api'
+import { searchVillages } from '@/api/index.js'
 
 /**
  * 計算村莊質心坐標
