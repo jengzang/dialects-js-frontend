@@ -16,7 +16,6 @@ import ResultPage from './menu/ResultPage.vue'
 import AboutPage from "@/views/menu/AboutPage.vue";
 import SourcePage from "@/views/menu/SourcePage.vue";
 import PrivacyPage from "@/views/menu/PrivacyPage.vue";
-import SettingPage from "@/views/menu/SettingPage.vue";
 import ToolsPage from "@/views/menu/entry/ToolsPage.vue";
 import PhoPage from "@/views/menu/PhoPage.vue";
 import WordsPage from "@/views/menu/entry/WordsPage.vue";
@@ -38,7 +37,6 @@ const activeComponent = computed(() => {
     result: ResultPage,
     source:SourcePage,
     privacy: PrivacyPage,
-    setting:SettingPage,
     about: AboutPage,
     tools: ToolsPage,
     pho: PhoPage,
