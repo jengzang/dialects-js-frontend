@@ -72,6 +72,15 @@ export const uiStore = reactive({
         custom: {
             isRunning: false,
             hasSelectedFeature: false
+        },
+        compare: {
+            isRunning: false,
+            isLocationDisabled: false,
+            tabContentDisabled: {
+                tab1: true,
+                tab2: true,
+                tab4: true
+            }
         }
     },
 
@@ -79,6 +88,7 @@ export const uiStore = reactive({
     currentPage: 'query',  // 'query' | 'result' | 'map' | 'about'
     currentSubTab: {
         query: 'tab2',  // 'tab1' | 'tab2' | 'tab3' | 'tab4'
+        compare: 'tab2', // 'tab1' | 'tab2' | 'tab4'
         map: 'map'      // 'map' | 'divide' | 'custom'
     }
 })
@@ -106,6 +116,15 @@ export const isDivideButtonDisabled = computed(() => {
 export const isCustomButtonDisabled = computed(() => {
     const state = uiStore.buttonStates.custom
     return state.isRunning || !state.hasSelectedFeature
+})
+
+// Compare 按钮禁用状态
+export const isCompareButtonDisabled = computed(() => {
+    const state = uiStore.buttonStates.compare
+    const currentTab = uiStore.currentSubTab.compare
+    return state.isRunning ||
+           state.isLocationDisabled ||
+           state.tabContentDisabled[currentTab]
 })
 
 // ========================================

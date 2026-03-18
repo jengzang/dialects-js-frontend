@@ -191,7 +191,6 @@
               :is-dropdown-open="excludeDropdownOpen === 'tab2_current'"
               :selected-card="tabStates.tab2.current.card"
               :exclude-columns="tabStates.tab2.current.excludeColumns"
-              @update:runDisabled="tab2CurrentDisabled = $event"
               ref="ZhongguRefCurrent"
           />
             </div>
@@ -226,7 +225,7 @@
 
       <LocationAndRegionInput
           ref="locationRef"
-          @update:runDisabled="uiStore.buttonStates.query.isLocationDisabled = $event"
+          @update:runDisabled="uiStore.buttonStates.compare.isLocationDisabled = $event"
           v-model="locationModel"
           :limitContext="locationLimitContext"
       />
@@ -268,7 +267,7 @@ import LocationAndRegionInput from "@/components/query/LocationAndRegionInput.vu
 import ZhongguSelector from "@/components/query/ZhongguSelector.vue";
 import KeyButtonGroup from "@/components/query/KeyButtonGroup.vue";
 import DropdownValueSelector from "@/components/query/DropdownValueSelector.vue";
-import { globalPayload, queryStore, uiStore, isQueryButtonDisabled, setRunning, setTabContentDisabled, mapStore } from '@/store/store.js'
+import { globalPayload, queryStore, uiStore, isCompareButtonDisabled, setRunning, setTabContentDisabled, mapStore } from '@/store/store.js'
 import { S2T_T2S_MAPPING } from '@/config'
 import { compareChars, compareZhongGu, compareTones } from '@/api/index.js'
 import { getCoordinates } from '@/api/query/geo'
@@ -438,8 +437,7 @@ function formatSelectedItem(item) {
   return parts.join(' | ')
 }
 
-// Tab2 disabled 狀態
-const tab2CurrentDisabled = ref(false)
+// Tab2 disabled 狀態（由 watch group items 管理，此 ref 已棄用）
 
 function normalizeSingleChar(value) {
   if (!value) return ''
@@ -476,32 +474,26 @@ const getCardLabel = (card) => {
   return cardMap[card] || card
 }
 
-// 1️⃣ 使用 uiStore 中的按钮状态（不再定义本地状态）
-// 直接从 store 获取状态引用
-const buttonState = uiStore.buttonStates.query
+// 本地按鈕狀態，與 QueryPage 完全隔離
+const buttonState = uiStore.buttonStates.compare
 
-// Tab2 的两个组的禁用状态
-const tab2Group1Disabled = ref(true)
-const tab2Group2Disabled = ref(true)
-
-// 2️⃣ 监听 Tab 1 的输入框内容 (因为它没有子组件 emit 事件，需要手动监听)
+// 2️⃣ 监听 Tab 1 的输入框内容
 watch(() => tabStates.tab1, (newVal) => {
-  // Both groups must have at least one character
   const group1Valid = newVal.group1.chars && newVal.group1.chars.trim() !== ''
   const group2Valid = newVal.group2.chars && newVal.group2.chars.trim() !== ''
   const featuresValid = !!newVal.features
-  setTabContentDisabled('query', 'tab1', !(group1Valid && group2Valid && featuresValid))
+  setTabContentDisabled('compare', 'tab1', !(group1Valid && group2Valid && featuresValid))
 }, { immediate: true, deep: true })
 
-// 监听 Tab2 的两个组的状态，只有两个组都有效时才启用按钮
-watch([tab2Group1Disabled, tab2Group2Disabled], ([group1Disabled, group2Disabled]) => {
-  setTabContentDisabled('query', 'tab2', group1Disabled || group2Disabled)
-})
+// 监听 Tab2：两个组都有至少一个条件才启用
+watch(() => [tabStates.tab2.group1Items.length, tabStates.tab2.group2Items.length], ([g1, g2]) => {
+  setTabContentDisabled('compare', 'tab2', g1 === 0 || g2 === 0)
+}, { immediate: true })
 
 // 监听 Tab 4 的调类选择
 watch(() => tabStates.tab4, (newVal) => {
   const isValid = Array.isArray(newVal.selectedToneClasses) && newVal.selectedToneClasses.length === 2
-  setTabContentDisabled('query', 'tab4', !isValid)
+  setTabContentDisabled('compare', 'tab4', !isValid)
 }, { immediate: true, deep: true })
 
 // Tab4 调类复选框颜色类
@@ -514,11 +506,11 @@ function getToneCheckboxClass(toneValue) {
 
 // 3️⃣ 同步当前 Tab 到 store
 watch(currentTab, (newTab) => {
-  uiStore.currentSubTab.query = newTab
+  uiStore.currentSubTab.compare = newTab
 }, { immediate: true })
 
-// 4️⃣ 🔥 最终计算属性：控制按钮是否禁用（使用 store 的 computed helper）
-const isRunDisabled = isQueryButtonDisabled
+// 4️⃣ 最终计算属性：控制按钮是否禁用
+const isRunDisabled = isCompareButtonDisabled
 
 // 监听 card（聲韻調）变化，自動清空已選列表
 watch(() => tabStates.tab2.current.card, (newCard, oldCard) => {
@@ -812,7 +804,7 @@ const ZhongguRefCurrent = ref(null);  // For tab2 current selector
 
 // 點擊按鈕行為
 const runAction = async () => {
-  setRunning('query', true);
+  setRunning('compare', true);
 
   try {
     // 1. 獲取地點邏輯
@@ -991,7 +983,7 @@ const runAction = async () => {
   } catch (error) {
     console.error('Compare action failed:', error)
   } finally {
-    setRunning('query', false);
+    setRunning('compare', false);
   }
 }
 
