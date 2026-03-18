@@ -273,7 +273,7 @@ import { S2T_T2S_MAPPING } from '@/config'
 import { compareChars, compareZhongGu, compareTones } from '@/api/index.js'
 import { getCoordinates } from '@/api/query/geo'
 import { showWarning } from '@/utils/message.js'
-import { useQueryConfig } from '@/composables/useQueryConfig'
+import { useQueryConfig } from '@/utils/useQueryConfig'
 
 const { t } = useI18n()
 

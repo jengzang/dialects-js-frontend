@@ -234,7 +234,7 @@ import KeyButtonGroup from "@/components/query/KeyButtonGroup.vue";
 import DropdownValueSelector from "@/components/query/DropdownValueSelector.vue";
 import { globalPayload, queryStore, uiStore, isQueryButtonDisabled, setRunning, setTabContentDisabled } from '@/store/store.js'
 import { S2T_T2S_MAPPING } from '@/config'
-import { useQueryConfig } from '@/composables/useQueryConfig'
+import { useQueryConfig } from '@/utils/useQueryConfig'
 
 const { t } = useI18n()
 
