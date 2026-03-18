@@ -227,7 +227,7 @@
 
 
 <script setup>
-import { ref , onMounted, onBeforeUnmount, computed} from 'vue'
+import { ref , onMounted, onBeforeUnmount, computed, watch} from 'vue'
 import {useRoute, useRouter} from 'vue-router'
 import { useI18n } from 'vue-i18n'
 // import { clearToken, getToken, saveToken } from '../../api/auth/auth.js'
@@ -247,6 +247,40 @@ const menuConfigRef = useMenuConfig()
 const activeSubmenu = ref(null)  // Currently open submenu key
 const submenuPosition = ref({ top: 0, left: 0 })  // Position for submenu panel
 const closeSubmenuTimeout = ref(null)  // Timeout for delayed closing
+
+// ===== sessionStorage 管理：记住每个 tab 的最后访问的 sub =====
+const STORAGE_KEY_PREFIX = 'menu_last_sub_'
+
+// 获取某个 tab 的最后访问的 sub
+function getLastSub(tab) {
+  try {
+    return sessionStorage.getItem(STORAGE_KEY_PREFIX + tab)
+  } catch (e) {
+    console.warn('Failed to read from sessionStorage:', e)
+    return null
+  }
+}
+
+// 保存某个 tab 的最后访问的 sub
+function saveLastSub(tab, sub) {
+  try {
+    if (sub) {
+      sessionStorage.setItem(STORAGE_KEY_PREFIX + tab, sub)
+    } else {
+      sessionStorage.removeItem(STORAGE_KEY_PREFIX + tab)
+    }
+  } catch (e) {
+    console.warn('Failed to write to sessionStorage:', e)
+  }
+}
+
+// 监听路由变化，记录当前的 tab 和 sub
+watch(() => route.query, (query) => {
+  if (query.tab && query.sub) {
+    saveLastSub(query.tab, query.sub)
+  }
+}, { immediate: true })
+// ===== sessionStorage 管理结束 =====
 
 // Mobile detection
 const isMobile = ref(false)
@@ -366,13 +400,41 @@ const onClick = async (tabConfig, navigate) => {
     return
   }
 
-  // 防止重复导航到当前路由
-  if (tabConfig.to && isRouteMatch(tabConfig.to)) return
+  // 检查是否有记录的 sub
+  const lastSub = getLastSub(tabConfig.tab)
 
-  // 使用配置的路由进行导航
+  // 构建目标路由
+  let targetRoute
   if (tabConfig.to) {
-    await router.replace(tabConfig.to)
+    // 如果配置了 to，使用配置的路由
+    targetRoute = tabConfig.to
+
+    // 如果有记录的 sub，添加到 query 中
+    if (lastSub && typeof targetRoute === 'object') {
+      targetRoute = {
+        ...targetRoute,
+        query: {
+          ...targetRoute.query,
+          sub: lastSub
+        }
+      }
+    }
+  } else {
+    // 如果没有配置 to，使用默认的 /menu?tab=xxx
+    targetRoute = {
+      path: '/menu',
+      query: {
+        tab: tabConfig.tab,
+        ...(lastSub ? { sub: lastSub } : {})
+      }
+    }
   }
+
+  // 防止重复导航到当前路由
+  if (isRouteMatch(targetRoute)) return
+
+  // 导航到目标路由
+  await router.replace(targetRoute)
 }
 
 const goToAuthPage = () => {
