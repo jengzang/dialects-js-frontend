@@ -56,7 +56,7 @@
       "timer": "Recording... {time}s"
     },
     "errors": {
-      "fileSizeExceeded": "File size exceeds the 50MB limit",
+      "fileSizeExceeded": "File size exceeds the 5MB limit",
       "unsupportedFormat": "Unsupported audio format. Please upload WAV, MP3, M4A, WebM, OGG, FLAC, or AAC files",
       "processingFailed": "Failed to process audio file: {error}",
       "readFailed": "Unable to read the audio file",

@@ -1,13 +1,11 @@
 <template>
   <div class="jyut2ipa-container">
     <div class="glass-container">
-      <!-- 头部区域 -->
       <div class="header-section">
-        <h2 class="title">粵拼轉IPA工具</h2>
-        <p class="subtitle">表內需要有“粵拼”列</p>
+        <h2 class="title">{{ t('tools.jyut2ipa.page.title') }}</h2>
+        <p class="subtitle">{{ t('tools.jyut2ipa.page.subtitle') }}</p>
       </div>
 
-      <!-- 上传区域 -->
       <div class="upload-area" v-if="!processing && !completed">
         <div
           class="upload-zone"
@@ -24,33 +22,30 @@
             @change="handleFileSelect"
             style="display: none"
           />
-          <div class="upload-icon">📄</div>
-          <h3 class="upload-title">點擊上傳或拖拽文件到此處</h3>
-          <p class="upload-hint">支持 .xlsx 和 .xls 格式</p>
+          <div class="upload-icon">📤</div>
+          <h3 class="upload-title">{{ t('tools.jyut2ipa.upload.title') }}</h3>
+          <p class="upload-hint">{{ t('tools.jyut2ipa.upload.hint') }}</p>
         </div>
 
-        <!-- 说明和配置 -->
         <div class="info-section">
-          <p class="info-text">支持粵拼格式（例如：jyut6ping3），可轉換聲母、韻母、聲調及完整IPA</p>
+          <p class="info-text">{{ t('tools.jyut2ipa.upload.info') }}</p>
 
-          <!-- 配置按钮卡片 -->
           <div class="config-card" @click="showConfigModal = true">
             <div class="config-icon">⚙️</div>
             <div class="config-content">
-              <div class="config-title">自定義轉換規則</div>
-              <div class="config-desc">配置聲母、韻母、韻尾、聲調對照表</div>
+              <div class="config-title">{{ t('tools.jyut2ipa.configCard.title') }}</div>
+              <div class="config-desc">{{ t('tools.jyut2ipa.configCard.desc') }}</div>
             </div>
             <div class="config-arrow">→</div>
           </div>
         </div>
       </div>
 
-      <!-- 处理中状态 -->
       <div class="processing-area" v-if="processing">
         <div class="processing-icon">
           <div class="spinner"></div>
         </div>
-        <h3 class="processing-title">正在處理中...</h3>
+        <h3 class="processing-title">{{ t('tools.jyut2ipa.processing.title') }}</h3>
         <p class="processing-text">{{ processingText }}</p>
 
         <div class="progress-bar-container">
@@ -62,25 +57,24 @@
 
         <div class="processing-stats" v-if="stats.total > 0">
           <div class="stat-item">
-            <span class="stat-label">總行數：</span>
+            <span class="stat-label">{{ t('tools.common.totalRows') }}</span>
             <span class="stat-value">{{ stats.total }}</span>
           </div>
           <div class="stat-item">
-            <span class="stat-label">已處理：</span>
+            <span class="stat-label">{{ t('tools.common.processedRows') }}</span>
             <span class="stat-value">{{ stats.processed }}</span>
           </div>
           <div class="stat-item">
-            <span class="stat-label">成功：</span>
+            <span class="stat-label">{{ t('tools.common.successfulRows') }}</span>
             <span class="stat-value success">{{ stats.success }}</span>
           </div>
         </div>
       </div>
 
-      <!-- 完成状态 -->
       <div class="complete-area" v-if="completed">
         <div class="complete-icon">✅</div>
-        <h3 class="complete-title">轉換完成！</h3>
-        <p class="complete-text">請在5分鐘內下載</p>
+        <h3 class="complete-title">{{ t('tools.jyut2ipa.complete.title') }}</h3>
+        <p class="complete-text">{{ t('tools.jyut2ipa.complete.text') }}</p>
 
 <!--        <div class="result-stats">-->
 <!--          <div class="result-card">-->
@@ -100,27 +94,26 @@
         <div class="action-buttons">
           <button class="glass-button primary large" @click="downloadResult">
             <span class="icon">⬇️</span>
-            <span>下載結果文件</span>
+            <span>{{ t('tools.jyut2ipa.actions.downloadResult') }}</span>
           </button>
           <button class="glass-button secondary" @click="reset">
             <span class="icon">🔄</span>
-            <span>重新開始</span>
+            <span>{{ t('tools.jyut2ipa.actions.resetTask') }}</span>
           </button>
         </div>
 
-        <!-- 预览区域 -->
         <div class="preview-section" v-if="previewData.length > 0">
-          <h4 class="preview-title">轉換預覽（前10行）</h4>
+          <h4 class="preview-title">{{ t('tools.jyut2ipa.complete.previewTitle') }}</h4>
           <div class="preview-table-wrapper custom-scrollbar">
             <table class="preview-table">
               <thead>
                 <tr>
-                  <th>原文</th>
-                  <th>粵拼</th>
-                  <th>IPA</th>
-                  <th>聲母</th>
-                  <th>韻母</th>
-                  <th>聲調</th>
+                  <th>{{ t('tools.jyut2ipa.preview.char') }}</th>
+                  <th>{{ t('tools.jyut2ipa.preview.jyutping') }}</th>
+                  <th>{{ t('tools.jyut2ipa.preview.ipa') }}</th>
+                  <th>{{ t('tools.jyut2ipa.preview.initial') }}</th>
+                  <th>{{ t('tools.jyut2ipa.preview.final') }}</th>
+                  <th>{{ t('tools.jyut2ipa.preview.tone') }}</th>
                 </tr>
               </thead>
               <tbody>
@@ -139,27 +132,52 @@
       </div>
     </div>
 
-    <!-- 配置模态框 -->
     <transition name="modal">
       <div class="modal-overlay" v-if="showConfigModal" @click.self="showConfigModal = false">
         <div class="modal-content large-modal">
           <div class="modal-header">
             <div class="header-left">
-              <h3 class="modal-title">⚙️ 對照表配置</h3>
+              <h3 class="modal-title">{{ t('tools.jyut2ipa.modal.title') }}</h3>
               <div class="header-stats">
-                <span class="stat-inline">總規則數：<strong>{{ totalRules }}</strong></span>
-                <span class="stat-inline">已啟用：<strong class="success">{{ enabledRules }}</strong></span>
-                <span class="stat-inline">已禁用：<strong class="disabled">{{ disabledRules }}</strong></span>
+                <span class="stat-inline">
+                  {{ t('tools.jyut2ipa.modal.totalRules') }}
+                  <strong>{{ totalRules }}</strong>
+                </span>
+                <span class="stat-inline">
+                  {{ t('tools.jyut2ipa.modal.enabledRules') }}
+                  <strong class="success">{{ enabledRules }}</strong>
+                </span>
+                <span class="stat-inline">
+                  {{ t('tools.jyut2ipa.modal.disabledRules') }}
+                  <strong class="disabled">{{ disabledRules }}</strong>
+                </span>
               </div>
             </div>
             <div class="header-actions">
-              <button class="icon-btn" @click="exportConfig" title="導出配置">📤</button>
-              <button class="icon-btn" @click="importConfig" title="導入配置">📥</button>
-              <button class="close-btn" @click="showConfigModal = false">✕</button>
+              <button
+                class="icon-btn"
+                @click="exportConfig"
+                :title="t('tools.jyut2ipa.modal.exportTitle')"
+              >
+                📤
+              </button>
+              <button
+                class="icon-btn"
+                @click="importConfig"
+                :title="t('tools.jyut2ipa.modal.importTitle')"
+              >
+                📥
+              </button>
+              <button
+                class="close-btn"
+                :title="t('tools.common.close')"
+                @click="showConfigModal = false"
+              >
+                ✕
+              </button>
             </div>
           </div>
 
-          <!-- 标签页 -->
           <div class="config-tabs">
             <button
               v-for="tab in tabs"
@@ -173,17 +191,16 @@
           </div>
 
           <div class="modal-body custom-scrollbar">
-            <!-- 规则表格 -->
             <div class="rules-table-container">
               <table class="rules-table">
                 <thead>
                   <tr>
-                    <th width="50">序號</th>
-                    <th width="150">原粵拼</th>
-                    <th width="150">ipa</th>
-                    <th width="100">分類</th>
-                    <th width="80">啟用</th>
-                    <th width="100">操作</th>
+                    <th width="50">{{ t('tools.jyut2ipa.modal.headers.index') }}</th>
+                    <th width="150">{{ t('tools.jyut2ipa.modal.headers.source') }}</th>
+                    <th width="150">{{ t('tools.jyut2ipa.modal.headers.replacement') }}</th>
+                    <th width="100">{{ t('tools.jyut2ipa.modal.headers.category') }}</th>
+                    <th width="80">{{ t('tools.jyut2ipa.modal.headers.enabled') }}</th>
+                    <th width="100">{{ t('tools.jyut2ipa.modal.headers.actions') }}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -219,7 +236,11 @@
                       </label>
                     </td>
                     <td>
-                      <button class="btn-delete" @click="deleteRule(rule)" title="刪除">
+                      <button
+                        class="btn-delete"
+                        @click="deleteRule(rule)"
+                        :title="t('tools.common.delete')"
+                      >
                         🗑️
                       </button>
                     </td>
@@ -228,21 +249,23 @@
               </table>
             </div>
 
-            <!-- 添加规则按钮 -->
             <button class="btn-add-rule" @click="addNewRule">
-              ➕ 添加新規則
+              {{ t('tools.jyut2ipa.actions.addRule') }}
             </button>
           </div>
 
           <div class="modal-footer">
-            <button class="glass-button secondary" @click="resetConfigConfirm">🔄 重置為默認</button>
-            <button class="glass-button primary" @click="saveConfig">💾 保存配置</button>
+            <button class="glass-button secondary" @click="resetConfigConfirm">
+              {{ t('tools.jyut2ipa.actions.resetDefault') }}
+            </button>
+            <button class="glass-button primary" @click="saveConfig">
+              {{ t('tools.jyut2ipa.actions.saveConfig') }}
+            </button>
           </div>
         </div>
       </div>
     </transition>
 
-    <!-- 文件导入input -->
     <input
       type="file"
       ref="importInput"
@@ -254,26 +277,29 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed } from 'vue'
+import { computed, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import {
-  uploadJyutFile,
+  downloadJyut2IpaResult,
   processJyut2Ipa,
   getJyut2IpaProgress,
-  downloadJyut2IpaResult
+  uploadJyutFile
 } from '@/api/tools/index.js'
 import { userStore } from '@/store/store.js'
-import { showSuccess, showError, showWarning, showConfirm } from '@/utils/message.js'
+import { showConfirm, showError, showSuccess, showWarning } from '@/utils/message.js'
 
 const router = useRouter()
+const { t } = useI18n()
 const fileName = ref('')
+const taskId = ref(null)
 const fileInput = ref(null)
 const importInput = ref(null)
 const isDragOver = ref(false)
 const processing = ref(false)
 const completed = ref(false)
 const progress = ref(0)
-const processingText = ref('準備上傳...')
+const processingText = ref(t('tools.jyut2ipa.processing.preparingUpload'))
 const showConfigModal = ref(false)
 const currentTab = ref('wf')
 
@@ -347,14 +373,13 @@ const DEFAULT_RULES = [
 // 规则列表
 const rules = ref([...DEFAULT_RULES])
 
-// 标签页
-const tabs = [
-  { key: 'wf', label: '韻腹' },
-  { key: 'sm', label: '聲母' },
-  { key: 'jd', label: '聲調' },
-  { key: 'wm', label: '韻尾' },
-  { key: 'all', label: '全部' }
-]
+const tabs = computed(() => [
+  { key: 'wf', label: t('tools.jyut2ipa.categories.wf') },
+  { key: 'sm', label: t('tools.jyut2ipa.categories.sm') },
+  { key: 'jd', label: t('tools.jyut2ipa.categories.jd') },
+  { key: 'wm', label: t('tools.jyut2ipa.categories.wm') },
+  { key: 'all', label: t('tools.jyut2ipa.categories.all') }
+])
 
 // 计算属性
 const filteredRules = computed(() => {
@@ -368,9 +393,13 @@ const totalRules = computed(() => rules.value.length)
 const enabledRules = computed(() => rules.value.filter(r => r.enabled).length)
 const disabledRules = computed(() => totalRules.value - enabledRules.value)
 
-// 工具函数
 const getCategoryName = (cat) => {
-  const names = { wf: '韻腹', sm: '聲母', jd: '聲調', wm: '韻尾' }
+  const names = {
+    wf: t('tools.jyut2ipa.categories.wf'),
+    sm: t('tools.jyut2ipa.categories.sm'),
+    jd: t('tools.jyut2ipa.categories.jd'),
+    wm: t('tools.jyut2ipa.categories.wm')
+  }
   return names[cat] || cat
 }
 
@@ -389,31 +418,35 @@ const addNewRule = () => {
 }
 
 const deleteRule = async (rule) => {
-  const confirmed = await showConfirm('確定刪除此規則？')
-  if (confirmed) {
-    const index = rules.value.indexOf(rule)
-    if (index > -1) {
-      rules.value.splice(index, 1)
-    }
+  const confirmed = await showConfirm(t('tools.jyut2ipa.messages.confirmDeleteRule'))
+  if (!confirmed) {
+    return
+  }
+
+  const index = rules.value.indexOf(rule)
+  if (index > -1) {
+    rules.value.splice(index, 1)
   }
 }
 
 const resetConfigConfirm = async () => {
-  const confirmed = await showConfirm('確定重置為默認配置嗎？這將清除所有自定義修改。')
-  if (confirmed) {
-    rules.value = [...DEFAULT_RULES]
-    localStorage.removeItem('jyut2ipa_custom_rules')
-    showSuccess('已重置為默認配置')
+  const confirmed = await showConfirm(t('tools.jyut2ipa.messages.confirmResetConfig'))
+  if (!confirmed) {
+    return
   }
+
+  rules.value = [...DEFAULT_RULES]
+  localStorage.removeItem('jyut2ipa_custom_rules')
+  showSuccess(t('tools.jyut2ipa.messages.resetSuccess'))
 }
 
 const saveConfig = () => {
   try {
     localStorage.setItem('jyut2ipa_custom_rules', JSON.stringify(rules.value))
     showConfigModal.value = false
-    showSuccess('配置已保存')
-  } catch (e) {
-    showError('保存失敗: ' + e.message)
+    showSuccess(t('tools.jyut2ipa.messages.saveSuccess'))
+  } catch (error) {
+    showError(t('tools.jyut2ipa.messages.saveFailed', { message: error.message }))
   }
 }
 
@@ -422,13 +455,13 @@ const exportConfig = () => {
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
   a.href = url
-  a.download = 'jyut2ipa-rules.json'
+  a.download = t('tools.jyut2ipa.export.configFileName')
   a.click()
   URL.revokeObjectURL(url)
 }
 
 const importConfig = () => {
-  importInput.value.click()
+  importInput.value?.click()
 }
 
 const handleImportFile = async (event) => {
@@ -440,12 +473,12 @@ const handleImportFile = async (event) => {
     const imported = JSON.parse(text)
     if (Array.isArray(imported)) {
       rules.value = imported
-      showSuccess('導入成功')
+      showSuccess(t('tools.jyut2ipa.messages.importSuccess'))
     } else {
-      showError('文件格式錯誤：必須是數組格式')
+      showError(t('tools.jyut2ipa.messages.importInvalid'))
     }
-  } catch (e) {
-    showError('導入失敗: ' + e.message)
+  } catch (error) {
+    showError(t('tools.jyut2ipa.messages.importFailed', { message: error.message }))
   }
   event.target.value = ''
 }
@@ -466,56 +499,55 @@ const handleDrop = (event) => {
   }
 }
 
-const processFile = async (file) => {
-  // 检查登录状态
-  if (!userStore.isAuthenticated) {
-    showWarning('請先登錄')
-    router.push('/auth')
-    return
-  }
-
-  if (!file.name.match(/\.(xlsx|xls)$/)) {
-    showError('請上傳Excel文件（.xlsx或.xls格式）')
-    return
-  }
-
-  if (file.size > 3 * 1024 * 1024) {
-    showError('文件大小不得超過3MB')
-    return
-  }
-
-  processing.value = true
-  progress.value = 0
+const resetStats = () => {
   stats.total = 0
   stats.processed = 0
   stats.success = 0
   stats.failed = 0
+}
+
+const processFile = async (file) => {
+  if (!userStore.isAuthenticated) {
+    showWarning(t('tools.jyut2ipa.validation.loginRequired'))
+    router.push('/auth')
+    return
+  }
+
+  if (!file.name.match(/\.(xlsx|xls)$/i)) {
+    showError(t('tools.jyut2ipa.validation.invalidFileType'))
+    return
+  }
+
+  if (file.size > 3 * 1024 * 1024) {
+    showError(t('tools.jyut2ipa.validation.fileTooLarge'))
+    return
+  }
+
+  processing.value = true
+  completed.value = false
+  progress.value = 0
+  resetStats()
+  previewData.value = []
   fileName.value = file.name
+  taskId.value = null
   try {
-    // 上传文件
-    processingText.value = '正在上傳文件...'
+    processingText.value = t('tools.jyut2ipa.processing.uploading')
     const uploadData = await uploadJyutFile(file)
 
-    const taskId = uploadData.task_id
+    taskId.value = uploadData.task_id
     progress.value = 10
 
-    // 开始处理
-    processingText.value = '正在準備轉換...'
-
-    // 将规则转换为后端需要的格式
-    const customRules = rules.value.filter(r => r.enabled)
-
-    await processJyut2Ipa(taskId)
+    processingText.value = t('tools.jyut2ipa.processing.preparingConvert')
+    await processJyut2Ipa(taskId.value)
 
     progress.value = 20
 
-    // 轮询进度
     const pollInterval = setInterval(async () => {
       try {
-        const progressData = await getJyut2IpaProgress(taskId)
+        const progressData = await getJyut2IpaProgress(taskId.value)
 
         progress.value = progressData.progress || 0
-        processingText.value = progressData.message || '處理中...'
+        processingText.value = t('tools.jyut2ipa.processing.running')
 
         if (progressData.status === 'completed') {
           clearInterval(pollInterval)
@@ -523,54 +555,49 @@ const processFile = async (file) => {
           stats.processed = progressData.total_rows || 0
           stats.success = progressData.total_rows || 0
           progress.value = 100
+          processingText.value = t('tools.common.completed')
 
-          // 生成预览数据（从后端获取）
           if (progressData.preview) {
             previewData.value = progressData.preview.slice(0, 10)
           }
 
           processing.value = false
           completed.value = true
-
-          // 保存taskId用于下载
-          window.jyut2ipaTaskId = taskId
         } else if (progressData.status === 'failed') {
           clearInterval(pollInterval)
-          throw new Error(progressData.message || '处理失败')
+          throw new Error(progressData.message || t('tools.jyut2ipa.processing.running'))
         }
       } catch (error) {
         clearInterval(pollInterval)
-        showError('獲取進度失敗: ' + error.message)
+        showError(t('tools.jyut2ipa.messages.progressFailed', { message: error.message }))
         reset()
       }
     }, 1000)
   } catch (error) {
-    showError('處理失敗: ' + error.message)
-    processing.value = false
+    showError(t('tools.jyut2ipa.messages.processFailed', { message: error.message }))
     reset()
   }
 }
 
 const downloadResult = async () => {
   try {
-    const taskId = window.jyut2ipaTaskId
-    if (!taskId) {
-      showError('未找到任務ID')
+    if (!taskId.value) {
+      showError(t('tools.jyut2ipa.messages.taskMissing'))
       return
     }
 
-    const blob = await downloadJyut2IpaResult(taskId)
+    const blob = await downloadJyut2IpaResult(taskId.value)
 
     const url = window.URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = `方音圖鑒_`+ fileName.value
+    a.download = `${t('tools.jyut2ipa.export.resultPrefix')}${fileName.value}`
     document.body.appendChild(a)
     a.click()
     window.URL.revokeObjectURL(url)
     document.body.removeChild(a)
   } catch (error) {
-    showError('下載失敗: ' + error.message)
+    showError(t('tools.jyut2ipa.messages.downloadFailed', { message: error.message }))
   }
 }
 
@@ -578,10 +605,10 @@ const reset = () => {
   completed.value = false
   processing.value = false
   progress.value = 0
-  stats.total = 0
-  stats.processed = 0
-  stats.success = 0
-  stats.failed = 0
+  processingText.value = t('tools.jyut2ipa.processing.preparingUpload')
+  taskId.value = null
+  fileName.value = ''
+  resetStats()
   previewData.value = []
   if (fileInput.value) {
     fileInput.value.value = ''
@@ -594,8 +621,8 @@ const loadConfig = () => {
   if (saved) {
     try {
       rules.value = JSON.parse(saved)
-    } catch (e) {
-      console.error('配置解析失敗:', e)
+    } catch (error) {
+      console.error('Failed to parse jyut2ipa config:', error)
       rules.value = [...DEFAULT_RULES]
     }
   }

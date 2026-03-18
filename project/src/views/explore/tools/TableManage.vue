@@ -1,44 +1,41 @@
 <template>
   <div style="width:100%;">
-    <!-- 加载中状态 -->
     <div v-if="authLoading" class="loading-container">
       <div class="spinner"></div>
-      <p>正在验证权限...</p>
+      <p>{{ t('tools.tableManage.loading') }}</p>
     </div>
 
-    <!-- 权限验证 -->
     <div v-else-if="!isAdmin" class="access-denied">
-      <h2>⚠️ 权限不足</h2>
-      <p>此页面仅限管理员访问</p>
-      <button @click="goHome">返回首页</button>
+      <h2>⚠️ {{ t('tools.tableManage.accessDenied.title') }}</h2>
+      <p>{{ t('tools.tableManage.accessDenied.desc') }}</p>
+      <button @click="goHome">{{ t('tools.tableManage.accessDenied.goHome') }}</button>
     </div>
 
-    <!-- 管理员界面 -->
     <div v-else class="admin-panel">
-      <!-- 表格显示后的折叠工具栏 -->
       <div v-if="showUniversalTable" class="collapsed-toolbar">
         <div class="toolbar-content">
-          <h3>📊 {{ selectedDbKey }} / {{ selectedTable }}</h3>
+          <h3>{{ t('tools.tableManage.collapsedToolbar.current', { db: selectedDbKey, table: selectedTable }) }}</h3>
           <button @click="toggleConfigPanel" class="btn-toggle">
-            {{ showConfigPanel ? '🔼 收起配置' : '🔽 展开配置' }}
+            {{
+              showConfigPanel
+                ? t('tools.tableManage.collapsedToolbar.hideConfig')
+                : t('tools.tableManage.collapsedToolbar.showConfig')
+            }}
           </button>
         </div>
       </div>
 
-      <!-- 配置面板 -->
       <div v-show="!showUniversalTable || showConfigPanel" class="config-panel">
-        <h2 v-if="!showUniversalTable">📊 表格数据管理</h2>
+        <h2 v-if="!showUniversalTable">{{ t('tools.tableManage.page.title') }}</h2>
 
-        <!-- 配置保存/加载 -->
         <div class="config-actions">
-          <button @click="saveCurrentConfig" class="btn-action-small">💾 保存当前配置</button>
-          <button @click="loadSavedConfig" class="btn-action-small">📂 加载已保存配置</button>
-          <button @click="clearSavedConfig" class="btn-action-small danger">🗑️ 清除配置</button>
+          <button @click="saveCurrentConfig" class="btn-action-small">{{ t('tools.tableManage.actions.saveConfig') }}</button>
+          <button @click="loadSavedConfig" class="btn-action-small">{{ t('tools.tableManage.actions.loadConfig') }}</button>
+          <button @click="clearSavedConfig" class="btn-action-small danger">{{ t('tools.tableManage.actions.clearConfig') }}</button>
         </div>
 
-        <!-- 步骤 1: 选择数据库 -->
         <div class="config-section" style="gap:25px;display: flex;justify-content: center;">
-          <label>1️⃣ 选择数据库：</label>
+          <label>{{ t('tools.tableManage.steps.selectDatabase') }}</label>
           <div class="input-group">
             <SimpleSelectDropdown
               v-model="selectedDbKey"
@@ -50,12 +47,12 @@
               v-if="selectedDbKey === '__custom__' || customDbKeyMode"
               v-model="customDbKey"
               type="text"
-              placeholder="输入数据库键（如 query）"
+              :placeholder="t('tools.tableManage.placeholders.customDatabase')"
               class="custom-input"
               @blur="applyCustomDbKey"
             />
           </div>
-          <label v-if="selectedDbKey">2️⃣ 选择表：</label>
+          <label v-if="selectedDbKey">{{ t('tools.tableManage.steps.selectTable') }}</label>
           <div v-if="selectedDbKey" class="input-group">
             <SimpleSelectDropdown
               v-model="selectedTable"
@@ -64,40 +61,41 @@
               @update:modelValue="onTableChange"
             />
             <input
-                v-if="selectedTable === '__custom__' || customTableMode"
-                v-model="customTable"
-                type="text"
-                placeholder="输入表名（如 dialects）"
-                class="custom-input"
-                @blur="applyCustomTable"
+                 v-if="selectedTable === '__custom__' || customTableMode"
+                 v-model="customTable"
+                 type="text"
+                 :placeholder="t('tools.tableManage.placeholders.customTable')"
+                 class="custom-input"
+                 @blur="applyCustomTable"
             />
           </div>
         </div>
 
 
-        <!-- 步骤 3: 配置列显示 -->
         <div v-if="selectedTable && allColumns.length > 0" class="config-section">
-          <h3>3️⃣ 配置列显示</h3>
+          <h3>{{ t('tools.tableManage.steps.configureColumns') }}</h3>
 
-          <!-- 快速预设配置 -->
           <div class="preset-buttons">
             <button @click="applyPresetConfig" class="btn-preset">
-              ⚡ 使用预设配置
+              {{ t('tools.tableManage.actions.applyPreset') }}
             </button>
             <button @click="selectAllColumns" class="btn-preset">
-              {{ allColumnsSelected ? '❌ 全不选' : '✅ 全选所有列' }}
+              {{
+                allColumnsSelected
+                  ? t('tools.tableManage.actions.deselectAllColumns')
+                  : t('tools.tableManage.actions.selectAllColumns')
+              }}
             </button>
           </div>
 
-          <!-- 列配置表格 -->
           <div class="table-wrapper">
             <table class="column-config-table">
               <thead>
                 <tr>
-                  <th>显示</th>
-                  <th>列名</th>
-                  <th>列宽</th>
-                  <th>可筛选</th>
+                  <th>{{ t('tools.tableManage.tableHeaders.visible') }}</th>
+                  <th>{{ t('tools.tableManage.tableHeaders.columnName') }}</th>
+                  <th>{{ t('tools.tableManage.tableHeaders.columnWidth') }}</th>
+                  <th>{{ t('tools.tableManage.tableHeaders.filterable') }}</th>
                 </tr>
               </thead>
               <tbody>
@@ -131,12 +129,15 @@
             </table>
           </div>
 
-          <!-- 默认筛选配置 -->
           <div class="filter-config">
             <div class="filter-header" @click="toggleFilterConfig">
-              <h4>4️⃣ 默认筛选（可选）</h4>
+              <h4>{{ t('tools.tableManage.steps.defaultFilters') }}</h4>
               <button class="btn-toggle-filter">
-                {{ showFilterConfig ? '🔼 收起' : '🔽 展开' }}
+                {{
+                  showFilterConfig
+                    ? t('tools.tableManage.actions.hideFilters')
+                    : t('tools.tableManage.actions.showFilters')
+                }}
               </button>
             </div>
 
@@ -146,20 +147,18 @@
                 <input
                   type="text"
                   v-model="defaultFilters[col.name]"
-                  placeholder="留空表示不筛选"
+                  :placeholder="t('tools.tableManage.placeholders.filterValue')"
                 />
               </div>
             </div>
           </div>
 
-          <!-- 显示表格按钮 -->
           <button @click="showTable" class="btn-show">
-            🚀 显示表格
+            {{ t('tools.tableManage.actions.showTable') }}
           </button>
         </div>
       </div>
 
-      <!-- 步骤 5: 显示 UniversalTable -->
       <div v-if="showUniversalTable" class="table-display">
         <UniversalTable
           :db-key="selectedDbKey"
@@ -173,15 +172,18 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, nextTick } from 'vue'
+import { computed, nextTick, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { userStore } from '@/store/store.js'
 import { getUserRole, ensureAuthenticated } from '@/api/auth/auth.js'
 import { getTableColumns } from '@/api/sql/index.js'
 import UniversalTable from '@/components/TableAndTree/UniversalTable.vue'
 import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
+import { showError, showSuccess, showWarning } from '@/utils/message.js'
 
 const router = useRouter()
+const { t } = useI18n()
 
 // 权限验证
 const authLoading = ref(true)
@@ -240,20 +242,20 @@ const availableTables = computed(() => {
 
 // Dropdown options
 const dbKeyOptions = computed(() => {
-  const options = [{ label: '-- 请选择数据库 --', value: '' }]
+  const options = [{ label: t('tools.tableManage.dropdown.selectDatabase'), value: '' }]
   dbKeys.value.forEach(key => {
     options.push({ label: key, value: key })
   })
-  options.push({ label: '✏️ 手动输入...', value: '__custom__' })
+  options.push({ label: t('tools.tableManage.dropdown.customInput'), value: '__custom__' })
   return options
 })
 
 const tableOptions = computed(() => {
-  const options = [{ label: '-- 请选择表 --', value: '' }]
+  const options = [{ label: t('tools.tableManage.dropdown.selectTable'), value: '' }]
   availableTables.value.forEach(table => {
     options.push({ label: table, value: table })
   })
-  options.push({ label: '✏️ 手动输入...', value: '__custom__' })
+  options.push({ label: t('tools.tableManage.dropdown.customInput'), value: '__custom__' })
   return options
 })
 
@@ -340,26 +342,19 @@ const applyCustomTable = async () => {
 
 const fetchColumns = async () => {
   try {
-    // 1. 手动拼接查询参数
-    const dbKey = selectedDbKey.value;
-    const tableName = selectedTable.value;
-
-    // 2. 调用 getTableColumns API
+    const dbKey = selectedDbKey.value
+    const tableName = selectedTable.value
     const res = await getTableColumns(dbKey, tableName)
-      method: 'GET'
 
-    // 后面逻辑保持不变
     allColumns.value = res.columns || []
 
-    // 初始化配置
     selectedColumns.value = {}
     columnWidths.value = {}
     filterableColumns.value = {}
     defaultFilters.value = {}
 
-    // 初始化所有列
     allColumns.value.forEach(col => {
-      const colName = col.name;
+      const colName = col.name
       selectedColumns.value[colName] = false
       columnWidths.value[colName] = 1
       filterableColumns.value[colName] = false
@@ -368,11 +363,7 @@ const fetchColumns = async () => {
     applyPresetConfig()
   } catch (err) {
     console.error('获取列信息失败:', err)
-    if (window.showWarningToast) {
-      window.showWarningToast('获取列信息失败，请检查数据库连接')
-    } else {
-      alert('获取列信息失败，请检查数据库连接')
-    }
+    showWarning(t('tools.tableManage.messages.fetchColumnsFailed'))
   }
 }
 
@@ -419,11 +410,7 @@ const selectAllColumns = () => {
 
 const showTable = () => {
   if (computedColumns.value.length === 0) {
-    if (window.showWarningToast) {
-      window.showWarningToast('请至少选择一列')
-    } else {
-      alert('请至少选择一列')
-    }
+    showWarning(t('tools.tableManage.messages.selectOneColumn'))
     return
   }
 
@@ -475,9 +462,7 @@ const getConfigKey = (dbKey, tableName) => {
 
 const saveCurrentConfig = () => {
   if (!selectedDbKey.value || !selectedTable.value) {
-    if (window.showWarningToast) {
-      window.showWarningToast('请先选择数据库和表')
-    }
+    showWarning(t('tools.tableManage.messages.selectDbAndTable'))
     return
   }
 
@@ -498,18 +483,15 @@ const saveCurrentConfig = () => {
   // ✅ 保存最后使用的表
   saveLastUsedTable(selectedDbKey.value, selectedTable.value)
 
-  if (window.showSuccessToast) {
-    window.showSuccessToast(`配置已保存: ${selectedDbKey.value}/${selectedTable.value}`)
-  } else {
-    alert('配置已保存')
-  }
+  showSuccess(t('tools.tableManage.messages.configSaved', {
+    db: selectedDbKey.value,
+    table: selectedTable.value
+  }))
 }
 
 const loadSavedConfig = async () => {
   if (!selectedDbKey.value || !selectedTable.value) {
-    if (window.showWarningToast) {
-      window.showWarningToast('请先选择数据库和表')
-    }
+    showWarning(t('tools.tableManage.messages.selectDbAndTable'))
     return
   }
 
@@ -518,9 +500,10 @@ const loadSavedConfig = async () => {
   const saved = localStorage.getItem(configKey)
 
   if (!saved) {
-    if (window.showWarningToast) {
-      window.showWarningToast(`该表没有已保存的配置: ${selectedDbKey.value}/${selectedTable.value}`)
-    }
+    showWarning(t('tools.tableManage.messages.noSavedConfig', {
+      db: selectedDbKey.value,
+      table: selectedTable.value
+    }))
     return
   }
 
@@ -533,24 +516,19 @@ const loadSavedConfig = async () => {
     filterableColumns.value = config.filterableColumns || {}
     defaultFilters.value = config.defaultFilters || {}
 
-    if (window.showSuccessToast) {
-      window.showSuccessToast(`配置已加载: ${selectedDbKey.value}/${selectedTable.value}`)
-    } else {
-      alert('配置已加载')
-    }
+    showSuccess(t('tools.tableManage.messages.configLoaded', {
+      db: selectedDbKey.value,
+      table: selectedTable.value
+    }))
   } catch (err) {
     console.error('加载配置失败:', err)
-    if (window.showErrorToast) {
-      window.showErrorToast('加载配置失败')
-    }
+    showError(t('tools.tableManage.messages.loadConfigFailed'))
   }
 }
 
 const clearSavedConfig = () => {
   if (!selectedDbKey.value || !selectedTable.value) {
-    if (window.showWarningToast) {
-      window.showWarningToast('请先选择数据库和表')
-    }
+    showWarning(t('tools.tableManage.messages.selectDbAndTable'))
     return
   }
 
@@ -558,11 +536,10 @@ const clearSavedConfig = () => {
   const configKey = getConfigKey(selectedDbKey.value, selectedTable.value)
   localStorage.removeItem(configKey)
 
-  if (window.showSuccessToast) {
-    window.showSuccessToast(`配置已清除: ${selectedDbKey.value}/${selectedTable.value}`)
-  } else {
-    alert('配置已清除')
-  }
+  showSuccess(t('tools.tableManage.messages.configCleared', {
+    db: selectedDbKey.value,
+    table: selectedTable.value
+  }))
 }
 
 // 生命周期
@@ -581,12 +558,8 @@ onMounted(async () => {
     // 权限验证完成
     authLoading.value = false
 
-    // 如果不是管理员，3秒后跳转首页
     if (!isAdmin.value) {
-      // console.log('[TableManage] 非管理员，准备跳转')
-      if (window.showWarningToast) {
-        window.showWarningToast('此页面仅限管理员访问')
-      }
+      showWarning(t('tools.tableManage.messages.adminOnly'))
       setTimeout(() => {
         router.push('/')
       }, 3000)
@@ -633,14 +606,9 @@ onMounted(async () => {
 
     authLoading.value = false
 
-    // 即使权限验证失败，也先显示界面（可能是网络问题）
-    // 用 setTimeout 延迟检查，给用户时间看到错误
-    if (window.showErrorToast) {
-      window.showErrorToast('权限验证失败，请重新登录')
-    }
+    showError(t('tools.tableManage.messages.authFailed'))
 
     setTimeout(() => {
-      // 再次检查，如果确实没有权限就跳转
       if (!isAdmin.value) {
         console.log('[TableManage] 延迟检查后仍无权限，跳转到登录页')
         router.push('/auth')

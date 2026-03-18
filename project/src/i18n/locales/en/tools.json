@@ -18,6 +18,250 @@
   "praatAnalysis": {
     "icon": "👂️",
     "name": "Acoustic Analysis",
-    "desc": "Analyze pitch, formants, etc. using Praat"
+    "desc": "Analyze pitch, formants, and related data with Praat"
+  },
+  "common": {
+    "close": "Close",
+    "reset": "Start Over",
+    "download": "Download",
+    "delete": "Delete",
+    "completed": "Completed",
+    "totalRows": "Total Rows",
+    "processedRows": "Processed Rows",
+    "successfulRows": "Successful Rows"
+  },
+  "jyut2ipa": {
+    "page": {
+      "title": "Jyutping to IPA Tool",
+      "subtitle": "Upload an Excel file with a Jyutping column and convert it to IPA in bulk"
+    },
+    "upload": {
+      "title": "Click or drag an Excel file here to upload",
+      "hint": "Supports .xlsx and .xls files",
+      "info": "Upload an Excel file that includes a jyut6ping3 column. The system will convert it to IPA automatically in batch."
+    },
+    "configCard": {
+      "title": "Custom Conversion Rules",
+      "desc": "Adjust replacement rules for finals, initials, tones, and codas."
+    },
+    "processing": {
+      "title": "Converting...",
+      "preparingUpload": "Preparing upload...",
+      "uploading": "Uploading file...",
+      "preparingConvert": "Preparing conversion...",
+      "running": "Converting..."
+    },
+    "complete": {
+      "title": "Conversion Complete",
+      "text": "The downloadable result and a 10-row preview are ready.",
+      "previewTitle": "Result Preview (First 10 Rows)"
+    },
+    "preview": {
+      "char": "Character",
+      "jyutping": "Jyutping",
+      "ipa": "IPA",
+      "initial": "Initial",
+      "final": "Final",
+      "tone": "Tone"
+    },
+    "modal": {
+      "title": "Custom Conversion Rules",
+      "totalRules": "Total Rules",
+      "enabledRules": "Enabled",
+      "disabledRules": "Disabled",
+      "exportTitle": "Export rule config",
+      "importTitle": "Import rule config",
+      "headers": {
+        "index": "No.",
+        "source": "Replace",
+        "replacement": "IPA Output",
+        "category": "Category",
+        "enabled": "Enabled",
+        "actions": "Actions"
+      }
+    },
+    "categories": {
+      "wf": "Final",
+      "sm": "Initial",
+      "jd": "Tone",
+      "wm": "Coda",
+      "all": "All"
+    },
+    "actions": {
+      "downloadResult": "Download Result",
+      "resetTask": "Start Over",
+      "addRule": "Add Rule",
+      "resetDefault": "Reset to Default",
+      "saveConfig": "Save Config"
+    },
+    "validation": {
+      "loginRequired": "Please sign in first.",
+      "invalidFileType": "Please upload an Excel file (.xlsx or .xls).",
+      "fileTooLarge": "File size must not exceed 3MB."
+    },
+    "messages": {
+      "confirmDeleteRule": "Delete this rule?",
+      "confirmResetConfig": "Reset to the default configuration? All custom changes will be removed.",
+      "resetSuccess": "Reset to the default configuration.",
+      "saveSuccess": "Configuration saved.",
+      "saveFailed": "Save failed: {message}",
+      "importSuccess": "Import successful.",
+      "importInvalid": "Invalid file format: expected an array.",
+      "importFailed": "Import failed: {message}",
+      "progressFailed": "Failed to get progress: {message}",
+      "processFailed": "Processing failed: {message}",
+      "taskMissing": "Task ID not found.",
+      "downloadFailed": "Download failed: {message}"
+    },
+    "export": {
+      "configFileName": "jyut2ipa-rules.json",
+      "resultPrefix": "phonicon_"
+    }
+  },
+  "merge": {
+    "page": {
+      "title": "Table Merge Tool",
+      "subtitle": "Upload a reference sheet and source files to align and merge them in batch"
+    },
+    "steps": {
+      "reference": "Reference Sheet",
+      "files": "Files to Merge",
+      "result": "Merged Result"
+    },
+    "reference": {
+      "title": "Upload Reference Sheet",
+      "desc": "The reference sheet defines the column structure and character scope. You can upload your own file or use the default reference sheet.",
+      "uploadText": "Click or drag to upload a reference Excel file",
+      "uploadHint": "Supports .xlsx and .xls files",
+      "charCount": "Characters",
+      "columnCount": "Columns",
+      "viewDefault": "View Default Reference",
+      "loadingDefault": "Loading reference sheet...",
+      "next": "Next"
+    },
+    "files": {
+      "title": "Upload Source Tables",
+      "descPrefix": "Please upload source tables that have already been processed with",
+      "checkTool": "Data Check",
+      "descSuffix": ". Multiple files will be added to the same merge task.",
+      "uploadText": "Click or drag to upload tables to merge",
+      "uploadHint": "You can add up to 20 Excel files at once",
+      "selectedCount": "{count} file(s) added",
+      "previous": "Previous",
+      "startMerge": "Start Merge"
+    },
+    "processing": {
+      "title": "Merging tables...",
+      "initializing": "Initializing merge...",
+      "running": "Merging...",
+      "totalFiles": "Total Files"
+    },
+    "complete": {
+      "title": "Merge Complete",
+      "text": "The merged file and a task summary are ready for download.",
+      "mergedFilesTitle": "Files Processed in This Task"
+    },
+    "summary": {
+      "mergedFileCount": "Merged Files"
+    },
+    "modal": {
+      "title": "Default Reference Sheet",
+      "mainTable": "Main Sheet",
+      "supplementTable": "Supplement Sheet",
+      "showingRows": "Showing the first {displayed} rows out of {total}",
+      "downloadDefault": "Download Default Reference",
+      "useDefault": "Use This Reference"
+    },
+    "actions": {
+      "downloadResult": "Download merge.xlsx",
+      "resetTask": "Start Over"
+    },
+    "validation": {
+      "loginRequired": "Please sign in first.",
+      "invalidFileType": "Please upload an Excel file (.xlsx or .xls).",
+      "partialInvalid": "Some files have invalid formats. Only .xlsx and .xls are supported.",
+      "fileTooLarge": "These files exceed the 3MB limit: {files}",
+      "referenceFileTooLarge": "File size must not exceed 3MB.",
+      "maxFiles": "You can upload up to 20 files. There are already {count} file(s) in the list."
+    },
+    "messages": {
+      "uploadFailed": "Upload failed: {message}",
+      "mergeFailed": "Merge failed: {message}",
+      "progressFailed": "Failed to get progress: {message}",
+      "taskMissing": "Task ID not found.",
+      "downloadFailed": "Download failed: {message}",
+      "readDefaultFailed": "Failed to read the default reference sheet: {message}",
+      "defaultDownloaded": "Default reference sheet downloaded.",
+      "useDefaultSuccess": "Default reference sheet applied.",
+      "useDefaultFailed": "Failed to use the reference sheet: {message}"
+    },
+    "export": {
+      "resultFileName": "phonicon_merged_tables.xlsx",
+      "defaultReferencePath": "/reference.xlsx",
+      "defaultReferenceFileName": "reference.xlsx",
+      "mainSheetName": "Main Sheet",
+      "supplementSheetName": "Supplement Sheet"
+    }
+  },
+  "tableManage": {
+    "loading": "Verifying permissions...",
+    "page": {
+      "title": "Table Management Panel"
+    },
+    "accessDenied": {
+      "title": "Access Denied",
+      "desc": "This page is restricted to administrators. The app will return to the home page in a few seconds.",
+      "goHome": "Go Home"
+    },
+    "collapsedToolbar": {
+      "current": "Current: {db} / {table}",
+      "hideConfig": "Hide Config Panel",
+      "showConfig": "Show Config Panel"
+    },
+    "actions": {
+      "saveConfig": "Save Current Config",
+      "loadConfig": "Load Saved Config",
+      "clearConfig": "Delete Saved Config",
+      "applyPreset": "Apply Preset",
+      "selectAllColumns": "Select All Columns",
+      "deselectAllColumns": "Clear Selection",
+      "showFilters": "Expand",
+      "hideFilters": "Collapse",
+      "showTable": "Show Table"
+    },
+    "steps": {
+      "selectDatabase": "1. Select Database",
+      "selectTable": "2. Select Table",
+      "configureColumns": "3. Configure Columns",
+      "defaultFilters": "4. Default Filters"
+    },
+    "placeholders": {
+      "customDatabase": "Enter a database key, for example query",
+      "customTable": "Enter a table name, for example dialects",
+      "filterValue": "Enter a default filter value"
+    },
+    "tableHeaders": {
+      "visible": "Visible",
+      "columnName": "Column",
+      "columnWidth": "Width",
+      "filterable": "Filterable"
+    },
+    "dropdown": {
+      "selectDatabase": "-- Select a database --",
+      "selectTable": "-- Select a table --",
+      "customInput": "✏️ Manual input..."
+    },
+    "messages": {
+      "fetchColumnsFailed": "Failed to fetch column metadata. Please check the database connection.",
+      "selectOneColumn": "Please select at least one column.",
+      "selectDbAndTable": "Please select a database and a table first.",
+      "configSaved": "Configuration saved: {db}/{table}",
+      "configLoaded": "Configuration loaded: {db}/{table}",
+      "loadConfigFailed": "Failed to load configuration.",
+      "configCleared": "Configuration cleared: {db}/{table}",
+      "noSavedConfig": "No saved configuration for {db}/{table}",
+      "adminOnly": "This page is restricted to administrators.",
+      "authFailed": "Permission verification failed. Please sign in again."
+    }
   }
 }

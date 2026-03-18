@@ -1,13 +1,11 @@
 <template>
   <div class="merge-tool-container">
     <div class="glass-container">
-      <!-- 头部区域 -->
       <div class="header-section">
-        <h2 class="title">字表合併工具</h2>
-        <p class="subtitle">按統一字表合併多個方言調查表</p>
+        <h2 class="title">{{ t('tools.merge.page.title') }}</h2>
+        <p class="subtitle">{{ t('tools.merge.page.subtitle') }}</p>
       </div>
 
-      <!-- 步骤指示器 -->
       <div class="steps-indicator">
         <div
           class="step"
@@ -15,7 +13,7 @@
           @click="currentStep > 1 && goToStep(1)"
         >
           <div class="step-number">1</div>
-          <div class="step-label">參考表</div>
+          <div class="step-label">{{ t('tools.merge.steps.reference') }}</div>
         </div>
         <div class="step-line" :class="{ active: currentStep >= 2 }"></div>
         <div
@@ -24,21 +22,19 @@
           @click="currentStep > 2 && goToStep(2)"
         >
           <div class="step-number">2</div>
-          <div class="step-label">待合併文件</div>
+          <div class="step-label">{{ t('tools.merge.steps.files') }}</div>
         </div>
         <div class="step-line" :class="{ active: currentStep >= 3 }"></div>
         <div class="step" :class="{ active: currentStep >= 3, completed: currentStep > 3 }">
           <div class="step-number">3</div>
-          <div class="step-label">合併結果</div>
+          <div class="step-label">{{ t('tools.merge.steps.result') }}</div>
         </div>
       </div>
 
-      <!-- 内容区域 -->
       <div class="content-area">
-        <!-- 步骤1: 上传参考表 -->
         <div class="step-content" v-show="currentStep === 1">
-          <h3 class="step-title">上傳參考字表</h3>
-          <p class="step-desc">參考字表的列名應為“單字”/“单字”</p>
+          <h3 class="step-title">{{ t('tools.merge.reference.title') }}</h3>
+          <p class="step-desc">{{ t('tools.merge.reference.desc') }}</p>
 
           <div
             class="upload-zone"
@@ -58,8 +54,8 @@
 
             <template v-if="!referenceFile">
               <div class="upload-icon">📋</div>
-              <div class="upload-text">點擊或拖拽上傳參考字表</div>
-              <div class="upload-hint">支持 .xlsx 和 .xls 格式</div>
+              <div class="upload-text">{{ t('tools.merge.reference.uploadText') }}</div>
+              <div class="upload-hint">{{ t('tools.merge.reference.uploadHint') }}</div>
             </template>
 
             <template v-else>
@@ -68,11 +64,17 @@
                 <div class="file-details">
                   <div class="file-name">{{ referenceFile.name }}</div>
                   <div class="file-meta">
-                    <span>字數：{{ referenceStats.charCount }}</span>
-                    <span>列數：{{ referenceStats.columnCount }}</span>
+                    <span>{{ t('tools.merge.reference.charCount') }}: {{ referenceStats.charCount }}</span>
+                    <span>{{ t('tools.merge.reference.columnCount') }}: {{ referenceStats.columnCount }}</span>
                   </div>
                 </div>
-                <button class="remove-btn" @click.stop="removeReference">✕</button>
+                <button
+                  class="remove-btn"
+                  :title="t('tools.common.close')"
+                  @click.stop="removeReference"
+                >
+                  ✕
+                </button>
               </div>
             </template>
           </div>
@@ -84,31 +86,32 @@
               :disabled="isLoadingRef"
             >
               <span class="icon">{{ isLoadingRef ? '⏳' : '👁️' }}</span>
-              <span>{{ isLoadingRef ? '讀取中...' : '查看默認參考表' }}</span>
+              <span>
+                {{ isLoadingRef ? t('tools.merge.reference.loadingDefault') : t('tools.merge.reference.viewDefault') }}
+              </span>
             </button>
             <button
               class="glass-button primary large"
               :disabled="!referenceFile"
               @click="nextStep"
             >
-              下一步 →
+              {{ t('tools.merge.reference.next') }} →
             </button>
           </div>
         </div>
 
-        <!-- 步骤2: 上传待合并文件 -->
         <div class="step-content" v-show="currentStep === 2">
-          <h3 class="step-title">上傳待合併文件</h3>
+          <h3 class="step-title">{{ t('tools.merge.files.title') }}</h3>
           <p class="step-desc">
-            僅支持「一字一音」的格式，如需格式轉換，可使用
+            {{ t('tools.merge.files.descPrefix') }}
             <button
                 class="glass-button small"
                 style="display: inline-block; padding: 2px 8px; margin: 0 2px; vertical-align: middle;background: #007aff;color:white"
                 @click="$router.push('/explore?page=check')"
             >
-              字表檢查
+              {{ t('tools.merge.files.checkTool') }}
             </button>
-            工具
+            {{ t('tools.merge.files.descSuffix') }}
           </p>
 
           <div
@@ -127,12 +130,12 @@
               style="display: none"
             />
             <div class="upload-icon">📁</div>
-            <div class="upload-text">點擊或拖拽上傳待合併文件</div>
-            <div class="upload-hint">可以一次選擇多個文件</div>
+            <div class="upload-text">{{ t('tools.merge.files.uploadText') }}</div>
+            <div class="upload-hint">{{ t('tools.merge.files.uploadHint') }}</div>
           </div>
 
           <div class="files-list" v-if="mergeFiles.length > 0">
-            <h4 class="list-title">已選擇 {{ mergeFiles.length }} 個文件：</h4>
+            <h4 class="list-title">{{ t('tools.merge.files.selectedCount', { count: mergeFiles.length }) }}</h4>
             <div class="file-items">
               <div
                 v-for="(file, index) in mergeFiles"
@@ -147,25 +150,25 @@
           </div>
 
           <div class="step-actions">
-            <button class="glass-button secondary" @click="prevStep">← 上一步</button>
+            <button class="glass-button secondary" @click="prevStep">
+              ← {{ t('tools.merge.files.previous') }}
+            </button>
             <button
               class="glass-button primary large"
               :disabled="mergeFiles.length === 0"
               @click="startMerge"
             >
-              開始合併
+              {{ t('tools.merge.files.startMerge') }}
             </button>
           </div>
         </div>
 
-        <!-- 步骤3: 合并结果 -->
         <div class="step-content" v-show="currentStep === 3">
-          <!-- 处理中 -->
           <div class="processing-view" v-if="processing">
             <div class="processing-icon">
               <div class="spinner"></div>
             </div>
-            <h3 class="processing-title">正在合併中...</h3>
+            <h3 class="processing-title">{{ t('tools.merge.processing.title') }}</h3>
             <p class="processing-text">{{ processingText }}</p>
 
             <div class="progress-container">
@@ -177,25 +180,23 @@
 
             <div class="processing-details" v-if="mergeStats.total > 0">
               <div class="detail-item">
-                <span class="label">總文件數：</span>
+                <span class="label">{{ t('tools.merge.processing.totalFiles') }}</span>
                 <span class="value">{{ mergeStats.total }}</span>
               </div>
               <div class="detail-item">
-                <span class="label">已處理：</span>
+                <span class="label">{{ t('tools.common.processedRows') }}</span>
                 <span class="value">{{ mergeStats.processed }}</span>
               </div>
               <div class="detail-item">
-                <span class="label">成功：</span>
+                <span class="label">{{ t('tools.common.successfulRows') }}</span>
                 <span class="value success">{{ mergeStats.success }}</span>
               </div>
             </div>
           </div>
 
-          <!-- 完成 -->
           <div class="complete-view" v-else>
-<!--            <div class="complete-icon">✅</div>-->
-            <h3 class="complete-title">✅ 合併完成！</h3>
-            <p class="complete-text">請在5分鐘內下載</p>
+            <h3 class="complete-title">✅ {{ t('tools.merge.complete.title') }}</h3>
+            <p class="complete-text">{{ t('tools.merge.complete.text') }}</p>
 
             <div class="result-summary">
 <!--              <div class="summary-card">-->
@@ -209,7 +210,7 @@
                 <div class="summary-icon">📁</div>
                 <div class="summary-content">
                   <div class="summary-number">{{ mergeStats.totalFiles }}</div>
-                  <div class="summary-label">合併文件數</div>
+                  <div class="summary-label">{{ t('tools.merge.summary.mergedFileCount') }}</div>
                 </div>
               </div>
 <!--              <div class="summary-card">-->
@@ -224,17 +225,16 @@
             <div class="result-actions">
               <button class="glass-button primary large" @click="downloadMerged">
                 <span class="icon">⬇️</span>
-                <span>下載 merge.xlsx</span>
+                <span>{{ t('tools.merge.actions.downloadResult') }}</span>
               </button>
               <button class="glass-button secondary" @click="reset">
                 <span class="icon">🔄</span>
-                <span>重新開始</span>
+                <span>{{ t('tools.merge.actions.resetTask') }}</span>
               </button>
             </div>
 
-            <!-- 文件列表 -->
             <div class="merged-files-info">
-              <h4 class="info-title">已合併的文件：</h4>
+              <h4 class="info-title">{{ t('tools.merge.complete.mergedFilesTitle') }}</h4>
               <div class="merged-list custom-scrollbar">
                 <div
                   v-for="(file, index) in mergedFilesList"
@@ -243,7 +243,7 @@
                 >
                   <span class="merged-index">{{ index + 1 }}</span>
                   <span class="merged-name">{{ file.name }}</span>
-                  <span class="merged-status">✓ 成功</span>
+                  <span class="merged-status">✓ {{ t('tools.common.completed') }}</span>
                 </div>
               </div>
             </div>
@@ -252,12 +252,11 @@
       </div>
     </div>
 
-    <!-- 默认参考表查看弹窗 -->
     <div v-if="showDefaultRefModal" class="modal-overlay" @click.self="showDefaultRefModal = false">
       <div class="modal-container">
         <div class="modal-header">
-          <h3 class="modal-title">📋 默認參考表</h3>
-          <button class="close-btn" @click="showDefaultRefModal = false">✕</button>
+          <h3 class="modal-title">📋 {{ t('tools.merge.modal.title') }}</h3>
+          <button class="close-btn" :title="t('tools.common.close')" @click="showDefaultRefModal = false">✕</button>
         </div>
 
         <div class="modal-tabs">
@@ -266,20 +265,19 @@
             :class="{ active: currentTab === 'main' }"
             @click="currentTab = 'main'"
           >
-            主表 ({{ mainTableData.length }} 行)
+            {{ t('tools.merge.modal.mainTable') }} ({{ mainTableData.length }})
           </button>
           <button
             class="tab-btn"
             :class="{ active: currentTab === 'supplement' }"
             @click="currentTab = 'supplement'"
           >
-            補充表 ({{ supplementTableData.length }} 行)
+            {{ t('tools.merge.modal.supplementTable') }} ({{ supplementTableData.length }})
           </button>
         </div>
 
         <div class="modal-body">
           <div class="table-container custom-scrollbar">
-            <!-- 主表 -->
             <table v-if="currentTab === 'main'" class="data-table">
               <thead>
                 <tr>
@@ -293,7 +291,6 @@
               </tbody>
             </table>
 
-            <!-- 补充表 -->
             <table v-if="currentTab === 'supplement'" class="data-table">
               <thead>
                 <tr>
@@ -308,7 +305,12 @@
             </table>
 
             <div v-if="hasMoreData" class="load-more-hint">
-              显示前 {{ maxDisplayRows }} 行，共 {{ currentTab === 'main' ? mainTableData.length : supplementTableData.length }} 行
+              {{
+                t('tools.merge.modal.showingRows', {
+                  displayed: maxDisplayRows,
+                  total: currentTab === 'main' ? mainTableData.length : supplementTableData.length
+                })
+              }}
             </div>
           </div>
         </div>
@@ -316,7 +318,7 @@
         <div class="modal-footer">
           <button class="glass-button primary" @click="downloadDefaultReference">
             <span class="icon">⬇️</span>
-            <span>下載默認參考表</span>
+            <span>{{ t('tools.merge.modal.downloadDefault') }}</span>
           </button>
           <button
               class="glass-button secondary"
@@ -324,7 +326,7 @@
               style="background: rgba(31,138,54,0.43)"
           >
             <span class="icon">✅</span>
-            <span>使用此參考表</span>
+            <span>{{ t('tools.merge.modal.useDefault') }}</span>
           </button>
         </div>
       </div>
@@ -333,14 +335,21 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed } from 'vue'
+import { computed, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import * as XLSX from 'xlsx'
 import { uploadReference, uploadFiles, executeMerge, getMergeProgress, downloadMerge } from '@/api/tools/index.js'
 import { userStore } from '@/store/store.js'
-import { showSuccess, showError, showWarning, showConfirm } from '@/utils/message.js'
+import { showError, showSuccess, showWarning } from '@/utils/message.js'
 
 const router = useRouter()
+const { t } = useI18n()
+
+const DEFAULT_REFERENCE_PATH = '/参考表.xlsx'
+const DEFAULT_REFERENCE_FILE_NAME = '参考表.xlsx'
+const MAIN_SHEET_NAME = '主表'
+const SUPPLEMENT_SHEET_NAME = '補充表'
 
 const currentStep = ref(1)
 const referenceFile = ref(null)
@@ -408,36 +417,42 @@ const handleRefDrop = (event) => {
   }
 }
 
+const resetMergeStats = () => {
+  mergeStats.total = 0
+  mergeStats.processed = 0
+  mergeStats.success = 0
+  mergeStats.totalRows = 0
+  mergeStats.totalFiles = 0
+  mergeStats.totalColumns = 0
+}
+
 const setReferenceFile = async (file) => {
-  // 检查登录状态
   if (!userStore.isAuthenticated) {
-    showWarning('請先登錄')
+    showWarning(t('tools.merge.validation.loginRequired'))
     router.push('/auth')
     return
   }
 
-  if (!file.name.match(/\.(xlsx|xls)$/)) {
-    showError('請上傳Excel文件（.xlsx或.xls格式）')
+  if (!file.name.match(/\.(xlsx|xls)$/i)) {
+    showError(t('tools.merge.validation.invalidFileType'))
     return
   }
 
   if (file.size > 3 * 1024 * 1024) {
-    showError('文件大小不得超過3MB')
+    showError(t('tools.merge.validation.referenceFileTooLarge'))
     return
   }
 
   try {
-    // 上传参考表
     const data = await uploadReference(file)
 
     referenceFile.value = file
     taskId.value = data.task_id
 
-    // 设置参考表信息
     referenceStats.charCount = data.char_count || 0
     referenceStats.columnCount = data.column_count || 0
   } catch (error) {
-    showError('上傳失敗: ' + error.message)
+    showError(t('tools.merge.messages.uploadFailed', { message: error.message }))
   }
 }
 
@@ -462,35 +477,32 @@ const handleFilesDrop = (event) => {
 }
 
 const addFiles = async (files) => {
-  // 检查文件数量限制
   if (mergeFiles.value.length + files.length > 20) {
-    showError(`最多只能上傳20個文件，當前已有${mergeFiles.value.length}個文件`)
+    showError(t('tools.merge.validation.maxFiles', { count: mergeFiles.value.length }))
     return
   }
 
-  const validFiles = files.filter(file => file.name.match(/\.(xlsx|xls)$/))
+  const validFiles = files.filter(file => file.name.match(/\.(xlsx|xls)$/i))
 
   if (validFiles.length !== files.length) {
-    showError('部分文件格式不正確，只支持 .xlsx 和 .xls 格式')
+    showError(t('tools.merge.validation.partialInvalid'))
   }
 
   if (validFiles.length === 0) return
 
-  // 检查文件大小
   const oversizedFiles = validFiles.filter(file => file.size > 3 * 1024 * 1024)
   if (oversizedFiles.length > 0) {
-    showError(`以下文件超過3MB限制：${oversizedFiles.map(f => f.name).join(', ')}`)
+    showError(t('tools.merge.validation.fileTooLarge', {
+      files: oversizedFiles.map((currentFile) => currentFile.name).join(', ')
+    }))
     return
   }
 
   try {
-    // 上传待合并文件
     await uploadFiles(taskId.value, validFiles)
-
-    // 添加到文件列表
     mergeFiles.value.push(...validFiles)
   } catch (error) {
-    showError('上傳失敗: ' + error.message)
+    showError(t('tools.merge.messages.uploadFailed', { message: error.message }))
   }
 }
 
@@ -518,25 +530,21 @@ const startMerge = async () => {
   currentStep.value = 3
   processing.value = true
   progress.value = 0
-
+  processingText.value = t('tools.merge.processing.initializing')
+  resetMergeStats()
   mergeStats.total = mergeFiles.value.length
-  mergeStats.processed = 0
-  mergeStats.success = 0
 
   try {
-    // 发起合并请求
-    processingText.value = '正在初始化合併...'
     await executeMerge(taskId.value)
 
     progress.value = 10
 
-    // 轮询进度
     const pollInterval = setInterval(async () => {
       try {
         const progressData = await getMergeProgress(taskId.value)
 
         progress.value = progressData.progress || 0
-        processingText.value = progressData.message || '合併中...'
+        processingText.value = t('tools.merge.processing.running')
 
         if (progressData.processed !== undefined) {
           mergeStats.processed = progressData.processed
@@ -546,38 +554,34 @@ const startMerge = async () => {
         if (progressData.status === 'completed') {
           clearInterval(pollInterval)
           progress.value = 100
-          processingText.value = '完成！'
+          processingText.value = t('tools.common.completed')
 
-          // 设置结果统计
           mergeStats.totalRows = progressData.total_rows || 0
           mergeStats.totalFiles = mergeStats.total
           mergeStats.totalColumns = progressData.total_columns || 0
-          mergedFilesList.value = mergeFiles.value.map(f => ({ name: f.name }))
+          mergedFilesList.value = mergeFiles.value.map((file) => ({ name: file.name }))
 
           processing.value = false
         } else if (progressData.status === 'failed') {
           clearInterval(pollInterval)
-          throw new Error(progressData.message || '合并失败')
+          throw new Error(progressData.message || t('tools.merge.processing.running'))
         }
       } catch (error) {
         clearInterval(pollInterval)
-        showError('獲取進度失敗: ' + error.message)
+        showError(t('tools.merge.messages.progressFailed', { message: error.message }))
         reset()
       }
     }, 1000)
   } catch (error) {
-    showError('合併失敗: ' + error.message)
-    processing.value = false
+    showError(t('tools.merge.messages.mergeFailed', { message: error.message }))
     reset()
   }
 }
 
-const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms))
-
 const downloadMerged = async () => {
   try {
     if (!taskId.value) {
-      showError('未找到任務ID')
+      showError(t('tools.merge.messages.taskMissing'))
       return
     }
 
@@ -586,33 +590,30 @@ const downloadMerged = async () => {
     const url = window.URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = '方音圖鑑_合併字表.xlsx'
+    a.download = t('tools.merge.export.resultFileName')
     document.body.appendChild(a)
     a.click()
     window.URL.revokeObjectURL(url)
     document.body.removeChild(a)
   } catch (error) {
-    showError('下載失敗: ' + error.message)
+    showError(t('tools.merge.messages.downloadFailed', { message: error.message }))
   }
 }
 
-// 显示默认参考表
 const showDefaultReference = async () => {
   if (isLoadingRef.value) return
 
   isLoadingRef.value = true
 
   try {
-    // 读取public目录中的参考表.xlsx
-    const response = await fetch('/参考表.xlsx')
+    const response = await fetch(DEFAULT_REFERENCE_PATH)
     const arrayBuffer = await response.arrayBuffer()
     const workbook = XLSX.read(arrayBuffer, { type: 'array' })
 
     defaultRefWorkbook.value = workbook
 
-    // 读取主表
-    if (workbook.SheetNames.includes('主表')) {
-      const mainSheet = workbook.Sheets['主表']
+    if (workbook.SheetNames.includes(MAIN_SHEET_NAME)) {
+      const mainSheet = workbook.Sheets[MAIN_SHEET_NAME]
       const mainData = XLSX.utils.sheet_to_json(mainSheet, { header: 1 })
       if (mainData.length > 0) {
         mainTableHeaders.value = mainData[0]
@@ -620,9 +621,8 @@ const showDefaultReference = async () => {
       }
     }
 
-    // 读取补充表
-    if (workbook.SheetNames.includes('補充表')) {
-      const supplementSheet = workbook.Sheets['補充表']
+    if (workbook.SheetNames.includes(SUPPLEMENT_SHEET_NAME)) {
+      const supplementSheet = workbook.Sheets[SUPPLEMENT_SHEET_NAME]
       const supplementData = XLSX.utils.sheet_to_json(supplementSheet, { header: 1 })
       if (supplementData.length > 0) {
         supplementTableHeaders.value = supplementData[0]
@@ -633,52 +633,47 @@ const showDefaultReference = async () => {
     showDefaultRefModal.value = true
     currentTab.value = 'main'
   } catch (error) {
-    showError('讀取默認參考表失敗: ' + error.message)
+    showError(t('tools.merge.messages.readDefaultFailed', { message: error.message }))
   } finally {
     isLoadingRef.value = false
   }
 }
 
-// 下载默认参考表
 const downloadDefaultReference = async () => {
   try {
-    const response = await fetch('/参考表.xlsx')
+    const response = await fetch(DEFAULT_REFERENCE_PATH)
     const blob = await response.blob()
 
     const url = window.URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = '参考表.xlsx'
+    a.download = DEFAULT_REFERENCE_FILE_NAME
     document.body.appendChild(a)
     a.click()
     window.URL.revokeObjectURL(url)
     document.body.removeChild(a)
 
-    showSuccess('默認參考表已下載')
+    showSuccess(t('tools.merge.messages.defaultDownloaded'))
   } catch (error) {
-    showError('下載失敗: ' + error.message)
+    showError(t('tools.merge.messages.downloadFailed', { message: error.message }))
   }
 }
 
-// 使用默认参考表
 const useDefaultReference = async () => {
   try {
-    // 将workbook转为blob
     const wbout = XLSX.write(defaultRefWorkbook.value, { bookType: 'xlsx', type: 'array' })
     const blob = new Blob([wbout], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
 
-    // 创建File对象
-    const file = new File([blob], '参考表.xlsx', {
+    const file = new File([blob], DEFAULT_REFERENCE_FILE_NAME, {
       type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     })
 
-    // 使用setReferenceFile函数上传
     await setReferenceFile(file)
 
     showDefaultRefModal.value = false
-    showSuccess('已使用默認參考表')
+    showSuccess(t('tools.merge.messages.useDefaultSuccess'))
   } catch (error) {
-    showError('使用參考表失敗: ' + error.message)
+    showError(t('tools.merge.messages.useDefaultFailed', { message: error.message }))
   }
 }
 
@@ -688,15 +683,11 @@ const reset = () => {
   mergeFiles.value = []
   processing.value = false
   progress.value = 0
+  processingText.value = ''
   taskId.value = null
   referenceStats.charCount = 0
   referenceStats.columnCount = 0
-  mergeStats.total = 0
-  mergeStats.processed = 0
-  mergeStats.success = 0
-  mergeStats.totalRows = 0
-  mergeStats.totalFiles = 0
-  mergeStats.totalColumns = 0
+  resetMergeStats()
   mergedFilesList.value = []
 
   if (refInput.value) refInput.value.value = ''

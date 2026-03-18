@@ -7,7 +7,7 @@
   },
   "jyutpingToIpa": {
     "icon": "🔄",
-    "name": "粤拼转IPA",
+    "name": "粤拼转 IPA",
     "desc": "将粤拼转换为国际音标"
   },
   "mergeTables": {
@@ -18,6 +18,250 @@
   "praatAnalysis": {
     "icon": "👂️",
     "name": "声学分析",
-    "desc": "基于praat进行基频、共振峰等分析"
+    "desc": "基于 Praat 进行基频、共振峰等分析"
+  },
+  "common": {
+    "close": "关闭",
+    "reset": "重新开始",
+    "download": "下载",
+    "delete": "删除",
+    "completed": "完成",
+    "totalRows": "总行数",
+    "processedRows": "已处理行数",
+    "successfulRows": "成功行数"
+  },
+  "jyut2ipa": {
+    "page": {
+      "title": "粤拼转 IPA 工具",
+      "subtitle": "上传含粤拼列的 Excel 文件，批量转换为 IPA 音标"
+    },
+    "upload": {
+      "title": "点击或拖拽上传待转换的 Excel 文件",
+      "hint": "支持 .xlsx 与 .xls 格式",
+      "info": "请上传包含 jyut6ping3 列的 Excel 文件，系统会自动批量转换为 IPA 音标。"
+    },
+    "configCard": {
+      "title": "自定义转换规则",
+      "desc": "可调整韵腹、声母、声调与韵尾的替换规则。"
+    },
+    "processing": {
+      "title": "正在处理转换...",
+      "preparingUpload": "准备上传...",
+      "uploading": "正在上传文件...",
+      "preparingConvert": "正在准备转换...",
+      "running": "正在转换中..."
+    },
+    "complete": {
+      "title": "转换已完成",
+      "text": "已生成可下载结果与前 10 行预览。",
+      "previewTitle": "结果预览（前 10 行）"
+    },
+    "preview": {
+      "char": "字",
+      "jyutping": "粤拼",
+      "ipa": "IPA",
+      "initial": "声母",
+      "final": "韵腹",
+      "tone": "声调"
+    },
+    "modal": {
+      "title": "自定义转换规则",
+      "totalRules": "总规则",
+      "enabledRules": "已启用",
+      "disabledRules": "已停用",
+      "exportTitle": "导出规则配置",
+      "importTitle": "导入规则配置",
+      "headers": {
+        "index": "序号",
+        "source": "待替换内容",
+        "replacement": "替换为 IPA",
+        "category": "分类",
+        "enabled": "启用",
+        "actions": "操作"
+      }
+    },
+    "categories": {
+      "wf": "韵腹",
+      "sm": "声母",
+      "jd": "声调",
+      "wm": "韵尾",
+      "all": "全部"
+    },
+    "actions": {
+      "downloadResult": "下载转换结果",
+      "resetTask": "重新开始",
+      "addRule": "新增一条规则",
+      "resetDefault": "重置为默认配置",
+      "saveConfig": "保存配置"
+    },
+    "validation": {
+      "loginRequired": "请先登录",
+      "invalidFileType": "请上传 Excel 文件（.xlsx 或 .xls 格式）",
+      "fileTooLarge": "文件大小不得超过 3MB"
+    },
+    "messages": {
+      "confirmDeleteRule": "确定删除此规则？",
+      "confirmResetConfig": "确定重置为默认配置吗？这将清除所有自定义修改。",
+      "resetSuccess": "已重置为默认配置",
+      "saveSuccess": "配置已保存",
+      "saveFailed": "保存失败：{message}",
+      "importSuccess": "导入成功",
+      "importInvalid": "文件格式错误：必须是数组格式",
+      "importFailed": "导入失败：{message}",
+      "progressFailed": "获取进度失败：{message}",
+      "processFailed": "处理失败：{message}",
+      "taskMissing": "未找到任务 ID",
+      "downloadFailed": "下载失败：{message}"
+    },
+    "export": {
+      "configFileName": "jyut2ipa-rules.json",
+      "resultPrefix": "方音图鉴_"
+    }
+  },
+  "merge": {
+    "page": {
+      "title": "字表合并工具",
+      "subtitle": "上传参考表与待合并字表，批量完成对齐与合并"
+    },
+    "steps": {
+      "reference": "参考表",
+      "files": "待合并文件",
+      "result": "合并结果"
+    },
+    "reference": {
+      "title": "上传参考表",
+      "desc": "参考表用于确定列结构与字符范围，可上传自备文件或直接使用默认参考表。",
+      "uploadText": "点击或拖拽上传参考表 Excel 文件",
+      "uploadHint": "支持 .xlsx 与 .xls 格式",
+      "charCount": "字数",
+      "columnCount": "列数",
+      "viewDefault": "查看默认参考表",
+      "loadingDefault": "正在载入参考表...",
+      "next": "下一步"
+    },
+    "files": {
+      "title": "上传待合并字表",
+      "descPrefix": "请上传已经过",
+      "checkTool": "字表检查",
+      "descSuffix": "处理的待合并字表，多个文件会依次加入任务。",
+      "uploadText": "点击或拖拽上传待合并字表文件",
+      "uploadHint": "最多可同时加入 20 个 Excel 文件",
+      "selectedCount": "已加入 {count} 个文件",
+      "previous": "上一步",
+      "startMerge": "开始合并"
+    },
+    "processing": {
+      "title": "正在合并字表...",
+      "initializing": "正在初始化合并...",
+      "running": "合并中...",
+      "totalFiles": "总文件数"
+    },
+    "complete": {
+      "title": "字表合并已完成",
+      "text": "已生成可下载结果与合并文件摘要。",
+      "mergedFilesTitle": "本次已处理的文件"
+    },
+    "summary": {
+      "mergedFileCount": "合并文件数"
+    },
+    "modal": {
+      "title": "默认参考表",
+      "mainTable": "主表",
+      "supplementTable": "补充表",
+      "showingRows": "仅显示前 {displayed} 行，共 {total} 行",
+      "downloadDefault": "下载默认参考表",
+      "useDefault": "使用此参考表"
+    },
+    "actions": {
+      "downloadResult": "下载 merge.xlsx",
+      "resetTask": "重新开始"
+    },
+    "validation": {
+      "loginRequired": "请先登录",
+      "invalidFileType": "请上传 Excel 文件（.xlsx 或 .xls 格式）",
+      "partialInvalid": "部分文件格式不正确，仅支持 .xlsx 与 .xls 格式",
+      "fileTooLarge": "以下文件超过 3MB 限制：{files}",
+      "referenceFileTooLarge": "文件大小不得超过 3MB",
+      "maxFiles": "最多只能上传 20 个文件，当前已存在 {count} 个文件"
+    },
+    "messages": {
+      "uploadFailed": "上传失败：{message}",
+      "mergeFailed": "合并失败：{message}",
+      "progressFailed": "获取进度失败：{message}",
+      "taskMissing": "未找到任务 ID",
+      "downloadFailed": "下载失败：{message}",
+      "readDefaultFailed": "读取默认参考表失败：{message}",
+      "defaultDownloaded": "默认参考表已下载",
+      "useDefaultSuccess": "已使用默认参考表",
+      "useDefaultFailed": "使用参考表失败：{message}"
+    },
+    "export": {
+      "resultFileName": "方音图鉴_合并字表.xlsx",
+      "defaultReferencePath": "/参考表.xlsx",
+      "defaultReferenceFileName": "参考表.xlsx",
+      "mainSheetName": "主表",
+      "supplementSheetName": "补充表"
+    }
+  },
+  "tableManage": {
+    "loading": "正在验证权限...",
+    "page": {
+      "title": "表格管理面板"
+    },
+    "accessDenied": {
+      "title": "权限不足",
+      "desc": "此页面仅限管理员访问，系统将在数秒后返回首页。",
+      "goHome": "返回首页"
+    },
+    "collapsedToolbar": {
+      "current": "当前：{db} / {table}",
+      "hideConfig": "收起配置面板",
+      "showConfig": "展开配置面板"
+    },
+    "actions": {
+      "saveConfig": "保存当前配置",
+      "loadConfig": "载入已保存配置",
+      "clearConfig": "删除已保存配置",
+      "applyPreset": "套用预设配置",
+      "selectAllColumns": "全选所有列",
+      "deselectAllColumns": "取消全选",
+      "showFilters": "展开",
+      "hideFilters": "收起",
+      "showTable": "显示表格"
+    },
+    "steps": {
+      "selectDatabase": "1. 选择数据库",
+      "selectTable": "2. 选择表",
+      "configureColumns": "3. 配置列显示",
+      "defaultFilters": "4. 默认筛选条件"
+    },
+    "placeholders": {
+      "customDatabase": "手动输入数据库键名，例如 query",
+      "customTable": "手动输入表名，例如 dialects",
+      "filterValue": "输入默认筛选值"
+    },
+    "tableHeaders": {
+      "visible": "显示",
+      "columnName": "列名",
+      "columnWidth": "列宽",
+      "filterable": "可筛选"
+    },
+    "dropdown": {
+      "selectDatabase": "-- 请选择数据库 --",
+      "selectTable": "-- 请选择表 --",
+      "customInput": "✏️ 手动输入..."
+    },
+    "messages": {
+      "fetchColumnsFailed": "获取列信息失败，请检查数据库连接",
+      "selectOneColumn": "请至少选择一列",
+      "selectDbAndTable": "请先选择数据库和表",
+      "configSaved": "配置已保存：{db}/{table}",
+      "configLoaded": "配置已加载：{db}/{table}",
+      "loadConfigFailed": "加载配置失败",
+      "configCleared": "配置已清除：{db}/{table}",
+      "noSavedConfig": "该表没有已保存的配置：{db}/{table}",
+      "adminOnly": "此页面仅限管理员访问",
+      "authFailed": "权限验证失败，请重新登录"
+    }
   }
 }
