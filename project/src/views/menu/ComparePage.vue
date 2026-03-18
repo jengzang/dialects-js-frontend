@@ -679,8 +679,7 @@ function selectValue(value, key, group = 'group1') {
 // 2. 新增：全选/取消全选 逻辑
 function toggleSelectAll(key, group = 'group1') {
   const targetState = group === 'current' ? tabStates.tab2.current : tabStates.tab2[group]
-  const allOptions = keyValueMap[key] || []
-  const currentSelected = targetState.valueMap[key] || []
+  const allOptions = keyValueMap.value[key] || []
 
   // 如果当前已经全选了，则清空；否则全选
   if (currentSelected.length === allOptions.length) {
@@ -700,7 +699,7 @@ function isSelected(value, key, group = 'group1') {
 // 4. 新增：判断是否全选 (辅助 Template 显示全选状态)
 function isAllSelected(key, group = 'group1') {
   const targetState = group === 'current' ? tabStates.tab2.current : tabStates.tab2[group]
-  const all = keyValueMap[key] || []
+  const all = keyValueMap.value[key] || []
   const current = targetState.valueMap[key] || []
   return all.length > 0 && all.length === current.length
 }
@@ -713,8 +712,7 @@ function getDisplayText(key, group = 'group1') {
   // 1. 没选 - 返回空字符串，让 placeholder 显示
   if (!list || list.length === 0) return ''
   // 2. 全选
-  const allOptions = keyValueMap[key] || []
-  if (allOptions.length > 0 && list.length === allOptions.length) {
+  const allOptions = keyValueMap.value[key] || []
     return '全選'
   }
   // 3. 超过三个：截取前三个 + 省略号
