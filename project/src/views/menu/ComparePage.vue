@@ -1063,7 +1063,7 @@ function processCompareResults(results, mapData) {
           const status = compData.status
           // console.log(`    🔸 状态: ${status}`)
 
-          const item = createComparisonItem(location, coordinate, '调类比较', status, compData, pair)
+          const item = createComparisonItem(location, coordinate, t('compare.tabs.tab4'), status, compData, pair)
           if (item) {
             // console.log(`    ➕ 添加数据项:`, item)
             mergedData.push(item)
@@ -1098,62 +1098,57 @@ function processCompareResults(results, mapData) {
 }
 
 // 创建比较数据项
+function formatPairDisplayValue(pair, leftValue, rightValue) {
+  return `${pair[0]}: ${leftValue} vs ${pair[1]}: ${rightValue}`
+}
+
 function createComparisonItem(location, coordinate, feature, status, data, pair) {
-  // 根据比较状态分配颜色
-  let color = '#999999' // 默认灰色
+  let color = '#999999'
   let displayValue = ''
 
   if (status === 'same') {
-    // 相同/完全合并：绿色
     color = '#4CAF50'
-    displayValue = data.value || '相同'
+    displayValue = data.value || t('compare.legend.same')
   } else if (status === 'diff') {
-    // 不同/不合并：红色
     color = '#F44336'
     if (data.values) {
-      // chars 格式
       const values = Object.entries(data.values)
         .map(([char, vals]) => `${char}:${vals.join('/')}`)
         .join(' vs ')
       displayValue = values
     } else if (data.t1_value || data.t2_value) {
-      // tones 格式
-      const t1 = data.t1_value?.join('/') || '无'
-      const t2 = data.t2_value?.join('/') || '无'
-      displayValue = `${pair[0]}:${t1} vs ${pair[1]}:${t2}`
+      const t1 = data.t1_value?.join('/') || t('common.label.noData')
+      const t2 = data.t2_value?.join('/') || t('common.label.noData')
+      displayValue = formatPairDisplayValue(pair, t1, t2)
     } else {
-      displayValue = '不同'
+      displayValue = t('compare.legend.diff')
     }
   } else if (status === 'partial') {
-    // 部分相同/部分合并：黄色
     color = '#FFC107'
     if (data.t1_value || data.t2_value) {
-      // tones 格式
-      const t1 = data.t1_value?.join('/') || '无'
-      const t2 = data.t2_value?.join('/') || '无'
-      displayValue = `${pair[0]}:${t1} vs ${pair[1]}:${t2}`
+      const t1 = data.t1_value?.join('/') || t('common.label.noData')
+      const t2 = data.t2_value?.join('/') || t('common.label.noData')
+      displayValue = formatPairDisplayValue(pair, t1, t2)
     } else {
-      displayValue = '部分相同'
+      displayValue = t('compare.legend.partial')
     }
   } else if (status === 'maybe') {
-    // 可能合并：橙色
     color = '#FF9800'
     if (data.t1_value || data.t2_value) {
-      const t1 = data.t1_value?.join('/') || '无'
-      const t2 = data.t2_value?.join('/') || '无'
-      displayValue = `${pair[0]}:${t1} vs ${pair[1]}:${t2}`
+      const t1 = data.t1_value?.join('/') || t('common.label.noData')
+      const t2 = data.t2_value?.join('/') || t('common.label.noData')
+      displayValue = formatPairDisplayValue(pair, t1, t2)
     } else {
-      displayValue = '可能合并'
+      displayValue = t('compare.legend.maybeMerged')
     }
   } else if (status === 'unknown') {
-    // 无法判断：灰色
     color = '#9E9E9E'
     if (data.t1_value || data.t2_value) {
-      const t1 = data.t1_value?.join('/') || '无'
-      const t2 = data.t2_value?.join('/') || '无'
-      displayValue = `${pair[0]}:${t1} vs ${pair[1]}:${t2}`
+      const t1 = data.t1_value?.join('/') || t('common.label.noData')
+      const t2 = data.t2_value?.join('/') || t('common.label.noData')
+      displayValue = formatPairDisplayValue(pair, t1, t2)
     } else {
-      displayValue = '未知'
+      displayValue = t('compare.legend.unknown')
     }
   }
 
@@ -1168,27 +1163,22 @@ function createComparisonItem(location, coordinate, feature, status, data, pair)
   }
 }
 
-// 创建 ZhongGu 比较数据项（带加权重叠度计算）
 function createZhongGuComparisonItem(location, coordinate, feature, featureData) {
   const group1Data = featureData.group1
   const group2Data = featureData.group2
 
-  // 计算加权重叠度
   let overlap = 0
   const group1Map = new Map()
   const group2Map = new Map()
 
-  // 构建 group1 的值映射
   group1Data.values.forEach(item => {
     group1Map.set(item.value, item.percentage)
   })
 
-  // 构建 group2 的值映射
   group2Data.values.forEach(item => {
     group2Map.set(item.value, item.percentage)
   })
 
-  // 计算加权重叠度：对于每个共同的值，取两组中较小的百分比
   group1Map.forEach((percentage1, value) => {
     if (group2Map.has(value)) {
       const percentage2 = group2Map.get(value)
@@ -1196,29 +1186,25 @@ function createZhongGuComparisonItem(location, coordinate, feature, featureData)
     }
   })
 
-  // console.log(`    📊 加权重叠度: ${overlap.toFixed(2)}%`)
-
-  // 根据重叠度分配颜色和状态
   let color, status, statusText
   if (overlap >= 80) {
-    color = '#4CAF50' // 绿色
+    color = '#4CAF50'
     status = 'same'
-    statusText = '完全相同'
+    statusText = t('compare.legend.samePercent')
   } else if (overlap >= 60) {
-    color = '#FFC107' // 黄色
+    color = '#8BC34A'
     status = 'high_similar'
-    statusText = '高度相似'
+    statusText = t('compare.legend.highSimilar')
   } else if (overlap >= 30) {
-    color = '#FF9800' // 橙色
+    color = '#FFC107'
     status = 'partial'
-    statusText = '部分相似'
+    statusText = t('compare.legend.partialSimilar')
   } else {
-    color = '#F44336' // 红色
+    color = '#F44336'
     status = 'diff'
-    statusText = '完全不同'
+    statusText = t('compare.legend.diffPercent')
   }
 
-  // 生成显示值：显示主要读音（≥10%）
   const group1Main = group1Data.values
     .filter(v => v.percentage >= 10)
     .map(v => `${v.value}(${v.percentage.toFixed(1)}%)`)
@@ -1229,7 +1215,7 @@ function createZhongGuComparisonItem(location, coordinate, feature, featureData)
     .map(v => `${v.value}(${v.percentage.toFixed(1)}%)`)
     .join(', ')
 
-  const displayValue = `组1: ${group1Main || '无主要读音'}\n组2: ${group2Main || '无主要读音'}`
+  const displayValue = `${t('compare.group.label1')}: ${group1Main || t('compare.results.noMainReading')}\n${t('compare.group.label2')}: ${group2Main || t('compare.results.noMainReading')}`
 
   return {
     location: location,
@@ -1240,8 +1226,7 @@ function createZhongGuComparisonItem(location, coordinate, feature, featureData)
     status: status,
     statusText: statusText,
     overlap: Math.round(overlap),
-    pair: '组1 vs 组2',
-    // 保存原始数据用于详细显示
+    pair: `${t('compare.group.label1')} vs ${t('compare.group.label2')}`,
     group1Data: group1Data,
     group2Data: group2Data
   }

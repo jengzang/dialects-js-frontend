@@ -77,5 +77,8 @@
     "merged": "Completely Merged",
     "maybeMerged": "Possibly Merged",
     "notMerged": "Not Merged"
+  },
+  "results": {
+    "noMainReading": "No main reading"
   }
 }

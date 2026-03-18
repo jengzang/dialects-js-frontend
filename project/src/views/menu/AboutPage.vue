@@ -242,24 +242,6 @@ const tabs = computed(() => [
   { name: 'setting', label: t('about.tabs.setting') },
 ])
 
-const projects = [
-  {
-    name: 'dialects-vue-frontend',
-    url: 'https://github.com/jengzang/dialects-vue-frontend',
-    description: '前端倉庫 - 使用vue框架和原生js開發'
-  },
-  {
-    name: 'dialects-backend',
-    url: 'https://github.com/jengzang/dialects-backend',
-    description: '後端倉庫 - 基於fastapi'
-  },
-  {
-    name: 'dialects-build',
-    url: 'https://github.com/jengzang/dialects-build',
-    description: '字表預處理倉庫 - 提取字表的聲韻調'
-  },
-]
-
 const localizedProjects = computed(() => [
   {
     name: 'dialects-vue-frontend',

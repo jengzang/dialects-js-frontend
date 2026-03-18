@@ -77,5 +77,8 @@
     "merged": "完全合併",
     "maybeMerged": "可能合併",
     "notMerged": "不合併"
+  },
+  "results": {
+    "noMainReading": "無主要讀音"
   }
 }
