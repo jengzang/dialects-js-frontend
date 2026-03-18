@@ -95,6 +95,8 @@
           </li>
         </ul>
         <p style="font-size:2rem;margin-top:0.5rem;margin-bottom: 3rem">💖🌟🥳</p>
+      </div>
+
       <!-- 新的"建議"页面 -->
       <div v-if="currentTab === 'suggestion'" class="page2">
         <div class="suggestion-box">
