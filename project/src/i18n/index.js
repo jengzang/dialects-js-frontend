@@ -21,8 +21,14 @@ const i18n = createI18n({
   },
   globalInjection: true,            // 全局注入 $t 方法
   missingWarn: false,               // 关闭缺失翻译警告（生产环境）
-  fallbackWarn: false               // 关闭回退警告（生产环境）
+  fallbackWarn: false,              // 关闭回退警告（生产环境）
+  warnHtmlMessage: false            // 关闭 HTML 消息警告（内容受控，非用户输入）
 })
+
+// 初始化时同步设置 HTML lang 属性，确保 :lang() CSS 选择器生效
+if (typeof document !== 'undefined') {
+  document.querySelector('html').setAttribute('lang', getCurrentLocale())
+}
 
 /**
  * 切换语言

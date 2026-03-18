@@ -183,7 +183,7 @@ export function useMenuTabsConfig() {
     mobileShowLabelOnlyWhenActive: true, // 移动端：始终显示文字（不同于桌面端）
     cssClass: ''                     // 应用 'small' CSS class
   },
-]).value
+])
 }
 
 export function useExploreTabsConfig() {
@@ -238,23 +238,23 @@ export function useExploreTabsConfig() {
     showLabelOnlyWhenActive: false,
     mobileShowLabelOnlyWhenActive: true
   },
-  // {
-  //   tab: 'data',
-  //   label: t('navigation.tabs.phonology'),
-  //   icon: '🧬',
-  //   weight: 1,                          // 桌面端标签显示时的 flex 权重
-  //   mobileWeight: 1,                // 移动端标签显示时的 flex 权重
-  //   weightIconOnly: 0.6,                  // 桌面端仅显示图标时的 flex 权重（可选，默认使用 weight）
-  //   mobileWeightIconOnly: 0.55,            // 移动端仅显示图标时的 flex 权重（可选，回退链：mobileWeight → weightIconOnly → weight）
-  //   fontSize: 1.2,
-  //   mobileFontSize: 1.2,
-  //   to: { path: '/menu', query: { tab: 'pho' } },
-  //   isPseudo: false,
-  //   hideOnMobile: false,
-  //   hideLabelOnMobile: false,
-  //   showLabelOnlyWhenActive: false,
-  //   mobileShowLabelOnlyWhenActive: true
-  // },
+  {
+    tab: 'charClass',
+    label: t('navigation.tabs.charClass'),
+    icon: '📚',
+    weight: 1,
+    mobileWeight: 1,
+    weightIconOnly: 0.6,
+    mobileWeightIconOnly: 0.55,
+    fontSize: 1.2,
+    mobileFontSize: 1.2,
+    to: { path: '/explore', query: { page: 'CharacterClassification' } },
+    isPseudo: false,
+    hideOnMobile: false,
+    hideLabelOnMobile: false,
+    showLabelOnlyWhenActive: false,
+    mobileShowLabelOnlyWhenActive: true
+  },
   {
     tab: 'words',
     label: t('navigation.tabs.phrases'),
@@ -271,24 +271,6 @@ export function useExploreTabsConfig() {
     hideLabelOnMobile: false,
     showLabelOnlyWhenActive: false,
     mobileShowLabelOnlyWhenActive: true
-  },
-  {
-    tab: 'query',
-    label: t('navigation.tabs.query'),
-    icon: '🔍️',
-    weight: 1,                          // 桌面端标签显示时的 flex 权重
-    mobileWeight: 1,                // 移动端标签显示时的 flex 权重
-    weightIconOnly: 0.6,                  // 桌面端仅显示图标时的 flex 权重（可选，默认使用 weight）
-    mobileWeightIconOnly: 0.35,            // 移动端仅显示图标时的 flex 权重（可选，回退链：mobileWeight → weightIconOnly → weight）
-    fontSize: 1.2,
-    mobileFontSize: 1.2,
-    to: { path: '/menu', query: { tab: 'query' } },
-    isPseudo: false,
-    hideOnMobile: false,
-    hideLabelOnMobile: false,
-    showLabelOnlyWhenActive: false,
-    mobileShowLabelOnlyWhenActive: true,
-    cssClass: ''
   },
   {
     tab: 'villages',
@@ -320,5 +302,5 @@ export function useExploreTabsConfig() {
     cssClass: ''                     // 应用 'small' CSS class
   },
 
-]).value
+])
 }

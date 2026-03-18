@@ -6,7 +6,7 @@
           <div class="modal-title">
             {{ t('result.featureStatsPopup.title', { location: locationName, featureKey: translatedFeatureKey, featureVal }) }}
           </div>
-          <button class="modal-close" type="button" :aria-label="t('common.button.close')" @click="$emit('close')">&times;</button>
+          <button class="modal-close" type="button" :aria-label="t('common.button.close')" @click="$emit('close')">✕</button>
         </div>
 
         <div class="modal-body">

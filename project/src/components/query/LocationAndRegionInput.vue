@@ -136,7 +136,7 @@
     <!-- ✅ 底部提示欄：已選擇地點數 -->
     <div class="bottom-hint" >
       <div class="hint-main">
-        {{ $t('query.components.locationAndRegionInput.selectedCount', { count: totalCount }) }}
+        {{ $t('query.components.locationAndRegionInput.selectedCountPre') }}<span class="hint-num">{{ totalCount }}</span>{{ $t('query.components.locationAndRegionInput.selectedCountPost') }}
       </div>
       <!-- ✅ 新增：深灰色預覽行（最多顯示 4 個 + 省略號 + 展開） -->
       <div v-if="locationsResult.length" class="hint-preview">
@@ -180,7 +180,7 @@
           <div class="glass-modal" role="dialog" aria-modal="true">
             <div class="modal-header">
               <div class="modal-title">{{ $t('query.components.locationAndRegionInput.selectedLocationsModalTitle', { count: locationsResult.length }) }}</div>
-              <button class="modal-close" type="button" @click="closeModal">{{ $t('common.button.close') }}</button>
+              <button class="modal-close" type="button" @click="closeModal">✕</button>
             </div>
 
             <div class="modal-body">
@@ -209,7 +209,7 @@
         <div class="glass-modal" role="dialog" aria-modal="true">
           <div class="modal-header">
             <div class="modal-title">{{ $t('query.components.locationAndRegionInput.customLocationsModalTitle', { count: customFeatureLocations.length }) }}</div>
-            <button class="modal-close" type="button" @click="closeCustomModal">{{ $t('common.button.close') }}</button>
+            <button class="modal-close" type="button" @click="closeCustomModal">✕</button>
           </div>
 
           <div class="modal-body">
@@ -1095,6 +1095,13 @@ watch(
     },
     { deep: true }
 )
+
+// 当 limitContext 切换（tab 切换）时，用当前已有的 selectedCount 重新检查限制
+watch(() => props.limitContext, () => {
+  if (selectedCount.value !== null) {
+    checkLocationLimit(selectedCount.value)
+  }
+})
 
 // Initialize regionInputValue from modelValue
 watch(() => props.modelValue.regions, (newRegions) => {

@@ -7,8 +7,8 @@
       @click.stop
     >
       <div class="popup-content">
-        <p>{{ t('result.terms.location') }}: {{ data.location }}</p>
-        <p>{{ t('result.terms.feature') }}: {{ checkedFeatures }}</p>
+        <p>📍 {{ t('result.terms.location') }}: {{ data.location }}</p>
+        <p>🧩 {{ t('result.terms.feature') }}: {{ checkedFeatures }}</p>
 
         <span v-for="option in modeOptions" :key="option.id">
           {{ getModeLabel(option.id) }}: {{ getDisplayContent(option.id) }}
@@ -21,7 +21,7 @@
           :style="shouldUseBaseDescription(option.id) ? { fontSize: '17px' } : {}"
           @click="handleAction(option.id, option.bool)"
         >
-          {{ t('result.valuePopup.buttons.query', { mode: getModeLabel(option.id) }) }}
+          🔍{{ getModeLabel(option.id) }}
         </button>
       </div>
     </div>

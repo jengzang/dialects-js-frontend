@@ -1,14 +1,14 @@
 {
   "title": "Query",
   "tab1": {
-    "title": "Character Query",
+    "title": "Characters",
     "label": "Please enter Chinese characters",
     "placeholder": "Enter one or more characters",
     "button": "Query",
     "description": "Query pronunciation, position and notes of characters"
   },
   "tab2": {
-    "title": "Middle Chinese Query",
+    "title": "Middle Chinese",
     "placeholder": "Please enter Middle Chinese pronunciation",
     "button": "Query",
     "description": "Middle Chinese➡️Pronunciation • Organize by Middle Chinese position",
@@ -27,13 +27,13 @@
     }
   },
   "tab3": {
-    "title": "Phoneme Query",
+    "title": "Phonemes",
     "placeholder": "Please enter phoneme",
     "button": "Query",
     "description": "Pronunciation➡️Middle Chinese • Analyze phoneme origins",
     "noExclude": "No Exclusion",
     "selectAll": "Select All",
-    "analysisText": "Analyze the Middle Chinese origins of 【{card}】 syllables, i.e., which Middle Chinese 【{keys}】 the current 【{card}】 characters come from",
+    "analysisText": "Analyze the Middle Chinese origins of <strong>{card}</strong> syllables, i.e., which Middle Chinese [<strong>{keys}</strong>] the current <strong>{card}</strong> characters come from",
     "inputPlaceholder": "Enter/Select [{key}]",
     "cards": {
       "initial": "Initial",
@@ -43,7 +43,7 @@
     "defaultLocation": "Guangzhou"
   },
   "tab4": {
-    "title": "Tone Query",
+    "title": "Tones",
     "placeholder": "Please enter tone",
     "button": "Query",
     "description": "Query tone categories and values of each location"
@@ -143,7 +143,11 @@
     "partitionModal": {
       "title": "🗂️ Partition Details",
       "selectionToggle": "Enable Selection",
+      "enableSelection": "Enable Selection",
       "confirmButton": "Confirm Selection ({count})",
+      "confirmSelection": "Confirm Selection ({count})",
+      "mapPartition": "Atlas Partition 2",
+      "dictPartition": "Phonetic Dictionary Partition",
       "loading": "Loading...",
       "error": "❌",
       "tabs": {
@@ -253,6 +257,8 @@
       "partitionLabel": "Partition",
       "partitionPlaceholder": "Enter partition names, space-separated (e.g.: Cantonese)",
       "selectedCount": "You have selected {count} locations",
+      "selectedCountPre": "You have selected",
+      "selectedCountPost": "locations",
       "mapSource": "Atlas",
       "yindianSource": "Yindian",
       "expandButton": "Expand",

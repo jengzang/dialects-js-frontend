@@ -34,7 +34,7 @@
           @click="startEditingLocation"
           style="cursor: pointer;"
         >
-          {{ t('result.resultList.locationLabel') }} {{ currentStickyLocation }}
+          📍 {{ currentStickyLocation }}
         </span>
 
         <!-- Edit mode -->

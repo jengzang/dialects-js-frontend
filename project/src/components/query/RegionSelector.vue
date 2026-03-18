@@ -228,7 +228,7 @@
         <div class="custom-region-popup" @mousedown.stop>
           <div class="popup-header">
             <h3>{{ $t('query.components.regionSelector.customRegionModal.title') }}</h3>
-            <button class="close-btn" @click="showCustomRegionPopup = false">{{ $t('common.button.close') }}</button>
+            <button class="close-btn" @click="showCustomRegionPopup = false">✕</button>
           </div>
 
           <div class="popup-content">

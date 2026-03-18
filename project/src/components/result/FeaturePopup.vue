@@ -7,9 +7,9 @@
       @click.stop
     >
       <div class="popup-content">
-        <p>{{ t('result.terms.location') }}: {{ data.location }}</p>
-        <p>{{ t('result.terms.feature') }}: {{ checkedFeatures }}</p>
-        <p>{{ t('result.featurePopup.queryLabel') }}: {{ t('result.featurePopup.queryHint', { feature: data.feature || '' }) }}</p>
+        <p>📍 {{ t('result.terms.location') }}: {{ data.location }}</p>
+        <p>🧩 {{ t('result.terms.feature') }}: {{ checkedFeatures }}</p>
+        <p>🔍 {{ t('result.featurePopup.queryLabel') }}: {{ t('result.featurePopup.queryHint', { feature: data.feature || '' }) }}</p>
 
         <template v-for="field in unmatchedFields" :key="field">
           <button

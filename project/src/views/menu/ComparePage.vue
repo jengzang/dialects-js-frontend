@@ -267,7 +267,7 @@ import LocationAndRegionInput from "@/components/query/LocationAndRegionInput.vu
 import ZhongguSelector from "@/components/query/ZhongguSelector.vue";
 import KeyButtonGroup from "@/components/query/KeyButtonGroup.vue";
 import DropdownValueSelector from "@/components/query/DropdownValueSelector.vue";
-import { globalPayload, queryStore, uiStore, isCompareButtonDisabled, setRunning, setTabContentDisabled, mapStore } from '@/store/store.js'
+import { globalPayload, queryStore, uiStore, isCompareButtonDisabled, setRunning, setTabContentDisabled, mapStore, userStore } from '@/store/store.js'
 import { S2T_T2S_MAPPING } from '@/config'
 import { compareChars, compareZhongGu, compareTones } from '@/api/index.js'
 import { getCoordinates } from '@/api/query/geo'
@@ -313,6 +313,10 @@ const excludeFilterTriggerRef = reactive({
   tab2_group1: null,
   tab2_group2: null
 })
+const dropdownOpen = ref(null)
+const currentActiveKey = ref(null)
+const triggerRefs = ref({})
+const keyTriggerEl = ref(null)
 const excludeDropdownOpen = ref(null) // 'tab2' 或 'tab3' 或 null
 const excludeDropdownStyle = ref({
   position: 'absolute',
@@ -713,6 +717,7 @@ function getDisplayText(key, group = 'group1') {
   if (!list || list.length === 0) return ''
   // 2. 全选
   const allOptions = keyValueMap.value[key] || []
+  if (allOptions.length > 0 && list.length === allOptions.length) {
     return '全選'
   }
   // 3. 超过三个：截取前三个 + 省略号
@@ -922,7 +927,7 @@ const runAction = async () => {
         locations: locations.join(','),
         regions: regionList,
         region_mode: locationRef.value?.regionUsing || 'yindian',
-        iscustom: "true",
+        iscustom: userStore.isAuthenticated && userStore.role !== 'anonymous' ? "true" : undefined,
         flag: "False"
       })
       // console.log('🗺️ 坐标数据:', MapData)

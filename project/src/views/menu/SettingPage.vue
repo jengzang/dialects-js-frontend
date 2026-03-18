@@ -1,12 +1,12 @@
 <template>
   <div class="page-root">
-    <h2 class="tabs-title">⚙️ {{ $t('navigation.tabs.settings') }}</h2>
+    <!-- <h2 class="tabs-title">⚙️ {{ $t('navigation.tabs.settings') }}</h2> -->
 
     <div class="settings-container">
       <!-- 语言设置区域 -->
       <div class="setting-section">
-        <h3 class="section-title">🌐 {{ $t('settings.language.title') }}</h3>
-        <p class="section-description">{{ $t('settings.language.description') }}</p>
+        <h3 class="section-title">🌐 {{ $t('navigation.settings.language.title') }}</h3>
+        <p class="section-description">{{ $t('navigation.settings.language.description') }}</p>
 
         <div class="language-options">
           <div
@@ -60,6 +60,7 @@ function changeLanguage(newLocale) {
 
   setLocale(newLocale)
   showSuccess(t('messages.success.languageChanged'))
+  setTimeout(() => window.location.reload(), 500)
 }
 </script>
 

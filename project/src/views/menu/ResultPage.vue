@@ -16,9 +16,7 @@
         <div class="liquid-spinner"></div>
         <div class="timer-text">{{ timer }}s</div>
         <div class="loading-text">{{ $t('result.loading') }}</div>
-        <div v-if="showLongWaitWarning" class="warning-msg">
-          {{ $t('result.longWaitWarning') }}
-        </div>
+        <div v-if="showLongWaitWarning" class="warning-msg" v-html="$t('result.longWaitWarning')"></div>
       </div>
     </div>
 
@@ -144,7 +142,7 @@ watch(
           locations: newPayload.locations || "",
           regions: newPayload.regions || "",
           region_mode: newPayload.region_mode || 'yindian',
-          iscustom: "true",
+          iscustom: userStore.isAuthenticated && userStore.role !== 'anonymous' ? "true" : undefined,
           flag: "False"
         })
         // console.log(MapData)

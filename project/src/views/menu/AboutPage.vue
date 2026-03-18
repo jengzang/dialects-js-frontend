@@ -110,7 +110,7 @@
                 rel="noopener"
                 class="card"
             >
-              {{ $t('about.suggestion.frontend.title') }}
+              <span v-html="$t('about.suggestion.frontend.title')"></span>
               <span class="thanks-link">{{ $t('about.suggestion.frontend.link') }}</span>
             </a>
             <a
@@ -119,7 +119,7 @@
                 rel="noopener"
                 class="card"
             >
-              {{ $t('about.suggestion.backend.title') }}
+              <span v-html="$t('about.suggestion.backend.title')"></span>
               <span class="thanks-link">{{ $t('about.suggestion.backend.link') }}</span>
             </a>
           </div>
@@ -168,11 +168,11 @@
 
       <!-- 设置页面 -->
       <div v-if="currentTab === 'setting'" class="settings-container">
-        <h2 class="tabs-title">{{ $t('navigation.tabs.settings') }}</h2>
+        <!-- <h2 class="tabs-title">{{ $t('navigation.tabs.settings') }}</h2> -->
 
         <div class="setting-section">
-          <h3 class="section-title">{{ $t('settings.language.title') }}</h3>
-          <p class="section-description">{{ $t('settings.language.description') }}</p>
+          <h3 class="section-title">{{ $t('navigation.settings.language.title') }}</h3>
+          <p class="section-description">{{ $t('navigation.settings.language.description') }}</p>
 
           <div class="language-options">
             <div
@@ -200,7 +200,7 @@
     <div v-if="showQRCodes" class="qr-modal">
       <div class="qr-modal-content">
         <!-- ❌ 右上角關閉 -->
-        <button class="qr-close-btn" @click="showQRCodes = false">{{ $t('common.button.close') }}</button>
+        <button class="qr-close-btn" @click="showQRCodes = false">✕</button>
 
         <!-- 標題 -->
         <h3 class="qr-title">{{ $t('about.like.qrModal.title') }}</h3>
@@ -277,6 +277,7 @@ function changeLanguage(newLocale) {
   }
   setLocale(newLocale)
   showSuccess(t('messages.success.languageChanged'))
+  setTimeout(() => window.location.reload(), 500)
 }
 </script>
 

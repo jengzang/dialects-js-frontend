@@ -312,8 +312,9 @@ const visitHistory = ref([])
 const loadingStats = ref(false)
 
 // 过滤可见的 tabs（label 已在 TabsConfig 中定义）
+const allMenuTabs = useMenuTabsConfig()
 const visibleTabs = computed(() => {
-  return useMenuTabsConfig().filter(tab => {
+  return allMenuTabs.value.filter(tab => {
     // 如果有 visibleWhen 函数，执行它
     if (typeof tab.visibleWhen === 'function') {
       return tab.visibleWhen()
@@ -693,7 +694,7 @@ onBeforeUnmount(() => {
 .navbar-btn {
   margin: 0 30px;
   width: 100%;
-  max-width: 800px;
+  max-width: 900px;
   justify-content: center;
   align-items: center;
   display: flex;

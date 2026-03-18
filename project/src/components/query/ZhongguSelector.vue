@@ -36,9 +36,9 @@
     <div v-else class="compact-grid">
       <div v-for="item in results" :key="item.query" class="compact-item">
         <span class="compact-title">{{ formatTitle(item.query) }}</span>
-        <span class="compact-count">({{ item['字数'] }})</span>
+        <span class="compact-count">({{ item['char_count'] }})</span>
         <span class="compact-preview">
-          {{ item['汉字'].slice(0, 8).join('') }}{{ item['汉字'].length > 8 ? '...' : '' }}
+          {{ (item['chars'] || []).slice(0, 8).join('') }}{{ (item['chars'] || []).length > 8 ? '...' : '' }}
         </span>
       </div>
     </div>
@@ -57,13 +57,13 @@
             <div v-for="item in results" :key="item.query" class="full-item">
               <div class="full-item-header">
                 <span class="combo-name">{{ formatTitle(item.query) }}</span>
-                <span class="count-badge">{{ $t('query.components.zhongguSelector.charCount', { count: item['字数'] }) }}</span>
+                <span class="count-badge">{{ $t('query.components.zhongguSelector.charCount', { count: item['char_count'] }) }}</span>
               </div>
 <!--              <div class="full-chars">-->
-<!--                <span v-for="(char, idx) in item['汉字']" :key="idx" class="char-tag">{{ char }}</span>-->
+<!--                <span v-for="(char, idx) in item['chars']" :key="idx" class="char-tag">{{ char }}</span>-->
 <!--              </div>-->
               <div class="full-chars">
-                {{ item['汉字'].join('') }}
+                {{ (item['chars'] || []).join('') }}
               </div>
             </div>
           </div>

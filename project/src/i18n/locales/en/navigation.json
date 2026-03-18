@@ -3,7 +3,8 @@
     "home": "Home",
     "query": "Query",
     "compare": "Compare",
-    "data": "Phonology",
+    "pho": "Phonology",
+    "charClass": "Characters",
     "words": "Words",
     "villages": "Villages",
     "tools": "Tools",
@@ -13,26 +14,26 @@
   },
   "submenu": {
     "query": {
-      "tab1": "Character Query",
-      "tab2": "Middle Chinese Query",
-      "tab3": "Phoneme Query",
-      "tab4": "Tone Query"
+      "tab1": "Characters",
+      "tab2": "Middle Chinese",
+      "tab3": "Phonemes",
+      "tab4": "Tones"
     },
     "compare": {
       "tab1": "Character Comparison",
       "tab2": "Middle Chinese Comparison",
       "tab4": "Tone Category Comparison"
     },
-    "data": {
+    "pho": {
       "phonologyMatrix": "Phonology Query",
       "phonologyCustom": "Phoneme Classification",
-      "Countphos": "Syllable Statistics",
-      "ZhongGu": "Middle Chinese Position",
-      "CharacterClassification": "Character Classification",
-      "MiddleChinese": "Middle Chinese",
-      "OldChinese": "Old Chinese",
-      "EarlyModernChinese": "Early Modern Chinese",
-      "CantoneseRhymeBooks": "Cantonese Rhyme Books"
+      "Countphos": "Syllable Statistics"
+    },
+    "charClass": {
+      "zhonggu": "Middle Chinese",
+      "shanggu": "Old Chinese",
+      "jingu": "Early Modern Chinese",
+      "yueyun": "Cantonese Rhyme Books"
     },
     "words": {
       "vocabulary": "Language Preservation Vocabulary",
@@ -67,6 +68,7 @@
   "tabs": {
     "home": "Home",
     "phonology": "Phonology",
+    "charClass": "Characters",
     "query": "Query",
     "results": "Results",
     "map": "Map",
@@ -76,7 +78,8 @@
     "praat": "Praat",
     "phrases": "Phrases",
     "villages": "Villages",
-    "aboutWebsite": "About Website"
+    "aboutWebsite": "About Website",
+    "settings": "Settings"
   },
   "settings": {
     "language": {

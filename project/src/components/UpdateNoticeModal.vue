@@ -3,7 +3,7 @@
     <Transition name="modal-fade">
       <div v-if="visible" class="update-modal-overlay" @click.self="handleClose">
         <div class="update-modal">
-          <button class="modal-close-btn" @click="handleClose">{{ $t('common.button.close') }}</button>
+          <button class="modal-close-btn" @click="handleClose">✕</button>
 
           <div class="modal-header">
             <div class="update-icon">🎉</div>

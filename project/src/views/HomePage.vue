@@ -499,7 +499,7 @@
       <transition name="modal">
         <div v-if="showSupport" class="modal-overlay" @click="showSupport = false">
           <div class="modal-content" @click.stop>
-            <button class="modal-close" @click="showSupport = false">{{ $t('common.button.close') }}</button>
+            <button class="modal-close" @click="showSupport = false">✕</button>
             <h3 class="modal-title">{{ $t('home.supportModal.title') }}</h3>
             <p class="modal-subtitle">{{ $t('home.supportModal.subtitle') }}</p>
             <div class="donate-qr-grid">

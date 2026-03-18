@@ -3,7 +3,8 @@
     "home": "首页",
     "query": "查询",
     "compare": "比较",
-    "data": "音系",
+    "pho": "音系",
+    "charClass": "汉字",
     "words": "词句",
     "villages": "自然村",
     "tools": "工具",
@@ -23,16 +24,16 @@
       "tab2": "中古对比",
       "tab4": "调类对比"
     },
-    "data": {
+    "pho": {
       "phonologyMatrix": "音系查询",
       "phonologyCustom": "音素分类",
-      "Countphos": "音节统计",
-      "ZhongGu": "中古地位",
-      "CharacterClassification": "汉字类别",
-      "MiddleChinese": "中古汉语",
-      "OldChinese": "上古汉语",
-      "EarlyModernChinese": "近古汉语",
-      "CantoneseRhymeBooks": "粤语韵书"
+      "Countphos": "音节统计"
+    },
+    "charClass": {
+      "zhonggu": "中古汉语",
+      "shanggu": "上古汉语",
+      "jingu": "近古汉语",
+      "yueyun": "粤语韵书"
     },
     "words": {
       "vocabulary": "语保词汇",
@@ -67,6 +68,7 @@
   "tabs": {
     "home": "首页",
     "phonology": "音系",
+    "charClass": "汉字",
     "query": "查询",
     "results": "结果",
     "map": "地图",
@@ -76,7 +78,8 @@
     "praat": "praat",
     "phrases": "词句",
     "villages": "村落",
-    "aboutWebsite": "关于网站"
+    "aboutWebsite": "关于网站",
+    "settings": "设置"
   },
   "settings": {
     "language": {

@@ -33,7 +33,7 @@
     "description": "讀音➡️中古•分析音位的中古來源",
     "noExclude": "不排除",
     "selectAll": "全選",
-    "analysisText": "分析【{card}】音節的中古來源，即當今的同【{card}】字分別來自哪些中古【{keys}】",
+    "analysisText": "分析<strong>{card}</strong>音節的中古來源，即當今的同<strong>{card}</strong>字分別來自哪些中古[<strong>{keys}</strong>]",
     "inputPlaceholder": "輸/選 [{key}]",
     "cards": {
       "initial": "聲母",
@@ -143,7 +143,11 @@
     "partitionModal": {
       "title": "🗂️ 分區詳情",
       "selectionToggle": "開啟選擇",
+      "enableSelection": "開啟選擇",
       "confirmButton": "確認選擇 ({count})",
+      "confirmSelection": "確認選擇 ({count})",
+      "mapPartition": "地圖集二分區",
+      "dictPartition": "音典分區",
       "loading": "加載中...",
       "error": "❌",
       "tabs": {
@@ -253,6 +257,8 @@
       "partitionLabel": "分區",
       "partitionPlaceholder": "輸入分區名稱，空格分隔（如：粵語）",
       "selectedCount": "您已選擇 {count} 個地點",
+      "selectedCountPre": "您已選擇",
+      "selectedCountPost": "個地點",
       "mapSource": "地圖集",
       "yindianSource": "音典",
       "expandButton": "展開",

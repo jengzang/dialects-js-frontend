@@ -12,6 +12,7 @@
       <div v-if="showTitle" class="sidebar-header">
         <img src="../../assets/picture/title.png" alt="Title" class="title-img" />
       </div>
+      <div v-else class="sidebar-empty"></div>
 
       <div class="sidebar-content">
         <ul>
@@ -117,7 +118,7 @@
         @mouseleave="!isMobile ? scheduleCloseSubmenu() : null"
       >
         <div
-          v-for="(child, index) in menuConfig[activeSubmenu]?.children"
+          v-for="(child, index) in menuConfigData[activeSubmenu]?.children"
           :key="index"
           class="submenu-item"
           @click="handleSubmenuClick(child)"
@@ -400,8 +401,19 @@ onBeforeUnmount(() => {
   z-index: 1001;
   display: flex;
   flex-direction: column;
+  justify-content: flex-end;
   gap: 10px;
   padding: 0px 20px 0px;
+}
+
+.sidebar-empty {
+  height: 8dvh;
+}
+
+@media (max-aspect-ratio: 1/1) {
+  .sidebar-empty {
+    height: 8dvh;
+  }
 }
 
 /* 标题区域 */
@@ -426,6 +438,7 @@ onBeforeUnmount(() => {
   align-items: center;
   gap: 15px;
   flex-grow: 1;
+  max-height: 100dvh;
   overflow: auto;
 }
 

@@ -28,7 +28,7 @@
     "locationLabel": "地點",
     "locationPlaceholder": "輸入地點名稱...",
     "filter": {
-      "default": "篩選",
+      "default": "🎯 篩選",
       "selected": "已選：{values}",
       "selectedWithMore": "已選：{values}…"
     },
@@ -66,7 +66,7 @@
     }
   },
   "locationDetailPopup": {
-    "title": "地點 {name}",
+    "title": "📍 地點 {name}",
     "loading": "載入中...",
     "noData": "暫無數據",
     "fields": {
@@ -85,7 +85,7 @@
     }
   },
   "featureStatsPopup": {
-    "title": "{location} · {featureKey}-{featureVal} 統計",
+    "title": "📊 {location} · {featureKey}-{featureVal} 統計",
     "loading": "載入中...",
     "noData": "暫無資料",
     "statCount": "{count} 字 ({ratio}%)"

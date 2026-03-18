@@ -7,7 +7,7 @@
         :ref="(el) => setPanelRef(el, panel.id)"
         class="query-detail-panel"
     >
-      <button class="close-btn" :aria-label="t('common.button.close')" @click="removePanel(panel.id)">&times;</button>
+      <button class="close-btn" :aria-label="t('common.button.close')" @click="removePanel(panel.id)">✕</button>
 
       <div class="result-panel-vue" style="height: 100%; overflow-y: auto; display: flex; flex-direction: column;margin-bottom: 10px">
 

@@ -33,7 +33,7 @@
     "description": "读音➡️中古•分析音位的中古来源",
     "noExclude": "不排除",
     "selectAll": "全选",
-    "analysisText": "分析【{card}】音节的中古来源，即当今的同【{card}】字分别来自哪些中古【{keys}】",
+    "analysisText": "分析<strong>{card}</strong>音节的中古来源，即当今的同<strong>{card}</strong>字分别来自哪些中古[<strong>{keys}</strong>]",
     "inputPlaceholder": "输/选 [{key}]",
     "cards": {
       "initial": "声母",
@@ -143,7 +143,11 @@
     "partitionModal": {
       "title": "🗂️ 分区详情",
       "selectionToggle": "开启选择",
+      "enableSelection": "开启选择",
       "confirmButton": "确认选择 ({count})",
+      "confirmSelection": "确认选择 ({count})",
+      "mapPartition": "地图集二分区",
+      "dictPartition": "音典分区",
       "loading": "加载中...",
       "error": "❌",
       "tabs": {
@@ -253,6 +257,8 @@
       "partitionLabel": "分区",
       "partitionPlaceholder": "输入分区名称，空格分隔（如：粤语）",
       "selectedCount": "您已选择 {count} 个地点",
+      "selectedCountPre": "您已选择",
+      "selectedCountPost": "个地点",
       "mapSource": "地图集",
       "yindianSource": "音典",
       "expandButton": "展开",
