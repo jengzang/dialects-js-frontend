@@ -2,12 +2,12 @@
 <template>
   <!-- 遮罩层 -->
   <Transition name="fade">
-    <div v-if="isOpen" class="overlay" @click="$emit('close')"></div>
+    <div v-if="isOpen" class="overlay" @click="$emit('close')" @wheel.prevent @touchmove.prevent></div>
   </Transition>
 
   <!-- 侧边栏 -->
   <Transition name="slide-fade">
-    <div v-if="isOpen" class="sidebar">
+    <div v-if="isOpen" class="sidebar" @touchmove.stop>
       <!-- 标题图片 (可选) -->
       <div v-if="showTitle" class="sidebar-header">
         <img src="../../assets/picture/title.png" alt="Title" class="title-img" />
@@ -386,12 +386,13 @@ onBeforeUnmount(() => {
   width: 40dvw;
   max-width: 300px;
   height: 100dvh;
+  overscroll-behavior: contain;
   box-shadow: inset 0 0 0.5px rgba(255, 255, 255, 0.3), 0 8px 32px rgba(0, 0, 0, 0.25), 0 0 0 0.5px rgba(255, 255, 255, 0.1);
 
   background:
     radial-gradient(1200px 800px at 10% -10%, rgba(223, 241, 255, 0.5) 0%, rgba(223, 241, 255, 0) 60%),
     radial-gradient(1000px 700px at 110% 10%, rgba(207, 231, 255, 0.5) 0%, rgba(207, 231, 255, 0) 60%),
-    linear-gradient(180deg, rgba(234, 245, 255, 0.7), rgba(215, 236, 255, 0.7));
+    linear-gradient(180deg, rgba(234, 245, 255, 0.92), rgba(215, 236, 255, 0.92));
 
   border: 1px solid rgba(255, 255, 255, 0.35);
   backdrop-filter: blur(8px) saturate(180%);
