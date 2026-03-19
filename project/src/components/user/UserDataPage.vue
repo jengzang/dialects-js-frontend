@@ -164,7 +164,7 @@
             <button class="modal-close" @click="closeBatchEditModal">×</button>
           </div>
           <div class="modal-body">
-            <p class="hint">{{ t('user.dataPage.batchEdit.hint') }}</p>
+            <p class="hint">💡 {{ t('user.dataPage.batchEdit.hint') }}</p>
             <div class="batch-table-wrapper">
               <table class="batch-table">
                 <thead>
@@ -214,7 +214,7 @@
             <button class="modal-close" @click="closeBatchCreateModal">×</button>
           </div>
           <div class="modal-body">
-            <p class="hint">{{ t('user.dataPage.batchCreate.hint') }}</p>
+            <p class="hint">💡 {{ t('user.dataPage.batchCreate.hint') }}</p>
             <div class="batch-table-controls">
               <button class="btn-add-row" @click="addBatchRow">
                 ➕ {{ t('user.dataPage.batchCreate.addRow') }}

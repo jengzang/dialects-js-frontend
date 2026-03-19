@@ -355,7 +355,7 @@
                   class="glass-input"
                 />
                 <small v-if="batchReplace.findText.trim() === ''" class="help-text">
-                  {{ t('tableTree.universalTable.batchReplace.emptySearchHint') }}
+                  ℹ️ {{ t('tableTree.universalTable.batchReplace.emptySearchHint') }}
                 </small>
               </div>
 
@@ -415,7 +415,7 @@
                   </label>
                 </div>
                 <small v-if="batchReplace.replaceAllPages" class="help-text warning-help">
-                  {{ t('tableTree.universalTable.batchReplace.allPagesHint') }}
+                  ⚠️ {{ t('tableTree.universalTable.batchReplace.allPagesHint') }}
                 </small>
               </div>
 
@@ -439,7 +439,7 @@
                     </p>
                   </div>
                   <p class="warning-text">
-                    {{ t('tableTree.universalTable.batchReplace.instantWarning') }}
+                    ⚠️ {{ t('tableTree.universalTable.batchReplace.instantWarning') }}
                   </p>
                 </div>
 

@@ -35,18 +35,18 @@
                   : t('map.villageMapPopup.toggle.toNameTitle')"
               >
                 {{ displayMode === 'name'
-                  ? t('map.villageMapPopup.toggle.name')
-                  : t('map.villageMapPopup.toggle.dialect') }}
+                  ? '📍 ' + t('map.villageMapPopup.toggle.name')
+                  : '🗣️ ' + t('map.villageMapPopup.toggle.dialect') }}
               </button>
 
               <div class="button-row">
-                <button class="control-btn" @click="resetView">{{ t('map.villageMapPopup.buttons.reset') }}</button>
-                <button class="control-btn" @click="toggleFullscreen">{{ t('map.villageMapPopup.buttons.fullscreen') }}</button>
+                <button class="control-btn" @click="resetView">🎯 {{ t('map.villageMapPopup.buttons.reset') }}</button>
+                <button class="control-btn" @click="toggleFullscreen">⛶ {{ t('map.villageMapPopup.buttons.fullscreen') }}</button>
               </div>
             </div>
 
             <button v-if="isFullscreen" class="exit-fullscreen-btn" @click="toggleFullscreen">
-              {{ t('map.villageMapPopup.buttons.exitFullscreen') }}
+              ✕ {{ t('map.villageMapPopup.buttons.exitFullscreen') }}
             </button>
           </div>
         </div>

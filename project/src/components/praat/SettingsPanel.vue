@@ -26,7 +26,7 @@
               @change="applyResolutionPreset"
           >
           <span class="radio-label">
-              <span class="radio-title">{{ resolutionPresets.quick.title }}</span>
+              <span class="radio-title">⚡ {{ resolutionPresets.quick.title }}</span>
               <span class="radio-desc">{{ resolutionPresets.quick.desc }}</span>
             </span>
         </label>
@@ -40,7 +40,7 @@
               @change="applyResolutionPreset"
           >
           <span class="radio-label">
-              <span class="radio-title">{{ resolutionPresets.standard.title }}</span>
+              <span class="radio-title">⚖️ {{ resolutionPresets.standard.title }}</span>
               <span class="radio-desc">{{ resolutionPresets.standard.desc }}</span>
             </span>
         </label>
@@ -54,7 +54,7 @@
               @change="applyResolutionPreset"
           >
           <span class="radio-label">
-              <span class="radio-title">{{ resolutionPresets.high.title }}</span>
+              <span class="radio-title">💎 {{ resolutionPresets.high.title }}</span>
               <span class="radio-desc">{{ resolutionPresets.high.desc }}</span>
             </span>
         </label>

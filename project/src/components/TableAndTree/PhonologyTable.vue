@@ -1,7 +1,7 @@
 <template>
   <div class="phonology-matrix">
     <div v-if="location" class="location-header">
-      <div class="location-title">{{ location }}</div>
+      <div class="location-title">📍 {{ location }}</div>
       <button class="tone-search-btn" @click="handleShowDetails" :disabled="isLoading">{{ isLoading ? t('result.phonologyTable.loadingButton') : t('result.phonologyTable.detailButton') }}</button>
     </div>
 

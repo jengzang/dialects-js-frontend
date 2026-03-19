@@ -43,17 +43,17 @@
 
         <div class="button-row">
           <button class="action-btn" @click="resetView" :title="t('map.yuBaoMap.buttons.reset')">
-            {{ t('map.yuBaoMap.buttons.reset') }}
+            🎯 {{ t('map.yuBaoMap.buttons.reset') }}
           </button>
           <button class="action-btn fullscreen-btn" @click="toggleFullScreen" :title="t('map.yuBaoMap.buttons.fullscreen')">
-            {{ t('map.yuBaoMap.buttons.fullscreen') }}
+            ⛶ {{ t('map.yuBaoMap.buttons.fullscreen') }}
           </button>
         </div>
       </div>
     </div>
 
     <button v-if="isFullScreen" class="exit-fullscreen-btn" @click="toggleFullScreen">
-      {{ t('map.yuBaoMap.buttons.exitFullscreen') }}
+      ✕ {{ t('map.yuBaoMap.buttons.exitFullscreen') }}
     </button>
 
     <Teleport to="body">

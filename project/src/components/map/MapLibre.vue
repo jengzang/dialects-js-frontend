@@ -42,8 +42,8 @@
           </div>
         </div>
         <div class="button-row">
-          <button class="action-btn" @click="resetView">{{ t('map.mapLibre.buttons.reset') }}</button>
-          <button class="action-btn fullscreen-btn" @click="toggleFullScreen">{{ t('map.mapLibre.buttons.fullscreen') }}</button>
+          <button class="action-btn" @click="resetView">🎯 {{ t('map.mapLibre.buttons.reset') }}</button>
+          <button class="action-btn fullscreen-btn" @click="toggleFullScreen">⛶ {{ t('map.mapLibre.buttons.fullscreen') }}</button>
         </div>
       </div>
 
@@ -51,7 +51,7 @@
     </div>
 
     <button v-if="isFullScreen" class="exit-fullscreen-btn" @click="toggleFullScreen">
-      {{ t('map.mapLibre.buttons.exitFullscreen') }}
+      ✕ {{ t('map.mapLibre.buttons.exitFullscreen') }}
     </button>
 
     <div v-if="loading" class="loading-overlay">
@@ -63,7 +63,7 @@
       <div v-if="locationPopup.visible" class="location-popup-overlay" @click="closeLocationPopup">
         <div class="location-popup-content" @click.stop>
           <div class="location-popup-header">
-            <h3>{{ t('map.mapLibre.locationPopup.title', { location: locationPopup.locationName }) }}</h3>
+            <h3>📍 {{ t('map.mapLibre.locationPopup.title', { location: locationPopup.locationName }) }}</h3>
             <button
               class="close-btn"
               @click="closeLocationPopup"
@@ -738,14 +738,14 @@ const createPopupDOM = (item) => {
 
     if (showButtonType === 'custom') {
       btn.className = 'mini-button-delete';
-      btn.innerText = t('map.mapLibre.buttons.delete');
+      btn.innerText = '🗑️ ' + t('map.mapLibre.buttons.delete');
       btn.onclick = (e) => {
         e.stopPropagation();
         handleCustomBtnClick(item);
       };
     } else if (showButtonType === 'detail') {
       btn.className = 'mini-button';
-      btn.innerText = t('map.mapLibre.buttons.detail');
+      btn.innerText = '📝 ' + t('map.mapLibre.buttons.detail');
       btn.onclick = (e) => {
         e.stopPropagation();
         handleDetailBtnClick(item);

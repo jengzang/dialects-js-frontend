@@ -137,7 +137,7 @@
         <div class="modal-content large-modal">
           <div class="modal-header">
             <div class="header-left">
-              <h3 class="modal-title">{{ t('tools.jyut2ipa.modal.title') }}</h3>
+              <h3 class="modal-title">⚙️ {{ t('tools.jyut2ipa.modal.title') }}</h3>
               <div class="header-stats">
                 <span class="stat-inline">
                   {{ t('tools.jyut2ipa.modal.totalRules') }}
@@ -250,16 +250,16 @@
             </div>
 
             <button class="btn-add-rule" @click="addNewRule">
-              {{ t('tools.jyut2ipa.actions.addRule') }}
+              ➕ {{ t('tools.jyut2ipa.actions.addRule') }}
             </button>
           </div>
 
           <div class="modal-footer">
             <button class="glass-button secondary" @click="resetConfigConfirm">
-              {{ t('tools.jyut2ipa.actions.resetDefault') }}
+              🔄 {{ t('tools.jyut2ipa.actions.resetDefault') }}
             </button>
             <button class="glass-button primary" @click="saveConfig">
-              {{ t('tools.jyut2ipa.actions.saveConfig') }}
+              💾 {{ t('tools.jyut2ipa.actions.saveConfig') }}
             </button>
           </div>
         </div>
