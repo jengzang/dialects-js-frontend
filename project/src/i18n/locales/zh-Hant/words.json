@@ -1,12 +1,10 @@
 {
   "title": "詞彙與語法",
   "yuBaoVocabulary": {
-    "icon": "📖",
     "name": "語保詞彙",
     "desc": "語保1000詞表"
   },
   "yuBaoGrammar": {
-    "icon": "🗣️",
     "name": "語保語法",
     "desc": "語保50條句子語法資料"
   },
@@ -61,7 +59,6 @@
     }
   },
   "ycSpoken": {
-    "icon": "💬",
     "name": "陽春口語詞",
     "desc": "廣東陽春口語單字詞表",
     "columns": {

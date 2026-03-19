@@ -231,9 +231,9 @@
       "firstPlace": "First place"
     },
     "rank": {
-      "first": "🥇 Rank 1",
-      "second": "🥈 Rank 2",
-      "third": "🥉 Rank 3",
+      "first": "Rank 1",
+      "second": "Rank 2",
+      "third": "Rank 3",
       "default": "Rank {rank}"
     },
     "format": {

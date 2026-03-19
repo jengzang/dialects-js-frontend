@@ -22,11 +22,11 @@
   },
   "button": {
     "compare": "Compare",
-    "running": "🔄 Running...",
-    "invalid": "🚫 Invalid Input",
-    "run": "🚀 Click to Run",
-    "startCompare": "🚀 Start Comparison",
-    "add": "➕ Add"
+    "running": "Running...",
+    "invalid": "Invalid Input",
+    "run": "Click to Run",
+    "startCompare": "Start Comparison",
+    "add": "Add"
   },
   "messages": {
     "pleaseEnterBothGroups": "Please enter both groups of characters",

@@ -28,7 +28,7 @@
     "locationLabel": "Location",
     "locationPlaceholder": "Enter a location name...",
     "filter": {
-      "default": "🎯 Filter",
+      "default": "Filter",
       "selected": "Selected: {values}",
       "selectedWithMore": "Selected: {values}…"
     },
@@ -66,7 +66,7 @@
     }
   },
   "locationDetailPopup": {
-    "title": "📍 Location {name}",
+    "title": "Location {name}",
     "loading": "Loading...",
     "noData": "No data",
     "fields": {
@@ -85,7 +85,7 @@
     }
   },
   "featureStatsPopup": {
-    "title": "📊 {location} · {featureKey}-{featureVal} Statistics",
+    "title": "{location} · {featureKey}-{featureVal} Statistics",
     "loading": "Loading...",
     "noData": "No data",
     "statCount": "{count} chars ({ratio}%)"

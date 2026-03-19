@@ -231,9 +231,9 @@
       "firstPlace": "第一名"
     },
     "rank": {
-      "first": "🥇 第 1 名",
-      "second": "🥈 第 2 名",
-      "third": "🥉 第 3 名",
+      "first": "第 1 名",
+      "second": "第 2 名",
+      "third": "第 3 名",
       "default": "第 {rank} 名"
     },
     "format": {

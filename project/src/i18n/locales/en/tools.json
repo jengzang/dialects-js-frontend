@@ -1,22 +1,18 @@
 {
   "title": "Toolbox",
   "dataCheck": {
-    "icon": "🔍",
     "name": "Data Check",
     "desc": "Check data accuracy and format"
   },
   "jyutpingToIpa": {
-    "icon": "🔄",
     "name": "Jyutping to IPA",
     "desc": "Convert Jyutping to IPA"
   },
   "mergeTables": {
-    "icon": "🔗",
     "name": "Merge Tables",
     "desc": "Merge multiple data tables"
   },
   "praatAnalysis": {
-    "icon": "👂️",
     "name": "Acoustic Analysis",
     "desc": "Analyze pitch, formants, and related data with Praat"
   },
@@ -210,7 +206,7 @@
       "feature2": "Supports batch editing and command-based editing",
       "feature3": "Click cells to edit and fix issues quickly",
       "formatLabel": "File format:",
-      "formatHelp": "📋 Guide",
+      "formatHelp": "Guide",
       "formatYindian": "One Character One Syllable",
       "formatMultiChar": "One Syllable Multiple Characters",
       "formatGazetteer": "Gazetteer",
@@ -222,20 +218,20 @@
       "uploadingHint": "Please wait while the file is being processed"
     },
     "sidebar": {
-      "title": "📋 Sidebar",
-      "showErrorsOnly": "👁️ Errors Only",
-      "showAll": "👁️ Show All",
-      "errorListTitle": "🔍 Error List",
-      "searchPlaceholder": "🔍 Search characters...",
+      "title": "Sidebar",
+      "showErrorsOnly": "Errors Only",
+      "showAll": "Show All",
+      "errorListTitle": "Error List",
+      "searchPlaceholder": "Search characters...",
       "clearFilter": "Clear Filter",
       "rowLabel": "Row {row}",
       "moreErrors": "{count} more errors...",
-      "toneStatsTitle": "📊 Tone Statistics",
+      "toneStatsTitle": "Tone Statistics",
       "ruToneTitle": "Checked Tones",
       "shuToneTitle": "Non-Checked Tones",
       "charCount": "{count} chars",
       "noToneStats": "No tone statistics yet",
-      "onsetRimeTitle": "🔤 Onset and Rime Stats",
+      "onsetRimeTitle": "Onset and Rime Stats",
       "onsetTitle": "Onset",
       "rimeTitle": "Rime",
       "emptyValue": "(Empty)",
@@ -244,20 +240,20 @@
     "fileBar": {
       "rows": "{count} rows",
       "changeFile": "Change File",
-      "help": "❓ Help",
-      "tableView": "📊 Table View",
-      "commandMode": "💻 Command Mode"
+      "help": "Help",
+      "tableView": "Table View",
+      "commandMode": "Command Mode"
     },
     "table": {
       "errorCount": "Errors:",
       "pendingCount": "Pending:",
-      "clickToEdit": "💡 Click a cell to edit",
-      "enterEdit": "✏️ Edit",
-      "exitEdit": "👁️ Exit Edit",
-      "saveChanges": "💾 Save Changes",
-      "cancel": "❌ Cancel",
-      "batchReplace": "🔄 Batch Replace",
-      "download": "⬇️ Download",
+      "clickToEdit": "Click a cell to edit",
+      "enterEdit": "Edit",
+      "exitEdit": "Exit Edit",
+      "saveChanges": "Save Changes",
+      "cancel": "Cancel",
+      "batchReplace": "Batch Replace",
+      "download": "Download",
       "loading": "Loading...",
       "row": "Row",
       "char": "Character",
@@ -271,16 +267,16 @@
       "markDelete": "Mark for deletion"
     },
     "command": {
-      "title": "💻 Command Input",
-      "help": "❓ Command Help",
+      "title": "Command Input",
+      "help": "Command Help",
       "placeholder": "Enter one command per line, or separate commands with semicolons\n\nExamples:\nc-帥-好\ni-帥-jat4\np-'-ʰ\nr5>3\ns22>33\n\nMultiple commands:\nc-帥-好; i-帥-jat4",
-      "clear": "🗑️ Clear",
-      "execute": "▶️ Run Command",
-      "resultTitle": "📋 Results",
+      "clear": "Clear",
+      "execute": "Run Command",
+      "resultTitle": "Results",
       "clearResult": "Clear"
     },
     "batchReplace": {
-      "title": "🔄 Batch Replace",
+      "title": "Batch Replace",
       "replaceType": "Replace Type",
       "replaceTypeAll": "Replace IPA Globally",
       "replaceTypeRu": "Replace Checked-Tone Values",
@@ -303,15 +299,15 @@
       "shuToneHint": "Only replaces non-checked tone values",
       "previewCommand": "Command Preview",
       "cancel": "Cancel",
-      "execute": "🔄 Run Replace"
+      "execute": "Run Replace"
     },
     "help": {
-      "title": "❓ Help",
-      "checksTitle": "🔍 Checks",
+      "title": "Help",
+      "checksTitle": "Checks",
       "checkNonSingleChar": "Non-single character: the character column should contain exactly one character",
       "checkInvalidIpa": "Invalid IPA: contains unsupported characters or malformed format",
       "checkMissingTone": "Missing tone: the IPA ends without a numeric tone marker",
-      "commandTitle": "💻 Command Syntax",
+      "commandTitle": "Command Syntax",
       "commandHeader": "Command",
       "descriptionHeader": "Description",
       "exampleHeader": "Example",
@@ -321,15 +317,15 @@
       "replaceIpaDesc": "Replace IPA globally",
       "replaceRuToneDesc": "Replace tone values for checked-tone syllables only",
       "replaceShuToneDesc": "Replace tone values for non-checked-tone syllables only",
-      "commandHint": "💡 Separate multiple commands with semicolons, for example:",
-      "editTitle": "✏️ Editing Methods",
+      "commandHint": "Separate multiple commands with semicolons, for example:",
+      "editTitle": "Editing Methods",
       "editCell": "Cell editing: click a table cell in edit mode to edit it directly",
       "editBatch": "Batch editing: enter edit mode and save changes together",
       "editCommand": "Command mode: process multiple changes in batch",
       "gotIt": "Got It"
     },
     "formatHelp": {
-      "title": "📋 File Format Guide",
+      "title": "File Format Guide",
       "singleTitle": "1. One Character One Syllable",
       "fileRequirement": "File requirement:",
       "excelRequirement": "Excel (.xlsx, .xls).",
@@ -365,7 +361,7 @@
       "close": "Close"
     },
     "filter": {
-      "title": "🔍 Filter {column}",
+      "title": "Filter {column}",
       "onset": "Onset",
       "rime": "Rime",
       "tone": "Tone",
@@ -389,7 +385,7 @@
       "saveFailed": "Save failed: {message}",
       "discardChanges": "Discard all unsaved changes?",
       "enterCommand": "Please enter a command.",
-      "commandExecutionFailed": "❌ Execution failed: {message}",
+      "commandExecutionFailed": "Execution failed: {message}",
       "enterReplaceSource": "Please enter the original character or tone value.",
       "replaceSuccess": "Replacement completed.",
       "replaceFailed": "Replacement failed: {message}",
@@ -451,7 +447,7 @@
     "dropdown": {
       "selectDatabase": "-- Select a database --",
       "selectTable": "-- Select a table --",
-      "customInput": "✏️ Manual input..."
+      "customInput": "Manual input..."
     },
     "messages": {
       "fetchColumnsFailed": "Failed to fetch column metadata. Please check the database connection.",

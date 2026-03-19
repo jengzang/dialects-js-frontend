@@ -4,19 +4,19 @@
 
       <div class="words-grid">
         <button class="word-btn" @click="handleYuBaoVocabulary">
-          <div class="word-icon">{{ $t('words.yuBaoVocabulary.icon') }}</div>
+          <div class="word-icon">📖</div>
           <div class="word-name">{{ $t('words.yuBaoVocabulary.name') }}</div>
           <div class="word-desc">{{ $t('words.yuBaoVocabulary.desc') }}</div>
         </button>
 
         <button class="word-btn" @click="handleYuBaoGrammar">
-          <div class="word-icon">{{ $t('words.yuBaoGrammar.icon') }}</div>
+          <div class="word-icon">🗣️</div>
           <div class="word-name">{{ $t('words.yuBaoGrammar.name') }}</div>
           <div class="word-desc">{{ $t('words.yuBaoGrammar.desc') }}</div>
         </button>
 
         <button class="word-btn" @click="handleYcSpoken">
-          <div class="word-icon">{{ $t('words.ycSpoken.icon') }}</div>
+          <div class="word-icon">💬</div>
           <div class="word-name">{{ $t('words.ycSpoken.name') }}</div>
           <div class="word-desc">{{ $t('words.ycSpoken.desc') }}</div>
         </button>

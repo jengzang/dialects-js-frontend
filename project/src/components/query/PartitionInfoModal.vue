@@ -5,7 +5,7 @@
         <!-- 头部 -->
         <div class="modal-header">
 <!--          <div class="header-left">-->
-            <div class="modal-title">{{ $t('query.components.partitionModal.title') }}</div>
+            <div class="modal-title">🗂️ {{ $t('query.components.partitionModal.title') }}</div>
             <!-- 选择模式开关 -->
             <div class="selection-mode-toggle">
               <label class="toggle-label">{{ $t('query.components.partitionModal.enableSelection') }}</label>

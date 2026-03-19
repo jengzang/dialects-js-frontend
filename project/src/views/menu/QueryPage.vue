@@ -195,9 +195,9 @@
             :disabled="buttonState.isRunning || isRunDisabled"
             :class="{ disabled: isRunDisabled }"
         >
-          <span v-if="buttonState.isRunning">{{ $t('query.button.running') }}</span>
-          <span v-else-if="isRunDisabled">{{ $t('query.button.invalid') }}</span>
-          <span v-else>{{ $t('query.button.run') }}</span>
+          <span v-if="buttonState.isRunning">🔄 {{ $t('query.button.running') }}</span>
+          <span v-else-if="isRunDisabled">🚫 {{ $t('query.button.invalid') }}</span>
+          <span v-else>🚀 {{ $t('query.button.run') }}</span>
         </button>
       </div>
       <!-- 🔹 建議與操作區 -->

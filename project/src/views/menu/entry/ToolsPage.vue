@@ -4,25 +4,25 @@
 
       <div class="tools-grid">
         <button class="tool-btn" @click="handleDataCheck">
-          <div class="tool-icon">{{ $t('tools.dataCheck.icon') }}</div>
+          <div class="tool-icon">🔍</div>
           <div class="tool-name">{{ $t('tools.dataCheck.name') }}</div>
           <div class="tool-desc">{{ $t('tools.dataCheck.desc') }}</div>
         </button>
 
         <button class="tool-btn" @click="handleJyutpingToIpa">
-          <div class="tool-icon">{{ $t('tools.jyutpingToIpa.icon') }}</div>
+          <div class="tool-icon">🔄</div>
           <div class="tool-name">{{ $t('tools.jyutpingToIpa.name') }}</div>
           <div class="tool-desc">{{ $t('tools.jyutpingToIpa.desc') }}</div>
         </button>
 
         <button class="tool-btn" @click="handleMergeTables">
-          <div class="tool-icon">{{ $t('tools.mergeTables.icon') }}</div>
+          <div class="tool-icon">🔗</div>
           <div class="tool-name">{{ $t('tools.mergeTables.name') }}</div>
           <div class="tool-desc">{{ $t('tools.mergeTables.desc') }}</div>
         </button>
 
         <button class="tool-btn" @click="handlePraatTables">
-          <div class="tool-icon">{{ $t('tools.praatAnalysis.icon') }}</div>
+          <div class="tool-icon">👂️</div>
           <div class="tool-name">{{ $t('tools.praatAnalysis.name') }}</div>
           <div class="tool-desc">{{ $t('tools.praatAnalysis.desc') }}</div>
         </button>

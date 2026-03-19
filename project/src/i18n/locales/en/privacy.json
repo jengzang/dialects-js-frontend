@@ -1,18 +1,18 @@
 {
-  "title": "📜 Privacy Policy & Citation",
+  "title": "Privacy Policy & Citation",
   "langToggle": {
     "zh": "English",
     "en": "中文"
   },
   "citation": {
-    "title": "📖 Citation",
+    "title": "Citation",
     "text": "Yang, Zheng. 2026. Dialects Atlas. Retrieved from https://dialects.yzup.top",
-    "copyButton": "📋 Copy Citation",
+    "copyButton": "Copy Citation",
     "copySuccess": "Copied to clipboard!",
     "note": "If you use data from this website in academic papers, research reports, or other publications, please cite it according to the format above."
   },
   "privacy": {
-    "title": "🔒 Privacy Policy",
+    "title": "Privacy Policy",
     "dataCollection": {
       "title": "Data Collection and Use",
       "intro": "Dialects Atlas (dialects.yzup.top) is committed to protecting user privacy. We solemnly promise:",
@@ -53,7 +53,7 @@
     "lastUpdated": "<strong>Last Updated</strong>: January 2026"
   },
   "disclaimer": {
-    "title": "⚠️ Disclaimer",
+    "title": "Disclaimer",
     "text": "The dialect data provided on this website is for academic research and cultural exchange purposes only. While we strive for accuracy and completeness of data, we do not guarantee absolute accuracy. Users are responsible for any consequences arising from the use of data from this website."
   }
 }

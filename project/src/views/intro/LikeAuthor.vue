@@ -30,7 +30,7 @@
         {{ $t('home.intro.likeAuthor.supportText') }}
         <br />
         <button class="support-button" @click="showQRCodes = true">
-          {{ $t('home.intro.likeAuthor.supportButton') }}
+          🙌 {{ $t('home.intro.likeAuthor.supportButton') }}
         </button>
         <br />
         <span class="support-note">

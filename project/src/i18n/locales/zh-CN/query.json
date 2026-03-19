@@ -49,17 +49,16 @@
     "description": "查询各点的调类、调值"
   },
   "button": {
-    "running": "🔄 运行中...",
-    "invalid": "🚫 输入不合规",
-    "run": "🚀 单击运行"
+    "running": "运行中...",
+    "invalid": "输入不合规",
+    "run": "单击运行"
   },
   "components": {
     "locationInput": {
       "label": "地点",
       "selectButton": "选择地点",
       "selectButtonTitle": "从分区选择地点",
-      "placeholder": "请输入地点(可匹配)",
-      "successPrefix": "✅"
+      "placeholder": "请输入地点(可匹配)"
     },
     "locationMultiInput": {
       "label": "地点",
@@ -88,7 +87,7 @@
         "hasRegions": "使用自定义分区"
       },
       "customRegionModal": {
-        "title": "🗂️ 我的自定义分区",
+        "title": "我的自定义分区",
         "loading": "加载中...",
         "empty": "您还没有创建自定义分区",
         "createButton": "前往创建",
@@ -141,7 +140,7 @@
       "tooManyResults": "查询结果过多({count}>{limit})，请减少组合"
     },
     "partitionModal": {
-      "title": "🗂️ 分区详情",
+      "title": "分区详情",
       "selectionToggle": "开启选择",
       "enableSelection": "开启选择",
       "confirmButton": "确认选择 ({count})",
@@ -149,14 +148,9 @@
       "mapPartition": "地图集二分区",
       "dictPartition": "音典分区",
       "loading": "加载中...",
-      "error": "❌",
       "tabs": {
         "map": "地图集二分区",
         "yindian": "音典分区"
-      },
-      "icons": {
-        "folder": "📁",
-        "file": "📂"
       }
     },
     "floatingDice": {

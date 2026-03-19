@@ -60,7 +60,7 @@
         <p class="thoughts" style="text-align: left">{{ $t('about.reflection.paragraph3') }}</p>
         <p class="thoughts"><em v-html="$t('about.reflection.poem')"></em></p>
 
-        <h2 class="tabs-title" style="margin-top: 20px">{{ $t('about.thanks.title') }}</h2>
+        <h2 class="tabs-title" style="margin-top: 20px">🙏 {{ $t('about.thanks.title') }}</h2>
         <ul class="thanks-list">
           <li>
             ✔ <a href="https://mcpdict.vear.vip/" target="_blank" rel="noopener noreferrer" class="thanks-link">{{ $t('about.thanks.mcpdict') }}</a>
@@ -100,9 +100,9 @@
       <!-- 新的"建議"页面 -->
       <div v-if="currentTab === 'suggestion'" class="page2">
         <div class="suggestion-box">
-          <h2 class="tabs-title">{{ $t('about.suggestion.title') }}</h2>
+          <h2 class="tabs-title">💬 {{ $t('about.suggestion.title') }}</h2>
           <p v-html="$t('about.suggestion.description')"></p>
-          <p class="subtext">{{ $t('about.suggestion.subtext') }}</p>
+          <p class="subtext">👇 {{ $t('about.suggestion.subtext') }}</p>
           <div class="card-links">
             <a
                 href="https://github.com/jengzang/dialects-js-frontend/issues"
@@ -111,7 +111,7 @@
                 class="card"
             >
               <span v-html="$t('about.suggestion.frontend.title')"></span>
-              <span class="thanks-link">{{ $t('about.suggestion.frontend.link') }}</span>
+              <span class="thanks-link">👉 {{ $t('about.suggestion.frontend.link') }}</span>
             </a>
             <a
                 href="https://github.com/jengzang/dialects-build/issues"
@@ -120,7 +120,7 @@
                 class="card"
             >
               <span v-html="$t('about.suggestion.backend.title')"></span>
-              <span class="thanks-link">{{ $t('about.suggestion.backend.link') }}</span>
+              <span class="thanks-link">👉 {{ $t('about.suggestion.backend.link') }}</span>
             </a>
           </div>
         </div>
@@ -157,7 +157,7 @@
           {{ $t('about.like.supportMessage') }}
           <br />
           <button class="support-button" @click="showQRCodes = true">
-            {{ $t('about.like.supportButton') }}
+            🙌 {{ $t('about.like.supportButton') }}
           </button>
           <br />
           <span class="support-note">{{ $t('about.like.supportNote') }}</span>

@@ -507,7 +507,7 @@
     <UpdateNoticeModal
       :visible="showUpdateNotice"
       version="v4.2.0"
-      :title="$t('home.updateNotice.title')"
+      :title="'🎊 ' + $t('home.updateNotice.title')"
       @close="showUpdateNotice = false"
     >
       <div class="update-item">

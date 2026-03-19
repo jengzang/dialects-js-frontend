@@ -49,17 +49,16 @@
     "description": "Query tone categories and values of each location"
   },
   "button": {
-    "running": "🔄 Running...",
-    "invalid": "🚫 Invalid Input",
-    "run": "🚀 Click to Run"
+    "running": "Running...",
+    "invalid": "Invalid Input",
+    "run": "Click to Run"
   },
   "components": {
     "locationInput": {
       "label": "Location",
       "selectButton": "Select Location",
       "selectButtonTitle": "Select location from partition",
-      "placeholder": "Enter location (matchable)",
-      "successPrefix": "✅"
+      "placeholder": "Enter location (matchable)"
     },
     "locationMultiInput": {
       "label": "Location",
@@ -88,7 +87,7 @@
         "hasRegions": "Use custom partition"
       },
       "customRegionModal": {
-        "title": "🗂️ My Custom Partitions",
+        "title": "My Custom Partitions",
         "loading": "Loading...",
         "empty": "You haven't created any custom partitions yet",
         "createButton": "Create Now",
@@ -141,7 +140,7 @@
       "tooManyResults": "Too many results ({count}>{limit}), please reduce combinations"
     },
     "partitionModal": {
-      "title": "🗂️ Partition Details",
+      "title": "Partition Details",
       "selectionToggle": "Enable Selection",
       "enableSelection": "Enable Selection",
       "confirmButton": "Confirm Selection ({count})",
@@ -149,14 +148,9 @@
       "mapPartition": "Atlas Partition 2",
       "dictPartition": "Phonetic Dictionary Partition",
       "loading": "Loading...",
-      "error": "❌",
       "tabs": {
         "map": "Atlas Partition 2",
         "yindian": "Phonetic Dictionary Partition"
-      },
-      "icons": {
-        "folder": "📁",
-        "file": "📂"
       }
     },
     "floatingDice": {

@@ -227,7 +227,7 @@
       <div v-if="showCustomRegionPopup" class="custom-region-overlay" @click.self="showCustomRegionPopup = false">
         <div class="custom-region-popup" @mousedown.stop>
           <div class="popup-header">
-            <h3>{{ $t('query.components.regionSelector.customRegionModal.title') }}</h3>
+            <h3>🗂️ {{ $t('query.components.regionSelector.customRegionModal.title') }}</h3>
             <button class="close-btn" @click="showCustomRegionPopup = false">✕</button>
           </div>
 

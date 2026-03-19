@@ -193,9 +193,9 @@ const formatMetricFirst = (metric) => (
 )
 
 const getRankLabel = (rank) => {
-  if (rank === 1) return t('user.leaderboard.rank.first')
-  if (rank === 2) return t('user.leaderboard.rank.second')
-  if (rank === 3) return t('user.leaderboard.rank.third')
+  if (rank === 1) return '🥇 ' + t('user.leaderboard.rank.first')
+  if (rank === 2) return '🥈 ' + t('user.leaderboard.rank.second')
+  if (rank === 3) return '🥉 ' + t('user.leaderboard.rank.third')
   return t('user.leaderboard.rank.default', { rank })
 }
 

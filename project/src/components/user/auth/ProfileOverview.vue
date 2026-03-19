@@ -44,7 +44,7 @@
             iconColor="#c7254e"
             trigger="both"
           />
-          {{ $t('auth.profile.queryStats') }}
+          📊 {{ $t('auth.profile.queryStats') }}
           <button class="stats-toggle-btn" @click="$emit('toggleStats')">
             {{ statsExpanded ? $t('auth.profile.collapse') : $t('auth.profile.expand') }}
             <span class="stats-toggle-icon">{{ statsExpanded ? '▲' : '▼' }}</span>
@@ -84,30 +84,30 @@
       <!-- Action Buttons -->
       <div class="action-buttons">
         <ActionButton variant="info" @click="$emit('goToUserData')">
-          {{ $t('auth.profile.buttons.userData') }}
+          📊 {{ $t('auth.profile.buttons.userData') }}
         </ActionButton>
         <ActionButton variant="teal" @click="$emit('goToUserRegions')">
-          {{ $t('auth.profile.buttons.userRegions') }}
+          🗂️ {{ $t('auth.profile.buttons.userRegions') }}
         </ActionButton>
         <ActionButton variant="blue" @click="$emit('goToModifyProfile')">
-          {{ $t('auth.profile.buttons.modifyProfile') }}
+          🛠 {{ $t('auth.profile.buttons.modifyProfile') }}
         </ActionButton>
         <ActionButton variant="danger" @click="$emit('logout')">
-          {{ $t('auth.profile.buttons.logout') }}
+          🚪 {{ $t('auth.profile.buttons.logout') }}
         </ActionButton>
         <ActionButton
           v-if="user?.role === 'admin'"
           variant="green"
           @click="$emit('goToAdminPanel')"
         >
-          {{ $t('auth.profile.buttons.adminPanel') }}
+          🧑‍💻 {{ $t('auth.profile.buttons.adminPanel') }}
         </ActionButton>
         <ActionButton
           v-if="user?.role === 'admin'"
           variant="yellow"
           @click="$emit('goToTableManager')"
         >
-          {{ $t('auth.profile.buttons.tableManager') }}
+          📈 {{ $t('auth.profile.buttons.tableManager') }}
         </ActionButton>
       </div>
     </div>
@@ -162,8 +162,8 @@ defineEmits([
 ])
 
 const tabs = computed(() => [
-  { label: t('auth.profile.tabs.info'), value: 'overview' },
-  { label: t('auth.profile.tabs.ranking'), value: 'leaderboard' }
+  { label: '📊 ' + t('auth.profile.tabs.info'), value: 'overview' },
+  { label: '🏆 ' + t('auth.profile.tabs.ranking'), value: 'leaderboard' }
 ])
 </script>
 

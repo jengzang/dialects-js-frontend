@@ -1,18 +1,18 @@
 {
-  "title": "📜 隱私政策與引用說明",
+  "title": "隱私政策與引用說明",
   "langToggle": {
     "zh": "English",
     "en": "中文"
   },
   "citation": {
-    "title": "📖 引用建議",
+    "title": "引用建議",
     "text": "楊錚，2026，方音圖鑑。查詢網址 https://dialects.yzup.top",
-    "copyButton": "📋 複製引用",
+    "copyButton": "複製引用",
     "copySuccess": "已複製到剪貼板！",
     "note": "若您在學術論文、研究報告或其他出版物中使用本網站資料，請按照上述格式進行引用。"
   },
   "privacy": {
-    "title": "🔒 隱私政策",
+    "title": "隱私政策",
     "dataCollection": {
       "title": "資料收集與使用",
       "intro": "「方音圖鑑」（dialects.yzup.top）致力於保護用戶隱私。我們鄭重承諾：",
@@ -53,7 +53,7 @@
     "lastUpdated": "<strong>最後更新時間</strong>：2026年1月"
   },
   "disclaimer": {
-    "title": "⚠️ 免責聲明",
+    "title": "免責聲明",
     "text": "本網站提供的方言資料僅供學術研究和文化交流使用。雖然我們力求資料的準確性和完整性，但不對資料的絕對準確性做出保證。使用本網站資料產生的任何後果，由使用者自行承擔。"
   }
 }

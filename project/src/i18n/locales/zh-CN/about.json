@@ -45,7 +45,7 @@
     "poem": "愿八方乡音，生生不息；<br>愿汉字之美，永被珍惜；<br>愿文明薪火，长存于每一次交互与共鸣之中。"
   },
   "thanks": {
-    "title": "🙏 特别鸣谢",
+    "title": "特别鸣谢",
     "mcpdict": "汉字音典",
     "mcpdictDesc": "本网站大部分资料来自",
     "mcpdictData": "音典开源数据",
@@ -66,16 +66,16 @@
     "youDesc": "当然，还有看到这里的你！"
   },
   "suggestion": {
-    "title": "💬 我有建议",
+    "title": "我有建议",
     "description": "发现 bug？有建议？<br />欢迎通过 GitHub Issue 提出！",
-    "subtext": "👇 点击下方卡片跳转对应仓库",
+    "subtext": "点击下方卡片跳转对应仓库",
     "frontend": {
       "title": "🐞 网页运行有 bug❓<br />💡 对交互、UI 有建议❓",
-      "link": "👉 到前端仓库提 Issue"
+      "link": "到前端仓库提 Issue"
     },
     "backend": {
       "title": "🔤 对字表有疑问❓<br />🎯 声/韵/调 提取出错❓",
-      "link": "👉 到字表处理仓库提 Issue"
+      "link": "到字表处理仓库提 Issue"
     }
   },
   "like": {
@@ -97,7 +97,7 @@
       }
     },
     "supportMessage": "「若网站对您有帮助，可以请作者喝杯咖啡☕️，您的支持将是作者持续维护的动力🙏」",
-    "supportButton": "🙌 支持一下",
+    "supportButton": "支持一下",
     "supportNote": "「注：本站由一名本科生开发运营，从字表处理、后端API到前端界面皆一人完成；服务器和域名的开销，也是从生活费中省出来的💸」",
     "qrModal": {
       "title": "☕️ 请作者喝杯咖啡",

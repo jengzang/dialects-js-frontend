@@ -49,7 +49,7 @@ const handleTotalUpdate = (total) => {
   <div style="width: 100%;justify-content: center;align-items:center;display: flex;flex-direction: column">
     <div class="header-row">
 
-      <h2 class="tabs-title">{{ t('source.title') }}</h2>
+      <h2 class="tabs-title">📚 {{ t('source.title') }}</h2>
       <a class="privacy-link" @click="goToPrivacy">
         {{ t('source.privacyLink') }}
       </a>

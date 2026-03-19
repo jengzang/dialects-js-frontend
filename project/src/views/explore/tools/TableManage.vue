@@ -246,7 +246,7 @@ const dbKeyOptions = computed(() => {
   dbKeys.value.forEach(key => {
     options.push({ label: key, value: key })
   })
-  options.push({ label: t('tools.tableManage.dropdown.customInput'), value: '__custom__' })
+  options.push({ label: '✏️ ' + t('tools.tableManage.dropdown.customInput'), value: '__custom__' })
   return options
 })
 
@@ -255,7 +255,7 @@ const tableOptions = computed(() => {
   availableTables.value.forEach(table => {
     options.push({ label: table, value: table })
   })
-  options.push({ label: t('tools.tableManage.dropdown.customInput'), value: '__custom__' })
+  options.push({ label: '✏️ ' + t('tools.tableManage.dropdown.customInput'), value: '__custom__' })
   return options
 })
 

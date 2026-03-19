@@ -99,8 +99,8 @@ const props = defineProps({
 const emit = defineEmits(['saveUsername', 'savePassword', 'back', 'update:modeType'])
 
 const tabs = computed(() => [
-  { label: t('auth.modifyProfile.tabs.username'), value: 'username' },
-  { label: t('auth.modifyProfile.tabs.password'), value: 'password' }
+  { label: '👤 ' + t('auth.modifyProfile.tabs.username'), value: 'username' },
+  { label: '🔒 ' + t('auth.modifyProfile.tabs.password'), value: 'password' }
 ])
 
 const localNewUsername = ref('')

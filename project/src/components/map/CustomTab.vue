@@ -639,7 +639,7 @@ const onClickOutside = (event) => {
   }
 }
 
-const fetchUserTotalCount = async () => {
+async function fetchUserTotalCount() {
   if (!userStore.isAuthenticated) return
   try {
     // 不帶任何參數請求，獲取所有個人記錄

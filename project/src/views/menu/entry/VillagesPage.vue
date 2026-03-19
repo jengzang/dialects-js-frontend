@@ -5,25 +5,25 @@
       <div class="villages-grid">
 
         <button class="village-btn" @click="handleGdVillages">
-          <div class="village-icon">{{ $t('villages.gdVillages.icon') }}</div>
+          <div class="village-icon">🏘️</div>
           <div class="village-name">{{ $t('villages.gdVillages.name') }}</div>
           <div class="village-desc">{{ $t('villages.gdVillages.desc') }}</div>
         </button>
 
         <button class="village-btn" @click="handleVillagesML">
-          <div class="village-icon">{{ $t('villages.villagesML.icon') }}</div>
+          <div class="village-icon">🤖</div>
           <div class="village-name">{{ $t('villages.villagesML.name') }}</div>
           <div class="village-desc">{{ $t('villages.villagesML.desc') }}</div>
         </button>
 
         <button class="village-btn" @click="handleGdVillagesTable">
-          <div class="village-icon">{{ $t('villages.gdVillagesTable.icon') }}</div>
+          <div class="village-icon">📈</div>
           <div class="village-name">{{ $t('villages.gdVillagesTable.name') }}</div>
           <div class="village-desc">{{ $t('villages.gdVillagesTable.desc') }}</div>
         </button>
 
         <button class="village-btn" @click="handleYcVillages">
-          <div class="village-icon">{{ $t('villages.ycVillages.icon') }}</div>
+          <div class="village-icon">🏠</div>
           <div class="village-name">{{ $t('villages.ycVillages.name') }}</div>
           <div class="village-desc">{{ $t('villages.ycVillages.desc') }}</div>
         </button>

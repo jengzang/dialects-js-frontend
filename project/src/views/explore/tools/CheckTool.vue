@@ -26,7 +26,7 @@
           <div class="format-label-row">
             <label class="format-label">{{ t('tools.checkTool.welcome.formatLabel') }}</label>
             <button class="glass-button small" @click="showFormatHelpModal = true">
-              {{ t('tools.checkTool.welcome.formatHelp') }}
+              📋 {{ t('tools.checkTool.welcome.formatHelp') }}
             </button>
           </div>
           <div class="format-options">
@@ -87,9 +87,9 @@
       <!-- 侧边栏 -->
       <aside v-if="!isPortrait" class="sidebar glass-panel" :class="{ collapsed: sidebarCollapsed }">
         <div class="sidebar-header">
-          <h3>{{ t('tools.checkTool.sidebar.title') }}</h3>
+          <h3>📋 {{ t('tools.checkTool.sidebar.title') }}</h3>
           <button class="glass-button small" @click="toggleShowAll">
-            {{ showingAll ? t('tools.checkTool.sidebar.showErrorsOnly') : t('tools.checkTool.sidebar.showAll') }}
+            {{ showingAll ? '👁️ ' + t('tools.checkTool.sidebar.showErrorsOnly') : '👁️ ' + t('tools.checkTool.sidebar.showAll') }}
           </button>
           <button class="collapse-btn" @click="toggleSidebar">
             {{ sidebarCollapsed ? '▶' : '◀' }}
@@ -100,7 +100,7 @@
           <!-- 错误统计卡片 -->
           <div class="sidebar-section" :class="{ collapsed: !errorStatsExpanded }">
             <div class="section-header" @click="toggleErrorStats">
-              <span class="section-title">{{ t('tools.checkTool.sidebar.errorListTitle') }}</span>
+              <span class="section-title">🔍 {{ t('tools.checkTool.sidebar.errorListTitle') }}</span>
               <span class="toggle-icon">{{ errorStatsExpanded ? '▼' : '▶' }}</span>
             </div>
 
@@ -127,7 +127,7 @@
                   v-model="searchQuery"
                   type="text"
                   class="glass-input search-input"
-                  :placeholder="t('tools.checkTool.sidebar.searchPlaceholder')"
+                  :placeholder="`🔍 ${t('tools.checkTool.sidebar.searchPlaceholder')}`"
                   @input="handleSearch"
                 />
                 <button class="glass-button small" @click="resetFilter">{{ t('tools.checkTool.sidebar.clearFilter') }}</button>
@@ -157,7 +157,7 @@
           <!-- 调值统计卡片 -->
           <div class="sidebar-section" :class="{ collapsed: !toneStatsExpanded }">
             <div class="section-header" @click="toggleToneStats">
-              <span class="section-title">{{ t('tools.checkTool.sidebar.toneStatsTitle') }}</span>
+              <span class="section-title">📊 {{ t('tools.checkTool.sidebar.toneStatsTitle') }}</span>
               <span class="toggle-icon">{{ toneStatsExpanded ? '▼' : '▶' }}</span>
             </div>
 
@@ -210,7 +210,7 @@
           <!-- 声韵统计卡片 -->
           <div class="sidebar-section" :class="{ collapsed: !onsetRimeStatsExpanded }">
             <div class="section-header" @click="toggleOnsetRimeStats">
-              <span class="section-title">{{ t('tools.checkTool.sidebar.onsetRimeTitle') }}</span>
+              <span class="section-title">🔤 {{ t('tools.checkTool.sidebar.onsetRimeTitle') }}</span>
               <span class="toggle-icon">{{ onsetRimeStatsExpanded ? '▼' : '▶' }}</span>
             </div>
 
@@ -268,7 +268,7 @@
           </div>
           <button v-if="!isPortrait" class="glass-button secondary small" @click="resetUpload">{{ t('tools.checkTool.fileBar.changeFile') }}</button>
           <button v-if="!isPortrait" class="glass-button small" @click="showHelpModal = true">
-            {{ t('tools.checkTool.fileBar.help') }}
+            ❓ {{ t('tools.checkTool.fileBar.help') }}
           </button>
           <!-- 模式切换 -->
           <div class="mode-tabs glass-panel">
@@ -277,14 +277,14 @@
                 :class="{ active: currentMode === 'table' }"
                 @click="switchMode('table')"
             >
-              {{ t('tools.checkTool.fileBar.tableView') }}
+              📊 {{ t('tools.checkTool.fileBar.tableView') }}
             </button>
             <button
                 class="tab-btn"
                 :class="{ active: currentMode === 'command' }"
                 @click="switchMode('command')"
             >
-              {{ t('tools.checkTool.fileBar.commandMode') }}
+              💻 {{ t('tools.checkTool.fileBar.commandMode') }}
             </button>
           </div>
         </div>
@@ -298,7 +298,7 @@
             <div class="table-stats">
               <span>{{ t('tools.checkTool.table.errorCount') }}<strong>{{ errorStats.total }}</strong></span>
               <span class="ml-2">{{ t('tools.checkTool.table.pendingCount') }}<strong>{{ totalPendingChanges }}</strong></span>
-              <span v-if="isEditMode" class="edit-hint">{{ t('tools.checkTool.table.clickToEdit') }}</span>
+              <span v-if="isEditMode" class="edit-hint">💡 {{ t('tools.checkTool.table.clickToEdit') }}</span>
             </div>
             <div class="table-actions">
               <button
@@ -306,7 +306,7 @@
                 :class="{ active: isEditMode }"
                 @click="toggleEditMode"
               >
-                {{ isEditMode ? t('tools.checkTool.table.exitEdit') : t('tools.checkTool.table.enterEdit') }}
+                {{ isEditMode ? '👁️ ' + t('tools.checkTool.table.exitEdit') : '✏️ ' + t('tools.checkTool.table.enterEdit') }}
               </button>
               <button
                 v-show="isEditMode"
@@ -314,20 +314,20 @@
                 :disabled="totalPendingChanges === 0"
                 @click="batchSave"
               >
-                {{ t('tools.checkTool.table.saveChanges') }} ({{ totalPendingChanges }})
+                💾 {{ t('tools.checkTool.table.saveChanges') }} ({{ totalPendingChanges }})
               </button>
               <button
                 v-show="isEditMode"
                 class="glass-button small"
                 @click="cancelEdit"
               >
-                {{ t('tools.checkTool.table.cancel') }}
+                ❌ {{ t('tools.checkTool.table.cancel') }}
               </button>
               <button v-show="!isEditMode" class="glass-button small" @click="showBatchReplaceModal = true">
-                {{ t('tools.checkTool.table.batchReplace') }}
+                🔄 {{ t('tools.checkTool.table.batchReplace') }}
               </button>
               <button v-show="!isEditMode" class="glass-button small" @click="downloadFile">
-                {{ t('tools.checkTool.table.download') }}
+                ⬇️ {{ t('tools.checkTool.table.download') }}
               </button>
             </div>
           </div>
@@ -548,9 +548,9 @@
         <div v-show="currentMode === 'command'" class="command-view">
           <div class="command-panel glass-panel">
             <div class="command-header">
-              <h3>{{ t('tools.checkTool.command.title') }}</h3>
+              <h3>💻 {{ t('tools.checkTool.command.title') }}</h3>
               <button v-if="!isPortrait" class="glass-button small" @click="showHelpModal = true">
-                {{ t('tools.checkTool.command.help') }}
+                ❓ {{ t('tools.checkTool.command.help') }}
               </button>
             </div>
 
@@ -561,14 +561,14 @@
             ></textarea>
 
             <div class="command-actions">
-              <button class="glass-button" @click="clearCommand">{{ t('tools.checkTool.command.clear') }}</button>
-              <button class="glass-button primary" @click="executeCommand">{{ t('tools.checkTool.command.execute') }}</button>
+              <button class="glass-button" @click="clearCommand">🗑️ {{ t('tools.checkTool.command.clear') }}</button>
+              <button class="glass-button primary" @click="executeCommand">▶️ {{ t('tools.checkTool.command.execute') }}</button>
             </div>
 
             <!-- 执行结果 -->
             <div v-if="commandLog.length > 0" class="command-result glass-panel">
               <div class="result-header">
-                <h4>{{ t('tools.checkTool.command.resultTitle') }}</h4>
+                <h4>📋 {{ t('tools.checkTool.command.resultTitle') }}</h4>
                 <button class="glass-button small" @click="clearCommandLog">{{ t('tools.checkTool.command.clearResult') }}</button>
               </div>
               <div class="result-log custom-scrollbar">
@@ -592,7 +592,7 @@
       <div v-if="showBatchReplaceModal" class="modal-overlay" @click.self="showBatchReplaceModal = false">
         <div class="modal-content glass-panel">
           <div class="modal-header">
-            <h3>{{ t('tools.checkTool.batchReplace.title') }}</h3>
+            <h3>🔄 {{ t('tools.checkTool.batchReplace.title') }}</h3>
             <button class="close-btn" @click="showBatchReplaceModal = false">×</button>
           </div>
 
@@ -646,7 +646,7 @@
 
           <div class="modal-footer">
             <button class="glass-button secondary" @click="showBatchReplaceModal = false">{{ t('tools.checkTool.batchReplace.cancel') }}</button>
-            <button class="glass-button primary" @click="executeBatchReplace">{{ t('tools.checkTool.batchReplace.execute') }}</button>
+            <button class="glass-button primary" @click="executeBatchReplace">🔄 {{ t('tools.checkTool.batchReplace.execute') }}</button>
           </div>
         </div>
       </div>
@@ -657,7 +657,7 @@
       <div v-if="showHelpModal" class="modal-overlay" @click.self="showHelpModal = false">
         <div class="modal-content glass-panel help-modal">
           <div class="modal-header">
-            <h3>{{ t('tools.checkTool.help.title') }}</h3>
+            <h3>❓ {{ t('tools.checkTool.help.title') }}</h3>
             <button class="close-btn" @click="showHelpModal = false">×</button>
           </div>
 
@@ -673,7 +673,7 @@
 <!--            </div>-->
 
             <div class="help-section">
-              <h4>{{ t('tools.checkTool.help.checksTitle') }}</h4>
+              <h4>🔍 {{ t('tools.checkTool.help.checksTitle') }}</h4>
               <ul>
                 <li>{{ t('tools.checkTool.help.checkNonSingleChar') }}</li>
                 <li>{{ t('tools.checkTool.help.checkInvalidIpa') }}</li>
@@ -682,7 +682,7 @@
             </div>
 
             <div class="help-section">
-              <h4>{{ t('tools.checkTool.help.commandTitle') }}</h4>
+              <h4>💻 {{ t('tools.checkTool.help.commandTitle') }}</h4>
               <table class="help-table">
                 <thead>
                   <tr>
@@ -724,11 +724,11 @@
                   </tr>
                 </tbody>
               </table>
-              <p class="hint-text">{{ t('tools.checkTool.help.commandHint') }}<code>c-帥-好; i-帥-jat4</code></p>
+              <p class="hint-text">💡 {{ t('tools.checkTool.help.commandHint') }}<code>c-帥-好; i-帥-jat4</code></p>
             </div>
 
             <div class="help-section">
-              <h4>{{ t('tools.checkTool.help.editTitle') }}</h4>
+              <h4>✏️ {{ t('tools.checkTool.help.editTitle') }}</h4>
               <ul>
                 <li>{{ t('tools.checkTool.help.editCell') }}</li>
                 <li>{{ t('tools.checkTool.help.editBatch') }}</li>
@@ -749,7 +749,7 @@
       <div v-if="showFormatHelpModal" class="modal-overlay" @click.self="showFormatHelpModal = false">
         <div class="modal-content glass-panel help-modal">
           <div class="modal-header">
-            <h3>{{ t('tools.checkTool.formatHelp.title') }}</h3>
+            <h3>📋 {{ t('tools.checkTool.formatHelp.title') }}</h3>
             <button class="close-btn" @click="showFormatHelpModal = false">×</button>
           </div>
 
@@ -852,7 +852,7 @@
         <div class="modal-content glass-panel filter-modal">
           <div class="modal-header">
             <h3>
-              {{ t('tools.checkTool.filter.title', { column: getFilterColumnLabel(filterColumnType) }) }}
+              🔍 {{ t('tools.checkTool.filter.title', { column: getFilterColumnLabel(filterColumnType) }) }}
             </h3>
             <button class="close-btn" @click="showFilterModal = false">×</button>
           </div>
@@ -1725,7 +1725,7 @@ const executeCommand = async () => {
   } catch (error) {
     commandLog.value.push({
       type: 'error',
-      message: t('tools.checkTool.messages.commandExecutionFailed', { message: error.message })
+      message: '❌ ' + t('tools.checkTool.messages.commandExecutionFailed', { message: error.message })
     })
   }
 }

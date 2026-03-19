@@ -142,7 +142,7 @@
 <!--                <span>組1已選 ({{ tabStates.tab2.group1Items.length }})</span>-->
                 <span>{{ $t('compare.group.label1') }}</span>
                 <button class="add-btn add-to-group1" @click="addToGroup('group1')" :disabled="!canAddToGroup">
-                  {{ $t('compare.button.add') }}
+                  ➕ {{ $t('compare.button.add') }}
                 </button>
               </div>
               <div class="selected-items-list">
@@ -166,7 +166,7 @@
                 <span>{{ $t('compare.group.label2') }}</span>
 <!--                <span>組2已選 ({{ tabStates.tab2.group2Items.length }})</span>-->
                 <button class="add-btn add-to-group2" @click="addToGroup('group2')" :disabled="!canAddToGroup">
-                  {{ $t('compare.button.add') }}
+                  ➕ {{ $t('compare.button.add') }}
                 </button>
               </div>
               <div class="selected-items-list">
@@ -238,9 +238,9 @@
             :disabled="buttonState.isRunning || isRunDisabled"
             :class="{ disabled: isRunDisabled }"
         >
-          <span v-if="buttonState.isRunning">{{ $t('compare.button.running') }}</span>
-          <span v-else-if="isRunDisabled">{{ $t('compare.button.invalid') }}</span>
-          <span v-else>{{ $t('compare.button.startCompare') }}</span>
+          <span v-if="buttonState.isRunning">🔄 {{ $t('compare.button.running') }}</span>
+          <span v-else-if="isRunDisabled">🚫 {{ $t('compare.button.invalid') }}</span>
+          <span v-else>🚀 {{ $t('compare.button.startCompare') }}</span>
         </button>
       </div>
 

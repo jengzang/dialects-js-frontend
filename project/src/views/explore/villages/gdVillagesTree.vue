@@ -57,7 +57,7 @@
               {{ loadingStates[city] ? t('villages.pages.gdTree.loading') : t('villages.pages.gdTree.load') }}
             </button>
             <div v-else class="loaded-badge">
-              {{ t('villages.pages.gdTree.loaded') }}
+              ✓ {{ t('villages.pages.gdTree.loaded') }}
             </div>
           </div>
 

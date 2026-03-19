@@ -22,11 +22,11 @@
   },
   "button": {
     "compare": "比較",
-    "running": "🔄 運行中...",
-    "invalid": "🚫 輸入不合規",
-    "run": "🚀 單擊運行",
-    "startCompare": "🚀 開始比較",
-    "add": "➕ 添加"
+    "running": "運行中...",
+    "invalid": "輸入不合規",
+    "run": "單擊運行",
+    "startCompare": "開始比較",
+    "add": "添加"
   },
   "messages": {
     "pleaseEnterBothGroups": "請輸入兩組漢字",

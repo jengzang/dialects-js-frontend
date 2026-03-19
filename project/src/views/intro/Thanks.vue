@@ -20,7 +20,7 @@
     <p class="thoughts" style="text-align: left">{{ $t('home.intro.thanks.devPara3') }}</p>
     <p class="thoughts" v-html="$t('home.intro.thanks.devPara4')"></p>
 
-    <h2 class="tabs-title" style="margin-top: 20px">{{ $t('home.intro.thanks.thanksTitle') }}</h2>
+    <h2 class="tabs-title" style="margin-top: 20px">🙏 {{ $t('home.intro.thanks.thanksTitle') }}</h2>
     <ul class="thanks-list">
       <li>
         ✔ <a href="https://mcpdict.vear.vip/" target="_blank" rel="noopener noreferrer" class="thanks-link">{{ $t('home.intro.thanks.mcpdict') }}</a>

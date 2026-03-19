@@ -1,8 +1,8 @@
 <template>
   <div class="suggestion-box">
-    <h2 class="tabs-title">{{ $t('home.intro.suggestions.title') }}</h2>
+    <h2 class="tabs-title">💬 {{ $t('home.intro.suggestions.title') }}</h2>
     <p v-html="$t('home.intro.suggestions.desc')"></p>
-    <p class="subtext">{{ $t('home.intro.suggestions.subtext') }}</p>
+    <p class="subtext">👇 {{ $t('home.intro.suggestions.subtext') }}</p>
     <div class="card-links">
       <a
           href="https://github.com/jengzang/dialects-js-frontend/issues"
@@ -11,7 +11,7 @@
           class="card"
       >
         <span v-html="$t('home.intro.suggestions.frontendCard')"></span>
-        <span class="thanks-link">{{ $t('home.intro.suggestions.frontendLink') }}</span>
+        <span class="thanks-link">👉 {{ $t('home.intro.suggestions.frontendLink') }}</span>
       </a>
       <a
           href="https://github.com/jengzang/dialects-build/issues"
@@ -20,7 +20,7 @@
           class="card"
       >
         <span v-html="$t('home.intro.suggestions.buildCard')"></span>
-        <span class="thanks-link">{{ $t('home.intro.suggestions.buildLink') }}</span>
+        <span class="thanks-link">👉 {{ $t('home.intro.suggestions.buildLink') }}</span>
       </a>
     </div>
   </div>

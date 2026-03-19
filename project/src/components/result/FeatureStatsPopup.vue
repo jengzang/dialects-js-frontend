@@ -4,7 +4,7 @@
       <div class="feature-stats-modal glass-modal" role="dialog" aria-modal="true" @click.stop>
         <div class="modal-header">
           <div class="modal-title">
-            {{ t('result.featureStatsPopup.title', { location: locationName, featureKey: translatedFeatureKey, featureVal }) }}
+            📊 {{ t('result.featureStatsPopup.title', { location: locationName, featureKey: translatedFeatureKey, featureVal }) }}
           </div>
           <button class="modal-close" type="button" :aria-label="t('common.button.close')" @click="$emit('close')">✕</button>
         </div>

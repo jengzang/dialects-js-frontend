@@ -141,7 +141,7 @@
       "devPara2": "In fact, this is also a journey of self-transformation. From knowing nothing about front-end development, to exploring DOM, trying virtual scrolling, advancing to using frameworks, and even appreciating the subtleties of JWT and ORM. I learned while building, matured through mistakes. The most fascinating part is that the bricks I used to build all this are the knowledge I longed to learn: building the website deepened my understanding of phonology, and studying phonology drove the iteration of code. Technology is no longer cold commands to me, but a vessel carrying culture; culture is no longer distant literature to me, gradually becoming an interactive, traceable, and touchable entity.",
       "devPara3": "This is my answer written with code and passion, a sincere gift from an ordinary student to the field of dialects. Thank you to everyone who encounters it. I hope this still immature creation can stir a ripple of curiosity in your heart, or save you a moment of time searching through materials—this is the meaning of her existence.",
       "devPara4": "May the dialects from all directions live on forever;<br>May the beauty of Chinese characters be cherished forever;<br>May the flame of civilization endure in every interaction and resonance.",
-      "thanksTitle": "🙏 Special Thanks",
+      "thanksTitle": "Special Thanks",
       "mcpdict": "MCPDict",
       "mcpdictDesc": "Most of the data on this website comes from",
       "mcpdictData": "MCPDict open source data",
@@ -162,13 +162,13 @@
       "youDesc": "And of course, you who are reading this!"
     },
     "suggestions": {
-      "title": "💬 I Have Suggestions",
+      "title": "I Have Suggestions",
       "desc": "Found a bug? Have suggestions?<br />Welcome to submit via GitHub Issue!",
-      "subtext": "👇 Click the cards below to jump to the corresponding repository",
+      "subtext": "Click the cards below to jump to the corresponding repository",
       "frontendCard": "🐞 Website has bugs❓<br />💡 Have suggestions for interaction or UI❓",
-      "frontendLink": "👉 Submit Issue to frontend repository",
+      "frontendLink": "Submit Issue to frontend repository",
       "buildCard": "🔤 Questions about character tables❓<br />🎯 Errors in initial/final/tone extraction❓",
-      "buildLink": "👉 Submit Issue to character table processing repository"
+      "buildLink": "Submit Issue to character table processing repository"
     },
     "likeAuthor": {
       "title": "❤️ Support Author",
@@ -179,7 +179,7 @@
       "buildRepo": "Character table preprocessing repository - Extract initials, finals, and tones from character tables",
       "villagesMLRepo": "Village Machine Learning - Village name and geographic data analysis",
       "supportText": "\"If the website is helpful to you, you can buy the author a coffee☕️. Your support will be the motivation for the author to continue maintaining🙏\"",
-      "supportButton": "🙌 Support",
+      "supportButton": "Support",
       "supportNote": "\"Note: This site is developed and operated by an undergraduate student. From character table processing, backend API to frontend interface, all completed by one person; the expenses for servers and domain names are also saved from living expenses💸\"",
       "modalTitle": "☕️ Buy Author a Coffee",
       "modalSubtitle": "Thank you for your support! 💖",
@@ -211,7 +211,7 @@
     "icp": "Yue ICP 2025466875"
   },
   "updateNotice": {
-    "title": "?? Website Update Notice",
+    "title": "Website Update Notice",
     "items": {
       "homepage": {
         "title": "New Homepage",

@@ -1,18 +1,18 @@
 {
-  "title": "📜 隐私政策与引用说明",
+  "title": "隐私政策与引用说明",
   "langToggle": {
     "zh": "English",
     "en": "中文"
   },
   "citation": {
-    "title": "📖 引用建议",
+    "title": "引用建议",
     "text": "杨铮，2026，方音图鉴。查询网址 https://dialects.yzup.top",
-    "copyButton": "📋 复制引用",
+    "copyButton": "复制引用",
     "copySuccess": "已复制到剪贴板！",
     "note": "若您在学术论文、研究报告或其他出版物中使用本网站资料，请按照上述格式进行引用。"
   },
   "privacy": {
-    "title": "🔒 隐私政策",
+    "title": "隐私政策",
     "dataCollection": {
       "title": "资料收集与使用",
       "intro": "「方音图鉴」（dialects.yzup.top）致力于保护用户隐私。我们郑重承诺：",
@@ -53,7 +53,7 @@
     "lastUpdated": "<strong>最后更新时间</strong>：2026年1月"
   },
   "disclaimer": {
-    "title": "⚠️ 免责声明",
+    "title": "免责声明",
     "text": "本网站提供的方言资料仅供学术研究和文化交流使用。虽然我们力求资料的准确性和完整性，但不对资料的绝对准确性做出保证。使用本网站资料产生的任何后果，由使用者自行承担。"
   }
 }

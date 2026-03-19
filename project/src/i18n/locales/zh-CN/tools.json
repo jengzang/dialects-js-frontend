@@ -1,22 +1,18 @@
 {
   "title": "工具箱",
   "dataCheck": {
-    "icon": "🔍",
     "name": "字表检查",
     "desc": "检查字表正确性和格式"
   },
   "jyutpingToIpa": {
-    "icon": "🔄",
     "name": "粤拼转 IPA",
     "desc": "将粤拼转换为国际音标"
   },
   "mergeTables": {
-    "icon": "🔗",
     "name": "字表合并",
     "desc": "合并多个字表数据"
   },
   "praatAnalysis": {
-    "icon": "👂️",
     "name": "声学分析",
     "desc": "基于 Praat 进行基频、共振峰等分析"
   },
@@ -210,7 +206,7 @@
       "feature2": "支持批量编辑以及指令编辑",
       "feature3": "单元格点击编辑，快速修复",
       "formatLabel": "文件格式：",
-      "formatHelp": "📋 说明",
+      "formatHelp": "说明",
       "formatYindian": "一字一音（音典）",
       "formatMultiChar": "一音多字",
       "formatGazetteer": "县志",
@@ -222,20 +218,20 @@
       "uploadingHint": "请稍候，正在处理文件"
     },
     "sidebar": {
-      "title": "📋 边栏",
-      "showErrorsOnly": "👁️ 只显示错误",
-      "showAll": "👁️ 显示全部",
-      "errorListTitle": "🔍 错误列表",
-      "searchPlaceholder": "🔍 搜索汉字...",
+      "title": "边栏",
+      "showErrorsOnly": "只显示错误",
+      "showAll": "显示全部",
+      "errorListTitle": "错误列表",
+      "searchPlaceholder": "搜索汉字...",
       "clearFilter": "清除筛选",
       "rowLabel": "行 {row}",
       "moreErrors": "还有 {count} 个错误...",
-      "toneStatsTitle": "📊 调值统计",
+      "toneStatsTitle": "调值统计",
       "ruToneTitle": "入声调",
       "shuToneTitle": "舒声调",
       "charCount": "{count}字",
       "noToneStats": "暂无调值统计",
-      "onsetRimeTitle": "🔤 声韵统计",
+      "onsetRimeTitle": "声韵统计",
       "onsetTitle": "声母",
       "rimeTitle": "韵母",
       "emptyValue": "(空)",
@@ -244,20 +240,20 @@
     "fileBar": {
       "rows": "{count} 行",
       "changeFile": "更换文件",
-      "help": "❓ 帮助",
-      "tableView": "📊 表格视图",
-      "commandMode": "💻 指令模式"
+      "help": "帮助",
+      "tableView": "表格视图",
+      "commandMode": "指令模式"
     },
     "table": {
       "errorCount": "错误数：",
       "pendingCount": "待保存：",
-      "clickToEdit": "💡 单击单元格编辑",
-      "enterEdit": "✏️ 进入编辑",
-      "exitEdit": "👁️ 退出编辑",
-      "saveChanges": "💾 保存修改",
-      "cancel": "❌ 取消",
-      "batchReplace": "🔄 批量替换",
-      "download": "⬇️ 下载",
+      "clickToEdit": "单击单元格编辑",
+      "enterEdit": "进入编辑",
+      "exitEdit": "退出编辑",
+      "saveChanges": "保存修改",
+      "cancel": "取消",
+      "batchReplace": "批量替换",
+      "download": "下载",
       "loading": "加载中...",
       "row": "行",
       "char": "汉字",
@@ -271,16 +267,16 @@
       "markDelete": "标记删除"
     },
     "command": {
-      "title": "💻 指令输入",
-      "help": "❓ 指令说明",
+      "title": "指令输入",
+      "help": "指令说明",
       "placeholder": "输入指令，每行一条或用分号分隔\n\n示例：\nc-帅-好\ni-帅-jat4\np-'-ʰ\nr5>3\ns22>33\n\n多条指令用分号分隔：\nc-帅-好; i-帅-jat4",
-      "clear": "🗑️ 清空",
-      "execute": "▶️ 执行指令",
-      "resultTitle": "📋 执行结果",
+      "clear": "清空",
+      "execute": "执行指令",
+      "resultTitle": "执行结果",
       "clearResult": "清空"
     },
     "batchReplace": {
-      "title": "🔄 批量替换",
+      "title": "批量替换",
       "replaceType": "替换类型",
       "replaceTypeAll": "全表音标（IPA）替换",
       "replaceTypeRu": "入声调替换",
@@ -303,15 +299,15 @@
       "shuToneHint": "只替换舒声的调值",
       "previewCommand": "预览命令",
       "cancel": "取消",
-      "execute": "🔄 执行替换"
+      "execute": "执行替换"
     },
     "help": {
-      "title": "❓ 使用帮助",
-      "checksTitle": "🔍 检查项目",
+      "title": "使用帮助",
+      "checksTitle": "检查项目",
       "checkNonSingleChar": "非单字：汉字列应为单个字符",
       "checkInvalidIpa": "异常音标：包含非法字符或格式错误",
       "checkMissingTone": "缺声调：音标末尾缺少数字声调",
-      "commandTitle": "💻 指令格式",
+      "commandTitle": "指令格式",
       "commandHeader": "指令",
       "descriptionHeader": "说明",
       "exampleHeader": "示例",
@@ -321,15 +317,15 @@
       "replaceIpaDesc": "全表替换音标",
       "replaceRuToneDesc": "只替换入声的调值",
       "replaceShuToneDesc": "只替换舒声的调值",
-      "commandHint": "💡 多条指令用分号分隔，例如：",
-      "editTitle": "✏️ 编辑方式",
+      "commandHint": "多条指令用分号分隔，例如：",
+      "editTitle": "编辑方式",
       "editCell": "单元格编辑：在编辑模式下点击表格单元格直接编辑",
       "editBatch": "批量编辑：进入编辑模式，修改后统一保存",
       "editCommand": "指令模式：批量处理多个修改",
       "gotIt": "知道了"
     },
     "formatHelp": {
-      "title": "📋 文件格式说明",
+      "title": "文件格式说明",
       "singleTitle": "1. 一字一音（音典）",
       "fileRequirement": "文件要求：",
       "excelRequirement": "Excel（.xlsx, .xls）。",
@@ -365,7 +361,7 @@
       "close": "关闭"
     },
     "filter": {
-      "title": "🔍 筛选 {column}",
+      "title": "筛选 {column}",
       "onset": "声母",
       "rime": "韵母",
       "tone": "声调",
@@ -389,7 +385,7 @@
       "saveFailed": "保存失败：{message}",
       "discardChanges": "放弃所有未保存的修改？",
       "enterCommand": "请输入指令",
-      "commandExecutionFailed": "❌ 执行失败：{message}",
+      "commandExecutionFailed": "执行失败：{message}",
       "enterReplaceSource": "请输入原字符/调值",
       "replaceSuccess": "替换成功",
       "replaceFailed": "替换失败：{message}",
@@ -451,7 +447,7 @@
     "dropdown": {
       "selectDatabase": "-- 请选择数据库 --",
       "selectTable": "-- 请选择表 --",
-      "customInput": "✏️ 手动输入..."
+      "customInput": "手动输入..."
     },
     "messages": {
       "fetchColumnsFailed": "获取列信息失败，请检查数据库连接",

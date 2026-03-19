@@ -103,8 +103,8 @@ const props = defineProps({
 const emit = defineEmits(['submit', 'switchToRegister', 'update:loginMode', 'showBenefits'])
 
 const tabs = computed(() => [
-  { label: t('auth.login.modes.email'), value: 'email' },
-  { label: t('auth.login.modes.username'), value: 'username' }
+  { label: '📧 ' + t('auth.login.modes.email'), value: 'email' },
+  { label: '👤 ' + t('auth.login.modes.username'), value: 'username' }
 ])
 
 const localEmail = ref('')

@@ -172,7 +172,7 @@ const sortedData = computed(() => {
 });
 const displayedData = computed(() => sortedData.value.slice(0, visibleRows.value));
 const filterTriggerText = computed(() => {
-  if (selectedValues.value.length === 0) return t('result.resultList.filter.default');
+  if (selectedValues.value.length === 0) return '🎯 ' + t('result.resultList.filter.default');
   const recent = selectedValues.value.slice(-3);
   return selectedValues.value.length > 3
     ? t('result.resultList.filter.selectedWithMore', { values: recent.join('|') })
