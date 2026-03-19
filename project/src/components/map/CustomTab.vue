@@ -49,7 +49,7 @@
               @focus="handleInputFocus"
               class="feature-search-input"
             />
-            <span v-if="isSearching" class="loading-icon">...</span>
+            <span v-if="isSearching" class="loading-icon">⏳</span>
           </div>
 
           <!-- Dropdown 下拉列表 (使用 Teleport) -->
@@ -144,7 +144,7 @@
 
             <div class="help-content">
               <div class="help-section">
-                <h4 class="section-title">{{ t('map.customTab.helpModal.sections.overview.title') }}</h4>
+                <h4 class="section-title">🌟 {{ t('map.customTab.helpModal.sections.overview.title') }}</h4>
                 <ul class="help-list">
                   <li v-for="item in helpOverviewItems" :key="item.key">
                     <strong>{{ item.label }}</strong>{{ item.text }}
@@ -153,7 +153,7 @@
               </div>
 
               <div class="help-section" style="border-left: 4px solid #007aff;">
-                <h4 class="section-title">{{ t('map.customTab.helpModal.sections.fieldGuide.title') }}</h4>
+                <h4 class="section-title">🎨 {{ t('map.customTab.helpModal.sections.fieldGuide.title') }}</h4>
                 <ul class="help-list">
                   <li v-for="item in helpFieldGuideItems" :key="item.key">
                     <strong>{{ item.label }}</strong>{{ item.text }}
@@ -164,10 +164,36 @@
                     <li v-for="example in helpFieldGuideExamples" :key="example">{{ example }}</li>
                   </ul>
                 </div>
+                <div class="table-container">
+                  <table class="example-table">
+                    <thead>
+                      <tr>
+                        <th style="min-width: 60px;">簡稱</th>
+                        <th style="min-width: 40px;">分區</th>
+                        <th style="min-width: 90px;">經緯度</th>
+                        <th style="min-width: 50px;">聲韻調</th>
+                        <th style="min-width: 30px;">特徵</th>
+                        <th style="min-width: 40px;">值</th>
+                        <th style="min-width: 60px;">說明</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td class="highlight-location">陽春圭崗</td>
+                        <td class="highlight-region">嶺南</td>
+                        <td class="highlight-geo">111.742615,22.35676</td>
+                        <td>韻母</td>
+                        <td><strong>豪</strong></td>
+                        <td><span class="value-tag">ɐu</span></td>
+                        <td class="note-text">個人田調</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
               </div>
 
               <div class="help-section" style="border-left: 4px solid #007aff;">
-                <h4 class="section-title">{{ t('map.customTab.helpModal.sections.customCollection.title') }}</h4>
+                <h4 class="section-title">💫 {{ t('map.customTab.helpModal.sections.customCollection.title') }}</h4>
                 <p class="help-paragraph">{{ t('map.customTab.helpModal.sections.customCollection.intro') }}</p>
                 <ul class="help-list">
                   <li v-for="item in helpCollectionItems" :key="item.key">
@@ -179,15 +205,103 @@
                     <li v-for="note in helpCollectionNotes" :key="note">{{ note }}</li>
                   </ul>
                 </div>
+                <div class="table-container">
+                  <table class="example-table">
+                    <thead>
+                      <tr>
+                        <th style="min-width: 60px;">簡稱</th>
+                        <th style="min-width: 30px;">分區</th>
+                        <th style="min-width: 70px;">經緯度</th>
+                        <th style="min-width: 50px;">聲韻調</th>
+                        <th style="min-width: 30px;">特徵</th>
+                        <th style="min-width: 40px;">值</th>
+                        <th style="min-width: 60px;">說明</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td rowspan="5" class="highlight-location">陽春雙滘</td>
+                        <td rowspan="10" class="highlight-region">2025田調</td>
+                        <td rowspan="5" class="highlight-geo">111.332451,<br>22.109056</td>
+                        <td>韻母</td>
+                        <td><strong>止·精組·開</strong></td>
+                        <td><span class="value-tag">ei/i</span></td>
+                        <td class="note-text">兩讀</td>
+                      </tr>
+                      <tr>
+                        <td>聲母</td>
+                        <td><strong>來</strong></td>
+                        <td><span class="value-tag">l</span></td>
+                        <td class="note-text"></td>
+                      </tr>
+                      <tr>
+                        <td>調值</td>
+                        <td><strong>陰去</strong></td>
+                        <td><span class="value-tag">53</span></td>
+                        <td class="note-text">可能是受涯話影響</td>
+                      </tr>
+                      <tr>
+                        <td>詞彙</td>
+                        <td><strong>昨天</strong></td>
+                        <td><span class="value-tag">從日</span></td>
+                        <td class="note-text">ʦuŋ21 ȵɐt51</td>
+                      </tr>
+                      <tr>
+                        <td>詞彙</td>
+                        <td><strong>玩耍</strong></td>
+                        <td><span class="value-tag">嬲</span></td>
+                        <td class="note-text">liɛu53</td>
+                      </tr>
+                      <tr>
+                        <td rowspan="5" class="highlight-location">阳春合水</td>
+                        <td rowspan="5" class="highlight-geo">111.856357,<br>22.289037</td>
+                        <td>韻母</td>
+                        <td><strong>止·精組·開</strong></td>
+                        <td><span class="value-tag">ei</span></td>
+                        <td class="note-text">兩陽的特點</td>
+                      </tr>
+                      <tr>
+                        <td>泥來母</td>
+                        <td><strong>來母</strong></td>
+                        <td><span class="value-tag">l</span></td>
+                        <td class="note-text"></td>
+                      </tr>
+                      <tr>
+                        <td>調值</td>
+                        <td><strong>陰去</strong></td>
+                        <td><span class="value-tag">33</span></td>
+                        <td class="note-text"></td>
+                      </tr>
+                      <tr>
+                        <td>詞彙</td>
+                        <td><strong>昨天</strong></td>
+                        <td><span class="value-tag">撞日</span></td>
+                        <td class="note-text">tsoŋ53 ŋɐt53</td>
+                      </tr>
+                      <tr>
+                        <td>詞彙</td>
+                        <td><strong>玩耍</strong></td>
+                        <td><span class="value-tag">耍</span></td>
+                        <td class="note-text">ʃa323</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
               </div>
 
               <div class="help-section" style="border-left: 4px solid #007aff;">
-                <h4 class="section-title">{{ t('map.customTab.helpModal.sections.dailyUsage.title') }}</h4>
+                <h4 class="section-title">💡 {{ t('map.customTab.helpModal.sections.dailyUsage.title') }}</h4>
                 <p class="help-paragraph">{{ t('map.customTab.helpModal.sections.dailyUsage.intro') }}</p>
+                <ul class="help-list" style="margin-top: 8px;">
+                  <li>📁 <strong>「分區」即文件夾：</strong>比如填入 <code>我的探店地圖</code>（「聲韻調」可留空）。</li>
+                  <li>🏷️ <strong>「特徵」即分類：</strong>比如填入 <code>咖啡館</code>、<code>火鍋店</code> 或 <code>燒烤攤</code>。</li>
+                  <li>📍 <strong>「簡稱」即名字：</strong>可以填入景點/店鋪名稱（如<code>時光咖啡館</code>）。</li>
+                  <li>✅️ <strong>「值」即標記：</strong>可以填入評分（如<code>9分</code>）或簡介。</li>
+                </ul>
 
                 <div class="usage-diagram">
                   <div class="usage-level region-level">
-                    <div class="level-icon">1</div>
+                    <div class="level-icon">📂</div>
                     <div class="level-content">
                       <div class="field-tag">{{ t('map.customTab.helpModal.sections.dailyUsage.cards.region.label') }}</div>
                       <div class="usage-text">{{ t('map.customTab.helpModal.sections.dailyUsage.cards.region.text') }}</div>
@@ -195,10 +309,10 @@
                     </div>
                   </div>
 
-                  <div class="connector-line">{{ t('map.customTab.helpModal.sections.dailyUsage.connectors.regionToLocation') }}</div>
+                  <div class="connector-line">⬇️ {{ t('map.customTab.helpModal.sections.dailyUsage.connectors.regionToLocation') }}</div>
 
                   <div class="usage-level location-level">
-                    <div class="level-icon">2</div>
+                    <div class="level-icon">📍</div>
                     <div class="level-content">
                       <div class="field-tag">{{ t('map.customTab.helpModal.sections.dailyUsage.cards.location.label') }}</div>
                       <div class="usage-text">{{ t('map.customTab.helpModal.sections.dailyUsage.cards.location.text') }}</div>
@@ -206,12 +320,12 @@
                     </div>
                   </div>
 
-                  <div class="connector-line">{{ t('map.customTab.helpModal.sections.dailyUsage.connectors.locationToData') }}</div>
+                  <div class="connector-line">⬇️ {{ t('map.customTab.helpModal.sections.dailyUsage.connectors.locationToData') }}</div>
 
                   <div class="usage-level data-level">
                     <div class="level-group">
                       <div class="sub-level feature-box">
-                        <div class="level-icon-sm">3</div>
+                        <div class="level-icon-sm">🏷️</div>
                         <div>
                           <div class="field-tag-sm">{{ t('map.customTab.helpModal.sections.dailyUsage.cards.feature.label') }}</div>
                           <div class="usage-text-sm">{{ t('map.customTab.helpModal.sections.dailyUsage.cards.feature.text') }}</div>
@@ -219,10 +333,10 @@
                         </div>
                       </div>
 
-                      <div class="arrow-right">-&gt;</div>
+                      <div class="arrow-right">👉</div>
 
                       <div class="sub-level value-box">
-                        <div class="level-icon-sm">4</div>
+                        <div class="level-icon-sm">💬</div>
                         <div>
                           <div class="field-tag-sm">{{ t('map.customTab.helpModal.sections.dailyUsage.cards.value.label') }}</div>
                           <div class="usage-text-sm">{{ t('map.customTab.helpModal.sections.dailyUsage.cards.value.text') }}</div>
@@ -234,12 +348,12 @@
                 </div>
 
                 <p class="example-hint" style="margin: 0;">
-                  {{ t('map.customTab.helpModal.sections.dailyUsage.result') }}
+                  ✨ {{ t('map.customTab.helpModal.sections.dailyUsage.result') }}
                 </p>
               </div>
 
               <div class="help-section" style="border-left: 4px solid #007aff;">
-                <h4 class="section-title">{{ t('map.customTab.helpModal.sections.steps.title') }}</h4>
+                <h4 class="section-title">📍 {{ t('map.customTab.helpModal.sections.steps.title') }}</h4>
                 <ul class="help-list">
                   <li v-for="item in helpStepsItems" :key="item.key">
                     <strong>{{ item.label }}</strong>{{ item.text }}

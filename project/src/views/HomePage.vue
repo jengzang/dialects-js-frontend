@@ -327,7 +327,7 @@
                 <span class="link-text">{{ $t('home.features.about.likeAuthor') }}</span>
               </a>
               <a @click.stop="navigateTo('/menu?tab=about&sub=setting')" class="feature-link">
-                <span class="link-icon">&#9881;</span>
+                <span class="link-icon">⚙️</span>
                 <span class="link-text">{{ $t('home.features.about.setting') }}</span>
               </a>
               <a @click.stop="navigateTo('/menu?tab=source')" class="feature-link">

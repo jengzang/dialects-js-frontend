@@ -190,7 +190,7 @@ const presets_tab3 = [
     card: '聲母',
     keys: ['組'],
     tab3KeyInput:['h'],
-    loc: { locations: ['台山斗山墟 恩平恩城 鶴山雅瑤 從化獅象'], regions: ['南海'], regionUsing: 'yindian' }
+    loc: { locations: ['台山斗山墟 恩平 鶴山雅瑤 從化獅象'], regions: ['南海'], regionUsing: 'yindian' }
   },
 ]
 
