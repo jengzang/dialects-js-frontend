@@ -340,6 +340,7 @@ const getDisplayData = computed(() => {
   flex-direction: column;
   overflow: hidden;
   color: #1d1d1f;
+  min-height: 82dvh;
 }
 
 /* Header Section */

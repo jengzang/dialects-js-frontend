@@ -27,20 +27,20 @@ export function useMenuTabsConfig() {
   //   mobileShowLabelOnlyWhenActive: true, // 移动端：始终显示文字（不同于桌面端）
   //   cssClass: ''                     // 应用 'small' CSS class
   // },
-    {
-    tab: 'home',
-    label: t('navigation.tabs.home'),
-    icon: '🏛️',
-    weight: 0.8,                          // 桌面端标签显示时的 flex 权重
-    weightIconOnly: 0.4,                  // 桌面端仅显示图标时的 flex 权重（可选，默认使用 weight）
-    fontSize: 1.3,
-    to: { path: '/' },
-    hideOnMobile: false,
-    hideLabelOnMobile: false,             // 移动端不隐藏标签
-    showLabelOnlyWhenActive: false,        // 桌面端：只有选中时显示文字，未选中只显示图标
-    mobileShowLabelOnlyWhenActive: true, // 移动端：始终显示文字（不同于桌面端）
-    cssClass: ''                     // 应用 'small' CSS class
-  },
+  //   {
+  //   tab: 'home',
+  //   label: t('navigation.tabs.home'),
+  //   icon: '🏛️',
+  //   weight: 0.8,                          // 桌面端标签显示时的 flex 权重
+  //   weightIconOnly: 0.4,                  // 桌面端仅显示图标时的 flex 权重（可选，默认使用 weight）
+  //   fontSize: 1.3,
+  //   to: { path: '/' },
+  //   hideOnMobile: false,
+  //   hideLabelOnMobile: false,             // 移动端不隐藏标签
+  //   showLabelOnlyWhenActive: false,        // 桌面端：只有选中时显示文字，未选中只显示图标
+  //   mobileShowLabelOnlyWhenActive: true, // 移动端：始终显示文字（不同于桌面端）
+  //   cssClass: ''                     // 应用 'small' CSS class
+  // },
   {
     tab: 'data',
     label: t('navigation.tabs.phonology'),

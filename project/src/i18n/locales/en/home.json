@@ -62,6 +62,14 @@
       "jyut2ipa": "Jyutping to IPA - Convert Jyutping to International Phonetic Alphabet",
       "tableMerge": "Table Merging - Merge multiple character tables"
     },
+    "charClass": {
+      "title": "Character Positions",
+      "desc": "Historical phonology positions for Chinese characters",
+      "zhonggu": "Middle Chinese - Guangyun and Middle Chinese phonology positions",
+      "shanggu": "Old Chinese - Shijing rhymes and Old Chinese phonology",
+      "jingu": "Late Middle Chinese - Late Middle Chinese phonological positions",
+      "yueyun": "Cantonese Rhyme Books - FenYun Cuoyao and traditional Cantonese rhyme position data"
+    },
     "praat": {
       "title": "Praat Acoustic Analysis",
       "desc": "Experimental phonetics tools and data analysis"
@@ -73,7 +81,8 @@
       "reflection": "Reflections - Development insights and acknowledgments",
       "suggestion": "Suggestions - Feedback and suggestions",
       "likeAuthor": "Support Author - Support and follow",
-      "source": "Data Sources - View character table sources and related information"
+      "source": "Data Sources - View character table sources and related information",
+      "setting": "Settings - Language and interface preferences"
     }
   },
   "roadmap": {

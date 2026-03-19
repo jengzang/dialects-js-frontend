@@ -152,9 +152,39 @@
                 <span class="link-icon">📊</span>
                 <span class="link-text">{{ $t('home.features.phonology.syllableCount') }}</span>
               </a>
-              <a @click.stop="navigateTo('/menu?tab=pho&sub=ZhongGu')" class="feature-link">
-                <span class="link-icon">✍️</span>
-                <span class="link-text">{{ $t('home.features.phonology.middlePosition') }}</span>
+            </div>
+          </transition>
+        </div>
+
+        <!-- 漢字字表 -->
+        <div class="feature-card" :class="{ expanded: expandedCard === 'charClass' }">
+          <div class="card-header" @click="toggleCard('charClass')">
+            <div class="card-icon">📜</div>
+            <div class="card-info">
+              <h3 class="card-title">{{ $t('home.features.charClass.title') }}</h3>
+              <p class="card-desc">{{ $t('home.features.charClass.desc') }}</p>
+            </div>
+            <button class="expand-toggle">
+              <span class="toggle-icon">{{ expandedCard === 'charClass' ? '−' : '+' }}</span>
+            </button>
+          </div>
+          <transition name="expand">
+            <div v-if="expandedCard === 'charClass'" class="card-body">
+              <a @click.stop="navigateTo('/menu?tab=charClass&sub=zhonggu')" class="feature-link">
+                <span class="link-icon">🏛️</span>
+                <span class="link-text">{{ $t('home.features.charClass.zhonggu') }}</span>
+              </a>
+              <a @click.stop="navigateTo('/menu?tab=charClass&sub=shanggu')" class="feature-link">
+                <span class="link-icon">📿</span>
+                <span class="link-text">{{ $t('home.features.charClass.shanggu') }}</span>
+              </a>
+              <a @click.stop="navigateTo('/menu?tab=charClass&sub=jingu')" class="feature-link">
+                <span class="link-icon">📖</span>
+                <span class="link-text">{{ $t('home.features.charClass.jingu') }}</span>
+              </a>
+              <a @click.stop="navigateTo('/menu?tab=charClass&sub=yueyun')" class="feature-link">
+                <span class="link-icon">🎵</span>
+                <span class="link-text">{{ $t('home.features.charClass.yueyun') }}</span>
               </a>
             </div>
           </transition>
@@ -288,10 +318,6 @@
                 <span class="link-icon">ℹ️</span>
                 <span class="link-text">{{ $t('home.features.about.intro') }}</span>
               </a>
-              <a @click.stop="navigateTo('/menu?tab=about&sub=reflection')" class="feature-link">
-                <span class="link-icon">🙏</span>
-                <span class="link-text">{{ $t('home.features.about.reflection') }}</span>
-              </a>
               <a @click.stop="navigateTo('/menu?tab=about&sub=suggestion')" class="feature-link">
                 <span class="link-icon">💬</span>
                 <span class="link-text">{{ $t('home.features.about.suggestion') }}</span>
@@ -299,6 +325,10 @@
               <a @click.stop="navigateTo('/menu?tab=about&sub=like')" class="feature-link">
                 <span class="link-icon">❤️</span>
                 <span class="link-text">{{ $t('home.features.about.likeAuthor') }}</span>
+              </a>
+              <a @click.stop="navigateTo('/menu?tab=about&sub=setting')" class="feature-link">
+                <span class="link-icon">&#9881;</span>
+                <span class="link-text">{{ $t('home.features.about.setting') }}</span>
               </a>
               <a @click.stop="navigateTo('/menu?tab=source')" class="feature-link">
                 <span class="link-icon">📚</span>
@@ -476,21 +506,21 @@
     <!-- Update Notice Modal -->
     <UpdateNoticeModal
       :visible="showUpdateNotice"
-      version="v4.1.0"
+      version="v4.2.0"
       :title="$t('home.updateNotice.title')"
       @close="showUpdateNotice = false"
     >
       <div class="update-item">
+        <span class="item-icon">📜</span>
+        <span class="item-text"><strong>新增「漢字」功能頁</strong> - 中古、上古、近古漢語及粵語韻書字表整合成獨立頁面，方便查閱各時代音韻資料</span>
+      </div>
+      <div class="update-item">
+        <span class="item-icon">ℹ️</span>
+        <span class="item-text"><strong>簡介與感悟合並</strong> - 關於頁面的「簡介」與「感悟」整合在同一頁，閱讀體驗更流暢</span>
+      </div>
+      <div class="update-item">
         <span class="item-icon">🏠</span>
-        <span class="item-text"><strong>{{ $t('home.updateNotice.items.homepage.title') }}</strong> - {{ $t('home.updateNotice.items.homepage.description') }}</span>
-      </div>
-      <div class="update-item">
-        <span class="item-icon">⚖️</span>
-        <span class="item-text"><strong>{{ $t('home.updateNotice.items.compare.title') }}</strong> - {{ $t('home.updateNotice.items.compare.description') }}</span>
-      </div>
-      <div class="update-item">
-        <span class="item-icon">🤖</span>
-        <span class="item-text"><strong>{{ $t('home.updateNotice.items.villages.title') }}</strong> - {{ $t('home.updateNotice.items.villages.description') }}</span>
+        <span class="item-text"><strong>首頁功能卡片更新</strong> - 同步更新首頁導航卡片，反映最新功能結構</span>
       </div>
     </UpdateNoticeModal>
 
@@ -544,8 +574,8 @@ const todayVisits = ref(0)
 const totalVisits = ref(0)
 
 // 当前版本号和更新时间
-const CURRENT_VERSION = 'v4.1.0'
-const LAST_UPDATE_DATE = '2026-03-06'
+const CURRENT_VERSION = 'v4.2.0'
+const LAST_UPDATE_DATE = '2026-03-19'
 
 const projects = [
   {
