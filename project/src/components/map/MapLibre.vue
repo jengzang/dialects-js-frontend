@@ -717,7 +717,7 @@ const createPopupDOM = (item) => {
       sorted.forEach(d => {
         const pct = (d.percentage * 100).toFixed(1) + '%';
         htmlContent += `<li>
-                    <span class="dot">?</span>
+                    <span class="dot">•</span>
                     <span class="val">${d.value}</span>
                     <span class="tilde">~</span>
                     <span class="pct">${pct}</span>

@@ -504,6 +504,10 @@
           <span class="stat-text">{{ $t('home.footer.stats', { today: todayVisits, total: totalVisits }) }}</span>
         </div>
 
+        <div class="footer-stats footer-stats-secondary">
+          <span class="stat-text">{{ $t('source.totalRecords', { locationCount: sourceLocationCount, dataCount: sourceDataCount }) }}</span>
+        </div>
+
         <div class="footer-info">
           <p class="footer-text">{{ $t('home.footer.copyright') }}</p>
           <p class="footer-text">{{ $t('home.footer.versionInfo', { version: CURRENT_VERSION, date: LAST_UPDATE_DATE }) }}</p>
@@ -570,6 +574,7 @@ import { computed, ref, onMounted, defineAsyncComponent } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { getTodayVisits, getTotalVisits } from '@/api/logs/index.js'
+import { queryCount } from '@/api/sql/index.js'
 
 // ✅ 条件渲染的组件懒加载
 const UserBenefitsPopup = defineAsyncComponent(() =>
@@ -588,6 +593,8 @@ const showBenefitsPopup = ref(false)
 const showUpdateNotice = ref(false)
 const todayVisits = ref(0)
 const totalVisits = ref(0)
+const sourceLocationCount = ref('...')
+const sourceDataCount = ref('...')
 
 // 当前版本号和更新时间
 const CURRENT_VERSION = 'v4.2.0'
@@ -665,6 +672,19 @@ async function fetchVisitStats() {
   }
 }
 
+async function fetchSourceStats() {
+  try {
+    const [locationCount, dataCount] = await Promise.all([
+      queryCount({ db_key: 'query', table_name: 'dialects', filter_column: '存儲標記', filter_value: 1 }),
+      queryCount({ db_key: 'dialects', table_name: 'dialects' })
+    ])
+    sourceLocationCount.value = locationCount
+    sourceDataCount.value = dataCount
+  } catch (error) {
+    console.error('獲取字表統計失敗:', error)
+  }
+}
+
 // Check if should show update notice
 function checkUpdateNotice() {
   const dismissedVersions = JSON.parse(localStorage.getItem('update-notice-dismissed') || '[]')
@@ -675,6 +695,7 @@ function checkUpdateNotice() {
 
 onMounted(() => {
   fetchVisitStats()
+  fetchSourceStats()
   checkUpdateNotice()
 })
 </script>
@@ -1474,6 +1495,10 @@ onMounted(() => {
 .footer-stats {
   margin-bottom: 0.75rem;
   text-align: center;
+}
+
+.footer-stats-secondary {
+  margin-top: -0.2rem;
 }
 
 .stat-text {

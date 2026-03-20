@@ -10,7 +10,7 @@
             :aria-label="t('result.phonologyTable.exitFullscreen')"
             @click="emit('close')"
           >
-            ×
+            x
           </button>
         </div>
 
@@ -82,7 +82,7 @@ const titleText = computed(() => {
   const initial = props.initial || t('result.phonologyTable.zeroInitial')
   const final = props.final || t('result.phonologyTable.zeroFinal')
 
-  return location ? `${location} - ${initial} & ${final}` : `${initial}/${final}`
+  return location ? `${location} - ${initial}/${final}` : `${initial}/${final}`
 })
 </script>
 
