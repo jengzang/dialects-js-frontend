@@ -73,7 +73,7 @@
 import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { mapStore, resultCache } from '@/store/store.js'
+import { globalPayload, mapStore, resultCache } from '@/store/store.js'
 
 import TabsContainer from '@/components/common/TabsContainer.vue'
 import DivideTab from "@/components/map/DivideTab.vue";
@@ -82,6 +82,7 @@ import MapLibre from "@/components/map/MapLibre.vue";
 import CustomDataPanel from '@/components/map/CustomDataPanel.vue'
 import HelpIcon from '@/components/ToastAndHelp/HelpIcon.vue'
 import SimpleSelectDropdown from "@/components/common/SimpleSelectDropdown.vue";
+import { getCustomData } from '@/api/user/custom.js'
 import { showSuccess, showError } from '@/utils/message.js'
 import { func_mergeData, addCustomFeatureData } from '@/utils/map/MapData.js'
 
@@ -110,6 +111,27 @@ const handleMapClick = (coordinates) => {
 }
 
 // 處理提交成功事件
+const refreshSubmittedCustomLayer = async () => {
+  const currentPayload = globalPayload.value
+  const isZhongGuQuery = currentPayload?._sourceTab === 'tab2'
+
+  if (!isZhongGuQuery || !mapStore.mapData) {
+    await func_mergeData(resultCache.latestResults, mapStore.mapData)
+    return
+  }
+
+  const customData = await getCustomData({
+    locations: Array.isArray(currentPayload.locations) ? currentPayload.locations : [],
+    regions: Array.isArray(currentPayload.regions) ? currentPayload.regions : [],
+    need_features: Array.isArray(currentPayload.features) && currentPayload.features.length > 0
+      ? currentPayload.features
+      : resultCache.features,
+    region_mode: currentPayload.region_mode || 'yindian'
+  })
+
+  await func_mergeData(resultCache.latestResults, mapStore.mapData, customData || [])
+}
+
 const handleSubmitSuccess = async (response) => {
   showSuccess(t('map.messages.submitSuccess'))
 
