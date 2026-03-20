@@ -38,20 +38,6 @@
 
           <div v-if="selectionMode" class="selection-actions">
             <button
-                class="action-btn"
-                type="button"
-                @click="selectAllLocations"
-            >
-              {{ $t('query.components.partitionModal.selectAll') }}
-            </button>
-            <button
-                class="action-btn secondary"
-                type="button"
-                @click="clearSelectedLocations"
-            >
-              {{ $t('query.components.partitionModal.clearSelection') }}
-            </button>
-            <button
                 class="confirm-btn"
                 :disabled="!canConfirmSelection"
                 @click="confirmSelection"
@@ -84,6 +70,8 @@
                 :selection-mode="selectionMode"
                 :selected-locations="selectedLocations"
                 @toggle-location="toggleLocation"
+                @select-subtree="selectSubtreeLocations"
+                @clear-subtree="clearSubtreeLocations"
             />
           </div>
         </div>
@@ -360,6 +348,22 @@ const getAllLocations = (tree) => {
   return locations
 }
 
+const getUniqueLocations = (tree) => {
+  return Array.from(new Set(getAllLocations(tree)))
+}
+
+const getTotalLeafCount = (children) => {
+  if (Array.isArray(children)) {
+    return children.length
+  }
+  return Object.values(children).reduce((sum, child) => sum + getTotalLeafCount(child), 0)
+}
+
+const syncSelectedLocations = () => {
+  if (isOverSelectionLimit.value) return
+  emit('locations-changed', Array.from(selectedLocations.value))
+}
+
 const toggleSelectionMode = () => {
   selectionMode.value = !selectionMode.value
   if (!selectionMode.value) {
@@ -375,18 +379,25 @@ const toggleLocation = (location) => {
     selectedLocations.value.add(location)
   }
   selectedLocations.value = new Set(selectedLocations.value)
-  emit('locations-changed', Array.from(selectedLocations.value))
+  syncSelectedLocations()
 }
 
-const selectAllLocations = () => {
-  const allLocations = Array.from(new Set(getAllLocations(currentTree.value)))
-  selectedLocations.value = new Set(allLocations)
-  emit('locations-changed', allLocations)
+const selectSubtreeLocations = (children) => {
+  const subtreeLocations = getUniqueLocations(children)
+  if (subtreeLocations.length === 0) return
+  const nextSelected = new Set(selectedLocations.value)
+  subtreeLocations.forEach((location) => nextSelected.add(location))
+  selectedLocations.value = nextSelected
+  syncSelectedLocations()
 }
 
-const clearSelectedLocations = () => {
-  selectedLocations.value = new Set()
-  emit('locations-changed', [])
+const clearSubtreeLocations = (children) => {
+  const subtreeLocations = getUniqueLocations(children)
+  if (subtreeLocations.length === 0) return
+  const nextSelected = new Set(selectedLocations.value)
+  subtreeLocations.forEach((location) => nextSelected.delete(location))
+  selectedLocations.value = nextSelected
+  syncSelectedLocations()
 }
 
 const confirmSelection = () => {
@@ -417,16 +428,11 @@ const PartitionTreeNode = defineComponent({
     selectionMode: { type: Boolean, default: false },
     selectedLocations: { type: Set, default: () => new Set() }
   },
-  emits: ['toggle-location'],
+  emits: ['toggle-location', 'select-subtree', 'clear-subtree'],
   setup(props, { emit }) {
     const isExpanded = ref(false)
     const isLeaf = computed(() => Array.isArray(props.children))
-    const childCount = computed(() => {
-      if (isLeaf.value) {
-        return props.children.length
-      }
-      return Object.keys(props.children).length
-    })
+    const childCount = computed(() => getTotalLeafCount(props.children))
 
     const toggleExpand = () => {
       isExpanded.value = !isExpanded.value
@@ -438,11 +444,37 @@ const PartitionTreeNode = defineComponent({
       }
     }
 
-    return { isExpanded, isLeaf, childCount, toggleExpand, handleLocationClick }
+    const handleSelectSubtree = () => {
+      if (!props.selectionMode) return
+      emit('select-subtree', props.children)
+    }
+
+    const handleClearSubtree = () => {
+      if (!props.selectionMode) return
+      emit('clear-subtree', props.children)
+    }
+
+    return {
+      isExpanded,
+      isLeaf,
+      childCount,
+      toggleExpand,
+      handleLocationClick,
+      handleSelectSubtree,
+      handleClearSubtree
+    }
   },
   render() {
     const { label, children, level, selectionMode, selectedLocations } = this.$props
-    const { isExpanded, isLeaf, childCount, toggleExpand, handleLocationClick } = this
+    const {
+      isExpanded,
+      isLeaf,
+      childCount,
+      toggleExpand,
+      handleLocationClick,
+      handleSelectSubtree,
+      handleClearSubtree
+    } = this
     const selectedCount = selectionMode ? getSelectedCount(children, selectedLocations) : 0
 
     return h('div', { class: 'tree-node' }, [
@@ -458,14 +490,30 @@ const PartitionTreeNode = defineComponent({
             ? h('span', { class: 'selected-count' }, `✓${selectedCount}`)
             : null
         ]),
-        h('button', {
-          class: ['expand-btn', { 'is-open': isExpanded }],
-          onClick: (e) => {
-            e.stopPropagation()
-            toggleExpand()
-          }
-        }, [
-          h('span', { class: 'plus-icon' }, '＋')
+        h('div', { class: 'node-actions' }, [
+          selectionMode ? h('button', {
+            class: 'node-select-btn',
+            onClick: (e) => {
+              e.stopPropagation()
+              handleSelectSubtree()
+            }
+          }, t('query.components.partitionModal.selectAll')) : null,
+          selectionMode ? h('button', {
+            class: ['node-select-btn', 'secondary'],
+            onClick: (e) => {
+              e.stopPropagation()
+              handleClearSubtree()
+            }
+          }, t('query.components.partitionModal.clearSelection')) : null,
+          h('button', {
+            class: ['expand-btn', { 'is-open': isExpanded }],
+            onClick: (e) => {
+              e.stopPropagation()
+              toggleExpand()
+            }
+          }, [
+            h('span', { class: 'plus-icon' }, '＋')
+          ])
         ])
       ]),
 
@@ -499,7 +547,9 @@ const PartitionTreeNode = defineComponent({
                 level: level + 1,
                 selectionMode,
                 selectedLocations,
-                onToggleLocation: (location) => this.$emit('toggle-location', location)
+                onToggleLocation: (location) => this.$emit('toggle-location', location),
+                onSelectSubtree: (subtree) => this.$emit('select-subtree', subtree),
+                onClearSubtree: (subtree) => this.$emit('clear-subtree', subtree)
               })
             )
       ])
@@ -636,7 +686,7 @@ const PartitionTreeNode = defineComponent({
 .selection-actions {
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: flex-end;
 }
 
 .partition-tabs {
@@ -664,31 +714,6 @@ const PartitionTreeNode = defineComponent({
   background: linear-gradient(135deg, #007AFF 0%, #0051D5 100%);
   color: white;
   box-shadow: 0 2px 8px rgba(0, 122, 255, 0.3);
-}
-
-.action-btn {
-  padding: 8px 14px;
-  border-radius: 12px;
-  border: none;
-  background: rgba(0, 122, 255, 0.12);
-  color: #0051d5;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.action-btn:hover {
-  background: rgba(0, 122, 255, 0.2);
-}
-
-.action-btn.secondary {
-  background: rgba(142, 142, 147, 0.18);
-  color: #3a3a3c;
-}
-
-.action-btn.secondary:hover {
-  background: rgba(142, 142, 147, 0.26);
 }
 
 /* Confirm button */
@@ -835,6 +860,37 @@ const PartitionTreeNode = defineComponent({
   border-radius: 10px;
   font-size: 0.85em;
   font-weight: 600;
+}
+
+.partition-tree-container :deep(.node-actions) {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.partition-tree-container :deep(.node-select-btn) {
+  border: none;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  background: rgba(0, 122, 255, 0.12);
+  color: #0051d5;
+  transition: all 0.2s ease;
+}
+
+.partition-tree-container :deep(.node-select-btn:hover) {
+  background: rgba(0, 122, 255, 0.2);
+}
+
+.partition-tree-container :deep(.node-select-btn.secondary) {
+  background: rgba(142, 142, 147, 0.18);
+  color: #3a3a3c;
+}
+
+.partition-tree-container :deep(.node-select-btn.secondary:hover) {
+  background: rgba(142, 142, 147, 0.26);
 }
 
 .partition-tree-container :deep(.expand-btn) {
