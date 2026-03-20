@@ -179,6 +179,34 @@ const normalizeNodeLabel = (value) => {
   return value ? value : t('query.components.partitionModal.emptyNode')
 }
 
+const adminLabelCollator = new Intl.Collator('zh-u-co-pinyin', {
+  numeric: true,
+  sensitivity: 'base'
+})
+
+const compareAdminLabels = (a, b) => {
+  const emptyNodeLabel = t('query.components.partitionModal.emptyNode')
+  const aIsEmpty = a === emptyNodeLabel
+  const bIsEmpty = b === emptyNodeLabel
+  if (aIsEmpty && !bIsEmpty) return 1
+  if (!aIsEmpty && bIsEmpty) return -1
+  return adminLabelCollator.compare(a, b)
+}
+
+const sortTreeByAdminRules = (node) => {
+  if (Array.isArray(node)) return node
+  if (!node || typeof node !== 'object') return node
+
+  const sortedNode = {}
+  Object.keys(node)
+    .sort(compareAdminLabels)
+    .forEach((key) => {
+      sortedNode[key] = sortTreeByAdminRules(node[key])
+    })
+
+  return sortedNode
+}
+
 const normalizePartitionRows = (data) => {
   if (Array.isArray(data)) return data
   if (data && typeof data === 'object') {
@@ -322,10 +350,6 @@ const buildAdminTree = (data) => {
       : []
 
     if (levels.length === 0) {
-      if (!Array.isArray(tree[dialectName])) {
-        tree[dialectName] = []
-      }
-      tree[dialectName].push(dialectName)
       return
     }
 
@@ -345,7 +369,7 @@ const buildAdminTree = (data) => {
     })
   })
 
-  return tree
+  return sortTreeByAdminRules(tree)
 }
 
 const getAllLocations = (tree) => {
