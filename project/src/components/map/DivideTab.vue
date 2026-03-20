@@ -51,9 +51,9 @@ import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import LocationAndRegionInput from "@/components/query/LocationAndRegionInput.vue";
 import SimpleSelectDropdown from "@/components/common/SimpleSelectDropdown.vue";
-import { mapStore, uiStore, isDivideButtonDisabled, setRunning } from "@/store/store.js";
+import { mapStore, uiStore, userStore, isDivideButtonDisabled, setRunning } from "@/store/store.js";
 import { getCoordinates } from '@/api/query/geo'
-import { showError } from '@/utils/message.js';
+import { showError, showWarning } from '@/utils/message.js';
 
 const router = useRouter()
 const route = useRoute()
@@ -102,11 +102,15 @@ const runAction = async () => {
     locations: locationList,
     regions: regionList,
     region_mode: locationModel.value.regionUsing || 'map',
-    iscustom: 'true',
+    iscustom: userStore.isAuthenticated && userStore.role !== 'anonymous' ? 'true' : undefined,
     flag: 'False'
   }
 
   try {
+    if (!queryParams.iscustom) {
+      showWarning(t('map.mapLibre.messages.anonymousNoCustomData'));
+    }
+
     const data = await getCoordinates(queryParams)
 
     // 更新 Store
