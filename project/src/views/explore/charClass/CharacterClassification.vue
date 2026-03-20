@@ -1,25 +1,24 @@
 <template>
   <div class="character-classification-page">
-    <!-- Tab 内容区域，由外部 sub 参数控制 -->
     <div class="tab-content">
       <MiddleChineseTab v-if="activeTab === 'zhonggu'" />
 
       <div v-else-if="activeTab === 'shanggu'" class="placeholder-content">
         <div class="placeholder-icon">🏛️</div>
         <h2>{{ t('navigation.submenu.charClass.shanggu') }}</h2>
-        <p>此功能正在開發中...</p>
+        <p>{{ t('navigation.placeholders.comingSoon') }}</p>
       </div>
 
       <div v-else-if="activeTab === 'jingu'" class="placeholder-content">
         <div class="placeholder-icon">📖</div>
         <h2>{{ t('navigation.submenu.charClass.jingu') }}</h2>
-        <p>此功能正在開發中...</p>
+        <p>{{ t('navigation.placeholders.comingSoon') }}</p>
       </div>
 
       <div v-else-if="activeTab === 'yueyun'" class="placeholder-content">
         <div class="placeholder-icon">🎵</div>
         <h2>{{ t('navigation.submenu.charClass.yueyun') }}</h2>
-        <p>此功能正在開發中...</p>
+        <p>{{ t('navigation.placeholders.comingSoon') }}</p>
       </div>
     </div>
   </div>
@@ -27,9 +26,9 @@
 
 <script setup>
 import { ref, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import MiddleChineseTab from '@/components/pho/ZhongGuPage.vue'
+import MiddleChineseTab from '@/components/charClass/ZhongGuPage.vue'
 
 const { t } = useI18n()
 const route = useRoute()

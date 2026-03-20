@@ -1,7 +1,7 @@
 {
   "title": "Data Sources",
   "privacyLink": "Want to cite? Learn about privacy policy?",
-  "totalRecords": "As of February 2026, {count} character tables in total",
+  "totalRecords": "{locationCount} dialect character tables, {dataCount} rows of data in total",
   "columns": {
     "location": "Dialect Point",
     "atlasRegion": "Atlas Region",

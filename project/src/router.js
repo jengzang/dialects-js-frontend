@@ -1,4 +1,4 @@
-﻿// src/router.js
+// src/router.js
 import { createRouter, createWebHistory } from 'vue-router'
 import { h, computed } from 'vue'
 import { useRoute } from 'vue-router'
@@ -117,8 +117,6 @@ const ExploreTitleMap = {
     merge:'方音圖鑑 - 字表合併',
     gdVillages:'方音圖鑑 - 廣東自然村樹狀圖',
     manage: '方音圖鑑 - 表格管理',
-    // 从 menu 迁移过来的页面
-    ZhongGu:'方音圖鑑 - 中古漢字地位',
     ycSpoken: '方音圖鑑 - 陽春口語詞',
     YuBao:'方音圖鑑 - 語保資料',
     gdVillagesTable: '方音圖鑑 - 廣東自然村表格',
@@ -127,7 +125,8 @@ const ExploreTitleMap = {
     Countphos: '方音圖鑑 - 音節統計',
     praat: '方音圖鑑 - 實驗語音學',
     VillagesML: '方音圖鑑 - 自然村機器學習',
-    CharacterClassification: '方音圖鑑 - 漢字類別'
+    CharacterClassification: '方音圖鑑 - 漢字類別',
+    DialectClustering: '方音圖鑑 - 方言聚類'
 };
 
 // 全局导航守卫

@@ -12,6 +12,7 @@ import about from './about.json'
 import privacy from './privacy.json'
 import source from './source.json'
 import phonology from './phonology.json'
+import charClass from './charClass.json'
 import praat from './praat.json'
 import home from './home.json'
 import tools from './tools.json'
@@ -33,6 +34,7 @@ export default {
   privacy,
   source,
   phonology,
+  charClass,
   praat,
   home,
   tools,

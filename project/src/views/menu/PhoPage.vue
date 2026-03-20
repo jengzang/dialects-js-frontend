@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div class="pho-page">
     <TabsContainer :tabs="tabs" :default-tab="defaultTab">
       <template #default="{ currentTab }">
@@ -20,7 +20,7 @@ import TabsContainer from '@/components/common/TabsContainer.vue'
 import PhonologyMatrixPage from '@/components/pho/PhonologyPage.vue'
 import PhonologyCustomPage from '@/components/pho/PhonologyCustom.vue'
 import CountphosPage from '@/components/pho/Countphos.vue'
-import ZhongGuPage from '@/components/pho/ZhongGuPage.vue'
+import PieVectorPage from '@/components/pho/PieVectorPage.vue'
 
 const { t } = useI18n()
 const route = useRoute()
@@ -31,14 +31,14 @@ const tabs = computed(() => [
   { name: 'phonologyMatrix', label: t('phonology.tabs.matrix') },
   { name: 'phonologyCustom', label: t('phonology.tabs.custom') },
   { name: 'Countphos', label: t('phonology.tabs.count') },
-  { name: 'ZhongGu', label: t('phonology.tabs.zhonggu') }
+  { name: 'pieVector', label: t('phonology.tabs.pieVector') }
 ])
 
 const tabComponentMap = {
   phonologyMatrix: PhonologyMatrixPage,
   phonologyCustom: PhonologyCustomPage,
   Countphos: CountphosPage,
-  ZhongGu: ZhongGuPage
+  pieVector: PieVectorPage
 }
 
 const getTabComponent = (tabName) => tabComponentMap[tabName] || PhonologyMatrixPage

@@ -236,6 +236,7 @@
         :error-message="partitionTreeError"
         :auto-enable-selection="autoEnableSelection"
         :initial-selected-locations="locationsInTree"
+        :max-selection="maxSelectionForModal"
         @locations-changed="handleLocationsChanged"
         @locations-selected="handleLocationsSelected"
     />
@@ -1095,6 +1096,13 @@ watch(
     },
     { deep: true }
 )
+
+// Max locations allowed for the partition modal selection
+const maxSelectionForModal = computed(() => {
+  const contextLimits = LOCATION_LIMITS[props.limitContext] || LOCATION_LIMITS.default
+  const limits = contextLimits[userStore.role] || contextLimits.anonymous
+  return limits.MAX_LOCATIONS === Infinity ? null : limits.MAX_LOCATIONS
+})
 
 // 当 limitContext 切换（tab 切换）时，用当前已有的 selectedCount 重新检查限制
 watch(() => props.limitContext, () => {

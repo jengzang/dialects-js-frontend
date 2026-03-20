@@ -147,10 +147,14 @@
       "confirmSelection": "確認選擇 ({count})",
       "mapPartition": "地圖集二分區",
       "dictPartition": "音典分區",
+      "administrativeDivision": "行政層級",
+      "emptyNode": "(空)",
+      "unknownDialect": "未知方言點",
       "loading": "加載中...",
       "tabs": {
         "map": "地圖集二分區",
-        "yindian": "音典分區"
+        "yindian": "音典分區",
+        "administrativeDivision": "行政層級"
       }
     },
     "floatingDice": {

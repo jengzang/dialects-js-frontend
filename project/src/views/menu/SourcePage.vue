@@ -1,14 +1,24 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import UniversalTable from "@/components/TableAndTree/UniversalTable.vue";
+import { queryCount } from '@/api/sql'
 
 const { t } = useI18n()
 const router = useRouter()
 
-// ✅ 存储总记录数
-const totalRecords = ref(0)
+const locationCount = ref('…')
+const dataCount = ref('…')
+
+onMounted(async () => {
+  const [loc, data] = await Promise.all([
+    queryCount({ db_key: 'query', table_name: 'dialects', filter_column: '存儲標記', filter_value: 1 }),
+    queryCount({ db_key: 'dialects', table_name: 'dialects' })
+  ])
+  locationCount.value = loc
+  dataCount.value = data
+})
 
 const dataColumns = [
   {key: '簡稱', label: t('source.columns.location'), filterable: false, width: 1},
@@ -38,11 +48,6 @@ const defaultFilter = { '存儲標記': 1 }
 const goToPrivacy = () => {
   router.push({ path: '/menu', query: { tab: 'privacy' } })
 }
-
-// ✅ 处理总数更新
-const handleTotalUpdate = (total) => {
-  totalRecords.value = total
-}
 </script>
 
 <template>
@@ -66,9 +71,8 @@ const handleTotalUpdate = (total) => {
         table-name="dialects"
         :columns="dataColumns"
         :default-filter="defaultFilter"
-        @update:total="handleTotalUpdate"
     />
-    <p>{{ t('source.totalRecords', { count: totalRecords }) }}</p>
+    <p>{{ t('source.totalRecords', { locationCount, dataCount }) }}</p>
   </div>
 </template>
 

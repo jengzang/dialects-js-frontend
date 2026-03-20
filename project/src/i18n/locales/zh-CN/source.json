@@ -1,7 +1,7 @@
 {
   "title": "资料来源",
   "privacyLink": "想要引用?了解隐私政策?",
-  "totalRecords": "截至2026.2，共 {count} 份字表",
+  "totalRecords": "当前共 {locationCount} 份方言字表，一共 {dataCount} 行数据",
   "columns": {
     "location": "方言点",
     "atlasRegion": "地图集分区",

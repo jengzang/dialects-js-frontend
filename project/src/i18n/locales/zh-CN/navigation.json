@@ -5,6 +5,7 @@
     "compare": "比较",
     "pho": "音系",
     "charClass": "汉字",
+    "dialectClustering": "方言聚类",
     "words": "词句",
     "villages": "自然村",
     "tools": "工具",
@@ -27,7 +28,8 @@
     "pho": {
       "phonologyMatrix": "音系查询",
       "phonologyCustom": "音素分类",
-      "Countphos": "音节统计"
+      "Countphos": "音节统计",
+      "pieVector": "饼图向量"
     },
     "charClass": {
       "zhonggu": "中古汉语",
@@ -69,6 +71,7 @@
     "home": "首页",
     "phonology": "音系",
     "charClass": "汉字",
+    "dialectClustering": "方言聚类",
     "query": "查询",
     "results": "结果",
     "map": "地图",
@@ -80,6 +83,9 @@
     "villages": "村落",
     "aboutWebsite": "关于网站",
     "settings": "设置"
+  },
+  "placeholders": {
+    "comingSoon": "功能开发中..."
   },
   "settings": {
     "language": {

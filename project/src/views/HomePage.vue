@@ -152,6 +152,10 @@
                 <span class="link-icon">📊</span>
                 <span class="link-text">{{ $t('home.features.phonology.syllableCount') }}</span>
               </a>
+              <a @click.stop="navigateTo('/menu?tab=pho&sub=pieVector')" class="feature-link">
+                <span class="link-icon">🥧</span>
+                <span class="link-text">{{ $t('home.features.phonology.pieVector') }}</span>
+              </a>
             </div>
           </transition>
         </div>
@@ -170,19 +174,19 @@
           </div>
           <transition name="expand">
             <div v-if="expandedCard === 'charClass'" class="card-body">
-              <a @click.stop="navigateTo('/menu?tab=charClass&sub=zhonggu')" class="feature-link">
+              <a @click.stop="navigateTo('/explore?page=CharacterClassification&sub=zhonggu')" class="feature-link">
                 <span class="link-icon">🏛️</span>
                 <span class="link-text">{{ $t('home.features.charClass.zhonggu') }}</span>
               </a>
-              <a @click.stop="navigateTo('/menu?tab=charClass&sub=shanggu')" class="feature-link">
+              <a @click.stop="navigateTo('/explore?page=CharacterClassification&sub=shanggu')" class="feature-link">
                 <span class="link-icon">📿</span>
                 <span class="link-text">{{ $t('home.features.charClass.shanggu') }}</span>
               </a>
-              <a @click.stop="navigateTo('/menu?tab=charClass&sub=jingu')" class="feature-link">
+              <a @click.stop="navigateTo('/explore?page=CharacterClassification&sub=jingu')" class="feature-link">
                 <span class="link-icon">📖</span>
                 <span class="link-text">{{ $t('home.features.charClass.jingu') }}</span>
               </a>
-              <a @click.stop="navigateTo('/menu?tab=charClass&sub=yueyun')" class="feature-link">
+              <a @click.stop="navigateTo('/explore?page=CharacterClassification&sub=yueyun')" class="feature-link">
                 <span class="link-icon">🎵</span>
                 <span class="link-text">{{ $t('home.features.charClass.yueyun') }}</span>
               </a>
@@ -295,6 +299,18 @@
             <div class="card-info">
               <h3 class="card-title">{{ $t('home.features.praat.title') }}</h3>
               <p class="card-desc">{{ $t('home.features.praat.desc') }}</p>
+            </div>
+            <div class="card-arrow">→</div>
+          </div>
+        </div>
+
+        <!-- 方言聚类 -->
+        <div class="feature-card clickable" @click="navigateTo('/explore?page=DialectClustering')">
+          <div class="card-header">
+            <div class="card-icon">🧩</div>
+            <div class="card-info">
+              <h3 class="card-title">{{ $t('home.features.dialectClustering.title') }}</h3>
+              <p class="card-desc">{{ $t('home.features.dialectClustering.desc') }}</p>
             </div>
             <div class="card-arrow">→</div>
           </div>

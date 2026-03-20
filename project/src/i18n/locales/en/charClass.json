@@ -1,0 +1,29 @@
+{
+    "zhonggu":  {
+                    "title":  "Middle Chinese Phonology Data",
+                    "toggleAnnotations":  {
+                                              "show":  "Show Annotations",
+                                              "hide":  "Hide Annotations"
+                                          },
+                    "classifications":  {
+                                            "rhyme":  "Rhyme Classification",
+                                            "initial":  "Initial Classification",
+                                            "voicing":  "Voicing Classification"
+                                        },
+                    "search":  {
+                                   "placeholder":  "Search loaded data...",
+                                   "noResults":  "No matching results found"
+                               },
+                    "states":  {
+                                   "selectClassification":  "Please select a classification type",
+                                   "selectHint":  "Click on a classification tab above to view data",
+                                   "loading":  "Loading {name} data...",
+                                   "loadingHint":  "Large dataset, please wait...",
+                                   "dataFormatError":  "Data format error",
+                                   "loadFailed":  "Load failed, please retry"
+                               },
+                    "actions":  {
+                                    "retry":  "Retry"
+                                }
+                }
+}

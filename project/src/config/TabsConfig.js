@@ -256,6 +256,23 @@ export function useExploreTabsConfig() {
     mobileShowLabelOnlyWhenActive: true
   },
   {
+    tab: 'dialectClustering',
+    label: t('navigation.tabs.dialectClustering'),
+    icon: '🧩',
+    weight: 1,
+    mobileWeight: 1,
+    weightIconOnly: 0.6,
+    mobileWeightIconOnly: 0.55,
+    fontSize: 1.2,
+    mobileFontSize: 1.2,
+    to: { path: '/explore', query: { page: 'DialectClustering' } },
+    isPseudo: false,
+    hideOnMobile: false,
+    hideLabelOnMobile: false,
+    showLabelOnlyWhenActive: false,
+    mobileShowLabelOnlyWhenActive: true
+  },
+  {
     tab: 'words',
     label: t('navigation.tabs.phrases'),
     icon: '📖',

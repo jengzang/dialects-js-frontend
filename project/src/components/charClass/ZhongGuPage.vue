@@ -3,13 +3,13 @@
     <!-- Header Section -->
     <div class="header-section">
       <div class="title-row">
-        <h2 style="margin: 0;">{{ $t('phonology.phonology.zhonggu.title') }}</h2>
+        <h2 style="margin: 0;">{{ $t('charClass.zhonggu.title') }}</h2>
         <button
             class="annotation-toggle"
             :class="{ 'active': showAnnotations }"
             @click="toggleAnnotations"
         >
-          {{ showAnnotations ? $t('phonology.phonology.zhonggu.toggleAnnotations.show') : $t('phonology.phonology.zhonggu.toggleAnnotations.hide') }}
+          {{ showAnnotations ? $t('charClass.zhonggu.toggleAnnotations.show') : $t('charClass.zhonggu.toggleAnnotations.hide') }}
         </button>
       </div>
 
@@ -41,7 +41,7 @@
         <input
             type="text"
             v-model="searchQuery"
-            :placeholder="$t('phonology.phonology.zhonggu.search.placeholder')"
+            :placeholder="$t('charClass.zhonggu.search.placeholder')"
             class="glass-input"
             :disabled="!activeClassification || !loadedData[activeClassification]"
         />
@@ -53,15 +53,15 @@
       <!-- Default State: No Classification Selected -->
       <div v-if="!activeClassification" class="empty-state">
         <div class="empty-state-icon">📚</div>
-        <div class="empty-state-text">{{ $t('phonology.phonology.zhonggu.states.selectClassification') }}</div>
-        <div class="empty-state-hint">{{ $t('phonology.phonology.zhonggu.states.selectHint') }}</div>
+        <div class="empty-state-text">{{ $t('charClass.zhonggu.states.selectClassification') }}</div>
+        <div class="empty-state-hint">{{ $t('charClass.zhonggu.states.selectHint') }}</div>
       </div>
 
       <!-- Loading State -->
       <div v-else-if="loadingStates[activeClassification]" class="loading-state">
         <div class="loading-spinner"></div>
-        <p>{{ $t('phonology.phonology.zhonggu.states.loading', { name: CLASSIFICATION_TYPES[activeClassification].name }) }}</p>
-        <p class="loading-hint">{{ $t('phonology.phonology.zhonggu.states.loadingHint') }}</p>
+        <p>{{ $t('charClass.zhonggu.states.loading', { name: CLASSIFICATION_TYPES[activeClassification].name }) }}</p>
+        <p class="loading-hint">{{ $t('charClass.zhonggu.states.loadingHint') }}</p>
       </div>
 
       <!-- Error State -->
@@ -69,14 +69,14 @@
         <div class="error-icon">⚠️</div>
         <p class="error-message">{{ loadErrors[activeClassification] }}</p>
         <button @click="retryLoad(activeClassification)" class="retry-btn">
-          {{ $t('phonology.phonology.zhonggu.actions.retry') }}
+          {{ $t('charClass.zhonggu.actions.retry') }}
         </button>
       </div>
 
       <!-- Tree Container -->
       <div v-else-if="loadedData[activeClassification]" class="tree-container">
         <div v-if="getDisplayData.length === 0" class="empty-search-state">
-          {{ $t('phonology.phonology.zhonggu.search.noResults') }}
+          {{ $t('charClass.zhonggu.search.noResults') }}
         </div>
         <CharTreeItem
             v-for="item in getDisplayData"
@@ -101,7 +101,7 @@ const { t } = useI18n();
 // Classification Types Configuration
 const CLASSIFICATION_TYPES = computed(() => ({
   rhyme: {
-    name: t('phonology.phonology.zhonggu.classifications.rhyme'),
+    name: t('charClass.zhonggu.classifications.rhyme'),
     payload: {
       db_key: "chars",
       table_name: "characters",
@@ -110,7 +110,7 @@ const CLASSIFICATION_TYPES = computed(() => ({
     }
   },
   initial: {
-    name: t('phonology.phonology.zhonggu.classifications.initial'),
+    name: t('charClass.zhonggu.classifications.initial'),
     payload: {
       db_key: "chars",
       table_name: "characters",
@@ -119,7 +119,7 @@ const CLASSIFICATION_TYPES = computed(() => ({
     }
   },
   voicing: {
-    name: t('phonology.phonology.zhonggu.classifications.voicing'),
+    name: t('charClass.zhonggu.classifications.voicing'),
     payload: {
       db_key: "chars",
       table_name: "characters",
@@ -185,11 +185,11 @@ const loadClassificationData = async (type) => {
     if (result && result.tree) {
       loadedData.value[type] = normalizeTreeData(result.tree);
     } else {
-      throw new Error(t('phonology.phonology.zhonggu.states.dataFormatError'));
+      throw new Error(t('charClass.zhonggu.states.dataFormatError'));
     }
   } catch (error) {
-    console.error(`❌ ${t('phonology.phonology.zhonggu.states.loading', { name: config.name })} ${t('phonology.phonology.zhonggu.states.loadFailed')}:`, error);
-    loadErrors.value[type] = error.message || t('phonology.phonology.zhonggu.states.loadFailed');
+    console.error(`❌ ${t('charClass.zhonggu.states.loading', { name: config.name })} ${t('charClass.zhonggu.states.loadFailed')}:`, error);
+    loadErrors.value[type] = error.message || t('charClass.zhonggu.states.loadFailed');
   } finally {
     loadingStates.value[type] = false;
   }
@@ -206,46 +206,70 @@ const retryLoad = (type) => {
  * Normalize Tree Data
  */
 const normalizeTreeData = (rawTree) => {
-  const processNode = (data, name) => {
-    // Check if this is a leaf node
-    const hasChars = data['漢字'] !== undefined;
-    const hasAnnotations = data['釋義'] !== undefined;
+  const charKeys = ['漢字', '汉字', 'chars', 'characters'];
+  const annotationKeys = ['釋義', '释义', 'annotations', 'notes'];
+  const isObject = (value) => typeof value === 'object' && value !== null && !Array.isArray(value);
 
-    if (hasChars || hasAnnotations) {
-      // Leaf node: return formatted character list
+  const pickArrayByKeys = (data, keys) => {
+    for (const key of keys) {
+      if (Array.isArray(data[key])) return data[key];
+    }
+    return null;
+  };
+
+  const processNode = (data, name) => {
+    if (!isObject(data)) return null;
+
+    const charsByKey = pickArrayByKeys(data, charKeys);
+    const annotationsByKey = pickArrayByKeys(data, annotationKeys);
+
+    if (charsByKey || annotationsByKey) {
       return {
         id: generateId(),
-        name: name,
-        chars: data['漢字'] || [],
-        annotations: data['釋義'] || [],
+        name,
+        chars: charsByKey || [],
+        annotations: annotationsByKey || [],
         children: [],
         isLeaf: true
       };
     }
 
-    // Branch node: recursively process children
+    // Backward-compatible fallback: only when all children are arrays.
+    // This avoids misclassifying branch nodes that contain nested objects.
+    const entries = Object.entries(data);
+    const arrayEntries = entries.filter(([, value]) => Array.isArray(value));
+    const objectEntries = entries.filter(([, value]) => isObject(value));
+
+    if (arrayEntries.length > 0 && objectEntries.length === 0) {
+      return {
+        id: generateId(),
+        name,
+        chars: arrayEntries[0]?.[1] || [],
+        annotations: arrayEntries[1]?.[1] || [],
+        children: [],
+        isLeaf: true
+      };
+    }
+
     const children = [];
-    for (const key in data) {
-      if (data.hasOwnProperty(key)) {
-        const childNode = processNode(data[key], key);
-        if (childNode) {
-          children.push(childNode);
-        }
+    for (const [key, value] of objectEntries) {
+      const childNode = processNode(value, key);
+      if (childNode) {
+        children.push(childNode);
       }
     }
 
     return {
       id: generateId(),
-      name: name,
-      children: children,
+      name,
+      children,
       isLeaf: false
     };
   };
 
-  // Process top-level nodes
   const rootChildren = [];
   for (const topKey in rawTree) {
-    if (rawTree.hasOwnProperty(topKey)) {
+    if (Object.prototype.hasOwnProperty.call(rawTree, topKey)) {
       const node = processNode(rawTree[topKey], topKey);
       if (node) {
         rootChildren.push(node);

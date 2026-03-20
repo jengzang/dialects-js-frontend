@@ -99,6 +99,7 @@
         :error-message="partitionTreeError"
         :auto-enable-selection="autoEnableSelection"
         :initial-selected-locations="locationsInTree"
+        :max-selection="props.maxLocations === Infinity ? null : props.maxLocations"
         @locations-changed="handleLocationsChanged"
         @locations-selected="handleLocationsSelected"
     />

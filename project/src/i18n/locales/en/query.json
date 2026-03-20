@@ -147,10 +147,14 @@
       "confirmSelection": "Confirm Selection ({count})",
       "mapPartition": "Atlas Partition 2",
       "dictPartition": "Phonetic Dictionary Partition",
+      "administrativeDivision": "Administrative Division",
+      "emptyNode": "(Empty)",
+      "unknownDialect": "Unknown Dialect",
       "loading": "Loading...",
       "tabs": {
         "map": "Atlas Partition 2",
-        "yindian": "Phonetic Dictionary Partition"
+        "yindian": "Phonetic Dictionary Partition",
+        "administrativeDivision": "Administrative Division"
       }
     },
     "floatingDice": {

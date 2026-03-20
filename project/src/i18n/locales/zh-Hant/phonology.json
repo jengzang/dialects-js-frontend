@@ -1,32 +1,5 @@
 {
   "phonology": {
-    "zhonggu": {
-      "title": "中古音韻數據",
-      "toggleAnnotations": {
-        "show": "顯示釋義",
-        "hide": "隱藏釋義"
-      },
-      "classifications": {
-        "rhyme": "韻攝分類",
-        "initial": "聲鈕分類",
-        "voicing": "清濁分類"
-      },
-      "search": {
-        "placeholder": "搜索已加載的數據...",
-        "noResults": "沒有找到匹配的結果"
-      },
-      "states": {
-        "selectClassification": "請選擇一種分類方式",
-        "selectHint": "點擊上方的分類選項卡以查看數據",
-        "loading": "正在加載 {name} 數據...",
-        "loadingHint": "數據量較大，請稍候...",
-        "dataFormatError": "數據格式錯誤",
-        "loadFailed": "加載失敗，請重試"
-      },
-      "actions": {
-        "retry": "重試"
-      }
-    },
     "matrix": {
       "title": "音系查詢",
       "features": {
@@ -141,7 +114,7 @@
   "tabs": {
     "matrix": "音系",
     "custom": "音素分類",
-    "count": "音節數",
-    "zhonggu": "漢字類別"
+    "count": "音節統計",
+    "pieVector": "餅圖向量"
   }
 }

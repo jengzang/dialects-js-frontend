@@ -5,6 +5,7 @@
     "compare": "比較",
     "pho": "音系",
     "charClass": "漢字",
+    "dialectClustering": "方言聚類",
     "words": "詞句",
     "villages": "自然村",
     "tools": "工具",
@@ -27,7 +28,8 @@
     "pho": {
       "phonologyMatrix": "音系查詢",
       "phonologyCustom": "音素分類",
-      "Countphos": "音節統計"
+      "Countphos": "音節統計",
+      "pieVector": "餅圖向量"
     },
     "charClass": {
       "zhonggu": "中古漢語",
@@ -69,6 +71,7 @@
     "home": "首頁",
     "phonology": "音系",
     "charClass": "漢字",
+    "dialectClustering": "方言聚類",
     "query": "查詢",
     "results": "結果",
     "map": "地圖",
@@ -80,6 +83,9 @@
     "villages": "村落",
     "aboutWebsite": "關於網站",
     "settings": "設置"
+  },
+  "placeholders": {
+    "comingSoon": "功能開發中..."
   },
   "settings": {
     "language": {
@@ -97,7 +103,7 @@
   },
   "login": "登錄",
   "actions": {
-    "openMenu": "開啟選單",
+    "openMenu": "打開菜單",
     "backHome": "返回首頁"
   },
   "introTabs": {

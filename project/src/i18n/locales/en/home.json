@@ -38,6 +38,7 @@
       "phonologyQuery": "Phonology Query - View dialect phonology tables",
       "phonemeClassify": "Phoneme Classification - Custom phoneme classification",
       "syllableCount": "Syllable Statistics - Count syllable quantities",
+      "pieVector": "Pie Vectors - Placeholder entry for pie chart vector analysis",
       "middlePosition": "Middle Chinese Position - Query Middle Chinese position of characters"
     },
     "words": {
@@ -73,6 +74,10 @@
     "praat": {
       "title": "Praat Acoustic Analysis",
       "desc": "Experimental phonetics tools and data analysis"
+    },
+    "dialectClustering": {
+      "title": "Dialect Clustering",
+      "desc": "Placeholder page for dialect clustering workflows"
     },
     "about": {
       "title": "About Website",
@@ -206,6 +211,7 @@
       "support": "Support Author"
     },
     "stats": "Today Visits {today} ? Total Visits {total}",
+    "dataStats": "📚 {locationCount} dialect points · 🗃️ {dataCount} rows of data",
     "copyright": "? 2026 Dialects Atlas ? Developed by jengzang",
     "versionInfo": "{version} ? Last updated: {date}",
     "icp": "Yue ICP 2025466875"

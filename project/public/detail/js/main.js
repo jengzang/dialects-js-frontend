@@ -597,7 +597,7 @@ const presets = [
     },
     {
         mode: 'p2s',
-        locations: '台山斗山墟 恩平恩城 鶴山雅瑤 從化獅象',
+        locations: '台山斗山墟 恩平 鶴山雅瑤 從化獅象',
         regions: '南海',
         features: ['聲母'],
         status_inputs: '',

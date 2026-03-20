@@ -5,6 +5,7 @@
     "compare": "Compare",
     "pho": "Phonology",
     "charClass": "Characters",
+    "dialectClustering": "Dialect Clustering",
     "words": "Words",
     "villages": "Villages",
     "tools": "Tools",
@@ -27,7 +28,8 @@
     "pho": {
       "phonologyMatrix": "Phonology Query",
       "phonologyCustom": "Phoneme Classification",
-      "Countphos": "Syllable Statistics"
+      "Countphos": "Syllable Statistics",
+      "pieVector": "Pie Vectors"
     },
     "charClass": {
       "zhonggu": "Middle Chinese",
@@ -69,6 +71,7 @@
     "home": "Home",
     "phonology": "Phonology",
     "charClass": "Characters",
+    "dialectClustering": "Dialect Clustering",
     "query": "Query",
     "results": "Results",
     "map": "Map",
@@ -80,6 +83,9 @@
     "villages": "Villages",
     "aboutWebsite": "About Website",
     "settings": "Settings"
+  },
+  "placeholders": {
+    "comingSoon": "Coming soon..."
   },
   "settings": {
     "language": {

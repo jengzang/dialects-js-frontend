@@ -163,6 +163,7 @@ const checkMobile = () => {
 const tabToMenuConfigMap = {
   'pho': 'pho',
   'charClass': 'charClass',
+  'dialectClustering': 'dialectClustering',
   'words': 'words',
   'villages': 'villages',
   'tools': 'tools',
@@ -205,6 +206,7 @@ const pageToTabMap = {
 
   // charClass category
   'CharacterClassification': 'charClass',
+  'DialectClustering': 'dialectClustering',
 
   // words category
   'YuBao': 'words',

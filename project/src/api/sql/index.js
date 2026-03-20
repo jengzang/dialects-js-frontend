@@ -2,7 +2,8 @@
 export {
   sqlQuery,
   distinctQuery,
-  getTableColumns
+  getTableColumns,
+  queryCount
 } from './query.js'
 
 export {
