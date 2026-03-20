@@ -72,11 +72,7 @@ const loadData = async () => {
 
 // 計算匯總統計數據
 const calculateAggregatedData = (data) => {
-  const aggregated = {
-    [t('phonology.phonology.countphos.features.initial')]: {},
-    [t('phonology.phonology.countphos.features.final')]: {},
-    [t('phonology.phonology.countphos.features.tone')]: {}
-  }
+  const aggregated = {}
 
   // 遍歷每個地點的數據
   Object.keys(data).forEach(locationName => {
@@ -107,7 +103,22 @@ const calculateAggregatedData = (data) => {
     })
   })
 
-  return aggregated
+  const preferredOrder = ['聲母', '韻母', '聲調']
+  const orderedAggregated = {}
+
+  preferredOrder.forEach((type) => {
+    if (aggregated[type]) {
+      orderedAggregated[type] = aggregated[type]
+    }
+  })
+
+  Object.keys(aggregated).forEach((type) => {
+    if (!Object.prototype.hasOwnProperty.call(orderedAggregated, type)) {
+      orderedAggregated[type] = aggregated[type]
+    }
+  })
+
+  return orderedAggregated
 }
 
 // 打开地点详情弹窗
