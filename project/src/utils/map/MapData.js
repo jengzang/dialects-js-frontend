@@ -1,5 +1,6 @@
 // 整理數據,用於地圖繪製
-import { queryStore, mapStore, resultCache, userStore } from '../../store/store.js'
+import { globalPayload, queryStore, mapStore, resultCache, userStore } from '../../store/store.js'
+import { getCustomData } from '../../api/user/custom.js'
 
 export async function func_mergeData(resultData = null, mapData = null, customData = null) {
     // 1) 数据来源：优先参数，否则 fallback 到 window
@@ -128,6 +129,38 @@ export async function func_mergeData(resultData = null, mapData = null, customDa
     assignColorToMergedData(mergedData);
     mapStore.mergedData = mergedData;
     return mergedData;
+}
+
+export async function refreshCurrentCustomLayer() {
+    const currentPayload = globalPayload.value;
+    const isZhongGuQuery = currentPayload?._sourceTab === 'tab2';
+
+    if (!isZhongGuQuery || !mapStore.mapData) {
+        return func_mergeData(resultCache.latestResults, mapStore.mapData);
+    }
+
+    const normalizedLocations = Array.isArray(currentPayload.locations) && currentPayload.locations.length > 0
+        ? currentPayload.locations.map(loc => loc?.trim() || '').filter(Boolean)
+        : [''];
+
+    const normalizedRegions = Array.isArray(currentPayload.regions) && currentPayload.regions.length > 0
+        ? currentPayload.regions.map(reg => reg?.trim() || '').filter(Boolean)
+        : [''];
+
+    const customData = await getCustomData({
+        locations: normalizedLocations,
+        regions: normalizedRegions,
+        need_features: Array.isArray(currentPayload.features) && currentPayload.features.length > 0
+            ? currentPayload.features
+            : resultCache.features,
+        region_mode: currentPayload.region_mode || 'yindian'
+    });
+
+    const normalizedCustomData = Array.isArray(customData)
+        ? customData
+        : (Array.isArray(customData?.data) ? customData.data : []);
+
+    return func_mergeData(resultCache.latestResults, mapStore.mapData, normalizedCustomData);
 }
 
 /**

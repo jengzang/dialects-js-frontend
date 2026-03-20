@@ -138,7 +138,7 @@ import {mapStore, userStore, resultCache} from "@/store/store.js";
 import { showSuccess, showError, showWarning, showConfirm } from '@/utils/message.js';
 import { sqlQuery } from '@/api/sql'
 import { deleteCustomForm } from '@/api/user/custom.js'
-import { func_mergeData } from '@/utils/map/MapData.js';
+import { refreshCurrentCustomLayer } from '@/utils/map/MapData.js';
 import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
 import MapLegend from './MapLegend.vue'
 
@@ -793,7 +793,7 @@ const handleCustomBtnClick = async (item) => {
         mapStore.showCustomData = true;
 
         try {
-          await func_mergeData(resultCache.latestResults, mapStore.mapData)
+          await refreshCurrentCustomLayer()
           console.log('Custom data refreshed after delete')
         } catch (error) {
           console.error('Failed to refresh data after delete:', error)
