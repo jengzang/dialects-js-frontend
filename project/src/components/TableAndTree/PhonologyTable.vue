@@ -1,8 +1,15 @@
-<template>
-  <div class="phonology-matrix">
+﻿<template>
+  <div class="phonology-matrix" :class="{ 'is-fullscreen': isFullScreen }">
     <div v-if="location" class="location-header">
       <div class="location-title">📍 {{ location }}</div>
-      <button class="tone-search-btn" @click="handleShowDetails" :disabled="isLoading">{{ isLoading ? t('result.phonologyTable.loadingButton') : t('result.phonologyTable.detailButton') }}</button>
+      <div class="header-actions">
+        <button class="tone-search-btn" @click="handleShowDetails" :disabled="isLoading">
+          {{ isLoading ? t('result.phonologyTable.loadingButton') : t('result.phonologyTable.detailButton') }}
+        </button>
+        <button class="fullscreen-btn" @click="toggleFullScreen">
+          {{ t('result.phonologyTable.fullscreen') }}
+        </button>
+      </div>
     </div>
 
     <LocationDetailPopup
@@ -12,6 +19,10 @@
       :loading="isLoading"
       @close="closeModal"
     />
+
+    <button v-if="isFullScreen" class="exit-fullscreen-btn" @click="toggleFullScreen">
+      {{ t('result.phonologyTable.exitFullscreen') }}
+    </button>
 
     <div class="matrix-wrapper">
       <table class="matrix-table">
@@ -54,7 +65,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, nextTick } from 'vue';
+import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue';
 import { useI18n } from 'vue-i18n';
 import LocationDetailPopup from '@/components/result/LocationDetailPopup.vue';
 import { sqlQuery } from '@/api/sql';
@@ -143,6 +154,32 @@ onMounted(() => {
 const locationData = ref(null);
 const showModal = ref(false);
 const isLoading = ref(false);
+const isFullScreen = ref(false);
+
+const applyBodyScrollLock = (locked) => {
+  document.body.style.overflow = locked ? 'hidden' : '';
+};
+
+const toggleFullScreen = async () => {
+  isFullScreen.value = !isFullScreen.value;
+  applyBodyScrollLock(isFullScreen.value);
+  await nextTick();
+};
+
+const handleKeyDown = (event) => {
+  if (event.key === 'Escape' && isFullScreen.value) {
+    toggleFullScreen();
+  }
+};
+
+onMounted(() => {
+  document.addEventListener('keydown', handleKeyDown);
+});
+
+onBeforeUnmount(() => {
+  document.removeEventListener('keydown', handleKeyDown);
+  applyBodyScrollLock(false);
+});
 
 const handleShowDetails = async () => {
   if (!location.value) return;
@@ -237,6 +274,15 @@ const getToneData = (data) => {
   width: 100%;
 }
 
+.phonology-matrix.is-fullscreen .matrix-wrapper {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  border-radius: 0;
+  max-height: 100dvh;
+  margin: 0;
+}
+
 .location-title {
   font-size: 24px;
   font-weight: 700;
@@ -254,7 +300,7 @@ const getToneData = (data) => {
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   box-shadow: var(--shadow-md2);
-  max-height: 90dvh;
+  max-height: 60dvh;
   margin-bottom:15px ;
   /* GPU acceleration for smooth scrolling */
   will-change: transform;
@@ -452,6 +498,12 @@ const getToneData = (data) => {
   margin-bottom: 16px;
 }
 
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .location-title {
   font-size: 24px;
   font-weight: 700;
@@ -493,6 +545,48 @@ const getToneData = (data) => {
   opacity: 0.5;
   cursor: not-allowed;
   transform: none;
+}
+
+.fullscreen-btn {
+  padding: 8px 16px;
+  background: rgba(52, 199, 89, 0.15);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(52, 199, 89, 0.35);
+  border-radius: 12px;
+  color: #1f7a35;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.fullscreen-btn:hover {
+  background: rgba(52, 199, 89, 0.22);
+  transform: translateY(-1px);
+}
+
+.exit-fullscreen-btn {
+  position: fixed;
+  top: 18px;
+  right: 18px;
+  padding: 10px 18px;
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  color: #1d1d1f;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  z-index: 100000;
+  transition: all 0.25s ease;
+}
+
+.exit-fullscreen-btn:hover {
+  background: rgba(255, 255, 255, 0.9);
+  transform: scale(1.04);
 }
 
 .modal-overlay {
@@ -729,3 +823,4 @@ const getToneData = (data) => {
   font-size: 13px;
 }
 </style>
+

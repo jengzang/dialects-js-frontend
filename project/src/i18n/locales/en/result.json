@@ -131,6 +131,8 @@
   },
   "phonologyTable": {
     "detailButton": "Details",
+    "fullscreen": "Fullscreen",
+    "exitFullscreen": "Exit",
     "loadingButton": "Querying...",
     "queryFailed": "Query failed, please try again later",
     "matrixFeature": "Feature Class",

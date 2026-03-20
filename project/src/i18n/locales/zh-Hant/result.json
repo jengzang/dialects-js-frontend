@@ -131,6 +131,8 @@
   },
   "phonologyTable": {
     "detailButton": "詳情",
+    "fullscreen": "全屏",
+    "exitFullscreen": "退出",
     "loadingButton": "查詢中...",
     "queryFailed": "查詢失敗，請稍後再試",
     "matrixFeature": "分類特徵",

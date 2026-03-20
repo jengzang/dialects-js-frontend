@@ -131,6 +131,8 @@
   },
   "phonologyTable": {
     "detailButton": "详情",
+    "fullscreen": "全屏",
+    "exitFullscreen": "退出",
     "loadingButton": "查询中...",
     "queryFailed": "查询失败，请稍后再试",
     "matrixFeature": "分类特征",
