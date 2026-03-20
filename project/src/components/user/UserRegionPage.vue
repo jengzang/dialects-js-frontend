@@ -225,7 +225,6 @@
       :error-message="partitionTreeError"
       :auto-enable-selection="autoEnableSelection"
       :initial-selected-locations="editingRegion.locations"
-      :max-selection="maxSelectionForModal"
       @locations-selected="handleLocationsSelected"
     />
   </div>
@@ -237,9 +236,7 @@ import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import { createOrUpdateCustomRegion, deleteCustomRegion, sqlQuery } from '@/api'
 import PartitionInfoModal from '@/components/query/PartitionInfoModal.vue'
-import { LOCATION_LIMITS } from '@/config/constants.js'
 import { useCustomRegionStore } from '@/store/customRegionStore'
-import { userStore } from '@/store/store.js'
 import { showConfirm, showError, showSuccess, showWarning } from '@/utils/message.js'
 
 const { t, locale } = useI18n()
@@ -318,12 +315,6 @@ const manualInputCount = computed(() => {
 
   const uniqueLocations = new Set(allLocations)
   return [...uniqueLocations].filter((loc) => !availableLocations.value.has(loc)).length
-})
-
-const maxSelectionForModal = computed(() => {
-  const contextLimits = LOCATION_LIMITS.default
-  const limits = contextLimits[userStore.role] || contextLimits.anonymous
-  return limits.MAX_LOCATIONS === Infinity ? null : limits.MAX_LOCATIONS
 })
 
 const goBack = () => {

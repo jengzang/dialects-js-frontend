@@ -147,7 +147,7 @@
       "clearSelection": "Clear Selection",
       "confirmButton": "Confirm Selection ({count})",
       "confirmSelection": "Confirm Selection ({count})",
-      "maxSelectionExceeded": "You selected {count} locations, exceeding the limit of {max}. Reduce selection before confirming.",
+      "maxSelectionExceeded": "Selected {count}, limit {max}",
       "mapPartition": "Atlas Partition 2",
       "dictPartition": "Phonetic Dictionary Partition",
       "administrativeDivision": "Administrative Division",

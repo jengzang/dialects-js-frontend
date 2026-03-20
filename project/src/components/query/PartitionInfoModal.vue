@@ -37,6 +37,7 @@
           </div>
 
           <div v-if="selectionMode" class="selection-actions">
+            <div v-if="selectionWarning" class="selection-warning-inline">{{ selectionWarning }}</div>
             <button
                 class="confirm-btn"
                 :disabled="!canConfirmSelection"
@@ -47,7 +48,6 @@
             </button>
           </div>
         </div>
-        <div v-if="selectionWarning" class="selection-warning">{{ selectionWarning }}</div>
 
         <!-- 主体：树状图 -->
         <div class="modal-body">
@@ -70,8 +70,7 @@
                 :selection-mode="selectionMode"
                 :selected-locations="selectedLocations"
                 @toggle-location="toggleLocation"
-                @select-subtree="selectSubtreeLocations"
-                @clear-subtree="clearSubtreeLocations"
+                @toggle-subtree="toggleSubtreeLocations"
             />
           </div>
         </div>
@@ -312,7 +311,23 @@ const buildAdminTree = (data) => {
 
   data.forEach(row => {
     const dialectName = getDialectName(row)
-    const levels = FIELD_KEYS.adminLevels.map(keys => normalizeNodeLabel(getStringField(row, keys)))
+    const rawLevels = FIELD_KEYS.adminLevels.map(keys => getStringField(row, keys))
+    const lastNonEmptyIndex = rawLevels.reduce((lastIndex, value, index) => {
+      return value ? index : lastIndex
+    }, -1)
+
+    // Skip trailing empty levels; keep "(空)" only when a middle level is empty but lower levels are present.
+    const levels = lastNonEmptyIndex >= 0
+      ? rawLevels.slice(0, lastNonEmptyIndex + 1).map(value => normalizeNodeLabel(value))
+      : []
+
+    if (levels.length === 0) {
+      if (!Array.isArray(tree[dialectName])) {
+        tree[dialectName] = []
+      }
+      tree[dialectName].push(dialectName)
+      return
+    }
 
     let current = tree
     levels.forEach((part, index) => {
@@ -382,20 +397,16 @@ const toggleLocation = (location) => {
   syncSelectedLocations()
 }
 
-const selectSubtreeLocations = (children) => {
+const toggleSubtreeLocations = (children) => {
   const subtreeLocations = getUniqueLocations(children)
   if (subtreeLocations.length === 0) return
   const nextSelected = new Set(selectedLocations.value)
-  subtreeLocations.forEach((location) => nextSelected.add(location))
-  selectedLocations.value = nextSelected
-  syncSelectedLocations()
-}
-
-const clearSubtreeLocations = (children) => {
-  const subtreeLocations = getUniqueLocations(children)
-  if (subtreeLocations.length === 0) return
-  const nextSelected = new Set(selectedLocations.value)
-  subtreeLocations.forEach((location) => nextSelected.delete(location))
+  const isFullySelected = subtreeLocations.every((location) => nextSelected.has(location))
+  if (isFullySelected) {
+    subtreeLocations.forEach((location) => nextSelected.delete(location))
+  } else {
+    subtreeLocations.forEach((location) => nextSelected.add(location))
+  }
   selectedLocations.value = nextSelected
   syncSelectedLocations()
 }
@@ -428,7 +439,7 @@ const PartitionTreeNode = defineComponent({
     selectionMode: { type: Boolean, default: false },
     selectedLocations: { type: Set, default: () => new Set() }
   },
-  emits: ['toggle-location', 'select-subtree', 'clear-subtree'],
+  emits: ['toggle-location', 'toggle-subtree'],
   setup(props, { emit }) {
     const isExpanded = ref(false)
     const isLeaf = computed(() => Array.isArray(props.children))
@@ -444,14 +455,9 @@ const PartitionTreeNode = defineComponent({
       }
     }
 
-    const handleSelectSubtree = () => {
+    const handleToggleSubtree = () => {
       if (!props.selectionMode) return
-      emit('select-subtree', props.children)
-    }
-
-    const handleClearSubtree = () => {
-      if (!props.selectionMode) return
-      emit('clear-subtree', props.children)
+      emit('toggle-subtree', props.children)
     }
 
     return {
@@ -460,8 +466,7 @@ const PartitionTreeNode = defineComponent({
       childCount,
       toggleExpand,
       handleLocationClick,
-      handleSelectSubtree,
-      handleClearSubtree
+      handleToggleSubtree
     }
   },
   render() {
@@ -472,10 +477,10 @@ const PartitionTreeNode = defineComponent({
       childCount,
       toggleExpand,
       handleLocationClick,
-      handleSelectSubtree,
-      handleClearSubtree
+      handleToggleSubtree
     } = this
     const selectedCount = selectionMode ? getSelectedCount(children, selectedLocations) : 0
+    const isSubtreeFullySelected = selectionMode && childCount > 0 && selectedCount === childCount
 
     return h('div', { class: 'tree-node' }, [
       h('div', {
@@ -492,19 +497,14 @@ const PartitionTreeNode = defineComponent({
         ]),
         h('div', { class: 'node-actions' }, [
           selectionMode ? h('button', {
-            class: 'node-select-btn',
+            class: ['node-select-btn', isSubtreeFullySelected ? 'cancel' : 'select'],
             onClick: (e) => {
               e.stopPropagation()
-              handleSelectSubtree()
+              handleToggleSubtree()
             }
-          }, t('query.components.partitionModal.selectAll')) : null,
-          selectionMode ? h('button', {
-            class: ['node-select-btn', 'secondary'],
-            onClick: (e) => {
-              e.stopPropagation()
-              handleClearSubtree()
-            }
-          }, t('query.components.partitionModal.clearSelection')) : null,
+          }, isSubtreeFullySelected
+            ? t('query.components.partitionModal.clearSelection')
+            : t('query.components.partitionModal.selectAll')) : null,
           h('button', {
             class: ['expand-btn', { 'is-open': isExpanded }],
             onClick: (e) => {
@@ -548,8 +548,7 @@ const PartitionTreeNode = defineComponent({
                 selectionMode,
                 selectedLocations,
                 onToggleLocation: (location) => this.$emit('toggle-location', location),
-                onSelectSubtree: (subtree) => this.$emit('select-subtree', subtree),
-                onClearSubtree: (subtree) => this.$emit('clear-subtree', subtree)
+                onToggleSubtree: (subtree) => this.$emit('toggle-subtree', subtree)
               })
             )
       ])
@@ -687,6 +686,7 @@ const PartitionTreeNode = defineComponent({
   display: flex;
   align-items: center;
   justify-content: flex-end;
+  gap: 10px;
 }
 
 .partition-tabs {
@@ -695,7 +695,8 @@ const PartitionTreeNode = defineComponent({
 }
 
 .partition-tab-btn {
-  padding: 8px 20px;
+  white-space: nowrap;
+  padding: 8px 10px;
   border-radius: 12px;
   border: none;
   background: rgba(142, 142, 147, 0.15);
@@ -740,11 +741,11 @@ const PartitionTreeNode = defineComponent({
   cursor: not-allowed;
 }
 
-.selection-warning {
-  padding: 8px 24px 0;
+.selection-warning-inline {
   color: #d35400;
   font-size: 13px;
   font-weight: 600;
+  white-space: nowrap;
 }
 
 /* Modal body */
@@ -875,22 +876,25 @@ const PartitionTreeNode = defineComponent({
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
-  background: rgba(0, 122, 255, 0.12);
-  color: #0051d5;
   transition: all 0.2s ease;
 }
 
-.partition-tree-container :deep(.node-select-btn:hover) {
+.partition-tree-container :deep(.node-select-btn.select) {
+  background: rgba(0, 122, 255, 0.12);
+  color: #0051d5;
+}
+
+.partition-tree-container :deep(.node-select-btn.select:hover) {
   background: rgba(0, 122, 255, 0.2);
 }
 
-.partition-tree-container :deep(.node-select-btn.secondary) {
-  background: rgba(142, 142, 147, 0.18);
-  color: #3a3a3c;
+.partition-tree-container :deep(.node-select-btn.cancel) {
+  background: rgba(255, 59, 48, 0.14);
+  color: #b42318;
 }
 
-.partition-tree-container :deep(.node-select-btn.secondary:hover) {
-  background: rgba(142, 142, 147, 0.26);
+.partition-tree-container :deep(.node-select-btn.cancel:hover) {
+  background: rgba(255, 59, 48, 0.24);
 }
 
 .partition-tree-container :deep(.expand-btn) {
@@ -994,7 +998,7 @@ const PartitionTreeNode = defineComponent({
   }
 
   .selection-actions {
-    justify-content: flex-start;
+    justify-content: flex-end;
     flex-wrap: wrap;
   }
 
