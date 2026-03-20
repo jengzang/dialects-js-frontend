@@ -36,16 +36,32 @@
             </button>
           </div>
 
-          <!-- 确认选择按钮（仅选择模式显示） -->
-          <button
-              v-if="selectionMode"
-              class="confirm-btn"
-              @click="confirmSelection"
-              type="button"
-          >
-            {{ $t('query.components.partitionModal.confirmSelection', { count: selectedLocations.size }) }}
-          </button>
+          <div v-if="selectionMode" class="selection-actions">
+            <button
+                class="action-btn"
+                type="button"
+                @click="selectAllLocations"
+            >
+              {{ $t('query.components.partitionModal.selectAll') }}
+            </button>
+            <button
+                class="action-btn secondary"
+                type="button"
+                @click="clearSelectedLocations"
+            >
+              {{ $t('query.components.partitionModal.clearSelection') }}
+            </button>
+            <button
+                class="confirm-btn"
+                :disabled="!canConfirmSelection"
+                @click="confirmSelection"
+                type="button"
+            >
+              {{ $t('query.components.partitionModal.confirmSelection', { count: selectedLocations.size }) }}
+            </button>
+          </div>
         </div>
+        <div v-if="selectionWarning" class="selection-warning">{{ selectionWarning }}</div>
 
         <!-- 主体：树状图 -->
         <div class="modal-body">
@@ -132,6 +148,10 @@ const props = defineProps({
   initialSelectedLocations: {
     type: Array,
     default: () => []
+  },
+  maxSelection: {
+    type: Number,
+    default: null
   }
 })
 
@@ -233,6 +253,27 @@ const filteredData = computed(() => {
   })
 })
 
+const isOverSelectionLimit = computed(() => {
+  return props.maxSelection !== null
+    && Number.isFinite(props.maxSelection)
+    && selectedLocations.value.size > props.maxSelection
+})
+
+const canConfirmSelection = computed(() => {
+  return selectionMode.value
+    && selectedLocations.value.size > 0
+    && !isOverSelectionLimit.value
+})
+
+const selectionWarning = computed(() => {
+  if (!selectionMode.value) return ''
+  if (!isOverSelectionLimit.value) return ''
+  return t('query.components.partitionModal.maxSelectionExceeded', {
+    count: selectedLocations.value.size,
+    max: props.maxSelection
+  })
+})
+
 const currentTree = computed(() => {
   if (activeTab.value === TAB_MAP) {
     return buildPartitionTree(filteredData.value, FIELD_KEYS.mapPartition)
@@ -323,6 +364,7 @@ const toggleSelectionMode = () => {
   selectionMode.value = !selectionMode.value
   if (!selectionMode.value) {
     selectedLocations.value.clear()
+    emit('locations-changed', [])
   }
 }
 
@@ -336,7 +378,19 @@ const toggleLocation = (location) => {
   emit('locations-changed', Array.from(selectedLocations.value))
 }
 
+const selectAllLocations = () => {
+  const allLocations = Array.from(new Set(getAllLocations(currentTree.value)))
+  selectedLocations.value = new Set(allLocations)
+  emit('locations-changed', allLocations)
+}
+
+const clearSelectedLocations = () => {
+  selectedLocations.value = new Set()
+  emit('locations-changed', [])
+}
+
 const confirmSelection = () => {
+  if (!canConfirmSelection.value) return
   const locations = Array.from(selectedLocations.value)
   emit('locations-selected', locations)
   closeModal()
@@ -579,6 +633,12 @@ const PartitionTreeNode = defineComponent({
   background: rgba(255, 255, 255, 0.4);
 }
 
+.selection-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .partition-tabs {
   display: flex;
   gap: 10px;
@@ -606,6 +666,31 @@ const PartitionTreeNode = defineComponent({
   box-shadow: 0 2px 8px rgba(0, 122, 255, 0.3);
 }
 
+.action-btn {
+  padding: 8px 14px;
+  border-radius: 12px;
+  border: none;
+  background: rgba(0, 122, 255, 0.12);
+  color: #0051d5;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.action-btn:hover {
+  background: rgba(0, 122, 255, 0.2);
+}
+
+.action-btn.secondary {
+  background: rgba(142, 142, 147, 0.18);
+  color: #3a3a3c;
+}
+
+.action-btn.secondary:hover {
+  background: rgba(142, 142, 147, 0.26);
+}
+
 /* Confirm button */
 .confirm-btn {
   padding: 8px 20px;
@@ -628,6 +713,13 @@ const PartitionTreeNode = defineComponent({
 .confirm-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+.selection-warning {
+  padding: 8px 24px 0;
+  color: #d35400;
+  font-size: 13px;
+  font-weight: 600;
 }
 
 /* Modal body */
@@ -843,6 +935,11 @@ const PartitionTreeNode = defineComponent({
     flex-direction: column;
     gap: 12px;
     align-items: stretch;
+  }
+
+  .selection-actions {
+    justify-content: flex-start;
+    flex-wrap: wrap;
   }
 
 
