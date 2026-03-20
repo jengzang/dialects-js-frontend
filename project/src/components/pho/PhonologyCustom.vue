@@ -84,6 +84,8 @@
           :finals="matrixData.finals"
           :tones="matrixData.tones"
           :matrix="matrixData.matrix"
+          :cell-detail-enabled="true"
+          :cell-details="matrixData.cellDetails"
       />
     </div>
 
@@ -320,16 +322,37 @@ const transformMatrixData = (apiData) => {
 
   // 轉換 matrix：提取 feature_value 的 keys 並附加字數
   const transformedMatrix = {}
+  const transformedCellDetails = {}
 
   for (const h in apiData.matrix) {
     transformedMatrix[h] = {}
+    transformedCellDetails[h] = {}
+
     for (const v in apiData.matrix[h]) {
       transformedMatrix[h][v] = {}
+      transformedCellDetails[h][v] = {}
+
       for (const c in apiData.matrix[h][v]) {
-        // 提取 keys 並附加字數，格式：["p (5)", "pʰ (3)"]
-        transformedMatrix[h][v][c] = Object.entries(apiData.matrix[h][v][c]).map(
-          ([key, chars]) => `${key}[${chars.length}]`
+        const sortedEntries = Object.entries(apiData.matrix[h][v][c])
+          .map(([key, chars], index) => ({
+            key,
+            chars: Array.isArray(chars) ? chars : (chars ? [String(chars)] : []),
+            index
+          }))
+          .sort((a, b) => {
+            const diff = b.chars.length - a.chars.length
+            return diff !== 0 ? diff : a.index - b.index
+          })
+
+        transformedMatrix[h][v][c] = sortedEntries.map(
+          ({ key, chars }) => `${key}[${chars.length}]`
         )
+
+        transformedCellDetails[h][v][c] = sortedEntries.map(({ key, chars }) => ({
+          label: key,
+          count: chars.length,
+          chars
+        }))
       }
     }
   }
@@ -339,7 +362,8 @@ const transformMatrixData = (apiData) => {
     initials: apiData.horizontal_values,
     finals: apiData.vertical_values,
     tones: apiData.cell_row_values,
-    matrix: transformedMatrix
+    matrix: transformedMatrix,
+    cellDetails: transformedCellDetails
   }
 }
 

@@ -147,12 +147,26 @@ export async function refreshCurrentCustomLayer() {
         ? currentPayload.regions.map(reg => reg?.trim() || '').filter(Boolean)
         : [''];
 
+    const phonologyList = Array.isArray(currentPayload.features) && currentPayload.features.length > 0
+        ? currentPayload.features.map(item => item?.trim() || '').filter(Boolean)
+        : (Array.isArray(resultCache.features) ? resultCache.features.map(item => item?.trim() || '').filter(Boolean) : []);
+
+    const needFeatures = [...new Set(
+        (Array.isArray(mapStore.mergedData) ? mapStore.mergedData : [])
+            .filter(item => item && item.feature && item.iscustoms !== 1)
+            .map(item => item.feature?.trim() || '')
+            .filter(Boolean)
+    )];
+
+    const normalizedNeedFeatures = needFeatures.length > 0
+        ? needFeatures
+        : (mapStore.selectedFeature ? [mapStore.selectedFeature] : []);
+
     const customData = await getCustomData({
         locations: normalizedLocations,
         regions: normalizedRegions,
-        need_features: Array.isArray(currentPayload.features) && currentPayload.features.length > 0
-            ? currentPayload.features
-            : resultCache.features,
+        need_features: normalizedNeedFeatures,
+        phonology: phonologyList,
         region_mode: currentPayload.region_mode || 'yindian'
     });
 

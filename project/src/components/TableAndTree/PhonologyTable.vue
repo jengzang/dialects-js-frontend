@@ -20,6 +20,15 @@
       @close="closeModal"
     />
 
+    <PhonologyCellDetailModal
+      :visible="showCellDetailModal"
+      :location="location"
+      :initial="selectedCell.initial"
+      :final="selectedCell.final"
+      :tone-sections="selectedCell.toneSections"
+      @close="closeCellDetailModal"
+    />
+
     <button v-if="isFullScreen" class="exit-fullscreen-btn" @click="toggleFullScreen">
       {{ t('result.phonologyTable.exitFullscreen') }}
     </button>
@@ -40,7 +49,9 @@
           <td
               v-for="initial in initials"
               :key="`${initial}-${final}`"
-              class="matrix-cell"
+              :class="['matrix-cell', { 'is-clickable': canOpenCellDetail(initial, final) }]"
+              :title="canOpenCellDetail(initial, final) ? t('result.phonologyTable.detailButton') : ''"
+              @click="openCellDetail(initial, final)"
           >
             <div v-if="getCellData(initial, final)" class="cell-content">
               <div
@@ -68,6 +79,7 @@
 import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue';
 import { useI18n } from 'vue-i18n';
 import LocationDetailPopup from '@/components/result/LocationDetailPopup.vue';
+import PhonologyCellDetailModal from '@/components/TableAndTree/PhonologyCellDetailModal.vue';
 import { sqlQuery } from '@/api/sql';
 
 const { t } = useI18n();
@@ -92,6 +104,14 @@ const props = defineProps({
   matrix: {
     type: Object,
     required: true
+  },
+  cellDetails: {
+    type: Object,
+    default: null
+  },
+  cellDetailEnabled: {
+    type: Boolean,
+    default: false
   }
 })
 
@@ -119,6 +139,33 @@ const cellDataMap = computed(() => {
 
 const getCellData = (initial, final) => {
   return cellDataMap.value.get(`${initial}-${final}`) || null;
+};
+
+const cellDetailMap = computed(() => {
+  const map = new Map();
+  if (!props.cellDetailEnabled || !props.cellDetails) return map;
+
+  for (const initial of props.initials) {
+    for (const final of props.finals) {
+      const details = props.cellDetails[initial]?.[final];
+      if (details) {
+        map.set(`${initial}-${final}`, details);
+      }
+    }
+  }
+
+  return map;
+});
+
+const getCellDetails = (initial, final) => {
+  return cellDetailMap.value.get(`${initial}-${final}`) || null;
+};
+
+const canOpenCellDetail = (initial, final) => {
+  if (!props.cellDetailEnabled) return false;
+  const details = getCellDetails(initial, final);
+  if (!details || typeof details !== 'object') return false;
+  return props.tones.some((tone) => Array.isArray(details[tone]) && details[tone].length > 0);
 };
 
 // Filter visible finals for progressive rendering
@@ -155,6 +202,12 @@ const locationData = ref(null);
 const showModal = ref(false);
 const isLoading = ref(false);
 const isFullScreen = ref(false);
+const showCellDetailModal = ref(false);
+const selectedCell = ref({
+  initial: '',
+  final: '',
+  toneSections: []
+});
 
 const applyBodyScrollLock = (locked) => {
   document.body.style.overflow = locked ? 'hidden' : '';
@@ -167,7 +220,14 @@ const toggleFullScreen = async () => {
 };
 
 const handleKeyDown = (event) => {
-  if (event.key === 'Escape' && isFullScreen.value) {
+  if (event.key !== 'Escape') return;
+
+  if (showCellDetailModal.value) {
+    closeCellDetailModal();
+    return;
+  }
+
+  if (isFullScreen.value) {
     toggleFullScreen();
   }
 };
@@ -216,6 +276,29 @@ const handleShowDetails = async () => {
 
 const closeModal = () => {
   showModal.value = false;
+};
+
+const openCellDetail = (initial, final) => {
+  if (!canOpenCellDetail(initial, final)) return;
+
+  const details = getCellDetails(initial, final) || {};
+  const toneSections = props.tones
+    .map((tone) => ({
+      tone,
+      items: Array.isArray(details[tone]) ? details[tone] : []
+    }))
+    .filter((section) => section.items.length > 0);
+
+  selectedCell.value = {
+    initial,
+    final,
+    toneSections
+  };
+  showCellDetailModal.value = true;
+};
+
+const closeCellDetailModal = () => {
+  showCellDetailModal.value = false;
 };
 
 // 格式化行政區劃
@@ -423,6 +506,7 @@ const getToneData = (data) => {
   min-width: 120px;
   max-width: 200px;
   background: var(--glass-very-light2);
+  cursor: default;
   /* Remove transition for better performance on Android */
   /* Layout isolation for better rendering performance */
   contain: layout style paint;
@@ -431,6 +515,15 @@ const getToneData = (data) => {
 .matrix-cell:hover {
   background: var(--glass-light2);
   /* Instant color change - no transition needed */
+}
+
+.matrix-cell.is-clickable {
+  cursor: pointer;
+}
+
+.matrix-cell.is-clickable:hover {
+  background: rgba(59, 130, 246, 0.09);
+  box-shadow: inset 0 0 0 1px rgba(59, 130, 246, 0.35);
 }
 
 .cell-content {

@@ -62,6 +62,12 @@ export async function getCustomData(params) {
       query.append('need_features', params.need_features)
     }
 
+    if (params.phonology && Array.isArray(params.phonology)) {
+      query.append('phonology', params.phonology.join(','))
+    } else if (params.phonology) {
+      query.append('phonology', params.phonology)
+    }
+
     if (params.region_mode) {
       query.append('region_mode', params.region_mode)
     }
