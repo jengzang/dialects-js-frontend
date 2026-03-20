@@ -17,13 +17,12 @@ import Jyut2IpaTool from "./explore/tools/Jyut2IpaTool.vue";
 import MergeTool from "./explore/tools/MergeTool.vue";
 import gdVillages from "./explore/villages/gdVillagesTree.vue";
 import SimpleLayout from "./explore/tools/TableManage.vue";
-import YangChunSpoken from "./explore/pho/YangChunSpoken.vue";
-import YuBaoPage from "./explore/pho/YuBaoPage.vue";
+import YangChunSpoken from "./explore/word/YangChunSpoken.vue";
+import YuBaoPage from "./explore/word/YuBaoPage.vue";
 import gdVillagesTable from "./explore/villages/gdVillagesTable.vue";
 import Praat from "@/views/Praat.vue";
 import VillagesML from "@/views/explore/villages/VillagesML.vue";
 import CharacterClassification from "./explore/charClass/CharacterClassification.vue";
-import DialectClustering from "./explore/cluster/DialectClustering.vue";
 
 const route = useRoute()
 const router = useRouter()
@@ -73,7 +72,6 @@ const activeComponent = computed(() => {
     gdVillagesTable: gdVillagesTable,
     praat : Praat,
     CharacterClassification: CharacterClassification,
-    DialectClustering: DialectClustering,
   }
   return pageMap[page] || CheckTool
 })

@@ -140,19 +140,19 @@
           </div>
           <transition name="expand">
             <div v-if="expandedCard === 'pho'" class="card-body">
-              <a @click.stop="navigateTo('/menu?tab=pho&sub=phonologyMatrix')" class="feature-link">
+              <a @click.stop="navigateTo('/menu?tab=word&sub=phonologyMatrix')" class="feature-link">
                 <span class="link-icon">⚗️</span>
                 <span class="link-text">{{ $t('home.features.phonology.phonologyQuery') }}</span>
               </a>
-              <a @click.stop="navigateTo('/menu?tab=pho&sub=phonologyCustom')" class="feature-link">
+              <a @click.stop="navigateTo('/menu?tab=word&sub=phonologyCustom')" class="feature-link">
                 <span class="link-icon">🔬</span>
                 <span class="link-text">{{ $t('home.features.phonology.phonemeClassify') }}</span>
               </a>
-              <a @click.stop="navigateTo('/menu?tab=pho&sub=Countphos')" class="feature-link">
+              <a @click.stop="navigateTo('/menu?tab=word&sub=Countphos')" class="feature-link">
                 <span class="link-icon">📊</span>
                 <span class="link-text">{{ $t('home.features.phonology.syllableCount') }}</span>
               </a>
-              <a @click.stop="navigateTo('/menu?tab=pho&sub=pieVector')" class="feature-link">
+              <a @click.stop="navigateTo('/menu?tab=word&sub=pieVector')" class="feature-link">
                 <span class="link-icon">🥧</span>
                 <span class="link-text">{{ $t('home.features.phonology.pieVector') }}</span>
               </a>
@@ -305,7 +305,7 @@
         </div>
 
         <!-- 方言聚类 -->
-        <div class="feature-card clickable" @click="navigateTo('/explore?page=DialectClustering')">
+        <div class="feature-card clickable" @click="navigateTo('/menu?tab=cluster')">
           <div class="card-header">
             <div class="card-icon">🧩</div>
             <div class="card-info">

@@ -138,7 +138,7 @@ import { useI18n } from 'vue-i18n';
 import { clearToken, getToken } from '@/api/auth/auth.js'
 import { getTodayVisits, getTotalVisits, getVisitHistory } from '@/api/logs/index.js'
 import {userStore} from "@/store/store.js";
-import { useMenuConfig } from '@/config/menuConfig.js';
+import { useMenuConfig } from '@/config/SideBarConfig.js';
 import { WEB_BASE } from '@/env-config.js';
 
 const { t } = useI18n();

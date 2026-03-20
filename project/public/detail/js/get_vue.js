@@ -88,7 +88,7 @@ window.addEventListener('DOMContentLoaded', function () {
             // key → group_inputs
             document.getElementById('group_inputs').value = parsed.key || '';
 
-            // pho → pho_values
+            // word → pho_values
             document.getElementById('pho_values').value = parsed.pho || '';
 
             const runBtn = document.querySelector('#runBtn')

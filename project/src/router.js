@@ -105,6 +105,7 @@ const MenuTitleMap = {
     about:'方音圖鑑 - 關於網站',
     tools:'方音圖鑑 - 工具',
     pho:'方音圖鑑 - 音系',
+    cluster:'方音圖鑑 - 聚類',
     words:'方音圖鑑 - 詞彙',
     villages:'方音圖鑑 - 自然村',
     source:'方音圖鑑 - 資料來源',
@@ -125,8 +126,7 @@ const ExploreTitleMap = {
     Countphos: '方音圖鑑 - 音節統計',
     praat: '方音圖鑑 - 實驗語音學',
     VillagesML: '方音圖鑑 - 自然村機器學習',
-    CharacterClassification: '方音圖鑑 - 漢字類別',
-    DialectClustering: '方音圖鑑 - 方言聚類'
+    CharacterClassification: '方音圖鑑 - 漢字類別'
 };
 
 // 全局导航守卫

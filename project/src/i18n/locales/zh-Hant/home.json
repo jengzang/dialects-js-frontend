@@ -86,7 +86,7 @@
                                    "setting":  "設定 - 語言與音韻資料選擇"
                                },
                      "dialectClustering":  {
-                                               "title":  "方言聚類",
+                                               "title":  "聚類",
                                                "desc":  "方言聚類流程頁面占位"
                                            }
                  },
@@ -98,7 +98,7 @@
                                              "desc":  "聲學參數批量估計、多算法基頻檢測、EGG信號分析、聲門參數提取"
                                          },
                     "dialectClustering":  {
-                                              "title":  "方言聚類分析",
+                                              "title":  "聚類",
                                               "desc":  "自定義音值音位權重、調整聚類算法參數、基於音位向量的多維度相似度計算"
                                           },
                     "evolutionTree":  {

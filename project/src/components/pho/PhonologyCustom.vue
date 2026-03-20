@@ -5,14 +5,20 @@
     </div> -->
     <!-- 特徵選擇 Tab -->
     <div class="feature-tabs">
-      <div
+      <label
           v-for="feature in features"
           :key="feature"
-          :class="['feature-tab', { active: selectedFeature === feature }]"
-          @click="selectedFeature = feature"
+          class="feature-radio-label"
       >
+        <input
+            type="radio"
+            :value="feature"
+            v-model="selectedFeature"
+            class="hidden-radio"
+        />
+        <span class="glass-indicator"></span>
         {{ feature }}
-      </div>
+      </label>
     </div>
     <!-- 地点输入组件 -->
     <div class="input-section">
@@ -435,19 +441,6 @@ watch(() => route.query, (newQuery) => {
   width: 90dvw;
 }
 
-.page-header {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin: 20px 0;
-}
-
-.page-title {
-  margin: 0;
-  font-size: 28px;
-  font-weight: 700;
-  color: var(--text-dark-light);
-}
 
 .input-section {
   max-width: 600px;
@@ -459,36 +452,83 @@ watch(() => route.query, (newQuery) => {
   align-items: center;
 }
 
+/* 容器：保证在同一行居中 */
 .feature-tabs {
   display: flex;
-  gap: 8px;
-  margin: 20px auto;
   justify-content: center;
-  max-width: 400px;
+  gap: 24px;
+  margin: 20px auto;
 }
 
-.feature-tab {
-  flex: 1;
-  padding: 10px 20px;
-  background: var(--glass-light2);
-  border: 1px solid var(--border-gray-light);
-  border-radius: var(--radius-md);
+/* 标签容器：让圆圈和文字垂直居中对齐 */
+.feature-radio-label {
+  display: flex;
+  align-items: center;
+  gap: 8px; /* 圆圈和文字的间距 */
   cursor: pointer;
-  transition: all 0.3s ease;
+  font-size: 15px;
   font-weight: 500;
-  text-align: center;
+  color: var(--text-dark, #333);
+  user-select: none;
+  transition: opacity 0.2s ease;
 }
 
-.feature-tab.active {
-  background: var(--color-primary);
-  color: var(--text-white);
-  border-color: var(--color-primary);
-  box-shadow: var(--shadow-md);
+.feature-radio-label:hover {
+  opacity: 0.8;
 }
 
-.feature-tab:hover:not(.active) {
-  background: var(--glass-medium2);
-  transform: translateY(-1px);
+/* 隐藏原生单选框，但不影响功能 */
+.hidden-radio {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* 液态玻璃圆圈（外圈） */
+.glass-indicator {
+  position: relative;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1px solid rgba(150, 150, 150, 0.3); /* 细微的边框 */
+  background: rgba(255, 255, 255, 0.2); /* 半透明底色 */
+  backdrop-filter: blur(8px); /* 核心：毛玻璃效果 */
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow:
+      inset 0 1px 3px rgba(255, 255, 255, 0.5), /* 顶部内发光（玻璃质感） */
+      0 2px 4px rgba(0, 0, 0, 0.05); /* 底部微小阴影 */
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+/* 选中时的圆圈内部实心点 */
+.glass-indicator::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--color-primary, #007aff); /* 苹果蓝，或你的主题色 */
+  transform: translate(-50%, -50%) scale(0); /* 默认缩放为0隐藏 */
+  transition: transform 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28); /* 弹性弹出动画 */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+/* 选中状态触发器 */
+.hidden-radio:checked + .glass-indicator {
+  border-color: var(--color-primary, #007aff);
+  background: rgba(255, 255, 255, 0.8); /* 选中时玻璃变亮 */
+}
+
+.hidden-radio:checked + .glass-indicator::after {
+  transform: translate(-50%, -50%) scale(1); /* 弹出中心蓝点 */
+}
+
+/* 选中时的文字颜色变化（可选） */
+.hidden-radio:checked ~ .feature-radio-label {
+  color: var(--color-primary, #007aff);
 }
 
 .column-selectors {

@@ -126,7 +126,7 @@ import { useI18n } from 'vue-i18n'
 import { useExploreTabsConfig } from '@/config/TabsConfig.js'
 import { userStore } from '@/store/store.js'
 import SimpleSidebar from '@/components/bar/SimpleSidebar.vue'
-import { useMenuConfig } from '@/config/menuConfig.js'
+import { useMenuConfig } from '@/config/SideBarConfig.js'
 
 const { t } = useI18n()
 const route = useRoute()
@@ -163,7 +163,6 @@ const checkMobile = () => {
 const tabToMenuConfigMap = {
   'pho': 'pho',
   'charClass': 'charClass',
-  'dialectClustering': 'dialectClustering',
   'words': 'words',
   'villages': 'villages',
   'tools': 'tools',
@@ -199,14 +198,13 @@ const closeSubmenu = () => {
 
 // Page → Tab 映射表
 const pageToTabMap = {
-  // pho category
+  // word category
   'phonologyMatrix': 'pho',
   'phonologyCustom': 'pho',
   'Countphos': 'pho',
 
   // charClass category
   'CharacterClassification': 'charClass',
-  'DialectClustering': 'dialectClustering',
 
   // words category
   'YuBao': 'words',

@@ -95,6 +95,12 @@ export function useMenuConfig() {
         },
       ],
     },
+    // 'cluster': {
+    //   label: t('navigation.menu.dialectClustering'),
+    //   icon: '🧩',
+    //   path: '/menu?tab=cluster',
+    //   children: null,
+    // },
     'charClass': {
       label: t('navigation.menu.charClass'),
       icon: '📚',
@@ -296,6 +302,12 @@ export const menuConfig = {
       { label: '音節統計', icon: '🧮', path: '/menu?tab=pho&sub=Countphos' },
       { label: '餅圖向量', icon: '🥧', path: '/menu?tab=pho&sub=pieVector' },
     ],
+  },
+  'cluster': {
+    label: '聚類',
+    icon: '🧩',
+    path: '/menu?tab=cluster',
+    children: null,
   },
   'charClass': {
     label: '漢字',

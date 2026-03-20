@@ -14,12 +14,13 @@ import ComparePage from './menu/ComparePage.vue'
 import MapPage from './menu/MapPage.vue'
 import ResultPage from './menu/ResultPage.vue'
 import AboutPage from "@/views/menu/AboutPage.vue";
-import SourcePage from "@/views/menu/SourcePage.vue";
-import PrivacyPage from "@/views/menu/PrivacyPage.vue";
+import SourcePage from "@/views/menu/chore/SourcePage.vue";
+import PrivacyPage from "@/views/menu/chore/PrivacyPage.vue";
 import ToolsPage from "@/views/menu/entry/ToolsPage.vue";
 import PhoPage from "@/views/menu/PhoPage.vue";
 import WordsPage from "@/views/menu/entry/WordsPage.vue";
 import VillagesPage from "@/views/menu/entry/VillagesPage.vue";
+import DialectClustering from "@/views/menu/DialectClustering.vue";
 // ... 其他组件引入
 
 const route = useRoute()
@@ -42,6 +43,7 @@ const activeComponent = computed(() => {
     pho: PhoPage,
     words: WordsPage,
     villages: VillagesPage,
+    cluster:DialectClustering,
     // ... 其他映射
   }
 
