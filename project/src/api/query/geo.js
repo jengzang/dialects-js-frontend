@@ -43,18 +43,16 @@ export async function getCoordinates(params) {
       ? rawRegions.map(s => s.trim()).filter(Boolean)
       : (rawRegions || '').split(',').map(s => s.trim()).filter(Boolean)
 
-    const body = { locations, regions }
-    if (params.region_mode) body.region_mode = params.region_mode
-    if (params.iscustom) body.iscustom = params.iscustom
-    if (params.flag) body.flag = params.flag
-    if (params.feature) body.feature = params.feature
-    if (params.value) body.value = params.value
+    const query = new URLSearchParams()
+    query.append('locations', locations.join(','))
+    query.append('regions', regions.join(','))
+    if (params.region_mode) query.append('region_mode', params.region_mode)
+    if (params.iscustom) query.append('iscustom', params.iscustom)
+    if (params.flag) query.append('flag', params.flag)
+    if (params.feature) query.append('feature', params.feature)
+    if (params.value) query.append('value', params.value)
 
-    return await api('/api/get_coordinates', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body)
-    })
+    return await api(`/api/get_coordinates?${query.toString()}`)
   } catch (error) {
     console.error('Get coordinates error:', error)
     showError(error.message || '獲取坐標數據失敗')
