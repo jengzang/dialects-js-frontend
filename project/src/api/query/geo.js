@@ -1,6 +1,6 @@
 // api/query/geo.js - 地理数据查询 API
 import { api } from '../auth/auth.js'
-import { showError } from '@/utils/message.js'
+import { showError, showWarning } from '@/utils/message.js'
 
 /**
  * @typedef {Object} CoordinatesParams
@@ -36,6 +36,11 @@ export async function getCoordinates(params) {
     const locations = Array.isArray(rawLocations)
       ? rawLocations.map(s => s.trim()).filter(Boolean)
       : (rawLocations || '').split(',').map(s => s.trim()).filter(Boolean)
+
+    if (locations.length > 1000) {
+      showWarning(`地點數量（${locations.length}）超過 1000 個上限，請縮小範圍後重試`)
+      return null
+    }
 
     // Normalize regions the same way
     const rawRegions = params.regions
