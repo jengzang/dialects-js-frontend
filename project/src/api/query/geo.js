@@ -31,11 +31,12 @@ import { showError, showWarning } from '@/utils/message.js'
  */
 export async function getCoordinates(params) {
   try {
-    // Normalize locations: accept array or comma-string, trim each entry
+    // Normalize locations: accept array or comma-string, or array-of-comma-string
     const rawLocations = params.locations
-    const locations = Array.isArray(rawLocations)
-      ? rawLocations.map(s => s.trim()).filter(Boolean)
-      : (rawLocations || '').split(',').map(s => s.trim()).filter(Boolean)
+    const locations = (Array.isArray(rawLocations) ? rawLocations : [rawLocations || ''])
+      .flatMap(s => String(s).split(','))
+      .map(s => s.trim())
+      .filter(Boolean)
 
     if (locations.length > 1000) {
       showWarning(`地點數量（${locations.length}）超過 1000 個上限，請縮小範圍後重試`)
@@ -44,9 +45,10 @@ export async function getCoordinates(params) {
 
     // Normalize regions the same way
     const rawRegions = params.regions
-    const regions = Array.isArray(rawRegions)
-      ? rawRegions.map(s => s.trim()).filter(Boolean)
-      : (rawRegions || '').split(',').map(s => s.trim()).filter(Boolean)
+    const regions = (Array.isArray(rawRegions) ? rawRegions : [rawRegions || ''])
+      .flatMap(s => String(s).split(','))
+      .map(s => s.trim())
+      .filter(Boolean)
 
     const query = new URLSearchParams()
     query.append('locations', locations.join(','))
