@@ -251,7 +251,7 @@ import { getLocations, getCustomFeature, sqlQuery, batchMatch, getPartitions } f
 import { useCustomRegionStore } from '@/store/customRegionStore'
 import RegionSelector from "@/components/query/RegionSelector.vue"
 import PartitionInfoModal from "@/components/query/PartitionInfoModal.vue"
-import { userStore, setLocationDisabled } from '@/store/store.js'
+import { userStore } from '@/store/store.js'
 import { LOCATION_LIMITS } from '@/config/constants.js'
 import { STATIC_REGION_TREE, top_yindian } from '@/config'
 import * as OpenCC from 'opencc-js'
@@ -445,15 +445,9 @@ function checkLocationLimit(count) {
   }
 }
 
-// 辅助函数：同时更新 emit 和 store（向后兼容）
+// 辅助函数：通知父组件禁用状态变更
 function updateDisabledState(isDisabled) {
-  // 1. Emit to parent (backward compatible)
   emit('update:runDisabled', isDisabled)
-
-  // 2. Update store for all pages that might use this component
-  setLocationDisabled('query', isDisabled)
-  setLocationDisabled('divide', isDisabled)
-  // Note: custom tab doesn't use location validation
 }
 
 // 底部提示欄的「限制提示文案」（對應 showToast）
