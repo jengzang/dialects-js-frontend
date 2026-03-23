@@ -14,7 +14,7 @@ export function useMenuConfig() {
   return computed(() => ({
     'home': {
       label: t('navigation.menu.home'),
-      icon: '🏛️',
+      icon: '🏠',
       path: '/',
       external: true,
       children: null,
@@ -266,7 +266,7 @@ export function useMenuConfig() {
 export const menuConfig = {
   'home': {
     label: '首頁',
-    icon: '🏛️',
+    icon: '🏠',
     path: '/',
     external: true,
     children: null,

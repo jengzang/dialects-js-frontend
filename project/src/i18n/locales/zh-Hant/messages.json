@@ -31,5 +31,24 @@
     "delete": "確定要刪除嗎？",
     "cancel": "確定要取消嗎？",
     "leave": "確定要離開嗎？"
+  },
+  "rateLimit": {
+    "defaultMessage": "請求過於頻繁，請稍後再試。",
+    "retryIn": "恢復倒數",
+    "guestHint": "登入帳號後可繼續查詢，不必一直等到遊客額度恢復。",
+    "userHint": "請等待倒數結束後再試，無需重複提交。",
+    "limitTypes": {
+      "guest_ip_limit": "遊客額度已滿",
+      "authenticated_ip_limit": "目前 IP 額度已滿",
+      "authenticated_user_limit": "目前帳號額度已滿",
+      "login_ip_limit": "登入請求過於頻繁",
+      "default": "目前請求已被限流"
+    },
+    "duration": {
+      "hour": "小時",
+      "minute": "分鐘",
+      "second": "秒",
+      "now": "現在"
+    }
   }
 }

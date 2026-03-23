@@ -31,5 +31,24 @@
     "delete": "Are you sure you want to delete?",
     "cancel": "Are you sure you want to cancel?",
     "leave": "Are you sure you want to leave?"
+  },
+  "rateLimit": {
+    "defaultMessage": "Too many requests. Please try again later.",
+    "retryIn": "Retry in",
+    "guestHint": "Signing in can unlock the next query immediately once the guest limit is hit.",
+    "userHint": "Please wait for the timer to finish before trying again.",
+    "limitTypes": {
+      "guest_ip_limit": "Guest quota reached",
+      "authenticated_ip_limit": "IP quota reached",
+      "authenticated_user_limit": "Account quota reached",
+      "login_ip_limit": "Login requests limited",
+      "default": "Request rate limited"
+    },
+    "duration": {
+      "hour": "h",
+      "minute": "m",
+      "second": "s",
+      "now": "now"
+    }
   }
 }

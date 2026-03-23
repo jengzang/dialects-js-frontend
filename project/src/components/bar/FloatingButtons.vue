@@ -30,7 +30,7 @@
       @click="goToHome"
       :title="t('navigation.actions.backHome')"
     >
-      🏛️
+      🏠
     </button>
   </div>
 </template>

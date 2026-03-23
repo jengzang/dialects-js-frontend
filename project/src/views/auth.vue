@@ -145,7 +145,7 @@ const queryStats = computed(() => computeQueryStats(user.value))
 
 // Helper function to change view via router
 const setView = (newView) => {
-  router.push({ query: { view: newView } })
+  router.push({ query: { ...route.query, view: newView } })
 }
 
 // Convenience methods
@@ -159,6 +159,36 @@ const setMode = (newMode) => {
 
 const switchTab = (tab) => {
   setView(tab)
+}
+
+function extractErrorMessage(error, fallback = t('auth.validation.unknownError')) {
+  const detail = error?.detail ?? error?.response?.data?.detail
+
+  if (typeof detail === 'string' && detail.trim()) {
+    return detail.trim()
+  }
+
+  if (detail && typeof detail === 'object' && typeof detail.message === 'string' && detail.message.trim()) {
+    return detail.message.trim()
+  }
+
+  if (typeof error?.message === 'string' && error.message.trim()) {
+    return error.message.trim()
+  }
+
+  return fallback
+}
+
+function getSafeRedirectPath(path) {
+  if (typeof path !== 'string') {
+    return ''
+  }
+
+  if (!path.startsWith('/') || path.startsWith('//') || path.startsWith('/auth')) {
+    return ''
+  }
+
+  return path
 }
 
 const handleLogin = async (credentials) => {
@@ -179,21 +209,16 @@ const handleLogin = async (credentials) => {
 
     showSuccess(t('auth.messages.loginSuccess'))
     success.value = t('auth.messages.loginSuccessDetail')
+    const redirectPath = getSafeRedirectPath(route.query.redirect)
     setTimeout(() => {
-      window.location.reload()
+      if (redirectPath) {
+        router.replace(redirectPath)
+      } else {
+        window.location.reload()
+      }
     }, 1000)
   } catch (e) {
-    let msg = t('auth.validation.unknownError')
-    if (typeof e?.message === 'string') {
-      try {
-        const data = JSON.parse(e.message)
-        msg = data?.detail ?? e.message
-      } catch {
-        msg = e.message
-      }
-    } else if (e && typeof e === 'object' && 'detail' in e) {
-      msg = e.detail
-    }
+    const msg = extractErrorMessage(e)
     if (msg.includes('Invalid credentials')) {
       error.value = t('auth.validation.loginFailed')
     } else {
@@ -242,7 +267,7 @@ const handleRegister = async ({ username, email, password, confirmPassword }) =>
       success.value = ''
     }, 1000)
   } catch (e) {
-    const msg = e.message || ''
+    const msg = extractErrorMessage(e, '')
     if (msg.includes('Username already exists')) {
       error.value = t('auth.validation.usernameExists')
     } else if (msg.includes('Email already exists')) {
@@ -285,16 +310,8 @@ const handleSaveUsername = async ({ newUsername }) => {
       success.value = ''
     }, 2000)
   } catch (e) {
-    try {
-      const errorDetails = JSON.parse(e.message)
-      if (errorDetails.detail) {
-        error.value = t('auth.messages.errorDetail', { detail: errorDetails.detail })
-      } else {
-        error.value = t('auth.validation.unknownError')
-      }
-    } catch {
-      error.value = t('auth.messages.parseError')
-    }
+    const message = extractErrorMessage(e)
+    error.value = t('auth.messages.errorDetail', { detail: message })
   } finally {
     loading.value = false
   }
@@ -339,16 +356,8 @@ const handleSavePassword = async ({ currentPassword, newPassword }) => {
       success.value = ''
     }, 2000)
   } catch (e) {
-    try {
-      const errorDetails = JSON.parse(e.message)
-      if (errorDetails.detail) {
-        error.value = t('auth.messages.errorDetail', { detail: errorDetails.detail })
-      } else {
-        error.value = t('auth.validation.unknownError')
-      }
-    } catch {
-      error.value = t('auth.messages.parseError')
-    }
+    const message = extractErrorMessage(e)
+    error.value = t('auth.messages.errorDetail', { detail: message })
   } finally {
     loading.value = false
   }

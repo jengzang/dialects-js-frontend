@@ -4,6 +4,7 @@
 
 import { ref } from 'vue'
 import i18n from '@/i18n'
+import { rateLimitNoticeState } from '@/utils/rateLimitNotice.js'
 
 // 获取 i18n 的 t 函数
 const getTranslate = () => {
@@ -37,6 +38,15 @@ function translateMessage(message) {
     return t(message)
   }
   return message
+}
+
+function shouldSuppressRateLimitToast(type, message) {
+  return (
+    type === 'error' &&
+    rateLimitNoticeState.visible &&
+    typeof message === 'string' &&
+    message === rateLimitNoticeState.message
+  )
 }
 
 // ========================================
@@ -157,6 +167,10 @@ export function showConfirm(message, options = {}) {
 function showMessage(message, type, duration) {
     // 自动翻译 i18n key
     const translatedMessage = translateMessage(message)
+
+    if (shouldSuppressRateLimitToast(type, translatedMessage)) {
+        return
+    }
 
     messageState.value = {
         show: true,

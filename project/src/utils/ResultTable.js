@@ -205,10 +205,10 @@ export async function get_detail(location, feature_value, bool=false, vue=false,
 
     } catch (error) {
         console.error("分析失敗", error);
-        if (error.response && error.response.detail) {
-            window.showErrorToast("錯誤信息：" + error.response.detail);
-        } else {
-            window.showErrorToast("請求後端錯誤：" + error.message);
-        }
+        const detail = error?.detail ?? error?.response?.data?.detail;
+        const message = typeof detail === 'string'
+            ? detail
+            : detail?.message || error?.message;
+        window.showErrorToast(message);
     }
 }

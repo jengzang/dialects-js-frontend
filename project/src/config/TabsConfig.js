@@ -30,7 +30,7 @@ export function useMenuTabsConfig() {
   //   {
   //   tab: 'home',
   //   label: t('navigation.tabs.home'),
-  //   icon: '🏛️',
+  //   icon: '🏠',
   //   weight: 0.8,                          // 桌面端标签显示时的 flex 权重
   //   weightIconOnly: 0.4,                  // 桌面端仅显示图标时的 flex 权重（可选，默认使用 weight）
   //   fontSize: 1.3,

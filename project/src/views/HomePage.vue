@@ -531,16 +531,16 @@
       @close="showUpdateNotice = false"
     >
       <div class="update-item">
-        <span class="item-icon">📜</span>
-        <span class="item-text"><strong>新增「漢字」功能頁</strong> - 中古、上古、近古漢語及粵語韻書字表整合成獨立頁面，方便查閱各時代音韻資料</span>
+        <span class="item-icon">🚀</span>
+        <span class="item-text"><strong>後端重構</strong> - 大幅提升 API 響應速度，提供更流暢的操作體驗</span>
       </div>
       <div class="update-item">
-        <span class="item-icon">ℹ️</span>
-        <span class="item-text"><strong>簡介與感悟合並</strong> - 關於頁面的「簡介」與「感悟」整合在同一頁，閱讀體驗更流暢</span>
+        <span class="item-icon">🗂️</span>
+        <span class="item-text"><strong>重整目錄結構</strong> - 優化整體導航，包含將「簡介」與「感悟」合併、獨立「漢字」音韻資料為專屬分頁，並同步更新首頁卡片</span>
       </div>
       <div class="update-item">
-        <span class="item-icon">🏠</span>
-        <span class="item-text"><strong>首頁功能卡片更新</strong> - 同步更新首頁導航卡片，反映最新功能結構</span>
+        <span class="item-icon">🌐</span>
+        <span class="item-text"><strong>新增多語言支持</strong> - 現已支持繁體中文、簡體中文與英文。用戶可至「關於 - 設置」中自由切換介面顯示語言</span>
       </div>
     </UpdateNoticeModal>
 
