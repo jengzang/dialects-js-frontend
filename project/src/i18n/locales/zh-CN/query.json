@@ -267,7 +267,7 @@
       "selectedLocationsModalTitle": "已选择地点（{count}）",
       "customLocationsModalTitle": "自定义地点（{count}）",
       "requireInput": "请输入地点或分区",
-      "tooManyLocations": "地点数量过多（{count} 个），请缩小范围至 1000 个以内"
+      "tooManyLocations": "地点输入框输入过长，请使用选择分区以支持多地点"
     }
   },
   "result": {

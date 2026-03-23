@@ -925,7 +925,7 @@ async function fetchLocationsResult() {
     const mergedLocations = [...new Set([...locations, ...customRegionLocationsArray])]
 
     if (mergedLocations.length > 1000) {
-      limitHint.value = t('query.components.locationAndRegionInput.tooManyLocations', { count: mergedLocations.length })
+      limitHint.value = t('query.components.locationAndRegionInput.tooManyLocations')
       selectedCount.value = mergedLocations.length
       updateDisabledState(true)
       return
