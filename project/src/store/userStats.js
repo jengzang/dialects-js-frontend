@@ -124,8 +124,6 @@ export function formatOnlineTime(seconds) {
  */
 export function fmt(isoStr) {
   if (!isoStr) return ''
-  const utc = new Date(isoStr)
-  const beijing = new Date(utc.getTime() + 8 * 60 * 60 * 1000)
-  return beijing.toLocaleString('zh-Hant-CN', { hour12: false })
+  return new Date(isoStr).toLocaleString('zh-Hant-CN', { hour12: false })
 }
 
