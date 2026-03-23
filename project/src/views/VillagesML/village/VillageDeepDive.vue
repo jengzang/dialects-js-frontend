@@ -71,7 +71,6 @@
           :village-id="selectedVillageId"
           :data="ngrams"
           :loading="loadingNgrams"
-          @load-ngrams="loadNgrams"
         />
       </div>
 
@@ -204,16 +203,10 @@ const loadVillageData = async (villageId) => {
     loadingSemantic.value = false
   }
 
-  // Note: N-grams are loaded on-demand via button click in NgramPanel
-}
-
-// Load ngrams separately (called by NgramPanel)
-const loadNgrams = async () => {
-  if (!selectedVillageId.value) return
-
+  // Load ngrams
   loadingNgrams.value = true
   try {
-    ngrams.value = await getVillageNgrams(selectedVillageId.value)
+    ngrams.value = await getVillageNgrams(villageId)
   } catch (error) {
     showError('加載N-gram分解失敗')
   } finally {
