@@ -266,7 +266,8 @@
       "customLocationsLabel": "Custom locations:",
       "selectedLocationsModalTitle": "Selected Locations ({count})",
       "customLocationsModalTitle": "Custom Locations ({count})",
-      "requireInput": "Please enter a location or partition"
+      "requireInput": "Please enter a location or partition",
+      "tooManyLocations": "Too many locations ({count}), please narrow your selection to under 1,000"
     }
   },
   "result": {

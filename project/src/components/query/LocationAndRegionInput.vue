@@ -924,6 +924,13 @@ async function fetchLocationsResult() {
     // 🔥 Merge manual locations + custom region locations
     const mergedLocations = [...new Set([...locations, ...customRegionLocationsArray])]
 
+    if (mergedLocations.length > 1000) {
+      limitHint.value = t('query.components.locationAndRegionInput.tooManyLocations', { count: mergedLocations.length })
+      selectedCount.value = mergedLocations.length
+      updateDisabledState(true)
+      return
+    }
+
     const data = await getLocations({
       locations: mergedLocations,
       regions,

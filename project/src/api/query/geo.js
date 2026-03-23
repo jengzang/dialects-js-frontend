@@ -31,10 +31,9 @@ import { showError, showWarning } from '@/utils/message.js'
  */
 export async function getCoordinates(params) {
   try {
-    // Normalize locations: accept array or comma-string, or array-of-comma-string
     const rawLocations = params.locations
     const locations = (Array.isArray(rawLocations) ? rawLocations : [rawLocations || ''])
-      .flatMap(s => String(s).split(','))
+      .flatMap(s => String(s).split(/[\s,]+/))
       .map(s => s.trim())
       .filter(Boolean)
 
@@ -43,10 +42,9 @@ export async function getCoordinates(params) {
       return null
     }
 
-    // Normalize regions the same way
     const rawRegions = params.regions
     const regions = (Array.isArray(rawRegions) ? rawRegions : [rawRegions || ''])
-      .flatMap(s => String(s).split(','))
+      .flatMap(s => String(s).split(/[\s,]+/))
       .map(s => s.trim())
       .filter(Boolean)
 
