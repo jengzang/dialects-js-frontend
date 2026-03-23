@@ -31,17 +31,30 @@ import { showError } from '@/utils/message.js'
  */
 export async function getCoordinates(params) {
   try {
-    const query = new URLSearchParams()
+    // Normalize locations: accept array or comma-string, trim each entry
+    const rawLocations = params.locations
+    const locations = Array.isArray(rawLocations)
+      ? rawLocations.map(s => s.trim()).filter(Boolean)
+      : (rawLocations || '').split(',').map(s => s.trim()).filter(Boolean)
 
-    query.append('locations', params.locations || '')
-    query.append('regions', params.regions || '')
-    if (params.region_mode) query.append('region_mode', params.region_mode)
-    if (params.iscustom) query.append('iscustom', params.iscustom)
-    if (params.flag) query.append('flag', params.flag)
-    if (params.feature) query.append('feature', params.feature)
-    if (params.value) query.append('value', params.value)
+    // Normalize regions the same way
+    const rawRegions = params.regions
+    const regions = Array.isArray(rawRegions)
+      ? rawRegions.map(s => s.trim()).filter(Boolean)
+      : (rawRegions || '').split(',').map(s => s.trim()).filter(Boolean)
 
-    return await api(`/api/get_coordinates?${query.toString()}`)
+    const body = { locations, regions }
+    if (params.region_mode) body.region_mode = params.region_mode
+    if (params.iscustom) body.iscustom = params.iscustom
+    if (params.flag) body.flag = params.flag
+    if (params.feature) body.feature = params.feature
+    if (params.value) body.value = params.value
+
+    return await api('/api/get_coordinates', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    })
   } catch (error) {
     console.error('Get coordinates error:', error)
     showError(error.message || '獲取坐標數據失敗')
