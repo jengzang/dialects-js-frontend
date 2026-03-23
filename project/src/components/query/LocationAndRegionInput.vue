@@ -433,6 +433,12 @@ async function handleCustomRegionQuery(locations) {
 
 // 檢查地點數量限制
 function checkLocationLimit(count) {
+  if (count > 1000) {
+    limitHint.value = t('query.components.locationAndRegionInput.tooManyLocations')
+    updateDisabledState(true)
+    return
+  }
+
   const contextLimits = LOCATION_LIMITS[props.limitContext] || LOCATION_LIMITS.default
   const limits = contextLimits[userStore.role] || contextLimits.anonymous
 
