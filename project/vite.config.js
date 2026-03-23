@@ -11,7 +11,8 @@ export default defineConfig(({ mode }) => {
   let webBase
   if (mode === 'web') {
     // npm run dev:web - 开发模式但连接正式域名
-    webBase = env.VITE_WEB_BASE || 'https://dialects.yzup.top'
+    // 使用空字符串，让请求走相对路径，通过Vite代理转发
+    webBase = ''
   } else if (mode === 'development') {
     // npm run dev - 开发模式连接本地
     webBase = env.VITE_WEB_BASE || 'http://127.0.0.1:5000'
@@ -32,6 +33,16 @@ export default defineConfig(({ mode }) => {
     define: {
       // 用于 JS 代码中的替换
       __WEB_BASE__: JSON.stringify(webBase)
+    },
+    server: {
+      proxy: {
+        // 代理所有非静态资源请求到后端
+        '^/(api|logs|sql|auth|upload|download|static|files)': {
+          target: 'https://dialects.yzup.top',
+          changeOrigin: true,
+          secure: false,
+        }
+      }
     },
     build: {
       rollupOptions: {

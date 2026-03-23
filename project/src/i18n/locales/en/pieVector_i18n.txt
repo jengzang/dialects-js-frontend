@@ -1,0 +1,51 @@
+                      "pieVector": {
+                                        "title": "Pie Vectors",
+                                        "queryMode": {
+                                                    "byValue": "By Value",
+                                                    "byStatus": "By Status"
+                                        },
+                                        "controls": {
+                                                    "table": "Character Table",
+                                                    "level1": "First Dimension",
+                                                    "level2": "Second Dimension",
+                                                    "location": "Location",
+                                                    "locationHint": "Only single location analysis supported",
+                                                    "query": "Query",
+                                                    "loading": "Querying..."
+                                        },
+                                        "similarity": {
+                                                    "algorithm": "Similarity Algorithm",
+                                                    "threshold": "Display Threshold",
+                                                    "showConnections": "Show Connections",
+                                                    "showCategoryLinks": "Show Category Links",
+                                                    "algorithms": {
+                                                                "cosine": "Cosine Similarity",
+                                                                "overlap": "Weighted Overlap",
+                                                                "topK": "Top-3 Match",
+                                                                "kl": "KL Divergence",
+                                                                "jaccard": "Jaccard Similarity",
+                                                                "charWeighted": "Char-Weighted Similarity",
+                                                                "structural": "Structural Similarity",
+                                                                "cooccurrence": "Co-occurrence",
+                                                                "entropy": "Entropy Similarity",
+                                                                "hierarchical": "Hierarchical Similarity"
+                                                    }
+                                        },
+                                        "features": {
+                                                    "initial": "Initial",
+                                                    "final": "Final",
+                                                    "tone": "Tone"
+                                        },
+                                        "errors": {
+                                                    "minLocation": "Please select at least one location",
+                                                    "maxLocation": "Pie vector analysis only supports single location, please remove extra locations",
+                                                    "autoLimitLocation": "Pie vector analysis only supports single location, automatically kept the first one",
+                                                    "selectDimensions": "Please select two dimensions",
+                                                    "sameDimensions": "Two dimensions cannot be the same",
+                                                    "queryFailed": "Query failed"
+                                        },
+                                        "states": {
+                                                    "loading": "Loading...",
+                                                    "empty": "No data for current feature"
+                                        }
+                      },

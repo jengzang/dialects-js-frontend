@@ -109,6 +109,57 @@
         "minLocationError": "请至少输入一个地点",
         "loadError": "加载数据时发生错误"
       }
+    },
+    "pieVector": {
+      "title": "饼图向量",
+      "queryMode": {
+        "byValue": "按值统计",
+        "byStatus": "按状态统计"
+      },
+      "controls": {
+        "table": "字符表",
+        "level1": "第一维度",
+        "level2": "第二维度",
+        "location": "地点",
+        "locationHint": "仅支持单个地点分析",
+        "query": "查询",
+        "loading": "查询中..."
+      },
+      "similarity": {
+        "algorithm": "相似度算法",
+        "threshold": "显示阈值",
+        "showConnections": "显示连线",
+        "showCategoryLinks": "显示类别对应",
+        "algorithms": {
+          "cosine": "余弦相似度",
+          "overlap": "加权重叠度",
+          "topK": "Top-3匹配度",
+          "kl": "KL散度",
+          "jaccard": "字符集相似度",
+          "charWeighted": "字符加权相似度",
+          "structural": "结构相似度",
+          "cooccurrence": "共现类别数",
+          "entropy": "分布均匀度相似",
+          "hierarchical": "层次相似度"
+        }
+      },
+      "features": {
+        "initial": "声母",
+        "final": "韵母",
+        "tone": "声调"
+      },
+      "errors": {
+        "minLocation": "请至少选择一个地点",
+        "maxLocation": "饼图向量分析只支持单个地点，请删除多余的地点",
+        "autoLimitLocation": "饼图向量分析只支持单个地点，已自动保留第一个地点",
+        "selectDimensions": "请选择两个维度",
+        "sameDimensions": "两个维度不能相同",
+        "queryFailed": "查询失败"
+      },
+      "states": {
+        "loading": "加载中...",
+        "empty": "当前特征没有数据"
+      }
     }
   },
   "tabs": {
