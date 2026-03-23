@@ -1,16 +1,7 @@
 <script setup>
-import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-const { t, locale } = useI18n()
-
-const toggleLang = () => {
-  locale.value = locale.value === 'zh-Hant' ? 'en' : 'zh-Hant'
-}
-
-const currentLangLabel = computed(() => {
-  return locale.value === 'zh-Hant' ? t('privacy.langToggle.zh') : t('privacy.langToggle.en')
-})
+const { t } = useI18n()
 
 const copyCitation = () => {
   navigator.clipboard.writeText(t('privacy.citation.text'))
@@ -24,9 +15,6 @@ const copyCitation = () => {
       <!-- 标题和语言切换 -->
       <div class="header">
         <h1 class="title">📜 {{ t('privacy.title') }}</h1>
-        <button class="lang-toggle" @click="toggleLang">
-          {{ currentLangLabel }}
-        </button>
       </div>
 
       <div class="content-section">
@@ -163,25 +151,6 @@ const copyCitation = () => {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-}
-
-.lang-toggle {
-  padding: 8px 20px;
-  border-radius: 20px;
-  border: 2px solid #007aff;
-  background: white;
-  color: #007aff;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-
-.lang-toggle:hover {
-  background: #007aff;
-  color: white;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
 }
 
 .content-section {

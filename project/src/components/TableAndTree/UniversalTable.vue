@@ -68,7 +68,7 @@
 
         <thead>
         <tr>
-          <th v-for="(col, index) in columns" :key="col.key">
+          <th v-for="col in columns" :key="col.key">
             <div class="header-content">
               <div
                   class="header-text-wrapper"
@@ -161,7 +161,7 @@
 
                 <thead>
                 <tr>
-                  <th v-for="(col, index) in columns" :key="col.key">
+                  <th v-for="col in columns" :key="col.key">
                     <div class="header-content">
                       <div
                           class="header-text-wrapper"
@@ -517,7 +517,7 @@ import {
 import { userStore } from '@/store/store.js';
 import { useVirtualList } from '@vueuse/core';
 import { TABLE_CONFIG } from '@/config/constants.js';
-import { showSuccess, showWarning, showInfo, showConfirm, showError } from '@/utils/message.js';
+import { showSuccess, showWarning, showConfirm, showError } from '@/utils/message.js';
 
 const { t } = useI18n();
 
