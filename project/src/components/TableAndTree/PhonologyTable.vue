@@ -1,104 +1,57 @@
-<template>
-  <div class="phonology-matrix">
+﻿<template>
+  <div class="phonology-matrix" :class="{ 'is-fullscreen': isFullScreen }">
     <div v-if="location" class="location-header">
-      <div class="location-title">{{ location }}</div>
-      <button class="tone-search-btn" @click="handleShowDetails" :disabled="isLoading">
-        {{ isLoading ? '查詢中...' : '詳情' }}
-      </button>
+      <div class="location-title">📍 {{ location }}</div>
+      <div class="header-actions">
+        <button class="tone-search-btn" @click="handleShowDetails" :disabled="isLoading">
+          {{ isLoading ? t('result.phonologyTable.loadingButton') : t('result.phonologyTable.detailButton') }}
+        </button>
+        <button class="fullscreen-btn" @click="toggleFullScreen">
+          {{ t('result.phonologyTable.fullscreen') }}
+        </button>
+      </div>
     </div>
 
-    <Teleport to="body">
-      <div v-if="showModal" class="modal-overlay" @click="closeModal">
-        <div class="modal-content" @click.stop>
-          <div class="modal-header">
-            <h3>📍 {{ location }}</h3>
-            <button class="close-btn" @click="closeModal">&times;</button>
-          </div>
+    <LocationDetailPopup
+      :visible="showModal"
+      :location-name="location"
+      :data="locationData"
+      :loading="isLoading"
+      @close="closeModal"
+    />
 
-          <div v-if="isLoading" class="modal-body">
-            <div class="popup-loading">
-              <div class="mini-spinner"></div>
-              <span>加載中...</span>
-            </div>
-          </div>
+    <PhonologyCellDetailModal
+      :visible="showCellDetailModal"
+      :location="location"
+      :initial="selectedCell.initial"
+      :final="selectedCell.final"
+      :tone-sections="selectedCell.toneSections"
+      @close="closeCellDetailModal"
+    />
 
-          <div v-else-if="locationData && locationData.data && locationData.data.length > 0" class="modal-body">
-            <div class="info-section">
-              <div class="info-title">{{ locationData.data[0].語言 }}</div>
-
-              <div class="info-item">
-                <span class="info-label">地圖集二分區：</span>
-                <span class="info-value">{{ locationData.data[0].地圖集二分區 || '無' }}</span>
-              </div>
-
-              <div class="info-item">
-                <span class="info-label">音典分區：</span>
-                <span class="info-value">{{ locationData.data[0].音典分區 || '無' }}</span>
-              </div>
-
-              <div class="info-item">
-                <span class="info-label">字表來源：</span>
-                <span class="info-value">{{ locationData.data[0]['字表來源（母本）'] || '無' }}</span>
-              </div>
-
-              <div class="info-item">
-                <span class="info-label">經緯度：</span>
-                <span class="info-value">{{ formatCoordinates(locationData.data[0].經緯度) }}</span>
-              </div>
-
-              <div class="info-item">
-                <span class="info-label">行政區劃：</span>
-                <span class="info-value">{{ formatAdministrativeRegion(locationData.data[0]) }}</span>
-              </div>
-            </div>
-
-            <div class="tone-section" v-if="getToneData(locationData.data[0]).length > 0">
-              <div class="section-title">調值信息</div>
-              <table class="tone-mini-table">
-                <thead>
-                  <tr>
-                    <th>調類</th>
-                    <th>調值</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="(tone, index) in getToneData(locationData.data[0])" :key="index">
-                    <td>{{ tone.label }}</td>
-                    <td>{{ tone.value }}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <div v-else class="modal-body">
-            <div class="popup-no-data">暫無數據</div>
-          </div>
-
-          <div class="modal-footer">
-            <button class="modal-close-btn" @click="closeModal">關閉</button>
-          </div>
-        </div>
-      </div>
-    </Teleport>
+    <button v-if="isFullScreen" class="exit-fullscreen-btn" @click="toggleFullScreen">
+      {{ t('result.phonologyTable.exitFullscreen') }}
+    </button>
 
     <div class="matrix-wrapper">
       <table class="matrix-table">
         <thead>
         <tr>
-          <th class="corner-cell" style="white-space: nowrap">分類特徵</th>
+          <th class="corner-cell" style="white-space: nowrap">{{ t('result.phonologyTable.matrixFeature') }}</th>
           <th v-for="initial in initials" :key="initial" class="initial-header">
-            {{ initial || '零聲母' }}
+            {{ initial || t('result.phonologyTable.zeroInitial') }}
           </th>
         </tr>
         </thead>
         <tbody>
         <tr v-for="final in visibleFinals" :key="final">
-          <th class="final-header">{{ final || '零韻母' }}</th>
+          <th class="final-header">{{ final || t('result.phonologyTable.zeroFinal') }}</th>
           <td
               v-for="initial in initials"
               :key="`${initial}-${final}`"
-              class="matrix-cell"
+              :class="['matrix-cell', { 'is-clickable': canOpenCellDetail(initial, final) }]"
+              :title="canOpenCellDetail(initial, final) ? t('result.phonologyTable.detailButton') : ''"
+              @click="openCellDetail(initial, final)"
           >
             <div v-if="getCellData(initial, final)" class="cell-content">
               <div
@@ -123,8 +76,13 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, nextTick } from 'vue';
+import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue';
+import { useI18n } from 'vue-i18n';
+import LocationDetailPopup from '@/components/result/LocationDetailPopup.vue';
+import PhonologyCellDetailModal from '@/components/TableAndTree/PhonologyCellDetailModal.vue';
 import { sqlQuery } from '@/api/sql';
+
+const { t } = useI18n();
 
 const props = defineProps({
   location: {
@@ -146,6 +104,14 @@ const props = defineProps({
   matrix: {
     type: Object,
     required: true
+  },
+  cellDetails: {
+    type: Object,
+    default: null
+  },
+  cellDetailEnabled: {
+    type: Boolean,
+    default: false
   }
 })
 
@@ -173,6 +139,33 @@ const cellDataMap = computed(() => {
 
 const getCellData = (initial, final) => {
   return cellDataMap.value.get(`${initial}-${final}`) || null;
+};
+
+const cellDetailMap = computed(() => {
+  const map = new Map();
+  if (!props.cellDetailEnabled || !props.cellDetails) return map;
+
+  for (const initial of props.initials) {
+    for (const final of props.finals) {
+      const details = props.cellDetails[initial]?.[final];
+      if (details) {
+        map.set(`${initial}-${final}`, details);
+      }
+    }
+  }
+
+  return map;
+});
+
+const getCellDetails = (initial, final) => {
+  return cellDetailMap.value.get(`${initial}-${final}`) || null;
+};
+
+const canOpenCellDetail = (initial, final) => {
+  if (!props.cellDetailEnabled) return false;
+  const details = getCellDetails(initial, final);
+  if (!details || typeof details !== 'object') return false;
+  return props.tones.some((tone) => Array.isArray(details[tone]) && details[tone].length > 0);
 };
 
 // Filter visible finals for progressive rendering
@@ -208,6 +201,45 @@ onMounted(() => {
 const locationData = ref(null);
 const showModal = ref(false);
 const isLoading = ref(false);
+const isFullScreen = ref(false);
+const showCellDetailModal = ref(false);
+const selectedCell = ref({
+  initial: '',
+  final: '',
+  toneSections: []
+});
+
+const applyBodyScrollLock = (locked) => {
+  document.body.style.overflow = locked ? 'hidden' : '';
+};
+
+const toggleFullScreen = async () => {
+  isFullScreen.value = !isFullScreen.value;
+  applyBodyScrollLock(isFullScreen.value);
+  await nextTick();
+};
+
+const handleKeyDown = (event) => {
+  if (event.key !== 'Escape') return;
+
+  if (showCellDetailModal.value) {
+    closeCellDetailModal();
+    return;
+  }
+
+  if (isFullScreen.value) {
+    toggleFullScreen();
+  }
+};
+
+onMounted(() => {
+  document.addEventListener('keydown', handleKeyDown);
+});
+
+onBeforeUnmount(() => {
+  document.removeEventListener('keydown', handleKeyDown);
+  applyBodyScrollLock(false);
+});
 
 const handleShowDetails = async () => {
   if (!location.value) return;
@@ -244,6 +276,29 @@ const handleShowDetails = async () => {
 
 const closeModal = () => {
   showModal.value = false;
+};
+
+const openCellDetail = (initial, final) => {
+  if (!canOpenCellDetail(initial, final)) return;
+
+  const details = getCellDetails(initial, final) || {};
+  const toneSections = props.tones
+    .map((tone) => ({
+      tone,
+      items: Array.isArray(details[tone]) ? details[tone] : []
+    }))
+    .filter((section) => section.items.length > 0);
+
+  selectedCell.value = {
+    initial,
+    final,
+    toneSections
+  };
+  showCellDetailModal.value = true;
+};
+
+const closeCellDetailModal = () => {
+  showCellDetailModal.value = false;
 };
 
 // 格式化行政區劃
@@ -302,6 +357,15 @@ const getToneData = (data) => {
   width: 100%;
 }
 
+.phonology-matrix.is-fullscreen .matrix-wrapper {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  border-radius: 0;
+  max-height: 100dvh;
+  margin: 0;
+}
+
 .location-title {
   font-size: 24px;
   font-weight: 700;
@@ -319,7 +383,7 @@ const getToneData = (data) => {
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   box-shadow: var(--shadow-md2);
-  max-height: 90dvh;
+  max-height: 60dvh;
   margin-bottom:15px ;
   /* GPU acceleration for smooth scrolling */
   will-change: transform;
@@ -442,6 +506,7 @@ const getToneData = (data) => {
   min-width: 120px;
   max-width: 200px;
   background: var(--glass-very-light2);
+  cursor: default;
   /* Remove transition for better performance on Android */
   /* Layout isolation for better rendering performance */
   contain: layout style paint;
@@ -450,6 +515,15 @@ const getToneData = (data) => {
 .matrix-cell:hover {
   background: var(--glass-light2);
   /* Instant color change - no transition needed */
+}
+
+.matrix-cell.is-clickable {
+  cursor: pointer;
+}
+
+.matrix-cell.is-clickable:hover {
+  background: rgba(59, 130, 246, 0.09);
+  box-shadow: inset 0 0 0 1px rgba(59, 130, 246, 0.35);
 }
 
 .cell-content {
@@ -517,6 +591,12 @@ const getToneData = (data) => {
   margin-bottom: 16px;
 }
 
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .location-title {
   font-size: 24px;
   font-weight: 700;
@@ -558,6 +638,48 @@ const getToneData = (data) => {
   opacity: 0.5;
   cursor: not-allowed;
   transform: none;
+}
+
+.fullscreen-btn {
+  padding: 8px 16px;
+  background: rgba(52, 199, 89, 0.15);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(52, 199, 89, 0.35);
+  border-radius: 12px;
+  color: #1f7a35;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.fullscreen-btn:hover {
+  background: rgba(52, 199, 89, 0.22);
+  transform: translateY(-1px);
+}
+
+.exit-fullscreen-btn {
+  position: fixed;
+  top: 18px;
+  right: 18px;
+  padding: 10px 18px;
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  color: #1d1d1f;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  z-index: 100000;
+  transition: all 0.25s ease;
+}
+
+.exit-fullscreen-btn:hover {
+  background: rgba(255, 255, 255, 0.9);
+  transform: scale(1.04);
 }
 
 .modal-overlay {
@@ -794,3 +916,4 @@ const getToneData = (data) => {
   font-size: 13px;
 }
 </style>
+

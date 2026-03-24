@@ -1,0 +1,84 @@
+{
+  "tabs": {
+    "tab1": "比较汉字",
+    "tab2": "比较地位",
+    "tab4": "比较调类"
+  },
+  "group": {
+    "label1": "组1",
+    "label2": "组2"
+  },
+  "placeholder": {
+    "enterChar": "请输入汉字",
+    "enterMiddleChinese": "请输入中古音",
+    "inputOrSelect": "输/选 [{key}]"
+  },
+  "feature": {
+    "label": "特征",
+    "selectLabel": "选择比较特征：",
+    "initial": "声母",
+    "final": "韵母",
+    "tone": "声调"
+  },
+  "button": {
+    "compare": "比较",
+    "running": "运行中...",
+    "invalid": "输入不合规",
+    "run": "单击运行",
+    "startCompare": "开始比较",
+    "add": "添加"
+  },
+  "messages": {
+    "pleaseEnterBothGroups": "请输入两组汉字",
+    "pleaseSelectFeature": "请选择特征",
+    "pleaseEnterBothGroupsMiddleChinese": "请输入两组中古音",
+    "noConditionsAdded": "尚未添加任何条件",
+    "excludeSettingsMismatch": "同一组内的条件必须使用相同的排除设置！\\n已有条件排除：{existing}\\n当前条件排除：{current}",
+    "selectTwoToneClasses": "请选择两个调类",
+    "tab1Hint": "比较同一汉字在不同地点的读音差异。",
+    "tab2Hint": "比较同一中古地位在不同地点的演变情况。",
+    "tab4Hint": "比较两个调类在不同地点是合流还是分立。"
+  },
+  "cards": {
+    "initial": "声母",
+    "final": "韵母",
+    "tone": "声调"
+  },
+  "toneClasses": {
+    "yinping": "阴平",
+    "yangping": "阳平",
+    "yinshang": "阴上",
+    "yangshang": "阳上",
+    "yinqu": "阴去",
+    "yangqu": "阳去",
+    "yinru": "阴入",
+    "yangru": "阳入",
+    "qingsheng": "轻声",
+    "other": "其他调"
+  },
+  "excludeOptions": {
+    "noExclude": "不排除",
+    "selectAll": "全选",
+    "allMulti": "所有多地位",
+    "excludeMultiGrade": "排除多等",
+    "excludeMultiRime": "排除多韵",
+    "excludeMultiInitial": "排除多声母",
+    "excludeMultiTone": "排除多调"
+  },
+  "legend": {
+    "same": "完全相同",
+    "partial": "部分相同",
+    "diff": "完全不同",
+    "unknown": "无数据",
+    "highSimilar": "高度相似 (60-79%)",
+    "partialSimilar": "部分相似 (30-59%)",
+    "samePercent": "完全相同 (≥80%)",
+    "diffPercent": "完全不同 (<30%)",
+    "merged": "完全合并",
+    "maybeMerged": "可能合并",
+    "notMerged": "不合并"
+  },
+  "results": {
+    "noMainReading": "无主要读音"
+  }
+}

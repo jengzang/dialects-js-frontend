@@ -15,10 +15,8 @@
       <div class="glass-card">
         <div class="liquid-spinner"></div>
         <div class="timer-text">{{ timer }}s</div>
-        <div class="loading-text">正在分析中...</div>
-        <div v-if="showLongWaitWarning" class="warning-msg">
-          ⚠️ 當前請求數據量較大，運算需時較長。<br>建議適當減少查詢條件以提升速度。
-        </div>
+        <div class="loading-text">{{ $t('result.loading') }}</div>
+        <div v-if="showLongWaitWarning" class="warning-msg" v-html="$t('result.longWaitWarning')"></div>
       </div>
     </div>
 
@@ -38,9 +36,9 @@
     </template>
 
     <div v-else-if="!isLoading && latestResults.length === 0" class="empty-state">
-      <p>暫無數據，請發起查詢</p>
+      <p>{{ $t('result.noData') }}</p>
       <button class="go-query-btn" @click="goToQuery">
-        前往查詢
+        {{ $t('result.goToQuery') }}
       </button>
     </div>
   </div>
@@ -48,15 +46,17 @@
 
 <script setup>
 import {computed, onUnmounted, ref, watch, onMounted} from 'vue';
+import { useI18n } from 'vue-i18n';
 import {useRoute, useRouter} from 'vue-router';
 import { searchChars, searchZhongGu, searchYinWei, searchTones } from '@/api/query/core'
 import { getCoordinates } from '@/api/query/geo'
-import {globalPayload, mapStore, resultCache} from '@/store/store.js';
+import {globalPayload, mapStore, resultCache, userStore} from '@/store/store.js';
 import ResultList from "@/components/result/ResultList.vue";
 import CharsAndTones from "@/components/result/CharsAndTones.vue";
 import SimpleSelectDropdown from "@/components/common/SimpleSelectDropdown.vue";
-import {generateTonesMergedData,generateCharsMergedData,func_mergeData} from "@/utils/MapData.js";
+import {generateTonesMergedData,generateCharsMergedData,func_mergeData} from "@/utils/map/MapData.js";
 
+const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
 const results = ref([]);
@@ -73,18 +73,18 @@ const timer = ref('0.0');
 const showLongWaitWarning = ref(false);
 let timerInterval = null;
 
-const tabMap = {
-  'tab1': '查字',
-  'tab2': '查中古',
-  'tab3': '查音位',
-  'tab4': '查調'
-};
+const tabMap = computed(() => ({
+  'tab1': t('result.tabs.tab1'),
+  'tab2': t('result.tabs.tab2'),
+  'tab3': t('result.tabs.tab3'),
+  'tab4': t('result.tabs.tab4')
+}));
 
 const pageTitle = computed(() => {
   const p = globalPayload.value;
-  if (!p) return '請先查詢';
+  if (!p) return t('result.pleaseQuery');
   const sourceTab = p._sourceTab || 'tab2';
-  const tabName = tabMap[sourceTab] || sourceTab;
+  const tabName = tabMap.value[sourceTab] || sourceTab;
   let featureText = '';
   if (p.features && Array.isArray(p.features) && p.features.length > 0) {
     featureText = p.features.join(' ');
@@ -142,7 +142,7 @@ watch(
           locations: newPayload.locations || "",
           regions: newPayload.regions || "",
           region_mode: newPayload.region_mode || 'yindian',
-          iscustom: "true",
+          iscustom: userStore.isAuthenticated && userStore.role !== 'anonymous' ? "true" : undefined,
           flag: "False"
         })
         // console.log(MapData)
@@ -196,14 +196,15 @@ watch(
 
         // ================= TAB 2: 查中古 =================
         else if (sourceTab === 'tab2') {
-          const modeCN = tabMap[sourceTab] || sourceTab;
+          const modeCN = tabMap.value[sourceTab] || sourceTab;
           const featuresList = Array.isArray(newPayload.features) ? newPayload.features : [];
           resultCache.mode = modeCN;
           resultCache.features = featuresList;
 
           const response = await searchZhongGu({
             ...payload.value,
-            exclude_columns: payload.value.exclude_columns || []
+            exclude_columns: payload.value.exclude_columns || [],
+            include_custom: userStore.isAuthenticated && userStore.role !== 'anonymous'
           })
 
           if (seq !== requestSeq) return;
@@ -213,7 +214,7 @@ watch(
             latestResults.value = Array.isArray(results.value) ? results.value.flat() : [];
 
             // ✅ 修复：func_mergeData 是 async，必须 await
-            mergedData = await func_mergeData(latestResults.value, MapData);
+            mergedData = await func_mergeData(latestResults.value, MapData, response.custom_data || []);
             // console.log(mergedData)
             if (seq !== requestSeq) return;
 
@@ -226,7 +227,7 @@ watch(
 
         // ================= TAB 3: 查音位 =================
         else if (sourceTab === 'tab3') {
-          const modeCN = tabMap[sourceTab] || sourceTab;
+          const modeCN = tabMap.value[sourceTab] || sourceTab;
           const featuresList = Array.isArray(newPayload.features) ? newPayload.features : [];
           resultCache.mode = modeCN;
           resultCache.features = featuresList;
@@ -301,13 +302,13 @@ const goToQuery = () => {
 };
 
 // ================= ✨ Tab1 Dropdown 邏輯 (使用 SimpleSelectDropdown) =================
-const selectedTab1Type = ref('默認');
+const selectedTab1Type = ref('默認'); // Keep internal value as Chinese for API compatibility
 
-const toneTypeOptions = [
-  { label: '默認', value: '默認' },
-  { label: '調值', value: '調值' },
-  { label: '調類', value: '調類' }
-];
+const toneTypeOptions = computed(() => [
+  { label: t('result.toneType.default'), value: '默認' },
+  { label: t('result.toneType.value'), value: '調值' },
+  { label: t('result.toneType.category'), value: '調類' }
+]);
 
 </script>
 

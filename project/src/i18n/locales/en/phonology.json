@@ -1,0 +1,120 @@
+{
+    "phonology":  {
+                      "matrix":  {
+                                     "title":  "Phonology Query",
+                                     "features":  {
+                                                      "initial":  "Initial",
+                                                      "final":  "Final",
+                                                      "tone":  "Tone"
+                                                  },
+                                     "columns":  {
+                                                     "horizontal":  "Horizontal Classification",
+                                                     "vertical":  "Vertical Classification",
+                                                     "cellRow":  "Cell Row"
+                                                 },
+                                     "columnOptions":  {
+                                                           "rhyme":  "Rhyme Group",
+                                                           "rhymeDetail":  "Rhyme",
+                                                           "grade":  "Grade",
+                                                           "openness":  "Openness",
+                                                           "entering":  "Entering",
+                                                           "voicing":  "Voicing",
+                                                           "series":  "Series",
+                                                           "group":  "Group",
+                                                           "initial":  "Initial",
+                                                           "tone":  "Tone",
+                                                           "place":  "Place",
+                                                           "manner":  "Manner"
+                                                       },
+                                     "actions":  {
+                                                     "query":  "Query",
+                                                     "loading":  "Loading...",
+                                                     "retry":  "Retry"
+                                                 },
+                                     "states":  {
+                                                    "emptyInput":  "Please enter location and click query",
+                                                    "minLocationError":  "Please enter at least one location",
+                                                    "loadError":  "Error loading data",
+                                                    "apiError":  "API returned empty data",
+                                                    "missingMatrix":  "API data missing matrix property"
+                                                }
+                                 },
+                      "custom":  {
+                                     "title":  "Phoneme Classification",
+                                     "features":  {
+                                                      "initial":  "Initial",
+                                                      "final":  "Final",
+                                                      "tone":  "Tone"
+                                                  },
+                                     "columns":  {
+                                                     "horizontal":  "Horizontal Classification",
+                                                     "vertical":  "Vertical Classification",
+                                                     "cellRow":  "Cell Row"
+                                                 },
+                                     "columnOptions":  {
+                                                           "rhyme":  "Rhyme Group",
+                                                           "rhymeDetail":  "Rhyme",
+                                                           "grade":  "Grade",
+                                                           "openness":  "Openness",
+                                                           "entering":  "Entering",
+                                                           "voicing":  "Voicing",
+                                                           "series":  "Series",
+                                                           "group":  "Group",
+                                                           "initial":  "Initial",
+                                                           "tone":  "Tone",
+                                                           "place":  "Place",
+                                                           "manner":  "Manner"
+                                                       },
+                                     "actions":  {
+                                                     "query":  "Query",
+                                                     "loading":  "Loading...",
+                                                     "retry":  "Retry"
+                                                 },
+                                     "states":  {
+                                                    "emptyInput":  "Please enter location and click query",
+                                                    "minLocationError":  "Please enter at least one location",
+                                                    "loadError":  "Error loading data",
+                                                    "apiError":  "API returned empty data",
+                                                    "missingMatrix":  "API data missing matrix property"
+                                                }
+                                 },
+                      "countphos":  {
+                                        "title":  "Syllable Statistics",
+                                        "subtitle":  "Syllable statistics for all locations ({count} locations)",
+                                        "features":  {
+                                                         "initial":  "Initial",
+                                                         "final":  "Final",
+                                                         "tone":  "Tone"
+                                                     },
+                                        "stats":  {
+                                                      "total":  "Total",
+                                                      "locationCount":  "Locations",
+                                                      "more":  "+{count} more"
+                                                  },
+                                        "sections":  {
+                                                         "aggregated":  "Aggregated Statistics",
+                                                         "locations":  "Location Details",
+                                                         "locationsSubtitle":  "Syllable statistics for each location"
+                                                     },
+                                        "modal":  {
+                                                      "title":  "{featureType} - {syllable}"
+                                                  },
+                                        "actions":  {
+                                                        "query":  "Query",
+                                                        "loading":  "Loading...",
+                                                        "retry":  "Retry"
+                                                    },
+                                        "states":  {
+                                                       "emptyInput":  "Please enter location and click query",
+                                                       "minLocationError":  "Please enter at least one location",
+                                                       "loadError":  "Error loading data"
+                                                   }
+                                    }
+                  },
+    "tabs":  {
+                 "matrix":  "Phonology",
+                 "custom":  "Phoneme Classification",
+                 "count":  "Syllable Count",
+                 "pieVector":  "Pie Vectors"
+             }
+}

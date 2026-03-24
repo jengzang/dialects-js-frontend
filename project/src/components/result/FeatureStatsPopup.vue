@@ -2,23 +2,22 @@
   <Teleport to="body">
     <div v-if="visible" class="glass-overlay" @mousedown.self="$emit('close')">
       <div class="feature-stats-modal glass-modal" role="dialog" aria-modal="true" @click.stop>
-        <!-- 頭部 -->
         <div class="modal-header">
-          <div class="modal-title">📊 {{ locationName }} · {{ featureKey }}-{{ featureVal }} 統計</div>
-          <button class="modal-close" type="button" @click="$emit('close')">×</button>
+          <div class="modal-title">
+            📊 {{ t('result.featureStatsPopup.title', { location: locationName, featureKey: translatedFeatureKey, featureVal }) }}
+          </div>
+          <button class="modal-close" type="button" :aria-label="t('common.button.close')" @click="$emit('close')">✕</button>
         </div>
 
-        <!-- 主體內容 -->
         <div class="modal-body">
           <div v-if="loading" class="loading-state">
             <div class="spinner"></div>
-            <span>載入中...</span>
+            <span>{{ t('result.featureStatsPopup.loading') }}</span>
           </div>
 
           <div v-else-if="statsData" class="stats-content">
-            <!-- 特徵統計列表 -->
             <div v-for="(featureName, index) in displayFeatures" :key="index" class="feature-group">
-              <div class="feature-title">{{ featureName }}</div>
+              <div class="feature-title">{{ translateResultTerm(t, featureName) }}</div>
 
               <div class="stats-list">
                 <div
@@ -28,10 +27,11 @@
                 >
                   <div class="stat-header">
                     <span class="stat-label">{{ value }}</span>
-                    <span class="stat-count">{{ stat.count }} 字 ({{ (stat.ratio * 100).toFixed(1) }}%)</span>
+                    <span class="stat-count">
+                      {{ t('result.featureStatsPopup.statCount', { count: stat.count, ratio: (stat.ratio * 100).toFixed(1) }) }}
+                    </span>
                   </div>
 
-                  <!-- 漢字列表：始終展開，拼接成字符串顯示 -->
                   <div class="char-list">
                     {{ getCharsString(stat.char_indices) }}
                   </div>
@@ -41,7 +41,7 @@
           </div>
 
           <div v-else class="error-state">
-            <span>暫無資料</span>
+            <span>{{ t('result.featureStatsPopup.noData') }}</span>
           </div>
         </div>
       </div>
@@ -50,7 +50,9 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { translateResultTerm } from '@/utils/resultI18n.js';
 
 const props = defineProps({
   visible: { type: Boolean, default: false },
@@ -60,39 +62,36 @@ const props = defineProps({
   statsData: { type: Object, default: null },
   charsMap: { type: Array, default: () => [] },
   loading: { type: Boolean, default: false }
-})
+});
 
-const emit = defineEmits(['close'])
+defineEmits(['close']);
+const { t } = useI18n();
 
-// 獲取要顯示的特徵列表
+const translatedFeatureKey = computed(() => translateResultTerm(t, props.featureKey));
+
 const displayFeatures = computed(() => {
   if (!props.statsData || !props.statsData.data || !props.statsData.data[props.locationName]) {
-    return []
+    return [];
   }
-  const locationData = props.statsData.data[props.locationName]
-  return Object.keys(locationData).filter(key => key !== 'total_chars')
-})
 
-// 獲取特定特徵的統計資料（按 count 降序排序）
+  const locationData = props.statsData.data[props.locationName];
+  return Object.keys(locationData).filter(key => key !== 'total_chars');
+});
+
 const getFeatureStats = (featureName) => {
   if (!props.statsData || !props.statsData.data || !props.statsData.data[props.locationName]) {
-    return {}
+    return {};
   }
-  const featureData = props.statsData.data[props.locationName][featureName] || {}
 
-  // 轉換為陣列並按 count 降序排序
-  const sortedEntries = Object.entries(featureData)
-    .sort((a, b) => b[1].count - a[1].count)
+  const featureData = props.statsData.data[props.locationName][featureName] || {};
+  const sortedEntries = Object.entries(featureData).sort((a, b) => b[1].count - a[1].count);
+  return Object.fromEntries(sortedEntries);
+};
 
-  // 轉換回物件（保持排序）
-  return Object.fromEntries(sortedEntries)
-}
-
-// 將字符索引陣列轉換為字符串（用空格分隔）
 const getCharsString = (charIndices) => {
-  if (!charIndices || charIndices.length === 0) return ''
-  return charIndices.map(idx => props.charsMap[idx]).join(' ')
-}
+  if (!charIndices || charIndices.length === 0) return '';
+  return charIndices.map(idx => props.charsMap[idx]).join(' ');
+};
 </script>
 
 <style>

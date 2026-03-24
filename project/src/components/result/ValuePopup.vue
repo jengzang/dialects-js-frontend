@@ -1,121 +1,123 @@
 <template>
   <Teleport to="body">
     <div
-        v-if="visible"
-        class="popup-vue popup-animated"
-        :style="{ position: 'fixed', top: `${position.top}px`, left: `${position.left}px`, zIndex: 999999 }"
-        @click.stop
+      v-if="visible"
+      class="popup-vue popup-animated"
+      :style="{ position: 'fixed', top: `${position.top}px`, left: `${position.left}px`, zIndex: 999999 }"
+      @click.stop
     >
       <div class="popup-content">
-        <p>📍 地點: {{ data.location }}</p>
-        <p>🧩 特征: {{ checkedFeatures }}</p>
+        <p>📍 {{ t('result.terms.location') }}: {{ data.location }}</p>
+        <p>🧩 {{ t('result.terms.feature') }}: {{ checkedFeatures }}</p>
 
-          <span>
-             {{ modeLabels[0] }}: {{ getDisplayContent(modeLabels[0]) }}
-          </span>
-        <span>
-             {{ modeLabels[1] }}: {{ getDisplayContent(modeLabels[1]) }}
-          </span>
-          <button
-              class="mini-button"
-              :style="shouldApplyFontSize(modeLabels[0]) ? { fontSize: '17px' } : {}"
-              @click="handleAction(modeLabels[0],false)"
-          >
-            🔍{{ modeLabels[0] }}
-          </button>
+        <span v-for="option in modeOptions" :key="option.id">
+          {{ getModeLabel(option.id) }}: {{ getDisplayContent(option.id) }}
+        </span>
 
-
-          <button
-              class="mini-button"
-              :style="shouldApplyFontSize(modeLabels[1]) ? { fontSize: '17px' } : {}"
-              @click="handleAction(modeLabels[1],true)"
-          >
-            🔍{{ modeLabels[1] }}
-          </button>
+        <button
+          v-for="option in modeOptions"
+          :key="`${option.id}-${option.bool}`"
+          class="mini-button"
+          :style="shouldUseBaseDescription(option.id) ? { fontSize: '17px' } : {}"
+          @click="handleAction(option.id, option.bool)"
+        >
+          🔍{{ getModeLabel(option.id) }}
+        </button>
       </div>
     </div>
   </Teleport>
 </template>
 
 <script setup>
-import {computed, onMounted, onUnmounted} from 'vue';
-import {parseFeatureString} from '@/utils/ResultTable.js';
-import { resultCache } from '@/store/store.js'
+import { computed, onMounted, onUnmounted } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { parseFeatureString } from '@/utils/ResultTable.js';
+import { resultCache } from '@/store/store.js';
+import { getResultModeId, translateResultTerms } from '@/utils/resultI18n.js';
 
-const props = defineProps(['visible', 'data', 'position']);
+const props = defineProps({
+  visible: { type: Boolean, default: false },
+  data: { type: Object, default: () => ({}) },
+  position: { type: Object, default: () => ({ top: 0, left: 0 }) }
+});
+
 const emit = defineEmits(['close', 'confirm']);
+const { t } = useI18n();
 
-// 讀取 features 並用 '·' 連接
-const checkedFeatures = computed(() => {
-  const features = resultCache.features || [];
-  return features.length > 0 ? features.join('·') : '（無）';
+const checkedFeatures = computed(() => translateResultTerms(t, resultCache.features));
+
+const modeOptions = computed(() => {
+  const modeId = getResultModeId(resultCache.mode || '');
+
+  if (modeId === 'phonological') {
+    return [
+      { id: 'phonological', bool: false },
+      { id: 'character', bool: true }
+    ];
+  }
+
+  if (modeId === 'character') {
+    return [
+      { id: 'character', bool: false },
+      { id: 'phonological', bool: true }
+    ];
+  }
+
+  return [
+    { id: 'unknown', bool: false },
+    { id: 'unknown', bool: true }
+  ];
 });
 
-// 讀取 mode 並判斷顯示什麼本位
-const modeLabels = computed(() => {
-  const mode = resultCache.mode || '';
+const getModeLabel = (modeId) => t(`result.valuePopup.modes.${modeId}`);
 
-  if (mode === '查音位') return ['音本位', '字本位'];
-  if (mode === '查中古') return ['字本位', '音本位'];
-
-  return ['模式未知', '模式未知'];
-});
-
-
-// 5. 核心逻辑：getModeText (对应你原来的 getModeText 函数)
-const getBaseModeText = (label, value) => {
-  if (label === '字本位') return `中古地位輸入 ${value}`;
-  if (label === '音本位') return `待查音節輸入 ${value}`;
-  return `未知模式輸入 ${value}`;
-};
-
-// 6. 🌟 核心逻辑整合：完全复刻你 Template 里的那个长三元运算符
-// 逻辑：shouldApply ? getModeText : ( fallback logic )
-const getDisplayContent = (label) => {
-  if (shouldApplyFontSize(label)) {
-    return getBaseModeText(label, props.data.value);
-  } else {
-    if (label === '音本位') return '查詢所有音節分佈';
-    if (label === '字本位') {
-      const feature = resultCache.features || [];
-      const map = {
-        '聲母': '聲母',
-        '韻母': '韻攝',
-        '聲調': '清濁'
-      };
-      const type = map[feature] || '聲母/韻攝/清濁';
-      return `按 ${type} 整理所有音節`;
-    }
-    return '出問題了';
-  }
-};
-
-const shouldApplyFontSize = (label) => {
-  const parseResult = parseFeatureString(props.data.feature);
-  const mode = resultCache.mode || '';
-
-  if (mode === '查音位') {
-    return (label === '字本位' && parseResult?.matched_fields === null) ||
-        (label === '音本位' && parseResult?.matched_fields !== null);
-  }
-  if (mode === '查中古') {
-    return (label === '字本位' && parseResult?.matched_fields === null) ||
-        (label === '音本位' && parseResult?.matched_fields !== null);
+const getBaseModeText = (modeId, value) => {
+  if (modeId === 'character') {
+    return t('result.valuePopup.descriptions.characterInput', { value });
   }
 
+  if (modeId === 'phonological') {
+    return t('result.valuePopup.descriptions.phonologicalInput', { value });
+  }
+
+  return t('result.valuePopup.descriptions.unknown');
 };
 
-const handleAction = (label,bool) => {
-  emit('confirm', {...props.data, label,bool});
+const shouldUseBaseDescription = (modeId) => {
+  const parseResult = parseFeatureString(props.data?.feature || '');
+  const hasMatchedFields = parseResult?.matched_fields !== null;
+
+  return (modeId === 'character' && !hasMatchedFields) ||
+    (modeId === 'phonological' && hasMatchedFields);
+};
+
+const getDisplayContent = (modeId) => {
+  if (shouldUseBaseDescription(modeId)) {
+    return getBaseModeText(modeId, props.data?.value || '');
+  }
+
+  if (modeId === 'phonological') {
+    return t('result.valuePopup.descriptions.allSyllables');
+  }
+
+  if (modeId === 'character') {
+    return t('result.valuePopup.descriptions.groupByFeature');
+  }
+
+  return t('result.valuePopup.descriptions.unknown');
+};
+
+const handleAction = (modeId, bool) => {
+  emit('confirm', { ...props.data, modeId, bool });
   emit('close');
 };
 
-// 点击外部关闭
 const handleGlobalClick = (e) => {
   if (props.visible && !e.target.closest('.popup-vue')) {
     emit('close');
   }
 };
+
 onMounted(() => document.addEventListener('click', handleGlobalClick));
 onUnmounted(() => document.removeEventListener('click', handleGlobalClick));
 </script>

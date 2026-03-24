@@ -7,9 +7,34 @@
     <template #default="{ currentTab }">
       <!-- 新的"簡介"页面 -->
       <div v-if="currentTab === 'intro'" class="thanks-container">
-        <h2 class="tabs-title">ℹ️ 關於網站</h2>
-        <p style=" text-align: left;">「方音圖鑑」是一個專注於中古地位分析、方言比較、地理語言學的線上工具，致力於以清晰、互動的方式呈現各方言點聲韻層次及音位分合。</p>
+        <h2 class="tabs-title">{{ $t('about.intro.title') }}</h2>
+        <p style=" text-align: left;">{{ $t('about.intro.description') }}</p>
         <ul class="customlist">
+          <li>
+            <span v-html="$t('about.intro.features.feature1.title')"></span>
+            {{ $t('about.intro.features.feature1.description') }}
+          </li>
+          <li>
+            <span v-html="$t('about.intro.features.feature2.title')"></span>
+            {{ $t('about.intro.features.feature2.description') }}
+          </li>
+          <li>
+            <span v-html="$t('about.intro.features.feature3.title')"></span>
+            {{ $t('about.intro.features.feature3.description') }}
+          </li>
+          <li>
+            <span v-html="$t('about.intro.features.feature4.title')"></span>
+            {{ $t('about.intro.features.feature4.description') }}
+          </li>
+          <li v-html="$t('about.intro.features.feature5.title')"></li>
+          <li>
+            <span v-html="$t('about.intro.features.feature6.title')"></span>
+            {{ $t('about.intro.features.feature6.description') }}
+          </li>
+          <li v-html="$t('about.intro.features.blueText')"></li>
+          <li>{{ $t('about.intro.features.mapClick') }}</li>
+        </ul>
+        <ul v-if="false" class="customlist">
           <li>功能1：<strong>查中古</strong>（按中古地位整理讀音）。
             使用者可輸入各種組合進行分析，目前支持攝、韻、等、呼、調、系、組、母、清濁、發音部位、發聲方式等類別。
             網站會按輸入的組合分析聲母/韻母/聲調，並把結果呈現在表格和地圖中。</li>
@@ -19,65 +44,54 @@
             網站會根據用戶選擇的分區、地點，整理調值、調類，不同的調類標上了不同的顏色。</li>
           <li>功能4：<strong>查字</strong>（查詢字音、地位）。
             根據用戶輸入漢字進行查詢，最終呈現各個地點的音值、注釋以及漢字中古地位</li>
-          <li>功能5：<strong>分區繪圖</strong>（按地圖集二分區/音典分區繪製方言地圖）。</li>
+          <li v-html="$t('about.intro.features.feature5.title')"></li>
           <li>功能6：<strong>自定義繪圖</strong>（用戶添加個人數據進行繪圖）。
             用戶可以自己在地圖上選點、標註，網站會根據特徵值自定分配顏色</li>
-          <li>表格裡的<strong>藍色字</strong>（地位、音值等）一般都是可以點擊的，點擊後即在新的彈窗中進行細分查詢，方便與原結果對比分析</li>
-          <li>地圖上的點也可以點擊，點擊後即可查詢詳細信息。</li>
+          <li v-html="$t('about.intro.features.blueText')"></li>
+          <li>{{ $t('about.intro.features.mapClick') }}</li>
         </ul>
-        <p style=" text-align: left;font-weight: bold;text-decoration: underline">歡迎探索《方音圖鑑》，一起觸摸方言的歷史層次！</p>
-      </div>
+        <p style=" text-align: left;font-weight: bold;text-decoration: underline">{{ $t('about.intro.footer') }}</p>
+      
 
-      <!-- 新的"感悟"页面 -->
-      <div v-if="currentTab === 'reflection'" class="thanks-container">
-        <h2 class="tabs-title" style="margin-top: 20px">🧑‍💻 開發感悟</h2>
-        <p class="thoughts" style="text-align: left">    最初，我只想為自己的研究製作稱手的工具，卻在不知不覺間，探索了廣袤的星空。
-          從第一行代碼到第一個功能，從稚嫩的構想到漸豐的體系，昼夜在鍵盤上更迭，我的構想也逐漸從虛無中落地生根。
-          我看著這個網站，就如同看著自家的孩子蹣跚學步，一步步走出自己的輪廓。
-          每一個按鈕、每一次交互，都烙印著一段時光。我曾為如果實現想要的查詢邏輯而精疲力竭，也曾為視覺效果的成功呈現而雀躍不已
-          ——這些點滴，匯成了她的血與肉、魂與靈。</p>
-        <p class="thoughts" style="text-align: left">    其實，這亦是自我蛻變的歷程。從對前端一無所知，到摸索DOM、嘗試虛擬滾動，進階至運用框架，乃至領略JWT、ORM的精妙。
-          我在建造中學習，在錯誤中成熟。最迷人之處在於，我用以搭建這一切的磚石，正是我渴望學習的知識本身：
-          網站的搭建深化了我對音韻的理解，而鑽研音韻又驅動著代碼的迭代。
-          技術於我，不再是冷冰冰的指令，而是承載文化的舟楫；文化於我，亦不再是遙遠的文獻，逐步化為可交互、可追溯、可觸摸的實體。</p>
-        <p class="thoughts" style="text-align: left">    這便是我用代碼與熱愛寫就的答卷，一個普通學生獻給方言領域最誠摯的禮物。
-          感謝每一位與它相遇的你。希望這份仍顯稚拙的創作，能激起你心中一絲好奇的漣漪，
-          或為你節省資料翻檢的片刻光陰，這便是她存在的意義。</p>
-        <p class="thoughts"><em>願八方鄉音，生生不息；<br>願漢字之美，永被珍惜；<br>願文明薪火，長存於每一次交互與共鳴之中。</em></p>
+        <!-- 感悟部分 -->
+        <h2 class="tabs-title" style="margin-top: 20px">{{ $t('about.reflection.title') }}</h2>
+        <p class="thoughts" style="text-align: left">{{ $t('about.reflection.paragraph1') }}</p>
+        <p class="thoughts" style="text-align: left">{{ $t('about.reflection.paragraph2') }}</p>
+        <p class="thoughts" style="text-align: left">{{ $t('about.reflection.paragraph3') }}</p>
+        <p class="thoughts"><em v-html="$t('about.reflection.poem')"></em></p>
 
-        <h2 class="tabs-title" style="margin-top: 20px">🙏 特別鳴謝</h2>
+        <h2 class="tabs-title" style="margin-top: 20px">🙏 {{ $t('about.thanks.title') }}</h2>
         <ul class="thanks-list">
           <li>
-            ✔ <a href="https://mcpdict.vear.vip/" target="_blank" rel="noopener noreferrer" class="thanks-link">漢字音典</a>
-            - 本網站大部分資料來自<a href="https://github.com/osfans/MCPDict/tree/master/tools/tables/output"
-                                     target="_blank" rel="noopener noreferrer" class="thanks-link">音典開源數據</a>
+            ✔ <a href="https://mcpdict.vear.vip/" target="_blank" rel="noopener noreferrer" class="thanks-link">{{ $t('about.thanks.mcpdict') }}</a>
+            - {{ $t('about.thanks.mcpdictDesc') }}<a href="https://github.com/osfans/MCPDict/tree/master/tools/tables/output"
+                                     target="_blank" rel="noopener noreferrer" class="thanks-link">{{ $t('about.thanks.mcpdictData') }}</a>
           </li>
           <li>
             ✔ <a href="https://jyutjam.org/" target="_blank" rel="noopener noreferrer"
-                 class="thanks-link">嶺南粵音</a> - 提供了交流的平台 及<a href="https://jyutdict.org/"
-                                                                          target="_blank" rel="noopener noreferrer" class="thanks-link">泛粵大典</a>
+                 class="thanks-link">{{ $t('about.thanks.jyutjam') }}</a> - {{ $t('about.thanks.jyutjamDesc') }}<a href="https://jyutdict.org/"
+                                                                          target="_blank" rel="noopener noreferrer" class="thanks-link">{{ $t('about.thanks.jyutdict') }}</a>
           </li>
           <li>
             ✔ <a href="https://zhongguoyuyan.cn/" target="_blank" rel="noopener noreferrer"
-                 class="thanks-link">語保</a> - 篩選了部分資料
+                 class="thanks-link">{{ $t('about.thanks.yuyan') }}</a> - {{ $t('about.thanks.yuyanDesc') }}
           </li>
           <li>
             ✔ <a href="https://xiaoxue.iis.sinica.edu.tw/ccrdata/" target="_blank" rel="noopener noreferrer"
-                 class="thanks-link">小學堂</a> - 篩選了部分資料
+                 class="thanks-link">{{ $t('about.thanks.xiaoxue') }}</a> - {{ $t('about.thanks.xiaoxueDesc') }}
           </li>
           <li>
             ✔ <a href="http://1.14.238.88:8099/dialect/main/about.html" target="_blank" rel="noopener noreferrer"
-                 class="thanks-link">粵閩客方言系統</a> - 篩選了部分資料
+                 class="thanks-link">{{ $t('about.thanks.yuemin') }}</a> - {{ $t('about.thanks.yueminDesc') }}
           </li>
           <li>
-            ✔ <a href="#" class="thanks-link">測試人員</a> - 正式上線之前測試、提建議的網友！
+            ✔ <a href="#" class="thanks-link">{{ $t('about.thanks.testers') }}</a> - {{ $t('about.thanks.testersDesc') }}
           </li>
           <li style="margin-bottom: 0">
-            ✔ <a href="#" class="thanks-link">朋友 ❤️</a> - 在項目開發過程中，
-            所有支持、鼓勵、幫助過我的朋友！
+            ✔ <a href="#" class="thanks-link">{{ $t('about.thanks.friends') }}</a> - {{ $t('about.thanks.friendsDesc') }}
           </li>
           <li>
-            ✔ <a href="#" class="thanks-link">你 ❤️</a> - 當然，還有看到這裡的你！
+            ✔ <a href="#" class="thanks-link">{{ $t('about.thanks.you') }}</a> - {{ $t('about.thanks.youDesc') }}
           </li>
         </ul>
         <p style="font-size:2rem;margin-top:0.5rem;margin-bottom: 3rem">💖🌟🥳</p>
@@ -86,9 +100,9 @@
       <!-- 新的"建議"页面 -->
       <div v-if="currentTab === 'suggestion'" class="page2">
         <div class="suggestion-box">
-          <h2 class="tabs-title">💬 我有建議</h2>
-          <p>發現 bug？有建議？<br />歡迎通過 GitHub Issue 提出！</p>
-          <p class="subtext">👇 點擊下方卡片跳轉對應倉庫</p>
+          <h2 class="tabs-title">💬 {{ $t('about.suggestion.title') }}</h2>
+          <p v-html="$t('about.suggestion.description')"></p>
+          <p class="subtext">👇 {{ $t('about.suggestion.subtext') }}</p>
           <div class="card-links">
             <a
                 href="https://github.com/jengzang/dialects-js-frontend/issues"
@@ -96,8 +110,8 @@
                 rel="noopener"
                 class="card"
             >
-              🐞 網頁運行有 bug❓<br />💡 對交互、UI 有建議❓
-              <span class="thanks-link">👉 到前端倉庫提 Issue</span>
+              <span v-html="$t('about.suggestion.frontend.title')"></span>
+              <span class="thanks-link">👉 {{ $t('about.suggestion.frontend.link') }}</span>
             </a>
             <a
                 href="https://github.com/jengzang/dialects-build/issues"
@@ -105,8 +119,8 @@
                 rel="noopener"
                 class="card"
             >
-              🔤 對字表有疑問❓<br />🎯 聲/韻/調 提取出錯❓
-              <span class="thanks-link">👉 到字表處理倉庫提 Issue</span>
+              <span v-html="$t('about.suggestion.backend.title')"></span>
+              <span class="thanks-link">👉 {{ $t('about.suggestion.backend.link') }}</span>
             </a>
           </div>
         </div>
@@ -115,18 +129,18 @@
       <!-- 新的"喜歡"页面 -->
       <div v-if="currentTab === 'like'" class="cards-container">
         <h2 class="tabs-title like-author-title">
-          ❤️ 喜歡作者
+          {{ $t('about.like.title') }}
           <button class="follow-button" @click="followClicked">
-            關注
+            {{ $t('about.like.followButton') }}
           </button>
         </h2>
         <p style="display: block; width: 100%; clear: both; margin: 0;">
-          「如果你覺得項目不錯，可以給個 ⭐️ 嗎！」
+          {{ $t('about.like.starMessage') }}
         </p>
 
         <a
             class="project-card"
-            v-for="project in projects"
+            v-for="project in localizedProjects"
             :key="project.name"
             :href="project.url"
             target="_blank"
@@ -140,19 +154,43 @@
           <div class="glow-border"></div>
         </a>
         <p style="margin-top: 2rem">
-          「若網站對您有幫助，可以請作者喝杯咖啡☕️，您的支持將是作者持續維護的動力🙏」
+          {{ $t('about.like.supportMessage') }}
           <br />
           <button class="support-button" @click="showQRCodes = true">
-            🙌 支持一下
+            🙌 {{ $t('about.like.supportButton') }}
           </button>
           <br />
-          <span class="support-note">
-          「注：本站由一名本科生開發運營，從字表處理、後端API到前端界面皆一人完成；
-          服務器和域名的開銷，也是從生活費中省出來的💸」
-        </span>
+          <span class="support-note">{{ $t('about.like.supportNote') }}</span>
         </p>
         <p></p>
         <p></p>
+      </div>
+
+      <!-- 设置页面 -->
+      <div v-if="currentTab === 'setting'" class="settings-container">
+        <!-- <h2 class="tabs-title">{{ $t('navigation.tabs.settings') }}</h2> -->
+
+        <div class="setting-section">
+          <h3 class="section-title">{{ $t('navigation.settings.language.title') }}</h3>
+          <p class="section-description">{{ $t('navigation.settings.language.description') }}</p>
+
+          <div class="language-options">
+            <div
+              v-for="lang in languages"
+              :key="lang.code"
+              class="language-card"
+              :class="{ active: currentLocale === lang.code }"
+              @click="changeLanguage(lang.code)"
+            >
+              <div class="language-flag">{{ lang.flag }}</div>
+              <div class="language-info">
+                <div class="language-name">{{ lang.name }}</div>
+                <div class="language-code">{{ lang.code }}</div>
+              </div>
+              <div v-if="currentLocale === lang.code" class="language-check">&check;</div>
+            </div>
+          </div>
+        </div>
       </div>
     </template>
   </TabsContainer>
@@ -162,18 +200,18 @@
     <div v-if="showQRCodes" class="qr-modal">
       <div class="qr-modal-content">
         <!-- ❌ 右上角關閉 -->
-        <button class="qr-close-btn" @click="showQRCodes = false">✖️</button>
+        <button class="qr-close-btn" @click="showQRCodes = false">✕</button>
 
         <!-- 標題 -->
-        <h3 class="qr-title">☕️ 請作者喝杯咖啡</h3>
-        <p class="qr-subtitle">感謝您的支持！ 💖</p>
+        <h3 class="qr-title">{{ $t('about.like.qrModal.title') }}</h3>
+        <p class="qr-subtitle">{{ $t('about.like.qrModal.subtitle') }}</p>
         <!-- 二維碼區 -->
         <div class="qr-image-group">
           <div class="qr-box">
-            <img :src="weixinQR" alt="微信收款碼" />
+            <img :src="weixinQR" :alt="$t('about.like.weixinAlt')" />
           </div>
           <div class="qr-box">
-            <img :src="alipayQR" alt="支付寶收款碼" />
+            <img :src="alipayQR" :alt="$t('about.like.alipayAlt')" />
           </div>
         </div>
       </div>
@@ -183,40 +221,63 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import weixinQR from '@/assets/weixin.png'
-import alipayQR from '@/assets/zfb.jpg'
+import { ref, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { setLocale } from '@/i18n'
+import { SUPPORTED_LOCALES } from '@/i18n/localeDetector'
+import { showSuccess } from '@/utils/message'
+import weixinQR from '@/assets/picture/weixin.png'
+import alipayQR from '@/assets/picture/zfb.jpg'
 import TabsContainer from '@/components/common/TabsContainer.vue'
 
+const { t, locale } = useI18n()
 const showQRCodes = ref(false)
 
-const tabs = [
-  { name: 'intro', label: '簡介' },
-  { name: 'reflection', label: '感悟' },
-  { name: 'suggestion', label: '建議' },
-  { name: 'like', label: '喜歡作者' },
-]
+const tabs = computed(() => [
+  { name: 'intro', label: t('about.tabs.intro') },
+  { name: 'suggestion', label: t('about.tabs.suggestion') },
+  { name: 'like', label: t('about.tabs.like') },
+  { name: 'setting', label: t('about.tabs.setting') },
+])
 
-const projects = [
+const localizedProjects = computed(() => [
   {
     name: 'dialects-vue-frontend',
     url: 'https://github.com/jengzang/dialects-vue-frontend',
-    description: '前端倉庫 - 使用vue框架和原生js開發'
+    description: t('about.like.projects.frontend.description')
   },
   {
     name: 'dialects-backend',
     url: 'https://github.com/jengzang/dialects-backend',
-    description: '後端倉庫 - 基於fastapi'
+    description: t('about.like.projects.backend.description')
   },
   {
     name: 'dialects-build',
     url: 'https://github.com/jengzang/dialects-build',
-    description: '字表預處理倉庫 - 提取字表的聲韻調'
+    description: t('about.like.projects.build.description')
   },
-]
+])
 
 function followClicked() {
   window.open('https://www.zhihu.com/people/da-shu-18-11', '_blank');
+}
+
+// 语言设置相关
+const currentLocale = computed(() => locale.value)
+
+const languages = ref([
+  SUPPORTED_LOCALES['zh-Hant'],
+  SUPPORTED_LOCALES['zh-CN'],
+  SUPPORTED_LOCALES['en']
+])
+
+function changeLanguage(newLocale) {
+  if (newLocale === currentLocale.value) {
+    return
+  }
+  setLocale(newLocale)
+  showSuccess(t('messages.success.languageChanged'))
+  setTimeout(() => window.location.reload(), 500)
 }
 </script>
 
@@ -678,6 +739,116 @@ p em.emoji {
 
   .suggestion-box p {
     font-size: 18px;
+  }
+}
+
+/* 设置页面样式 */
+.settings-container {
+  padding: 20px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.setting-section {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.section-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #333;
+  margin: 0 0 8px 0;
+}
+
+.section-description {
+  font-size: 14px;
+  color: #666;
+  margin: 0 0 20px 0;
+}
+
+.language-options {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.language-card {
+  display: flex;
+  align-items: center;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.8);
+  border: 2px solid #e0e0e0;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.language-card:hover {
+  background: rgba(255, 255, 255, 1);
+  border-color: #007aff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 122, 255, 0.2);
+}
+
+.language-card.active {
+  background: linear-gradient(135deg, rgba(0, 122, 255, 0.1), rgba(0, 122, 255, 0.05));
+  border-color: #007aff;
+  box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
+}
+
+.language-flag {
+  font-size: 32px;
+  margin-right: 16px;
+}
+
+.language-info {
+  flex: 1;
+}
+
+.language-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 4px;
+}
+
+.language-code {
+  font-size: 12px;
+  color: #999;
+}
+
+.language-check {
+  font-size: 24px;
+  color: #007aff;
+  font-weight: bold;
+}
+
+/* 响应式设计 */
+@media (max-width: 480px) {
+  .settings-container {
+    padding: 12px;
+  }
+
+  .setting-section {
+    padding: 16px;
+  }
+
+  .language-flag {
+    font-size: 28px;
+    margin-right: 12px;
+  }
+
+  .language-name {
+    font-size: 14px;
+  }
+
+  .language-code {
+    font-size: 11px;
   }
 }
 

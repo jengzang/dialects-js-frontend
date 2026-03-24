@@ -1,11 +1,12 @@
 <!-- ✅ App.vue -->
 <template>
   <!-- 🧱 動態載入 layout -->
-    <component :is="layoutComponent" />
+  <component :is="layoutComponent" />
 
   <PanelManager />
 
   <!-- 🍎 全局 Toast 提示 -->
+  <RateLimitNotice />
   <GlobalToast />
 
   <!-- 🍎 全局确认对话框 -->
@@ -13,7 +14,7 @@
 </template>
 
 <script>
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { computed, onMounted, onBeforeUnmount } from 'vue'
 import { useRoute } from 'vue-router'
 
 import IntroLayout from './layouts/IntroLayout.vue'
@@ -22,6 +23,7 @@ import SimpleLayout from './layouts/SimpleLayout.vue'
 import ExploreLayout from './layouts/ExploreLayout.vue'
 import GlobalToast from './components/ToastAndHelp/GlobalToast.vue'
 import GlobalConfirm from './components/ToastAndHelp/GlobalConfirm.vue'
+import RateLimitNotice from './components/ToastAndHelp/RateLimitNotice.vue'
 import PanelManager from './components/result/PanelManager.vue'
 import { initOnlineTimeTracker, stopOnlineTimeTracker } from './utils/onlineTimeTracker.js'
 import { getToken, initUserByToken } from './api/auth/auth.js'
@@ -42,6 +44,7 @@ export default {
   components: {
     GlobalToast,
     GlobalConfirm,
+    RateLimitNotice,
     PanelManager
   },
   setup() {

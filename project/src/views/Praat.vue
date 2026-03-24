@@ -9,8 +9,8 @@
 <!--    </div>-->
 
     <div class="page-header">
-      <h1 class="page-title">Praat 聲學分析</h1>
-      <p class="page-description">上傳音頻或錄音，進行聲學特徵分析</p>
+      <h1 class="page-title">{{ t('praat.main.title') }}</h1>
+      <p class="page-description">{{ t('praat.main.description') }}</p>
     </div>
 
     <!-- Tab Navigation -->
@@ -21,7 +21,7 @@
           :class="{ active: activeTab === 'upload' }"
           @click="switchTab('upload')"
         >
-          上傳錄音
+          {{ t('praat.main.tabs.upload') }}
         </button>
         <button
           class="tab-btn"
@@ -29,7 +29,7 @@
           :disabled="!resultsTabEnabled"
           @click="switchTab('results')"
         >
-          分析結果
+          {{ t('praat.main.tabs.results') }}
         </button>
         <button
           class="tab-btn"
@@ -37,7 +37,7 @@
           :disabled="!vowelspaceTabEnabled"
           @click="switchTab('vowelspace')"
         >
-          元音空間
+          {{ t('praat.main.tabs.vowelSpace') }}
         </button>
         <button
           class="tab-btn"
@@ -45,7 +45,7 @@
           :disabled="!pitchtoneTabEnabled"
           @click="switchTab('pitchtone')"
         >
-          基頻定調
+          {{ t('praat.main.tabs.pitchTone') }}
         </button>
       </div>
     </div>
@@ -58,18 +58,18 @@
           <div class="settings-trigger">
             <button class="settings-button glass-button" @click="showSettings = true">
               <span class="settings-icon">⚙️</span>
-              <span>分析設置</span>
+              <span>{{ t('praat.main.settings.button') }}</span>
             </button>
 
             <div class="mode-selector-inline">
               <div class="mode-options">
                 <label class="radio-option glass-button" :class="{ active: settings.mode === 'single' }">
                   <input type="radio" value="single" v-model="settings.mode" />
-                  <span>單音節</span>
+                  <span>{{ t('praat.main.mode.single') }}</span>
                 </label>
                 <label class="radio-option glass-button" :class="{ active: settings.mode === 'continuous' }">
                   <input type="radio" value="continuous" v-model="settings.mode" />
-                  <span>連續語流</span>
+                  <span>{{ t('praat.main.mode.continuous') }}</span>
                 </label>
               </div>
             </div>
@@ -91,9 +91,9 @@
                 :disabled="isUploading || !audioFile"
                 :class="{ 'disabled-state': !audioFile }"
             >
-              <span v-if="isUploading">上傳中...</span>
-              <span v-else-if="!audioFile">請先選擇錄音</span>
-              <span v-else>開始分析</span>
+              <span v-if="isUploading">{{ t('praat.main.actions.uploading') }}</span>
+              <span v-else-if="!audioFile">{{ t('praat.main.actions.pleaseSelectAudio') }}</span>
+              <span v-else>{{ t('praat.main.actions.startAnalysis') }}</span>
             </button>
           </div>
         </div>
@@ -114,8 +114,8 @@
           <!-- No Results Message -->
           <div v-else-if="!analysisResults" class="no-results-state glass-panel">
             <div class="no-results-icon">📊</div>
-            <h3 class="no-results-title">尚無分析結果</h3>
-            <p class="no-results-text">請先上傳音頻並開始分析</p>
+            <h3 class="no-results-title">{{ t('praat.main.noResults.title') }}</h3>
+            <p class="no-results-text">{{ t('praat.main.noResults.text') }}</p>
           </div>
 
           <!-- Analysis Results -->
@@ -143,7 +143,7 @@
     <Transition name="sidebar">
       <div v-if="showSettings" class="settings-sidebar">
         <div class="sidebar-header">
-          <h2 class="sidebar-title">分析設置</h2>
+          <h2 class="sidebar-title">{{ t('praat.main.settings.title') }}</h2>
           <button class="close-button" @click="showSettings = false">✕</button>
         </div>
         <div class="sidebar-content">
@@ -158,7 +158,7 @@
     <!-- Audio Preview Floating Window (Only on Tab 1) -->
     <Transition name="preview-fade">
       <div v-if="showAudioPreview" class="audio-preview-float">
-        <button class="preview-close-button" @click="showPreview = false" title="關閉預覽">
+        <button class="preview-close-button" @click="showPreview = false" :title="t('praat.main.closePreview')">
           ✕
         </button>
         <AudioPreviewPanel
@@ -175,6 +175,7 @@
 <script setup>
 import { ref, reactive, onBeforeUnmount, watch, onMounted, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import AudioInputPanel from '../components/praat/AudioInputPanel.vue'
 import AudioPreviewPanel from '../components/praat/AudioPreviewPanel.vue'
 import SettingsPanel from '../components/praat/SettingsPanel.vue'
@@ -188,6 +189,7 @@ import { showWarning, showError } from '@/utils/message.js'
 
 const router = useRouter()
 const route = useRoute()
+const { t } = useI18n()
 const { uploadAudio, createJob, getJobStatus, getJobResult, cancelJob } = usePraatApi()
 
 const STORAGE_KEY = 'praat_analysis_settings'
@@ -466,7 +468,7 @@ const startAnalysis = async () => {
 
   // Check if user is logged in
   if (!userStore.isAuthenticated) {
-    showWarning('請先登錄！')
+    showWarning(t('praat.main.errors.loginRequired'))
     router.push('/auth')
     return
   }
@@ -475,7 +477,7 @@ const startAnalysis = async () => {
   analysisResults.value = null
   jobStatus.value = 'queued'
   jobProgress.value = 0
-  jobStage.value = '準備上傳音頻...'
+  jobStage.value = t('praat.main.status.preparingUpload')
   jobError.value = null
   isAnalyzing.value = true  // ✅ 立即设置分析中标志
 
@@ -487,7 +489,7 @@ const startAnalysis = async () => {
   try {
     // Upload audio
     isUploading.value = true
-    jobStage.value = '上傳音頻中...'
+    jobStage.value = t('praat.main.status.uploading')
     const uploadResponse = await uploadAudio(audioFile.value)
     uploadId.value = uploadResponse.task_id  // ✅ 后端返回的是 task_id
     // isUploading.value = false  // ❌ 延续 loading 状态直到跳转到结果页面
@@ -500,7 +502,9 @@ const startAnalysis = async () => {
     if (hasSpectrogramModule && duration && duration > 3 && !isAdmin) {
       // 阻止分析并显示警告
       showWarning(
-        `音頻時長為 ${duration.toFixed(1)} 秒，超過 3 秒限制。頻譜圖分析不支持超過 3 秒的音頻。請在設置中關閉頻譜圖模塊後重試。`,
+        t('praat.main.errors.durationExceeded', {
+          duration: duration.toFixed(1)
+        }),
         5000  // 5秒显示时长
       )
 
@@ -526,7 +530,7 @@ const startAnalysis = async () => {
     }
 
     // Create job
-    jobStage.value = '創建分析任務...'
+    jobStage.value = t('praat.main.status.creatingJob')
     const jobResponse = await createJob(uploadId.value, settings)
     jobId.value = jobResponse.job_id
 
@@ -534,11 +538,11 @@ const startAnalysis = async () => {
     isUploading.value = false  // ✅ 跳转到结果页面时取消 loading 状态
 
     // Start polling
-    jobStage.value = '開始分析...'
+    jobStage.value = t('praat.main.status.startingAnalysis')
     startPolling()
   } catch (error) {
     console.error('Start analysis error:', error)
-    showError(error.message || '啟動分析失敗')
+    showError(error.message || t('praat.main.errors.analysisStartFailed'))
     activeTab.value = 'results'
     isUploading.value = false
     jobStatus.value = 'error'
@@ -573,7 +577,7 @@ const startPolling = () => {
         isAnalyzing.value = false  // ✅ 分析完成，清除标志
       } else if (status.status === 'failed' || status.status === 'error' || status.status === 'canceled') {
         stopPolling()
-        showError(status.error || '分析任務失敗')
+        showError(status.error || t('praat.main.errors.analysisFailed'))
         isAnalyzing.value = false  // ✅ 分析失败，清除标志
       }
     } catch (error) {
@@ -586,8 +590,8 @@ const startPolling = () => {
       if (pollingFailCount.value >= MAX_POLLING_FAILURES) {
         stopPolling()
         jobStatus.value = 'error'
-        jobError.value = '連續查詢失敗，請檢查網絡連接或重試'
-        showError(`任務狀態查詢失敗 (${MAX_POLLING_FAILURES}次)，已停止輪詢`)
+        jobError.value = t('praat.main.status.pollingFailed')
+        showError(t('praat.main.status.pollingFailedCount', { count: MAX_POLLING_FAILURES }))
         isAnalyzing.value = false  // ✅ 轮询失败，清除标志
       }
     }
@@ -608,7 +612,7 @@ const fetchResults = async () => {
     // No auto-close - user controls tab visibility
   } catch (error) {
     console.error('Fetch results error:', error)
-    showError('獲取分析結果失敗')
+    showError(t('praat.main.errors.resultsFetchFailed'))
   }
 }
 
@@ -622,7 +626,7 @@ const cancelAnalysis = async () => {
     isAnalyzing.value = false  // ✅ 取消分析，清除标志
   } catch (error) {
     console.error('Cancel error:', error)
-    showError('取消任務失敗')
+    showError(t('praat.main.errors.cancelFailed'))
   }
 }
 

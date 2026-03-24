@@ -9,18 +9,30 @@
     </router-view>
 
     <!-- 🔐 登入按鈕 -->
-    <button class="floating-login-button" @click="goToAuthPage">🔐</button>
+    <button
+      class="floating-login-button"
+      @click="goToAuthPage"
+      :title="t('navigation.login')"
+      :aria-label="t('navigation.login')"
+    >🔐</button>
 
     <!-- 🔙 返回按鈕 -->
-    <button class="floating-back-button" @click="goBack">⟲</button>
+    <button
+      class="floating-back-button"
+      @click="goBack"
+      :title="t('navigation.actions.backHome')"
+      :aria-label="t('navigation.actions.backHome')"
+    >⟲</button>
   </div>
 </template>
 
 <script setup>
 import TabBar from '@/components/bar/IntroTabBar.vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { WEB_BASE } from '@/env-config.js'
 const router = useRouter()
+const { t } = useI18n()
 
 const goToAuthPage = () => {
   router.push('/auth')

@@ -1,7 +1,5 @@
 <template>
   <div class="map-page-container" :class="{ 'is-fullscreen': isFullScreen }">
-
-
     <div ref="mapContainer" class="map-container">
       <div class="map-controls" v-if="!isFullScreen">
         <div class="control-group">
@@ -13,96 +11,100 @@
         </div>
 
         <div
-            v-if="isMiddleChineseMode && hasCustomData"
-            id="custom-switch-container"
-            class="custom-switch-container1"
-            @click="toggleCustomSwitch"
+          v-if="isMiddleChineseMode && hasCustomData"
+          id="custom-switch-container"
+          class="custom-switch-container1"
+          @click="toggleCustomSwitch"
         >
-          <span class="switch-label-text">用戶個人數據</span>
-          <div class="custom-switch" :class="{ 'open': mapStore.showCustomData }" id="custom-toggle">
-              <span class="custom-slider">
-                  <span id="switch-text" class="switch-text">
-                    {{ mapStore.showCustomData ? '顯示' : '隱藏' }}
-                  </span>
+          <span class="switch-label-text">{{ t('map.mapLibre.controls.personalData') }}</span>
+          <div class="custom-switch" :class="{ open: mapStore.showCustomData }" id="custom-toggle">
+            <span class="custom-slider">
+              <span id="switch-text" class="switch-text">
+                {{ mapStore.showCustomData ? t('map.mapLibre.controls.show') : t('map.mapLibre.controls.hide') }}
               </span>
+            </span>
           </div>
         </div>
 
         <div
-            id="base-switch-container"
-            class="custom-switch-container1"
-            @click="toggleBaseMode"
+          id="base-switch-container"
+          class="custom-switch-container1"
+          @click="toggleBaseMode"
         >
-          <span class="switch-label-text">查看地名</span>
+          <span class="switch-label-text">{{ t('map.mapLibre.controls.viewPlaceNames') }}</span>
 
-          <div class="custom-switch" :class="{ 'open': isBaseModeActive }" id="base-toggle">
-        <span class="custom-slider">
-            <span class="switch-text">
-              {{ isBaseModeActive ? '開啟' : '關閉' }}
+          <div class="custom-switch" :class="{ open: isBaseModeActive }" id="base-toggle">
+            <span class="custom-slider">
+              <span class="switch-text">
+                {{ isBaseModeActive ? t('map.mapLibre.controls.enabled') : t('map.mapLibre.controls.disabled') }}
+              </span>
             </span>
-        </span>
           </div>
         </div>
         <div class="button-row">
-          <button class="action-btn" @click="resetView">🎯 復位</button>
-          <button class="action-btn fullscreen-btn" @click="toggleFullScreen">⛶ 全屏</button>
+          <button class="action-btn" @click="resetView">🎯 {{ t('map.mapLibre.buttons.reset') }}</button>
+          <button class="action-btn fullscreen-btn" @click="toggleFullScreen">⛶ {{ t('map.mapLibre.buttons.fullscreen') }}</button>
         </div>
       </div>
 
-      <!-- 比較模式圖例 -->
       <MapLegend />
     </div>
 
     <button v-if="isFullScreen" class="exit-fullscreen-btn" @click="toggleFullScreen">
-      ✕ 退出全屏
+      ✕ {{ t('map.mapLibre.buttons.exitFullscreen') }}
     </button>
 
     <div v-if="loading" class="loading-overlay">
       <div class="spinner"></div>
-      <span>地圖渲染中...</span>
+      <span>{{ t('map.mapLibre.loading.rendering') }}</span>
     </div>
 
-    <!-- 地名點擊彈窗 -->
     <Teleport to="body">
       <div v-if="locationPopup.visible" class="location-popup-overlay" @click="closeLocationPopup">
         <div class="location-popup-content" @click.stop>
           <div class="location-popup-header">
-            <h3>{{ locationPopup.locationName }} - 詳細信息</h3>
-            <button class="close-btn" @click="closeLocationPopup">✕</button>
+            <h3>📍 {{ t('map.mapLibre.locationPopup.title', { location: locationPopup.locationName }) }}</h3>
+            <button
+              class="close-btn"
+              @click="closeLocationPopup"
+              :title="t('common.button.close')"
+              :aria-label="t('common.button.close')"
+            >
+              &times;
+            </button>
           </div>
           <div class="location-popup-body">
             <div v-if="locationPopup.loading" class="popup-loading">
               <div class="spinner"></div>
-              <span>加載中...</span>
+              <span>{{ t('map.mapLibre.locationPopup.loading') }}</span>
             </div>
             <div v-else-if="locationPopup.data && locationPopup.data.data && locationPopup.data.data.length > 0" class="data-display">
               <div class="dialect-info">
                 <div class="info-line title-line">
-                  {{ locationPopup.data.data[0].語言 }}
+                  {{ locationPopup.data.data[0]['\u8a9e\u8a00'] }}
                 </div>
                 <div class="info-line">
-                  <strong>地圖集二分區：</strong>{{ locationPopup.data.data[0].地圖集二分區 || '無' }}
+                  <strong>{{ t('map.mapLibre.locationPopup.fields.mapRegion2') }}</strong>{{ locationPopup.data.data[0]['\u5730\u5716\u96c6\u4e8c\u5206\u5340'] || t('map.mapLibre.common.none') }}
                 </div>
                 <div class="info-line">
-                  <strong>音典分區：</strong>{{ locationPopup.data.data[0].音典分區 || '無' }}
+                  <strong>{{ t('map.mapLibre.locationPopup.fields.phoneticRegion') }}</strong>{{ locationPopup.data.data[0]['\u97f3\u5178\u5206\u5340'] || t('map.mapLibre.common.none') }}
                 </div>
                 <div class="info-line">
-                  <strong>字表來源：</strong>{{ locationPopup.data.data[0]['字表來源（母本）'] || '無' }}
+                  <strong>{{ t('map.mapLibre.locationPopup.fields.characterSource') }}</strong>{{ locationPopup.data.data[0]['\u5b57\u8868\u4f86\u6e90\uff08\u6bcd\u672c\uff09'] || t('map.mapLibre.common.none') }}
                 </div>
                 <div class="info-line">
-                  <strong>經緯度：</strong>{{ formatCoordinates(locationPopup.data.data[0].經緯度) }}
+                  <strong>{{ t('map.mapLibre.locationPopup.fields.coordinates') }}</strong>{{ formatCoordinates(locationPopup.data.data[0]['\u7d93\u7def\u5ea6']) }}
                 </div>
                 <div class="info-line">
-                  <strong>行政區劃：</strong>{{ formatAdministrativeRegion(locationPopup.data.data[0]) }}
+                  <strong>{{ t('map.mapLibre.locationPopup.fields.adminRegion') }}</strong>{{ formatAdministrativeRegion(locationPopup.data.data[0]) }}
                 </div>
 
-                <!-- 調值表格 -->
                 <div class="tone-table-container">
                   <table class="tone-table">
                     <thead>
                       <tr>
-                        <th>調類</th>
-                        <th>調值</th>
+                        <th>{{ t('map.mapLibre.locationPopup.fields.toneCategory') }}</th>
+                        <th>{{ t('map.mapLibre.locationPopup.fields.toneValue') }}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -116,7 +118,7 @@
               </div>
             </div>
             <div v-else class="no-data">
-              暫無數據
+              {{ t('map.mapLibre.locationPopup.noData') }}
             </div>
           </div>
         </div>
@@ -127,15 +129,16 @@
 
 <script setup>
 import { ref, onMounted, onBeforeUnmount, shallowRef, nextTick, watch, computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
-import { mapStyle, mapStyleConfig, calculateDenseMapCenterAndZoom } from '@/utils/MapSource.js';
+import { mapStyle, mapStyleConfig, calculateDenseMapCenterAndZoom } from '@/utils/map/MapSource.js';
 import {get_detail} from "@/utils/ResultTable.js";
 import {mapStore, userStore, resultCache} from "@/store/store.js";
 import { showSuccess, showError, showWarning, showConfirm } from '@/utils/message.js';
 import { sqlQuery } from '@/api/sql'
 import { deleteCustomForm } from '@/api/user/custom.js'
-import { func_mergeData } from '@/utils/MapData.js';
+import { refreshCurrentCustomLayer } from '@/utils/map/MapData.js';
 import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
 import MapLegend from './MapLegend.vue'
 
@@ -165,6 +168,7 @@ const map = shallowRef(null);
 const currentStyleKey = ref('gaode');
 const loading = ref(false);
 const isFullScreen = ref(false);
+const { t } = useI18n();
 
 // Map style options
 const mapStyleOptions = computed(() => {
@@ -191,7 +195,7 @@ const checkWindowMode = () => {
 // 3. 切換開關邏輯
 const toggleCustomSwitch = () => {
   if (userStore.role === 'anonymous') {
-    showWarning("未登錄用戶無法查看用戶個人數據！");
+    showWarning(t('map.mapLibre.messages.anonymousNoCustomData'));
     return;
   }
   mapStore.showCustomData = !mapStore.showCustomData;
@@ -241,7 +245,7 @@ const handleLocationClick = async (locationName) => {
       search_columns: [],
       search_text: "",
       filters: {
-        簡稱: [locationName]
+        '\u7c21\u7a31': [locationName]
       }
     };
 
@@ -249,8 +253,8 @@ const handleLocationClick = async (locationName) => {
 
     locationPopup.value.data = response;
   } catch (error) {
-    console.error('查詢地名數據失敗:', error);
-    showError('查詢失敗：' + error.message);
+    console.error('Query location data failed:', error);
+    showError(t('map.mapLibre.messages.queryLocationFailed', { error: error.message }));
   } finally {
     locationPopup.value.loading = false;
   }
@@ -264,18 +268,18 @@ const closeLocationPopup = () => {
 // 格式化行政區劃
 const formatAdministrativeRegion = (data) => {
   const parts = [];
-  if (data.省) parts.push(data.省);
-  if (data.市) parts.push(data.市);
-  if (data.縣) parts.push(data.縣);
-  if (data.鎮) parts.push(data.鎮);
-  if (data.行政村) parts.push(data.行政村);
-  if (data.自然村) parts.push(data.自然村);
-  return parts.length > 0 ? parts.join('-') : ' ';
+  if (data['\u7701']) parts.push(data['\u7701']);
+  if (data['\u5e02']) parts.push(data['\u5e02']);
+  if (data['\u7e23']) parts.push(data['\u7e23']);
+  if (data['\u93ae']) parts.push(data['\u93ae']);
+  if (data['\u884c\u653f\u6751']) parts.push(data['\u884c\u653f\u6751']);
+  if (data['\u81ea\u7136\u6751']) parts.push(data['\u81ea\u7136\u6751']);
+  return parts.length > 0 ? parts.join('-') : t('map.mapLibre.common.none');
 };
 
 // 格式化經緯度（保留6位小數）
 const formatCoordinates = (coords) => {
-  if (!coords) return '無';
+  if (!coords) return t('map.mapLibre.common.none');
   const parts = coords.split(',');
   if (parts.length !== 2) return coords;
 
@@ -290,24 +294,24 @@ const formatCoordinates = (coords) => {
 // 提取調值數據
 const getToneData = (data) => {
   const tones = [
-    { key: 'T1陰平', label: 'T1' },
-    { key: 'T2陽平', label: 'T2' },
-    { key: 'T3陰上', label: 'T3' },
-    { key: 'T4陽上', label: 'T4' },
-    { key: 'T5陰去', label: 'T5' },
-    { key: 'T6陽去', label: 'T6' },
-    { key: 'T7陰入', label: 'T7' },
-    { key: 'T8陽入', label: 'T8' },
-    { key: 'T9其他調', label: 'T9' },
-    { key: 'T10輕聲', label: 'T10' }
+    { key: 'T1\u9670\u5e73', label: 'T1' },
+    { key: 'T2\u967d\u5e73', label: 'T2' },
+    { key: 'T3\u9670\u4e0a', label: 'T3' },
+    { key: 'T4\u967d\u4e0a', label: 'T4' },
+    { key: 'T5\u9670\u53bb', label: 'T5' },
+    { key: 'T6\u967d\u53bb', label: 'T6' },
+    { key: 'T7\u9670\u5165', label: 'T7' },
+    { key: 'T8\u967d\u5165', label: 'T8' },
+    { key: 'T9\u5176\u4ed6\u8abf', label: 'T9' },
+    { key: 'T10\u8f15\u8072', label: 'T10' }
   ];
 
   return tones
     .map(tone => ({
       label: tone.label,
-      value: data[tone.key] || '無'
+      value: data[tone.key] || t('map.mapLibre.common.none')
     }))
-    .filter(tone => tone.value !== '無'); // 只顯示有值的調類
+    .filter(tone => tone.value !== t('map.mapLibre.common.none'));
 };
 
 // 20色盤 (來自 create_dot_all)
@@ -688,33 +692,26 @@ const drawFeatureMap = () => {
 
 // ✨ 核心函數：生成 DOM 並綁定事件
 const createPopupDOM = (item) => {
-  // 創建最外層容器
   const container = document.createElement('div');
-  // 這裡直接用你的類名，方便你寫 CSS
-  // 注意：MapLibre 會在外層再包一層，所以這裡不需要 active 類名來控制顯示，它出來就是顯示的
   container.className = 'popup active';
 
-  // 1. 生成基礎 HTML (使用你提供的結構)
   let htmlContent = `
             <p>${item.location}</p>
             <p>${item.feature}</p>
     `;
 
-  let showButtonType = null; // 記錄需要顯示哪種按鈕
+  let showButtonType = null;
 
-  // --- 邏輯 A: 自定義數據 ---
   if (item.iscustoms === 1 && props.isCustom) {
     htmlContent += `
-            <p style="margin-top:5px;">說明: ${item.notes || '無'}</p>
+            <p style="margin-top:5px;">${t('map.mapLibre.popup.note', { note: item.notes || t('map.mapLibre.common.none') })}</p>
         `;
-    showButtonType = 'custom'; // 標記需要自定義按鈕
+    showButtonType = 'custom';
   }
-  // --- 邏輯 B: 百分比數據 ---
   else if (Array.isArray(item.detailContent) && item.detailContent.length > 0) {
     const hasPercentage = item.detailContent.some(d => d.hasOwnProperty('percentage'));
 
     if (hasPercentage) {
-      // 降序
       const sorted = [...item.detailContent].sort((a, b) => b.percentage - a.percentage);
       htmlContent += `<ul>`;
       sorted.forEach(d => {
@@ -727,32 +724,28 @@ const createPopupDOM = (item) => {
                 </li>`;
       });
       htmlContent += `</ul>`;
-      showButtonType = 'detail'; // 標記需要詳情按鈕
+      showButtonType = 'detail';
     } else {
-      // 純文本
       htmlContent += `<p>${item.detailContent.join('<br>')}</p>`;
     }
   }
 
-  // htmlContent += `</div>`; // 閉合 popup div
   container.innerHTML = htmlContent;
 
-  // 2. ✨ 動態插入按鈕 (如果有需要)
   if (showButtonType) {
     const btn = document.createElement('button');
-    // 給按鈕加個通用的 class 方便寫樣式
     btn.style.cursor = 'pointer';
 
     if (showButtonType === 'custom') {
-      btn.className = 'mini-button-delete'; // 删除按钮使用暗红色样式
-      btn.innerText = '🗑️ 刪除'; // (原 mini-btn0)
+      btn.className = 'mini-button-delete';
+      btn.innerText = '🗑️ ' + t('map.mapLibre.buttons.delete');
       btn.onclick = (e) => {
-        e.stopPropagation(); // 防止點擊按鈕穿透到地圖
+        e.stopPropagation();
         handleCustomBtnClick(item);
       };
     } else if (showButtonType === 'detail') {
-      btn.className = 'mini-button'; // 详情按钮使用蓝色样式
-      btn.innerText = '📝 詳情'; // (原 mini-btn)
+      btn.className = 'mini-button';
+      btn.innerText = '📝 ' + t('map.mapLibre.buttons.detail');
       btn.onclick = (e) => {
         e.stopPropagation();
         handleDetailBtnClick(item);
@@ -767,60 +760,50 @@ const createPopupDOM = (item) => {
 
 // --- 按鈕點擊處理函數 ---
 const handleCustomBtnClick = async (item) => {
-  // console.log("觸發自定義按鈕邏輯", item);
   const feature = item.feature;
   const value = item.value;
   const location = item.location;
   const created_at = item.created_at;
-  // 顯示確認刪除的對話框
   const isConfirmed = await showConfirm(
-      `📍 ${location}\n🔧 ${feature}  🔢 ${value}\n\n刪除後將無法恢復！`,
+      t('map.mapLibre.confirm.deleteMessage', { location, feature, value }),
       {
-        title: '確認刪除',
-        confirmText: '刪除',
-        cancelText: '取消'
+        title: t('map.mapLibre.confirm.title'),
+        confirmText: t('map.mapLibre.confirm.confirmText'),
+        cancelText: t('map.mapLibre.confirm.cancelText')
       }
   );
-  // 如果用戶點擊確定，執行刪除操作
   if (isConfirmed) {
-    // 表單驗證
     if (!location || !feature || !value) {
-      showError("刪除失敗，地點/特徵/值存在空值");
-      return;  // 如果有空的字段，則不提交
+      showError(t('map.mapLibre.messages.deleteInvalid'));
+      return;
     }
-    // 構建表單數據對象
     const formData = {
       location: location,
-      // region: null,
-      // coordinates: null,
       feature: feature,
       value: value,
-      created_at:created_at,
-      // description: null // 如果說明為空，設置為 null
+      created_at: created_at,
     };
 
     try {
       const data = await deleteCustomForm(formData);
 
       if (data.success) {
-        showSuccess("刪除成功！\n" + data.message);
+        showSuccess(t('map.mapLibre.messages.deleteSuccess', { message: data.message }));
 
-        // 自动打开自定义数据开关
         mapStore.showCustomData = true;
 
-        // 重新加載合併數據
         try {
-          await func_mergeData(resultCache.latestResults, mapStore.mapData)
-          console.log('✅ 刪除後數據已刷新')
+          await refreshCurrentCustomLayer()
+          console.log('Custom data refreshed after delete')
         } catch (error) {
-          console.error('❌ 刷新數據失敗:', error)
+          console.error('Failed to refresh data after delete:', error)
         }
       } else {
-        showError("刪除失敗：" + data.message);
+        showError(t('map.mapLibre.messages.deleteFailed', { message: data.message }));
       }
     } catch (error) {
-      console.error("刪除失敗:", error);
-      showError("刪除時發生錯誤！");
+      console.error('Delete failed:', error);
+      showError(t('map.mapLibre.messages.deleteError'));
     }
   }
 };
@@ -907,62 +890,44 @@ const drawCompareMap = () => {
 
 // 創建比較模式的彈窗內容
 function createComparePopupContent(item) {
-  // 根據狀態獲取圖標和文字
-  let statusIcon = '';
-  let statusText = '';
+  const statusMap = {
+    same: { icon: 'OK', text: t('map.mapLibre.compare.status.same') },
+    diff: { icon: 'X', text: t('map.mapLibre.compare.status.diff') },
+    partial: { icon: '~', text: t('map.mapLibre.compare.status.partial') },
+    maybe: { icon: '?', text: t('map.mapLibre.compare.status.maybe') },
+    high_similar: { icon: '~', text: t('map.mapLibre.compare.status.highSimilar') }
+  };
+  const currentStatus = statusMap[item.status] || { icon: '?', text: t('map.mapLibre.compare.status.noData') };
+  const statusIcon = currentStatus.icon;
+  const statusText = currentStatus.text;
 
-  if (item.status === 'same') {
-    statusIcon = '✓';
-    statusText = '完全相同';
-  } else if (item.status === 'diff') {
-    statusIcon = '✗';
-    statusText = '完全不同';
-  } else if (item.status === 'partial') {
-    statusIcon = '≈';
-    statusText = '部分相同';
-  } else if (item.status === 'maybe') {
-    statusIcon = '?';
-    statusText = '可能合併';
-  } else if (item.status === 'high_similar') {
-    statusIcon = '≈';
-    statusText = '高度相似';
-  } else {
-    statusIcon = '?';
-    statusText = '無數據';
-  }
-
-  // 根據比較類型決定顯示內容
   const compareType = mapStore.compareType;
 
   let contentHTML = `
     <div class="popup-container">
       <div class="popup-header">
-        <strong>📍 ${item.location}</strong>
+        <strong>${item.location}</strong>
         ${item.pair ? `<div class="sub">${item.pair}</div>` : ''}
       </div>
       <div class="popup-body">
-        <p><strong>特徵：</strong>${item.feature}</p>
-        <p><strong>結果：</strong>${statusIcon} ${statusText}</p>
+        <p><strong>${t('map.mapLibre.compare.fields.feature')}</strong>${item.feature}</p>
+        <p><strong>${t('map.mapLibre.compare.fields.result')}</strong>${statusIcon} ${statusText}</p>
   `;
 
-  // 根據比較類型添加不同的詳細信息
   if (compareType === 'chars') {
-    // 漢字比較：顯示讀音對比
     if (item.value) {
-      contentHTML += `<p><strong>讀音對比：</strong><br/>${item.value}</p>`;
+      contentHTML += `<p><strong>${t('map.mapLibre.compare.fields.readingComparison')}</strong><br/>${item.value}</p>`;
     }
   } else if (compareType === 'zhonggu') {
-    // 中古比較：顯示相似度百分比
     if (item.overlap !== undefined) {
-      contentHTML += `<p><strong>相似度：</strong>${item.overlap}%</p>`;
+      contentHTML += `<p><strong>${t('map.mapLibre.compare.fields.similarity')}</strong>${item.overlap}%</p>`;
     }
     if (item.value) {
-      contentHTML += `<p><strong>詳情：</strong><br/>${item.value}</p>`;
+      contentHTML += `<p><strong>${t('map.mapLibre.compare.fields.detail')}</strong><br/>${item.value}</p>`;
     }
   } else if (compareType === 'tones') {
-    // 調類比較：顯示調值對比
     if (item.value) {
-      contentHTML += `<p><strong>調值對比：</strong><br/>${item.value}</p>`;
+      contentHTML += `<p><strong>${t('map.mapLibre.compare.fields.toneComparison')}</strong><br/>${item.value}</p>`;
     }
   }
 

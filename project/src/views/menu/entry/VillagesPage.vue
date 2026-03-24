@@ -1,31 +1,31 @@
 <template>
   <div class="villages-page">
-      <h2 class="page-title">自然村</h2>
+      <h2 class="page-title">{{ $t('villages.title') }}</h2>
 
       <div class="villages-grid">
 
         <button class="village-btn" @click="handleGdVillages">
           <div class="village-icon">🏘️</div>
-          <div class="village-name">廣東自然村</div>
-          <div class="village-desc">廣東省自然村樹狀圖</div>
+          <div class="village-name">{{ $t('villages.gdVillages.name') }}</div>
+          <div class="village-desc">{{ $t('villages.gdVillages.desc') }}</div>
         </button>
 
         <button class="village-btn" @click="handleVillagesML">
           <div class="village-icon">🤖</div>
-          <div class="village-name">廣東自然村分析</div>
-          <div class="village-desc">廣東自然村數據機器學習、NLP等</div>
+          <div class="village-name">{{ $t('villages.villagesML.name') }}</div>
+          <div class="village-desc">{{ $t('villages.villagesML.desc') }}</div>
         </button>
 
         <button class="village-btn" @click="handleGdVillagesTable">
           <div class="village-icon">📈</div>
-          <div class="village-name">全粵村情表格</div>
-          <div class="village-desc">廣東省自然村表格數據</div>
+          <div class="village-name">{{ $t('villages.gdVillagesTable.name') }}</div>
+          <div class="village-desc">{{ $t('villages.gdVillagesTable.desc') }}</div>
         </button>
 
         <button class="village-btn" @click="handleYcVillages">
           <div class="village-icon">🏠</div>
-          <div class="village-name">陽春自然村</div>
-          <div class="village-desc">廣東省陽春縣自然村(來自縣志)</div>
+          <div class="village-name">{{ $t('villages.ycVillages.name') }}</div>
+          <div class="village-desc">{{ $t('villages.ycVillages.desc') }}</div>
         </button>
       </div>
   </div>

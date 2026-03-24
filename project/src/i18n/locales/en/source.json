@@ -1,0 +1,15 @@
+{
+  "title": "Data Sources",
+  "privacyLink": "Want to cite? Learn about privacy policy?",
+  "totalRecords": "{locationCount} dialect character tables, {dataCount} rows of data in total",
+  "columns": {
+    "location": "Dialect Point",
+    "atlasRegion": "Atlas Region",
+    "dictRegion": "Dictionary Region",
+    "source": "Character Table Source",
+    "province": "Province",
+    "city": "City",
+    "county": "County",
+    "town": "Town"
+  }
+}

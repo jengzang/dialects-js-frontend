@@ -1,16 +1,16 @@
 <template>
   <div class="query-box">
     <div class="query-header">
-      <label class="query-label" for="tab3-key-input">待查音節</label>
+      <label class="query-label" for="tab3-key-input">{{ $t('query.components.yinweiSelector.label') }}</label>
       <span class="help-trigger" @click="openHelpModal">
-        不知道輸入什麼音節❓
+        {{ $t('query.components.yinweiSelector.helpTrigger') }}
       </span>
     </div>
 
     <textarea
         id="tab3-key-input"
         v-model="tab3KeyInput"
-        placeholder="請輸入待查音節，例如“a”"
+        :placeholder="$t('query.components.yinweiSelector.placeholder')"
         style="max-height: 5dvh"
         autocomplete="off"
     ></textarea>
@@ -20,11 +20,18 @@
     <Transition name="fade-scale">
       <div v-if="isHelpModalOpen" class="glass-modal-overlay" @click.self="closeHelpModal">
         <div class="glass-card">
-          <button class="close-btn" @click="closeHelpModal">&times;</button>
-          <h3 class="modal-title">音節查詢助手</h3>
+          <button
+            class="close-btn"
+            @click="closeHelpModal"
+            :title="$t('common.button.close')"
+            :aria-label="$t('common.button.close')"
+          >
+            &times;
+          </button>
+          <h3 class="modal-title">{{ $t('query.components.yinweiSelector.modalTitle') }}</h3>
             <div v-if="!hasLocations" class="empty-state">
               <div class="icon-warn">⚠️</div>
-              <p>請先選擇地點或分區！<br>選擇後可查看地點所含的音節。</p>
+              <p style="white-space: pre-line">{{ $t('query.components.yinweiSelector.emptyState') }}</p>
             </div>
             <div v-else class="location-list-container">
               <ul class="glass-list">
@@ -36,7 +43,7 @@
                         @click="fetchFeatureCount(loc)"
                         :disabled="loadingStates[loc]"
                     >
-                      {{ loadingStates[loc] ? '查詢中...' : '查詢' }}
+                      {{ loadingStates[loc] ? $t('query.components.yinweiSelector.queryingButton') : $t('query.components.yinweiSelector.queryButton') }}
                     </button>
                   </div>
 
@@ -44,7 +51,7 @@
                     <div v-if="apiResults[loc] && apiResults[loc][loc]" class="result-box">
 
                       <div class="stat-section" v-if="apiResults[loc][loc]['聲母']">
-                        <h4 class="stat-title">聲母</h4>
+                        <h4 class="stat-title">{{ $t('query.components.yinweiSelector.initial') }}</h4>
                         <div class="stat-tags">
                             <span v-for="(count, key) in apiResults[loc][loc]['聲母']" :key="key" class="glass-tag">
                               <span class="tag-key">{{ key }}</span>
@@ -54,7 +61,7 @@
                       </div>
 
                       <div class="stat-section" v-if="apiResults[loc][loc]['韻母']">
-                        <h4 class="stat-title">韻母</h4>
+                        <h4 class="stat-title">{{ $t('query.components.yinweiSelector.final') }}</h4>
                         <div class="stat-tags">
                           <span v-for="(count, key) in apiResults[loc][loc]['韻母']" :key="key" class="glass-tag">
                             <span class="tag-key">{{ key }}</span>
@@ -64,7 +71,7 @@
                       </div>
 
                       <div class="stat-section" v-if="apiResults[loc][loc]['聲調']">
-                        <h4 class="stat-title">聲調</h4>
+                        <h4 class="stat-title">{{ $t('query.components.yinweiSelector.tone') }}</h4>
                         <div class="stat-tags">
                           <span v-for="(count, key) in apiResults[loc][loc]['聲調']" :key="key" class="glass-tag">
                             <span class="tag-key">{{ key }}</span>
@@ -86,8 +93,11 @@
 
 <script setup>
 import { ref, computed ,watch} from 'vue';
+import { useI18n } from 'vue-i18n'
 import { getFeatureCounts } from '@/api/query/core'
 import { userStore, setTabContentDisabled } from '@/store/store.js'
+
+const { t } = useI18n()
 
 // 1. 接收父組件傳入的 locationRef
 const props = defineProps({
@@ -162,8 +172,8 @@ const fetchFeatureCount = async (locationName) => {
     apiResults.value[locationName] = data;
 
   } catch (error) {
-    console.error('Feature count fetch error:', error);
-    apiResults.value[locationName] = '查詢失敗';
+    console.error(t('query.components.yinweiSelector.errorFetch'), error);
+    apiResults.value[locationName] = t('query.components.yinweiSelector.queryFailed');
   } finally {
     loadingStates.value[locationName] = false;
   }

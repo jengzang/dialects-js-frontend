@@ -2,10 +2,18 @@
   <div>
       <div class="page-content-stack">
       <div class="page-footer">
-        <h3 style="margin:0">搜索自定義特徵</h3>
-        <div class="help-icon-head" @click="openHelpModal" title="查看使用說明">?</div>
+        <h3 style="margin:0">{{ t('map.customTab.title') }}</h3>
+        <button
+          type="button"
+          class="help-icon-head"
+          @click="openHelpModal"
+          :title="t('map.customTab.buttons.help')"
+          :aria-label="t('map.customTab.buttons.help')"
+        >
+          {{ t('map.customTab.buttons.help') }}
+        </button>
         <div class="button-row" v-if="!userStore.isAuthenticated">
-          <button class="enter-btn" @click="handleLogin">🔐 登錄</button>
+          <button class="enter-btn" @click="handleLogin">{{ t('map.customTab.labels.login') }}</button>
         </div>
       </div>
 
@@ -19,16 +27,16 @@
         <!-- 特征搜索输入框 -->
         <div class="feature-search-container">
           <div class="label-row">
-            <label for="featureSearch" class="query-label">特徵搜索</label>
+            <label for="featureSearch" class="query-label">{{ t('map.customTab.labels.featureSearch') }}</label>
 
             <span v-if="!userStore.isAuthenticated" class="data-count-badge warning">
-              🔒 登錄用戶方可添加個人數據
+              {{ t('map.customTab.badges.loginRequired') }}
             </span>
             <span v-else-if="userTotalCount === 0" class="data-count-badge hint">
-              📝 請先點擊下方按鈕添加數據
+              {{ t('map.customTab.badges.noData') }}
             </span>
             <span v-else class="data-count-badge success">
-              📊 您共有 {{ userTotalCount }} 條個人數據
+              {{ t('map.customTab.badges.dataCount', { count: userTotalCount }) }}
             </span>
           </div>
           <div class="search-input-wrapper">
@@ -36,7 +44,7 @@
               id="featureSearch"
               v-model="featureSearchInput"
               type="text"
-              placeholder="請輸入特徵關鍵詞..."
+              :placeholder="t('map.customTab.placeholders.featureSearch')"
               @input="handleFeatureInput"
               @focus="handleInputFocus"
               class="feature-search-input"
@@ -66,7 +74,7 @@
 
         <!-- 已选择的特征显示 -->
         <div v-if="selectedFeature" class="selected-feature">
-          ✅ 已選擇：<strong>{{ selectedFeature }}</strong>
+          {{ t('map.customTab.selected', { feature: selectedFeature }) }}
         </div>
 
         <!-- 运行查询按钮 -->
@@ -76,20 +84,20 @@
             @click="handleRunQuery"
             :disabled="isDisabled"
           >
-            <span v-if="buttonState.isRunning">🔄 運行中...</span>
-            <span v-else>🚀 運行查詢</span>
+            <span v-if="buttonState.isRunning">{{ t('map.customTab.buttons.running') }}</span>
+            <span v-else>{{ t('map.customTab.buttons.run') }}</span>
           </button>
         </div>
 
         <!-- 分隔线 -->
         <div class="divider">
-          <span> 添加新的自定義數據 </span>
+          <span>{{ t('map.customTab.divider') }}</span>
         </div>
 
         <!-- 使用说明链接 -->
         <div class="help-trigger-wrapper">
           <span class="help-trigger" @click="openHelpModal">
-            不知道如何添加數據❓點此查看使用說明
+            {{ t('map.customTab.helpTrigger') }}
           </span>
         </div>
 
@@ -97,10 +105,10 @@
         <div class="button-group">
           <div class="button-with-help">
             <button class="action-btn add-single-btn" @click="handleAddSingle">
-              📝 逐條添加
+              {{ t('map.customTab.buttons.addSingle') }}
             </button>
             <HelpIcon
-              content="跳轉至地圖頁面，點擊地圖即可獲取經緯度"
+              :content="t('map.customTab.helpIcons.addSingle')"
               size="md"
               trigger="both"
             />
@@ -108,10 +116,10 @@
 
           <div class="button-with-help">
             <button class="action-btn add-batch-btn" @click="handleAddBatch">
-              📋 批量添加
+              {{ t('map.customTab.buttons.addBatch') }}
             </button>
             <HelpIcon
-              content="批量添加多條數據，支持從excel粘貼"
+              :content="t('map.customTab.helpIcons.addBatch')"
               size="md"
               trigger="both"
             />
@@ -123,42 +131,42 @@
       <Transition name="fade-scale">
         <div v-if="isHelpModalOpen" class="glass-modal-overlay" @click.self="closeHelpModal">
           <div class="glass-card help-modal">
-            <button class="close-btn" style="position: sticky;margin-left: auto" @click="closeHelpModal">&times;</button>
-            <h3 class="modal-title">自定義數據使用說明</h3>
+            <button
+              class="close-btn"
+              style="position: sticky; margin-left: auto"
+              @click="closeHelpModal"
+              :title="t('common.button.close')"
+              :aria-label="t('common.button.close')"
+            >
+              &times;
+            </button>
+            <h3 class="modal-title">{{ t('map.customTab.helpModal.title') }}</h3>
 
             <div class="help-content">
               <div class="help-section">
-                <h4 class="section-title">🌟 功能簡介</h4>
+                <h4 class="section-title">🌟 {{ t('map.customTab.helpModal.sections.overview.title') }}</h4>
                 <ul class="help-list">
-                  <li><strong>專屬空間：</strong> 這是您的私有數據庫，僅在登錄後可見，數據絕對保密。</li>
-                  <li><strong>智能繪圖：</strong> 系統會根據您填寫的「特徵」自動分類顏色，並將「值」標註在地圖點上。</li>
+                  <li v-for="item in helpOverviewItems" :key="item.key">
+                    <strong>{{ item.label }}</strong>{{ item.text }}
+                  </li>
                 </ul>
               </div>
 
-              <div class="help-section" style=" border-left: 4px solid #007aff;">
-                <h4 class="section-title">🎨 地圖填寫指南</h4>
+              <div class="help-section" style="border-left: 4px solid #007aff;">
+                <h4 class="section-title">🎨 {{ t('map.customTab.helpModal.sections.fieldGuide.title') }}</h4>
                 <ul class="help-list">
-                  <li><strong>【特徵】</strong>：數據的<strong>分類方式</strong>（如：填入 `流攝`，搜索流攝時即可展示該點）。</li>
-                  <li><strong>【值】</strong>：在地圖圓點上顯示的<strong>符號</strong>（如：填入 `iu`，地圖點上就顯示 `iu`）。</li>
-                  <li><strong>【聲韻調】</strong>：值所屬的（聲/韻/調），用於基礎分類</li>
-                  <li><strong>【簡稱】</strong>：數據的<strong>地點名稱</strong>（如：`陽春`）。</li>
-                  <li><strong>【分區】</strong>：數據的<strong>方言分區</strong>（如：`粵語-高陽片`）。</li>
+                  <li v-for="item in helpFieldGuideItems" :key="item.key">
+                    <strong>{{ item.label }}</strong>{{ item.text }}
+                  </li>
                 </ul>
                 <div class="example-hint">
                   <ul>
-                    <li>推薦配合<strong>「查中古」</strong>地圖所顯示的結果一起使用。</li>
+                    <li v-for="example in helpFieldGuideExamples" :key="example">{{ example }}</li>
                   </ul>
                 </div>
-                <ul class="help-list">
-                  <li>例如：當前<strong>「查中古」</strong>搜索的是<strong>「嶺南」</strong>的<strong>「豪」韻</strong>的
-                    <strong>「韻母」</strong>音值，但網站並沒有方言點<strong>「陽春圭崗」</strong>的字表，而用戶知道陽春圭崗的
-                    <strong>「豪」韻</strong>讀<strong>「ɐu」</strong>，即可添加數據：
-                  </li>
-                </ul>
-                <div class="example-block">
-                  <div class="table-container">
-                    <table class="example-table">
-                      <thead>
+                <div class="table-container">
+                  <table class="example-table">
+                    <thead>
                       <tr>
                         <th style="min-width: 60px;">簡稱</th>
                         <th style="min-width: 40px;">分區</th>
@@ -168,43 +176,38 @@
                         <th style="min-width: 40px;">值</th>
                         <th style="min-width: 60px;">說明</th>
                       </tr>
-                      </thead>
-                      <tbody>
+                    </thead>
+                    <tbody>
                       <tr>
                         <td class="highlight-location">陽春圭崗</td>
                         <td class="highlight-region">嶺南</td>
-                        <td  class="highlight-geo">111.742615,22.35676</td>
+                        <td class="highlight-geo">111.742615,22.35676</td>
                         <td>韻母</td>
                         <td><strong>豪</strong></td>
                         <td><span class="value-tag">ɐu</span></td>
                         <td class="note-text">個人田調</td>
                       </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                  <div class="example-hint">
-                    <ul>
-                      <li>點擊地圖右側「➕️」，打開<strong>添加數據面板</strong>，針對當前地圖特徵補充數據。</li>
-                    </ul>
-                  </div>
+                    </tbody>
+                  </table>
                 </div>
               </div>
 
-              <div class="help-section" style=" border-left: 4px solid #007aff;">
-                <h4 class="section-title">💫 靈活歸類方言數據</h4>
-                <p style="font-size: 16px; line-height: 1.6; color: #222; margin: 0;">
-                  例如想錄入個人<strong>「2025田調」</strong>數據，可以這樣填入：
-                </p>
-                <ul class="help-list" style="margin-bottom: 8px">
-                  <li><strong>「分區」</strong>：填入<strong>2025田調</strong></li>
-                  <li><strong>「聲韻調」</strong>：<strong>留空</strong>或<strong>填入大類別</strong>(例如“詞彙”)，不影響「自定義特徵檢索」</li>
-                  <li><strong>「特徵」</strong>：填入具體類別，例如止·精組·開、來母、陰去、昨天、玩耍等</li>
-                  <li><strong>「值」</strong>：填入具體的音值/詞彙等</li>
+              <div class="help-section" style="border-left: 4px solid #007aff;">
+                <h4 class="section-title">💫 {{ t('map.customTab.helpModal.sections.customCollection.title') }}</h4>
+                <p class="help-paragraph">{{ t('map.customTab.helpModal.sections.customCollection.intro') }}</p>
+                <ul class="help-list">
+                  <li v-for="item in helpCollectionItems" :key="item.key">
+                    <strong>{{ item.label }}</strong>{{ item.text }}
+                  </li>
                 </ul>
-                <div class="example-block">
-                  <div class="table-container">
-                    <table class="example-table">
-                      <thead>
+                <div class="example-hint">
+                  <ul>
+                    <li v-for="note in helpCollectionNotes" :key="note">{{ note }}</li>
+                  </ul>
+                </div>
+                <div class="table-container">
+                  <table class="example-table">
+                    <thead>
                       <tr>
                         <th style="min-width: 60px;">簡稱</th>
                         <th style="min-width: 30px;">分區</th>
@@ -214,8 +217,8 @@
                         <th style="min-width: 40px;">值</th>
                         <th style="min-width: 60px;">說明</th>
                       </tr>
-                      </thead>
-                      <tbody>
+                    </thead>
+                    <tbody>
                       <tr>
                         <td rowspan="5" class="highlight-location">陽春雙滘</td>
                         <td rowspan="10" class="highlight-region">2025田調</td>
@@ -249,7 +252,6 @@
                         <td><span class="value-tag">嬲</span></td>
                         <td class="note-text">liɛu53</td>
                       </tr>
-
                       <tr>
                         <td rowspan="5" class="highlight-location">阳春合水</td>
                         <td rowspan="5" class="highlight-geo">111.856357,<br>22.289037</td>
@@ -282,68 +284,52 @@
                         <td><span class="value-tag">耍</span></td>
                         <td class="note-text">ʃa323</td>
                       </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                  <div class="example-hint">
-                    <ul>
-                      <li><strong>分區：</strong> 這是您的「搜索範圍」。請先在分區框內填入<code>2025田調</code></li>
-                      <li><strong>特徵：</strong> 這是您的「搜索關鍵詞」。搜 <code>昨天</code>，地圖會顯示 <code>從日</code> 和 <code>撞日</code> 的分佈。</li>
-                      <li><strong>聲韻調：</strong> 詞彙類數據可在此欄填寫「詞彙」以便歸類，也可留空，不影響正常顯示。</li>
-                      <li><strong>值：</strong> 直接顯示在地圖上，但無法用於搜索。</li>
-                    </ul>
-                  </div>
+                    </tbody>
+                  </table>
                 </div>
-
               </div>
 
-              <div class="help-section" style=" border-left: 4px solid #007aff;">
-                <h4 class="section-title">💡 進階小貼士：日常應用</h4>
-                <p style="font-size: 13px; line-height: 1.6; color: #444; margin: 0;">
-                  如果您不是在做方言研究，可以把這套系統當作您的<strong>「私人生活地圖」</strong>：
-                </p>
+              <div class="help-section" style="border-left: 4px solid #007aff;">
+                <h4 class="section-title">💡 {{ t('map.customTab.helpModal.sections.dailyUsage.title') }}</h4>
+                <p class="help-paragraph">{{ t('map.customTab.helpModal.sections.dailyUsage.intro') }}</p>
                 <ul class="help-list" style="margin-top: 8px;">
                   <li>📁 <strong>「分區」即文件夾：</strong>比如填入 <code>我的探店地圖</code>（「聲韻調」可留空）。</li>
                   <li>🏷️ <strong>「特徵」即分類：</strong>比如填入 <code>咖啡館</code>、<code>火鍋店</code> 或 <code>燒烤攤</code>。</li>
                   <li>📍 <strong>「簡稱」即名字：</strong>可以填入景點/店鋪名稱（如<code>時光咖啡館</code>）。</li>
                   <li>✅️ <strong>「值」即標記：</strong>可以填入評分（如<code>9分</code>）或簡介。</li>
                 </ul>
-                <p style="font-size: 13px; color: #666; margin-top: 8px; font-style: italic;">
-                  ✨ 這樣操作後，您只需在分區框填入「我的探店地圖」，搜索框搜尋「咖啡館」，地圖就會精確展示您標註過的所有咖啡店分佈。
-                </p>
-                <div class="usage-diagram">
 
+                <div class="usage-diagram">
                   <div class="usage-level region-level">
                     <div class="level-icon">📂</div>
                     <div class="level-content">
-                      <div class="field-tag">分區 (Region)</div>
-                      <div class="usage-text">相當於 <strong>「文件夾名稱」</strong></div>
-                      <div class="usage-example">例：填入 <code>我的美食地圖</code></div>
+                      <div class="field-tag">{{ t('map.customTab.helpModal.sections.dailyUsage.cards.region.label') }}</div>
+                      <div class="usage-text">{{ t('map.customTab.helpModal.sections.dailyUsage.cards.region.text') }}</div>
+                      <div class="usage-example">{{ t('map.customTab.helpModal.sections.dailyUsage.cards.region.example') }}</div>
                     </div>
                   </div>
 
-                  <div class="connector-line">⬇️ 包含多個地點</div>
+                  <div class="connector-line">⬇️ {{ t('map.customTab.helpModal.sections.dailyUsage.connectors.regionToLocation') }}</div>
 
                   <div class="usage-level location-level">
                     <div class="level-icon">📍</div>
                     <div class="level-content">
-                      <div class="field-tag">簡稱 (Location)</div>
-                      <div class="usage-text">相當於 <strong>「店名」或「景點名」</strong></div>
-                      <div class="usage-example">例：填入 <code>老王燒烤</code></div>
+                      <div class="field-tag">{{ t('map.customTab.helpModal.sections.dailyUsage.cards.location.label') }}</div>
+                      <div class="usage-text">{{ t('map.customTab.helpModal.sections.dailyUsage.cards.location.text') }}</div>
+                      <div class="usage-example">{{ t('map.customTab.helpModal.sections.dailyUsage.cards.location.example') }}</div>
                     </div>
                   </div>
 
-                  <div class="connector-line">⬇️ 給這個地點打標籤</div>
+                  <div class="connector-line">⬇️ {{ t('map.customTab.helpModal.sections.dailyUsage.connectors.locationToData') }}</div>
 
                   <div class="usage-level data-level">
                     <div class="level-group">
-
                       <div class="sub-level feature-box">
                         <div class="level-icon-sm">🏷️</div>
                         <div>
-                          <div class="field-tag-sm">特徵</div>
-                          <div class="usage-text-sm"><strong>分類標籤</strong> (搜索用)</div>
-                          <div class="usage-example-sm">例：<code>評價</code> / <code>種類</code></div>
+                          <div class="field-tag-sm">{{ t('map.customTab.helpModal.sections.dailyUsage.cards.feature.label') }}</div>
+                          <div class="usage-text-sm">{{ t('map.customTab.helpModal.sections.dailyUsage.cards.feature.text') }}</div>
+                          <div class="usage-example-sm">{{ t('map.customTab.helpModal.sections.dailyUsage.cards.feature.example') }}</div>
                         </div>
                       </div>
 
@@ -352,27 +338,26 @@
                       <div class="sub-level value-box">
                         <div class="level-icon-sm">💬</div>
                         <div>
-                          <div class="field-tag-sm">值</div>
-                          <div class="usage-text-sm"><strong>顯示內容</strong> (地圖顯示)</div>
-                          <div class="usage-example-sm">例：<code>好吃</code> / <code>燒烤</code></div>
+                          <div class="field-tag-sm">{{ t('map.customTab.helpModal.sections.dailyUsage.cards.value.label') }}</div>
+                          <div class="usage-text-sm">{{ t('map.customTab.helpModal.sections.dailyUsage.cards.value.text') }}</div>
+                          <div class="usage-example-sm">{{ t('map.customTab.helpModal.sections.dailyUsage.cards.value.example') }}</div>
                         </div>
                       </div>
                     </div>
                   </div>
-                  <p class="example-hint" style="margin:0;">
-                    ✨ <strong>最終效果：</strong> 當您在分區輸入框填入 <code>我的美食地圖</code> ，
-                    再在搜索框輸入 <code>評價</code> 時，地圖上 <strong>老王燒烤</strong> 的位置就會亮起，並顯示 <code>好吃</code> 兩個字。
-                  </p>
-
                 </div>
+
+                <p class="example-hint" style="margin: 0;">
+                  ✨ {{ t('map.customTab.helpModal.sections.dailyUsage.result') }}
+                </p>
               </div>
 
-              <div class="help-section" style=" border-left: 4px solid #007aff;">
-                <h4 class="section-title">📍 添加數據步驟</h4>
+              <div class="help-section" style="border-left: 4px solid #007aff;">
+                <h4 class="section-title">📍 {{ t('map.customTab.helpModal.sections.steps.title') }}</h4>
                 <ul class="help-list">
-                  <li><strong>1. 選擇模式：</strong> 「逐條添加」適合精確選擇坐標，「批量添加」支持從 Excel 直接複製粘貼。</li>
-                  <li><strong>2. 獲取坐標：</strong> 「逐條添加」無需手動查詢！在面板打開時，<strong>直接點擊地圖上的目標位置</strong>，經緯度會自動填充。</li>
-                  <li><strong>3. 提交保存：</strong> 填寫完畢後點擊提交，數據將永久保存至您的個人數據庫中。</li>
+                  <li v-for="item in helpStepsItems" :key="item.key">
+                    <strong>{{ item.label }}</strong>{{ item.text }}
+                  </li>
                 </ul>
               </div>
             </div>
@@ -384,8 +369,9 @@
 </template>
 
 <script setup>
-import { ref, reactive, nextTick, onMounted, onBeforeUnmount, watch } from 'vue'
+import { computed, ref, reactive, nextTick, onMounted, onBeforeUnmount, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import LocationAndRegionInput from '@/components/query/LocationAndRegionInput.vue'
 import HelpIcon from '@/components/ToastAndHelp/HelpIcon.vue'
 import { getCustomFeature } from '@/api/user/custom.js'
@@ -395,6 +381,94 @@ import { showSuccess, showError, showWarning, showInfo } from '@/utils/message.j
 
 const router = useRouter()
 const route = useRoute()
+const { t } = useI18n()
+const helpOverviewItems = computed(() => [
+  {
+    key: 'privateSpace',
+    label: t('map.customTab.helpModal.sections.overview.items.privateSpace.label'),
+    text: t('map.customTab.helpModal.sections.overview.items.privateSpace.text')
+  },
+  {
+    key: 'mapRendering',
+    label: t('map.customTab.helpModal.sections.overview.items.mapRendering.label'),
+    text: t('map.customTab.helpModal.sections.overview.items.mapRendering.text')
+  }
+])
+const helpFieldGuideItems = computed(() => [
+  {
+    key: 'feature',
+    label: t('map.customTab.helpModal.sections.fieldGuide.items.feature.label'),
+    text: t('map.customTab.helpModal.sections.fieldGuide.items.feature.text')
+  },
+  {
+    key: 'value',
+    label: t('map.customTab.helpModal.sections.fieldGuide.items.value.label'),
+    text: t('map.customTab.helpModal.sections.fieldGuide.items.value.text')
+  },
+  {
+    key: 'featureType',
+    label: t('map.customTab.helpModal.sections.fieldGuide.items.featureType.label'),
+    text: t('map.customTab.helpModal.sections.fieldGuide.items.featureType.text')
+  },
+  {
+    key: 'location',
+    label: t('map.customTab.helpModal.sections.fieldGuide.items.location.label'),
+    text: t('map.customTab.helpModal.sections.fieldGuide.items.location.text')
+  },
+  {
+    key: 'region',
+    label: t('map.customTab.helpModal.sections.fieldGuide.items.region.label'),
+    text: t('map.customTab.helpModal.sections.fieldGuide.items.region.text')
+  }
+])
+const helpFieldGuideExamples = computed(() => [
+  t('map.customTab.helpModal.sections.fieldGuide.examples.middleChinese'),
+  t('map.customTab.helpModal.sections.fieldGuide.examples.personalCorpus')
+])
+const helpCollectionItems = computed(() => [
+  {
+    key: 'region',
+    label: t('map.customTab.helpModal.sections.customCollection.items.region.label'),
+    text: t('map.customTab.helpModal.sections.customCollection.items.region.text')
+  },
+  {
+    key: 'featureType',
+    label: t('map.customTab.helpModal.sections.customCollection.items.featureType.label'),
+    text: t('map.customTab.helpModal.sections.customCollection.items.featureType.text')
+  },
+  {
+    key: 'feature',
+    label: t('map.customTab.helpModal.sections.customCollection.items.feature.label'),
+    text: t('map.customTab.helpModal.sections.customCollection.items.feature.text')
+  },
+  {
+    key: 'value',
+    label: t('map.customTab.helpModal.sections.customCollection.items.value.label'),
+    text: t('map.customTab.helpModal.sections.customCollection.items.value.text')
+  }
+])
+const helpCollectionNotes = computed(() => [
+  t('map.customTab.helpModal.sections.customCollection.notes.scope'),
+  t('map.customTab.helpModal.sections.customCollection.notes.search'),
+  t('map.customTab.helpModal.sections.customCollection.notes.display')
+])
+const helpStepsItems = computed(() => [
+  {
+    key: 'mode',
+    label: t('map.customTab.helpModal.sections.steps.items.mode.label'),
+    text: t('map.customTab.helpModal.sections.steps.items.mode.text')
+  },
+  {
+    key: 'coordinates',
+    label: t('map.customTab.helpModal.sections.steps.items.coordinates.label'),
+    text: t('map.customTab.helpModal.sections.steps.items.coordinates.text')
+  },
+  {
+    key: 'save',
+    label: t('map.customTab.helpModal.sections.steps.items.save.label'),
+    text: t('map.customTab.helpModal.sections.steps.items.save.text')
+  }
+])
 
 // 地点和分区数据
 const locationData = ref({
@@ -520,11 +594,11 @@ const searchCustomFeatures = async () => {
     } else {
       featureSuggestions.value = []
       showSuggestions.value = false
-      showInfo('未找到匹配的特征')
+      showInfo(t('map.customTab.messages.noMatch'))
     }
   } catch (error) {
     console.error('搜索特征失败:', error)
-    showError('搜索失败：' + error.message)
+    showError(t('map.customTab.messages.searchFailed', { error: error.message }))
     featureSuggestions.value = []
     showSuggestions.value = false
   } finally {
@@ -565,7 +639,7 @@ const onClickOutside = (event) => {
   }
 }
 
-const fetchUserTotalCount = async () => {
+async function fetchUserTotalCount() {
   if (!userStore.isAuthenticated) return
   try {
     // 不帶任何參數請求，獲取所有個人記錄
@@ -591,7 +665,7 @@ onBeforeUnmount(() => {
 // 运行查询
 const handleRunQuery = () => {
   if (!selectedFeature.value) {
-    showWarning('请先选择一个特征')
+    showWarning(t('map.customTab.validation.selectFeature'))
     return
   }
 
@@ -628,7 +702,7 @@ const handleRunQuery = () => {
     // 跳转到地图页面
     router.replace({ query })
 
-    showSuccess('正在加载特征数据...')
+    showSuccess(t('map.customTab.messages.loading'))
 
     // 清空選中的特徵
     selectedFeature.value = ''
@@ -640,7 +714,7 @@ const handleRunQuery = () => {
     }, 1000)
   } catch (error) {
     console.error('跳转失败:', error)
-    showError('操作失败：' + error.message)
+    showError(t('map.customTab.messages.searchFailed', { error: error.message }))
     setRunning('custom', false)
   }
 }
@@ -666,7 +740,7 @@ const handleAddSingle = () => {
 const handleAddBatch = () => {
   // 检查是否已登录
   if (!userStore.isAuthenticated) {
-    showWarning('請先登錄')
+    showWarning(t('map.customTab.validation.loginFirst'))
     router.push('/auth')
     return
   }
@@ -755,17 +829,22 @@ const handleAddBatch = () => {
 
 /* 頁面頭部幫助圖標 - 蘋果液態玻璃風格 */
 .help-icon-head {
-  width: 24px;
+  width: auto;
+  min-width: 24px;
   height: 24px;
+  padding: 0 10px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 700;
+  line-height: 1;
   color: #007aff;
   cursor: pointer;
   user-select: none;
+  white-space: nowrap;
+  border: none;
 
   /* 液態玻璃效果 */
   background: linear-gradient(
@@ -973,6 +1052,13 @@ const handleAddBatch = () => {
 .help-list li strong {
   color: #333;
   font-weight: 600;
+}
+
+.help-paragraph {
+  margin: 0 0 12px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #555;
 }
 
 /* 过渡动画 */

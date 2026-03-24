@@ -1,0 +1,465 @@
+{
+  "title": "Toolbox",
+  "dataCheck": {
+    "name": "Data Check",
+    "desc": "Check data accuracy and format"
+  },
+  "jyutpingToIpa": {
+    "name": "Jyutping to IPA",
+    "desc": "Convert Jyutping to IPA"
+  },
+  "mergeTables": {
+    "name": "Merge Tables",
+    "desc": "Merge multiple data tables"
+  },
+  "praatAnalysis": {
+    "name": "Acoustic Analysis",
+    "desc": "Analyze pitch, formants, and related data with Praat"
+  },
+  "common": {
+    "close": "Close",
+    "reset": "Start Over",
+    "download": "Download",
+    "delete": "Delete",
+    "completed": "Completed",
+    "totalRows": "Total Rows",
+    "processedRows": "Processed Rows",
+    "successfulRows": "Successful Rows"
+  },
+  "jyut2ipa": {
+    "page": {
+      "title": "Jyutping to IPA Tool",
+      "subtitle": "Upload an Excel file with a Jyutping column and convert it to IPA in bulk"
+    },
+    "upload": {
+      "title": "Click or drag an Excel file here to upload",
+      "hint": "Supports .xlsx and .xls files",
+      "info": "Upload an Excel file that includes a jyut6ping3 column. The system will convert it to IPA automatically in batch."
+    },
+    "configCard": {
+      "title": "Custom Conversion Rules",
+      "desc": "Adjust replacement rules for finals, initials, tones, and codas."
+    },
+    "processing": {
+      "title": "Converting...",
+      "preparingUpload": "Preparing upload...",
+      "uploading": "Uploading file...",
+      "preparingConvert": "Preparing conversion...",
+      "running": "Converting..."
+    },
+    "complete": {
+      "title": "Conversion Complete",
+      "text": "The downloadable result and a 10-row preview are ready.",
+      "previewTitle": "Result Preview (First 10 Rows)"
+    },
+    "preview": {
+      "char": "Character",
+      "jyutping": "Jyutping",
+      "ipa": "IPA",
+      "initial": "Initial",
+      "final": "Final",
+      "tone": "Tone"
+    },
+    "modal": {
+      "title": "Custom Conversion Rules",
+      "totalRules": "Total Rules",
+      "enabledRules": "Enabled",
+      "disabledRules": "Disabled",
+      "exportTitle": "Export rule config",
+      "importTitle": "Import rule config",
+      "headers": {
+        "index": "No.",
+        "source": "Replace",
+        "replacement": "IPA Output",
+        "category": "Category",
+        "enabled": "Enabled",
+        "actions": "Actions"
+      }
+    },
+    "categories": {
+      "wf": "Final",
+      "sm": "Initial",
+      "jd": "Tone",
+      "wm": "Coda",
+      "all": "All"
+    },
+    "actions": {
+      "downloadResult": "Download Result",
+      "resetTask": "Start Over",
+      "addRule": "Add Rule",
+      "resetDefault": "Reset to Default",
+      "saveConfig": "Save Config"
+    },
+    "validation": {
+      "loginRequired": "Please sign in first.",
+      "invalidFileType": "Please upload an Excel file (.xlsx or .xls).",
+      "fileTooLarge": "File size must not exceed 3MB."
+    },
+    "messages": {
+      "confirmDeleteRule": "Delete this rule?",
+      "confirmResetConfig": "Reset to the default configuration? All custom changes will be removed.",
+      "resetSuccess": "Reset to the default configuration.",
+      "saveSuccess": "Configuration saved.",
+      "saveFailed": "Save failed: {message}",
+      "importSuccess": "Import successful.",
+      "importInvalid": "Invalid file format: expected an array.",
+      "importFailed": "Import failed: {message}",
+      "progressFailed": "Failed to get progress: {message}",
+      "processFailed": "Processing failed: {message}",
+      "taskMissing": "Task ID not found.",
+      "downloadFailed": "Download failed: {message}"
+    },
+    "export": {
+      "configFileName": "jyut2ipa-rules.json",
+      "resultPrefix": "phonicon_"
+    }
+  },
+  "merge": {
+    "page": {
+      "title": "Table Merge Tool",
+      "subtitle": "Upload a reference sheet and source files to align and merge them in batch"
+    },
+    "steps": {
+      "reference": "Reference Sheet",
+      "files": "Files to Merge",
+      "result": "Merged Result"
+    },
+    "reference": {
+      "title": "Upload Reference Sheet",
+      "desc": "The reference sheet defines the column structure and character scope. You can upload your own file or use the default reference sheet.",
+      "uploadText": "Click or drag to upload a reference Excel file",
+      "uploadHint": "Supports .xlsx and .xls files",
+      "charCount": "Characters",
+      "columnCount": "Columns",
+      "viewDefault": "View Default Reference",
+      "loadingDefault": "Loading reference sheet...",
+      "next": "Next"
+    },
+    "files": {
+      "title": "Upload Source Tables",
+      "descPrefix": "Please upload source tables that have already been processed with",
+      "checkTool": "Data Check",
+      "descSuffix": ". Multiple files will be added to the same merge task.",
+      "uploadText": "Click or drag to upload tables to merge",
+      "uploadHint": "You can add up to 20 Excel files at once",
+      "selectedCount": "{count} file(s) added",
+      "previous": "Previous",
+      "startMerge": "Start Merge"
+    },
+    "processing": {
+      "title": "Merging tables...",
+      "initializing": "Initializing merge...",
+      "running": "Merging...",
+      "totalFiles": "Total Files"
+    },
+    "complete": {
+      "title": "Merge Complete",
+      "text": "The merged file and a task summary are ready for download.",
+      "mergedFilesTitle": "Files Processed in This Task"
+    },
+    "summary": {
+      "mergedFileCount": "Merged Files"
+    },
+    "modal": {
+      "title": "Default Reference Sheet",
+      "mainTable": "Main Sheet",
+      "supplementTable": "Supplement Sheet",
+      "showingRows": "Showing the first {displayed} rows out of {total}",
+      "downloadDefault": "Download Default Reference",
+      "useDefault": "Use This Reference"
+    },
+    "actions": {
+      "downloadResult": "Download merge.xlsx",
+      "resetTask": "Start Over"
+    },
+    "validation": {
+      "loginRequired": "Please sign in first.",
+      "invalidFileType": "Please upload an Excel file (.xlsx or .xls).",
+      "partialInvalid": "Some files have invalid formats. Only .xlsx and .xls are supported.",
+      "fileTooLarge": "These files exceed the 3MB limit: {files}",
+      "referenceFileTooLarge": "File size must not exceed 3MB.",
+      "maxFiles": "You can upload up to 20 files. There are already {count} file(s) in the list."
+    },
+    "messages": {
+      "uploadFailed": "Upload failed: {message}",
+      "mergeFailed": "Merge failed: {message}",
+      "progressFailed": "Failed to get progress: {message}",
+      "taskMissing": "Task ID not found.",
+      "downloadFailed": "Download failed: {message}",
+      "readDefaultFailed": "Failed to read the default reference sheet: {message}",
+      "defaultDownloaded": "Default reference sheet downloaded.",
+      "useDefaultSuccess": "Default reference sheet applied.",
+      "useDefaultFailed": "Failed to use the reference sheet: {message}"
+    },
+    "export": {
+      "resultFileName": "phonicon_merged_tables.xlsx",
+      "defaultReferencePath": "/reference.xlsx",
+      "defaultReferenceFileName": "reference.xlsx",
+      "mainSheetName": "Main Sheet",
+      "supplementSheetName": "Supplement Sheet"
+    }
+  },
+  "checkTool": {
+    "welcome": {
+      "title": "Dialect Table Check Tool",
+      "feature1": "Automatically detects multi-character entries, invalid IPA, and missing tones",
+      "feature2": "Supports batch editing and command-based editing",
+      "feature3": "Click cells to edit and fix issues quickly",
+      "formatLabel": "File format:",
+      "formatHelp": "Guide",
+      "formatYindian": "One Character One Syllable",
+      "formatMultiChar": "One Syllable Multiple Characters",
+      "formatGazetteer": "Gazetteer",
+      "traditionalRecommended": "Traditional (Recommended)",
+      "simplifiedConvert": "Simplified (converted to Traditional; file content will change)",
+      "uploadTitle": "Click or drag a file here",
+      "uploadHint": "Supports .xlsx, .xls, .doc, .docx, and .tsv",
+      "uploadingTitle": "Uploading...",
+      "uploadingHint": "Please wait while the file is being processed"
+    },
+    "sidebar": {
+      "title": "Sidebar",
+      "showErrorsOnly": "Errors Only",
+      "showAll": "Show All",
+      "errorListTitle": "Error List",
+      "searchPlaceholder": "Search characters...",
+      "clearFilter": "Clear Filter",
+      "rowLabel": "Row {row}",
+      "moreErrors": "{count} more errors...",
+      "toneStatsTitle": "Tone Statistics",
+      "ruToneTitle": "Checked Tones",
+      "shuToneTitle": "Non-Checked Tones",
+      "charCount": "{count} chars",
+      "noToneStats": "No tone statistics yet",
+      "onsetRimeTitle": "Onset and Rime Stats",
+      "onsetTitle": "Onset",
+      "rimeTitle": "Rime",
+      "emptyValue": "(Empty)",
+      "noOnsetRimeStats": "No onset and rime statistics yet"
+    },
+    "fileBar": {
+      "rows": "{count} rows",
+      "changeFile": "Change File",
+      "help": "Help",
+      "tableView": "Table View",
+      "commandMode": "Command Mode"
+    },
+    "table": {
+      "errorCount": "Errors:",
+      "pendingCount": "Pending:",
+      "clickToEdit": "Click a cell to edit",
+      "enterEdit": "Edit",
+      "exitEdit": "Exit Edit",
+      "saveChanges": "Save Changes",
+      "cancel": "Cancel",
+      "batchReplace": "Batch Replace",
+      "download": "Download",
+      "loading": "Loading...",
+      "row": "Row",
+      "char": "Character",
+      "ipa": "IPA",
+      "onset": "Onset",
+      "rime": "Rime",
+      "tone": "Tone",
+      "note": "Note",
+      "actions": "Actions",
+      "cancelDelete": "Cancel delete",
+      "markDelete": "Mark for deletion"
+    },
+    "command": {
+      "title": "Command Input",
+      "help": "Command Help",
+      "placeholder": "Enter one command per line, or separate commands with semicolons\n\nExamples:\nc-帥-好\ni-帥-jat4\np-'-ʰ\nr5>3\ns22>33\n\nMultiple commands:\nc-帥-好; i-帥-jat4",
+      "clear": "Clear",
+      "execute": "Run Command",
+      "resultTitle": "Results",
+      "clearResult": "Clear"
+    },
+    "batchReplace": {
+      "title": "Batch Replace",
+      "replaceType": "Replace Type",
+      "replaceTypeAll": "Replace IPA Globally",
+      "replaceTypeRu": "Replace Checked-Tone Values",
+      "replaceTypeShu": "Replace Non-Checked-Tone Values",
+      "sourceChar": "Original Character",
+      "sourceTone": "Original Tone",
+      "sourceCharPlaceholder": "Example: '",
+      "sourceTonePlaceholder": "Example: 5",
+      "sourceCharHint": "Character or string to replace",
+      "sourceToneHint": "Tone value to replace (1 to 4 digits)",
+      "targetChar": "New Character",
+      "targetTone": "New Tone",
+      "targetCharPlaceholder": "Example: ʰ",
+      "targetTonePlaceholder": "Example: 2",
+      "targetCharHint": "Replacement character or string",
+      "targetToneHint": "Replacement tone value (1 to 4 digits)",
+      "ruToneTitle": "Checked tones:",
+      "shuToneTitle": "Non-checked tones:",
+      "ruToneHint": "Only replaces tones that end in stop codas (p, t, k, ʔ, b, d, g)",
+      "shuToneHint": "Only replaces non-checked tone values",
+      "previewCommand": "Command Preview",
+      "cancel": "Cancel",
+      "execute": "Run Replace"
+    },
+    "help": {
+      "title": "Help",
+      "checksTitle": "Checks",
+      "checkNonSingleChar": "Non-single character: the character column should contain exactly one character",
+      "checkInvalidIpa": "Invalid IPA: contains unsupported characters or malformed format",
+      "checkMissingTone": "Missing tone: the IPA ends without a numeric tone marker",
+      "commandTitle": "Command Syntax",
+      "commandHeader": "Command",
+      "descriptionHeader": "Description",
+      "exampleHeader": "Example",
+      "replaceCharDesc": "Replace a character",
+      "deleteRowDesc": "Delete a row",
+      "modifyIpaDesc": "Modify IPA",
+      "replaceIpaDesc": "Replace IPA globally",
+      "replaceRuToneDesc": "Replace tone values for checked-tone syllables only",
+      "replaceShuToneDesc": "Replace tone values for non-checked-tone syllables only",
+      "commandHint": "Separate multiple commands with semicolons, for example:",
+      "editTitle": "Editing Methods",
+      "editCell": "Cell editing: click a table cell in edit mode to edit it directly",
+      "editBatch": "Batch editing: enter edit mode and save changes together",
+      "editCommand": "Command mode: process multiple changes in batch",
+      "gotIt": "Got It"
+    },
+    "formatHelp": {
+      "title": "File Format Guide",
+      "singleTitle": "1. One Character One Syllable",
+      "fileRequirement": "File requirement:",
+      "excelRequirement": "Excel (.xlsx, .xls).",
+      "requiredColumns": "Required columns:",
+      "singleCharColumn": "Character column: the header can be \"單字\", \"phrase\", \"单字\", \"漢字\", or \"汉字\"",
+      "singleIpaColumn": "IPA column: the header can be \"IPA\", \"ipa\", \"音標\", \"音标\", or \"syllable\"",
+      "singleNoteColumn": "Note column: the header can be \"注释\", \"注釋\", \"解釋\", or \"notes\"",
+      "feature": "Feature:",
+      "singleFeature": "The system automatically recognizes common header variants.",
+      "multiTitle": "2. One Syllable Multiple Characters",
+      "multiSubtitle": "\"One pronunciation for multiple characters\"",
+      "layout": "Layout:",
+      "multiRule1": "Column A: the syllable (for example, ka1).",
+      "multiRule2": "Column B: a group of characters with optional notes (for example, 家{住所} 加[增加] 佳).",
+      "multiFeature": "The system automatically splits each character in column B and pairs it with the syllable in column A.",
+      "gazetteerTitle": "3. Gazetteer",
+      "excelTitle": "Excel Format:",
+      "contentRules": "Content rules:",
+      "gazetteerExcelRule1": "Beginning of the line: onset + rime (for example, pan).",
+      "gazetteerExcelRule2": "Following content must include a bracketed tone number in the form [tone]character{note}.",
+      "gazetteerExcelRule3": "Example: pan [1]班{班級} [2]板 [3]拌.",
+      "gazetteerExcelFeature": "The system recognizes tone numbers inside [ ] or ［ ］ and combines them with the line-initial syllable.",
+      "wordTitle": "Word Format:",
+      "wordRequirement": "Word (.docx)",
+      "hierarchyRules": "Hierarchy rules:",
+      "gazetteerWordRule1": "Rime level: starts with # (for example, #ang).",
+      "gazetteerWordRule2": "Content line: onset [tone]character{note}.",
+      "gazetteerWordFeature": "Supports complex matching. If an entry contains multiple characters or multiple readings separated by ; or /, the system automatically performs Cartesian-product matching.",
+      "gotIt": "Got It"
+    },
+    "toneChars": {
+      "title": "{toneType} {tone} ({count} chars)",
+      "close": "Close"
+    },
+    "filter": {
+      "title": "Filter {column}",
+      "onset": "Onset",
+      "rime": "Rime",
+      "tone": "Tone",
+      "selectAll": "Select All",
+      "clearAll": "Clear All",
+      "invert": "Invert",
+      "emptyValue": "(Empty)",
+      "close": "Close",
+      "confirm": "Confirm"
+    },
+    "messages": {
+      "loginRequired": "Please sign in first.",
+      "invalidFileType": "Please upload a supported file (.xlsx, .xls, .doc, .docx, .tsv).",
+      "fileTooLarge": "File size must not exceed 3MB.",
+      "uploadFailed": "Upload failed: {message}",
+      "analyzeFailed": "Analysis failed: {message}",
+      "confirmChangeFile": "Change the current file? Unsaved changes will be lost.",
+      "nothingToSave": "There are no pending changes to save.",
+      "confirmSave": "Confirm save?\n- Modified: {modified} rows\n- Deleted: {deleted} rows",
+      "saveSuccess": "Saved successfully: modified {modified} rows, deleted {deleted} rows",
+      "saveFailed": "Save failed: {message}",
+      "discardChanges": "Discard all unsaved changes?",
+      "enterCommand": "Please enter a command.",
+      "commandExecutionFailed": "Execution failed: {message}",
+      "enterReplaceSource": "Please enter the original character or tone value.",
+      "replaceSuccess": "Replacement completed.",
+      "replaceFailed": "Replacement failed: {message}",
+      "fetchDataFailed": "Failed to fetch data: {message}",
+      "downloadFailed": "Download failed: {message}"
+    },
+    "errorTypes": {
+      "nonSingleChar": "Non-single character",
+      "invalidIpa": "Invalid IPA",
+      "missingTone": "Missing tone"
+    },
+    "export": {
+      "filePrefix": "phonicon_"
+    }
+  },
+  "tableManage": {
+    "loading": "Verifying permissions...",
+    "page": {
+      "title": "Table Management Panel"
+    },
+    "accessDenied": {
+      "title": "Access Denied",
+      "desc": "This page is restricted to administrators. The app will return to the home page in a few seconds.",
+      "goHome": "Go Home"
+    },
+    "collapsedToolbar": {
+      "current": "Current: {db} / {table}",
+      "hideConfig": "Hide Config Panel",
+      "showConfig": "Show Config Panel"
+    },
+    "actions": {
+      "saveConfig": "Save Current Config",
+      "loadConfig": "Load Saved Config",
+      "clearConfig": "Delete Saved Config",
+      "applyPreset": "Apply Preset",
+      "selectAllColumns": "Select All Columns",
+      "deselectAllColumns": "Clear Selection",
+      "showFilters": "Expand",
+      "hideFilters": "Collapse",
+      "showTable": "Show Table"
+    },
+    "steps": {
+      "selectDatabase": "1. Select Database",
+      "selectTable": "2. Select Table",
+      "configureColumns": "3. Configure Columns",
+      "defaultFilters": "4. Default Filters"
+    },
+    "placeholders": {
+      "customDatabase": "Enter a database key, for example query",
+      "customTable": "Enter a table name, for example dialects",
+      "filterValue": "Enter a default filter value"
+    },
+    "tableHeaders": {
+      "visible": "Visible",
+      "columnName": "Column",
+      "columnWidth": "Width",
+      "filterable": "Filterable"
+    },
+    "dropdown": {
+      "selectDatabase": "-- Select a database --",
+      "selectTable": "-- Select a table --",
+      "customInput": "Manual input..."
+    },
+    "messages": {
+      "fetchColumnsFailed": "Failed to fetch column metadata. Please check the database connection.",
+      "selectOneColumn": "Please select at least one column.",
+      "selectDbAndTable": "Please select a database and a table first.",
+      "configSaved": "Configuration saved: {db}/{table}",
+      "configLoaded": "Configuration loaded: {db}/{table}",
+      "loadConfigFailed": "Failed to load configuration.",
+      "configCleared": "Configuration cleared: {db}/{table}",
+      "noSavedConfig": "No saved configuration for {db}/{table}",
+      "adminOnly": "This page is restricted to administrators.",
+      "authFailed": "Permission verification failed. Please sign in again."
+    }
+  }
+}

@@ -84,6 +84,39 @@ export async function distinctQuery(params) {
 }
 
 /**
+ * @typedef {Object} QueryCountParams
+ * @property {string} db_key - 数据库键名
+ * @property {string} table_name - 表名
+ * @property {string} [filter_column] - 筛选列名（可选）
+ * @property {string|number} [filter_value] - 筛选值（可选）
+ */
+
+/**
+ * 统计表行数（轻量级，有 Redis 缓存 1 小时）
+ * @param {QueryCountParams} params - 查询参数
+ * @returns {Promise<number>} 行数
+ * @throws {Error} 查询失败
+ * @example
+ * // 统计 dialects 表总行数
+ * const total = await queryCount({ db_key: 'dialects', table_name: 'dialects' })
+ * // 统计存儲標記=1 的行数
+ * const stored = await queryCount({ db_key: 'query', table_name: 'dialects', filter_column: '存儲標記', filter_value: 1 })
+ */
+export async function queryCount({ db_key, table_name, filter_column, filter_value } = {}) {
+  try {
+    const params = new URLSearchParams({ db_key, table_name })
+    if (filter_column !== undefined) params.set('filter_column', filter_column)
+    if (filter_value !== undefined) params.set('filter_value', filter_value)
+    const result = await api(`/sql/query/count?${params.toString()}`)
+    return result.count
+  } catch (error) {
+    console.error('Query count error:', error)
+    showError(error.message || '統計行數失敗')
+    throw new Error(error.message || '統計行數失敗')
+  }
+}
+
+/**
  * 获取表的列信息
  * @param {string} dbKey - 数据库键名
  * @param {string} tableName - 表名

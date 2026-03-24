@@ -6,7 +6,7 @@
         <input
             v-model="searchText"
             @input="handleSearch"
-            placeholder="搜索..."
+            :placeholder="t('tableTree.universalTable.toolbar.searchPlaceholder')"
             class="search-input"
         />
       </div>
@@ -15,7 +15,7 @@
           <span class="icon">📤</span><span class="btn-text">Excel</span>
         </button>
         <button class="glass-btn primary" @click="openAddModal">
-          <span class="icon">＋</span> <span class="btn-text">新增</span>
+          <span class="icon">＋</span> <span class="btn-text">{{ t('tableTree.universalTable.toolbar.add') }}</span>
         </button>
         <button
           class="glass-btn"
@@ -24,16 +24,16 @@
           @click="toggleEditMode"
         >
           <span class="icon">{{ isEditMode ? '✕' : '✎' }}</span>
-          <span class="btn-text">{{ isEditMode ? '取消' : '編輯' }}</span>
+          <span class="btn-text">{{ isEditMode ? t('common.button.cancel') : t('common.button.edit') }}</span>
         </button>
         <button
           v-if="isEditMode"
           class="glass-btn secondary"
           @click="openBatchReplaceModal"
-          title="批量查找替換"
+          :title="t('tableTree.universalTable.toolbar.batchReplace')"
         >
           <span class="icon">🔄</span>
-          <span class="btn-text">批量替換</span>
+          <span class="btn-text">{{ t('tableTree.universalTable.toolbar.batchReplace') }}</span>
         </button>
         <button
           v-if="isEditMode"
@@ -42,7 +42,7 @@
           :disabled="Object.keys(changedCells).length === 0"
         >
           <span class="icon">✓</span>
-          <span class="btn-text">提交 ({{ Object.keys(changedCells).length }})</span>
+          <span class="btn-text">{{ t('tableTree.universalTable.toolbar.submitWithCount', { count: changedRowCount }) }}</span>
         </button>
       </div>
     </div>
@@ -50,11 +50,11 @@
     <div class="table-scroll-area">
       <div v-if="isLoading" class="loading-overlay">
         <div class="spinner"></div>
-        <span>數據加載中...</span>
+        <span>{{ t('tableTree.universalTable.states.loadingData') }}</span>
       </div>
 
       <div v-else-if="tableData.length === 0" class="empty-state">
-        <span>📭 暫無數據</span>
+        <span>📭 {{ t('tableTree.universalTable.states.noData') }}</span>
       </div>
       <table>
         <colgroup>
@@ -68,7 +68,7 @@
 
         <thead>
         <tr>
-          <th v-for="(col, index) in columns" :key="col.key">
+          <th v-for="col in columns" :key="col.key">
             <div class="header-content">
               <div
                   class="header-text-wrapper"
@@ -85,7 +85,7 @@
               </div>
             </div>
           </th>
-          <th v-if="userStore.role === 'admin'" class="action-th">操作</th>
+          <th v-if="userStore.role === 'admin'" class="action-th">{{ t('tableTree.universalTable.toolbar.action') }}</th>
         </tr>
         </thead>
 
@@ -102,7 +102,7 @@
             {{ row[col.key] }}
           </td>
           <td v-if="userStore.role === 'admin'" class="action-td">
-            <button class="icon-action-btn delete" @click="handleDelete(row)">✕</button>
+            <button class="icon-action-btn delete" :title="t('common.button.delete')" @click="handleDelete(row)">✕</button>
           </td>
         </tr>
         </tbody>
@@ -131,7 +131,7 @@
       </div>
       <button class="page-btn" @click="changePage(1)" :disabled="currentPage >= totalPages">→</button>
       <button class="fullscreen-toggle-btn" @click="toggleFullscreen">
-        {{ isFullscreen ? '退出' : '⛶ 全屏' }}
+        {{ isFullscreen ? t('tableTree.universalTable.toolbar.exit') : `⛶ ${t('tableTree.universalTable.toolbar.fullscreen')}` }}
       </button>
     </div>
 
@@ -143,11 +143,11 @@
             <div class="table-scroll-area fullscreen-table">
               <div v-if="isLoading" class="loading-overlay">
                 <div class="spinner"></div>
-                <span>數據加載中...</span>
+                <span>{{ t('tableTree.universalTable.states.loadingData') }}</span>
               </div>
 
               <div v-else-if="tableData.length === 0" class="empty-state">
-                <span>📭 暫無數據</span>
+                <span>📭 {{ t('tableTree.universalTable.states.noData') }}</span>
               </div>
               <table>
                 <colgroup>
@@ -161,7 +161,7 @@
 
                 <thead>
                 <tr>
-                  <th v-for="(col, index) in columns" :key="col.key">
+                  <th v-for="col in columns" :key="col.key">
                     <div class="header-content">
                       <div
                           class="header-text-wrapper"
@@ -178,7 +178,7 @@
                       </div>
                     </div>
                   </th>
-                  <th v-if="userStore.role === 'admin'" class="action-th">操作</th>
+                  <th v-if="userStore.role === 'admin'" class="action-th">{{ t('tableTree.universalTable.toolbar.action') }}</th>
                 </tr>
                 </thead>
 
@@ -195,7 +195,7 @@
                     {{ row[col.key] }}
                   </td>
                   <td v-if="userStore.role === 'admin'" class="action-td">
-                    <button class="icon-action-btn delete" @click="handleDelete(row)">✕</button>
+                    <button class="icon-action-btn delete" :title="t('common.button.delete')" @click="handleDelete(row)">✕</button>
                   </td>
                 </tr>
                 </tbody>
@@ -224,7 +224,7 @@
               </div>
               <button class="page-btn" @click="changePage(1)" :disabled="currentPage >= totalPages">→</button>
               <button class="fullscreen-toggle-btn exit-btn" @click="toggleFullscreen">
-                退出全屏
+                {{ t('tableTree.universalTable.toolbar.exitFullscreen') }}
               </button>
             </div>
           </div>
@@ -239,17 +239,17 @@
               class="filter-popup glass-panel"
               :style="popupStyle"
               @click.stop
-          >
-            <div class="filter-header">
-              <span>篩選: {{ currentFilterLabel }}</span>
-              <button class="close-btn-mobile" @click="closeFilter">✕</button>
+            >
+              <div class="filter-header">
+              <span>{{ t('tableTree.universalTable.filter.title', { label: currentFilterLabel }) }}</span>
+              <button class="close-btn-mobile" :aria-label="t('common.button.close')" @click="closeFilter">✕</button>
             </div>
 
             <div v-bind="containerProps" class="filter-list custom-scrollbar" style="max-height: 300px">
 
               <div v-bind="wrapperProps">
 
-                <div v-if="popupLoading" class="loading-item">加载中...</div>
+                <div v-if="popupLoading" class="loading-item">{{ t('tableTree.universalTable.filter.loading') }}</div>
 
 <!--                <label class="checkbox-item empty-option">-->
 <!--                  <input type="checkbox" :value="null" v-model="filterState[activeFilterCol]">-->
@@ -273,10 +273,10 @@
 
             <div class="filter-actions">
               <button class="text-btn toggle-select" @click="handleToggleSelect">
-                {{ isSelectionEmpty ? '全选' : '反选' }}
+                {{ isSelectionEmpty ? t('tableTree.universalTable.filter.selectAll') : t('tableTree.universalTable.filter.invertSelection') }}
               </button>
-              <button class="text-btn cancel" @click="closeFilter">取消</button>
-              <button class="text-btn confirm" @click="applyFilter">確認</button>
+              <button class="text-btn cancel" @click="closeFilter">{{ t('common.button.cancel') }}</button>
+              <button class="text-btn confirm" @click="applyFilter">{{ t('common.button.confirm') }}</button>
             </div>
           </div>
         </div>
@@ -288,8 +288,8 @@
       <transition name="fade-scale">
         <div v-if="showAddModal" class="glass-modal-overlay" @click="closeAddModal">
           <div class="add-modal glass-card" @click.stop>
-            <button class="close-btn" @click="closeAddModal">×</button>
-            <h3 class="modal-title">新增記錄</h3>
+            <button class="close-btn" :aria-label="t('common.button.close')" @click="closeAddModal">×</button>
+            <h3 class="modal-title">{{ t('tableTree.universalTable.addModal.title') }}</h3>
 
             <div class="form-content custom-scrollbar">
               <div v-for="col in columns" :key="col.key" class="form-field">
@@ -298,14 +298,14 @@
                   v-model="newRecordData[col.key]"
                   type="text"
                   class="field-input"
-                  :placeholder="`請輸入${col.label}`"
+                  :placeholder="t('tableTree.universalTable.addModal.inputPlaceholder', { label: col.label })"
                 />
               </div>
             </div>
 
             <div class="modal-actions">
-              <button class="modal-btn cancel-btn" @click="closeAddModal">取消</button>
-              <button class="modal-btn confirm-btn" @click="submitNewRecord">確認新增</button>
+              <button class="modal-btn cancel-btn" @click="closeAddModal">{{ t('common.button.cancel') }}</button>
+              <button class="modal-btn confirm-btn" @click="submitNewRecord">{{ t('tableTree.universalTable.addModal.confirmAdd') }}</button>
             </div>
           </div>
         </div>
@@ -319,15 +319,15 @@
           <div class="batch-replace-modal glass-container">
             <!-- 标题栏 -->
             <div class="modal-header">
-              <h3>批量查找替換</h3>
-              <button class="close-btn" @click="closeBatchReplaceModal">✕</button>
+              <h3>{{ t('tableTree.universalTable.batchReplace.title') }}</h3>
+              <button class="close-btn" :aria-label="t('common.button.close')" @click="closeBatchReplaceModal">✕</button>
             </div>
 
             <!-- 主体内容 -->
             <div class="modal-body">
               <!-- 列选择器 -->
               <div class="form-group">
-                <label>選擇要替換的列：</label>
+                <label>{{ t('tableTree.universalTable.batchReplace.selectColumns') }}</label>
                 <div class="column-selector">
                   <label
                     v-for="col in editableColumns"
@@ -347,32 +347,32 @@
 
               <!-- 查找内容 -->
               <div class="form-group">
-                <label>查找內容：</label>
+                <label>{{ t('tableTree.universalTable.batchReplace.findContent') }}</label>
                 <input
                   type="text"
                   v-model="batchReplace.findText"
-                  placeholder="留空表示匹配空單元格"
+                  :placeholder="t('tableTree.universalTable.batchReplace.findPlaceholder')"
                   class="glass-input"
                 />
                 <small v-if="batchReplace.findText.trim() === ''" class="help-text">
-                  ℹ️ 查找內容為空時，將匹配所有空單元格（null、空字符串）
+                  ℹ️ {{ t('tableTree.universalTable.batchReplace.emptySearchHint') }}
                 </small>
               </div>
 
               <!-- 替换内容 -->
               <div class="form-group">
-                <label>替換為：</label>
+                <label>{{ t('tableTree.universalTable.batchReplace.replaceWith') }}</label>
                 <input
                   type="text"
                   v-model="batchReplace.replaceText"
-                  placeholder="輸入替換後的內容"
+                  :placeholder="t('tableTree.universalTable.batchReplace.replacePlaceholder')"
                   class="glass-input"
                 />
               </div>
 
               <!-- 匹配模式 -->
               <div class="form-group">
-                <label>匹配模式：</label>
+                <label>{{ t('tableTree.universalTable.batchReplace.matchMode') }}</label>
                 <div class="radio-group">
                   <label class="radio-item">
                     <input
@@ -380,7 +380,7 @@
                       value="exact"
                       v-model="batchReplace.matchMode"
                     />
-                    <span>完全匹配</span>
+                    <span>{{ t('tableTree.universalTable.batchReplace.exactMatch') }}</span>
                   </label>
                   <label class="radio-item">
                     <input
@@ -388,14 +388,14 @@
                       value="contains"
                       v-model="batchReplace.matchMode"
                     />
-                    <span>包含匹配</span>
+                    <span>{{ t('tableTree.universalTable.batchReplace.containsMatch') }}</span>
                   </label>
                 </div>
               </div>
 
               <!-- ✅ 新增：替换范围选项 -->
               <div class="form-group">
-                <label>替換範圍：</label>
+                <label>{{ t('tableTree.universalTable.batchReplace.replaceScope') }}</label>
                 <div class="radio-group">
                   <label class="radio-item">
                     <input
@@ -403,7 +403,7 @@
                       :value="false"
                       v-model="batchReplace.replaceAllPages"
                     />
-                    <span>僅當前頁</span>
+                    <span>{{ t('tableTree.universalTable.batchReplace.currentPageOnly') }}</span>
                   </label>
                   <label class="radio-item highlight-option">
                     <input
@@ -411,11 +411,11 @@
                       :value="true"
                       v-model="batchReplace.replaceAllPages"
                     />
-                    <span>全表替換（所有分頁）</span>
+                    <span>{{ t('tableTree.universalTable.batchReplace.allPages') }}</span>
                   </label>
                 </div>
                 <small v-if="batchReplace.replaceAllPages" class="help-text warning-help">
-                  ⚠️ 將替換所有符合條件的記錄（尊重當前篩選），不僅限於當前頁
+                  ⚠️ {{ t('tableTree.universalTable.batchReplace.allPagesHint') }}
                 </small>
               </div>
 
@@ -423,29 +423,29 @@
               <div v-if="batchReplace.previewResults.length > 0 || batchReplace.totalMatches > 0" class="preview-section">
                 <!-- ✅ 全表模式：仅显示统计 -->
                 <div v-if="batchReplace.replaceAllPages && batchReplace.totalMatches > 0" class="all-pages-preview">
-                  <h4>全表預覽統計</h4>
+                  <h4>{{ t('tableTree.universalTable.batchReplace.allPagesPreviewTitle') }}</h4>
                   <div class="stats-box">
                     <p class="stats-item">
-                      <span class="label">匹配數量：</span>
-                      <span class="value">{{ batchReplace.totalMatches }} 處</span>
+                      <span class="label">{{ t('tableTree.universalTable.batchReplace.matchCount') }}</span>
+                      <span class="value">{{ batchReplace.totalMatches }} {{ t('tableTree.universalTable.batchReplace.countUnit') }}</span>
                     </p>
                     <p class="stats-item">
-                      <span class="label">替換範圍：</span>
-                      <span class="value">全表（所有分頁）</span>
+                      <span class="label">{{ t('tableTree.universalTable.batchReplace.replaceScopeLabel') }}</span>
+                      <span class="value">{{ t('tableTree.universalTable.batchReplace.allPagesScope') }}</span>
                     </p>
                     <p class="stats-item">
-                      <span class="label">篩選條件：</span>
-                      <span class="value">{{ Object.keys(filterState).length > 0 ? '已應用' : '無' }}</span>
+                      <span class="label">{{ t('tableTree.universalTable.batchReplace.filterCondition') }}</span>
+                      <span class="value">{{ hasActiveFilters ? t('tableTree.universalTable.batchReplace.applied') : t('tableTree.universalTable.batchReplace.none') }}</span>
                     </p>
                   </div>
                   <p class="warning-text">
-                    ⚠️ 執行後將立即更新數據庫，請謹慎操作
+                    ⚠️ {{ t('tableTree.universalTable.batchReplace.instantWarning') }}
                   </p>
                 </div>
 
                 <!-- 原有的当前页预览列表 -->
                 <div v-else-if="batchReplace.previewResults.length > 0">
-                  <h4>預覽將被替換的內容（共 {{ batchReplace.previewResults.length }} 處）：</h4>
+                  <h4>{{ t('tableTree.universalTable.batchReplace.previewTitle', { count: batchReplace.previewResults.length }) }}</h4>
                   <div class="preview-list custom-scrollbar">
                     <div
                       v-for="(item, index) in batchReplace.previewResults.slice(0, 50)"
@@ -453,7 +453,7 @@
                       class="preview-item"
                     >
                       <div class="preview-row">
-                        <span class="row-label">行 {{ item.rowIndex + 1 }}</span>
+                        <span class="row-label">{{ t('tableTree.universalTable.batchReplace.row', { row: item.rowIndex + 1 }) }}</span>
                         <span class="col-label">{{ item.columnLabel }}</span>
                       </div>
                       <div class="preview-change">
@@ -463,7 +463,7 @@
                       </div>
                     </div>
                     <div v-if="batchReplace.previewResults.length > 50" class="preview-more">
-                      ... 還有 {{ batchReplace.previewResults.length - 50 }} 處變更
+                      {{ t('tableTree.universalTable.batchReplace.moreChanges', { count: batchReplace.previewResults.length - 50 }) }}
                     </div>
                   </div>
                 </div>
@@ -478,7 +478,7 @@
                 :disabled="!canPreview"
               >
                 <span class="icon">👁️</span>
-                <span>預覽</span>
+                <span>{{ t('tableTree.universalTable.batchReplace.preview') }}</span>
               </button>
               <button
                 class="glass-btn primary"
@@ -486,13 +486,13 @@
                 :disabled="batchReplace.replaceAllPages ? batchReplace.totalMatches === 0 : batchReplace.previewResults.length === 0"
               >
                 <span class="icon">✓</span>
-                <span>替換 ({{ batchReplace.replaceAllPages ? batchReplace.totalMatches : batchReplace.previewResults.length }})</span>
+                <span>{{ t('tableTree.universalTable.batchReplace.replaceWithCount', { count: batchReplaceCount }) }}</span>
               </button>
               <button
                 class="glass-btn"
                 @click="closeBatchReplaceModal"
               >
-                <span>取消</span>
+                <span>{{ t('common.button.cancel') }}</span>
               </button>
             </div>
           </div>
@@ -504,6 +504,7 @@
 
 <script setup>
 import { ref, reactive, onMounted, computed, onUnmounted, nextTick } from 'vue';
+import { useI18n } from 'vue-i18n';
 import * as XLSX from 'xlsx';
 import {
   sqlQuery,
@@ -516,7 +517,9 @@ import {
 import { userStore } from '@/store/store.js';
 import { useVirtualList } from '@vueuse/core';
 import { TABLE_CONFIG } from '@/config/constants.js';
-import { showSuccess, showWarning, showInfo, showConfirm, showError } from '@/utils/message.js';
+import { showSuccess, showWarning, showConfirm, showError } from '@/utils/message.js';
+
+const { t } = useI18n();
 
 // ✅ 定义事件
 const emit = defineEmits(['update:total', 'data-loaded'])
@@ -568,6 +571,14 @@ const batchReplace = reactive({
   replaceAllPages: false,   // ✅ 新增：是否全表替换
   totalMatches: 0           // ✅ 新增：全表匹配数量统计
 })
+
+const changedRowCount = computed(() => Object.keys(changedCells).length)
+const batchReplaceCount = computed(() => (
+  batchReplace.replaceAllPages ? batchReplace.totalMatches : batchReplace.previewResults.length
+))
+const hasActiveFilters = computed(() =>
+  Object.values(filterState).some(values => Array.isArray(values) && values.length > 0)
+)
 
 // ========================================
 // (已移除移动端滚动锁定相关状态，恢复为普通双向滚动)
@@ -950,7 +961,7 @@ const confirmPageJump = () => {
 
   // 验证页码范围
   if (!targetPage || targetPage < 1 || targetPage > totalPages.value) {
-    showWarning(`請輸入 1 到 ${totalPages.value} 之間的頁碼`);
+    showWarning(t('tableTree.universalTable.messages.pageNumberRange', { max: totalPages.value }));
     inputPageNumber.value = currentPage.value;
     return;
   }
@@ -977,7 +988,7 @@ const toggleFullscreen = () => {
 // ========================================
 const checkAdminPermission = () => {
   if (userStore.role !== 'admin') {
-    showWarning('此操作需要管理員權限');
+    showWarning(t('tableTree.universalTable.messages.adminOnly'));
     return false;
   }
   return true;
@@ -1048,16 +1059,16 @@ const submitBatchEdit = async () => {
   if (!checkAdminPermission()) return;
 
   if (Object.keys(changedCells).length === 0) {
-    showWarning('沒有需要提交的修改');
+    showWarning(t('tableTree.universalTable.messages.noChangesToSubmit'));
     return;
   }
 
   const confirmed = await showConfirm(
-    `確定提交 ${Object.keys(changedCells).length} 行的修改?`,
+    t('tableTree.universalTable.messages.confirmBatchUpdate', { count: changedRowCount.value }),
     {
-      title: '批量更新確認',
-      confirmText: '提交',
-      cancelText: '取消'
+      title: t('tableTree.universalTable.messages.confirmBatchUpdateTitle'),
+      confirmText: t('common.button.submit'),
+      cancelText: t('common.button.cancel')
     }
   );
 
@@ -1084,11 +1095,11 @@ const submitBatchEdit = async () => {
     const response = await batchMutate(payload);
 
     if (response.status === 'completed') {
-      showSuccess(`批量更新成功: ${response.success_count} 條記錄已更新`);
+      showSuccess(t('tableTree.universalTable.messages.batchUpdateSuccess', { count: response.success_count }));
 
       if (response.error_count > 0) {
         console.warn('部分記錄更新失敗:', response.errors);
-        showWarning(`${response.error_count} 條記錄更新失敗`);
+        showWarning(t('tableTree.universalTable.messages.batchUpdatePartialFailure', { count: response.error_count }));
       }
 
       // 清空變更記錄並退出編輯模式
@@ -1100,7 +1111,7 @@ const submitBatchEdit = async () => {
     }
   } catch (error) {
     console.error('批量更新失敗:', error);
-    showError('批量更新失敗: ' + error.message);
+    showError(t('tableTree.universalTable.messages.batchUpdateFailed', { message: error.message }));
   }
 };
 
@@ -1112,10 +1123,12 @@ const submitBatchEdit = async () => {
 const handleDelete = async (row) => {
   if (!checkAdminPermission()) return;
 
-  const confirmed = await showConfirm(`確定刪除 ${row.自然村 || row.name || '此記錄'}?`, {
-    title: '刪除確認',
-    confirmText: '刪除',
-    cancelText: '取消'
+  const confirmed = await showConfirm(t('tableTree.universalTable.messages.deleteConfirm', {
+    name: row.自然村 || row.name || t('tableTree.universalTable.messages.deleteFallbackName')
+  }), {
+    title: t('tableTree.universalTable.messages.deleteConfirmTitle'),
+    confirmText: t('common.button.delete'),
+    cancelText: t('common.button.cancel')
   });
 
   if (!confirmed) return;
@@ -1131,11 +1144,11 @@ const handleDelete = async (row) => {
 
     await mutateSingleRow(payload);
 
-    showSuccess('刪除成功');
+    showSuccess(t('tableTree.universalTable.messages.deleteSuccess'));
     await fetchData();
   } catch (error) {
     console.error('刪除失敗:', error);
-    showError('刪除失敗: ' + error.message);
+    showError(t('tableTree.universalTable.messages.deleteFailed', { message: error.message }));
   }
 };
 
@@ -1167,7 +1180,7 @@ const submitNewRecord = async () => {
 // 检查是否至少有一个字段非空
   const hasAtLeastOneField = props.columns.some(col => newRecordData[col.key]);
   if (!hasAtLeastOneField) {
-    showWarning('至少填写一个字段');
+    showWarning(t('tableTree.universalTable.messages.atLeastOneField'));
     return;
   }
 
@@ -1183,12 +1196,12 @@ const submitNewRecord = async () => {
 
     await mutateSingleRow(payload);
 
-    showSuccess('新增成功');
+    showSuccess(t('tableTree.universalTable.messages.addSuccess'));
     closeAddModal();
     await fetchData();
   } catch (error) {
     console.error('新增失敗:', error);
-    showError('新增失敗: ' + error.message);
+    showError(t('tableTree.universalTable.messages.addFailed', { message: error.message }));
   }
 };
 
@@ -1298,7 +1311,7 @@ const previewBatchReplace = async () => {
           rowIndex,
           columnKey: colKey,
           columnLabel,
-          oldValue: oldValue || '(空)',  // UI 显示优化
+          oldValue: oldValue || t('tableTree.universalTable.batchReplace.emptyValue'),  // UI 显示优化
           newValue
         })
 
@@ -1313,11 +1326,11 @@ const previewBatchReplace = async () => {
   // console.log('===================')
 
   if (results.length === 0) {
-    showWarning('未找到匹配的內容')
+    showWarning(t('tableTree.universalTable.messages.noMatchesFound'))
+  } else if (isEmptySearch) {
+    showSuccess(t('tableTree.universalTable.messages.foundEmptyCells', { count: results.length }))
   } else {
-    // 提示优化
-    const matchTypeMsg = isEmptySearch ? '空單元格' : '處匹配'
-    showSuccess(`找到 ${results.length} ${matchTypeMsg}`)
+    showSuccess(t('tableTree.universalTable.messages.foundMatches', { count: results.length }))
   }
 }
 
@@ -1343,14 +1356,15 @@ const previewAllPagesReplace = async (findText, matchMode, isEmptySearch) => {
     batchReplace.previewResults = []  // 全表模式不显示详细列表
 
     if (response.total_matches === 0) {
-      showWarning('未找到匹配的內容')
+      showWarning(t('tableTree.universalTable.messages.noMatchesFound'))
+    } else if (isEmptySearch) {
+      showSuccess(t('tableTree.universalTable.messages.foundEmptyCells', { count: response.total_matches }))
     } else {
-      const matchTypeMsg = isEmptySearch ? '空單元格' : '處匹配'
-      showSuccess(`全表共找到 ${response.total_matches} ${matchTypeMsg}`)
+      showSuccess(t('tableTree.universalTable.messages.foundMatches', { count: response.total_matches }))
     }
   } catch (error) {
     console.error('全表预览失败:', error)
-    showError('全表預覽失敗，請稍後重試')
+    showError(t('tableTree.universalTable.messages.previewAllPagesFailed'))
   }
 }
 
@@ -1369,11 +1383,11 @@ const executeBatchReplace = async () => {
 
   // 确认对话框
   const confirmed = await showConfirm(
-    `確定要替換 ${batchReplace.previewResults.length} 處內容嗎？\n\n此操作將記錄為待提交的變更，點擊"提交"按鈕後才會保存到數據庫。`,
+    t('tableTree.universalTable.messages.executeBatchReplaceConfirm', { count: batchReplace.previewResults.length }),
     {
-      title: '確認批量替換',
-      confirmText: '確定',
-      cancelText: '取消'
+      title: t('tableTree.universalTable.messages.executeBatchReplaceTitle'),
+      confirmText: t('common.button.confirm'),
+      cancelText: t('common.button.cancel')
     }
   )
 
@@ -1399,7 +1413,7 @@ const executeBatchReplace = async () => {
     }
   })
 
-  showSuccess(`批量替換完成！已記錄 ${batchReplace.previewResults.length} 處變更，請點擊"提交"按鈕保存。`)
+  showSuccess(t('tableTree.universalTable.messages.batchReplaceDone', { count: batchReplace.previewResults.length }))
   closeBatchReplaceModal()
 }
 
@@ -1408,16 +1422,16 @@ const executeBatchReplace = async () => {
  */
 const executeAllPagesReplace = async () => {
   if (batchReplace.totalMatches === 0) {
-    showWarning('沒有匹配項可替換')
+    showWarning(t('tableTree.universalTable.messages.noReplaceableMatches'))
     return
   }
 
   // 二次确认
-  const confirmMsg = `確定要在全表中替換 ${batchReplace.totalMatches} 處匹配項嗎？此操作將立即生效且不可撤銷。`
+  const confirmMsg = t('tableTree.universalTable.messages.executeAllPagesConfirm', { count: batchReplace.totalMatches })
   const confirmed = await showConfirm(confirmMsg, {
-    title: '確認全表替換',
-    confirmText: '確定執行',
-    cancelText: '取消'
+    title: t('tableTree.universalTable.messages.executeAllPagesTitle'),
+    confirmText: t('tableTree.universalTable.messages.executeAllPagesConfirmText'),
+    cancelText: t('common.button.cancel')
   })
 
   if (!confirmed) return
@@ -1442,18 +1456,18 @@ const executeAllPagesReplace = async () => {
     const response = await batchReplaceExecute(payload)
 
     if (response.status === 'success') {
-      showSuccess(`全表替換完成！共更新 ${response.affected_rows} 筆記錄`)
+      showSuccess(t('tableTree.universalTable.messages.allPagesReplaceDone', { count: response.affected_rows }))
 
       // 刷新当前页数据
       await fetchData()
 
       closeBatchReplaceModal()
     } else {
-      showError('替換失敗：' + (response.message || '未知錯誤'))
+      showError(t('tableTree.universalTable.messages.replaceFailed', { message: response.message || t('tableTree.universalTable.messages.unknownError') }))
     }
   } catch (error) {
     console.error('全表替换失败:', error)
-    showError('全表替換失敗，請稍後重試')
+    showError(t('tableTree.universalTable.messages.allPagesReplaceFailed'))
   }
 }
 

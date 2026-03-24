@@ -7,7 +7,7 @@
           <img class="logo" src="../../assets/favicon.ico" alt="Logo" />
         </div>
         <div class="title">
-          <img src="../../assets/title.png" alt="Title" />
+          <img src="../../assets/picture/title.png" alt="Title" />
         </div>
       </div>
       <nav class="navbar-btn">
@@ -42,7 +42,7 @@
       <div class="logo-container" style="color: #005fd3;border-radius: 30px" @click="goToAuthPage">
         <!-- 显示用户名或"登录" -->
         <span class="login-text">
-          {{ userStore.username || '登錄' }}
+          {{ userStore.username || t('navigation.login') }}
         </span>
       </div>
     </div>
@@ -69,11 +69,11 @@
           <div class="visit-stats">
             <div class="stats-summary">
               <div class="stat-item">
-                <span class="stat-label">今日</span>
+                <span class="stat-label">{{ t('navigation.stats.today') }}</span>
                 <span class="stat-value">{{ todayVisits }}</span>
               </div>
               <div class="stat-item">
-                <span class="stat-label">總訪問</span>
+                <span class="stat-label">{{ t('navigation.stats.totalVisits') }}</span>
                 <span class="stat-value">{{ totalVisits }}</span>
               </div>
               <button class="expand-btn" @click="toggleStatsPanel">
@@ -107,7 +107,7 @@
           @mouseleave="!isMobile ? scheduleCloseSubmenu() : null"
         >
           <div
-            v-for="(child, index) in menuConfig[activeSubmenu]?.children"
+            v-for="(child, index) in menuConfigData[activeSubmenu]?.children"
             :key="index"
             class="submenu-item"
             @click="handleSubmenuClick(child)"
@@ -125,11 +125,11 @@
         <div v-if="isStatsExpanded" class="glass-modal-overlay" @click.self="closeStatsPanel">
           <div class="glass-card stats-modal-card">
             <button class="close-btn" @click="closeStatsPanel">&times;</button>
-            <h3 class="modal-title">📊 訪問統計歷史</h3>
+            <h3 class="modal-title">📊 {{ t('navigation.stats.historyTitle') }}</h3>
 
             <div v-if="loadingStats" class="loading-state">
               <div class="loading-spinner"></div>
-              <p>加載中...</p>
+              <p>{{ t('navigation.stats.loading') }}</p>
             </div>
 
             <div v-else class="stats-content">
@@ -137,21 +137,21 @@
                 <div class="stat-card">
                   <div class="stat-icon">📅</div>
                   <div class="stat-info">
-                    <span class="stat-label-large">今日訪問</span>
+                    <span class="stat-label-large">{{ t('navigation.stats.todayVisits') }}</span>
                     <span class="stat-value-large">{{ todayVisits }}</span>
                   </div>
                 </div>
                 <div class="stat-card">
                   <div class="stat-icon">🌐</div>
                   <div class="stat-info">
-                    <span class="stat-label-large">總訪問</span>
+                    <span class="stat-label-large">{{ t('navigation.stats.totalVisits') }}</span>
                     <span class="stat-value-large">{{ totalVisits }}</span>
                   </div>
                 </div>
               </div>
 
               <div class="history-section">
-                <h4 class="section-title">歷史記錄</h4>
+                <h4 class="section-title">{{ t('navigation.stats.historyRecords') }}</h4>
                 <div class="history-list">
                   <div v-for="item in visitHistory" :key="item.date" class="history-item-modal">
                     <span class="history-date">{{ item.date }}</span>
@@ -179,13 +179,13 @@
             <img class="logo" src="../../assets/favicon.ico" alt="Logo" />
           </div>
           <div class="title">
-            <img src="../../assets/title.png" alt="Title" />
+            <img src="../../assets/picture/title.png" alt="Title" />
           </div>
         </div>
         <div class="logo-container" style="color: #005fd3; border-radius: 30px;height: 5dvh" @click="goToAuthPage">
           <!-- 显示用户名或"登录" -->
           <span class="login-text">
-            {{ userStore.username || '登錄' }}
+            {{ userStore.username || t('navigation.login') }}
           </span>
         </div>
       </div>
@@ -227,22 +227,60 @@
 
 
 <script setup>
-import { ref , onMounted, onBeforeUnmount, computed} from 'vue'
+import { ref , onMounted, onBeforeUnmount, computed, watch} from 'vue'
 import {useRoute, useRouter} from 'vue-router'
+import { useI18n } from 'vue-i18n'
 // import { clearToken, getToken, saveToken } from '../../api/auth/auth.js'
 import { getTodayVisits, getTotalVisits, getVisitHistory } from '@/api/logs/index.js'
-import { menuConfig } from '@/config/menuConfig.js'
-import { MenuTabsConfig } from '@/config/TabsConfig.js'
+import { useMenuConfig } from '@/config/SideBarConfig.js'
+import { useMenuTabsConfig } from '@/config/TabsConfig.js'
 import { WEB_BASE } from '@/env-config.js'
 import { userStore, resultCache } from '@/store/store.js'
+
+const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
 const isSidebarVisible = ref(false)  // 控制边栏显示
+const menuConfigRef = useMenuConfig()
 
 // Submenu state management
 const activeSubmenu = ref(null)  // Currently open submenu key
 const submenuPosition = ref({ top: 0, left: 0 })  // Position for submenu panel
 const closeSubmenuTimeout = ref(null)  // Timeout for delayed closing
+
+// ===== sessionStorage 管理：记住每个 tab 的最后访问的 sub =====
+const STORAGE_KEY_PREFIX = 'menu_last_sub_'
+
+// 获取某个 tab 的最后访问的 sub
+function getLastSub(tab) {
+  try {
+    return sessionStorage.getItem(STORAGE_KEY_PREFIX + tab)
+  } catch (e) {
+    console.warn('Failed to read from sessionStorage:', e)
+    return null
+  }
+}
+
+// 保存某个 tab 的最后访问的 sub
+function saveLastSub(tab, sub) {
+  try {
+    if (sub) {
+      sessionStorage.setItem(STORAGE_KEY_PREFIX + tab, sub)
+    } else {
+      sessionStorage.removeItem(STORAGE_KEY_PREFIX + tab)
+    }
+  } catch (e) {
+    console.warn('Failed to write to sessionStorage:', e)
+  }
+}
+
+// 监听路由变化，记录当前的 tab 和 sub
+watch(() => route.query, (query) => {
+  if (query.tab && query.sub) {
+    saveLastSub(query.tab, query.sub)
+  }
+}, { immediate: true })
+// ===== sessionStorage 管理结束 =====
 
 // Mobile detection
 const isMobile = ref(false)
@@ -254,7 +292,7 @@ const checkMobile = () => {
 // Filter menu items for NavBar (exclude items that should only show in SimpleSidebar)
 const filteredMenuConfig = computed(() => {
   const filtered = {}
-  for (const [key, item] of Object.entries(menuConfig)) {
+  for (const [key, item] of Object.entries(menuConfigRef.value)) {
     // If showIn is not specified, show in all components
     // If showIn is specified, only show if 'NavBar' is in the array
     if (!item.showIn || item.showIn.includes('NavBar')) {
@@ -264,6 +302,8 @@ const filteredMenuConfig = computed(() => {
   return filtered
 })
 
+const menuConfigData = computed(() => menuConfigRef.value)
+
 // 访问统计相关
 const todayVisits = ref(0)
 const totalVisits = ref(0)
@@ -271,9 +311,10 @@ const isStatsExpanded = ref(false)
 const visitHistory = ref([])
 const loadingStats = ref(false)
 
-// 过滤可见的 tabs
+// 过滤可见的 tabs（label 已在 TabsConfig 中定义）
+const allMenuTabs = useMenuTabsConfig()
 const visibleTabs = computed(() => {
-  return MenuTabsConfig.filter(tab => {
+  return allMenuTabs.value.filter(tab => {
     // 如果有 visibleWhen 函数，执行它
     if (typeof tab.visibleWhen === 'function') {
       return tab.visibleWhen()
@@ -360,13 +401,41 @@ const onClick = async (tabConfig, navigate) => {
     return
   }
 
-  // 防止重复导航到当前路由
-  if (tabConfig.to && isRouteMatch(tabConfig.to)) return
+  // 检查是否有记录的 sub
+  const lastSub = getLastSub(tabConfig.tab)
 
-  // 使用配置的路由进行导航
+  // 构建目标路由
+  let targetRoute
   if (tabConfig.to) {
-    await router.replace(tabConfig.to)
+    // 如果配置了 to，使用配置的路由
+    targetRoute = tabConfig.to
+
+    // 如果有记录的 sub，添加到 query 中
+    if (lastSub && typeof targetRoute === 'object') {
+      targetRoute = {
+        ...targetRoute,
+        query: {
+          ...targetRoute.query,
+          sub: lastSub
+        }
+      }
+    }
+  } else {
+    // 如果没有配置 to，使用默认的 /menu?tab=xxx
+    targetRoute = {
+      path: '/menu',
+      query: {
+        tab: tabConfig.tab,
+        ...(lastSub ? { sub: lastSub } : {})
+      }
+    }
   }
+
+  // 防止重复导航到当前路由
+  if (isRouteMatch(targetRoute)) return
+
+  // 导航到目标路由
+  await router.replace(targetRoute)
 }
 
 const goToAuthPage = () => {
@@ -467,7 +536,22 @@ const handleMainClick = (item, key, event) => {
     if (item.external) {
       window.location.href = WEB_BASE + item.path
     } else {
-      router.push(item.path)
+      // 檢查是否有保存的 sub 參數
+      const url = new URL(item.path, window.location.origin)
+      const tab = url.searchParams.get('tab')
+
+      if (tab && item.children && item.children.length > 0) {
+        // 如果有 tab 且有子菜單，嘗試從 sessionStorage 獲取最後訪問的 sub
+        const lastSub = sessionStorage.getItem(`lastVisitedSub_${tab}`)
+        if (lastSub) {
+          url.searchParams.set('sub', lastSub)
+          router.push(url.pathname + url.search)
+        } else {
+          router.push(item.path)
+        }
+      } else {
+        router.push(item.path)
+      }
       isSidebarVisible.value = false
     }
   } else {
@@ -527,6 +611,15 @@ const handleSubmenuClick = (child) => {
   if (child.external) {
     window.open(child.path, '_blank')
   } else {
+    // 保存當前選擇的 sub 到 sessionStorage
+    const url = new URL(child.path, window.location.origin)
+    const tab = url.searchParams.get('tab')
+    const sub = url.searchParams.get('sub')
+
+    if (tab && sub) {
+      sessionStorage.setItem(`lastVisitedSub_${tab}`, sub)
+    }
+
     router.push(child.path)
   }
   activeSubmenu.value = null
@@ -601,7 +694,7 @@ onBeforeUnmount(() => {
 .navbar-btn {
   margin: 0 30px;
   width: 100%;
-  max-width: 800px;
+  max-width: 900px;
   justify-content: center;
   align-items: center;
   display: flex;

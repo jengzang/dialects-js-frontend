@@ -14,15 +14,18 @@
 </template>
 
 <script setup>
+import { computed } from 'vue'
 import { useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 
 const route = useRoute()
+const { t } = useI18n()
 
-const tabs = [
-  { tab: 'like', label: '喜歡作者', icon: '❤️' },
-  { tab: 'suggestions', label: '我有建議', icon: '💬' },
-  { tab: 'thanks', label: '特別鳴謝', icon: '🙏' }
-]
+const tabs = computed(() => [
+  { tab: 'like', label: t('navigation.introTabs.like'), icon: '❤️' },
+  { tab: 'suggestions', label: t('navigation.introTabs.suggestions'), icon: '💬' },
+  { tab: 'thanks', label: t('navigation.introTabs.thanks'), icon: '🙏' }
+])
 
 const isActiveTab = (tabName) => {
   const path = route.path

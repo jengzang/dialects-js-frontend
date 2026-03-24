@@ -94,6 +94,11 @@ export {
   queryPhonology
 } from './query/phonology.js'
 
+export {
+  postPhoPieByValue,
+  postPhoPieByStatus
+} from './query/phoPie.js'
+
 // ==================== 比较模块 ====================
 export {
   compareChars,

@@ -1,232 +1,310 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { computed, onMounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { getLeaderboard } from '@/api'
-import { showError } from '@/utils/message.js'
 import HelpIcon from '@/components/ToastAndHelp/HelpIcon.vue'
+import { showError } from '@/utils/message.js'
+
+const { t, locale } = useI18n()
 
 const loading = ref(false)
 const error = ref(null)
 const rankingsData = ref(null)
 
-// 组件挂载时请求 API
 onMounted(async () => {
   await fetchLeaderboard()
 })
 
+const categoryConfigs = computed(() => [
+  {
+    id: 'phonology',
+    icon: '🔍',
+    label: t('user.leaderboard.categories.phonology.label'),
+    categoryKey: 'category_音韻查詢',
+    endpoints: [
+      {
+        key: 'endpoint__api_ZhongGu',
+        label: t('user.leaderboard.categories.phonology.items.zhonggu')
+      },
+      {
+        key: 'endpoint__api_YinWei',
+        label: t('user.leaderboard.categories.phonology.items.yinwei')
+      },
+      {
+        key: 'endpoint__api_phonology',
+        label: t('user.leaderboard.categories.phonology.items.diwei'),
+        tooltip: t('user.leaderboard.categories.phonology.tooltips.diwei')
+      },
+      {
+        key: 'endpoint__api_charlist',
+        label: t('user.leaderboard.categories.phonology.items.combination')
+      },
+      {
+        key: 'endpoint__api_feature_stats',
+        label: t('user.leaderboard.categories.phonology.items.syllable')
+      },
+      {
+        key: 'endpoint__api_compare_ZhongGu',
+        label: t('user.leaderboard.categories.phonology.items.compareZhonggu')
+      }
+    ]
+  },
+  {
+    id: 'charsTones',
+    icon: '📝',
+    label: t('user.leaderboard.categories.charsTones.label'),
+    categoryKey: 'category_字調查詢',
+    endpoints: [
+      {
+        key: 'endpoint__api_search_chars_',
+        label: t('user.leaderboard.categories.charsTones.items.chars')
+      },
+      {
+        key: 'endpoint__api_search_tones_',
+        label: t('user.leaderboard.categories.charsTones.items.tones')
+      },
+      {
+        key: 'endpoint__api_compare_chars',
+        label: t('user.leaderboard.categories.charsTones.items.compareChars')
+      },
+      {
+        key: 'endpoint__api_compare_tones',
+        label: t('user.leaderboard.categories.charsTones.items.compareTones')
+      }
+    ]
+  },
+  {
+    id: 'analysis',
+    icon: '📊',
+    label: t('user.leaderboard.categories.analysis.label'),
+    categoryKey: 'category_音系分析',
+    endpoints: [
+      {
+        key: 'endpoint__api_phonology_matrix',
+        label: t('user.leaderboard.categories.analysis.items.matrix')
+      },
+      {
+        key: 'endpoint__api_phonology_classification_matrix',
+        label: t('user.leaderboard.categories.analysis.items.classification')
+      },
+      {
+        key: 'endpoint__api_feature_counts',
+        label: t('user.leaderboard.categories.analysis.items.counts')
+      }
+    ]
+  },
+  {
+    id: 'tools',
+    icon: '🛠️',
+    label: t('user.leaderboard.categories.tools.label'),
+    categoryKey: 'category_工具使用',
+    endpoints: [
+      {
+        key: 'endpoint__api_tools_check_analyze',
+        label: t('user.leaderboard.categories.tools.items.check')
+      },
+      {
+        key: 'endpoint__api_tools_jyut2ipa_upload',
+        label: t('user.leaderboard.categories.tools.items.jyut2ipa')
+      },
+      {
+        key: 'endpoint__api_tools_merge_execute',
+        label: t('user.leaderboard.categories.tools.items.merge')
+      },
+      {
+        key: 'endpoint__api_tools_praat_jobs',
+        label: t('user.leaderboard.categories.tools.items.praat')
+      }
+    ]
+  },
+  {
+    id: 'other',
+    icon: '🏷️',
+    label: t('user.leaderboard.categories.other.label'),
+    categoryKey: 'category_其他查询',
+    endpoints: [
+      {
+        key: 'endpoint__api_get_coordinates',
+        label: t('user.leaderboard.categories.other.items.coordinates'),
+        tooltip: t('user.leaderboard.categories.other.tooltips.coordinates')
+      },
+      {
+        key: 'endpoint__sql_query',
+        label: t('user.leaderboard.categories.other.items.table'),
+        tooltip: t('user.leaderboard.categories.other.tooltips.table')
+      },
+      {
+        key: 'endpoint__sql_tree_full',
+        label: t('user.leaderboard.categories.other.items.tree'),
+        tooltip: t('user.leaderboard.categories.other.tooltips.tree')
+      }
+    ]
+  }
+])
+
 const fetchLeaderboard = async () => {
   loading.value = true
   error.value = null
+
   try {
     const data = await getLeaderboard()
     rankingsData.value = data
   } catch (e) {
-    error.value = e.message
-    showError('加载排名数据失败：' + e.message)
+    error.value = e.message || ''
+    showError(t('user.leaderboard.loadFailedToast', { message: error.value }))
   } finally {
     loading.value = false
   }
 }
 
-// 格式化在线时长
+const formatNumber = (value) => Number(value || 0).toLocaleString(locale.value)
+
+const formatCount = (value) => t('user.leaderboard.format.count', { value: formatNumber(value) })
+
 const formatOnlineTime = (seconds) => {
-  if (!seconds) return '0秒'
-  const hours = Math.floor(seconds / 3600)
-  const minutes = Math.floor((seconds % 3600) / 60)
-  const secs = Math.floor(seconds % 60)
+  const totalSeconds = Math.max(0, Math.floor(Number(seconds || 0)))
+  const hours = Math.floor(totalSeconds / 3600)
+  const minutes = Math.floor((totalSeconds % 3600) / 60)
+  const secs = totalSeconds % 60
 
   if (hours > 0) {
-    return `${hours}小时${minutes}分钟`
+    return t('user.leaderboard.format.hoursMinutes', { hours, minutes })
   }
-  return `${minutes}分钟${secs}秒`
+
+  return t('user.leaderboard.format.minutesSeconds', { minutes, seconds: secs })
 }
 
-// Top 2 metrics for cards
+const formatMetricValue = (metric) => (
+  metric.isTime ? formatOnlineTime(metric.data.value) : formatCount(metric.data.value)
+)
+
+const formatMetricGap = (metric) => {
+  if (!metric.data.gap_to_prev) {
+    return null
+  }
+
+  return metric.isTime
+    ? formatOnlineTime(metric.data.gap_to_prev)
+    : formatCount(metric.data.gap_to_prev)
+}
+
+const formatMetricFirst = (metric) => (
+  metric.isTime ? formatOnlineTime(metric.data.first_place_value) : formatCount(metric.data.first_place_value)
+)
+
+const getRankLabel = (rank) => {
+  if (rank === 1) return '🥇 ' + t('user.leaderboard.rank.first')
+  if (rank === 2) return '🥈 ' + t('user.leaderboard.rank.second')
+  if (rank === 3) return '🥉 ' + t('user.leaderboard.rank.third')
+  return t('user.leaderboard.rank.default', { rank })
+}
+
+const createRow = (label, data) => ({
+  type: 'data',
+  label,
+  rank: data.rank,
+  value: formatCount(data.value),
+  gap: data.gap_to_prev ? formatCount(data.gap_to_prev) : t('user.leaderboard.format.noGap'),
+  firstPlace: formatCount(data.first_place_value),
+  isFirstPlace: data.rank === 1,
+  isSecondPlace: data.rank === 2,
+  isThirdPlace: data.rank === 3
+})
+
 const topMetrics = computed(() => {
   if (!rankingsData.value) return []
-  const r = rankingsData.value.rankings
+
+  const rankings = rankingsData.value.rankings
   return [
     {
       icon: '⏱️',
-      label: '在線時長',
-      data: r.online_time,
+      label: t('user.leaderboard.topMetrics.onlineTime.label'),
+      data: rankings.online_time,
       isTime: true
     },
     {
       icon: '📊',
-      label: '總查詢次數',
-      data: r.total_queries,
+      label: t('user.leaderboard.topMetrics.totalQueries.label'),
+      data: rankings.total_queries,
       isTime: false,
-      tooltip: '與個人信息的總查詢次數不同，還包括了語保查詢、各種表格查詢等'
+      tooltip: t('user.leaderboard.topMetrics.totalQueries.tooltip')
     }
   ]
 })
 
-// Helper function to create table row
-function createRow(label, data) {
-  return {
-    type: 'data',
-    label,
-    rank: data.rank,
-    value: data.value.toLocaleString() + ' 次',
-    gap: data.gap_to_prev ? data.gap_to_prev.toLocaleString() + ' 次' : '—',
-    firstPlace: data.first_place_value.toLocaleString() + ' 次',
-    // ✨ 修改：增加前三名的判断
-    isFirstPlace: data.rank === 1,
-    isSecondPlace: data.rank === 2,
-    isThirdPlace: data.rank === 3
-  }
-}
-
-// Category structure mapping
-const categoryMap = {
-  '音韻查詢': {
-    icon: '🔍',
-    categoryKey: 'category_音韻查詢',
-    endpoints: [
-      { key: 'endpoint__api_ZhongGu', label: '查中古' },
-      { key: 'endpoint__api_YinWei', label: '查音位' },
-      { key: 'endpoint__api_phonology', label: '查地位', tooltip: '包括彈窗內的細分查詢，以及舊版網站查詢次數' },
-      { key: 'endpoint__api_charlist', label: '地位組合' },
-      { key: 'endpoint__api_feature_stats', label: '查音節' },
-      { key: 'endpoint__api_compare_ZhongGu', label: '比較中古' }
-    ]
-  },
-  '字調查詢': {
-    icon: '📝',
-    categoryKey: 'category_字調查詢',
-    endpoints: [
-      { key: 'endpoint__api_search_chars_', label: '查字' },
-      { key: 'endpoint__api_search_tones_', label: '查調' },
-      { key: 'endpoint__api_compare_chars', label: '比較漢字' },
-      { key: 'endpoint__api_compare_tones', label: '比較調類' }
-    ]
-  },
-  '音系分析': {
-    icon: '📊',
-    categoryKey: 'category_音系分析',
-    endpoints: [
-      { key: 'endpoint__api_phonology_matrix', label: '查音系' },
-      { key: 'endpoint__api_phonology_classification_matrix', label: '查音素' },
-      { key: 'endpoint__api_feature_counts', label: '音節統計' }
-    ]
-  },
-  '工具使用': {
-    icon: '🛠️',
-    categoryKey: 'category_工具使用',
-    endpoints: [
-      { key: 'endpoint__api_tools_check_analyze', label: '字表檢查' },
-      { key: 'endpoint__api_tools_jyut2ipa_upload', label: '粵拼轉換' },
-      { key: 'endpoint__api_tools_merge_execute', label: '合併字表' },
-      { key: 'endpoint__api_tools_praat_jobs', label: '聲學分析' }
-    ]
-  },
-  '其他查詢': {
-    icon: '🏷️',
-    categoryKey: 'category_其他查询',
-    endpoints: [
-      { key: 'endpoint__api_get_coordinates', label: '坐標查詢', tooltip: '獲取坐標數據以繪製地圖，查中古、查音位、查字、查調、分區圖、自定義繪圖等均會使用' },
-      { key: 'endpoint__sql_query', label: '表格查詢', tooltip: '包括各種表格查詢，例如語保詞彙語法查詢、資料來源查詢、全粵村情表格、陽春口語詞等' },
-      { key: 'endpoint__sql_tree_full', label: '樹形查詢', tooltip: '包括各種樹狀圖查詢，例如廣東自然村樹狀圖、中古地位等' },
-    ]
-  }
-}
-
-// Bottom metrics table with hierarchical structure
 const tableData = computed(() => {
   if (!rankingsData.value) return []
+
   const rows = []
-  const r = rankingsData.value.rankings
+  const rankings = rankingsData.value.rankings
 
-  // Iterate through each category
-  for (const [categoryName, categoryInfo] of Object.entries(categoryMap)) {
-    const categoryData = r[categoryInfo.categoryKey]
+  for (const category of categoryConfigs.value) {
+    const categoryData = rankings[category.categoryKey]
+    if (!categoryData) continue
 
-    // Skip category if no data or value is 0
-    // if (!categoryData || categoryData.value === 0) continue
-
-    // Create category summary data object
     const categorySummary = {
       rank: categoryData.rank,
-      value: categoryData.value.toLocaleString() + ' 次',
-      gap: categoryData.gap_to_prev ? categoryData.gap_to_prev.toLocaleString() + ' 次' : '—',
-      firstPlace: categoryData.first_place_value.toLocaleString() + ' 次',
+      value: formatCount(categoryData.value),
+      gap: categoryData.gap_to_prev
+        ? formatCount(categoryData.gap_to_prev)
+        : t('user.leaderboard.format.noGap'),
+      firstPlace: formatCount(categoryData.first_place_value),
       isFirstPlace: categoryData.rank === 1,
       isSecondPlace: categoryData.rank === 2,
       isThirdPlace: categoryData.rank === 3
     }
 
-    // Collect endpoint rows for this category (only if value > 0)
     const endpointRows = []
-    for (const endpoint of categoryInfo.endpoints) {
-      const data = r[endpoint.key]
-      if (data && data.value >= 0) {
-        const endpointRow = createRow(endpoint.label, data)
-        endpointRow.categoryName = categoryName
-        endpointRow.categoryIcon = categoryInfo.icon
-        endpointRow.categorySummary = categorySummary
-        endpointRow.tooltip = endpoint.tooltip // 添加 tooltip
-        endpointRows.push(endpointRow)
-      }
+    for (const endpoint of category.endpoints) {
+      const data = rankings[endpoint.key]
+      if (!data || data.value < 0) continue
+
+      endpointRows.push({
+        ...createRow(endpoint.label, data),
+        categoryName: category.label,
+        categoryIcon: category.icon,
+        categorySummary,
+        tooltip: endpoint.tooltip
+      })
     }
 
-    if (endpointRows.length > 0) {
-      // Mark first endpoint for rowspan
-      endpointRows[0].isFirstEndpointInCategory = true
-      endpointRows[0].categoryEndpointCount = endpointRows.length
+    if (endpointRows.length === 0) continue
 
-      // Add category summary row for mobile
-      const categorySummaryRow = createRow(`${categoryName} (总计)`, categoryData)
-      categorySummaryRow.isCategorySummary = true
-      categorySummaryRow.categoryName = categoryName
-      categorySummaryRow.categoryIcon = categoryInfo.icon
-      rows.push(categorySummaryRow)
+    endpointRows[0].isFirstEndpointInCategory = true
+    endpointRows[0].categoryEndpointCount = endpointRows.length
 
-      rows.push(...endpointRows)
-    }
+    rows.push({
+      ...createRow(
+        t('user.leaderboard.categories.summary', { label: category.label }),
+        categoryData
+      ),
+      isCategorySummary: true,
+      categoryName: category.label,
+      categoryIcon: category.icon
+    })
+
+    rows.push(...endpointRows)
   }
 
   return rows
 })
-
-function formatMetricValue(metric) {
-  return metric.isTime
-    ? formatOnlineTime(metric.data.value)
-    : metric.data.value.toLocaleString() + ' 次'
-}
-
-function formatMetricGap(metric) {
-  if (!metric.data.gap_to_prev) return null
-  return metric.isTime
-    ? formatOnlineTime(metric.data.gap_to_prev)
-    : metric.data.gap_to_prev.toLocaleString() + ' 次'
-}
-
-function formatMetricFirst(metric) {
-  return metric.isTime
-    ? formatOnlineTime(metric.data.first_place_value)
-    : metric.data.first_place_value.toLocaleString() + ' 次'
-}
 </script>
 
 <template>
   <div class="leaderboard-container">
-    <!-- Loading 状态 -->
     <div v-if="loading" class="loading-container">
       <div class="login-spinner"></div>
-      <p>正在加载排名数据...</p>
+      <p>{{ t('user.leaderboard.loading') }}</p>
     </div>
 
-    <!-- Error 状态 -->
     <div v-else-if="error" class="error-container">
-      <p class="err">{{ error }}</p>
-      <button @click="fetchLeaderboard" class="retry-btn">重试</button>
+      <p class="err">{{ t('user.leaderboard.errorDetail', { message: error }) }}</p>
+      <button class="retry-btn" @click="fetchLeaderboard">{{ t('user.leaderboard.retry') }}</button>
     </div>
 
-    <!-- 正常显示 -->
     <div v-else-if="rankingsData" class="leaderboard-content">
-      <h3 class="page-title">🏆 我的排名统计</h3>
+      <h3 class="page-title">🏆 {{ t('user.leaderboard.title') }}</h3>
 
-      <!-- Top 2 Metrics: Cards -->
       <div class="top-metrics-cards">
         <div
           v-for="metric in topMetrics"
@@ -253,17 +331,15 @@ function formatMetricFirst(metric) {
             </span>
           </div>
 
-          <div v-if="metric.data.rank === 1" class="metric-rank gold">
-            🥇 第 1 名
-          </div>
-          <div v-else-if="metric.data.rank === 2" class="metric-rank silver">
-            🥈 第 2 名
-          </div>
-          <div v-else-if="metric.data.rank === 3" class="metric-rank bronze">
-            🥉 第 3 名
-          </div>
-          <div v-else class="metric-rank">
-            第 {{ metric.data.rank }} 名
+          <div
+            class="metric-rank"
+            :class="{
+              gold: metric.data.rank === 1,
+              silver: metric.data.rank === 2,
+              bronze: metric.data.rank === 3
+            }"
+          >
+            {{ getRankLabel(metric.data.rank) }}
           </div>
 
           <div class="metric-value">
@@ -272,54 +348,58 @@ function formatMetricFirst(metric) {
 
           <div class="metric-details">
             <div v-if="formatMetricGap(metric)" class="metric-gap">
-              距上一名: {{ formatMetricGap(metric) }}
+              {{ t('user.leaderboard.gapLabel') }}: {{ formatMetricGap(metric) }}
             </div>
             <div class="metric-first">
-              第一名: {{ formatMetricFirst(metric) }}
+              {{ t('user.leaderboard.firstPlaceLabel') }}: {{ formatMetricFirst(metric) }}
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Bottom 16 Metrics: Table -->
       <div class="table-wrapper">
         <div class="table-container">
-          <!-- Desktop table: 10 columns with rowspan -->
           <table class="rankings-table desktop-table">
             <thead>
               <tr>
-                <th class="category-column">類別</th>
-                <th>排名</th>
-                <th>次數</th>
-                <th>距前一名</th>
-                <th>第一名</th>
-                <th>具體</th>
-                <th>排名</th>
-                <th>次數</th>
-                <th>距前一名</th>
-                <th>第一名</th>
+                <th class="category-column">{{ t('user.leaderboard.columns.category') }}</th>
+                <th>{{ t('user.leaderboard.columns.rank') }}</th>
+                <th>{{ t('user.leaderboard.columns.count') }}</th>
+                <th>{{ t('user.leaderboard.columns.gap') }}</th>
+                <th>{{ t('user.leaderboard.columns.firstPlace') }}</th>
+                <th>{{ t('user.leaderboard.columns.metric') }}</th>
+                <th>{{ t('user.leaderboard.columns.rank') }}</th>
+                <th>{{ t('user.leaderboard.columns.count') }}</th>
+                <th>{{ t('user.leaderboard.columns.gap') }}</th>
+                <th>{{ t('user.leaderboard.columns.firstPlace') }}</th>
               </tr>
             </thead>
             <tbody>
               <template v-for="(row, index) in tableData" :key="'desktop-' + index">
-                <!-- Desktop: 10-column hierarchical structure -->
-                <tr v-if="!row.isCategorySummary"
-                    class="data-row"
-                    :class="{
-                      'first-place': row.isFirstPlace,
-                      'second-place': row.isSecondPlace,
-                      'third-place': row.isThirdPlace
-                    }">
-                  <!-- Category columns with rowspan (only on first endpoint of each category) -->
+                <tr
+                  v-if="!row.isCategorySummary"
+                  class="data-row"
+                  :class="{
+                    'first-place': row.isFirstPlace,
+                    'second-place': row.isSecondPlace,
+                    'third-place': row.isThirdPlace
+                  }"
+                >
                   <template v-if="row.isFirstEndpointInCategory">
                     <td :rowspan="row.categoryEndpointCount" class="category-cell">
                       {{ row.categoryIcon }} {{ row.categoryName }}
                     </td>
                     <td :rowspan="row.categoryEndpointCount" class="rank category-data">
-                      <span v-if="row.categorySummary.isFirstPlace" class="rank-badge gold">🥇 第1名</span>
-                      <span v-else-if="row.categorySummary.isSecondPlace" class="rank-badge silver">🥈 第2名</span>
-                      <span v-else-if="row.categorySummary.isThirdPlace" class="rank-badge bronze">🥉 第3名</span>
-                      <span v-else class="rank-badge">第{{ row.categorySummary.rank }}名</span>
+                      <span
+                        class="rank-badge"
+                        :class="{
+                          gold: row.categorySummary.isFirstPlace,
+                          silver: row.categorySummary.isSecondPlace,
+                          bronze: row.categorySummary.isThirdPlace
+                        }"
+                      >
+                        {{ getRankLabel(row.categorySummary.rank) }}
+                      </span>
                     </td>
                     <td :rowspan="row.categoryEndpointCount" class="value category-data">
                       {{ row.categorySummary.value }}
@@ -332,7 +412,6 @@ function formatMetricFirst(metric) {
                     </td>
                   </template>
 
-                  <!-- Endpoint columns (one per row) -->
                   <td class="metric-name">
                     {{ row.label }}
                     <HelpIcon
@@ -344,10 +423,16 @@ function formatMetricFirst(metric) {
                     />
                   </td>
                   <td class="rank">
-                    <span v-if="row.isFirstPlace" class="rank-badge gold">🥇 第1名</span>
-                    <span v-else-if="row.isSecondPlace" class="rank-badge silver">🥈 第2名</span>
-                    <span v-else-if="row.isThirdPlace" class="rank-badge bronze">🥉 第3名</span>
-                    <span v-else class="rank-badge">第{{ row.rank }}名</span>
+                    <span
+                      class="rank-badge"
+                      :class="{
+                        gold: row.isFirstPlace,
+                        silver: row.isSecondPlace,
+                        bronze: row.isThirdPlace
+                      }"
+                    >
+                      {{ getRankLabel(row.rank) }}
+                    </span>
                   </td>
                   <td class="value">{{ row.value }}</td>
                   <td class="gap">{{ row.gap }}</td>
@@ -357,48 +442,56 @@ function formatMetricFirst(metric) {
             </tbody>
           </table>
 
-          <!-- Mobile table: 5 columns with group headers -->
           <table class="rankings-table mobile-table">
             <thead>
               <tr>
-                <th>指標</th>
-                <th>排名</th>
-                <th>次數</th>
-                <th>距前一名</th>
-                <th>第一名</th>
+                <th>{{ t('user.leaderboard.columns.metric') }}</th>
+                <th>{{ t('user.leaderboard.columns.rank') }}</th>
+                <th>{{ t('user.leaderboard.columns.count') }}</th>
+                <th>{{ t('user.leaderboard.columns.gap') }}</th>
+                <th>{{ t('user.leaderboard.columns.firstPlace') }}</th>
               </tr>
             </thead>
             <tbody>
-              <!-- Category summary rows -->
               <template v-for="(row, index) in tableData" :key="'mobile-cat-' + index">
-                <tr v-if="row.isCategorySummary"
-                    class="data-row category-summary"
-                    :class="{
-                      'first-place': row.isFirstPlace,
-                      'second-place': row.isSecondPlace,
-                      'third-place': row.isThirdPlace
-                    }">
+                <tr
+                  v-if="row.isCategorySummary"
+                  class="data-row category-summary"
+                  :class="{
+                    'first-place': row.isFirstPlace,
+                    'second-place': row.isSecondPlace,
+                    'third-place': row.isThirdPlace
+                  }"
+                >
                   <td class="metric-name">{{ row.categoryIcon }} {{ row.categoryName }}</td>
                   <td class="rank">
-                    <span v-if="row.isFirstPlace" class="rank-badge gold">🥇 第1名</span>
-                    <span v-else-if="row.isSecondPlace" class="rank-badge silver">🥈 第2名</span>
-                    <span v-else-if="row.isThirdPlace" class="rank-badge bronze">🥉 第3名</span>
-                    <span v-else class="rank-badge">第{{ row.rank }}名</span>
+                    <span
+                      class="rank-badge"
+                      :class="{
+                        gold: row.isFirstPlace,
+                        silver: row.isSecondPlace,
+                        bronze: row.isThirdPlace
+                      }"
+                    >
+                      {{ getRankLabel(row.rank) }}
+                    </span>
                   </td>
                   <td class="value">{{ row.value }}</td>
                   <td class="gap">{{ row.gap }}</td>
                   <td class="first-place-value">{{ row.firstPlace }}</td>
                 </tr>
               </template>
-              <!-- Endpoint rows -->
+
               <template v-for="(row, index) in tableData" :key="'mobile-end-' + index">
-                <tr v-if="!row.isCategorySummary"
-                    class="data-row"
-                    :class="{
-                      'first-place': row.isFirstPlace,
-                      'second-place': row.isSecondPlace,
-                      'third-place': row.isThirdPlace
-                    }">
+                <tr
+                  v-if="!row.isCategorySummary"
+                  class="data-row"
+                  :class="{
+                    'first-place': row.isFirstPlace,
+                    'second-place': row.isSecondPlace,
+                    'third-place': row.isThirdPlace
+                  }"
+                >
                   <td class="metric-name">
                     {{ row.label }}
                     <HelpIcon
@@ -410,10 +503,16 @@ function formatMetricFirst(metric) {
                     />
                   </td>
                   <td class="rank">
-                    <span v-if="row.isFirstPlace" class="rank-badge gold">🥇 第1名</span>
-                    <span v-else-if="row.isSecondPlace" class="rank-badge silver">🥈 第2名</span>
-                    <span v-else-if="row.isThirdPlace" class="rank-badge bronze">🥉 第3名</span>
-                    <span v-else class="rank-badge">第{{ row.rank }}名</span>
+                    <span
+                      class="rank-badge"
+                      :class="{
+                        gold: row.isFirstPlace,
+                        silver: row.isSecondPlace,
+                        bronze: row.isThirdPlace
+                      }"
+                    >
+                      {{ getRankLabel(row.rank) }}
+                    </span>
                   </td>
                   <td class="value">{{ row.value }}</td>
                   <td class="gap">{{ row.gap }}</td>
@@ -426,7 +525,7 @@ function formatMetricFirst(metric) {
       </div>
 
       <div class="total-users">
-        共 {{ rankingsData.total_users }} 位用户参与排名
+        {{ t('user.leaderboard.totalUsers', { value: formatNumber(rankingsData.total_users) }) }}
       </div>
     </div>
   </div>
@@ -456,7 +555,9 @@ function formatMetricFirst(metric) {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .error-container .err {
@@ -485,15 +586,22 @@ function formatMetricFirst(metric) {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .page-title {
   font-size: 28px;
   font-weight: 700;
   color: #1d1d1f;
-  margin:12px;
+  margin: 12px;
   text-align: center;
   letter-spacing: -0.02em;
   background: linear-gradient(135deg, #007aff, #0051d5);
@@ -501,7 +609,6 @@ function formatMetricFirst(metric) {
   -webkit-text-fill-color: transparent;
 }
 
-/* Top 2 Metrics: Cards */
 .top-metrics-cards {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -549,7 +656,7 @@ function formatMetricFirst(metric) {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 6px ;
+  margin-bottom: 6px;
 }
 
 .metric-icon {
@@ -582,7 +689,7 @@ function formatMetricFirst(metric) {
   background: linear-gradient(135deg, #c0c0c0, #e0e0e0);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 1px 1px rgba(0,0,0,0.1));
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.1));
 }
 
 .metric-rank.bronze {
@@ -612,7 +719,6 @@ function formatMetricFirst(metric) {
   color: #86868b;
 }
 
-/* Bottom 16 Metrics: Table */
 .table-wrapper {
   background: rgba(255, 255, 255, 0.72);
   backdrop-filter: blur(40px) saturate(180%);
@@ -682,24 +788,12 @@ function formatMetricFirst(metric) {
   border-right: 1px solid rgba(0, 122, 255, 0.15);
 }
 
-/* Desktop: show desktop table, hide mobile table */
 .desktop-table {
   display: table;
 }
 
 .mobile-table {
   display: none;
-}
-
-.mobile-table .group-header td {
-  padding: 10px 8px;
-  font-weight: 600;
-  font-size: 13px;
-  background: linear-gradient(135deg, rgba(0, 122, 255, 0.12), rgba(0, 122, 255, 0.06));
-  color: #007aff;
-  letter-spacing: -0.01em;
-  border-top: 1px solid rgba(0, 122, 255, 0.2);
-  border-bottom: 1px solid rgba(0, 122, 255, 0.2);
 }
 
 .data-row {
@@ -821,24 +915,21 @@ function formatMetricFirst(metric) {
   border-top: 1px solid rgba(0, 0, 0, 0.06);
 }
 
-/* Portrait mode: unified mobile layout */
 @media (orientation: portrait) {
   .leaderboard-container {
     padding: 16px 12px;
     width: 100%;
     box-sizing: border-box;
-    /* 防止页面横向溢出 */
     overflow-x: hidden;
-
   }
+
   .leaderboard-content {
     display: flex;
-    flex-direction: column; /* 垂直排列 */
-    align-items: center;    /* 水平居中核心代码 */
+    flex-direction: column;
+    align-items: center;
     width: 100%;
   }
 
-  /* Hide desktop table, show mobile table */
   .desktop-table {
     display: none;
   }
@@ -851,18 +942,12 @@ function formatMetricFirst(metric) {
     font-size: 20px;
   }
 
-  /* --- 修复 1: 顶部卡片居中 --- */
   .top-metrics-cards {
     display: flex;
-    /* 关键：让容器占满父元素宽度，内部元素才能真正居中 */
     width: 100%;
-    justify-content: center; /* 内部卡片居中 */
+    justify-content: center;
     gap: 16px;
     margin-bottom: 24px;
-
-    /* 移除之前的 width: 90% 和 overflow 设置，
-       因为只有两个卡片，通常不需要横向滚动。
-       如果确实需要滚动，请保留 overflow-x: auto 并改为 justify-content: flex-start */
     overflow-x: visible;
   }
 
@@ -896,28 +981,23 @@ function formatMetricFirst(metric) {
     font-size: 12px;
   }
 
-  /* --- 修复 2: 表格滚动问题 --- */
   .table-wrapper {
     width: 100%;
-    /* 关键1：覆盖父元素的 align-items: center，让容器占满宽度 */
     align-self: stretch;
-    /* 关键2：允许 flex 子元素收缩到比内容更小 */
     min-width: 0;
     padding: 12px 0;
     box-sizing: border-box;
-    overflow: hidden; /* wrapper 不负责滚动，只负责装饰 */
+    overflow: hidden;
   }
 
   .table-container {
     width: 100%;
-    /* 关键：只在这里开启滚动 */
     overflow-x: auto;
-    /* iOS 必须加这个属性才能顺滑滚动 */
     -webkit-overflow-scrolling: touch;
-    padding: 0 12px; /* 将内边距移到这里，保证内容不贴边 */
+    padding: 0 12px;
     box-sizing: border-box;
-    border-radius: 0; /* 移动端通常不需要内部圆角 */
-    box-shadow: none; /* 移除可能的阴影干扰 */
+    border-radius: 0;
+    box-shadow: none;
   }
 
   .rankings-table {

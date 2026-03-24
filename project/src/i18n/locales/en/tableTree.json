@@ -1,0 +1,101 @@
+{
+  "universalTable": {
+    "toolbar": {
+      "searchPlaceholder": "Search...",
+      "add": "Add",
+      "batchReplace": "Batch Replace",
+      "submitWithCount": "Submit ({count})",
+      "action": "Actions",
+      "fullscreen": "Fullscreen",
+      "exit": "Exit",
+      "exitFullscreen": "Exit Fullscreen"
+    },
+    "states": {
+      "loadingData": "Loading data...",
+      "noData": "No data"
+    },
+    "filter": {
+      "title": "Filter: {label}",
+      "loading": "Loading...",
+      "selectAll": "Select All",
+      "invertSelection": "Invert Selection"
+    },
+    "addModal": {
+      "title": "Add Record",
+      "inputPlaceholder": "Please enter {label}",
+      "confirmAdd": "Confirm Add"
+    },
+    "batchReplace": {
+      "title": "Batch Find and Replace",
+      "selectColumns": "Select columns to replace:",
+      "findContent": "Find content:",
+      "findPlaceholder": "Leave blank to match empty cells",
+      "emptySearchHint": "When find content is empty, all empty cells (null, empty strings) will be matched.",
+      "replaceWith": "Replace with:",
+      "replacePlaceholder": "Enter replacement content",
+      "matchMode": "Match mode:",
+      "exactMatch": "Exact Match",
+      "containsMatch": "Contains Match",
+      "replaceScope": "Replace scope:",
+      "currentPageOnly": "Current page only",
+      "allPages": "Replace entire table (all pages)",
+      "allPagesHint": "All records matching the conditions will be replaced (respecting current filters), not just the current page.",
+      "allPagesPreviewTitle": "Entire Table Preview Summary",
+      "matchCount": "Match count:",
+      "countUnit": "matches",
+      "replaceScopeLabel": "Replace scope:",
+      "allPagesScope": "Entire table (all pages)",
+      "filterCondition": "Filters:",
+      "applied": "Applied",
+      "none": "None",
+      "instantWarning": "Executing this will update the database immediately. Proceed carefully.",
+      "previewTitle": "Preview items to be replaced ({count}):",
+      "row": "Row {row}",
+      "moreChanges": "... {count} more changes",
+      "preview": "Preview",
+      "replaceWithCount": "Replace ({count})",
+      "emptyValue": "(Empty)"
+    },
+    "messages": {
+      "pageNumberRange": "Please enter a page number between 1 and {max}",
+      "adminOnly": "This action requires administrator privileges",
+      "noChangesToSubmit": "No changes to submit",
+      "confirmBatchUpdate": "Confirm submitting changes for {count} rows?",
+      "confirmBatchUpdateTitle": "Confirm Batch Update",
+      "batchUpdateSuccess": "Batch update successful: {count} records updated",
+      "batchUpdatePartialFailure": "{count} records failed to update",
+      "batchUpdateFailed": "Batch update failed: {message}",
+      "deleteConfirm": "Confirm deleting {name}?",
+      "deleteFallbackName": "this record",
+      "deleteConfirmTitle": "Delete Confirmation",
+      "deleteSuccess": "Deleted successfully",
+      "deleteFailed": "Delete failed: {message}",
+      "atLeastOneField": "Fill in at least one field",
+      "addSuccess": "Added successfully",
+      "addFailed": "Add failed: {message}",
+      "noMatchesFound": "No matching content found",
+      "foundEmptyCells": "Found {count} empty cells",
+      "foundMatches": "Found {count} matches",
+      "previewAllPagesFailed": "Entire-table preview failed. Please try again later",
+      "executeBatchReplaceConfirm": "Confirm replacing {count} items?\n\nThis action will be recorded as pending changes. Click \"Submit\" to save them to the database.",
+      "executeBatchReplaceTitle": "Confirm Batch Replace",
+      "batchReplaceDone": "Batch replace completed. {count} changes recorded. Click \"Submit\" to save.",
+      "noReplaceableMatches": "No matching items to replace",
+      "executeAllPagesConfirm": "Confirm replacing {count} matches across the entire table? This action takes effect immediately and cannot be undone.",
+      "executeAllPagesTitle": "Confirm Entire-Table Replace",
+      "executeAllPagesConfirmText": "Execute",
+      "allPagesReplaceDone": "Entire-table replace completed. {count} records updated",
+      "replaceFailed": "Replace failed: {message}",
+      "unknownError": "Unknown error",
+      "allPagesReplaceFailed": "Entire-table replace failed. Please try again later"
+    }
+  },
+  "charTreeItem": {
+    "noAnnotation": "No annotation"
+  },
+  "villagesTreeItem": {
+    "drawAllChildrenMap": "Draw map for all descendant villages",
+    "drawCurrentVillageMap": "Draw map for the current village",
+    "expandPrompt": "Please expand"
+  }
+}

@@ -12,8 +12,8 @@
       @click="triggerFileInput"
     >
       <div class="upload-icon">🎵</div>
-      <p class="upload-text">拖拽音頻文件到此處或點擊選擇</p>
-      <p class="upload-hint">支持 WAV, MP3, M4A, WebM, OGG, FLAC, AAC 格式</p>
+      <p class="upload-text">{{ t('praat.audioInput.upload.text') }}</p>
+      <p class="upload-hint">{{ t('praat.audioInput.upload.hint') }}</p>
       <input
         ref="fileInput"
         type="file"
@@ -27,7 +27,7 @@
     <div class="recording-section">
       <div class="recording-row">
         <div class="divider-inline">
-          <span>或者</span>
+          <span>{{ t('praat.audioInput.recording.or') }}</span>
         </div>
 
         <button
@@ -37,12 +37,12 @@
           :disabled="isProcessing"
         >
           <span class="record-icon">{{ isRecording ? '⏹' : '🎤' }}</span>
-          <span>{{ isRecording ? '停止錄音' : '開始錄音' }}</span>
+          <span>{{ isRecording ? t('praat.audioInput.recording.stop') : t('praat.audioInput.recording.start') }}</span>
         </button>
       </div>
 
       <div v-if="isRecording" class="recording-timer">
-        錄音中... {{ recordingTime }}s
+        {{ t('praat.audioInput.recording.timer', { time: recordingTime }) }}
       </div>
     </div>
 
@@ -59,6 +59,7 @@
 
 <script setup>
 import { ref, computed, onBeforeUnmount } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { showError } from '@/utils/message.js'
 
 const props = defineProps({
@@ -69,6 +70,7 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['file-selected', 'segments-ready'])
+const { t } = useI18n()
 
 const isDragOver = ref(false)
 const isRecording = ref(false)
@@ -90,14 +92,14 @@ let audioChunks = []
 let recordingTimer = null
 let mediaStream = null
 
-const MAX_FILE_SIZE = 5 * 1024 * 1024 // 50MB
+const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
 const MAX_RECORDING_TIME = 60 // 60 seconds
 const MAX_SEGMENT_DURATION = 10 // 10 seconds per segment
 const SUPPORTED_FORMATS = ['audio/wav', 'audio/mpeg', 'audio/mp3', 'audio/ogg', 'audio/webm', 'audio/m4a', 'audio/x-m4a', 'audio/flac', 'audio/aac', 'audio/x-aac']
 
 const validateFile = (file) => {
   if (file.size > MAX_FILE_SIZE) {
-    showError('文件大小超過 50MB 限制')
+    showError(t('praat.audioInput.errors.fileSizeExceeded'))
     return false
   }
 
@@ -107,7 +109,7 @@ const validateFile = (file) => {
                       ['wav', 'mp3', 'ogg', 'webm', 'm4a', 'flac', 'aac'].includes(fileExt)
 
   if (!isSupported) {
-    showError('不支持的音頻格式，請上傳 WAV, MP3, M4A, WebM, OGG, FLAC 或 AAC 文件')
+    showError(t('praat.audioInput.errors.unsupportedFormat'))
     return false
   }
 
@@ -153,7 +155,7 @@ const processFile = async (file) => {
     }
   } catch (error) {
     console.error('Process file error:', error)
-    showError('處理音頻文件失敗：' + error.message)
+    showError(t('praat.audioInput.errors.processingFailed', { error: error.message }))
   } finally {
     isProcessing.value = false
   }
@@ -196,7 +198,7 @@ const checkAndSplitAudio = async (file) => {
     }
 
     fileReader.onerror = () => {
-      reject(new Error('無法讀取音頻文件'))
+      reject(new Error(t('praat.audioInput.errors.readFailed')))
     }
 
     fileReader.readAsArrayBuffer(file)
@@ -366,7 +368,7 @@ const startRecording = async () => {
     }, 1000)
   } catch (error) {
     console.error('Recording error:', error)
-    showError('無法訪問麥克風，請檢查權限設置')
+    showError(t('praat.audioInput.errors.microphoneAccessDenied'))
     isProcessing.value = false
   }
 }

@@ -1,6 +1,6 @@
 <template>
   <div class="modify-profile-form">
-    <h3>歡迎 {{ user.username }}! 🎉😊</h3>
+    <h3>{{ $t('auth.modifyProfile.welcome', { username: user.username }) }}</h3>
 
     <!-- Tab Switcher -->
     <TabSwitcher
@@ -14,13 +14,13 @@
       <FormInput
         v-model="localNewUsername"
         type="text"
-        placeholder="請輸入新用戶名"
+        :placeholder="$t('auth.modifyProfile.username.placeholder')"
         icon="👤"
         :error="error"
       />
       <div class="form-row">
         <button class="btn-search" @click="handleSaveUsername" :disabled="loading">
-          保存用戶名
+          {{ $t('auth.modifyProfile.username.button') }}
         </button>
       </div>
     </div>
@@ -31,7 +31,7 @@
       <FormInput
         v-model="localCurrentPassword"
         type="password"
-        placeholder="請輸入當前密碼"
+        :placeholder="$t('auth.modifyProfile.password.currentPlaceholder')"
         :showPasswordToggle="true"
         :error="error"
       />
@@ -40,14 +40,14 @@
       <FormInput
         v-model="localNewPassword"
         type="password"
-        placeholder="請輸入新密碼（至少6個字符）"
+        :placeholder="$t('auth.modifyProfile.password.newPlaceholder')"
         :showPasswordToggle="true"
         :error="error"
       />
 
       <div class="form-row">
         <button class="btn-search" @click="handleSavePassword" :disabled="loading">
-          保存新密碼
+          {{ $t('auth.modifyProfile.password.button') }}
         </button>
       </div>
     </div>
@@ -59,16 +59,19 @@
     <!-- Back Button -->
     <div class="form-row" style="margin-top: 10px;">
       <button class="btn-search btn-back" @click="$emit('back')">
-        返回
+        {{ $t('auth.modifyProfile.backButton') }}
       </button>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import FormInput from './FormInput.vue'
 import TabSwitcher from './TabSwitcher.vue'
+
+const { t } = useI18n()
 
 const props = defineProps({
   user: {
@@ -95,10 +98,10 @@ const props = defineProps({
 
 const emit = defineEmits(['saveUsername', 'savePassword', 'back', 'update:modeType'])
 
-const tabs = [
-  { label: '👤 修改用戶名', value: 'username' },
-  { label: '🔒 修改密碼', value: 'password' }
-]
+const tabs = computed(() => [
+  { label: '👤 ' + t('auth.modifyProfile.tabs.username'), value: 'username' },
+  { label: '🔒 ' + t('auth.modifyProfile.tabs.password'), value: 'password' }
+])
 
 const localNewUsername = ref('')
 const localCurrentPassword = ref('')

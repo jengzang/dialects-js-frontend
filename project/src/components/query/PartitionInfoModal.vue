@@ -5,10 +5,10 @@
         <!-- 头部 -->
         <div class="modal-header">
 <!--          <div class="header-left">-->
-            <div class="modal-title">🗂️ 分區詳情</div>
+            <div class="modal-title">🗂️ {{ $t('query.components.partitionModal.title') }}</div>
             <!-- 选择模式开关 -->
             <div class="selection-mode-toggle">
-              <label class="toggle-label">開啟選擇</label>
+              <label class="toggle-label">{{ $t('query.components.partitionModal.enableSelection') }}</label>
               <button
                   class="toggle-switch"
                   :class="{ active: selectionMode }"
@@ -26,32 +26,34 @@
         <div class="partition-tabs-row">
           <div class="partition-tabs">
             <button
-                v-for="tab in ['map', 'yindian']"
+                v-for="tab in tabOptions"
                 :key="tab"
                 class="partition-tab-btn"
                 :class="{ active: activeTab === tab }"
                 @click="activeTab = tab"
             >
-              {{ tab === 'map' ? '地圖集二分區' : '音典分區' }}
+              {{ getTabLabel(tab) }}
             </button>
           </div>
 
-          <!-- 确认选择按钮（仅选择模式显示） -->
-          <button
-              v-if="selectionMode"
-              class="confirm-btn"
-              @click="confirmSelection"
-              type="button"
-          >
-            確認選擇 ({{ selectedLocations.size }})
-          </button>
+          <div v-if="selectionMode" class="selection-actions">
+            <div v-if="selectionWarning" class="selection-warning-inline">{{ selectionWarning }}</div>
+            <button
+                class="confirm-btn"
+                :disabled="!canConfirmSelection"
+                @click="confirmSelection"
+                type="button"
+            >
+              {{ $t('query.components.partitionModal.confirmSelection', { count: selectedLocations.size }) }}
+            </button>
+          </div>
         </div>
 
         <!-- 主体：树状图 -->
         <div class="modal-body">
           <div v-if="isLoading" class="loading-state">
             <div class="spinner"></div>
-            <span>加載中...</span>
+            <span>{{ $t('query.components.partitionModal.loading') }}</span>
           </div>
 
           <div v-else-if="errorMessage" class="error-state">
@@ -68,6 +70,7 @@
                 :selection-mode="selectionMode"
                 :selected-locations="selectedLocations"
                 @toggle-location="toggleLocation"
+                @toggle-subtree="toggleSubtreeLocations"
             />
           </div>
         </div>
@@ -78,6 +81,30 @@
 
 <script setup>
 import { ref, computed, watch, defineComponent, h, nextTick } from 'vue'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
+
+const TAB_MAP = 'map'
+const TAB_YINDIAN = 'yindian'
+const TAB_ADMINISTRATIVE_DIVISION = 'administrativeDivision'
+const tabOptions = [TAB_MAP, TAB_YINDIAN, TAB_ADMINISTRATIVE_DIVISION]
+
+const FIELD_KEYS = {
+  shortName: ['簡稱', '简称'],
+  language: ['語言', '语言'],
+  storageFlag: ['存儲標記', '存储标记'],
+  mapPartition: ['地圖集二分區', '地图集二分区'],
+  dictPartition: ['音典分區', '音典分区'],
+  adminLevels: [
+    ['省'],
+    ['市'],
+    ['縣', '县'],
+    ['鎮', '镇'],
+    ['行政村'],
+    ['自然村']
+  ]
+}
 
 const props = defineProps({
   modelValue: {
@@ -86,11 +113,11 @@ const props = defineProps({
   },
   initialTab: {
     type: String,
-    default: 'map',
-    validator: (value) => ['map', 'yindian'].includes(value)
+    default: TAB_MAP,
+    validator: (value) => [TAB_MAP, TAB_YINDIAN, TAB_ADMINISTRATIVE_DIVISION].includes(value)
   },
   partitionData: {
-    type: Array,
+    type: [Array, Object],
     default: () => []
   },
   isLoading: {
@@ -108,50 +135,119 @@ const props = defineProps({
   initialSelectedLocations: {
     type: Array,
     default: () => []
+  },
+  maxSelection: {
+    type: Number,
+    default: null
   }
 })
 
 const emit = defineEmits(['update:modelValue', 'locations-selected', 'locations-changed'])
 
-// State
+const getTabLabel = (tab) => {
+  if (tab === TAB_MAP) return t('query.components.partitionModal.mapPartition')
+  if (tab === TAB_YINDIAN) return t('query.components.partitionModal.dictPartition')
+  if (tab === TAB_ADMINISTRATIVE_DIVISION) return t('query.components.partitionModal.administrativeDivision')
+  return tab
+}
+
+const getFieldValue = (row, keys) => {
+  if (!row || typeof row !== 'object') return undefined
+  for (const key of keys) {
+    if (Object.prototype.hasOwnProperty.call(row, key)) {
+      return row[key]
+    }
+  }
+  return undefined
+}
+
+const getStringField = (row, keys) => {
+  const value = getFieldValue(row, keys)
+  if (value === null || value === undefined) return ''
+  return String(value).trim()
+}
+
+const getDialectName = (row) => {
+  return (
+    getStringField(row, FIELD_KEYS.shortName) ||
+    getStringField(row, FIELD_KEYS.language) ||
+    t('query.components.partitionModal.unknownDialect')
+  )
+}
+
+const normalizeNodeLabel = (value) => {
+  return value ? value : t('query.components.partitionModal.emptyNode')
+}
+
+const adminLabelCollator = new Intl.Collator('zh-u-co-pinyin', {
+  numeric: true,
+  sensitivity: 'base'
+})
+
+const compareAdminLabels = (a, b) => {
+  const emptyNodeLabel = t('query.components.partitionModal.emptyNode')
+  const aIsEmpty = a === emptyNodeLabel
+  const bIsEmpty = b === emptyNodeLabel
+  if (aIsEmpty && !bIsEmpty) return 1
+  if (!aIsEmpty && bIsEmpty) return -1
+  return adminLabelCollator.compare(a, b)
+}
+
+const sortTreeByAdminRules = (node) => {
+  if (Array.isArray(node)) return node
+  if (!node || typeof node !== 'object') return node
+
+  const sortedNode = {}
+  Object.keys(node)
+    .sort(compareAdminLabels)
+    .forEach((key) => {
+      sortedNode[key] = sortTreeByAdminRules(node[key])
+    })
+
+  return sortedNode
+}
+
+const normalizePartitionRows = (data) => {
+  if (Array.isArray(data)) return data
+  if (data && typeof data === 'object') {
+    if (Array.isArray(data.data)) return data.data
+    if (Array.isArray(data.rows)) return data.rows
+    if (Array.isArray(data.list)) return data.list
+  }
+  return []
+}
+
 const activeTab = ref(props.initialTab)
 const selectionMode = ref(false)
 const selectedLocations = ref(new Set())
 const rawData = ref([])
 
-// Watch for initial tab changes
 watch(() => props.initialTab, (newTab) => {
-  activeTab.value = newTab
+  activeTab.value = [TAB_MAP, TAB_YINDIAN, TAB_ADMINISTRATIVE_DIVISION].includes(newTab) ? newTab : TAB_MAP
 }, { immediate: true })
 
-// Watch for auto-enable selection mode
 watch(() => props.autoEnableSelection, (shouldEnable) => {
   if (shouldEnable && props.modelValue) {
     selectionMode.value = true
   }
 }, { immediate: true })
 
-// Watch for modal visibility
 watch(() => props.modelValue, (isVisible) => {
-  if (isVisible) {
-    // Auto-enable selection mode if requested
-    if (props.autoEnableSelection) {
-      selectionMode.value = true
-    }
+  if (isVisible && props.autoEnableSelection) {
+    selectionMode.value = true
   }
 })
 
-// Watch for partition data changes and apply initial selections when ready
 watch([() => props.partitionData, () => props.modelValue, () => props.initialSelectedLocations],
   ([data, isVisible, initialLocs]) => {
-    if (isVisible && data.length > 0) {
+    const rows = normalizePartitionRows(data)
+    if (isVisible && rows.length > 0) {
       nextTick(() => {
         if (initialLocs.length > 0) {
           const allLocations = getAllLocations(currentTree.value)
           const validLocations = initialLocs.filter(loc => allLocations.includes(loc))
           selectedLocations.value = new Set(validLocations)
         } else {
-          // 如果 initialLocs 为空，清空选择
           selectedLocations.value = new Set()
         }
       })
@@ -160,44 +256,61 @@ watch([() => props.partitionData, () => props.modelValue, () => props.initialSel
   { immediate: true }
 )
 
-// Watch for partition data changes
 watch(() => props.partitionData, (newData) => {
-  if (newData && newData.length > 0) {
-    rawData.value = newData
-  }
+  rawData.value = normalizePartitionRows(newData)
 }, { immediate: true })
 
-// Filtered data based on selection mode
 const filteredData = computed(() => {
   if (!selectionMode.value) return rawData.value
   return rawData.value.filter(row => {
-    const flag = row['存儲標記']
+    const flag = getFieldValue(row, FIELD_KEYS.storageFlag)
     return flag === '1' || flag === 1
   })
 })
 
-// Build tree for current tab
-const currentTree = computed(() => {
-  const columnName = activeTab.value === 'map'
-    ? '地圖集二分區'
-    : '音典分區'
-  return buildPartitionTree(filteredData.value, columnName)
+const isOverSelectionLimit = computed(() => {
+  return props.maxSelection !== null
+    && Number.isFinite(props.maxSelection)
+    && selectedLocations.value.size > props.maxSelection
 })
 
-// Build tree structure
-const buildPartitionTree = (data, columnName) => {
+const canConfirmSelection = computed(() => {
+  return selectionMode.value
+    && selectedLocations.value.size > 0
+    && !isOverSelectionLimit.value
+})
+
+const selectionWarning = computed(() => {
+  if (!selectionMode.value) return ''
+  if (!isOverSelectionLimit.value) return ''
+  return t('query.components.partitionModal.maxSelectionExceeded', {
+    count: selectedLocations.value.size,
+    max: props.maxSelection
+  })
+})
+
+const currentTree = computed(() => {
+  if (activeTab.value === TAB_MAP) {
+    return buildPartitionTree(filteredData.value, FIELD_KEYS.mapPartition)
+  }
+  if (activeTab.value === TAB_YINDIAN) {
+    return buildPartitionTree(filteredData.value, FIELD_KEYS.dictPartition)
+  }
+  return buildAdminTree(filteredData.value)
+})
+
+const buildPartitionTree = (data, columnKeys) => {
   const tree = {}
 
   data.forEach(row => {
-    const dialectName = row['簡稱'] || '未知方言點'
-    const partitionStr = row[columnName] || ''
+    const dialectName = getDialectName(row)
+    const partitionStr = getStringField(row, columnKeys)
 
-    if (!partitionStr.trim()) {
+    if (!partitionStr) {
       return
     }
 
-    const parts = partitionStr.split('-').map(p => p.trim()).filter(p => p)
-
+    const parts = partitionStr.split('-').map(p => p.trim()).filter(Boolean)
     if (parts.length === 0) {
       return
     }
@@ -221,16 +334,51 @@ const buildPartitionTree = (data, columnName) => {
   return tree
 }
 
-// Extract all location names from the tree
+const buildAdminTree = (data) => {
+  const tree = {}
+
+  data.forEach(row => {
+    const dialectName = getDialectName(row)
+    const rawLevels = FIELD_KEYS.adminLevels.map(keys => getStringField(row, keys))
+    const lastNonEmptyIndex = rawLevels.reduce((lastIndex, value, index) => {
+      return value ? index : lastIndex
+    }, -1)
+
+    // Skip trailing empty levels; keep "(空)" only when a middle level is empty but lower levels are present.
+    const levels = lastNonEmptyIndex >= 0
+      ? rawLevels.slice(0, lastNonEmptyIndex + 1).map(value => normalizeNodeLabel(value))
+      : []
+
+    if (levels.length === 0) {
+      return
+    }
+
+    let current = tree
+    levels.forEach((part, index) => {
+      if (index === levels.length - 1) {
+        if (!Array.isArray(current[part])) {
+          current[part] = []
+        }
+        current[part].push(dialectName)
+      } else {
+        if (!current[part] || Array.isArray(current[part])) {
+          current[part] = {}
+        }
+        current = current[part]
+      }
+    })
+  })
+
+  return sortTreeByAdminRules(tree)
+}
+
 const getAllLocations = (tree) => {
   const locations = []
 
   const traverse = (node) => {
     if (Array.isArray(node)) {
-      // Leaf nodes: location list
       locations.push(...node)
     } else if (typeof node === 'object' && node !== null) {
-      // Recurse into nested tree
       Object.values(node).forEach(traverse)
     }
   }
@@ -239,56 +387,73 @@ const getAllLocations = (tree) => {
   return locations
 }
 
-// Toggle selection mode
+const getUniqueLocations = (tree) => {
+  return Array.from(new Set(getAllLocations(tree)))
+}
+
+const getTotalLeafCount = (children) => {
+  if (Array.isArray(children)) {
+    return children.length
+  }
+  return Object.values(children).reduce((sum, child) => sum + getTotalLeafCount(child), 0)
+}
+
+const syncSelectedLocations = () => {
+  if (isOverSelectionLimit.value) return
+  emit('locations-changed', Array.from(selectedLocations.value))
+}
+
 const toggleSelectionMode = () => {
   selectionMode.value = !selectionMode.value
   if (!selectionMode.value) {
     selectedLocations.value.clear()
+    emit('locations-changed', [])
   }
 }
 
-// Toggle location selection
 const toggleLocation = (location) => {
   if (selectedLocations.value.has(location)) {
     selectedLocations.value.delete(location)
   } else {
     selectedLocations.value.add(location)
   }
-  // Force reactivity update
   selectedLocations.value = new Set(selectedLocations.value)
-
-  // Emit real-time change for preview
-  emit('locations-changed', Array.from(selectedLocations.value))
+  syncSelectedLocations()
 }
 
-// Confirm selection
+const toggleSubtreeLocations = (children) => {
+  const subtreeLocations = getUniqueLocations(children)
+  if (subtreeLocations.length === 0) return
+  const nextSelected = new Set(selectedLocations.value)
+  const isFullySelected = subtreeLocations.every((location) => nextSelected.has(location))
+  if (isFullySelected) {
+    subtreeLocations.forEach((location) => nextSelected.delete(location))
+  } else {
+    subtreeLocations.forEach((location) => nextSelected.add(location))
+  }
+  selectedLocations.value = nextSelected
+  syncSelectedLocations()
+}
+
 const confirmSelection = () => {
+  if (!canConfirmSelection.value) return
   const locations = Array.from(selectedLocations.value)
   emit('locations-selected', locations)
   closeModal()
 }
 
-// Close modal
 const closeModal = () => {
   emit('update:modelValue', false)
-  // Don't clear selections - let parent control via initialSelectedLocations
   selectionMode.value = false
 }
 
-// Helper function to calculate selected count recursively
 const getSelectedCount = (children, selectedLocations) => {
   if (Array.isArray(children)) {
-    // Leaf node: count how many items are selected
     return children.filter(item => selectedLocations.has(item)).length
-  } else {
-    // Branch node: sum up selected counts of all children
-    return Object.values(children).reduce((sum, child) => {
-      return sum + getSelectedCount(child, selectedLocations)
-    }, 0)
   }
+  return Object.values(children).reduce((sum, child) => sum + getSelectedCount(child, selectedLocations), 0)
 }
 
-// PartitionTreeNode component
 const PartitionTreeNode = defineComponent({
   name: 'PartitionTreeNode',
   props: {
@@ -298,16 +463,11 @@ const PartitionTreeNode = defineComponent({
     selectionMode: { type: Boolean, default: false },
     selectedLocations: { type: Set, default: () => new Set() }
   },
-  emits: ['toggle-location'],
+  emits: ['toggle-location', 'toggle-subtree'],
   setup(props, { emit }) {
     const isExpanded = ref(false)
     const isLeaf = computed(() => Array.isArray(props.children))
-    const childCount = computed(() => {
-      if (isLeaf.value) {
-        return props.children.length
-      }
-      return Object.keys(props.children).length
-    })
+    const childCount = computed(() => getTotalLeafCount(props.children))
 
     const toggleExpand = () => {
       isExpanded.value = !isExpanded.value
@@ -319,52 +479,74 @@ const PartitionTreeNode = defineComponent({
       }
     }
 
-    return { isExpanded, isLeaf, childCount, toggleExpand, handleLocationClick }
+    const handleToggleSubtree = () => {
+      if (!props.selectionMode) return
+      emit('toggle-subtree', props.children)
+    }
+
+    return {
+      isExpanded,
+      isLeaf,
+      childCount,
+      toggleExpand,
+      handleLocationClick,
+      handleToggleSubtree
+    }
   },
   render() {
     const { label, children, level, selectionMode, selectedLocations } = this.$props
-    const { isExpanded, isLeaf, childCount, toggleExpand, handleLocationClick } = this
-
-    // Calculate selected count for this node
+    const {
+      isExpanded,
+      isLeaf,
+      childCount,
+      toggleExpand,
+      handleLocationClick,
+      handleToggleSubtree
+    } = this
     const selectedCount = selectionMode ? getSelectedCount(children, selectedLocations) : 0
+    const isSubtreeFullySelected = selectionMode && childCount > 0 && selectedCount === childCount
 
     return h('div', { class: 'tree-node' }, [
-      // Node content
       h('div', {
         class: 'node-content',
         onClick: toggleExpand
       }, [
-        // Left: icon + text + count + selected count
         h('div', { class: 'node-label' }, [
           h('span', { class: 'icon' }, isLeaf ? '📂' : '📁'),
           h('span', { class: 'text' }, label),
           h('span', { class: 'count' }, `(${childCount})`),
-          // Selected count badge (only show when selection mode is active and count > 0)
           selectionMode && selectedCount > 0
             ? h('span', { class: 'selected-count' }, `✓${selectedCount}`)
             : null
         ]),
-
-        // Right: expand button
-        h('button', {
-          class: ['expand-btn', { 'is-open': isExpanded }],
-          onClick: (e) => {
-            e.stopPropagation()
-            toggleExpand()
-          }
-        }, [
-          h('span', { class: 'plus-icon' }, '＋')
+        h('div', { class: 'node-actions' }, [
+          selectionMode ? h('button', {
+            class: ['node-select-btn', isSubtreeFullySelected ? 'cancel' : 'select'],
+            onClick: (e) => {
+              e.stopPropagation()
+              handleToggleSubtree()
+            }
+          }, isSubtreeFullySelected
+            ? t('query.components.partitionModal.clearSelection')
+            : t('query.components.partitionModal.selectAll')) : null,
+          h('button', {
+            class: ['expand-btn', { 'is-open': isExpanded }],
+            onClick: (e) => {
+              e.stopPropagation()
+              toggleExpand()
+            }
+          }, [
+            h('span', { class: 'plus-icon' }, '＋')
+          ])
         ])
       ]),
 
-      // Children container
       isExpanded && h('div', { class: 'children-container' }, [
         isLeaf
-          ? // Leaf nodes: location list with checkboxes
-            h('div', { class: 'leaf-list' },
+          ? h('div', { class: 'leaf-list' },
               children.map(item =>
                 h('div', {
-                  class: ['leaf-item', { 'selected': selectionMode && selectedLocations.has(item) }],
+                  class: ['leaf-item', { selected: selectionMode && selectedLocations.has(item) }],
                   key: item,
                   onClick: () => handleLocationClick(item)
                 }, [
@@ -381,8 +563,7 @@ const PartitionTreeNode = defineComponent({
                 ])
               )
             )
-          : // Recurse into nested tree
-            Object.entries(children).map(([key, value]) =>
+          : Object.entries(children).map(([key, value]) =>
               h(PartitionTreeNode, {
                 key,
                 label: key,
@@ -390,7 +571,8 @@ const PartitionTreeNode = defineComponent({
                 level: level + 1,
                 selectionMode,
                 selectedLocations,
-                onToggleLocation: (location) => this.$emit('toggle-location', location)
+                onToggleLocation: (location) => this.$emit('toggle-location', location),
+                onToggleSubtree: (subtree) => this.$emit('toggle-subtree', subtree)
               })
             )
       ])
@@ -524,13 +706,21 @@ const PartitionTreeNode = defineComponent({
   background: rgba(255, 255, 255, 0.4);
 }
 
+.selection-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
 .partition-tabs {
   display: flex;
   gap: 10px;
 }
 
 .partition-tab-btn {
-  padding: 8px 20px;
+  white-space: nowrap;
+  padding: 8px 10px;
   border-radius: 12px;
   border: none;
   background: rgba(142, 142, 147, 0.15);
@@ -573,6 +763,13 @@ const PartitionTreeNode = defineComponent({
 .confirm-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+.selection-warning-inline {
+  color: #d35400;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
 }
 
 /* Modal body */
@@ -690,6 +887,40 @@ const PartitionTreeNode = defineComponent({
   font-weight: 600;
 }
 
+.partition-tree-container :deep(.node-actions) {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.partition-tree-container :deep(.node-select-btn) {
+  border: none;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.partition-tree-container :deep(.node-select-btn.select) {
+  background: rgba(0, 122, 255, 0.12);
+  color: #0051d5;
+}
+
+.partition-tree-container :deep(.node-select-btn.select:hover) {
+  background: rgba(0, 122, 255, 0.2);
+}
+
+.partition-tree-container :deep(.node-select-btn.cancel) {
+  background: rgba(255, 59, 48, 0.14);
+  color: #b42318;
+}
+
+.partition-tree-container :deep(.node-select-btn.cancel:hover) {
+  background: rgba(255, 59, 48, 0.24);
+}
+
 .partition-tree-container :deep(.expand-btn) {
   background: transparent;
   border: none;
@@ -788,6 +1019,11 @@ const PartitionTreeNode = defineComponent({
     flex-direction: column;
     gap: 12px;
     align-items: stretch;
+  }
+
+  .selection-actions {
+    justify-content: flex-end;
+    flex-wrap: wrap;
   }
 
 

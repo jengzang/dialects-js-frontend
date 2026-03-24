@@ -39,7 +39,7 @@
                 class="char-annotation-item"
             >
               <span class="char">{{ char }}</span>
-              <span class="annotation">{{ node.annotations[index] || '無注釋' }}</span>
+              <span class="annotation">{{ node.annotations[index] || t('tableTree.charTreeItem.noAnnotation') }}</span>
             </div>
           </div>
         </div>
@@ -60,6 +60,7 @@
 
 <script setup>
 import { ref, computed, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 defineOptions({
   name: 'CharTreeItem'
@@ -73,6 +74,8 @@ const props = defineProps({
     default: true
   }
 });
+
+const { t } = useI18n();
 
 const isOpen = ref(false);
 

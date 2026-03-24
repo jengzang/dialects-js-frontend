@@ -1,18 +1,14 @@
 <template>
   <div class="yubao-map-container" :class="{ 'is-fullscreen': isFullScreen }">
-    <!-- 地图容器 -->
     <div ref="mapContainer" class="map-container">
-      <!-- 加载动画覆盖层 -->
       <div v-if="isLoadingMarkers" class="map-loading-overlay">
         <div class="loading-content">
           <div class="loading-spinner"></div>
-          <span class="loading-text">加載地圖數據中...</span>
+          <span class="loading-text">{{ t('map.yuBaoMap.loading.mapData') }}</span>
         </div>
       </div>
 
-      <!-- 地图控制面板 -->
       <div class="map-controls" v-if="!isFullScreen">
-        <!-- 地图样式选择器 -->
         <div class="control-group">
           <SimpleSelectDropdown
             v-model="currentStyleKey"
@@ -21,111 +17,111 @@
           />
         </div>
 
-        <!-- 显示模式切换 -->
         <div class="control-group mode-switcher">
           <button
             :class="{ active: displayMode === 'location' }"
             @click="switchDisplayMode('location')"
-            title="顯示地名"
+            :title="t('map.yuBaoMap.controls.location')"
           >
-            地名
+            {{ t('map.yuBaoMap.controls.location') }}
           </button>
           <button
             :class="{ active: displayMode === 'pronunciation' }"
             @click="switchDisplayMode('pronunciation')"
-            title="顯示語音"
+            :title="t('map.yuBaoMap.controls.pronunciation')"
           >
-            語音
+            {{ t('map.yuBaoMap.controls.pronunciation') }}
           </button>
           <button
             :class="{ active: displayMode === 'definition' }"
             @click="switchDisplayMode('definition')"
-            title="顯示釋義"
+            :title="t('map.yuBaoMap.controls.definition')"
           >
-            釋義
+            {{ t('map.yuBaoMap.controls.definition') }}
           </button>
         </div>
 
-        <!-- 功能按钮 -->
         <div class="button-row">
-          <button class="action-btn" @click="resetView" title="復位視角">
-            🎯 復位
+          <button class="action-btn" @click="resetView" :title="t('map.yuBaoMap.buttons.reset')">
+            🎯 {{ t('map.yuBaoMap.buttons.reset') }}
           </button>
-          <button class="action-btn fullscreen-btn" @click="toggleFullScreen" title="全屏">
-            ⛶ 全屏
+          <button class="action-btn fullscreen-btn" @click="toggleFullScreen" :title="t('map.yuBaoMap.buttons.fullscreen')">
+            ⛶ {{ t('map.yuBaoMap.buttons.fullscreen') }}
           </button>
         </div>
       </div>
     </div>
 
-    <!-- 全屏退出按钮 -->
     <button v-if="isFullScreen" class="exit-fullscreen-btn" @click="toggleFullScreen">
-      ✕ 退出全屏
+      ✕ {{ t('map.yuBaoMap.buttons.exitFullscreen') }}
     </button>
 
-    <!-- 弹窗 -->
     <Teleport to="body">
       <div v-if="showPopup && popupData" class="yubao-popup-overlay" @click="closePopup">
         <div class="yubao-popup-content" @click.stop>
           <div class="popup-header">
-            <h3>詳細信息</h3>
-            <button class="close-btn" @click="closePopup">✕</button>
+            <h3>{{ t('map.yuBaoMap.popup.title') }}</h3>
+            <button
+              class="close-btn"
+              @click="closePopup"
+              :title="t('common.button.close')"
+              :aria-label="t('common.button.close')"
+            >
+              &times;
+            </button>
           </div>
           <div class="popup-body">
-            <!-- 聚合提示 -->
             <div v-if="popupData.itemCount && popupData.itemCount > 1" class="aggregation-notice">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <circle cx="12" cy="12" r="10"/>
                 <line x1="12" y1="16" x2="12" y2="12"/>
                 <line x1="12" y1="8" x2="12.01" y2="8"/>
               </svg>
-              <span>此位置聚合了 {{ popupData.itemCount }} 個數據點</span>
+              <span>{{ t('map.yuBaoMap.popup.clusteredCount', { count: popupData.itemCount }) }}</span>
             </div>
 
-            <!-- 词汇 tab -->
             <template v-if="activeTab === 'vocabulary'">
               <div class="info-row">
-                <span class="label">地點：</span>
+                <span class="label">{{ t('map.yuBaoMap.fields.location') }}</span>
                 <span class="value">{{ popupData.locationChain }}</span>
               </div>
               <div class="info-row pronunciation-row">
-                <span class="label">發音：</span>
+                <span class="label">{{ t('map.yuBaoMap.fields.pronunciation') }}</span>
                 <span class="value">{{ popupData.pronunciation || '-' }}</span>
               </div>
               <div class="info-row">
-                <span class="label">字：</span>
+                <span class="label">{{ t('map.yuBaoMap.fields.word') }}</span>
                 <span class="value word-value">{{ popupData.word || '-' }}</span>
               </div>
               <div class="info-row" v-if="popupData.note1">
-                <span class="label">注釋：</span>
+                <span class="label">{{ t('map.yuBaoMap.fields.note') }}</span>
                 <span class="value">{{ popupData.note1 }}</span>
               </div>
               <div class="info-row category-row" v-if="popupData.category && popupData.category !== '-'">
-                <span class="label">分區：</span>
+                <span class="label">{{ t('map.yuBaoMap.fields.category') }}</span>
                 <span class="value">{{ popupData.category }}</span>
               </div>
             </template>
 
-            <!-- 语法 tab -->
             <template v-else>
               <div class="info-row">
-                <span class="label">地點：</span>
+                <span class="label">{{ t('map.yuBaoMap.fields.location') }}</span>
                 <span class="value">{{ popupData.locationChain }}</span>
               </div>
               <div class="info-row pronunciation-row">
-                <span class="label">發音：</span>
+                <span class="label">{{ t('map.yuBaoMap.fields.pronunciation') }}</span>
                 <span class="value">{{ popupData.phonetic || '-' }}</span>
               </div>
               <div class="info-row" v-if="popupData.memo">
-                <span class="label">注釋：</span>
+                <span class="label">{{ t('map.yuBaoMap.fields.note') }}</span>
                 <span class="value">{{ popupData.memo }}</span>
               </div>
               <div class="info-row" v-if="popupData.sentence">
-                <span class="label">句式：</span>
+                <span class="label">{{ t('map.yuBaoMap.fields.sentence') }}</span>
                 <span class="value">{{ popupData.sentence }}</span>
               </div>
               <div class="info-row category-row" v-if="popupData.category && popupData.category !== '-'">
-                <span class="label">分區：</span>
+                <span class="label">{{ t('map.yuBaoMap.fields.category') }}</span>
                 <span class="value">{{ popupData.category }}</span>
               </div>
             </template>
@@ -138,9 +134,10 @@
 
 <script setup>
 import { ref, onMounted, onBeforeUnmount, shallowRef, nextTick, watch, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import maplibregl from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
-import {mapStyle, calculateDenseMapCenterAndZoom, mapStyleConfig} from '@/utils/MapSource.js'
+import {mapStyle, calculateDenseMapCenterAndZoom, mapStyleConfig} from '@/utils/map/MapSource.js'
 import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
 
 // --- Props ---
@@ -165,6 +162,7 @@ const popupData = ref(null)
 const showPopup = ref(false)
 const mapLoaded = ref(false)  // 跟踪地图是否已加载
 const isLoadingMarkers = ref(false)  // 跟踪标记是否正在加载
+const { t } = useI18n()
 
 // Map style options
 const mapStyleOptions = computed(() => {

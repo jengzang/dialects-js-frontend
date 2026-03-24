@@ -1,0 +1,291 @@
+{
+  "title": "查詢",
+  "tab1": {
+    "title": "查字",
+    "label": "請輸入待查漢字",
+    "placeholder": "可輸入一個或多個漢字",
+    "button": "查詢",
+    "description": "查詢漢字的讀音、地位及注釋"
+  },
+  "tab2": {
+    "title": "查中古",
+    "placeholder": "請輸入中古音",
+    "button": "查詢",
+    "description": "中古➡️讀音•按中古地位整理讀音",
+    "noExclude": "不排除",
+    "selectAll": "全選",
+    "cards": {
+      "initial": "韻母",
+      "rime": "攝"
+    },
+    "excludeOptions": {
+      "allMulti": "所有多地位",
+      "excludeMultiGrade": "排除多等",
+      "excludeMultiRime": "排除多韻",
+      "excludeMultiInitial": "排除多聲母",
+      "excludeMultiTone": "排除多調"
+    }
+  },
+  "tab3": {
+    "title": "查音位",
+    "placeholder": "請輸入音位",
+    "button": "查詢",
+    "description": "讀音➡️中古•分析音位的中古來源",
+    "noExclude": "不排除",
+    "selectAll": "全選",
+    "analysisText": "分析<strong>{card}</strong>音節的中古來源，即當今的同<strong>{card}</strong>字分別來自哪些中古[<strong>{keys}</strong>]",
+    "inputPlaceholder": "輸/選 [{key}]",
+    "cards": {
+      "initial": "聲母",
+      "final": "韻母",
+      "tone": "聲調"
+    },
+    "defaultLocation": "廣州"
+  },
+  "tab4": {
+    "title": "查調",
+    "placeholder": "請輸入聲調",
+    "button": "查詢",
+    "description": "查詢各點的調類、調值"
+  },
+  "button": {
+    "running": "運行中...",
+    "invalid": "輸入不合規",
+    "run": "單擊運行"
+  },
+  "components": {
+    "locationInput": {
+      "label": "地點",
+      "selectButton": "選擇地點",
+      "selectButtonTitle": "從分區選擇地點",
+      "placeholder": "請輸入地點(可匹配)"
+    },
+    "locationMultiInput": {
+      "label": "地點",
+      "selectButton": "選擇地點",
+      "selectButtonTitle": "從分區選擇地點",
+      "locationCount": "{count}個地點",
+      "expandButton": "展開",
+      "placeholder": "請輸入地點（空格分隔，可自動匹配）",
+      "modalTitle": "已匹配地點（{count}）",
+      "warningMaxLocations": "匹配到{total}個地點，已自動截取前{max}個",
+      "errorFetchSuggestions": "獲取建議失敗",
+      "errorFetchLocations": "獲取匹配地點失敗",
+      "errorFetchPartitions": "獲取分區數據失敗",
+      "errorPartitionMessage": "獲取分區數據失敗，請稍後再試"
+    },
+    "regionSelector": {
+      "placeholder": "請選擇分區",
+      "selectedTitle": "已選分區",
+      "selectedCount": "({count})",
+      "clearButton": "清空",
+      "confirmButton": "確認",
+      "emptyState": "尚未選擇分區",
+      "customRegionButton": {
+        "notLoggedIn": "登錄即可自定義分區",
+        "noRegions": "創建自定義分區",
+        "hasRegions": "使用自定義分區"
+      },
+      "customRegionModal": {
+        "title": "我的自定義分區",
+        "loading": "加載中...",
+        "empty": "您還沒有創建自定義分區",
+        "createButton": "前往創建",
+        "manageButton": "管理我的分區",
+        "locationCount": "{count} 個地點"
+      },
+      "tabs": {
+        "map": "地圖集二分區",
+        "yindian": "音典分區"
+      },
+      "myCustomRegions": "我的自定義分區",
+      "customRegionSelectPlaceholder": "選擇自定義分區",
+      "expandChildren": "展開",
+      "messages": {
+        "loadCustomRegionsFailed": "加載自定義分區失敗：{message}",
+        "loginRequired": "請先登入以使用自定義分區功能",
+        "noCustomRegionsConfirm": "您還沒有建立自定義分區，是否前往建立？",
+        "loadRegionDetailsFailed": "獲取分區詳情失敗",
+        "selectedCustomRegion": "已選擇自定義分區：{name}",
+        "selectRegionFailed": "選擇分區失敗：{message}"
+      }
+    },
+    "yinweiSelector": {
+      "label": "待查音節",
+      "helpTrigger": "不知道輸入什麼音節❓",
+      "placeholder": "請輸入待查音節，例如 a",
+      "modalTitle": "音節查詢助手",
+      "emptyState": "請先選擇地點或分區！ 選擇後可查看地點所含的音節。",
+      "queryButton": "查詢",
+      "queryingButton": "查詢中...",
+      "initial": "聲母",
+      "final": "韻母",
+      "tone": "聲調",
+      "errorFetch": "Feature count fetch error",
+      "queryFailed": "查詢失敗"
+    },
+    "zhongguSelector": {
+      "possibleCombinations": "可能產生{count}種組合",
+      "actualMatches": ",實際匹配{count}組",
+      "outputFormat": ",將按所選組合整理輸出{format}",
+      "detailsButton": "⤢ 詳情",
+      "querying": "正在查詢數據...",
+      "noMatches": "暫無匹配漢字",
+      "pleaseSelect": "請選擇上方條件以檢索",
+      "detailsTitle": "檢索詳情",
+      "charCount": "{count} 字",
+      "tooManyCombinations": "檢索組合過多({count}>{limit})，請縮小檢索範圍",
+      "queryFailed": "數據查詢失敗，請稍後重試",
+      "tooManyResultsAnonymous": "查詢結果過多({count}>{limit})，登錄可查詢更多組合",
+      "tooManyResults": "查詢結果過多({count}>{limit})，請減少組合"
+    },
+    "partitionModal": {
+      "title": "分區詳情",
+      "selectionToggle": "開啟選擇",
+      "enableSelection": "開啟選擇",
+      "selectAll": "全選",
+      "clearSelection": "取消",
+      "confirmButton": "確認選擇 ({count})",
+      "confirmSelection": "確認選擇 ({count})",
+      "maxSelectionExceeded": "已選 {count}，上限 {max}",
+      "mapPartition": "地圖集二分區",
+      "dictPartition": "音典分區",
+      "administrativeDivision": "行政層級",
+      "emptyNode": "(空)",
+      "unknownDialect": "未知方言點",
+      "loading": "加載中...",
+      "tabs": {
+        "map": "地圖集二分區",
+        "yindian": "音典分區",
+        "administrativeDivision": "行政層級"
+      }
+    },
+    "floatingDice": {
+      "closeButton": "關閉工具欄",
+      "diceButton": "隨機範例",
+      "helpButton": "使用說明",
+      "modalTitle": "查詢說明",
+      "examples": {
+        "title": "一些示例",
+        "example1": "「泥」 使用 泥母 進行分析。",
+        "example2": "「豪」 使用 豪韻 進行分析。",
+        "example3": "「蟹 + (全選)等」 使用 蟹攝一、二、三、四等 進行分析(- 代表全匹配,- 後需輸入中古類別)",
+        "example4": "「次浊 + (全選)調」 使用 次濁聲母+平上去入 進行分析。",
+        "example5": "「宕 江」 使用合併後的 宕、江攝 轄字進行分析(中間空格代表一起分析，回車則是按照不同特徵處理)",
+        "example6": "「庄組」 使用 庄組 進行分析（如果只輸入「庄」，會使用 庄母 分析）。",
+        "example7": "「流開一」 使用 流攝開口一等字 進行分析。",
+        "example8": "「假 + 知組 章組」 使用 假攝的知、章組 轄字進行分析。",
+        "example9": "「塞擦」 提取 塞擦音 進行分析。",
+        "example10": "「(全選)部位」 分析 所有發聲部位 ，包括 唇齒、喉、捲舌、腭、軟腭、雙唇、齒 。"
+      },
+      "tableTitle": "支持的輸入見下表（簡體也可以）",
+      "tableHeaders": {
+        "category": "類別",
+        "values": "對應值"
+      },
+      "inputRows": {
+        "she": {
+          "category": "攝",
+          "values": "通、宕、江、止、遇、蟹、流、山、效、咸、深、臻、曾、梗、果、假"
+        },
+        "yun": {
+          "category": "韻",
+          "values": "之、仙、佳、侯、侵、元、先、冬、凡、刪、咍、咸、唐、嚴、夬、宵、寒、尤、山、幽、庚、廢、微、支、文、東、模、欣、歌、江、泰、添、灰、痕、登、皆、真、祭、耕、肴、脂、臻、蒸、蕭、虞、覃、談、豪、銜、鍾、陽、青、魂、魚、鹽、麻、齊、#清(清有歧義，需用#指定清韻)"
+        },
+        "hu": {
+          "category": "呼",
+          "values": "合、開"
+        },
+        "deng": {
+          "category": "等",
+          "values": "一、二、三、三A、三B、三C、三銳、四(輸入「三」會輸出所有的三等字，如果考慮重紐，請指明「ABC銳」，例如「三A」)"
+        },
+        "ru": {
+          "category": "入",
+          "values": "舒、入"
+        },
+        "diao": {
+          "category": "調",
+          "values": "平、上、去、入"
+        },
+        "buwei": {
+          "category": "部位",
+          "values": "雙唇、齒、唇齒、喉、捲舌、腭、軟腭"
+        },
+        "fangshi": {
+          "category": "方式",
+          "values": "塞、塞擦、擦、近、鼻"
+        },
+        "qingzhuo": {
+          "category": "清濁",
+          "values": "全清、全濁、次清、次濁"
+        },
+        "xi": {
+          "category": "系",
+          "values": "幫、知、端、見"
+        },
+        "zu": {
+          "category": "組",
+          "values": "幫、非、端、泥、精、莊、知、章、見、曉、影、日"
+        },
+        "mu": {
+          "category": "母",
+          "values": "幫、滂、並、明、非、敷、奉、微、端、透、定、泥、知、徹、澄、娘、精、從、心、邪、莊、初、崇、俟、生、章、昌、常、書、日、船、見、溪、群、疑、影、曉、匣、云、以、來、@清(清有歧義，需用@指定清母)"
+        }
+      },
+      "notes": {
+        "note1": "點擊按鈕即可查詢！",
+        "note2": "在分析結果界面，像這樣的 藍色字 都是 可點擊 的。",
+        "note3": "單擊後可在浮窗中選擇特徵，即可再次生成新窗口，進行 細分查詢 。",
+        "note4": "這樣的窗口可以 無限生成 (瀏覽器帶得動的話)，可以同時對比多個地點/特徵。",
+        "note5": "✔ 注1：移動端 界面可能顯示不全，請多滑動/拖動。",
+        "note6": "✔ 注2：點擊 分區 ▼ 按鈕，會出分區彈窗，用戶可 單擊 選擇所需分區。如要顯示下一級分區:",
+        "note7": "※ 電腦端 只需將 光標 移到對應分區上即可；",
+        "note8": "※ 移動端 則需要 點擊箭頭⌵ 對應分區",
+        "note9": "點擊🎲 可隨機生成分析示例"
+      }
+    },
+    "locationAndRegionInput": {
+      "locationLabel": "地點",
+      "selectLocationButton": "選擇地點",
+      "selectLocationTitle": "從分區選擇地點",
+      "locationPlaceholder": "請輸入地點(可匹配)",
+      "mapTab": "地圖集",
+      "yindianTab": "音典",
+      "viewPartitionDetails": "查看分區詳情",
+      "selectMapPartition": "請選擇地圖集分區",
+      "selectYindianPartition": "請選擇音典分區",
+      "partitionLabel": "分區",
+      "partitionPlaceholder": "輸入分區名稱，空格分隔（如：粵語）",
+      "selectedCount": "您已選擇 {count} 個地點",
+      "selectedCountPre": "您已選擇",
+      "selectedCountPost": "個地點",
+      "mapSource": "地圖集",
+      "yindianSource": "音典",
+      "expandButton": "展開",
+      "customLocationsLabel": "自定義地點：",
+      "selectedLocationsModalTitle": "已選擇地點（{count}）",
+      "customLocationsModalTitle": "自定義地點（{count}）",
+      "requireInput": "請輸入地點或分區",
+      "tooManyLocations": "地點輸入框輸入過長，請使用選擇分區以支持多地點"
+    }
+  },
+  "result": {
+    "loading": "正在分析中...",
+    "longWaitWarning": "⚠️ 當前請求數據量較大，運算需時較長。<br>建議適當減少查詢條件以提升速度。",
+    "noData": "暫無數據，請發起查詢",
+    "goToQuery": "前往查詢",
+    "pleaseQuery": "請先查詢",
+    "tabs": {
+      "tab1": "查字",
+      "tab2": "查中古",
+      "tab3": "查音位",
+      "tab4": "查調"
+    },
+    "toneType": {
+      "default": "默認",
+      "value": "調值",
+      "category": "調類"
+    }
+  }
+}

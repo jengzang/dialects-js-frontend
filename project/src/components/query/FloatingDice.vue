@@ -2,12 +2,12 @@
   <div v-if="isVisible" class="floating-tools">
 
     <button v-if="currentTab === 'tab2' || currentTab === 'tab3'"
-            class="close-btn" style="top:0;right: 0;height: 22px;width: 22px" @click="isVisible = false" title="關閉工具欄">
+            class="close-btn" style="top:0;right: 0;height: 22px;width: 22px" @click="isVisible = false" :title="$t('query.components.floatingDice.closeButton')">
       ✕
     </button>
 
     <button v-if="currentTab === 'tab2' || currentTab === 'tab3'"
-            class="dice-btn tool-btn" @click="handleRoll" title="隨機範例">
+            class="dice-btn tool-btn" @click="handleRoll" :title="$t('query.components.floatingDice.diceButton')">
       🎲
     </button>
 
@@ -16,9 +16,9 @@
           v-if="currentTab === 'tab2'"
           class="help-btn tool-btn"
           @click="isHelpOpen = true"
-          title="使用說明"
+          :title="$t('query.components.floatingDice.helpButton')"
       >
-        使用說明
+        {{ $t('query.components.floatingDice.helpButton') }}
       </button>
     </Transition>
   </div>
@@ -27,64 +27,58 @@
     <Transition name="fade-modal">
       <div v-if="isHelpOpen" class="glass-modal-overlay" @click.self="isHelpOpen = false">
         <div class="glass-card">
-          <button class="close-btn" @click="isHelpOpen = false">✕</button>
+          <button
+            class="close-btn"
+            @click="isHelpOpen = false"
+            :title="$t('common.button.close')"
+            :aria-label="$t('common.button.close')"
+          >
+            &times;
+          </button>
 
-          <h2 class="modal-title">查詢說明</h2>
+          <h2 class="modal-title">{{ $t('query.components.floatingDice.modalTitle') }}</h2>
 
           <div class="scroll-content">
             <div id='display-detail3' class="panel-content">
-              <p style="margin: 0">一些示例<br><span class="example-input"><strong>「泥」</strong></span> 使用 <span class="example-desc">泥母</span> 進行分析。</p>
-              <p style="margin: 0"><span class="example-input"><strong>「豪」</strong></span> 使用 <span class="example-desc">豪韻</span> 進行分析。</p>
-              <p style="margin: 0"><span class="example-input"><strong>「蟹 + (全選)等」</strong></span> 使用 <span class="example-desc">蟹攝一、二、三、四等</span> 進行分析("-"代表全匹配,“-”後需輸入中古類別)</p>
-              <p style="margin: 0"><span class="example-input"><strong>「次浊 + (全選)調」</strong></span> 使用 <span class="example-desc">次濁聲母+平上去入</span> 進行分析。</p>
-              <p style="margin: 0"><span class="example-input"><strong>「宕 江」</strong></span> 使用合併後的 <span class="example-desc">宕、江攝</span> 轄字進行分析(中間空格代表一起分析，回車則是按照不同特徵處理)</p>
-              <p style="margin: 0"><span class="example-input"><strong>「庄組」</strong></span> 使用 <span class="example-desc">庄組</span> 進行分析（如果只輸入「庄」，會使用 <span class="example-desc">庄母</span> 分析）。</p>
-              <p style="margin: 0"><span class="example-input"><strong>「流開一」</strong></span> 使用 <span class="example-desc">流攝開口一等字</span> 進行分析。</p>
-              <p style="margin: 0"><span class="example-input"><strong>「假 + 知組 章組」</strong></span> 使用 <span class="example-desc">假攝的知、章組</span> 轄字進行分析。</p>
-              <p style="margin: 0"><span class="example-input"><strong>「塞擦」</strong></span> 提取 <span class="example-desc">塞擦音</span> 進行分析。</p>
-              <p style="margin: 0"><span class="example-input"><strong>「(全選)部位」</strong></span> 分析 <span class="example-desc">所有發聲部位</span> ，包括“唇齒、喉、捲舌、腭、軟腭、雙唇、齒”。</p>
+              <p style="margin: 0">
+                {{ $t('query.components.floatingDice.examples.title') }}<br>
+                {{ $t('query.components.floatingDice.examples.example1') }}
+              </p>
+              <p
+                v-for="index in [2, 3, 4, 5, 6, 7, 8, 9, 10]"
+                :key="`example-${index}`"
+                style="margin: 0"
+              >
+                {{ $t(`query.components.floatingDice.examples.example${index}`) }}
+              </p>
 
               <div class="divider"></div>
-
-              <p style="margin-bottom:8px;font-size: 17px; font-weight: bold;">支持的輸入見下表（簡體也可以）</p>
+              <p style="margin-bottom:8px;font-size: 17px; font-weight: bold;">
+                {{ $t('query.components.floatingDice.tableTitle') }}
+              </p>
               <div class="table-wrapper">
                 <table class="feature-table">
                   <thead>
-                  <tr>
-                    <th width="60">類別</th>
-                    <th>對應值</th>
-                  </tr>
+                    <tr>
+                      <th width="60">{{ $t('query.components.floatingDice.tableHeaders.category') }}</th>
+                      <th>{{ $t('query.components.floatingDice.tableHeaders.values') }}</th>
+                    </tr>
                   </thead>
                   <tbody>
-                  <tr><td>攝</td><td>通、宕、江、止、遇、蟹、流、山、效、咸、深、臻、曾、梗、果、假</td></tr>
-                  <tr><td>韻</td><td>之、仙、佳、侯、侵、元、先、冬、凡、刪、咍、咸、唐、嚴、夬、宵、寒、尤、山、幽、庚、廢、微、支、文、東、模、欣、
-                    歌、江、泰、添、灰、痕、登、皆、真、祭、耕、肴、脂、臻、蒸、蕭、虞、覃、談、豪、銜、鍾、陽、青、魂、魚、鹽、麻、齊、#清(清有歧義，需用#指定清韻)</td></tr>
-                  <tr><td>呼</td><td>合、開</td></tr>
-                  <tr><td>等</td><td>一、二、三、三A、三B、三C、三銳、四(輸入“三”會輸出所有的三等字，如果考慮重紐，請指明“ABC銳”，例如“三A”)</td></tr>
-                  <tr><td>入</td><td>舒、入</td></tr>
-                  <tr><td>調</td><td>平、上、去、入</td></tr>
-                  <tr><td>部位</td><td>雙唇、齒、唇齒、喉、捲舌、腭、軟腭</td></tr>
-                  <tr><td>方式</td><td>塞、塞擦、擦、近、鼻</td></tr>
-                  <tr><td>清濁</td><td>全清、全濁、次清、次濁</td></tr>
-                  <tr><td>系</td><td>幫、知、端、見</td></tr>
-                  <tr><td>組</td><td>幫、非、端、泥、精、莊、知、章、見、曉、影、日</td></tr>
-                  <tr><td>母</td><td>幫、滂、並、明、非、敷、奉、微、端、透、定、泥、知、徹、澄、娘、精、從、心、邪、莊、初、崇、俟、生、章、昌、常、書、日、船、見、溪、群、疑、影、曉、匣、云、以、來、@清(清有歧義，需用@指定清母)</td></tr>
+                    <tr v-for="row in supportedInputRows" :key="row.category">
+                      <td>{{ row.category }}</td>
+                      <td>{{ row.values }}</td>
+                    </tr>
                   </tbody>
                 </table>
               </div>
 
               <div class="divider"></div>
-
-              <p><span class="example-desc">點擊按鈕即可查詢！</span></p>
-              <p>在分析結果界面，像這樣的 <span class="example-input"><strong>藍色字</strong></span> 都是
-                <span class="example-desc">可點擊</span>的。<br>單擊後可在浮窗中選擇特徵，即可再次生成新窗口，進行<span class="example-desc">細分查詢</span>
-                。<br>這樣的窗口可以<span class="example-desc">無限生成</span>(瀏覽器帶得動的話)，可以同時對比多個地點/特徵。</p>
-              <p>✔ 注1：<span class="example-desc">移動端</span>界面可能顯示不全，請多滑動/拖動。</p>
-              <p>✔ 注2：點擊 <span class="example-input">分區 ▼</span> 按鈕，會出分區彈窗，用戶可<span class="example-desc">單擊</span>選擇所需分區。如要顯示下一級分區:<br>
-                ※ <span class="example-desc">電腦端</span>只需將<span class="example-desc">光標</span>移到對應分區上即可；<br>
-                ※ <span class="example-desc">移動端</span>則需要<span class="example-desc">點擊箭頭⌵</span>對應分區</p>
-<!--              <p>更詳細的使用說明，可點擊屏幕上方 <span class="example-input"> ❓使用說明 </span> 按鈕，點擊後會跳轉至詳細教程文章</p>-->
-              <p>點擊🎲 可隨機生成分析示例</p>
+              <p v-for="index in [1, 2, 3, 4, 5, 6, 7, 8, 9]" :key="`note-${index}`">
+                <span :class="index === 1 ? 'example-desc' : null">
+                  {{ $t(`query.components.floatingDice.notes.note${index}`) }}
+                </span>
+              </p>
             </div>
           </div>
         </div>
@@ -94,7 +88,10 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const props = defineProps({
   currentTab: {
@@ -109,6 +106,26 @@ const emit = defineEmits(['applyConfig'])
 const isHelpOpen = ref(false)
 const diceIndex = ref(0) // 索引狀態移到這裡管理
 const isVisible = ref(true)
+const supportedInputRowKeys = [
+  'she',
+  'yun',
+  'hu',
+  'deng',
+  'ru',
+  'diao',
+  'buwei',
+  'fangshi',
+  'qingzhuo',
+  'xi',
+  'zu',
+  'mu'
+]
+const supportedInputRows = computed(() =>
+  supportedInputRowKeys.map((rowKey) => ({
+    category: t(`query.components.floatingDice.inputRows.${rowKey}.category`),
+    values: t(`query.components.floatingDice.inputRows.${rowKey}.values`)
+  }))
+)
 // ==========================================
 // 1. 數據部分
 // ==========================================
@@ -173,7 +190,7 @@ const presets_tab3 = [
     card: '聲母',
     keys: ['組'],
     tab3KeyInput:['h'],
-    loc: { locations: ['台山斗山墟 恩平恩城 鶴山雅瑤 從化獅象'], regions: ['南海'], regionUsing: 'yindian' }
+    loc: { locations: ['台山斗山墟 恩平 鶴山雅瑤 從化獅象'], regions: ['南海'], regionUsing: 'yindian' }
   },
 ]
 

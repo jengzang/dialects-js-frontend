@@ -2,12 +2,16 @@
 import { queryPhonology } from '../api/query/phonology.js'
 import { API_CONFIG } from '../config/constants.js'
 import { resultCache } from '../store/store.js'
-import { column_values } from '@/config'
+import {
+    DEFAULT_CHARACTER_TABLE,
+    getCharacterTableColumnValues
+} from '@/config'
 
-export function buildReverseMap() {
+export function buildReverseMap(tableName = DEFAULT_CHARACTER_TABLE) {
+    const columnValues = getCharacterTableColumnValues(tableName);
     const map = {};
     const conflictSet = new Set();
-    for (const [field, values] of Object.entries(column_values)) {
+    for (const [field, values] of Object.entries(columnValues)) {
         for (const val of values) {
             if (!map[val]) {
                 map[val] = field;
@@ -20,12 +24,13 @@ export function buildReverseMap() {
     return { map, conflictSet };
 }
 
-export function parseFeatureString(featureStr) {
+export function parseFeatureString(featureStr, tableName = DEFAULT_CHARACTER_TABLE) {
+    const columnValues = getCharacterTableColumnValues(tableName);
     const matched_fields = {};
     const usedChars = new Set();
-    const { map: reverseMap } = buildReverseMap();
-    const allFieldNames = Object.keys(column_values);
-    const allValues = Object.values(column_values).flat();
+    const { map: reverseMap } = buildReverseMap(tableName);
+    const allFieldNames = Object.keys(columnValues);
+    const allValues = Object.values(columnValues).flat();
 
     const hasAnyValue = allValues.some(val => featureStr.includes(val));
     if (!hasAnyValue) {
@@ -37,11 +42,12 @@ export function parseFeatureString(featureStr) {
         const fieldIdx = featureStr.indexOf(field);
         if (fieldIdx !== -1) {
             usedFields.add(field);
-            const possibleVal = featureStr.slice(Math.max(0, fieldIdx - 2), fieldIdx);
+            const maxValueLength = Math.max(...columnValues[field].map(value => value.length), 1);
+            const possibleVal = featureStr.slice(Math.max(0, fieldIdx - maxValueLength), fieldIdx);
             let foundVal = null;
-            for (let len = 2; len >= 1; len--) {
+            for (let len = Math.min(maxValueLength, possibleVal.length); len >= 1; len--) {
                 const val = possibleVal.slice(-len);
-                if (column_values[field].includes(val)) {
+                if (columnValues[field].includes(val)) {
                     foundVal = val;
                     break;
                 }
@@ -60,8 +66,22 @@ export function parseFeatureString(featureStr) {
     for (const val of usedChars) {
         remaining = remaining.replace(val, '');
     }
-    for (let i = 0; i < remaining.length; i++) {
-        const char = remaining[i];
+
+    const remainingValues = Object.entries(reverseMap)
+        .filter(([, field]) => Boolean(field))
+        .sort((a, b) => b[0].length - a[0].length);
+
+    for (const [value, field] of remainingValues) {
+        if (!remaining.includes(value) || matched_fields[field]) {
+            continue;
+        }
+
+        matched_fields[field] = value;
+        usedFields.add(field);
+        remaining = remaining.replace(value, '');
+    }
+
+    for (const char of remaining) {
         if (!char.trim()) continue;
         const field = reverseMap[char];
         if (field && !matched_fields[field]) {
@@ -205,10 +225,10 @@ export async function get_detail(location, feature_value, bool=false, vue=false,
 
     } catch (error) {
         console.error("分析失敗", error);
-        if (error.response && error.response.detail) {
-            window.showErrorToast("錯誤信息：" + error.response.detail);
-        } else {
-            window.showErrorToast("請求後端錯誤：" + error.message);
-        }
+        const detail = error?.detail ?? error?.response?.data?.detail;
+        const message = typeof detail === 'string'
+            ? detail
+            : detail?.message || error?.message;
+        window.showErrorToast(message);
     }
 }

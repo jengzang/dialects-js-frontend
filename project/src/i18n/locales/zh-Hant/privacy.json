@@ -1,0 +1,59 @@
+{
+  "title": "隱私政策與引用說明",
+  "langToggle": {
+    "zh": "English",
+    "en": "中文"
+  },
+  "citation": {
+    "title": "引用建議",
+    "text": "楊錚，2026，方音圖鑑。查詢網址 https://dialects.yzup.top",
+    "copyButton": "複製引用",
+    "copySuccess": "已複製到剪貼板！",
+    "note": "若您在學術論文、研究報告或其他出版物中使用本網站資料，請按照上述格式進行引用。"
+  },
+  "privacy": {
+    "title": "隱私政策",
+    "dataCollection": {
+      "title": "資料收集與使用",
+      "intro": "「方音圖鑑」（dialects.yzup.top）致力於保護用戶隱私。我們鄭重承諾：",
+      "minimal": "<strong>最小化資料收集</strong>：本網站僅收集必要的技術資訊（如訪問日誌、瀏覽器類型）以維護網站正常運行和改善用戶體驗。",
+      "noPersonal": "<strong>無個人身份資訊</strong>：我們不主動收集可識別個人身份的資訊（如姓名、電話號碼、出生年月等）。",
+      "security": "<strong>數據安全</strong>：所有收集的資料均採用業界標準的安全措施進行保護，防止未經授權的訪問、披露、修改或破壞。"
+    },
+    "cookies": {
+      "title": "Cookies 使用",
+      "intro": "本網站可能使用 Cookies 和類似技術來：",
+      "login": "記住您的登錄狀態",
+      "analytics": "分析網站流量和用戶行為模式，以改進服務質量",
+      "personalization": "提供個性化的用戶體驗",
+      "note": "您可以通過瀏覽器設置管理或禁用 Cookies，但這可能影響部分網站功能的正常使用。"
+    },
+    "commitment": {
+      "title": "資料保護承諾",
+      "intro": "我們承諾：",
+      "noSell": "✓ <strong>不出售或出租用戶資料</strong>給任何第三方",
+      "noLeak": "✓ <strong>不洩露個人隱私資訊</strong>，除非法律要求或經用戶明確同意",
+      "review": "✓ <strong>定期審查安全措施</strong>，確保資料保護機制持續有效",
+      "transparent": "✓ <strong>透明溝通</strong>，如隱私政策有重大變更，將及時通知用戶"
+    },
+    "rights": {
+      "title": "用戶權利",
+      "intro": "您有權：",
+      "know": "了解我們收集了哪些與您相關的資料",
+      "correct": "要求更正或刪除不準確的資料",
+      "optOut": "選擇退出某些資料收集活動"
+    },
+    "contact": {
+      "title": "聯繫方式",
+      "intro": "如對本隱私政策有任何疑問或意見，請通過以下方式聯繫我們：",
+      "website": "網站：",
+      "github": "github：",
+      "zhihu": "知乎："
+    },
+    "lastUpdated": "<strong>最後更新時間</strong>：2026年1月"
+  },
+  "disclaimer": {
+    "title": "免責聲明",
+    "text": "本網站提供的方言資料僅供學術研究和文化交流使用。雖然我們力求資料的準確性和完整性，但不對資料的絕對準確性做出保證。使用本網站資料產生的任何後果，由使用者自行承擔。"
+  }
+}

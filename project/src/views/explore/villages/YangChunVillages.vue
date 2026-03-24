@@ -2,18 +2,18 @@
   <div class="glass-container">
     <div class="header-section">
       <div class="title-row">
-        <h2 style="margin: 0;">陽春行政規劃</h2>
+        <h2 style="margin: 0;">{{ t('villages.pages.yangChun.title') }}</h2>
 <!--        <button class="village-link-btn" @click="goToGDVillages">-->
 <!--          <span role="img" aria-label="ycVillages">🏠</span> 廣東自然村-->
 <!--        </button>-->
       </div>
-      <p>數據源：《陽春縣志》(1996)</p>
+      <p>{{ t('villages.pages.yangChun.source') }}</p>
       <div class="search-wrapper">
         <span class="search-icon">🔍</span>
         <input
             type="text"
             v-model="searchQuery"
-            placeholder="搜索村委、社區或自然村..."
+            :placeholder="t('villages.pages.yangChun.searchPlaceholder')"
             class="glass-input"
         />
       </div>
@@ -21,7 +21,7 @@
 
     <div class="tree-content custom-scrollbar">
       <div v-if="displayData.length === 0" class="empty-state">
-        沒有找到匹配的結果
+        {{ t('villages.pages.yangChun.noResults') }}
       </div>
 
       <TreeItem
@@ -36,10 +36,10 @@
 
 <script setup>
 import {ref, computed} from 'vue';
+import { useI18n } from 'vue-i18n';
 import TreeItem from '@/components/TableAndTree/TreeItem.vue'; // 👈 導入剛才創建的子組件
-import villageData from '@/assets/yc_villages.json'; // 👈 導入你的 JSON
-import { useRouter } from 'vue-router';
-const router = useRouter();
+import villageData from '@/assets/data/yc_villages.json'; // 👈 導入你的 JSON
+const { t } = useI18n();
 
 // 數據標準化邏輯
 let idCounter = 0;
@@ -54,7 +54,7 @@ const normalizeData = (data, name = 'Root') => {
       if (typeof item === 'string') {
         children.push({ id: generateId(), name: item, children: [] });
       } else {
-        children.push(normalizeData(item, 'Unknown'));
+        children.push(normalizeData(item, t('villages.pages.yangChun.unknownNode')));
       }
     });
   } else if (typeof data === 'object' && data !== null) {
@@ -136,11 +136,6 @@ const displayData = computed(() => {
   if (!searchQuery.value.trim()) return fullTreeData.value;
   return filterTree(fullTreeData.value, searchQuery.value.trim());
 });
-
-const goToGDVillages = () => {
-  router.push({ path: '/explore', query: { page: 'gdVillages' } });
-};
-
 
 </script>
 

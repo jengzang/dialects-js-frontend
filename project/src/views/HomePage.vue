@@ -6,30 +6,30 @@
     <!-- Hero Section -->
     <section class="hero-section">
       <div class="hero-content">
-        <img src="@/assets/title.png" alt="方音圖鑑" class="hero-logo" />
-        <h1 class="hero-title">方言比較 · 地理語言學</h1>
-        <p class="hero-subtitle">✨ 探索方言的歷史層次 · 🎵 觸摸漢字的音韻之美</p>
+        <img src="@/assets/picture/title.png" :alt="$t('home.hero.logoAlt')" class="hero-logo" />
+        <h1 class="hero-title">{{ $t('home.hero.title') }}</h1>
+        <p class="hero-subtitle">{{ $t('home.hero.subtitle') }}</p>
         <div class="hero-actions">
           <button class="btn-primary" @click="navigateTo('/menu?tab=query')">
             <span class="btn-icon">🚀</span>
-            <span class="btn-text">開始探索</span>
+            <span class="btn-text">{{ $t('home.hero.startExploring') }}</span>
           </button>
           <!-- <button class="btn-primary btn-explore" @click="navigateTo('/explore?page=YuBao')">
             <span class="btn-icon">🧰</span>
-            <span class="btn-text">拓展工具</span>
+            <span class="btn-text">{{ $t('home.hero.expandTools') }}</span>
           </button> -->
           <button class="btn-secondary" @click="scrollToFeatures">
             <span class="btn-icon">📖</span>
-            <span class="btn-text">功能簡介</span>
+            <span class="btn-text">{{ $t('home.hero.featuresIntro') }}</span>
           </button>
         </div>
-        <img src="@/assets/BlueCircle.png" alt="Blue Circle" class="hero-decoration" />
+        <img src="@/assets/picture/BlueCircle.png" :alt="$t('home.hero.decorationAlt')" class="hero-decoration" />
       </div>
     </section>
 
     <!-- Features Section -->
     <section class="features-section" ref="featuresSection">
-      <h2 class="section-title">核心功能</h2>
+      <h2 class="section-title">{{ $t('home.features.sectionTitle') }}</h2>
 
       <div class="features-grid">
         <!-- 查詢功能 -->
@@ -37,8 +37,8 @@
           <div class="card-header" @click="toggleCard('query')">
             <div class="card-icon">🔍</div>
             <div class="card-info">
-              <h3 class="card-title">查詢分析</h3>
-              <p class="card-desc">多維度查詢方言音韻資料</p>
+              <h3 class="card-title">{{ $t('home.features.query.title') }}</h3>
+              <p class="card-desc">{{ $t('home.features.query.desc') }}</p>
             </div>
             <button class="expand-toggle">
               <span class="toggle-icon">{{ expandedCard === 'query' ? '−' : '+' }}</span>
@@ -48,19 +48,19 @@
             <div v-if="expandedCard === 'query'" class="card-body">
               <a @click.stop="navigateTo('/menu?tab=query&sub=tab1')" class="feature-link">
                 <span class="link-icon">📝</span>
-                <span class="link-text">查字 - 查詢字音、地位</span>
+                <span class="link-text">{{ $t('home.features.query.searchChar') }}</span>
               </a>
               <a @click.stop="navigateTo('/menu?tab=query&sub=tab2')" class="feature-link">
                 <span class="link-icon">📜</span>
-                <span class="link-text">查中古 - 按中古地位整理讀音</span>
+                <span class="link-text">{{ $t('home.features.query.searchMiddle') }}</span>
               </a>
               <a @click.stop="navigateTo('/menu?tab=query&sub=tab3')" class="feature-link">
                 <span class="link-icon">🗣️</span>
-                <span class="link-text">查音位 - 分析音位的中古來源</span>
+                <span class="link-text">{{ $t('home.features.query.searchPhoneme') }}</span>
               </a>
               <a @click.stop="navigateTo('/menu?tab=query&sub=tab4')" class="feature-link">
                 <span class="link-icon">🎶</span>
-                <span class="link-text">查調 - 查詢調值、調類</span>
+                <span class="link-text">{{ $t('home.features.query.searchTone') }}</span>
               </a>
             </div>
           </transition>
@@ -71,8 +71,8 @@
           <div class="card-header" @click="toggleCard('compare')">
             <div class="card-icon">⚖️</div>
             <div class="card-info">
-              <h3 class="card-title">方言比較</h3>
-              <p class="card-desc">對比不同方言的音韻特徵</p>
+              <h3 class="card-title">{{ $t('home.features.compare.title') }}</h3>
+              <p class="card-desc">{{ $t('home.features.compare.desc') }}</p>
             </div>
             <button class="expand-toggle">
               <span class="toggle-icon">{{ expandedCard === 'compare' ? '−' : '+' }}</span>
@@ -82,15 +82,15 @@
             <div v-if="expandedCard === 'compare'" class="card-body">
               <a @click.stop="navigateTo('/menu?tab=compare&sub=tab1')" class="feature-link">
                 <span class="link-icon">📊</span>
-                <span class="link-text">比較漢字 - 對比字音差異</span>
+                <span class="link-text">{{ $t('home.features.compare.compareChar') }}</span>
               </a>
               <a @click.stop="navigateTo('/menu?tab=compare&sub=tab2')" class="feature-link">
                 <span class="link-icon">🎯</span>
-                <span class="link-text">比較中古 - 對比中古音演變</span>
+                <span class="link-text">{{ $t('home.features.compare.compareMiddle') }}</span>
               </a>
               <a @click.stop="navigateTo('/menu?tab=compare&sub=tab4')" class="feature-link">
                 <span class="link-icon">🎹</span>
-                <span class="link-text">比較調類 - 對比聲調系統</span>
+                <span class="link-text">{{ $t('home.features.compare.compareTone') }}</span>
               </a>
             </div>
           </transition>
@@ -101,8 +101,8 @@
           <div class="card-header" @click="toggleCard('map')">
             <div class="card-icon">🗺️</div>
             <div class="card-info">
-              <h3 class="card-title">地圖可視化</h3>
-              <p class="card-desc">地理語言學視角呈現</p>
+              <h3 class="card-title">{{ $t('home.features.map.title') }}</h3>
+              <p class="card-desc">{{ $t('home.features.map.desc') }}</p>
             </div>
             <button class="expand-toggle">
               <span class="toggle-icon">{{ expandedCard === 'map' ? '−' : '+' }}</span>
@@ -112,15 +112,15 @@
             <div v-if="expandedCard === 'map'" class="card-body">
               <a @click.stop="navigateTo('/menu?tab=map')" class="feature-link">
                 <span class="link-icon">📍</span>
-                <span class="link-text">方言地圖 - 地圖上呈現查詢結果</span>
+                <span class="link-text">{{ $t('home.features.map.dialectMap') }}</span>
               </a>
               <a @click.stop="navigateTo('/menu?tab=map&sub=divide')" class="feature-link">
                 <span class="link-icon">🎨</span>
-                <span class="link-text">分區繪圖 - 按分區繪製方言地圖</span>
+                <span class="link-text">{{ $t('home.features.map.regionMap') }}</span>
               </a>
               <a @click.stop="navigateTo('/menu?tab=map&sub=custom')" class="feature-link">
                 <span class="link-icon">✏️</span>
-                <span class="link-text">自定義繪圖 - 添加個人數據繪圖</span>
+                <span class="link-text">{{ $t('home.features.map.customMap') }}</span>
               </a>
             </div>
           </transition>
@@ -131,8 +131,8 @@
           <div class="card-header" @click="toggleCard('pho')">
             <div class="card-icon">🧬</div>
             <div class="card-info">
-              <h3 class="card-title">音系分析</h3>
-              <p class="card-desc">方言音系結構研究</p>
+              <h3 class="card-title">{{ $t('home.features.phonology.title') }}</h3>
+              <p class="card-desc">{{ $t('home.features.phonology.desc') }}</p>
             </div>
             <button class="expand-toggle">
               <span class="toggle-icon">{{ expandedCard === 'pho' ? '−' : '+' }}</span>
@@ -142,19 +142,53 @@
             <div v-if="expandedCard === 'pho'" class="card-body">
               <a @click.stop="navigateTo('/menu?tab=pho&sub=phonologyMatrix')" class="feature-link">
                 <span class="link-icon">⚗️</span>
-                <span class="link-text">音系查詢 - 查看方言音系表</span>
+                <span class="link-text">{{ $t('home.features.phonology.phonologyQuery') }}</span>
               </a>
               <a @click.stop="navigateTo('/menu?tab=pho&sub=phonologyCustom')" class="feature-link">
                 <span class="link-icon">🔬</span>
-                <span class="link-text">音素分類 - 自定義音素分類</span>
+                <span class="link-text">{{ $t('home.features.phonology.phonemeClassify') }}</span>
               </a>
               <a @click.stop="navigateTo('/menu?tab=pho&sub=Countphos')" class="feature-link">
                 <span class="link-icon">📊</span>
-                <span class="link-text">音節統計 - 統計音節數量</span>
+                <span class="link-text">{{ $t('home.features.phonology.syllableCount') }}</span>
               </a>
-              <a @click.stop="navigateTo('/menu?tab=pho&sub=ZhongGu')" class="feature-link">
-                <span class="link-icon">✍️</span>
-                <span class="link-text">中古地位 - 查詢漢字中古地位</span>
+              <a @click.stop="navigateTo('/menu?tab=pho&sub=pieVector')" class="feature-link">
+                <span class="link-icon">🥧</span>
+                <span class="link-text">{{ $t('home.features.phonology.pieVector') }}</span>
+              </a>
+            </div>
+          </transition>
+        </div>
+
+        <!-- 漢字字表 -->
+        <div class="feature-card" :class="{ expanded: expandedCard === 'charClass' }">
+          <div class="card-header" @click="toggleCard('charClass')">
+            <div class="card-icon">📜</div>
+            <div class="card-info">
+              <h3 class="card-title">{{ $t('home.features.charClass.title') }}</h3>
+              <p class="card-desc">{{ $t('home.features.charClass.desc') }}</p>
+            </div>
+            <button class="expand-toggle">
+              <span class="toggle-icon">{{ expandedCard === 'charClass' ? '−' : '+' }}</span>
+            </button>
+          </div>
+          <transition name="expand">
+            <div v-if="expandedCard === 'charClass'" class="card-body">
+              <a @click.stop="navigateTo('/explore?page=CharacterClassification&sub=zhonggu')" class="feature-link">
+                <span class="link-icon">🏛️</span>
+                <span class="link-text">{{ $t('home.features.charClass.zhonggu') }}</span>
+              </a>
+              <a @click.stop="navigateTo('/explore?page=CharacterClassification&sub=shanggu')" class="feature-link">
+                <span class="link-icon">📿</span>
+                <span class="link-text">{{ $t('home.features.charClass.shanggu') }}</span>
+              </a>
+              <a @click.stop="navigateTo('/explore?page=CharacterClassification&sub=jingu')" class="feature-link">
+                <span class="link-icon">📖</span>
+                <span class="link-text">{{ $t('home.features.charClass.jingu') }}</span>
+              </a>
+              <a @click.stop="navigateTo('/explore?page=CharacterClassification&sub=yueyun')" class="feature-link">
+                <span class="link-icon">🎵</span>
+                <span class="link-text">{{ $t('home.features.charClass.yueyun') }}</span>
               </a>
             </div>
           </transition>
@@ -165,8 +199,8 @@
           <div class="card-header" @click="toggleCard('words')">
             <div class="card-icon">📖</div>
             <div class="card-info">
-              <h3 class="card-title">詞句資料</h3>
-              <p class="card-desc">方言詞彙與語法資料</p>
+              <h3 class="card-title">{{ $t('home.features.words.title') }}</h3>
+              <p class="card-desc">{{ $t('home.features.words.desc') }}</p>
             </div>
             <button class="expand-toggle">
               <span class="toggle-icon">{{ expandedCard === 'words' ? '−' : '+' }}</span>
@@ -176,15 +210,15 @@
             <div v-if="expandedCard === 'words'" class="card-body">
               <a @click.stop="navigateTo('/explore?page=YuBao&sub=vocabulary')" class="feature-link">
                 <span class="link-icon">📚</span>
-                <span class="link-text">語保詞彙 - 語保工程詞彙資料</span>
+                <span class="link-text">{{ $t('home.features.words.yubaoVocab') }}</span>
               </a>
               <a @click.stop="navigateTo('/explore?page=YuBao&sub=grammar')" class="feature-link">
                 <span class="link-icon">🗣️</span>
-                <span class="link-text">語保語法 - 語保工程句子資料</span>
+                <span class="link-text">{{ $t('home.features.words.yubaoGrammar') }}</span>
               </a>
               <a @click.stop="navigateTo('/explore?page=ycSpoken')" class="feature-link">
                 <span class="link-icon">💬</span>
-                <span class="link-text">陽春口語詞 - 陽春方言口語詞彙</span>
+                <span class="link-text">{{ $t('home.features.words.ycSpoken') }}</span>
               </a>
             </div>
           </transition>
@@ -195,8 +229,8 @@
           <div class="card-header" @click="toggleCard('villages')">
             <div class="card-icon">🏘️</div>
             <div class="card-info">
-              <h3 class="card-title">自然村資料</h3>
-              <p class="card-desc">村落地名分析與方言繪圖</p>
+              <h3 class="card-title">{{ $t('home.features.villages.title') }}</h3>
+              <p class="card-desc">{{ $t('home.features.villages.desc') }}</p>
             </div>
             <button class="expand-toggle">
               <span class="toggle-icon">{{ expandedCard === 'villages' ? '−' : '+' }}</span>
@@ -206,19 +240,19 @@
             <div v-if="expandedCard === 'villages'" class="card-body">
               <a @click.stop="navigateTo('/explore?page=gdVillages')" class="feature-link">
                 <span class="link-icon">🏘️</span>
-                <span class="link-text">廣東自然村 - 廣東自然村樹狀圖</span>
+                <span class="link-text">{{ $t('home.features.villages.gdVillages') }}</span>
               </a>
               <a @click.stop="navigateTo('/explore?page=VillagesML')" class="feature-link">
                 <span class="link-icon">🤖</span>
-                <span class="link-text">機器學習 - 自然村名機器學習</span>
+                <span class="link-text">{{ $t('home.features.villages.villagesML') }}</span>
               </a>
               <a @click.stop="navigateTo('/explore?page=gdVillagesTable')" class="feature-link">
                 <span class="link-icon">📊</span>
-                <span class="link-text">全粵村情表格 - 廣東村落詳細表格</span>
+                <span class="link-text">{{ $t('home.features.villages.gdVillagesTable') }}</span>
               </a>
               <a @click.stop="navigateTo('/explore?page=ycVillages')" class="feature-link">
                 <span class="link-icon">🌾</span>
-                <span class="link-text">陽春自然村 - 陽春自然村資料</span>
+                <span class="link-text">{{ $t('home.features.villages.ycVillages') }}</span>
               </a>
             </div>
           </transition>
@@ -229,8 +263,8 @@
           <div class="card-header" @click="toggleCard('tools')">
             <div class="card-icon">🧰</div>
             <div class="card-info">
-              <h3 class="card-title">字表工具</h3>
-              <p class="card-desc">字表轉換、合併、檢查等工具</p>
+              <h3 class="card-title">{{ $t('home.features.tools.title') }}</h3>
+              <p class="card-desc">{{ $t('home.features.tools.desc') }}</p>
             </div>
             <button class="expand-toggle">
               <span class="toggle-icon">{{ expandedCard === 'tools' ? '−' : '+' }}</span>
@@ -240,15 +274,15 @@
             <div v-if="expandedCard === 'tools'" class="card-body">
               <a @click.stop="navigateTo('/explore?page=check')" class="feature-link">
                 <span class="link-icon">📋</span>
-                <span class="link-text">字表處理 - 字表檢查與格式轉換</span>
+                <span class="link-text">{{ $t('home.features.tools.tableProcess') }}</span>
               </a>
               <a @click.stop="navigateTo('/explore?page=jyut2ipa')" class="feature-link">
                 <span class="link-icon">🔤</span>
-                <span class="link-text">粵拼轉IPA - 粵拼轉國際音標</span>
+                <span class="link-text">{{ $t('home.features.tools.jyut2ipa') }}</span>
               </a>
               <a @click.stop="navigateTo('/explore?page=merge')" class="feature-link">
                 <span class="link-icon">🔗</span>
-                <span class="link-text">字表合併 - 合併多個字表</span>
+                <span class="link-text">{{ $t('home.features.tools.tableMerge') }}</span>
               </a>
               <!-- <a @click.stop="navigateTo('/explore?page=praat')" class="feature-link">
                 <span class="link-icon">🎙️</span>
@@ -263,20 +297,32 @@
           <div class="card-header">
             <div class="card-icon">🎙️</div>
             <div class="card-info">
-              <h3 class="card-title">Praat 聲學分析</h3>
-              <p class="card-desc">實驗語音學工具與數據分析</p>
+              <h3 class="card-title">{{ $t('home.features.praat.title') }}</h3>
+              <p class="card-desc">{{ $t('home.features.praat.desc') }}</p>
             </div>
             <div class="card-arrow">→</div>
           </div>
         </div>
+
+        <!-- 方言聚类 -->
+<!--        <div class="feature-card clickable" @click="navigateTo('/menu?tab=cluster')">-->
+<!--          <div class="card-header">-->
+<!--            <div class="card-icon">🧩</div>-->
+<!--            <div class="card-info">-->
+<!--              <h3 class="card-title">{{ $t('home.features.dialectClustering.title') }}</h3>-->
+<!--              <p class="card-desc">{{ $t('home.features.dialectClustering.desc') }}</p>-->
+<!--            </div>-->
+<!--            <div class="card-arrow">→</div>-->
+<!--          </div>-->
+<!--        </div>-->
 
         <!-- 關於網站 -->
         <div class="feature-card" :class="{ expanded: expandedCard === 'about' }">
           <div class="card-header" @click="toggleCard('about')">
             <div class="card-icon">🌐</div>
             <div class="card-info">
-              <h3 class="card-title">關於網站</h3>
-              <p class="card-desc">網站介紹與資料來源</p>
+              <h3 class="card-title">{{ $t('home.features.about.title') }}</h3>
+              <p class="card-desc">{{ $t('home.features.about.desc') }}</p>
             </div>
             <button class="expand-toggle">
               <span class="toggle-icon">{{ expandedCard === 'about' ? '−' : '+' }}</span>
@@ -286,23 +332,23 @@
             <div v-if="expandedCard === 'about'" class="card-body">
               <a @click.stop="navigateTo('/menu?tab=about&sub=intro')" class="feature-link">
                 <span class="link-icon">ℹ️</span>
-                <span class="link-text">簡介 - 網站功能介紹</span>
-              </a>
-              <a @click.stop="navigateTo('/menu?tab=about&sub=reflection')" class="feature-link">
-                <span class="link-icon">🙏</span>
-                <span class="link-text">感悟 - 開發感悟與鳴謝</span>
+                <span class="link-text">{{ $t('home.features.about.intro') }}</span>
               </a>
               <a @click.stop="navigateTo('/menu?tab=about&sub=suggestion')" class="feature-link">
                 <span class="link-icon">💬</span>
-                <span class="link-text">提出建議 - 反饋與建議</span>
+                <span class="link-text">{{ $t('home.features.about.suggestion') }}</span>
               </a>
               <a @click.stop="navigateTo('/menu?tab=about&sub=like')" class="feature-link">
                 <span class="link-icon">❤️</span>
-                <span class="link-text">喜歡作者 - 支持與關注</span>
+                <span class="link-text">{{ $t('home.features.about.likeAuthor') }}</span>
+              </a>
+              <a @click.stop="navigateTo('/menu?tab=about&sub=setting')" class="feature-link">
+                <span class="link-icon">⚙️</span>
+                <span class="link-text">{{ $t('home.features.about.setting') }}</span>
               </a>
               <a @click.stop="navigateTo('/menu?tab=source')" class="feature-link">
                 <span class="link-icon">📚</span>
-                <span class="link-text">資料來源 - 查閱字表來源與相關信息</span>
+                <span class="link-text">{{ $t('home.features.about.source') }}</span>
               </a>
             </div>
           </transition>
@@ -312,43 +358,43 @@
 
     <!-- Roadmap Section -->
     <section class="roadmap-section">
-      <h2 class="section-title">開發中的功能</h2>
-      <p class="section-subtitle">即將推出的新特性</p>
+      <h2 class="section-title">{{ $t('home.roadmap.sectionTitle') }}</h2>
+      <p class="section-subtitle">{{ $t('home.roadmap.sectionSubtitle') }}</p>
       <div class="roadmap-list">
         <div class="roadmap-item">
           <div class="roadmap-header">
             <div class="roadmap-icon">🎙️</div>
-            <h3 class="roadmap-title">韶子的語音學工具箱</h3>
+            <h3 class="roadmap-title">{{ $t('home.roadmap.phoneticsToolbox.title') }}</h3>
           </div>
-          <p class="roadmap-desc">聲學參數批量估計、多算法基頻檢測、EGG信號分析、聲門參數提取</p>
+          <p class="roadmap-desc">{{ $t('home.roadmap.phoneticsToolbox.desc') }}</p>
         </div>
         <div class="roadmap-item">
           <div class="roadmap-header">
             <div class="roadmap-icon">🧬</div>
-            <h3 class="roadmap-title">方言聚類分析</h3>
+            <h3 class="roadmap-title">{{ $t('home.roadmap.dialectClustering.title') }}</h3>
           </div>
-          <p class="roadmap-desc">自定義音值音位權重、調整聚類算法參數、基於音位向量的多維度相似度計算</p>
+          <p class="roadmap-desc">{{ $t('home.roadmap.dialectClustering.desc') }}</p>
         </div>
         <div class="roadmap-item">
           <div class="roadmap-header">
             <div class="roadmap-icon">🌳</div>
-            <h3 class="roadmap-title">方言演化樹狀圖</h3>
+            <h3 class="roadmap-title">{{ $t('home.roadmap.evolutionTree.title') }}</h3>
           </div>
-          <p class="roadmap-desc">自定義演化模型參數、調整分支長度算法、交互式系統發生樹構建與可視化</p>
+          <p class="roadmap-desc">{{ $t('home.roadmap.evolutionTree.desc') }}</p>
         </div>
         <div class="roadmap-item">
           <div class="roadmap-header">
             <div class="roadmap-icon">🔊</div>
-            <h3 class="roadmap-title">IPA 轉語音合成</h3>
+            <h3 class="roadmap-title">{{ $t('home.roadmap.ipaTTS.title') }}</h3>
           </div>
-          <p class="roadmap-desc">國際音標到語音的實時轉換、多方言音色支持</p>
+          <p class="roadmap-desc">{{ $t('home.roadmap.ipaTTS.desc') }}</p>
         </div>
         <div class="roadmap-item">
           <div class="roadmap-header">
             <div class="roadmap-icon">🤖</div>
-            <h3 class="roadmap-title">方言對話機器人</h3>
+            <h3 class="roadmap-title">{{ $t('home.roadmap.dialectBot.title') }}</h3>
           </div>
-          <p class="roadmap-desc">基於規整字表集的LLM微調、音色克隆、方言語音交互（遠景規劃）</p>
+          <p class="roadmap-desc">{{ $t('home.roadmap.dialectBot.desc') }}</p>
         </div>
       </div>
     </section>
@@ -358,41 +404,41 @@
       <div class="login-card">
         <div class="login-icon">🔐</div>
         <div class="login-content">
-          <h3 class="login-title">登錄解鎖更多功能</h3>
-          <p class="login-desc">查看詳細權限對比，了解登錄後的完整權益</p>
+          <h3 class="login-title">{{ $t('home.login.title') }}</h3>
+          <p class="login-desc">{{ $t('home.login.desc') }}</p>
           <div class="login-benefits">
             <div class="benefit-item">
               <span class="benefit-icon">🗺️</span>
-              <span class="benefit-text">自定義繪製地圖</span>
+              <span class="benefit-text">{{ $t('home.login.benefits.customMap') }}</span>
             </div>
             <div class="benefit-item">
               <span class="benefit-icon">🗂️</span>
-              <span class="benefit-text">自定義方言分區</span>
+              <span class="benefit-text">{{ $t('home.login.benefits.customRegion') }}</span>
             </div>
             <div class="benefit-item">
               <span class="benefit-icon">🔍</span>
-              <span class="benefit-text">查詢地點數量提升</span>
+              <span class="benefit-text">{{ $t('home.login.benefits.moreLocations') }}</span>
             </div>
             <div class="benefit-item">
               <span class="benefit-icon">🎙️</span>
-              <span class="benefit-text">Praat 聲學工具</span>
+              <span class="benefit-text">{{ $t('home.login.benefits.praatTools') }}</span>
             </div>
             <div class="benefit-item">
               <span class="benefit-icon">🧰</span>
-              <span class="benefit-text">字表處理工具</span>
+              <span class="benefit-text">{{ $t('home.login.benefits.tableTools') }}</span>
             </div>
             <div class="benefit-item">
               <span class="benefit-icon">📊</span>
-              <span class="benefit-text">查詢記錄與排行榜</span>
+              <span class="benefit-text">{{ $t('home.login.benefits.queryHistory') }}</span>
             </div>
           </div>
         </div>
         <div class="login-actions">
           <button class="login-btn primary" @click="navigateTo('/auth')">
-            立即登錄
+            {{ $t('home.login.loginNow') }}
           </button>
           <button class="login-btn secondary" @click="showBenefitsPopup = true">
-            查看詳情
+            {{ $t('home.login.viewDetails') }}
           </button>
         </div>
       </div>
@@ -400,11 +446,11 @@
 
     <!-- Projects Section -->
     <section class="projects-section">
-      <h2 class="section-title">開源項目</h2>
-      <p class="section-subtitle">歡迎 Star ⭐ Fork 🍴 貢獻代碼</p>
+      <h2 class="section-title">{{ $t('home.projects.sectionTitle') }}</h2>
+      <p class="section-subtitle">{{ $t('home.projects.sectionSubtitle') }}</p>
       <div class="projects-grid">
         <a
-          v-for="project in projects"
+          v-for="project in localizedProjects"
           :key="project.name"
           :href="project.url"
           target="_blank"
@@ -427,11 +473,11 @@
       <div class="contact-card">
         <div class="contact-icon">💬</div>
         <div class="contact-content">
-          <h3 class="contact-title">聯繫作者</h3>
-          <p class="contact-desc">關注知乎，了解更多方言研究與GIS知識</p>
+          <h3 class="contact-title">{{ $t('home.contact.title') }}</h3>
+          <p class="contact-desc">{{ $t('home.contact.desc') }}</p>
         </div>
         <button class="contact-btn" @click="openZhihu">
-          前往知乎
+          {{ $t('home.contact.button') }}
         </button>
       </div>
     </section>
@@ -440,28 +486,32 @@
     <footer class="footer">
       <div class="footer-content">
         <div class="footer-links">
-          <a @click="navigateTo('/menu?tab=about')" class="footer-link">關於網站</a>
+          <a @click="navigateTo('/menu?tab=about')" class="footer-link">{{ $t('home.footer.links.about') }}</a>
           <span class="footer-divider">·</span>
-          <a @click="navigateTo('/menu?tab=source')" class="footer-link">資料來源</a>
+          <a @click="navigateTo('/menu?tab=source')" class="footer-link">{{ $t('home.footer.links.source') }}</a>
           <span class="footer-divider">·</span>
-          <a @click="navigateTo('/menu?tab=privacy')" class="footer-link">隱私政策</a>
+          <a @click="navigateTo('/menu?tab=privacy')" class="footer-link">{{ $t('home.footer.links.privacy') }}</a>
           <span class="footer-divider">·</span>
-          <a @click="navigateTo('/menu?tab=setting')" class="footer-link">設置</a>
+          <a @click="navigateTo('/menu?tab=about&sub=setting')" class="footer-link">{{ $t('home.footer.links.setting') }}</a>
           <span class="footer-divider">·</span>
-          <a href="https://dialects.yzup.top/detail/" target="_blank" class="footer-link">舊版網站</a>
+          <a href="https://dialects.yzup.top/detail/" target="_blank" class="footer-link">{{ $t('home.footer.links.oldSite') }}</a>
           <span class="footer-divider">·</span>
-          <a @click="showSupport = true" class="footer-link">支持作者</a>
+          <a @click="showSupport = true" class="footer-link">{{ $t('home.footer.links.support') }}</a>
         </div>
 
         <!-- Visit Stats -->
         <div class="footer-stats">
-          <span class="stat-text">今日訪問 {{ todayVisits }} · 總訪問 {{ totalVisits }}</span>
+          <span class="stat-text">{{ $t('home.footer.stats', { today: todayVisits, total: totalVisits }) }}</span>
+        </div>
+
+        <div class="footer-stats footer-stats-secondary">
+          <span class="stat-text">{{ $t('source.totalRecords', { locationCount: sourceLocationCount, dataCount: sourceDataCount }) }}</span>
         </div>
 
         <div class="footer-info">
-          <p class="footer-text">© 2026 方音圖鑑 · 由不羈(jengzang)開發</p>
-          <p class="footer-text">{{ CURRENT_VERSION }} · 最後更新：{{ LAST_UPDATE_DATE }}</p>
-          <p class="footer-text">粵ICP備2025466875號</p>
+          <p class="footer-text">{{ $t('home.footer.copyright') }}</p>
+          <p class="footer-text">{{ $t('home.footer.versionInfo', { version: CURRENT_VERSION, date: LAST_UPDATE_DATE }) }}</p>
+          <p class="footer-text">{{ $t('home.footer.icp') }}</p>
         </div>
       </div>
     </footer>
@@ -476,21 +526,21 @@
     <!-- Update Notice Modal -->
     <UpdateNoticeModal
       :visible="showUpdateNotice"
-      version="v4.1.0"
-      title="🎊 網站更新通知"
+      version="v4.2.0"
+      :title="'🎊 ' + $t('home.updateNotice.title')"
       @close="showUpdateNotice = false"
     >
       <div class="update-item">
-        <span class="item-icon">🏠</span>
-        <span class="item-text"><strong>全新首頁</strong> - 採用液態玻璃風格設計，展示核心功能卡片、開源項目、登錄權益等，提供更直觀的導航體驗</span>
+        <span class="item-icon">🚀</span>
+        <span class="item-text"><strong>後端重構</strong> - 大幅提升 API 響應速度，提供更流暢的操作體驗</span>
       </div>
       <div class="update-item">
-        <span class="item-icon">⚖️</span>
-        <span class="item-text"><strong>方言比較功能</strong> - 支持漢字比較、中古音比較、調類比較，地圖用不同顏色的圓點展示兩組數據的差異，並提供圖例說明</span>
+        <span class="item-icon">🗂️</span>
+        <span class="item-text"><strong>重整目錄結構</strong> - 優化整體導航，包含將「簡介」與「感悟」合併、獨立「漢字」音韻資料為專屬分頁，並同步更新首頁卡片</span>
       </div>
       <div class="update-item">
-        <span class="item-icon">🤖</span>
-        <span class="item-text"><strong>自然村機器學習分析</strong> - 新增村落方言數據的機器學習分析功能，幫助研究者發現方言分布的潛在規律和模式</span>
+        <span class="item-icon">🌐</span>
+        <span class="item-text"><strong>新增多語言支持</strong> - 現已支持繁體中文、簡體中文與英文。用戶可至「關於 - 設置」中自由切換介面顯示語言</span>
       </div>
     </UpdateNoticeModal>
 
@@ -500,16 +550,16 @@
         <div v-if="showSupport" class="modal-overlay" @click="showSupport = false">
           <div class="modal-content" @click.stop>
             <button class="modal-close" @click="showSupport = false">✕</button>
-            <h3 class="modal-title">☕️ 請作者喝杯咖啡</h3>
-            <p class="modal-subtitle">感謝您的支持！💖</p>
+            <h3 class="modal-title">{{ $t('home.supportModal.title') }}</h3>
+            <p class="modal-subtitle">{{ $t('home.supportModal.subtitle') }}</p>
             <div class="donate-qr-grid">
               <div class="donate-qr-box">
-                <img src="@/assets/weixin.png" alt="微信收款碼" />
-                <p class="donate-qr-label">微信</p>
+                <img src="../assets/picture/weixin.png" :alt="$t('home.supportModal.weixinAlt')" />
+                <p class="donate-qr-label">{{ $t('home.supportModal.weixinLabel') }}</p>
               </div>
               <div class="donate-qr-box">
-                <img src="@/assets/zfb.jpg" alt="支付寶收款碼" />
-                <p class="donate-qr-label">支付寶</p>
+                <img src="../assets/picture/zfb.jpg" :alt="$t('home.supportModal.alipayAlt')" />
+                <p class="donate-qr-label">{{ $t('home.supportModal.alipayLabel') }}</p>
               </div>
             </div>
           </div>
@@ -520,12 +570,21 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { computed, ref, onMounted, defineAsyncComponent } from 'vue'
 import { useRouter } from 'vue-router'
-import UserBenefitsPopup from '@/components/user/UserBenefitsPopup.vue'
-import UpdateNoticeModal from '@/components/UpdateNoticeModal.vue'
+import { useI18n } from 'vue-i18n'
 import { getTodayVisits, getTotalVisits } from '@/api/logs/index.js'
+import { queryCount } from '@/api/sql/index.js'
 
+// ✅ 条件渲染的组件懒加载
+const UserBenefitsPopup = defineAsyncComponent(() =>
+  import('@/components/user/UserBenefitsPopup.vue')
+)
+const UpdateNoticeModal = defineAsyncComponent(() =>
+  import('@/components/UpdateNoticeModal.vue')
+)
+
+const { t } = useI18n()
 const router = useRouter()
 const featuresSection = ref(null)
 const expandedCard = ref(null)
@@ -534,33 +593,54 @@ const showBenefitsPopup = ref(false)
 const showUpdateNotice = ref(false)
 const todayVisits = ref(0)
 const totalVisits = ref(0)
+const sourceLocationCount = ref('...')
+const sourceDataCount = ref('...')
 
 // 当前版本号和更新时间
-const CURRENT_VERSION = 'v4.1.0'
-const LAST_UPDATE_DATE = '2026-03-06'
+const CURRENT_VERSION = 'v4.2.0'
+const LAST_UPDATE_DATE = '2026-03-19'
 
 const projects = [
   {
     name: 'dialects-vue-frontend',
     url: 'https://github.com/jengzang/dialects-vue-frontend',
-    description: '前端倉庫 - 使用vue框架開發'
+    description: t('home.intro.likeAuthor.frontendRepo')
   },
   {
     name: 'dialects-backend',
     url: 'https://github.com/jengzang/dialects-backend',
-    description: '後端倉庫 - 基於fastapi'
+    description: t('home.intro.likeAuthor.backendRepo')
   },
   {
     name: 'dialects-build',
     url: 'https://github.com/jengzang/dialects-build',
-    description: '字表預處理倉庫 - 提取字表的聲韻調並規整數據'
+    description: t('home.intro.likeAuthor.buildRepo')
   },
   {
     name: 'villages-ML',
     url: 'https://github.com/jengzang/villages-ML',
-    description: '自然村機器學習 - 村落名稱、地理數據分析'
+    description: t('home.intro.likeAuthor.villagesMLRepo')
   }
 ]
+
+const localizedProjects = computed(() => [
+  {
+    ...projects[0],
+    description: t('home.intro.likeAuthor.frontendRepo')
+  },
+  {
+    ...projects[1],
+    description: t('home.intro.likeAuthor.backendRepo')
+  },
+  {
+    ...projects[2],
+    description: t('home.intro.likeAuthor.buildRepo')
+  },
+  {
+    ...projects[3],
+    description: t('home.intro.likeAuthor.villagesMLRepo')
+  }
+])
 
 function navigateTo(path) {
   router.push(path)
@@ -592,6 +672,19 @@ async function fetchVisitStats() {
   }
 }
 
+async function fetchSourceStats() {
+  try {
+    const [locationCount, dataCount] = await Promise.all([
+      queryCount({ db_key: 'query', table_name: 'dialects', filter_column: '存儲標記', filter_value: 1 }),
+      queryCount({ db_key: 'dialects', table_name: 'dialects' })
+    ])
+    sourceLocationCount.value = locationCount
+    sourceDataCount.value = dataCount
+  } catch (error) {
+    console.error('獲取字表統計失敗:', error)
+  }
+}
+
 // Check if should show update notice
 function checkUpdateNotice() {
   const dismissedVersions = JSON.parse(localStorage.getItem('update-notice-dismissed') || '[]')
@@ -602,6 +695,7 @@ function checkUpdateNotice() {
 
 onMounted(() => {
   fetchVisitStats()
+  fetchSourceStats()
   checkUpdateNotice()
 })
 </script>
@@ -1401,6 +1495,10 @@ onMounted(() => {
 .footer-stats {
   margin-bottom: 0.75rem;
   text-align: center;
+}
+
+.footer-stats-secondary {
+  margin-top: -0.2rem;
 }
 
 .stat-text {

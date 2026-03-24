@@ -69,7 +69,7 @@ import { ref, onMounted, onBeforeUnmount, shallowRef, nextTick, watch, computed 
 import maplibregl from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
-import { mapStyle, mapStyleConfig, calculateDenseMapCenterAndZoom } from '@/utils/MapSource.js'
+import { mapStyle, mapStyleConfig, calculateDenseMapCenterAndZoom } from '@/utils/map/MapSource.js'
 
 const props = defineProps({
   // 熱點數據

@@ -2,56 +2,54 @@
   <Teleport to="body">
     <div v-if="visible" class="glass-overlay" @mousedown.self="$emit('close')">
       <div class="location-detail-modal glass-modal" role="dialog" aria-modal="true" @click.stop>
-        <!-- 头部 -->
         <div class="modal-header">
-          <div class="modal-title">📍 {{ locationName }}</div>
-          <button class="modal-close" type="button" @click="$emit('close')">×</button>
+          <div class="modal-title">📍 {{ t('result.locationDetailPopup.title', { name: locationName }) }}</div>
+          <button class="modal-close" type="button" :aria-label="t('common.button.close')" @click="$emit('close')">✕</button>
         </div>
 
-        <!-- 主体内容 -->
         <div class="modal-body">
           <div v-if="loading" class="loading-state">
             <div class="spinner"></div>
-            <span>加載中...</span>
+            <span>{{ t('result.locationDetailPopup.loading') }}</span>
           </div>
 
           <div v-else-if="data && data.data && data.data.length > 0" class="location-content">
             <div class="info-section">
-              <div class="info-title">{{ data.data[0].語言 }}</div>
+              <div class="info-title">{{ data.data[0]['語言'] || locationName }}</div>
 
               <div class="info-item">
-                <span class="info-label">地圖集二分區：</span>
-                <span class="info-value">{{ data.data[0].地圖集二分區 || '無' }}</span>
+                <span class="info-label">{{ t('result.locationDetailPopup.fields.mapPartition') }}</span>
+                <span class="info-value">{{ data.data[0]['地圖集二分區'] || t('result.terms.none') }}</span>
               </div>
 
               <div class="info-item">
-                <span class="info-label">音典分區：</span>
-                <span class="info-value">{{ data.data[0].音典分區 || '無' }}</span>
+                <span class="info-label">{{ t('result.locationDetailPopup.fields.yindianPartition') }}</span>
+                <span class="info-value">{{ data.data[0]['音典分區'] || t('result.terms.none') }}</span>
               </div>
 
               <div class="info-item">
-                <span class="info-label">字表來源：</span>
-                <span class="info-value">{{ data.data[0]['字表來源（母本）'] || '無' }}</span>
+                <span class="info-label">{{ t('result.locationDetailPopup.fields.source') }}</span>
+                <span class="info-value">{{ data.data[0]['字表來源（母本）'] || t('result.terms.none') }}</span>
               </div>
 
               <div class="info-item">
-                <span class="info-label">經緯度：</span>
-                <span class="info-value">{{ formatCoordinates(data.data[0].經緯度) }}</span>
+                <span class="info-label">{{ t('result.locationDetailPopup.fields.coordinates') }}</span>
+                <span class="info-value">{{ formatCoordinates(data.data[0]['經緯度']) }}</span>
               </div>
 
               <div class="info-item">
-                <span class="info-label">行政區劃：</span>
+                <span class="info-label">{{ t('result.locationDetailPopup.fields.region') }}</span>
                 <span class="info-value">{{ formatAdministrativeRegion(data.data[0]) }}</span>
               </div>
             </div>
 
             <div class="tone-section" v-if="getToneData(data.data[0]).length > 0">
-              <div class="section-title">調值信息</div>
+              <div class="section-title">{{ t('result.locationDetailPopup.toneSection.title') }}</div>
               <table class="tone-table">
                 <thead>
                   <tr>
-                    <th>調類</th>
-                    <th>調值</th>
+                    <th>{{ t('result.locationDetailPopup.toneSection.headers.class') }}</th>
+                    <th>{{ t('result.locationDetailPopup.toneSection.headers.value') }}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -65,7 +63,7 @@
           </div>
 
           <div v-else class="error-state">
-            <span>暫無數據</span>
+            <span>{{ t('result.locationDetailPopup.noData') }}</span>
           </div>
         </div>
       </div>
@@ -74,7 +72,9 @@
 </template>
 
 <script setup>
-const props = defineProps({
+import { useI18n } from 'vue-i18n';
+
+defineProps({
   visible: { type: Boolean, default: false },
   locationName: { type: String, default: '' },
   data: { type: Object, default: null },
@@ -82,23 +82,25 @@ const props = defineProps({
   position: { type: Object, default: () => ({ top: 0, left: 0 }) }
 });
 
-const emit = defineEmits(['close']);
+defineEmits(['close']);
+const { t } = useI18n();
 
-// 格式化行政區劃
 const formatAdministrativeRegion = (data) => {
   const parts = [];
-  if (data.省) parts.push(data.省);
-  if (data.市) parts.push(data.市);
-  if (data.縣) parts.push(data.縣);
-  if (data.鎮) parts.push(data.鎮);
-  if (data.行政村) parts.push(data.行政村);
-  if (data.自然村) parts.push(data.自然村);
-  return parts.length > 0 ? parts.join('-') : ' ';
+
+  if (data['省']) parts.push(data['省']);
+  if (data['市']) parts.push(data['市']);
+  if (data['縣']) parts.push(data['縣']);
+  if (data['鎮']) parts.push(data['鎮']);
+  if (data['行政村']) parts.push(data['行政村']);
+  if (data['自然村']) parts.push(data['自然村']);
+
+  return parts.length > 0 ? parts.join('-') : t('result.terms.none');
 };
 
-// 格式化經緯度（保留6位小數）
 const formatCoordinates = (coords) => {
-  if (!coords) return '無';
+  if (!coords) return t('result.terms.none');
+
   const parts = coords.split(',');
   if (parts.length !== 2) return coords;
 
@@ -110,8 +112,8 @@ const formatCoordinates = (coords) => {
   return `${lng.toFixed(6)}, ${lat.toFixed(6)}`;
 };
 
-// 提取調值數據
 const getToneData = (data) => {
+  const noneText = t('result.terms.none');
   const tones = [
     { key: 'T1陰平', label: 'T1' },
     { key: 'T2陽平', label: 'T2' },
@@ -128,9 +130,9 @@ const getToneData = (data) => {
   return tones
     .map(tone => ({
       label: tone.label,
-      value: data[tone.key] || '無'
+      value: data[tone.key] || noneText
     }))
-    .filter(tone => tone.value !== '無');
+    .filter(tone => tone.value !== noneText);
 };
 </script>
 

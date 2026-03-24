@@ -1,0 +1,109 @@
+{
+  "tabs": {
+    "intro": "Introduction",
+    "suggestion": "Feedback",
+    "like": "Support Author",
+    "setting": "Settings"
+  },
+  "intro": {
+    "title": "ℹ️ About the Website",
+    "description": "\"Dialects Atlas\" is an online tool focused on Middle Chinese position analysis, dialect comparison, and geolinguistics, dedicated to presenting the phonological layers and phonemic mergers of various dialect points in a clear and interactive way.",
+    "features": {
+      "feature1": {
+        "title": "Feature 1: <strong>Middle Chinese Query</strong> (Organize pronunciations by Middle Chinese position).",
+        "description": "Users can input various combinations for analysis. Currently supports categories such as rime group, rime, grade, division, tone, series, group, initial, voicing, place of articulation, and manner of articulation. The website analyzes initials/finals/tones based on the input combinations and presents the results in tables and maps."
+      },
+      "feature2": {
+        "title": "Feature 2: <strong>Phoneme Query</strong> (Analyze the Middle Chinese origins of phonemes).",
+        "description": "Users can input the above categories, and the website will analyze the Middle Chinese origins of the input phonetic values (phonemes) and present the results in tables and maps."
+      },
+      "feature3": {
+        "title": "Feature 3: <strong>Tone Query</strong> (Query tone values and tone categories).",
+        "description": "The website organizes tone values and tone categories based on the user's selected region and location, with different tone categories marked in different colors."
+      },
+      "feature4": {
+        "title": "Feature 4: <strong>Character Query</strong> (Query character pronunciations and positions).",
+        "description": "Query based on user-input Chinese characters, ultimately presenting the phonetic values, notes, and Middle Chinese positions of each location"
+      },
+      "feature5": {
+        "title": "Feature 5: <strong>Regional Mapping</strong> (Draw dialect maps by Atlas Region 2 / Dictionary Region)."
+      },
+      "feature6": {
+        "title": "Feature 6: <strong>Custom Mapping</strong> (Users add personal data for mapping).",
+        "description": "Users can select points and annotate on the map themselves, and the website will automatically assign colors based on feature values"
+      },
+      "blueText": "The <strong>blue text</strong> in the tables (positions, phonetic values, etc.) are generally clickable. After clicking, a detailed query will be performed in a new popup, making it easy to compare with the original results",
+      "mapClick": "Points on the map can also be clicked to query detailed information."
+    },
+    "footer": "Welcome to explore \"Dialects Atlas\" and touch the historical layers of dialects together!"
+  },
+  "reflection": {
+    "title": "🧑‍💻 Development Reflection",
+    "paragraph1": "Initially, I just wanted to create a handy tool for my own research, but unknowingly, I explored the vast starry sky. From the first line of code to the first function, from naive ideas to a gradually rich system, day and night alternating on the keyboard, my ideas gradually took root from nothingness. I look at this website as if watching my own child learning to walk, step by step forming its own outline. Every button, every interaction, is imprinted with a period of time. I was exhausted trying to implement the desired query logic, and I was also delighted by the successful presentation of visual effects—these bits and pieces have become her blood and flesh, soul and spirit.",
+    "paragraph2": "In fact, this is also a journey of self-transformation. From knowing nothing about front-end development, to exploring DOM, trying virtual scrolling, advancing to using frameworks, and even appreciating the subtleties of JWT and ORM. I learned while building, and matured through mistakes. The most fascinating part is that the bricks I used to build all this are the knowledge I longed to learn: building the website deepened my understanding of phonology, and studying phonology drove the iteration of code. Technology is no longer cold commands to me, but a vessel carrying culture; culture is no longer distant literature to me, gradually becoming an interactive, traceable, and touchable entity.",
+    "paragraph3": "This is my answer written with code and passion, the most sincere gift from an ordinary student to the field of dialects. Thank you to everyone who encounters it. I hope this still immature creation can stir a ripple of curiosity in your heart, or save you a moment of time searching through materials. This is the meaning of her existence.",
+    "poem": "May the dialects of all directions live on forever;<br>May the beauty of Chinese characters be cherished forever;<br>May the flame of civilization endure in every interaction and resonance."
+  },
+  "thanks": {
+    "title": "Special Thanks",
+    "mcpdict": "MCPDict",
+    "mcpdictDesc": "Most of the data on this website comes from",
+    "mcpdictData": "MCPDict open source data",
+    "jyutjam": "Jyutjam",
+    "jyutjamDesc": "Provided a communication platform and",
+    "jyutdict": "Jyutdict",
+    "yuyan": "Language Protection",
+    "yuyanDesc": "Filtered some data",
+    "xiaoxue": "Xiaoxue",
+    "xiaoxueDesc": "Filtered some data",
+    "yuemin": "Yue-Min-Hakka Dialect System",
+    "yueminDesc": "Filtered some data",
+    "testers": "Testers",
+    "testersDesc": "Netizens who tested and provided suggestions before the official launch!",
+    "friends": "Friends ❤️",
+    "friendsDesc": "All friends who supported, encouraged, and helped me during the project development!",
+    "you": "You ❤️",
+    "youDesc": "Of course, and you who are reading this!"
+  },
+  "suggestion": {
+    "title": "Feedback",
+    "description": "Found a bug? Have suggestions?<br />Welcome to submit via GitHub Issue!",
+    "subtext": "Click the cards below to jump to the corresponding repository",
+    "frontend": {
+      "title": "🐞 Website has bugs❓<br />💡 Have suggestions for UI/UX❓",
+      "link": "Submit Issue to Frontend Repo"
+    },
+    "backend": {
+      "title": "🔤 Questions about character tables❓<br />🎯 Errors in initial/final/tone extraction❓",
+      "link": "Submit Issue to Character Processing Repo"
+    }
+  },
+  "like": {
+    "title": "❤️ Support Author",
+    "followButton": "Follow",
+    "starMessage": "\"If you like this project, could you give it a ⭐️!\"",
+    "projects": {
+      "frontend": {
+        "name": "dialects-vue-frontend",
+        "description": "Frontend repository - Developed with Vue framework and vanilla JS"
+      },
+      "backend": {
+        "name": "dialects-backend",
+        "description": "Backend repository - Based on FastAPI"
+      },
+      "build": {
+        "name": "dialects-build",
+        "description": "Character table preprocessing repository - Extract initials, finals, and tones"
+      }
+    },
+    "supportMessage": "\"If this website has helped you, you can buy the author a coffee☕️. Your support will be the motivation for the author to continue maintaining it🙏\"",
+    "supportButton": "Support",
+    "supportNote": "\"Note: This site is developed and operated by an undergraduate student. From character table processing, backend API to frontend interface, all completed by one person; the cost of servers and domain names is also saved from living expenses💸\"",
+    "qrModal": {
+      "title": "☕️ Buy the Author a Coffee",
+      "subtitle": "Thank you for your support! 💖"
+    },
+    "weixinAlt": "WeChat payment QR code",
+    "alipayAlt": "Alipay payment QR code"
+  }
+}

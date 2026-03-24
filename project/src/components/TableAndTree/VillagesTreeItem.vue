@@ -11,7 +11,7 @@
         <button
             class="map-btn"
             @click.stop="handleMapClick"
-            :title="hasChildren ? '繪製所有下級自然村點圖' : '繪製當前自然村點圖'"
+            :title="hasChildren ? t('tableTree.villagesTreeItem.drawAllChildrenMap') : t('tableTree.villagesTreeItem.drawCurrentVillageMap')"
         >
           🌍
         </button>
@@ -47,6 +47,7 @@
 
 <script setup>
 import { ref, computed, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 defineOptions({
   name: 'VillagesTreeItem'
@@ -58,6 +59,7 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['open-map']);
+const { t } = useI18n();
 
 const isOpen = ref(false);
 
@@ -67,7 +69,7 @@ const hasChildren = computed(() => {
 
 // Replace "(空)" with "請展開"
 const displayName = computed(() => {
-  return props.node.name === '(空)' ? '請展開' : props.node.name;
+  return props.node.name === '(空)' ? t('tableTree.villagesTreeItem.expandPrompt') : props.node.name;
 });
 
 // Auto-expand based on _autoExpand flag

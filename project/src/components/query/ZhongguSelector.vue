@@ -5,10 +5,10 @@
       <div class="info-text">
         <span class="info-icon">ℹ️</span>
         <span>
-          可能產生<strong>{{ combinations.length }}</strong>種組合
+          {{ $t('query.components.zhongguSelector.possibleCombinations', { count: combinations.length }) }}
           <span v-if="!loading && results.length >= 0" class="fade-in">
-          ,實際匹配<strong>{{ results.length }}</strong>組
-          </span>,將按所選組合整理輸出<strong>{{ selectedCard }}</strong>
+          {{ $t('query.components.zhongguSelector.actualMatches', { count: results.length }) }}
+          </span>{{ $t('query.components.zhongguSelector.outputFormat', { format: selectedCard }) }}
           </span>
       </div>
 
@@ -17,7 +17,7 @@
           class="global-expand-btn"
           @click="isModalOpen = true"
       >
-        ⤢ 詳情
+        {{ $t('query.components.zhongguSelector.detailsButton') }}
       </button>
     </div>
 
@@ -26,19 +26,19 @@
     </div>
 
     <div v-if="loading" class="status-msg loading">
-      <span class="spinner">↻</span> 正在查詢數據...
+      <span class="spinner">↻</span> {{ $t('query.components.zhongguSelector.querying') }}
     </div>
 
     <div v-else-if="!results || results.length === 0" class="status-msg empty">
-      {{ hasSelection ? '暫無匹配漢字' : '請選擇上方條件以檢索' }}
+      {{ hasSelection ? $t('query.components.zhongguSelector.noMatches') : $t('query.components.zhongguSelector.pleaseSelect') }}
     </div>
 
     <div v-else class="compact-grid">
       <div v-for="item in results" :key="item.query" class="compact-item">
         <span class="compact-title">{{ formatTitle(item.query) }}</span>
-        <span class="compact-count">({{ item['字数'] }})</span>
+        <span class="compact-count">({{ item['char_count'] }})</span>
         <span class="compact-preview">
-          {{ item['汉字'].slice(0, 8).join('') }}{{ item['汉字'].length > 8 ? '...' : '' }}
+          {{ (item['chars'] || []).slice(0, 8).join('') }}{{ (item['chars'] || []).length > 8 ? '...' : '' }}
         </span>
       </div>
     </div>
@@ -49,7 +49,7 @@
       <div v-if="isModalOpen" class="glass-modal-overlay" @click.self="isModalOpen = false">
         <div class="modal-content glass-card-high">
           <div class="modal-header">
-            <h2>檢索詳情</h2>
+            <h2>{{ $t('query.components.zhongguSelector.detailsTitle') }}</h2>
             <button class="close-btn" @click="isModalOpen = false">✕</button>
           </div>
 
@@ -57,13 +57,13 @@
             <div v-for="item in results" :key="item.query" class="full-item">
               <div class="full-item-header">
                 <span class="combo-name">{{ formatTitle(item.query) }}</span>
-                <span class="count-badge">{{ item['字数'] }} 字</span>
+                <span class="count-badge">{{ $t('query.components.zhongguSelector.charCount', { count: item['char_count'] }) }}</span>
               </div>
 <!--              <div class="full-chars">-->
-<!--                <span v-for="(char, idx) in item['汉字']" :key="idx" class="char-tag">{{ char }}</span>-->
+<!--                <span v-for="(char, idx) in item['chars']" :key="idx" class="char-tag">{{ char }}</span>-->
 <!--              </div>-->
               <div class="full-chars">
-                {{ item['汉字'].join('') }}
+                {{ (item['chars'] || []).join('') }}
               </div>
             </div>
           </div>
@@ -152,7 +152,7 @@ watch(combinations, (newVal, oldVal) => {
 
   // 检查组合数是否超限
   if (count > limits.MAX_COMBINATIONS) {
-    limitHint.value = `檢索組合過多(${count}>${limits.MAX_COMBINATIONS})，請縮小檢索範圍`
+    limitHint.value = t('query.components.zhongguSelector.tooManyCombinations', { count, limit: limits.MAX_COMBINATIONS })
     results.value = [] // 清空旧数据
     return // ⛔️ 终止，不发起 API 请求
   }
@@ -217,7 +217,7 @@ async function fetchData(pathStrings) {
 
   } catch (e) {
     console.error('Fetch error:', e)
-    limitHint.value = '數據查詢失敗，請稍後重試'
+    limitHint.value = t('query.components.zhongguSelector.queryFailed')
     results.value = []
     // ✅ 请求失败时保持按钮禁用状态（因为没有有效的charlist数据）
     updateDisabledState(true)

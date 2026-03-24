@@ -2,16 +2,17 @@
 <template>
   <!-- 遮罩层 -->
   <Transition name="fade">
-    <div v-if="isOpen" class="overlay" @click="$emit('close')"></div>
+    <div v-if="isOpen" class="overlay" @click="$emit('close')" @wheel.prevent @touchmove.prevent></div>
   </Transition>
 
   <!-- 侧边栏 -->
   <Transition name="slide-fade">
-    <div v-if="isOpen" class="sidebar">
+    <div v-if="isOpen" class="sidebar" @touchmove.stop>
       <!-- 标题图片 (可选) -->
       <div v-if="showTitle" class="sidebar-header">
-        <img src="../../assets/title.png" alt="Title" class="title-img" />
+        <img src="../../assets/picture/title.png" alt="Title" class="title-img" />
       </div>
+      <div v-else class="sidebar-empty"></div>
 
       <div class="sidebar-content">
         <ul>
@@ -32,11 +33,11 @@
         <div class="visit-stats">
           <div class="stats-summary">
             <div class="stat-item">
-              <span class="stat-label">今日</span>
+              <span class="stat-label">{{ t('common.label.today') }}</span>
               <span class="stat-value">{{ todayVisits }}</span>
             </div>
             <div class="stat-item">
-              <span class="stat-label">總訪問</span>
+              <span class="stat-label">{{ t('common.label.totalVisits') }}</span>
               <span class="stat-value">{{ totalVisits }}</span>
             </div>
             <button class="expand-btn" @click="toggleStatsPanel">
@@ -56,11 +57,11 @@
       <div v-if="isStatsExpanded" class="glass-modal-overlay" @click.self="closeStatsPanel">
         <div class="glass-card stats-modal-card">
           <button class="close-btn" @click="closeStatsPanel">&times;</button>
-          <h3 class="modal-title">📊 訪問統計歷史</h3>
+          <h3 class="modal-title">📊 {{ t('navigation.stats.historyTitle') }}</h3>
 
           <div v-if="loadingStats" class="loading-state">
             <div class="loading-spinner"></div>
-            <p>加載中...</p>
+            <p>{{ t('navigation.stats.loading') }}</p>
           </div>
 
           <div v-else class="stats-content">
@@ -68,21 +69,21 @@
               <div class="stat-card">
                 <div class="stat-icon">📅</div>
                 <div class="stat-info">
-                  <span class="stat-label-large">今日訪問</span>
+                  <span class="stat-label-large">{{ t('navigation.stats.todayVisits') }}</span>
                   <span class="stat-value-large">{{ todayVisits }}</span>
                 </div>
               </div>
               <div class="stat-card">
                 <div class="stat-icon">🌐</div>
                 <div class="stat-info">
-                  <span class="stat-label-large">總訪問</span>
+                  <span class="stat-label-large">{{ t('navigation.stats.totalVisits') }}</span>
                   <span class="stat-value-large">{{ totalVisits }}</span>
                 </div>
               </div>
             </div>
 
             <div class="history-section">
-              <h4 class="section-title">歷史記錄</h4>
+              <h4 class="section-title">{{ t('navigation.stats.historyRecords') }}</h4>
               <div class="history-list">
                 <div v-for="item in visitHistory" :key="item.date" class="history-item-modal">
                   <span class="history-date">{{ item.date }}</span>
@@ -117,7 +118,7 @@
         @mouseleave="!isMobile ? scheduleCloseSubmenu() : null"
       >
         <div
-          v-for="(child, index) in menuConfig[activeSubmenu]?.children"
+          v-for="(child, index) in menuConfigData[activeSubmenu]?.children"
           :key="index"
           class="submenu-item"
           @click="handleSubmenuClick(child)"
@@ -133,12 +134,14 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount, computed } from 'vue';
 import { useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import { clearToken, getToken } from '@/api/auth/auth.js'
 import { getTodayVisits, getTotalVisits, getVisitHistory } from '@/api/logs/index.js'
 import {userStore} from "@/store/store.js";
-import { menuConfig } from '@/config/menuConfig.js';
+import { useMenuConfig } from '@/config/SideBarConfig.js';
 import { WEB_BASE } from '@/env-config.js';
 
+const { t } = useI18n();
 const router = useRouter();
 const props = defineProps({
   isOpen: Boolean,
@@ -163,9 +166,11 @@ const checkMobile = () => {
 }
 
 // Filter menu items for SimpleSidebar (exclude items that should only show in NavBar)
+const menuConfigData = useMenuConfig();
 const filteredMenuConfig = computed(() => {
+  const config = menuConfigData.value;
   const filtered = {}
-  for (const [key, item] of Object.entries(menuConfig)) {
+  for (const [key, item] of Object.entries(config)) {
     // If showIn is not specified, show in all components
     // If showIn is specified, only show if 'SimpleSidebar' is in the array
     if (!item.showIn || item.showIn.includes('SimpleSidebar')) {
@@ -382,12 +387,13 @@ onBeforeUnmount(() => {
   width: 40dvw;
   max-width: 300px;
   height: 100dvh;
+  overscroll-behavior: contain;
   box-shadow: inset 0 0 0.5px rgba(255, 255, 255, 0.3), 0 8px 32px rgba(0, 0, 0, 0.25), 0 0 0 0.5px rgba(255, 255, 255, 0.1);
 
   background:
     radial-gradient(1200px 800px at 10% -10%, rgba(223, 241, 255, 0.5) 0%, rgba(223, 241, 255, 0) 60%),
     radial-gradient(1000px 700px at 110% 10%, rgba(207, 231, 255, 0.5) 0%, rgba(207, 231, 255, 0) 60%),
-    linear-gradient(180deg, rgba(234, 245, 255, 0.7), rgba(215, 236, 255, 0.7));
+    linear-gradient(180deg, rgba(234, 245, 255, 0.92), rgba(215, 236, 255, 0.92));
 
   border: 1px solid rgba(255, 255, 255, 0.35);
   backdrop-filter: blur(8px) saturate(180%);
@@ -395,8 +401,19 @@ onBeforeUnmount(() => {
   z-index: 1001;
   display: flex;
   flex-direction: column;
+  justify-content: flex-end;
   gap: 10px;
   padding: 0px 20px 0px;
+}
+
+.sidebar-empty {
+  height: 8dvh;
+}
+
+@media (max-aspect-ratio: 1/1) {
+  .sidebar-empty {
+    height: 8dvh;
+  }
 }
 
 /* 标题区域 */
@@ -421,6 +438,7 @@ onBeforeUnmount(() => {
   align-items: center;
   gap: 15px;
   flex-grow: 1;
+  max-height: 100dvh;
   overflow: auto;
 }
 

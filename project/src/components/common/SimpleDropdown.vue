@@ -19,7 +19,7 @@
             ref="searchInput"
             type="text"
             v-model="searchQuery"
-            :placeholder="searchPlaceholder"
+            :placeholder="searchPlaceholder || $t('common.components.dropdown.searchPlaceholder')"
             class="search-input"
             @click.stop
           />
@@ -43,7 +43,7 @@
           </div>
 
           <div v-if="filteredOptions.length === 0" class="empty-message">
-            無匹配結果
+            {{ $t('common.components.dropdown.noResults') }}
           </div>
         </div>
       </div>
@@ -53,6 +53,9 @@
 
 <script setup>
 import { ref, computed, watch, nextTick, onMounted, onBeforeUnmount } from 'vue'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const props = defineProps({
   modelValue: {
@@ -69,7 +72,7 @@ const props = defineProps({
   },
   placeholder: {
     type: String,
-    default: '請選擇'
+    default: ''
   },
   disabled: {
     type: Boolean,
@@ -81,7 +84,7 @@ const props = defineProps({
   },
   searchPlaceholder: {
     type: String,
-    default: '搜索...'
+    default: ''
   },
   maxHeight: {
     type: String,

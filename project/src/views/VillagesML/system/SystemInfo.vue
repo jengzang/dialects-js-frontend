@@ -69,8 +69,9 @@
       <div class="panel-header">
         <h3>N-gram 顯著性統計 Significance Statistics</h3>
         <button @click="refreshNgramStats" :disabled="loadingNgram" class="solid-button small">
-          <span v-if="!loadingNgram">🔄 刷新</span>
-          <span v-else>刷新中...</span>
+          <span v-if="loadingNgram">加載中...</span>
+          <span v-else-if="!ngramStats">加載</span>
+          <span v-else>🔄 刷新</span>
         </button>
       </div>
       <div v-if="ngramStats" class="overview-content">
@@ -424,7 +425,6 @@ const refreshNgramStats = async () => {
 // Lifecycle
 onMounted(() => {
   refreshOverview()
-  refreshNgramStats()
 })
 </script>
 

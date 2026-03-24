@@ -2,17 +2,21 @@
   <Teleport to="body">
     <Transition name="modal-fade">
       <div v-if="visible" class="modal-overlay" @click.self="handleClose">
-        <div class="map-modal-container" :class="{ 'fullscreen': isFullscreen }">
-          <!-- 头部：标题、村落数量、关闭按钮 -->
+        <div class="map-modal-container" :class="{ fullscreen: isFullscreen }">
           <div v-if="!isFullscreen" class="modal-header">
-            <h3>村落分佈地圖</h3>
-            <span class="village-count">{{ validVillages.length }} 個村落</span>
-            <button class="close-btn" @click="handleClose">✕</button>
+            <h3>{{ t('map.villageMapPopup.title') }}</h3>
+            <span class="village-count">{{ t('map.villageMapPopup.count', { count: validVillages.length }) }}</span>
+            <button
+              class="close-btn"
+              @click="handleClose"
+              :title="t('common.button.close')"
+              :aria-label="t('common.button.close')"
+            >
+              &times;
+            </button>
           </div>
 
-          <!-- 地图容器 -->
           <div ref="mapContainer" class="map-content">
-            <!-- 控制面板 -->
             <div v-if="!isFullscreen" class="map-controls">
               <div class="select-wrapper">
                 <SimpleSelectDropdown
@@ -22,26 +26,27 @@
                 />
               </div>
 
-              <!-- 显示切换按钮 - 只在有方言数据时显示 -->
               <button
                 v-if="hasDialectData"
                 class="toggle-display-btn"
                 @click="toggleDisplay"
-                :title="displayMode === 'name' ? '切換到方言' : '切換到村名'"
+                :title="displayMode === 'name'
+                  ? t('map.villageMapPopup.toggle.toDialectTitle')
+                  : t('map.villageMapPopup.toggle.toNameTitle')"
               >
-                {{ displayMode === 'name' ? '📍 村名' : '🗣️ 方言' }}
+                {{ displayMode === 'name'
+                  ? '📍 ' + t('map.villageMapPopup.toggle.name')
+                  : '🗣️ ' + t('map.villageMapPopup.toggle.dialect') }}
               </button>
 
-              <!-- 复位和全屏按钮放在同一行 -->
               <div class="button-row">
-                <button class="control-btn" @click="resetView">🎯 復位</button>
-                <button class="control-btn" @click="toggleFullscreen">⛶ 全屏</button>
+                <button class="control-btn" @click="resetView">🎯 {{ t('map.villageMapPopup.buttons.reset') }}</button>
+                <button class="control-btn" @click="toggleFullscreen">⛶ {{ t('map.villageMapPopup.buttons.fullscreen') }}</button>
               </div>
             </div>
 
-            <!-- 全屏模式下的退出按钮 -->
             <button v-if="isFullscreen" class="exit-fullscreen-btn" @click="toggleFullscreen">
-              ✕ 退出全屏
+              ✕ {{ t('map.villageMapPopup.buttons.exitFullscreen') }}
             </button>
           </div>
         </div>
@@ -52,9 +57,10 @@
 
 <script setup>
 import { ref, computed, watch, shallowRef, onMounted, onBeforeUnmount, nextTick } from 'vue'
+import { useI18n } from 'vue-i18n'
 import maplibregl from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
-import { mapStyle, mapStyleConfig, calculateDenseMapCenterAndZoom } from '@/utils/MapSource.js'
+import { mapStyle, mapStyleConfig, calculateDenseMapCenterAndZoom } from '@/utils/map/MapSource.js'
 import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
 
 const props = defineProps({
@@ -70,6 +76,7 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['close'])
+const { t } = useI18n()
 
 // 状态管理
 const mapContainer = ref(null)

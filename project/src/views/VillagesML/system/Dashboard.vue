@@ -94,7 +94,13 @@
         <div v-for="stat in statistics" :key="stat.key" class="stat-card glass-panel">
           <div class="stat-icon">{{ stat.icon }}</div>
           <div class="stat-content">
-            <div class="stat-value">{{ formatNumber(stat.value) }}</div>
+            <template v-if="stat.loadable && !ngramStats">
+              <button class="load-ngram-button" :disabled="loadingNgram" @click="loadNgramStats">
+                <span v-if="!loadingNgram">加載</span>
+                <span v-else>加載中...</span>
+              </button>
+            </template>
+            <div v-else class="stat-value">{{ formatNumber(stat.value) }}</div>
             <div class="stat-label">
               {{ stat.label }}
               <HelpIcon
@@ -127,6 +133,7 @@ const searchKeyword = ref('')
 const metadata = ref(null)
 const ngramStats = ref(null)
 const loading = ref(false)
+const loadingNgram = ref(false)
 
 // Maintenance notice: show until 2026-03-02
 const showMaintenanceNotice = computed(() => new Date() < new Date('2026-03-02'))
@@ -172,7 +179,8 @@ const statistics = computed(() => {
       icon: '📐',
       label: '顯著 N-gram',
       value: ngramStats.value?.ngram_significance?.significant || 0,
-      tooltip: '經PMI（互信息）和卡方檢驗篩選的統計顯著N-gram模式。'
+      tooltip: '經PMI（互信息）和卡方檢驗篩選的統計顯著N-gram模式。',
+      loadable: true
     },
   ]
 })
@@ -287,16 +295,18 @@ const loadMetadata = async () => {
 }
 
 const loadNgramStats = async () => {
+  loadingNgram.value = true
   try {
     ngramStats.value = await getNgramStatistics()
   } catch {
     // Non-critical, silently ignore
+  } finally {
+    loadingNgram.value = false
   }
 }
 
 onMounted(() => {
   loadMetadata()
-  loadNgramStats()
 })
 </script>
 
@@ -320,6 +330,23 @@ onMounted(() => {
   gap: 20px;
   margin-bottom: 30px;
   width: 100%;
+}
+
+.load-ngram-button {
+  padding: 6px 14px;
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  margin-bottom: 4px;
+}
+
+.load-ngram-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .maintenance-notice {

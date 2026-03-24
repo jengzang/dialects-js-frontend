@@ -7,7 +7,7 @@
     @click="goToAuth"
   >
     <span class="auth-text">
-      {{ userStore.username || '登錄' }}
+      {{ userStore.username || t('navigation.login') }}
     </span>
   </div>
 
@@ -17,7 +17,7 @@
     <button
       class="float-btn menu-btn"
       @click="$emit('toggle-sidebar')"
-      title="打開菜單"
+      :title="t('navigation.actions.openMenu')"
 
     >
       <img class="logo" src="../../assets/favicon.ico" alt="Logo" />
@@ -28,9 +28,9 @@
       v-if="!isHomePage"
       class="float-btn home-btn"
       @click="goToHome"
-      title="返回首頁"
+      :title="t('navigation.actions.backHome')"
     >
-      🏛️
+      🏠
     </button>
   </div>
 </template>
@@ -38,6 +38,7 @@
 <script setup>
 import { computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import { userStore } from '@/store/store.js';
 
 const props = defineProps({
@@ -51,6 +52,7 @@ const props = defineProps({
 
 const router = useRouter();
 const route = useRoute();
+const { t } = useI18n();
 
 defineEmits(['toggle-sidebar']);
 

@@ -1,0 +1,114 @@
+{
+  "menu": {
+    "home": "Home",
+    "query": "Query",
+    "compare": "Compare",
+    "pho": "Phonology",
+    "charClass": "Characters",
+    "dialectClustering": "Clustering",
+    "words": "Words",
+    "villages": "Villages",
+    "tools": "Tools",
+    "source": "Sources",
+    "about": "About",
+    "about_ontop": "About"
+  },
+  "submenu": {
+    "query": {
+      "tab1": "Characters",
+      "tab2": "Middle Chinese",
+      "tab3": "Phonemes",
+      "tab4": "Tones"
+    },
+    "compare": {
+      "tab1": "Character Comparison",
+      "tab2": "Middle Chinese Comparison",
+      "tab4": "Tone Category Comparison"
+    },
+    "pho": {
+      "phonologyMatrix": "Phonology Query",
+      "phonologyCustom": "Phoneme Classification",
+      "Countphos": "Syllable Statistics",
+      "pieVector": "Pie Vectors"
+    },
+    "charClass": {
+      "zhonggu": "Middle Chinese",
+      "shanggu": "Old Chinese",
+      "jingu": "Early Modern Chinese",
+      "yueyun": "Cantonese Rhyme Books"
+    },
+    "words": {
+      "vocabulary": "Language Preservation Vocabulary",
+      "grammar": "Language Preservation Grammar",
+      "ycSpoken": "Yangchun Colloquial Words"
+    },
+    "villages": {
+      "gdVillages": "Guangdong Villages",
+      "VillagesML": "Machine Learning",
+      "gdVillagesTable": "Guangdong Villages Table",
+      "ycVillages": "Yangchun Villages"
+    },
+    "tools": {
+      "check": "Character List Tool",
+      "jyut2ipa": "Jyutping to IPA",
+      "merge": "Character List Merge",
+      "praat": "Acoustic Analysis"
+    },
+    "source": {
+      "source": "Data Sources",
+      "privacy": "Privacy Policy",
+      "suggestion": "Suggestions",
+      "like": "Support Author"
+    },
+    "about": {
+      "intro": "Introduction",
+      "suggestion": "Suggestions",
+      "like": "Support Author",
+      "setting": "Settings"
+    }
+  },
+  "tabs": {
+    "home": "Home",
+    "phonology": "Phonology",
+    "charClass": "Characters",
+    "dialectClustering": "Clustering",
+    "query": "Query",
+    "results": "Results",
+    "map": "Map",
+    "compare": "Compare",
+    "about": "About",
+    "tools": "Tools",
+    "praat": "Praat",
+    "phrases": "Phrases",
+    "villages": "Villages",
+    "aboutWebsite": "About Website",
+    "settings": "Settings"
+  },
+  "placeholders": {
+    "comingSoon": "Coming soon..."
+  },
+  "settings": {
+    "language": {
+      "title": "Language Settings",
+      "description": "Choose your preferred interface language"
+    }
+  },
+  "stats": {
+    "today": "Today",
+    "totalVisits": "Total Visits",
+    "historyTitle": "Visit Statistics History",
+    "loading": "Loading...",
+    "todayVisits": "Today's Visits",
+    "historyRecords": "History Records"
+  },
+  "login": "Login",
+  "actions": {
+    "openMenu": "Open menu",
+    "backHome": "Back to home"
+  },
+  "introTabs": {
+    "like": "Support",
+    "suggestions": "Suggestions",
+    "thanks": "Thanks"
+  }
+}

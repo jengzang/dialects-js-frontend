@@ -1,6 +1,7 @@
 // utils/auth.js
 import { userStore } from '../../store/store.js'
 import { WEB_BASE } from '@/env-config.js'
+import { showRateLimitNotice } from '@/utils/rateLimitNotice.js'
 
 // ==========================================
 // 1. 用户信息缓存管理 (新增)
@@ -19,7 +20,7 @@ export const getUserCache = () => {
     try {
         const data = localStorage.getItem(USER_CACHE_KEY);
         return data ? JSON.parse(data) : null;
-    } catch (e) {
+    } catch {
         return null;
     }
 };
@@ -283,6 +284,111 @@ export async function refreshAccessToken() {
     return refreshPromise;
 }
 
+function safeJsonParse(text) {
+    if (typeof text !== 'string' || !text.trim()) {
+        return null;
+    }
+
+    try {
+        return JSON.parse(text);
+    } catch {
+        return null;
+    }
+}
+
+function toPlainHeaders(headers) {
+    const plainHeaders = {};
+    headers.forEach((value, key) => {
+        plainHeaders[key] = value;
+    });
+    return plainHeaders;
+}
+
+function parseRetryAfter(value) {
+    if (value === undefined || value === null || value === '') {
+        return 0;
+    }
+
+    const numericValue = Number(value);
+    if (Number.isFinite(numericValue)) {
+        return Math.max(0, Math.ceil(numericValue));
+    }
+
+    const parsedDate = Date.parse(value);
+    if (!Number.isNaN(parsedDate)) {
+        return Math.max(0, Math.ceil((parsedDate - Date.now()) / 1000));
+    }
+
+    return 0;
+}
+
+function getResponseDetail(data) {
+    if (!data || typeof data !== 'object') {
+        return null;
+    }
+    return data.detail ?? null;
+}
+
+function getErrorMessage(detail, rawText, status) {
+    if (typeof detail === 'string' && detail.trim()) {
+        return detail.trim();
+    }
+
+    if (detail && typeof detail === 'object' && typeof detail.message === 'string' && detail.message.trim()) {
+        return detail.message.trim();
+    }
+
+    if (typeof rawText === 'string' && rawText.trim()) {
+        return rawText.trim();
+    }
+
+    return `Request failed with status ${status}`;
+}
+
+function buildNormalizedErrorResponse(res, rawText) {
+    const parsedData = safeJsonParse(rawText);
+    const data = parsedData ?? (rawText ? { detail: rawText } : null);
+    const detail = getResponseDetail(data);
+
+    return {
+        status: res.status,
+        ok: res.ok,
+        url: res.url,
+        headers: toPlainHeaders(res.headers),
+        data,
+        detail,
+        rawText,
+        original: res
+    };
+}
+
+function buildRateLimitNoticePayload(path, response) {
+    const detail = response.detail;
+    const detailObject = detail && typeof detail === 'object' ? detail : null;
+    const retryAfterFromDetail = detailObject ? parseRetryAfter(detailObject.retry_after_seconds) : 0;
+    const retryAfterFromHeader = parseRetryAfter(response.headers['retry-after']);
+    const noticeMessage =
+        typeof detail === 'string' && detail.trim()
+            ? detail.trim()
+            : (detailObject?.message && typeof detailObject.message === 'string' && detailObject.message.trim())
+                ? detailObject.message.trim()
+                : (typeof response.rawText === 'string' && response.rawText.trim())
+                    ? response.rawText.trim()
+                    : '';
+
+    return {
+        message: noticeMessage,
+        retryAfterSeconds: retryAfterFromDetail || retryAfterFromHeader,
+        resetAt: detailObject?.reset_at || '',
+        limitType: detailObject?.limit_type || '',
+        scope: detailObject?.scope || '',
+        suggestLogin: Boolean(detailObject?.suggest_login),
+        showLoginAction: !userStore.isAuthenticated && Boolean(detailObject?.suggest_login),
+        isAuthenticated: userStore.isAuthenticated,
+        path
+    };
+}
+
 /**
  * 增强版 API 函数 - 统一的网络请求接口
  * @param {string} path - API 路径（会自动添加 WEB_BASE 前缀）
@@ -415,10 +521,24 @@ export async function api(path, options = {}) {
 
         // 统一错误处理
         if (!res.ok) {
-            const text = await res.text();
+            const rawText = await res.text();
+            const normalizedResponse = buildNormalizedErrorResponse(res, rawText);
+            const text = getErrorMessage(
+                normalizedResponse.detail,
+                normalizedResponse.rawText,
+                normalizedResponse.status
+            );
             const error = new Error(text || `請求失敗：${res.status}`);
             error.status = res.status;
-            error.response = res;
+            error.response = normalizedResponse;
+            error.data = normalizedResponse.data;
+            error.detail = normalizedResponse.detail;
+            error.headers = normalizedResponse.headers;
+            error.rawText = normalizedResponse.rawText;
+
+            if (res.status === 429) {
+                showRateLimitNotice(buildRateLimitNoticePayload(path, normalizedResponse));
+            }
             throw error;
         }
 
@@ -456,7 +576,7 @@ export async function api(path, options = {}) {
         }
 
         // 可选：自动显示错误提示（如果项目中有全局提示函数）
-        if (showError && typeof window.showErrorToast === 'function') {
+        if (showError && err.status !== 429 && typeof window.showErrorToast === 'function') {
             window.showErrorToast(err.message);
         }
 
@@ -587,7 +707,7 @@ export async function reportOnlineTime(duration) {
 
         // console.log('✅ [在线时长] 上报成功:', seconds, '秒');
         return true;
-    } catch (err) {
+    } catch {
         // console.error('❌ [在线时长] 上报失败:', err);
         return false;
     }

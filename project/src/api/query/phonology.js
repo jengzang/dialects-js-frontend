@@ -36,9 +36,29 @@ import { showError } from '@/utils/message.js'
  */
 export async function getPhonologyMatrix(params) {
   try {
-    return await api('/api/phonology_matrix', {
-      method: 'POST',
-      body: params
+    const query = new URLSearchParams()
+
+    if (Array.isArray(params?.locations)) {
+      params.locations.forEach(location => {
+        if (location) query.append('locations', location)
+      })
+    }
+
+    if (Array.isArray(params?.features)) {
+      params.features.forEach(feature => {
+        if (feature) query.append('features', feature)
+      })
+    }
+
+    if (params?.matrix_type) {
+      query.append('matrix_type', params.matrix_type)
+    }
+
+    const queryString = query.toString()
+    const path = queryString ? `/api/phonology_matrix?${queryString}` : '/api/phonology_matrix'
+
+    return await api(path, {
+      method: 'GET'
     })
   } catch (error) {
     console.error('Get phonology matrix error:', error)

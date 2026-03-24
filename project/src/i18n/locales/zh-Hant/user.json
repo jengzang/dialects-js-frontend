@@ -1,0 +1,311 @@
+{
+  "benefitsPopup": {
+    "title": "會員功能對比",
+    "comparisonTitle": "功能與配額對比",
+    "table": {
+      "feature": "功能",
+      "visitor": "訪客",
+      "member": "會員"
+    },
+    "notice": "會員可使用更高查詢配額、更多工具與個人資料功能；VillagesML 相關能力目前暫不納入本輪三語整理。",
+    "coreFeaturesTitle": "會員核心功能",
+    "ctaButton": "登入或註冊以解鎖完整功能",
+    "ctaHint": "註冊後可立即使用會員配額與個人化功能。",
+    "format": {
+      "limitWithUnit": "{value} {unit}",
+      "upgradePercent": "+{value}%"
+    },
+    "units": {
+      "location": "個地點",
+      "group": "組",
+      "second": "秒 / 小時",
+      "mb": "MB"
+    },
+    "status": {
+      "unlimited": "無限制",
+      "userOnly": "僅會員",
+      "open": "開放",
+      "partial": "部分開放",
+      "full": "完整開放"
+    },
+    "items": {
+      "queryChars": "查字",
+      "queryMiddleChinese": "查中古",
+      "queryPhoneme": "查音位",
+      "queryTone": "查調",
+      "customRegions": "自定分區",
+      "locationCombination": "地點組合數",
+      "compareChars": "比較漢字",
+      "compareMiddleChinese": "比較中古",
+      "compareToneCategory": "比較調類",
+      "regionalMap": "分區圖",
+      "phonologyQuery": "音系查詢",
+      "phonemeClassification": "音素分類",
+      "syllableStats": "音節統計",
+      "customData": "自定資料",
+      "praatAnalysis": "聲學分析",
+      "charListCheck": "字表檢查",
+      "jyutpingToIPA": "粵拼轉 IPA",
+      "mergeCharList": "合併字表",
+      "corpusQuery": "語料查詢",
+      "guangdongVillages": "廣東村情",
+      "machineLearning": "機器學習",
+      "hourlyApiUsage": "每小時 API 額度",
+      "maxJsonResponse": "JSON 回傳上限"
+    },
+    "coreFeatures": {
+      "phonologyQuery": "音韻查詢",
+      "geoVisualization": "地理視覺化",
+      "phonologyAnalysis": "音系分析",
+      "charTableTools": "字表工具",
+      "acousticAnalysis": "聲學分析",
+      "guangdongVillages": "廣東村情",
+      "customData": "自定資料",
+      "dataExport": "資料輸出"
+    }
+  },
+  "regionPage": {
+    "title": "個人分區管理",
+    "usernameFallback": "用戶",
+    "searchPlaceholder": "搜索分區名稱...",
+    "stats": {
+      "regionCount": "總分區數",
+      "locationCount": "總地點數"
+    },
+    "actions": {
+      "create": "新建分區",
+      "refresh": "刷新"
+    },
+    "empty": {
+      "noMatch": "沒有找到匹配的分區",
+      "noRegions": "還沒有創建任何分區",
+      "createFirst": "創建第一個分區"
+    },
+    "modal": {
+      "createTitle": "新建分區",
+      "editTitle": "編輯分區"
+    },
+    "form": {
+      "nameLabel": "分區名稱 *",
+      "namePlaceholder": "例如：珠三角粵方言",
+      "nameLockedHint": "注意：分區名稱不可修改",
+      "descriptionLabel": "描述（可選）",
+      "descriptionPlaceholder": "簡單描述這個分區的用途...",
+      "locationsLabel": "地點 *",
+      "selectLocationsButton": "選擇地點",
+      "selectLocationsTitle": "從分區樹狀圖選擇地點",
+      "locationInputPlaceholder": "請輸入地點名稱，用空格分隔\n例如：廣州 香港 深圳 澳門\n或點擊按鈕從樹狀圖選擇",
+      "locationHint": "地點之間用空格分隔，系統會自動去重。也可以點擊按鈕從分區樹狀圖選擇。",
+      "manualCount": "手動輸入：{count} 個",
+      "treeCount": "匹配樹狀：{count} 個"
+    },
+    "format": {
+      "locationCount": "{count} 個地點",
+      "createdAt": "創建於 {date}"
+    },
+    "messages": {
+      "loadSuccessCount": "加載成功，共 {count} 個分區",
+      "noRegionsWarning": "請添加自定義分區",
+      "loadFailed": "加載分區失敗：{message}",
+      "partitionDataFailed": "獲取分區數據失敗，請稍後再試",
+      "createSuccess": "創建成功",
+      "updateSuccess": "更新成功",
+      "saveFailed": "保存失敗：{message}",
+      "duplicateConfirmTitle": "分區名稱重複",
+      "duplicateConfirmMessage": "已存在名為「{name}」的分區，是否覆蓋？",
+      "duplicateConfirmAction": "覆蓋",
+      "deleteConfirmTitle": "刪除確認",
+      "deleteConfirmMessage": "確定要刪除分區「{name}」嗎？此操作不可恢復。",
+      "deleteSuccess": "刪除成功",
+      "deleteFailed": "刪除失敗：{message}"
+    }
+  },
+  "dataPage": {
+    "title": "個人數據管理",
+    "usernameFallback": "用戶",
+    "searchPlaceholder": "搜索（簡稱、分區、特徵、值...）",
+    "stats": {
+      "totalRows": "總計：{count} 條",
+      "selectedRows": "已選：{count} 條"
+    },
+    "toolbar": {
+      "batchAdd": "批量添加",
+      "batchEdit": "批量編輯",
+      "batchDelete": "批量刪除",
+      "refresh": "刷新"
+    },
+    "table": {
+      "shortName": "簡稱",
+      "region": "分區",
+      "coordinates": "經緯度",
+      "phonology": "聲韻調",
+      "feature": "特徵",
+      "value": "值",
+      "note": "說明",
+      "createdAt": "創建時間",
+      "actions": "操作",
+      "shortNameRequired": "簡稱 *",
+      "regionRequired": "分區 *",
+      "coordinatesRequired": "經緯度 *",
+      "featureRequired": "特徵 *",
+      "valueRequired": "值 *"
+    },
+    "empty": {
+      "noMatch": "沒有找到匹配的記錄"
+    },
+    "pagination": {
+      "showing": "顯示 {start}-{end} 條，共 {total} 條",
+      "first": "首頁",
+      "previous": "上一頁",
+      "next": "下一頁",
+      "last": "末頁",
+      "pageSizeLabel": "每頁顯示：",
+      "pageSizeOption": "{count} 條"
+    },
+    "batchEdit": {
+      "title": "批量編輯數據（{count} 條）",
+      "hint": "提示：修改後將先刪除原記錄，再添加修改後的記錄。",
+      "save": "保存修改（{count} 條有效）"
+    },
+    "batchCreate": {
+      "title": "批量添加數據",
+      "hint": "提示：可以直接從 Excel 複製貼上，單次最多 50 條。",
+      "addRow": "添加行",
+      "clear": "清空",
+      "currentRows": "當前：{count} 條",
+      "submit": "提交（{count} 條有效）"
+    },
+    "singleEdit": {
+      "title": "編輯記錄"
+    },
+    "form": {
+      "shortName": "簡稱",
+      "regionPlaceholder": "分區（集合）",
+      "coordinatesPlaceholder": "23.13,113.26",
+      "phonologyPlaceholder": "聲母/韻母/聲調",
+      "featurePlaceholder": "山攝",
+      "valuePlaceholder": "an",
+      "notePlaceholder": "說明"
+    },
+    "messages": {
+      "fetchSuccess": "數據加載成功",
+      "noDataWarning": "當前用戶暫無數據，請先添加",
+      "fetchFailed": "加載失敗：{message}",
+      "updateSuccess": "更新成功",
+      "updateFailed": "更新失敗：{message}",
+      "clearRowsTitle": "清空確認",
+      "clearRowsConfirm": "確定要清空所有行嗎？",
+      "pastedRows": "已貼上 {count} 行數據",
+      "invalidBatchData": "請輸入有效數據（必填項：簡稱、分區、經緯度、特徵、值）",
+      "maxBatchLimit": "單次最多提交 50 條數據",
+      "batchCreateSuccess": "批量創建成功：{count} 條",
+      "batchCreateFailed": "批量創建失敗：{message}",
+      "selectForEdit": "請先選擇要編輯的記錄",
+      "batchEditTitle": "批量編輯確認",
+      "batchEditConfirm": "確定要修改 {count} 條記錄嗎？系統將先刪除原記錄，再添加修改後的記錄。",
+      "batchEditSuccess": "批量編輯成功：{count} 條",
+      "batchEditFailed": "批量編輯失敗：{message}",
+      "selectForDelete": "請先選擇要刪除的記錄",
+      "batchDeleteTitle": "批量刪除確認",
+      "batchDeleteConfirm": "確定要刪除 {count} 條記錄嗎？",
+      "deleteSuccess": "刪除成功",
+      "deleteFailed": "刪除失敗：{message}",
+      "authRequired": "請先登錄"
+    }
+  },
+  "leaderboard": {
+    "title": "我的排名統計",
+    "loading": "正在載入排名資料...",
+    "retry": "重試",
+    "loadFailedToast": "載入排名資料失敗：{message}",
+    "errorDetail": "載入排名資料失敗：{message}",
+    "gapLabel": "距上一名",
+    "firstPlaceLabel": "第一名",
+    "totalUsers": "共 {value} 位用戶參與排名",
+    "columns": {
+      "category": "類別",
+      "metric": "項目",
+      "rank": "排名",
+      "count": "次數",
+      "gap": "距前一名",
+      "firstPlace": "第一名"
+    },
+    "rank": {
+      "first": "第 1 名",
+      "second": "第 2 名",
+      "third": "第 3 名",
+      "default": "第 {rank} 名"
+    },
+    "format": {
+      "count": "{value} 次",
+      "hoursMinutes": "{hours} 小時 {minutes} 分鐘",
+      "minutesSeconds": "{minutes} 分鐘 {seconds} 秒",
+      "noGap": "—"
+    },
+    "topMetrics": {
+      "onlineTime": {
+        "label": "在線時長"
+      },
+      "totalQueries": {
+        "label": "總查詢次數",
+        "tooltip": "與個人資訊頁的總查詢次數不同，這裡還包含語保查詢與各類表格查詢。"
+      }
+    },
+    "categories": {
+      "summary": "{label}（總計）",
+      "phonology": {
+        "label": "音韻查詢",
+        "items": {
+          "zhonggu": "查中古",
+          "yinwei": "查音位",
+          "diwei": "查地位",
+          "combination": "地位組合",
+          "syllable": "查音節",
+          "compareZhonggu": "比較中古"
+        },
+        "tooltips": {
+          "diwei": "包含彈窗內的細分查詢，以及舊版網站的相關查詢次數。"
+        }
+      },
+      "charsTones": {
+        "label": "字調查詢",
+        "items": {
+          "chars": "查字",
+          "tones": "查調",
+          "compareChars": "比較漢字",
+          "compareTones": "比較調類"
+        }
+      },
+      "analysis": {
+        "label": "音系分析",
+        "items": {
+          "matrix": "查音系",
+          "classification": "查音素",
+          "counts": "音節統計"
+        }
+      },
+      "tools": {
+        "label": "工具使用",
+        "items": {
+          "check": "字表檢查",
+          "jyut2ipa": "粵拼轉換",
+          "merge": "合併字表",
+          "praat": "聲學分析"
+        }
+      },
+      "other": {
+        "label": "其他查詢",
+        "items": {
+          "coordinates": "坐標查詢",
+          "table": "表格查詢",
+          "tree": "樹形查詢"
+        },
+        "tooltips": {
+          "coordinates": "用於取得地圖繪製所需的坐標資料，查中古、查音位、查字、查調、分區圖與自定繪圖等都會使用。",
+          "table": "包含各種表格查詢，例如語保詞彙語法、資料來源、全粵村情表格與陽春口語詞等。",
+          "tree": "包含各種樹狀圖查詢，例如廣東自然村樹狀圖與中古地位等。"
+        }
+      }
+    }
+  }
+}

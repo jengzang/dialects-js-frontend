@@ -1,0 +1,101 @@
+{
+  "universalTable": {
+    "toolbar": {
+      "searchPlaceholder": "搜尋...",
+      "add": "新增",
+      "batchReplace": "批量替換",
+      "submitWithCount": "提交 ({count})",
+      "action": "操作",
+      "fullscreen": "全屏",
+      "exit": "退出",
+      "exitFullscreen": "退出全屏"
+    },
+    "states": {
+      "loadingData": "數據載入中...",
+      "noData": "暫無數據"
+    },
+    "filter": {
+      "title": "篩選: {label}",
+      "loading": "載入中...",
+      "selectAll": "全選",
+      "invertSelection": "反選"
+    },
+    "addModal": {
+      "title": "新增記錄",
+      "inputPlaceholder": "請輸入{label}",
+      "confirmAdd": "確認新增"
+    },
+    "batchReplace": {
+      "title": "批量查找替換",
+      "selectColumns": "選擇要替換的列：",
+      "findContent": "查找內容：",
+      "findPlaceholder": "留空表示匹配空單元格",
+      "emptySearchHint": "查找內容為空時，將匹配所有空單元格（null、空字串）。",
+      "replaceWith": "替換為：",
+      "replacePlaceholder": "輸入替換後的內容",
+      "matchMode": "匹配模式：",
+      "exactMatch": "完全匹配",
+      "containsMatch": "包含匹配",
+      "replaceScope": "替換範圍：",
+      "currentPageOnly": "僅當前頁",
+      "allPages": "全表替換（所有分頁）",
+      "allPagesHint": "將替換所有符合條件的記錄（尊重當前篩選），不僅限於當前頁。",
+      "allPagesPreviewTitle": "全表預覽統計",
+      "matchCount": "匹配數量：",
+      "countUnit": "處",
+      "replaceScopeLabel": "替換範圍：",
+      "allPagesScope": "全表（所有分頁）",
+      "filterCondition": "篩選條件：",
+      "applied": "已應用",
+      "none": "無",
+      "instantWarning": "執行後將立即更新資料庫，請謹慎操作。",
+      "previewTitle": "預覽將被替換的內容（共 {count} 處）：",
+      "row": "行 {row}",
+      "moreChanges": "... 還有 {count} 處變更",
+      "preview": "預覽",
+      "replaceWithCount": "替換 ({count})",
+      "emptyValue": "(空)"
+    },
+    "messages": {
+      "pageNumberRange": "請輸入 1 到 {max} 之間的頁碼",
+      "adminOnly": "此操作需要管理員權限",
+      "noChangesToSubmit": "沒有需要提交的修改",
+      "confirmBatchUpdate": "確定提交 {count} 行的修改？",
+      "confirmBatchUpdateTitle": "批量更新確認",
+      "batchUpdateSuccess": "批量更新成功：{count} 條記錄已更新",
+      "batchUpdatePartialFailure": "{count} 條記錄更新失敗",
+      "batchUpdateFailed": "批量更新失敗：{message}",
+      "deleteConfirm": "確定刪除 {name}？",
+      "deleteFallbackName": "此記錄",
+      "deleteConfirmTitle": "刪除確認",
+      "deleteSuccess": "刪除成功",
+      "deleteFailed": "刪除失敗：{message}",
+      "atLeastOneField": "至少填寫一個字段",
+      "addSuccess": "新增成功",
+      "addFailed": "新增失敗：{message}",
+      "noMatchesFound": "未找到匹配的內容",
+      "foundEmptyCells": "找到 {count} 個空單元格",
+      "foundMatches": "找到 {count} 處匹配",
+      "previewAllPagesFailed": "全表預覽失敗，請稍後重試",
+      "executeBatchReplaceConfirm": "確定要替換 {count} 處內容嗎？\n\n此操作將記錄為待提交的變更，點擊「提交」按鈕後才會保存到資料庫。",
+      "executeBatchReplaceTitle": "確認批量替換",
+      "batchReplaceDone": "批量替換完成！已記錄 {count} 處變更，請點擊「提交」按鈕保存。",
+      "noReplaceableMatches": "沒有匹配項可替換",
+      "executeAllPagesConfirm": "確定要在全表中替換 {count} 處匹配項嗎？此操作將立即生效且不可撤銷。",
+      "executeAllPagesTitle": "確認全表替換",
+      "executeAllPagesConfirmText": "確定執行",
+      "allPagesReplaceDone": "全表替換完成！共更新 {count} 筆記錄",
+      "replaceFailed": "替換失敗：{message}",
+      "unknownError": "未知錯誤",
+      "allPagesReplaceFailed": "全表替換失敗，請稍後重試"
+    }
+  },
+  "charTreeItem": {
+    "noAnnotation": "無註釋"
+  },
+  "villagesTreeItem": {
+    "drawAllChildrenMap": "繪製所有下級自然村點圖",
+    "drawCurrentVillageMap": "繪製當前自然村點圖",
+    "expandPrompt": "請展開"
+  }
+}

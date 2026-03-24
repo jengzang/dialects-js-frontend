@@ -1,27 +1,30 @@
 <template>
   <div v-if="results" class="analysis-results-panel glass-panel">
-    <h2 class="panel-title">分析結果</h2>
+    <h2 class="panel-title">{{ t('praat.results.title') }}</h2>
 
     <!-- Summary Statistics -->
     <div class="summary-section">
-      <h3 class="section-title">基本信息</h3>
+      <h3 class="section-title">{{ t('praat.results.basicInfo.title') }}</h3>
       <div class="stats-grid">
         <div class="stat-card glass-panel-inner">
-          <div class="stat-label">音頻時長</div>
-          <div class="stat-value">{{ results.meta?.duration_s?.toFixed(2) }} 秒</div>
+          <div class="stat-label">{{ t('praat.results.basicInfo.duration') }}</div>
+          <div class="stat-value">{{ t('praat.results.basicInfo.durationValue', { duration: results.meta?.duration_s?.toFixed(2) }) }}</div>
         </div>
         <div class="stat-card glass-panel-inner">
-          <div class="stat-label">採樣率</div>
-          <div class="stat-value">{{ results.meta?.sample_rate }} Hz</div>
+          <div class="stat-label">{{ t('praat.results.basicInfo.sampleRate') }}</div>
+          <div class="stat-value">{{ t('praat.results.basicInfo.sampleRateValue', { rate: results.meta?.sample_rate }) }}</div>
         </div>
         <div v-if="results.summary?.intensity" class="stat-card glass-panel-inner">
-          <div class="stat-label">平均強度</div>
-          <div class="stat-value">{{ results.summary.intensity.mean_db?.toFixed(1) }} dB</div>
+          <div class="stat-label">{{ t('praat.results.basicInfo.avgIntensity') }}</div>
+          <div class="stat-value">{{ t('praat.results.basicInfo.avgIntensityValue', { intensity: results.summary.intensity.mean_db?.toFixed(1) }) }}</div>
         </div>
         <div v-if="results.summary?.intensity" class="stat-card glass-panel-inner">
-          <div class="stat-label">強度範圍</div>
+          <div class="stat-label">{{ t('praat.results.basicInfo.intensityRange') }}</div>
           <div class="stat-value">
-            {{ results.summary.intensity.min_db?.toFixed(1) }} - {{ results.summary.intensity.max_db?.toFixed(1) }} dB
+            {{ t('praat.results.basicInfo.intensityRangeValue', {
+              min: results.summary.intensity.min_db?.toFixed(1),
+              max: results.summary.intensity.max_db?.toFixed(1)
+            }) }}
           </div>
         </div>
       </div>
@@ -29,24 +32,24 @@
 
     <!-- Tone Features (Single Mode) -->
     <div v-if="results.units?.[0]?.tone_features" class="summary-section">
-      <h3 class="section-title">調值特徵</h3>
+      <h3 class="section-title">{{ t('praat.results.toneFeatures.title') }}</h3>
       <div class="stats-grid">
         <div class="stat-card glass-panel-inner">
-          <div class="stat-label">起始基頻</div>
-          <div class="stat-value">{{ results.units[0].tone_features.f0_start?.toFixed(1) }} Hz</div>
+          <div class="stat-label">{{ t('praat.results.toneFeatures.f0Start') }}</div>
+          <div class="stat-value">{{ t('praat.results.toneFeatures.f0StartValue', { f0: results.units[0].tone_features.f0_start?.toFixed(1) }) }}</div>
         </div>
         <div class="stat-card glass-panel-inner">
-          <div class="stat-label">結束基頻</div>
-          <div class="stat-value">{{ results.units[0].tone_features.f0_end?.toFixed(1) }} Hz</div>
+          <div class="stat-label">{{ t('praat.results.toneFeatures.f0End') }}</div>
+          <div class="stat-value">{{ t('praat.results.toneFeatures.f0EndValue', { f0: results.units[0].tone_features.f0_end?.toFixed(1) }) }}</div>
         </div>
         <div class="stat-card glass-panel-inner">
-          <div class="stat-label">基頻斜率</div>
-          <div class="stat-value">{{ results.units[0].tone_features.f0_slope?.toFixed(2) }}</div>
+          <div class="stat-label">{{ t('praat.results.toneFeatures.f0Slope') }}</div>
+          <div class="stat-value">{{ t('praat.results.toneFeatures.f0SlopeValue', { slope: results.units[0].tone_features.f0_slope?.toFixed(2) }) }}</div>
         </div>
         <div class="stat-card glass-panel-inner">
-          <div class="stat-label">五度標調</div>
+          <div class="stat-label">{{ t('praat.results.toneFeatures.contour5pt') }}</div>
           <div class="stat-value contour-display">
-            {{ formatContour5pt(results.units[0].tone_features.contour_5pt) }}
+            {{ t('praat.results.toneFeatures.contour5ptValue', { contour: formatContour5pt(results.units[0].tone_features.contour_5pt) }) }}
           </div>
         </div>
       </div>
@@ -56,33 +59,33 @@
     <div v-if="hasTimeSeriesData" class="charts-section">
       <!-- Pitch Chart with Segment Overlay -->
       <div v-if="hasPitchData" class="chart-section">
-        <h3 class="section-title">基頻軌跡</h3>
+        <h3 class="section-title">{{ t('praat.results.charts.pitch.title') }}</h3>
         <div ref="pitchChartContainer" class="chart-container"></div>
       </div>
 
       <!-- Intensity Chart -->
       <div v-if="hasIntensityData" class="chart-section">
-        <h3 class="section-title">強度軌跡</h3>
+        <h3 class="section-title">{{ t('praat.results.charts.intensity.title') }}</h3>
         <div ref="intensityChartContainer" class="chart-container"></div>
       </div>
 
       <!-- Formant Trajectories Chart (F1-F5) -->
       <div v-if="hasFormantData" class="chart-section">
-        <h3 class="section-title">共振峰軌跡 (F1-F5)</h3>
+        <h3 class="section-title">{{ t('praat.results.charts.formant.title') }}</h3>
         <div ref="formantChartContainer" class="chart-container"></div>
       </div>
     </div>
 
     <!-- Spectrogram Chart -->
     <div v-if="hasSpectrogramData" class="chart-section">
-      <h3 class="section-title">頻譜圖</h3>
+      <h3 class="section-title">{{ t('praat.results.charts.spectrogram.title') }}</h3>
 
       <div v-if="!showSpectrogram" class="spectrogram-placeholder glass-panel-inner">
         <div class="placeholder-content">
           <span class="placeholder-icon">🌊</span>
-          <p>頻譜圖數據量較大，渲染可能需要一點時間</p>
+          <p>{{ t('praat.results.charts.spectrogram.loadHint') }}</p>
           <button class="load-spectrogram-btn glass-button" @click="loadSpectrogram">
-            顯示頻譜圖
+            {{ t('praat.results.charts.spectrogram.loadButton') }}
           </button>
         </div>
       </div>
@@ -92,13 +95,13 @@
 
     <!-- Voice Quality Section -->
     <div v-if="results.summary?.voice_quality" class="voice-quality-section">
-      <h3 class="section-title">嗓音質量評估</h3>
+      <h3 class="section-title">{{ t('praat.results.voiceQuality.title') }}</h3>
       <div class="quality-grid">
         <!-- HNR Gauge -->
         <div v-if="results.summary?.voice_quality.hnr" class="quality-card glass-panel-inner">
-          <div class="quality-label">諧噪比 (HNR)</div>
+          <div class="quality-label">{{ t('praat.results.voiceQuality.hnr.label') }}</div>
           <div class="quality-value" :class="getHnrClass(results.summary?.voice_quality.hnr.mean_db)">
-            {{ results.summary?.voice_quality.hnr.mean_db?.toFixed(1) }} dB
+            {{ t('praat.results.voiceQuality.hnr.value', { hnr: results.summary?.voice_quality.hnr.mean_db?.toFixed(1) }) }}
           </div>
           <div class="quality-bar">
             <div class="quality-fill" :style="getHnrBarStyle(results.summary?.voice_quality.hnr.mean_db)"></div>
@@ -108,10 +111,10 @@
 
         <!-- Jitter -->
         <div v-if="results.summary?.voice_quality.jitter" class="quality-card glass-panel-inner">
-          <div class="quality-label">基頻微擾 (Jitter)</div>
+          <div class="quality-label">{{ t('praat.results.voiceQuality.jitter.label') }}</div>
           <div class="quality-value"
                :class="getJitterClass(results.summary?.voice_quality.jitter.local)">
-            {{ (results.summary?.voice_quality.jitter.local * 100)?.toFixed(2) }}%
+            {{ t('praat.results.voiceQuality.jitter.value', { jitter: (results.summary?.voice_quality.jitter.local * 100)?.toFixed(2) }) }}
           </div>
           <div class="quality-bar">
             <div class="quality-fill" :style="getJitterBarStyle(results.summary?.voice_quality.jitter.local)"></div>
@@ -122,11 +125,10 @@
 
         <!-- Shimmer -->
         <div v-if="results.summary?.voice_quality.shimmer" class="quality-card glass-panel-inner">
-          <div class="quality-label">振幅微擾 (Shimmer)</div>
+          <div class="quality-label">{{ t('praat.results.voiceQuality.shimmer.label') }}</div>
           <div class="quality-value"
                :class="getShimmerClass(results.summary?.voice_quality.shimmer.local)">
-            {{ (results.summary?.voice_quality.shimmer.local * 100)?.toFixed(2)
-            }}%
+            {{ t('praat.results.voiceQuality.shimmer.value', { shimmer: (results.summary?.voice_quality.shimmer.local * 100)?.toFixed(2) }) }}
           </div>
           <div class="quality-bar">
             <div class="quality-fill" :style="getShimmerBarStyle(results.summary?.voice_quality.shimmer.local)"></div>
@@ -142,6 +144,7 @@
 <script setup>
 import {ref, watch, onMounted, onBeforeUnmount, computed, nextTick} from 'vue'
 import * as echarts from 'echarts'
+import { useI18n } from 'vue-i18n'
 
 const props = defineProps({
   results: {
@@ -149,6 +152,7 @@ const props = defineProps({
     default: null
   }
 })
+const { t } = useI18n()
 
 const pitchChartContainer = ref(null)
 const intensityChartContainer = ref(null)
@@ -202,7 +206,7 @@ const loadSpectrogram = async () => {
 
 // Format contour_5pt array for display
 const formatContour5pt = (contour) => {
-  if (!contour || !Array.isArray(contour)) return 'N/A'
+  if (!contour || !Array.isArray(contour)) return t('praat.common.notAvailable')
   return contour.map(v => v.toFixed(2)).join(' → ')
 }
 
@@ -238,17 +242,17 @@ const initPitchChart = () => {
     },
     xAxis: {
       type: 'value',
-      name: '時間 (秒)',
+      name: t('praat.results.charts.pitch.xAxis'),
       nameLocation: 'middle',
       nameGap: 30
     },
     yAxis: {
       type: 'value',
-      name: '基頻 (Hz)',
+      name: t('praat.results.charts.pitch.yAxis'),
       axisLine: { lineStyle: { color: '#007aff' } }
     },
     series: [{
-      name: '基頻',
+      name: t('praat.results.charts.pitch.seriesName'),
       type: 'line',
       data: pitchData,
       smooth: true,
@@ -294,17 +298,17 @@ const initIntensityChart = () => {
     },
     xAxis: {
       type: 'value',
-      name: '時間 (秒)',
+      name: t('praat.results.charts.intensity.xAxis'),
       nameLocation: 'middle',
       nameGap: 30
     },
     yAxis: {
       type: 'value',
-      name: '強度 (dB)',
+      name: t('praat.results.charts.intensity.yAxis'),
       axisLine: { lineStyle: { color: '#ff3b30' } }
     },
     series: [{
-      name: '強度',
+      name: t('praat.results.charts.intensity.seriesName'),
       type: 'line',
       data: intensityData,
       smooth: true,
@@ -370,13 +374,13 @@ const initFormantChart = () => {
     },
     xAxis: {
       type: 'value',
-      name: '時間 (秒)',
+      name: t('praat.results.charts.formant.xAxis'),
       nameLocation: 'middle',
       nameGap: 30
     },
     yAxis: {
       type: 'value',
-      name: '頻率(Hz)',
+      name: t('praat.results.charts.formant.yAxis'),
       scale: true, // 允许 Y 轴不从 0 开始（虽然共振峰通常较高，这个加上比较保险）
       // 【重点修改】动态计算最大值
       max: (value) => {
@@ -434,7 +438,11 @@ const initSpectrogramChart = () => {
         const t = time[params.data[0]].toFixed(3)
         const f = frequency[params.data[1]].toFixed(0)
         const e = params.data[2].toFixed(1)
-        return `時間: ${t}s<br/>頻率: ${f}Hz<br/>能量: ${e}dB`
+        return t('praat.results.charts.spectrogram.tooltip', {
+          time: t,
+          freq: f,
+          energy: e
+        })
       }
     },
     grid: {
@@ -446,7 +454,7 @@ const initSpectrogramChart = () => {
     xAxis: {
       type: 'category',
       data: time.map((_, i) => i),
-      name: '時間 (s)',
+      name: t('praat.results.charts.spectrogram.xAxis'),
       nameLocation: 'middle',
       nameGap: 30,
       axisLabel: {
@@ -456,7 +464,7 @@ const initSpectrogramChart = () => {
     yAxis: {
       type: 'category',
       data: frequency.map((_, i) => i),
-      name: '頻率 (Hz)',
+      name: t('praat.results.charts.spectrogram.yAxis'),
       nameLocation: 'middle',
       nameGap: 50,
       axisLabel: {
@@ -470,7 +478,10 @@ const initSpectrogramChart = () => {
       orient: 'vertical',
       right: '0',
       top: 'center',
-      text: ['高', '低'],
+      text: [
+        t('praat.results.charts.spectrogram.visualMap.high'),
+        t('praat.results.charts.spectrogram.visualMap.low')
+      ],
       inRange: {
         color: [
           '#313695', '#4575b4', '#74add1', '#abd9e9',
@@ -569,7 +580,7 @@ const addSpectrogramOverlays = (option) => {
     if (pitchData.length > 0) {
       overlays.push({
         type: 'line',
-        name: '基頻 (F0)',
+        name: t('praat.results.charts.pitch.overlaySeriesName'),
         data: pitchData,
         symbol: 'none',
         lineStyle: {
@@ -628,21 +639,33 @@ const getHnrBarStyle = (hnr) => ({
   width: `${Math.min((hnr / 20) * 100, 100)}%`,
   backgroundColor: hnr >= 15 ? '#34c759' : hnr >= 10 ? '#ff9500' : '#ff3b30'
 })
-const getHnrStatus = (hnr) => hnr >= 15 ? '良好' : hnr >= 10 ? '正常' : '較差'
+const getHnrStatus = (hnr) => hnr >= 15
+  ? t('praat.results.voiceQuality.hnr.status.good')
+  : hnr >= 10
+    ? t('praat.results.voiceQuality.hnr.status.fair')
+    : t('praat.results.voiceQuality.hnr.status.poor')
 
 const getJitterClass = (j) => j < 0.01 ? 'quality-good' : j < 0.02 ? 'quality-fair' : 'quality-poor'
 const getJitterBarStyle = (j) => ({
   width: `${Math.min((j / 0.05) * 100, 100)}%`,
   backgroundColor: j < 0.01 ? '#34c759' : j < 0.02 ? '#ff9500' : '#ff3b30'
 })
-const getJitterStatus = (j) => j < 0.01 ? '良好' : j < 0.02 ? '正常' : '較差'
+const getJitterStatus = (j) => j < 0.01
+  ? t('praat.results.voiceQuality.jitter.status.good')
+  : j < 0.02
+    ? t('praat.results.voiceQuality.jitter.status.fair')
+    : t('praat.results.voiceQuality.jitter.status.poor')
 
 const getShimmerClass = (s) => s < 0.03 ? 'quality-good' : s < 0.06 ? 'quality-fair' : 'quality-poor'
 const getShimmerBarStyle = (s) => ({
   width: `${Math.min((s / 0.1) * 100, 100)}%`,
   backgroundColor: s < 0.03 ? '#34c759' : s < 0.06 ? '#ff9500' : '#ff3b30'
 })
-const getShimmerStatus = (s) => s < 0.03 ? '良好' : s < 0.06 ? '正常' : '較差'
+const getShimmerStatus = (s) => s < 0.03
+  ? t('praat.results.voiceQuality.shimmer.status.good')
+  : s < 0.06
+    ? t('praat.results.voiceQuality.shimmer.status.fair')
+    : t('praat.results.voiceQuality.shimmer.status.poor')
 
 watch(() => props.results, (newResults) => {
   if (newResults && hasTimeSeriesData.value) {

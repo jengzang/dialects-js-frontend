@@ -1,0 +1,54 @@
+{
+  "success": {
+    "saved": "Saved successfully",
+    "deleted": "Deleted successfully",
+    "updated": "Updated successfully",
+    "created": "Created successfully",
+    "copied": "Copied successfully",
+    "languageChanged": "Language changed successfully"
+  },
+  "error": {
+    "saveFailed": "Save failed",
+    "deleteFailed": "Delete failed",
+    "updateFailed": "Update failed",
+    "createFailed": "Create failed",
+    "loadFailed": "Load failed",
+    "networkError": "Network error",
+    "unknownError": "Unknown error"
+  },
+  "warning": {
+    "unsavedChanges": "You have unsaved changes",
+    "confirmDelete": "Are you sure you want to delete?",
+    "confirmAction": "Are you sure you want to proceed?"
+  },
+  "info": {
+    "processing": "Processing...",
+    "loading": "Loading...",
+    "noData": "No data available"
+  },
+  "confirm": {
+    "title": "Confirm",
+    "delete": "Are you sure you want to delete?",
+    "cancel": "Are you sure you want to cancel?",
+    "leave": "Are you sure you want to leave?"
+  },
+  "rateLimit": {
+    "defaultMessage": "Too many requests. Please try again later.",
+    "retryIn": "Retry in",
+    "guestHint": "Signing in can unlock the next query immediately once the guest limit is hit.",
+    "userHint": "Please wait for the timer to finish before trying again.",
+    "limitTypes": {
+      "guest_ip_limit": "Guest quota reached",
+      "authenticated_ip_limit": "IP quota reached",
+      "authenticated_user_limit": "Account quota reached",
+      "login_ip_limit": "Login requests limited",
+      "default": "Request rate limited"
+    },
+    "duration": {
+      "hour": "h",
+      "minute": "m",
+      "second": "s",
+      "now": "now"
+    }
+  }
+}

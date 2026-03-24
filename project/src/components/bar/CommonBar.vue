@@ -43,7 +43,7 @@
       </nav>
 
       <div v-if="showLoginButton" class="login-container" @click="goToAuthPage">
-        <span class="login-text">{{ userStore.username || '登錄' }}</span>
+        <span class="login-text">{{ userStore.username || t('navigation.login') }}</span>
       </div>
     </div>
 
@@ -85,7 +85,7 @@
       </nav>
 
       <div v-if="showLoginButton" class="login-container" @click="goToAuthPage">
-        <span class="login-text">{{ userStore.username || '登錄' }}</span>
+        <span class="login-text">{{ userStore.username || t('navigation.login') }}</span>
       </div>
     </div>
 
@@ -129,6 +129,7 @@
 
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import { userStore } from '@/store/store.js'
 
@@ -200,6 +201,7 @@ const props = defineProps({
 
 const route = useRoute()
 const router = useRouter()
+const { t } = useI18n()
 
 // Filter visible tabs (support visibleWhen function)
 const visibleTabs = computed(() => {

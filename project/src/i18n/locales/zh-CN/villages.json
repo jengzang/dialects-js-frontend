@@ -1,0 +1,60 @@
+{
+  "title": "自然村",
+  "gdVillages": {
+    "name": "广东自然村",
+    "desc": "广东省自然村树状图"
+  },
+  "villagesML": {
+    "name": "广东自然村分析",
+    "desc": "广东自然村数据机器学习、NLP等"
+  },
+  "gdVillagesTable": {
+    "name": "全粤村情表格",
+    "desc": "广东省自然村表格数据"
+  },
+  "ycVillages": {
+    "name": "阳春自然村",
+    "desc": "广东省阳春县自然村(来自县志)"
+  },
+  "pages": {
+    "gdTree": {
+      "title": "广东自然村树状图",
+      "subtitle": "点击“加载”按钮展开城市资料",
+      "searchPlaceholder": "搜索已加载的村落...",
+      "loadingCities": "正在加载城市列表...",
+      "retry": "重试",
+      "load": "加载",
+      "loading": "加载中...",
+      "loaded": "已加载",
+      "fetching": "正在获取数据...",
+      "noResults": "没有找到匹配的结果",
+      "noData": "暂无数据",
+      "errors": {
+        "invalidCityList": "返回的城市列表格式错误",
+        "loadCities": "无法加载城市列表，请重试",
+        "invalidCityData": "返回的数据格式错误或城市无数据",
+        "loadCity": "加载失败，请重试"
+      }
+    },
+    "gdTable": {
+      "title": "全粤村情",
+      "columns": {
+        "prefecture": "地级",
+        "county": "县级",
+        "town": "镇级",
+        "adminVillage": "行政村",
+        "naturalVillage": "自然村",
+        "dialect": "方言",
+        "longitude": "经度",
+        "latitude": "纬度"
+      }
+    },
+    "yangChun": {
+      "title": "阳春行政规划",
+      "source": "数据源：《阳春县志》(1996)",
+      "searchPlaceholder": "搜索村委、社区或自然村...",
+      "noResults": "没有找到匹配的结果",
+      "unknownNode": "未知节点"
+    }
+  }
+}

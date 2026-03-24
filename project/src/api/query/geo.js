@@ -1,6 +1,6 @@
 // api/query/geo.js - 地理数据查询 API
 import { api } from '../auth/auth.js'
-import { showError } from '@/utils/message.js'
+import { showError, showWarning } from '@/utils/message.js'
 
 /**
  * @typedef {Object} CoordinatesParams
@@ -31,10 +31,26 @@ import { showError } from '@/utils/message.js'
  */
 export async function getCoordinates(params) {
   try {
-    const query = new URLSearchParams()
+    const rawLocations = params.locations
+    const locations = (Array.isArray(rawLocations) ? rawLocations : [rawLocations || ''])
+      .flatMap(s => String(s).split(/[\s,]+/))
+      .map(s => s.trim())
+      .filter(Boolean)
 
-    query.append('locations', params.locations || '')
-    query.append('regions', params.regions || '')
+    if (locations.length > 1000) {
+      showWarning(`地點數量（${locations.length}）超過 1000 個上限，請縮小範圍後重試`)
+      return null
+    }
+
+    const rawRegions = params.regions
+    const regions = (Array.isArray(rawRegions) ? rawRegions : [rawRegions || ''])
+      .flatMap(s => String(s).split(/[\s,]+/))
+      .map(s => s.trim())
+      .filter(Boolean)
+
+    const query = new URLSearchParams()
+    query.append('locations', locations.join(','))
+    query.append('regions', regions.join(','))
     if (params.region_mode) query.append('region_mode', params.region_mode)
     if (params.iscustom) query.append('iscustom', params.iscustom)
     if (params.flag) query.append('flag', params.flag)

@@ -1,0 +1,390 @@
+{
+  "common": {
+    "notAvailable": "暫無"
+  },
+  "main": {
+    "title": "Praat 聲學分析",
+    "description": "上傳音訊或錄音，進行聲學特徵分析",
+    "tabs": {
+      "upload": "上傳錄音",
+      "results": "分析結果",
+      "vowelSpace": "元音空間",
+      "pitchTone": "基頻定調"
+    },
+    "settings": {
+      "title": "分析設定",
+      "button": "分析設定"
+    },
+    "mode": {
+      "single": "單音節",
+      "continuous": "連續語流"
+    },
+    "actions": {
+      "startAnalysis": "開始分析",
+      "pleaseSelectAudio": "請先選擇音訊",
+      "uploading": "上傳中..."
+    },
+    "closePreview": "關閉預覽",
+    "status": {
+      "preparingUpload": "準備上傳音訊...",
+      "uploading": "上傳音訊中...",
+      "creatingJob": "建立分析任務...",
+      "startingAnalysis": "開始分析..."
+    },
+    "errors": {
+      "loginRequired": "請先登入",
+      "analysisStartFailed": "啟動分析失敗",
+      "analysisFailed": "分析任務失敗",
+      "resultsFetchFailed": "取得分析結果失敗",
+      "cancelFailed": "取消任務失敗",
+      "durationExceeded": "音訊時長為 {duration} 秒，超過 3 秒限制。頻譜圖分析不支援超過 3 秒的音訊。請在設定中關閉頻譜圖模組後重試。"
+    },
+    "noResults": {
+      "title": "尚無分析結果",
+      "text": "請先上傳音訊並開始分析"
+    }
+  },
+  "audioInput": {
+    "upload": {
+      "text": "拖曳音訊檔到此處，或點擊選擇",
+      "hint": "支援 WAV、MP3、M4A、WebM、OGG、FLAC、AAC 格式"
+    },
+    "recording": {
+      "or": "或",
+      "start": "開始錄音",
+      "stop": "停止錄音",
+      "timer": "錄音中... {time}s"
+    },
+    "errors": {
+      "fileSizeExceeded": "檔案大小超過 5MB 限制",
+      "unsupportedFormat": "不支援的音訊格式，請上傳 WAV、MP3、M4A、WebM、OGG、FLAC 或 AAC 檔案",
+      "processingFailed": "處理音訊檔失敗：{error}",
+      "readFailed": "無法讀取音訊檔",
+      "microphoneAccessDenied": "無法存取麥克風，請檢查權限設定"
+    }
+  },
+  "audioPreview": {
+    "title": "音訊預覽",
+    "segmentCount": "（{count} 個片段）",
+    "modes": {
+      "auto": "分段結果",
+      "manual": "手動分段"
+    },
+    "manual": {
+      "fullWaveform": "完整波形（{duration} 秒）",
+      "hint": "拖動波形建立分段，選擇一個分段後點擊「確認分段」",
+      "confirmButton": "確認分段",
+      "processing": "處理中...",
+      "clearButton": "清除全部",
+      "candidateSegments": "候選分段（{count}）- 請選擇一個",
+      "segment": "分段 {index}",
+      "selected": "已選擇",
+      "start": "開始",
+      "end": "結束",
+      "duration": "時長：{duration}s",
+      "errors": {
+        "durationExceeded": "分段不能超過 10 秒",
+        "overlap": "分段不能重疊",
+        "invalidTimeRange": "開始時間必須小於結束時間",
+        "noSelection": "請先選擇一個分段",
+        "segmentNotFound": "所選分段不存在",
+        "durationExceededConfirm": "所選分段超過 10 秒，請調整後再確認"
+      },
+      "success": {
+        "confirmed": "已確認手動分段"
+      }
+    },
+    "auto": {
+      "selectHint": "請選擇要分析的片段。",
+      "segment": "片段 {index}",
+      "selected": "已選擇",
+      "badges": {
+        "original": "原始音訊",
+        "autoSplit": "自動分段",
+        "manual": "手動分段",
+        "unknown": "未知"
+      }
+    }
+  },
+  "settings": {
+    "modules": {
+      "label": "分析模組",
+      "basic": "基本資訊",
+      "pitch": "基頻分析",
+      "intensity": "強度分析",
+      "formant": "共振峰分析",
+      "voiceQuality": "音質分析",
+      "segments": "音段分析",
+      "spectrogram": "頻譜圖分析"
+    },
+    "resolutionPresets": {
+      "label": "解析度預設",
+      "quick": {
+        "title": "快速預覽",
+        "desc": "10ms 步長 · 100Hz 輸出",
+        "description": "適合快速查看整體趨勢"
+      },
+      "standard": {
+        "title": "標準分析",
+        "desc": "5ms 步長 · 200Hz 輸出",
+        "description": "在精度與效能之間取得平衡"
+      },
+      "high": {
+        "title": "高精度",
+        "desc": "2ms 步長 · 500Hz 輸出",
+        "description": "適合細節觀察，資料量也會更大"
+      }
+    },
+    "pitch": {
+      "label": "基頻設定",
+      "minF0": "最小基頻 (Hz)",
+      "maxF0": "最大基頻 (Hz)",
+      "timeStep": "時間步長 (s)",
+      "manualOverride": "手動修改會覆蓋預設"
+    },
+    "formant": {
+      "label": "共振峰設定",
+      "maxFormants": "最大共振峰數",
+      "maxFreq": "最大頻率 (Hz)",
+      "maxFreqHint": "男性 4500；女性 5500；兒童 8000",
+      "timeStep": "時間步長 (s)",
+      "manualOverride": "手動修改會覆蓋預設"
+    },
+    "intensity": {
+      "label": "強度設定",
+      "minPitch": "最小基頻 (Hz)"
+    },
+    "output": {
+      "label": "輸出選項",
+      "samplingRate": "輸出採樣率 (Hz)",
+      "samplingRatePlaceholder": "數值越大，取樣點越多",
+      "samplingRateHint": "目前：{rate}Hz（{interval}ms 間隔）",
+      "includeTimeseries": "包含時間序列資料",
+      "includeSummary": "包含摘要資訊"
+    }
+  },
+  "jobStatus": {
+    "jobId": "任務 ID：",
+    "cancel": "取消分析",
+    "loading": {
+      "title": "分析進行中...",
+      "defaultText": "正在處理音訊資料"
+    },
+    "error": {
+      "title": "分析失敗",
+      "defaultText": "未知錯誤"
+    },
+    "completed": {
+      "title": "分析完成"
+    }
+  },
+  "results": {
+    "title": "分析結果",
+    "basicInfo": {
+      "title": "基本資訊",
+      "duration": "音訊時長",
+      "durationValue": "{duration} 秒",
+      "sampleRate": "採樣率",
+      "sampleRateValue": "{rate} Hz",
+      "avgIntensity": "平均強度",
+      "avgIntensityValue": "{intensity} dB",
+      "intensityRange": "強度範圍",
+      "intensityRangeValue": "{min} - {max} dB"
+    },
+    "toneFeatures": {
+      "title": "調值特徵",
+      "f0Start": "起始基頻",
+      "f0StartValue": "{f0} Hz",
+      "f0End": "結束基頻",
+      "f0EndValue": "{f0} Hz",
+      "f0Slope": "基頻斜率",
+      "f0SlopeValue": "{slope}",
+      "contour5pt": "五度標調",
+      "contour5ptValue": "{contour}"
+    },
+    "charts": {
+      "pitch": {
+        "title": "基頻軌跡",
+        "xAxis": "時間 (秒)",
+        "yAxis": "基頻 (Hz)",
+        "seriesName": "基頻",
+        "overlaySeriesName": "基頻 (F0)"
+      },
+      "intensity": {
+        "title": "強度軌跡",
+        "xAxis": "時間 (秒)",
+        "yAxis": "強度 (dB)",
+        "seriesName": "強度"
+      },
+      "formant": {
+        "title": "共振峰軌跡 (F1-F5)",
+        "xAxis": "時間 (秒)",
+        "yAxis": "頻率 (Hz)"
+      },
+      "spectrogram": {
+        "title": "頻譜圖",
+        "loadButton": "顯示頻譜圖",
+        "loadHint": "頻譜圖資料量較大，渲染可能需要一點時間",
+        "xAxis": "時間 (s)",
+        "yAxis": "頻率 (Hz)",
+        "visualMap": {
+          "high": "高",
+          "low": "低"
+        },
+        "tooltip": "時間: {time}s<br/>頻率: {freq}Hz<br/>能量: {energy}dB"
+      }
+    },
+    "voiceQuality": {
+      "title": "嗓音品質評估",
+      "hnr": {
+        "label": "諧噪比 (HNR)",
+        "value": "{hnr} dB",
+        "status": {
+          "good": "良好",
+          "fair": "正常",
+          "poor": "較差"
+        }
+      },
+      "jitter": {
+        "label": "基頻微擾 (Jitter)",
+        "value": "{jitter}%",
+        "status": {
+          "good": "良好",
+          "fair": "正常",
+          "poor": "較差"
+        }
+      },
+      "shimmer": {
+        "label": "振幅微擾 (Shimmer)",
+        "value": "{shimmer}%",
+        "status": {
+          "good": "良好",
+          "fair": "正常",
+          "poor": "較差"
+        }
+      }
+    }
+  },
+  "vowelSpace": {
+    "title": "F1-F2 元音空間",
+    "usageHint": "建議使用「單音節」分析模式，並盡量精確截取韻核 (rime_core)。系統自動截取的韻核可能存在誤差；此功能也較依賴錄音品質，噪音可能影響分析準確度。",
+    "controls": {
+      "segmentedDisplay": "分段顯示",
+      "showReferenceVowels": "顯示參考元音",
+      "segmentedDisabled": "未檢測到有效語音段，無法切換"
+    },
+    "segments": {
+      "title": "選擇語音段",
+      "noSegments": "未檢測到元音段（rime_core、syllable_like 或 voiced）",
+      "selectAll": "全部顯示",
+      "segment": "語音段 {index}（{type}）",
+      "timeRange": "{start}-{end}s",
+      "segmentTypes": {
+        "rimeCore": "韻核",
+        "syllableLike": "近似音節",
+        "voiced": "有聲段"
+      }
+    },
+    "stats": {
+      "title": "統計資訊",
+      "noSelection": "請至少選擇一個語音段",
+      "f1Mean": "F1 平均：",
+      "f1MeanValue": "{f1} Hz",
+      "f2Mean": "F2 平均：",
+      "f2MeanValue": "{f2} Hz",
+      "dataPoints": "資料點：",
+      "dataPointsValue": "{count}"
+    },
+    "chart": {
+      "titleSegmented": "F1-F2 元音空間（按語音段）",
+      "titleAll": "F1-F2 元音空間（全部資料）",
+      "xAxis": "F2 (Hz)",
+      "yAxis": "F1 (Hz)",
+      "allDataPoints": "所有資料點",
+      "referenceVowels": "IPA 參考元音",
+      "tooltip": "{name}<br/>F1: {f1} Hz<br/>F2: {f2} Hz<br/>時間: {time}s",
+      "tooltipNoTime": "{name}<br/>F1: {f1} Hz<br/>F2: {f2} Hz",
+      "tooltipReference": "{symbol}<br/>F1: {f1} Hz<br/>F2: {f2} Hz"
+    },
+    "description": {
+      "intro": "元音空間圖顯示 F1（第一共振峰）和 F2（第二共振峰）的分佈。根據語音學慣例，兩個軸都是反向的（從高到低）。",
+      "segmented": "連線顯示元音在時間上的軌跡變化，箭頭指示時間方向。",
+      "reference": "灰色標記為 IPA 參考元音位置。"
+    }
+  },
+  "pitchTone": {
+    "title": "石峰 T 值分析器",
+    "noData": {
+      "text": "請先上傳音訊並完成 Praat 分析"
+    },
+    "step1": {
+      "title": "框選基頻並標註",
+      "hint": "直接在圖中拖動滑鼠，框選一段穩定的音高區間（橫向框選）",
+      "chart": {
+        "title": "基頻軌跡與選取",
+        "xAxis": "時間 (秒)",
+        "yAxis": "基頻 (Hz)",
+        "seriesName": "基頻",
+        "toolbox": {
+          "zoom": "縮放",
+          "back": "還原",
+          "restore": "重置"
+        }
+      },
+      "controls": {
+        "selectionStatus": {
+          "active": "已選取 {count} 個點",
+          "idle": "等待框選..."
+        },
+        "toneNameInput": "輸入調類名稱（例如：陰平）",
+        "addButton": "加入列表"
+      },
+      "savedList": {
+        "title": "已採集調類（{count}）",
+        "clearAll": "清空全部",
+        "empty": "暫無資料，請在上方圖表框選並加入",
+        "tagCount": "{count} 段",
+        "confirmClear": "確定要清空所有已儲存的調類嗎？"
+      }
+    },
+    "step2": {
+      "title": "開始 T 值分析",
+      "hint": "計算並產生各調類的五度值曲線",
+      "analyzeButton": "開始分析（{count} 個調類）"
+    },
+    "step3": {
+      "title": "分析結果",
+      "hint": "五度值曲線（保留原始時長，對齊起點）",
+      "stats": {
+        "ceiling": "參考系上限：{max} Hz",
+        "floor": "參考系下限：{min} Hz"
+      },
+      "exportButton": "匯出 Excel",
+      "chart": {
+        "title": "石峰 T 值曲線",
+        "tooltipTime": "時間: {time} ms",
+        "xAxis": "時間 (ms)",
+        "yAxis": "五度值 (T)",
+        "toolbox": {
+          "zoom": "縮放",
+          "back": "還原",
+          "restore": "重置",
+          "saveAsImage": "另存為圖片"
+        },
+        "imageName": "石峰T值分析"
+      },
+      "export": {
+        "success": "已匯出 Excel 檔案",
+        "noData": "沒有可匯出的分析結果",
+        "fileName": "方音圖鑑_T值法定調_{timestamp}.xlsx",
+        "sheetName": "石峰T值分析",
+        "columns": {
+          "time": "時間 (ms)"
+        }
+      }
+    },
+    "alerts": {
+      "noValidData": "沒有有效的資料點"
+    }
+  }
+}

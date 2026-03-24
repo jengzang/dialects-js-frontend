@@ -6,21 +6,21 @@
       <!-- ✅ 地點輸入框 -->
       <div class="location-input">
         <div class="location-header">
-          <label for="locations">地點</label>
+          <label for="locations">{{ $t('query.components.locationAndRegionInput.locationLabel') }}</label>
           <button
               class="select-location-btn"
               @click="openPartitionModalWithSelection"
               type="button"
-              title="從分區選擇地點"
+              :title="$t('query.components.locationAndRegionInput.selectLocationTitle')"
           >
-            選擇地點
+            {{ $t('query.components.locationAndRegionInput.selectLocationButton') }}
           </button>
         </div>
         <div class="textarea-wrapper">
           <textarea
               id="locations"
               ref="inputEl"
-              placeholder="請輸入地點(可匹配)"
+              :placeholder="$t('query.components.locationAndRegionInput.locationPlaceholder')"
               v-model="inputValue"
               @keyup="onKeyup"
               @blur="onBlur"
@@ -62,7 +62,7 @@
                 :class="{ active: regionUsing === tab }"
                 @click="onTabClick(tab)"
             >
-              {{ tab === 'map' ? '地圖集' : '音典' }}
+              {{ tab === 'map' ? $t('query.components.locationAndRegionInput.mapTab') : $t('query.components.locationAndRegionInput.yindianTab') }}
             </button>
           </div>
 
@@ -70,7 +70,7 @@
           <button
               class="info-btn"
               @click="openPartitionInfoModal"
-              title="查看分區詳情"
+              :title="$t('query.components.locationAndRegionInput.viewPartitionDetails')"
           >
             <span class="icon">ℹ️</span>
           </button>
@@ -80,7 +80,7 @@
         <RegionSelector
             :mode="regionUsing"
             v-model:selected="selectedValue"
-            :placeholder="regionUsing === 'map' ? '請選擇地圖集分區' : '請選擇音典分區'"
+            :placeholder="regionUsing === 'map' ? $t('query.components.locationAndRegionInput.selectMapPartition') : $t('query.components.locationAndRegionInput.selectYindianPartition')"
             @selectCustomRegion="handleCustomRegionSelect"
             @update:customRegions="handleCustomRegionUpdate"
             @update:customRegionData="handleCustomRegionDataUpdate"
@@ -91,11 +91,11 @@
       <!-- NEW MODE: Textarea input (for CustomTab) -->
       <div v-else class="region-input-section">
         <div class="region-input-header">
-          <label class="region-label">分區</label>
+          <label class="region-label">{{ $t('query.components.locationAndRegionInput.partitionLabel') }}</label>
           <button
               class="info-btn"
               @click="openPartitionInfoModal"
-              title="查看分區詳情"
+              :title="$t('query.components.locationAndRegionInput.viewPartitionDetails')"
           >
             <span class="icon">ℹ️</span>
           </button>
@@ -107,7 +107,7 @@
               v-model="regionInputValue"
               @input="onRegionInput"
               @blur="onRegionBlur"
-              placeholder="輸入分區名稱，空格分隔（如：粵語）"
+              :placeholder="$t('query.components.locationAndRegionInput.partitionPlaceholder')"
               class="textarea"
               rows="3"
           ></textarea>
@@ -126,7 +126,7 @@
                   @mousedown.prevent="selectRegionSuggestion(suggestion)"
               >
                 <span class="suggestion-text">{{ suggestion.display }}</span>
-                <span class="suggestion-source">{{ suggestion.source === 'map' ? '地圖集' : '音典' }}</span>
+                <span class="suggestion-source">{{ suggestion.source === 'map' ? $t('query.components.locationAndRegionInput.mapSource') : $t('query.components.locationAndRegionInput.yindianSource') }}</span>
               </div>
             </div>
           </Teleport>
@@ -136,7 +136,7 @@
     <!-- ✅ 底部提示欄：已選擇地點數 -->
     <div class="bottom-hint" >
       <div class="hint-main">
-        您已選擇 <span class="hint-num">{{ totalCount }}</span> 個地點
+        {{ $t('query.components.locationAndRegionInput.selectedCountPre') }}<span class="hint-num">{{ totalCount }}</span>{{ $t('query.components.locationAndRegionInput.selectedCountPost') }}
       </div>
       <!-- ✅ 新增：深灰色預覽行（最多顯示 4 個 + 省略號 + 展開） -->
       <div v-if="locationsResult.length" class="hint-preview">
@@ -149,12 +149,12 @@
             type="button"
             @click="openModal"
         >
-          展開
+          {{ $t('query.components.locationAndRegionInput.expandButton') }}
         </button>
       </div>
       <!-- 🔥 自定義特徵地點預覽（僅輸入模式） -->
       <div v-if="useInputMode && customFeatureLocations.length" class="hint-preview custom-preview">
-        <span class="preview-label">自定義地點：</span>
+        <span class="preview-label">{{ $t('query.components.locationAndRegionInput.customLocationsLabel') }}</span>
         <span class="preview-text">
           {{ customPreviewText }}
         </span>
@@ -164,7 +164,7 @@
             type="button"
             @click="openCustomModal"
         >
-          展開
+          {{ $t('query.components.locationAndRegionInput.expandButton') }}
         </button>
       </div>
       <!-- ✅ 對應 showToast 的提示行 -->
@@ -179,8 +179,8 @@
         >
           <div class="glass-modal" role="dialog" aria-modal="true">
             <div class="modal-header">
-              <div class="modal-title">已選擇地點（{{ locationsResult.length }}）</div>
-              <button class="modal-close" type="button" @click="closeModal">×</button>
+              <div class="modal-title">{{ $t('query.components.locationAndRegionInput.selectedLocationsModalTitle', { count: locationsResult.length }) }}</div>
+              <button class="modal-close" type="button" @click="closeModal">✕</button>
             </div>
 
             <div class="modal-body">
@@ -208,8 +208,8 @@
       >
         <div class="glass-modal" role="dialog" aria-modal="true">
           <div class="modal-header">
-            <div class="modal-title">自定義地點（{{ customFeatureLocations.length }}）</div>
-            <button class="modal-close" type="button" @click="closeCustomModal">×</button>
+            <div class="modal-title">{{ $t('query.components.locationAndRegionInput.customLocationsModalTitle', { count: customFeatureLocations.length }) }}</div>
+            <button class="modal-close" type="button" @click="closeCustomModal">✕</button>
           </div>
 
           <div class="modal-body">
@@ -236,6 +236,7 @@
         :error-message="partitionTreeError"
         :auto-enable-selection="autoEnableSelection"
         :initial-selected-locations="locationsInTree"
+        :max-selection="maxSelectionForModal"
         @locations-changed="handleLocationsChanged"
         @locations-selected="handleLocationsSelected"
     />
@@ -245,11 +246,12 @@
 
 <script setup>
 import { ref, nextTick ,onMounted, onActivated, watch, computed,defineProps } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { getLocations, getCustomFeature, sqlQuery, batchMatch, getPartitions } from '@/api'
 import { useCustomRegionStore } from '@/store/customRegionStore'
 import RegionSelector from "@/components/query/RegionSelector.vue"
 import PartitionInfoModal from "@/components/query/PartitionInfoModal.vue"
-import { userStore, setLocationDisabled } from '@/store/store.js'
+import { userStore } from '@/store/store.js'
 import { LOCATION_LIMITS } from '@/config/constants.js'
 import { STATIC_REGION_TREE, top_yindian } from '@/config'
 import * as OpenCC from 'opencc-js'
@@ -261,6 +263,8 @@ const s2t = OpenCC.Converter({ from: 'cn', to: 'tw' })  // 简 → 繁
 // const MAP_TREE = STATIC_REGION_TREE;
 // const YINDIAN_TREE = top_yindian;
 // 接收外部传入的地點和分區
+const { t } = useI18n()
+
 const props = defineProps({
   modelValue: {
     type: Object,
@@ -429,6 +433,12 @@ async function handleCustomRegionQuery(locations) {
 
 // 檢查地點數量限制
 function checkLocationLimit(count) {
+  if (count > 1000) {
+    limitHint.value = t('query.components.locationAndRegionInput.tooManyLocations')
+    updateDisabledState(true)
+    return
+  }
+
   const contextLimits = LOCATION_LIMITS[props.limitContext] || LOCATION_LIMITS.default
   const limits = contextLimits[userStore.role] || contextLimits.anonymous
 
@@ -441,15 +451,9 @@ function checkLocationLimit(count) {
   }
 }
 
-// 辅助函数：同时更新 emit 和 store（向后兼容）
+// 辅助函数：通知父组件禁用状态变更
 function updateDisabledState(isDisabled) {
-  // 1. Emit to parent (backward compatible)
   emit('update:runDisabled', isDisabled)
-
-  // 2. Update store for all pages that might use this component
-  setLocationDisabled('query', isDisabled)
-  setLocationDisabled('divide', isDisabled)
-  // Note: custom tab doesn't use location validation
 }
 
 // 底部提示欄的「限制提示文案」（對應 showToast）
@@ -909,7 +913,7 @@ async function fetchLocationsResult() {
 
   // 3️⃣ 若兩者皆空，直接返回（對齊 isEmptyInput 判斷）
   if (locations.length === 0 && regions.length === 0 && customRegionLocationsArray.length === 0) {
-    limitHint.value = '請輸入地點或分區'
+    limitHint.value = t('query.components.locationAndRegionInput.requireInput')
     selectedCount.value = null
     locationsResult.value = []
 
@@ -925,6 +929,13 @@ async function fetchLocationsResult() {
   try {
     // 🔥 Merge manual locations + custom region locations
     const mergedLocations = [...new Set([...locations, ...customRegionLocationsArray])]
+
+    if (mergedLocations.length > 1000) {
+      limitHint.value = t('query.components.locationAndRegionInput.tooManyLocations')
+      selectedCount.value = mergedLocations.length
+      updateDisabledState(true)
+      return
+    }
 
     const data = await getLocations({
       locations: mergedLocations,
@@ -962,7 +973,7 @@ async function fetchLocationsResult() {
 
   } catch (err) {
     console.error('❌ 請求錯誤:', err)
-    limitHint.value = err.message || '地點查詢失敗，請稍後再試'
+    limitHint.value = t('query.components.locationMultiInput.errorFetchLocations')
     selectedCount.value = null
     locationsResult.value = []
     customFeatureLocations.value = []
@@ -1092,6 +1103,20 @@ watch(
     },
     { deep: true }
 )
+
+// Max locations allowed for the partition modal selection
+const maxSelectionForModal = computed(() => {
+  const contextLimits = LOCATION_LIMITS[props.limitContext] || LOCATION_LIMITS.default
+  const limits = contextLimits[userStore.role] || contextLimits.anonymous
+  return limits.MAX_LOCATIONS === Infinity ? null : limits.MAX_LOCATIONS
+})
+
+// 当 limitContext 切换（tab 切换）时，用当前已有的 selectedCount 重新检查限制
+watch(() => props.limitContext, () => {
+  if (selectedCount.value !== null) {
+    checkLocationLimit(selectedCount.value)
+  }
+})
 
 // Initialize regionInputValue from modelValue
 watch(() => props.modelValue.regions, (newRegions) => {
@@ -1243,7 +1268,7 @@ const fetchPartitionData = async () => {
     sessionStorage.setItem('partition_data_cache', JSON.stringify(partitionData.value))
   } catch (error) {
     console.error('获取分区数据失败:', error)
-    partitionTreeError.value = '獲取分區數據失敗，請稍後再試'
+    partitionTreeError.value = t('query.components.locationMultiInput.errorPartitionMessage')
   } finally {
     isLoadingPartitions.value = false
   }

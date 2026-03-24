@@ -1,0 +1,54 @@
+{
+  "success": {
+    "saved": "保存成功",
+    "deleted": "删除成功",
+    "updated": "更新成功",
+    "created": "创建成功",
+    "copied": "复制成功",
+    "languageChanged": "语言切换成功"
+  },
+  "error": {
+    "saveFailed": "保存失败",
+    "deleteFailed": "删除失败",
+    "updateFailed": "更新失败",
+    "createFailed": "创建失败",
+    "loadFailed": "加载失败",
+    "networkError": "网络错误",
+    "unknownError": "未知错误"
+  },
+  "warning": {
+    "unsavedChanges": "有未保存的更改",
+    "confirmDelete": "确定要删除吗？",
+    "confirmAction": "确定要执行此操作吗？"
+  },
+  "info": {
+    "processing": "处理中...",
+    "loading": "加载中...",
+    "noData": "暂无数据"
+  },
+  "confirm": {
+    "title": "确认",
+    "delete": "确定要删除吗？",
+    "cancel": "确定要取消吗？",
+    "leave": "确定要离开吗？"
+  },
+  "rateLimit": {
+    "defaultMessage": "请求过于频繁，请稍后再试。",
+    "retryIn": "恢复倒计时",
+    "guestHint": "登录账号后可继续查询，不必一直等待游客额度恢复。",
+    "userHint": "请等待倒计时结束后再试，无需重复提交。",
+    "limitTypes": {
+      "guest_ip_limit": "游客额度已满",
+      "authenticated_ip_limit": "当前 IP 额度已满",
+      "authenticated_user_limit": "当前账号额度已满",
+      "login_ip_limit": "登录请求过于频繁",
+      "default": "当前请求已被限流"
+    },
+    "duration": {
+      "hour": "小时",
+      "minute": "分钟",
+      "second": "秒",
+      "now": "现在"
+    }
+  }
+}

@@ -1,14 +1,14 @@
 <template>
   <div class="pitch-tone-panel glass-panel">
-    <h2 class="panel-title" style="margin:0">石峰 T 值分析器</h2>
+    <h2 class="panel-title" style="margin:0">{{ t('praat.pitchTone.title') }}</h2>
 
     <!-- Step 1: Select and Label -->
     <div v-if="hasPitchData" class="step-section">
       <div class="step-header">
         <span class="step-number">1</span>
         <div class="step-info">
-          <h3 class="step-title">框選基頻並標註</h3>
-          <span class="step-hint">直接在圖中拖動鼠標框選一段穩定的音高區間（橫向框選）</span>
+          <h3 class="step-title">{{ t('praat.pitchTone.step1.title') }}</h3>
+          <span class="step-hint">{{ t('praat.pitchTone.step1.hint') }}</span>
         </div>
       </div>
 
@@ -18,15 +18,15 @@
         <div class="input-group">
           <div class="selection-info">
             <span v-if="currentSelection.length > 0" class="status-active">
-              ✅ 已選取 {{ currentSelection.length }} 個點
+              ✅ {{ t('praat.pitchTone.step1.controls.selectionStatus.active', { count: currentSelection.length }) }}
             </span>
-            <span v-else class="status-idle">等待框選...</span>
+            <span v-else class="status-idle">{{ t('praat.pitchTone.step1.controls.selectionStatus.idle') }}</span>
           </div>
 
           <input
               v-model="toneNameInput"
               type="text"
-              placeholder="輸入調類名稱 (如: 陰平)"
+              :placeholder="t('praat.pitchTone.step1.controls.toneNameInput')"
               class="tone-input"
               @keyup.enter="saveTone"
           />
@@ -34,24 +34,22 @@
               class="action-btn add-btn"
               :disabled="currentSelection.length === 0 || !toneNameInput"
               @click="saveTone"
-          >
-            ➕ 加入列表
-          </button>
+            >➕ {{ t('praat.pitchTone.step1.controls.addButton') }}</button>
         </div>
 
         <div class="saved-list-container">
           <div class="list-header">
-            <span>已採集調類 ({{ savedTones.length }})</span>
-            <button v-if="savedTones.length > 0" @click="clearAll" class="text-btn danger">清空全部</button>
+            <span>{{ t('praat.pitchTone.step1.savedList.title', { count: savedTones.length }) }}</span>
+            <button v-if="savedTones.length > 0" @click="clearAll" class="text-btn danger">{{ t('praat.pitchTone.step1.savedList.clearAll') }}</button>
           </div>
 
           <div class="tags-wrapper">
             <div v-for="(tone, index) in savedTones" :key="index" class="tone-tag">
               <span class="tag-name">{{ tone.name }}</span>
-              <span class="tag-count">{{ getToneSegmentCount(tone) }} 段</span>
+              <span class="tag-count">{{ t('praat.pitchTone.step1.savedList.tagCount', { count: getToneSegmentCount(tone) }) }}</span>
               <button @click="removeTone(index)" class="close-tag">×</button>
             </div>
-            <div v-if="savedTones.length === 0" class="empty-hint">暫無數據，請在上方圖表框選並添加</div>
+            <div v-if="savedTones.length === 0" class="empty-hint">{{ t('praat.pitchTone.step1.savedList.empty') }}</div>
           </div>
         </div>
       </div>
@@ -59,7 +57,7 @@
 
     <div v-else class="no-data-message">
       <div class="no-data-icon">📊</div>
-      <p>請先上傳音頻並完成 Praat 分析</p>
+      <p>{{ t('praat.pitchTone.noData.text') }}</p>
     </div>
 
     <!-- Step 2: Analyze -->
@@ -67,8 +65,8 @@
       <div class="step-header">
         <span class="step-number">2</span>
         <div class="step-info">
-          <h3 class="step-title">開始 T 值分析</h3>
-          <span class="step-hint">計算並生成各調類的五度值曲線</span>
+          <h3 class="step-title">{{ t('praat.pitchTone.step2.title') }}</h3>
+          <span class="step-hint">{{ t('praat.pitchTone.step2.hint') }}</span>
         </div>
       </div>
 
@@ -76,9 +74,7 @@
         <button
             class="analyze-btn"
             @click="performTValueAnalysis"
-        >
-          🚀 開始分析 ({{ savedTones.length }} 個調類)
-        </button>
+        >🚀 {{ t('praat.pitchTone.step2.analyzeButton', { count: savedTones.length }) }}</button>
       </div>
     </div>
 
@@ -87,19 +83,19 @@
       <div class="step-header">
         <span class="step-number">3</span>
         <div class="step-info">
-          <h3 class="step-title">分析結果</h3>
-          <span class="step-hint">五度值曲線（保留原始時長，對齊起點）</span>
+          <h3 class="step-title">{{ t('praat.pitchTone.step3.title') }}</h3>
+          <span class="step-hint">{{ t('praat.pitchTone.step3.hint') }}</span>
         </div>
       </div>
 
       <div class="stats-info">
-        <span>參考系上限: {{ globalStats.max.toFixed(1) }} Hz</span>
-        <span>參考系下限: {{ globalStats.min.toFixed(1) }} Hz</span>
+        <span>{{ t('praat.pitchTone.step3.stats.ceiling', { max: globalStats.max.toFixed(1) }) }}</span>
+        <span>{{ t('praat.pitchTone.step3.stats.floor', { min: globalStats.min.toFixed(1) }) }}</span>
       </div>
 
       <div class="export-actions">
         <button class="export-btn" @click="exportToExcel">
-          📊 導出 Excel
+          📊 {{ t('praat.pitchTone.step3.exportButton') }}
         </button>
       </div>
 
@@ -113,11 +109,13 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import * as echarts from 'echarts'
 import * as XLSX from 'xlsx'
+import { useI18n } from 'vue-i18n'
 import { showSuccess, showWarning } from '@/utils/message.js'
 
 const props = defineProps({
   results: { type: Object, default: null }
 })
+const { t } = useI18n()
 
 // === 狀態變量 ===
 const pitchChartContainer = ref(null)
@@ -294,7 +292,7 @@ const initPitchChart = () => {
 
   const option = {
     title: {
-      text: '基頻軌跡與選取',
+      text: t('praat.pitchTone.step1.chart.title'),
       left: 'center',
       textStyle: { fontSize: 14, color: '#666' }
     },
@@ -305,8 +303,13 @@ const initPitchChart = () => {
     toolbox: {
       right: 20,
       feature: {
-        dataZoom: { title: { zoom: '縮放', back: '還原' } },
-        restore: { title: '重置' }
+        dataZoom: {
+          title: {
+            zoom: t('praat.pitchTone.step1.chart.toolbox.zoom'),
+            back: t('praat.pitchTone.step1.chart.toolbox.back')
+          }
+        },
+        restore: { title: t('praat.pitchTone.step1.chart.toolbox.restore') }
       }
     },
     brush: {
@@ -319,17 +322,17 @@ const initPitchChart = () => {
     },
     xAxis: {
       type: 'value',
-      name: '時間 (秒)',
+      name: t('praat.pitchTone.step1.chart.xAxis'),
       min: 'dataMin',
       max: 'dataMax'
     },
     yAxis: {
       type: 'value',
-      name: '基頻 (Hz)',
+      name: t('praat.pitchTone.step1.chart.yAxis'),
       scale: true
     },
     series: [{
-      name: '基頻',
+      name: t('praat.pitchTone.step1.chart.seriesName'),
       type: 'line',
       data: rawData,
       symbol: 'none',
@@ -434,7 +437,7 @@ const removeTone = (index) => {
 }
 
 const clearAll = () => {
-  if (confirm('確定要清空所有已保存的調類嗎？')) {
+  if (confirm(t('praat.pitchTone.step1.savedList.confirmClear'))) {
     savedTones.value = []
     localStorage.removeItem(STORAGE_KEY)
     // Do NOT clear tValueResults - keep analysis results visible
@@ -449,7 +452,7 @@ const performTValueAnalysis = () => {
   const allValues = savedTones.value.flatMap(t => t.segments.flat())
 
   if (allValues.length === 0) {
-    alert('沒有有效的數據點')
+    showWarning(t('praat.pitchTone.alerts.noValidData'))
     return
   }
 
@@ -542,7 +545,7 @@ const performTValueAnalysis = () => {
 // === 4. Excel 导出功能 ===
 const exportToExcel = () => {
   if (tValueResults.value.length === 0) {
-    showWarning('沒有分析結果可導出')
+    showWarning(t('praat.pitchTone.step3.export.noData'))
     return
   }
 
@@ -556,7 +559,7 @@ const exportToExcel = () => {
 
     // 时间列
     const firstTime = tValueResults.value[0].data[i]?.[0]
-    row['時間 (ms)'] = firstTime?.toFixed(1) || ''
+    row[t('praat.pitchTone.step3.export.columns.time')] = firstTime?.toFixed(1) || ''
 
     // 每个调类的 T 值列
     tValueResults.value.forEach(result => {
@@ -570,13 +573,13 @@ const exportToExcel = () => {
   // 3. 生成 Excel
   const ws = XLSX.utils.json_to_sheet(excelData)
   const wb = XLSX.utils.book_new()
-  XLSX.utils.book_append_sheet(wb, ws, '石峰T值分析')
+  XLSX.utils.book_append_sheet(wb, ws, t('praat.pitchTone.step3.export.sheetName'))
 
   // 4. 下载文件
   const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-')
-  XLSX.writeFile(wb, `方音圖鑑_T值法定調_${timestamp}.xlsx`)
+  XLSX.writeFile(wb, t('praat.pitchTone.step3.export.fileName', { timestamp }))
 
-  showSuccess('已導出 Excel 文件')
+  showSuccess(t('praat.pitchTone.step3.export.success'))
 }
 
 const initTValueChart = () => {
@@ -600,11 +603,13 @@ const initTValueChart = () => {
   }))
 
   const option = {
-    title: { text: '石峰 T 值曲線', left: 'center' },
+    title: { text: t('praat.pitchTone.step3.chart.title'), left: 'center' },
     tooltip: {
       trigger: 'axis',
       formatter: (params) => {
-        let result = `時間: ${params[0].value[0].toFixed(1)} ms<br/>`
+        let result = t('praat.pitchTone.step3.chart.tooltipTime', {
+          time: params[0].value[0].toFixed(1)
+        }) + '<br/>'
         params.forEach(param => {
           result += `${param.seriesName}: ${param.value[1].toFixed(2)}<br/>`
         })
@@ -624,11 +629,16 @@ const initTValueChart = () => {
     toolbox: {
       right: 20,
       feature: {
-        dataZoom: { title: { zoom: '縮放', back: '還原' } },
-        restore: { title: '重置' },
+        dataZoom: {
+          title: {
+            zoom: t('praat.pitchTone.step3.chart.toolbox.zoom'),
+            back: t('praat.pitchTone.step3.chart.toolbox.back')
+          }
+        },
+        restore: { title: t('praat.pitchTone.step3.chart.toolbox.restore') },
         saveAsImage: {           // 新增 PNG 导出
-          title: '保存為圖片',
-          name: '石峰T值分析',   // 文件名
+          title: t('praat.pitchTone.step3.chart.toolbox.saveAsImage'),
+          name: t('praat.pitchTone.step3.chart.imageName'),
           pixelRatio: 2,         // 高清图（2倍分辨率）
           backgroundColor: '#fff'
         }
@@ -637,13 +647,13 @@ const initTValueChart = () => {
     grid: { top: 50, bottom: 60, left: 60, right: 30 },
     xAxis: {
       type: 'value',
-      name: '時間 (ms)',
+      name: t('praat.pitchTone.step3.chart.xAxis'),
       min: 0,
       axisLabel: { formatter: '{value}' }
     },
     yAxis: {
       type: 'value',
-      name: '五度值 (T)',
+      name: t('praat.pitchTone.step3.chart.yAxis'),
       min: 1,
       max: 5,
       interval: 1,

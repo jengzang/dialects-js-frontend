@@ -7,7 +7,7 @@
           <img class="logo" src="../../assets/favicon.ico" alt="Logo" />
         </div>
         <div class="title">
-          <img src="../../assets/title.png" alt="Title" />
+          <img src="../../assets/picture/title.png" alt="Title" />
         </div>
       </div>
 
@@ -40,7 +40,7 @@
       </nav>
 
       <div class="login-container" @click="goToAuthPage">
-        <span class="login-text">{{ userStore.username || '登錄' }}</span>
+        <span class="login-text">{{ userStore.username || t('navigation.login') }}</span>
       </div>
     </div>
 
@@ -79,7 +79,7 @@
       </nav>
 
       <div class="login-container" @click="goToAuthPage">
-        <span class="login-text">{{ userStore.username || '登錄' }}</span>
+        <span class="login-text">{{ userStore.username || t('navigation.login') }}</span>
       </div>
     </div>
 
@@ -122,17 +122,20 @@
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { ExploreTabsConfig } from '@/config/TabsConfig.js'
+import { useI18n } from 'vue-i18n'
+import { useExploreTabsConfig } from '@/config/TabsConfig.js'
 import { userStore } from '@/store/store.js'
 import SimpleSidebar from '@/components/bar/SimpleSidebar.vue'
-import { menuConfig } from '@/config/menuConfig.js'
+import { useMenuConfig } from '@/config/SideBarConfig.js'
 
+const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
 
-// 过滤可见的 tabs (支持 visibleWhen 函数)
+// 过滤可见的 tabs（label 已在 TabsConfig 中定义）
+const allExploreTabs = useExploreTabsConfig()
 const visibleTabs = computed(() => {
-  return ExploreTabsConfig.filter(tab => {
+  return allExploreTabs.value.filter(tab => {
     // 如果有 visibleWhen 函数，执行它
     if (typeof tab.visibleWhen === 'function') {
       return tab.visibleWhen()
@@ -158,7 +161,8 @@ const checkMobile = () => {
 
 // Map ExploreBar tab keys to menuConfig keys
 const tabToMenuConfigMap = {
-  'data': 'data',
+  'pho': 'pho',
+  'charClass': 'charClass',
   'words': 'words',
   'villages': 'villages',
   'tools': 'tools',
@@ -167,9 +171,10 @@ const tabToMenuConfigMap = {
 }
 
 // Helper function to get children from menuConfig
+const menuConfigData = useMenuConfig()
 const getTabChildren = (tabKey) => {
   const menuKey = tabToMenuConfigMap[tabKey]
-  return menuKey ? menuConfig[menuKey]?.children : null
+  return menuKey ? menuConfigData.value[menuKey]?.children : null
 }
 
 // Lifecycle hooks
@@ -193,11 +198,13 @@ const closeSubmenu = () => {
 
 // Page → Tab 映射表
 const pageToTabMap = {
-  // data category
-  'phonologyMatrix': 'data',
-  'phonologyCustom': 'data',
-  'Countphos': 'data',
-  'ZhongGu': 'data',
+  // word category
+  'phonologyMatrix': 'pho',
+  'phonologyCustom': 'pho',
+  'Countphos': 'pho',
+
+  // charClass category
+  'CharacterClassification': 'charClass',
 
   // words category
   'YuBao': 'words',
@@ -451,7 +458,7 @@ const goToAuthPage = () => {
   justify-content: center;
   gap: 8px;
   flex: 1 1 auto;
-  max-width: 600px;
+  max-width: 1000px;
   min-width: 0;  /* 允许收缩 */
   margin: 0 10px;
   overflow-x: auto;  /* 宽度不够时允许滚动 */

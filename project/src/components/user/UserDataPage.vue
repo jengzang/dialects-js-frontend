@@ -1,58 +1,57 @@
 <template>
   <div style="width: 100%">
-    <!-- Header with title and stats -->
     <div class="page-header">
       <div class="header-left">
-        <button @click="goBack" class="btn-back">返回</button>
-        <h2>📊 個人數據管理 <span v-if="username" class="username-badge">{{ username }}</span></h2>
+        <button class="btn-back" @click="goBack">{{ t('common.button.back') }}</button>
+        <h2>
+          📊 {{ t('user.dataPage.title') }}
+          <span v-if="username" class="username-badge">{{ username }}</span>
+        </h2>
       </div>
       <div class="stats">
-        <span>總計: {{ totalCount }} 條</span>
-        <span>已選: {{ selectedRecords.length }} 條</span>
+        <span>{{ t('user.dataPage.stats.totalRows', { count: totalCount }) }}</span>
+        <span>{{ t('user.dataPage.stats.selectedRows', { count: selectedRecords.length }) }}</span>
       </div>
     </div>
 
-    <!-- Toolbar with batch operations -->
     <div class="toolbar">
       <div class="toolbar-left">
-        <button @click="openBatchCreateModal" class="btn-primary">
-          ➕ 批量添加
+        <button class="btn-primary" @click="openBatchCreateModal">
+          ➕ {{ t('user.dataPage.toolbar.batchAdd') }}
         </button>
         <button
-          @click="handleBatchEdit"
-          :disabled="selectedRecords.length === 0"
           class="btn-warning"
+          :disabled="selectedRecords.length === 0"
+          @click="handleBatchEdit"
         >
-          ✏️ 批量編輯
+          ✏️ {{ t('user.dataPage.toolbar.batchEdit') }}
         </button>
         <button
-          @click="handleBatchDelete"
-          :disabled="selectedRecords.length === 0"
           class="btn-danger"
+          :disabled="selectedRecords.length === 0"
+          @click="handleBatchDelete"
         >
-          🗑️ 批量刪除
+          🗑️ {{ t('user.dataPage.toolbar.batchDelete') }}
         </button>
-        <button @click="fetchData" class="btn-secondary">
-          🔄 刷新
+        <button class="btn-secondary" @click="fetchData">
+          🔄 {{ t('user.dataPage.toolbar.refresh') }}
         </button>
       </div>
       <div class="toolbar-right">
         <input
           v-model="searchQuery"
-          @input="handleSearch"
-          placeholder="🔍 搜索（簡稱、分區、特徵、值...）"
           class="search-input"
+          :placeholder="t('user.dataPage.searchPlaceholder')"
+          @input="handleSearch"
         />
       </div>
     </div>
 
-    <!-- Data table -->
     <div class="table-container">
-      <!-- Loading overlay -->
       <div v-if="loading" class="loading-overlay">
         <div class="loading-spinner">
           <div class="spinner-ring"></div>
-          <div class="loading-text">加載中...</div>
+          <div class="loading-text">{{ t('common.label.loading') }}</div>
         </div>
       </div>
 
@@ -62,33 +61,37 @@
             <th>
               <input
                 type="checkbox"
-                @change="toggleSelectAll"
                 :checked="isAllSelected"
+                @change="toggleSelectAll"
               />
             </th>
-            <th>簡稱</th>
-            <th>分區</th>
-            <th>經緯度</th>
-            <th>聲韻調</th>
-            <th>特徵</th>
-            <th>值</th>
-            <th>說明</th>
-            <th>創建時間</th>
-            <th>操作</th>
+            <th>{{ t('user.dataPage.table.shortName') }}</th>
+            <th>{{ t('user.dataPage.table.region') }}</th>
+            <th>{{ t('user.dataPage.table.coordinates') }}</th>
+            <th>{{ t('user.dataPage.table.phonology') }}</th>
+            <th>{{ t('user.dataPage.table.feature') }}</th>
+            <th>{{ t('user.dataPage.table.value') }}</th>
+            <th>{{ t('user.dataPage.table.note') }}</th>
+            <th>{{ t('user.dataPage.table.createdAt') }}</th>
+            <th>{{ t('user.dataPage.table.actions') }}</th>
           </tr>
         </thead>
         <tbody>
           <tr v-if="paginatedData.length === 0">
             <td colspan="10" style="text-align: center; padding: 40px; color: #999;">
-              {{ searchQuery ? '沒有找到匹配的記錄' : '暫無數據' }}
+              {{
+                searchQuery
+                  ? t('user.dataPage.empty.noMatch')
+                  : t('common.label.noData')
+              }}
             </td>
           </tr>
           <tr v-for="record in paginatedData" :key="record.created_at">
             <td>
               <input
+                v-model="selectedRecords"
                 type="checkbox"
                 :value="record.created_at"
-                v-model="selectedRecords"
               />
             </td>
             <td>{{ record.簡稱 }}</td>
@@ -100,8 +103,8 @@
             <td>{{ record.說明 || '-' }}</td>
             <td>{{ formatDate(record.created_at) }}</td>
             <td>
-              <button @click="openEditModal(record)" class="btn-edit">
-                編輯
+              <button class="btn-edit" @click="openEditModal(record)">
+                {{ t('common.button.edit') }}
               </button>
             </td>
           </tr>
@@ -109,37 +112,42 @@
       </table>
     </div>
 
-    <!-- Pagination -->
-    <div class="pagination" v-if="filteredData.length > 0">
+    <div v-if="filteredData.length > 0" class="pagination">
       <div class="pagination-info">
-        顯示 {{ startIndex + 1 }}-{{ endIndex }} 條，共 {{ filteredData.length }} 條
+        {{
+          t('user.dataPage.pagination.showing', {
+            start: startIndex + 1,
+            end: endIndex,
+            total: filteredData.length
+          })
+        }}
       </div>
       <div class="pagination-controls">
-        <button @click="goToPage(1)" :disabled="currentPage === 1" class="btn-page">
-          首頁
+        <button class="btn-page" :disabled="currentPage === 1" @click="goToPage(1)">
+          {{ t('user.dataPage.pagination.first') }}
         </button>
-        <button @click="goToPage(currentPage - 1)" :disabled="currentPage === 1" class="btn-page">
-          上一頁
+        <button class="btn-page" :disabled="currentPage === 1" @click="goToPage(currentPage - 1)">
+          {{ t('user.dataPage.pagination.previous') }}
         </button>
         <div class="page-numbers">
           <button
             v-for="page in visiblePages"
             :key="page"
-            @click="goToPage(page)"
             :class="['btn-page', { active: page === currentPage }]"
+            @click="goToPage(page)"
           >
             {{ page }}
           </button>
         </div>
-        <button @click="goToPage(currentPage + 1)" :disabled="currentPage === totalPages" class="btn-page">
-          下一頁
+        <button class="btn-page" :disabled="currentPage === totalPages" @click="goToPage(currentPage + 1)">
+          {{ t('user.dataPage.pagination.next') }}
         </button>
-        <button @click="goToPage(totalPages)" :disabled="currentPage === totalPages" class="btn-page">
-          末頁
+        <button class="btn-page" :disabled="currentPage === totalPages" @click="goToPage(totalPages)">
+          {{ t('user.dataPage.pagination.last') }}
         </button>
       </div>
       <div class="pagination-size">
-        <label>每頁顯示：</label>
+        <label>{{ t('user.dataPage.pagination.pageSizeLabel') }}</label>
         <SimpleSelectDropdown
           v-model.number="pageSize"
           :options="pageSizeOptions"
@@ -148,99 +156,103 @@
       </div>
     </div>
 
-    <!-- Batch Edit Modal -->
     <Teleport to="body">
       <div v-if="showBatchEditModal" class="modal-overlay" @click.self="closeBatchEditModal">
         <div class="modal-content modal-large">
           <div class="modal-header">
-            <h3>批量編輯數據 ({{ batchEditRows.length }} 條)</h3>
-            <button @click="closeBatchEditModal" class="modal-close">×</button>
+            <h3>{{ t('user.dataPage.batchEdit.title', { count: batchEditRows.length }) }}</h3>
+            <button class="modal-close" @click="closeBatchEditModal">×</button>
           </div>
           <div class="modal-body">
-            <p class="hint">💡 提示：修改後將先刪除原記錄，再添加修改後的記錄</p>
+            <p class="hint">💡 {{ t('user.dataPage.batchEdit.hint') }}</p>
             <div class="batch-table-wrapper">
               <table class="batch-table">
                 <thead>
                   <tr>
                     <th style="width: 50px">#</th>
-                    <th style="width: 100px">簡稱 *</th>
-                    <th style="width: 120px">分區 *</th>
-                    <th style="width: 120px">經緯度 *</th>
-                    <th style="width: 100px">聲韻調</th>
-                    <th style="width: 120px">特徵 *</th>
-                    <th style="width: 100px">值 *</th>
-                    <th style="width: 150px">說明</th>
+                    <th style="width: 100px">{{ t('user.dataPage.table.shortNameRequired') }}</th>
+                    <th style="width: 120px">{{ t('user.dataPage.table.regionRequired') }}</th>
+                    <th style="width: 120px">{{ t('user.dataPage.table.coordinatesRequired') }}</th>
+                    <th style="width: 100px">{{ t('user.dataPage.table.phonology') }}</th>
+                    <th style="width: 120px">{{ t('user.dataPage.table.featureRequired') }}</th>
+                    <th style="width: 100px">{{ t('user.dataPage.table.valueRequired') }}</th>
+                    <th style="width: 150px">{{ t('user.dataPage.table.note') }}</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr v-for="(row, index) in batchEditRows" :key="index">
                     <td>{{ index + 1 }}</td>
-                    <td><input v-model="row.簡稱" placeholder="簡稱" /></td>
-                    <td><input v-model="row.音典分區" placeholder="分區(集合)" /></td>
-                    <td><input v-model="row.經緯度" placeholder="23.13,113.26" /></td>
-                    <td><input v-model="row.聲韻調" placeholder="聲母/韻母/聲調" /></td>
-                    <td><input v-model="row.特徵" placeholder="山摄" /></td>
-                    <td><input v-model="row.值" placeholder="an" /></td>
-                    <td><input v-model="row.說明" placeholder="說明" /></td>
+                    <td><input v-model="row.簡稱" :placeholder="t('user.dataPage.form.shortName')" /></td>
+                    <td><input v-model="row.音典分區" :placeholder="t('user.dataPage.form.regionPlaceholder')" /></td>
+                    <td><input v-model="row.經緯度" :placeholder="t('user.dataPage.form.coordinatesPlaceholder')" /></td>
+                    <td><input v-model="row.聲韻調" :placeholder="t('user.dataPage.form.phonologyPlaceholder')" /></td>
+                    <td><input v-model="row.特徵" :placeholder="t('user.dataPage.form.featurePlaceholder')" /></td>
+                    <td><input v-model="row.值" :placeholder="t('user.dataPage.form.valuePlaceholder')" /></td>
+                    <td><input v-model="row.說明" :placeholder="t('user.dataPage.form.notePlaceholder')" /></td>
                   </tr>
                 </tbody>
               </table>
             </div>
           </div>
           <div class="modal-footer">
-            <button @click="submitBatchEdit" class="btn-primary" :disabled="validBatchEditRows.length === 0">
-              保存修改 ({{ validBatchEditRows.length }} 條有效)
+            <button class="btn-primary" :disabled="validBatchEditRows.length === 0" @click="submitBatchEdit">
+              {{ t('user.dataPage.batchEdit.save', { count: validBatchEditRows.length }) }}
             </button>
-            <button @click="closeBatchEditModal" class="btn-secondary">
-              取消
+            <button class="btn-secondary" @click="closeBatchEditModal">
+              {{ t('common.button.cancel') }}
             </button>
           </div>
         </div>
       </div>
     </Teleport>
 
-    <!-- Batch Create Modal -->
     <Teleport to="body">
       <div v-if="showBatchCreateModal" class="modal-overlay" @click.self="closeBatchCreateModal">
         <div class="modal-content modal-large">
           <div class="modal-header">
-            <h3>批量添加數據</h3>
-            <button @click="closeBatchCreateModal" class="modal-close">×</button>
+            <h3>{{ t('user.dataPage.batchCreate.title') }}</h3>
+            <button class="modal-close" @click="closeBatchCreateModal">×</button>
           </div>
           <div class="modal-body">
-            <p class="hint">💡 提示：可以直接從Excel複製粘貼（單次最多50條）</p>
+            <p class="hint">💡 {{ t('user.dataPage.batchCreate.hint') }}</p>
             <div class="batch-table-controls">
-              <button @click="addBatchRow" class="btn-add-row">➕ 添加行</button>
-              <button @click="clearBatchRows" class="btn-clear">🗑️ 清空</button>
-              <span class="row-count">當前：{{ batchRows.length }} 條</span>
+              <button class="btn-add-row" @click="addBatchRow">
+                ➕ {{ t('user.dataPage.batchCreate.addRow') }}
+              </button>
+              <button class="btn-clear" @click="clearBatchRows">
+                🗑️ {{ t('user.dataPage.batchCreate.clear') }}
+              </button>
+              <span class="row-count">
+                {{ t('user.dataPage.batchCreate.currentRows', { count: batchRows.length }) }}
+              </span>
             </div>
             <div class="batch-table-wrapper" @paste="handlePaste">
               <table class="batch-table">
                 <thead>
                   <tr>
                     <th style="width: 50px">#</th>
-                    <th style="width: 100px">簡稱 *</th>
-                    <th style="width: 120px">分區 *</th>
-                    <th style="width: 120px">經緯度 *</th>
-                    <th style="width: 100px">聲韻調</th>
-                    <th style="width: 120px">特徵 *</th>
-                    <th style="width: 100px">值 *</th>
-                    <th style="width: 150px">說明</th>
-                    <th style="width: 60px">操作</th>
+                    <th style="width: 100px">{{ t('user.dataPage.table.shortNameRequired') }}</th>
+                    <th style="width: 120px">{{ t('user.dataPage.table.regionRequired') }}</th>
+                    <th style="width: 120px">{{ t('user.dataPage.table.coordinatesRequired') }}</th>
+                    <th style="width: 100px">{{ t('user.dataPage.table.phonology') }}</th>
+                    <th style="width: 120px">{{ t('user.dataPage.table.featureRequired') }}</th>
+                    <th style="width: 100px">{{ t('user.dataPage.table.valueRequired') }}</th>
+                    <th style="width: 150px">{{ t('user.dataPage.table.note') }}</th>
+                    <th style="width: 60px">{{ t('user.dataPage.table.actions') }}</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr v-for="(row, index) in batchRows" :key="index">
                     <td>{{ index + 1 }}</td>
-                    <td><input v-model="row.簡稱" placeholder="簡稱" /></td>
-                    <td><input v-model="row.音典分區" placeholder="分區(集合)" /></td>
-                    <td><input v-model="row.經緯度" placeholder="23.13,113.26" /></td>
-                    <td><input v-model="row.聲韻調" placeholder="聲母/韻母/聲調" /></td>
-                    <td><input v-model="row.特徵" placeholder="山摄" /></td>
-                    <td><input v-model="row.值" placeholder="an" /></td>
-                    <td><input v-model="row.說明" placeholder="說明" /></td>
+                    <td><input v-model="row.簡稱" :placeholder="t('user.dataPage.form.shortName')" /></td>
+                    <td><input v-model="row.音典分區" :placeholder="t('user.dataPage.form.regionPlaceholder')" /></td>
+                    <td><input v-model="row.經緯度" :placeholder="t('user.dataPage.form.coordinatesPlaceholder')" /></td>
+                    <td><input v-model="row.聲韻調" :placeholder="t('user.dataPage.form.phonologyPlaceholder')" /></td>
+                    <td><input v-model="row.特徵" :placeholder="t('user.dataPage.form.featurePlaceholder')" /></td>
+                    <td><input v-model="row.值" :placeholder="t('user.dataPage.form.valuePlaceholder')" /></td>
+                    <td><input v-model="row.說明" :placeholder="t('user.dataPage.form.notePlaceholder')" /></td>
                     <td>
-                      <button @click="removeBatchRow(index)" class="btn-remove">×</button>
+                      <button class="btn-remove" @click="removeBatchRow(index)">×</button>
                     </td>
                   </tr>
                 </tbody>
@@ -248,61 +260,60 @@
             </div>
           </div>
           <div class="modal-footer">
-            <button @click="submitBatchCreate" class="btn-primary" :disabled="validBatchRows.length === 0">
-              提交 ({{ validBatchRows.length }} 條有效)
+            <button class="btn-primary" :disabled="validBatchRows.length === 0" @click="submitBatchCreate">
+              {{ t('user.dataPage.batchCreate.submit', { count: validBatchRows.length }) }}
             </button>
-            <button @click="closeBatchCreateModal" class="btn-secondary">
-              取消
+            <button class="btn-secondary" @click="closeBatchCreateModal">
+              {{ t('common.button.cancel') }}
             </button>
           </div>
         </div>
       </div>
     </Teleport>
 
-    <!-- Single Edit Modal -->
     <Teleport to="body">
       <div v-if="showEditModal" class="modal-overlay" @click.self="closeEditModal">
         <div class="modal-content">
           <div class="modal-header">
-            <h3>編輯記錄</h3>
-            <button @click="closeEditModal" class="modal-close">×</button>
+            <h3>{{ t('user.dataPage.singleEdit.title') }}</h3>
+            <button class="modal-close" @click="closeEditModal">×</button>
           </div>
           <div class="modal-body">
             <div class="form-group">
-              <label>簡稱 *</label>
+              <label>{{ t('user.dataPage.table.shortNameRequired') }}</label>
               <input v-model="editingRecord.簡稱" />
             </div>
             <div class="form-group">
-              <label>分區 *</label>
+              <label>{{ t('user.dataPage.table.regionRequired') }}</label>
               <input v-model="editingRecord.音典分區" />
             </div>
             <div class="form-group">
-              <label>經緯度 *</label>
-              <input v-model="editingRecord.經緯度" placeholder="23.13,113.26" />
+              <label>{{ t('user.dataPage.table.coordinatesRequired') }}</label>
+              <input v-model="editingRecord.經緯度" :placeholder="t('user.dataPage.form.coordinatesPlaceholder')" />
             </div>
             <div class="form-group">
-              <label>聲韻調</label>
+              <label>{{ t('user.dataPage.table.phonology') }}</label>
               <input v-model="editingRecord.聲韻調" />
             </div>
             <div class="form-group">
-              <label>特徵 *</label>
+              <label>{{ t('user.dataPage.table.featureRequired') }}</label>
               <input v-model="editingRecord.特徵" />
             </div>
             <div class="form-group">
-              <label>值 *</label>
+              <label>{{ t('user.dataPage.table.valueRequired') }}</label>
               <input v-model="editingRecord.值" />
             </div>
             <div class="form-group">
-              <label>說明</label>
+              <label>{{ t('user.dataPage.table.note') }}</label>
               <textarea v-model="editingRecord.說明" rows="3"></textarea>
             </div>
           </div>
           <div class="modal-footer">
-            <button @click="submitEdit" class="btn-primary">
-              保存
+            <button class="btn-primary" @click="submitEdit">
+              {{ t('common.button.save') }}
             </button>
-            <button @click="closeEditModal" class="btn-secondary">
-              取消
+            <button class="btn-secondary" @click="closeEditModal">
+              {{ t('common.button.cancel') }}
             </button>
           </div>
         </div>
@@ -312,25 +323,20 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
-import {
-  getAllCustomData,
-  editCustomData,
-  batchCreateCustomData,
-  batchDeleteCustomData
-} from '@/api/user/index.js'
-import { showSuccess, showError, showWarning, showConfirm } from '@/utils/message.js'
-import { userStore } from '@/store/store.js'
+import { computed, onMounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useRoute, useRouter } from 'vue-router'
 import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
+import { batchCreateCustomData, batchDeleteCustomData, editCustomData, getAllCustomData } from '@/api/user/index.js'
+import { userStore } from '@/store/store.js'
+import { showConfirm, showError, showSuccess, showWarning } from '@/utils/message.js'
 
+const { t, locale } = useI18n()
 const router = useRouter()
 const route = useRoute()
 
-// Get username from route query
-const username = computed(() => route.query.username || userStore.username)
+const username = computed(() => route.query.username || userStore.username || t('user.dataPage.usernameFallback'))
 
-// State
 const dataList = ref([])
 const totalCount = ref(0)
 const selectedRecords = ref([])
@@ -343,63 +349,45 @@ const batchEditRows = ref([])
 const editingRecord = ref({})
 const loading = ref(false)
 
-// Search and pagination
 const searchQuery = ref('')
 const currentPage = ref(1)
 const pageSize = ref(20)
 
-// Page size options
-const pageSizeOptions = [
-  { label: '10 條', value: 10 },
-  { label: '20 條', value: 20 },
-  { label: '50 條', value: 50 },
-  { label: '100 條', value: 100 }
-]
+const pageSizeOptions = computed(() => [10, 20, 50, 100].map((value) => ({
+  label: t('user.dataPage.pagination.pageSizeOption', { count: value }),
+  value
+})))
 
-// Computed
-const isAllSelected = computed(() => {
-  return paginatedData.value.length > 0 &&
-         selectedRecords.value.length === paginatedData.value.length
-})
+const isAllSelected = computed(() => (
+  paginatedData.value.length > 0 &&
+  selectedRecords.value.length === paginatedData.value.length
+))
 
-// Filtered data based on search query
 const filteredData = computed(() => {
   if (!searchQuery.value.trim()) {
     return dataList.value
   }
 
   const query = searchQuery.value.toLowerCase()
-  return dataList.value.filter(record => {
-    return (
-      record.簡稱?.toLowerCase().includes(query) ||
-      record.音典分區?.toLowerCase().includes(query) ||
-      record.經緯度?.toLowerCase().includes(query) ||
-      record.聲韻調?.toLowerCase().includes(query) ||
-      record.特徵?.toLowerCase().includes(query) ||
-      record.值?.toLowerCase().includes(query) ||
-      record.說明?.toLowerCase().includes(query)
-    )
-  })
+  return dataList.value.filter((record) => (
+    record.簡稱?.toLowerCase().includes(query) ||
+    record.音典分區?.toLowerCase().includes(query) ||
+    record.經緯度?.toLowerCase().includes(query) ||
+    record.聲韻調?.toLowerCase().includes(query) ||
+    record.特徵?.toLowerCase().includes(query) ||
+    record.值?.toLowerCase().includes(query) ||
+    record.說明?.toLowerCase().includes(query)
+  ))
 })
 
-// Pagination
-const totalPages = computed(() => {
-  return Math.ceil(filteredData.value.length / pageSize.value)
-})
+const totalPages = computed(() => Math.ceil(filteredData.value.length / pageSize.value))
 
-const startIndex = computed(() => {
-  return (currentPage.value - 1) * pageSize.value
-})
+const startIndex = computed(() => (currentPage.value - 1) * pageSize.value)
 
-const endIndex = computed(() => {
-  return Math.min(startIndex.value + pageSize.value, filteredData.value.length)
-})
+const endIndex = computed(() => Math.min(startIndex.value + pageSize.value, filteredData.value.length))
 
-const paginatedData = computed(() => {
-  return filteredData.value.slice(startIndex.value, endIndex.value)
-})
+const paginatedData = computed(() => filteredData.value.slice(startIndex.value, endIndex.value))
 
-// Visible page numbers (show max 5 pages)
 const visiblePages = computed(() => {
   const pages = []
   const maxVisible = 5
@@ -410,8 +398,8 @@ const visiblePages = computed(() => {
     start = Math.max(1, end - maxVisible + 1)
   }
 
-  for (let i = start; i <= end; i++) {
-    pages.push(i)
+  for (let page = start; page <= end; page += 1) {
+    pages.push(page)
   }
 
   return pages
@@ -421,7 +409,7 @@ const parsedBatchData = computed(() => {
   if (!batchCreateText.value.trim()) return []
 
   const lines = batchCreateText.value.trim().split('\n')
-  return lines.map(line => {
+  return lines.map((line) => {
     const parts = line.split('\t')
     return {
       簡稱: parts[0]?.trim() || '',
@@ -433,46 +421,35 @@ const parsedBatchData = computed(() => {
       說明: parts[6]?.trim() || '',
       username: userStore.username
     }
-  }).filter(item => item.簡稱 && item.音典分區 && item.經緯度 && item.特徵 && item.值)
+  }).filter((item) => item.簡稱 && item.音典分區 && item.經緯度 && item.特徵 && item.值)
 })
 
-const validBatchRows = computed(() => {
-  return batchRows.value.filter(row =>
-    row.簡稱 && row.音典分區 && row.經緯度 && row.特徵 && row.值
-  )
-})
+const validBatchRows = computed(() => batchRows.value.filter((row) => (
+  row.簡稱 && row.音典分區 && row.經緯度 && row.特徵 && row.值
+)))
 
-const validBatchEditRows = computed(() => {
-  return batchEditRows.value.filter(row =>
-    row.簡稱 && row.音典分區 && row.經緯度 && row.特徵 && row.值
-  )
-})
+const validBatchEditRows = computed(() => batchEditRows.value.filter((row) => (
+  row.簡稱 && row.音典分區 && row.經緯度 && row.特徵 && row.值
+)))
 
-// Methods
 const fetchData = async () => {
   loading.value = true
   try {
     const response = await getAllCustomData()
-
-    // 確保數據存在，否則給予空數組
     dataList.value = response.data || []
     totalCount.value = response.total || 0
 
-    // 💡 優化：只有在真的有數據時才提示成功，沒數據時保持靜默（由 UI 顯示“暫無數據”）
     if (dataList.value.length > 0) {
-      showSuccess('數據加載成功')
-    }
-    else{
-      showWarning('當前用戶暫無數據，請先添加')
+      showSuccess(t('user.dataPage.messages.fetchSuccess'))
+    } else {
+      showWarning(t('user.dataPage.messages.noDataWarning'))
     }
   } catch (error) {
-    // 發生錯誤時，清空列表以觸發 UI 的空狀態顯示
     dataList.value = []
     totalCount.value = 0
-    showError('加載失敗：' + error.message)
+    showError(t('user.dataPage.messages.fetchFailed', { message: error.message }))
 
-    // 如果是 401/403 等權限問題，自動跳回登錄頁
-    if (error.message.includes('401') || error.message.includes('登錄')) {
+    if (error.message.includes('401') || error.message.includes('登錄') || error.message.includes('登录')) {
       setTimeout(() => router.replace('/auth'), 1500)
     }
   } finally {
@@ -482,14 +459,14 @@ const fetchData = async () => {
 
 const toggleSelectAll = (event) => {
   if (event.target.checked) {
-    selectedRecords.value = paginatedData.value.map(r => r.created_at)
+    selectedRecords.value = paginatedData.value.map((record) => record.created_at)
   } else {
     selectedRecords.value = []
   }
 }
 
 const handleSearch = () => {
-  currentPage.value = 1 // Reset to first page when searching
+  currentPage.value = 1
 }
 
 const goToPage = (page) => {
@@ -499,7 +476,7 @@ const goToPage = (page) => {
 }
 
 const handlePageSizeChange = () => {
-  currentPage.value = 1 // Reset to first page when changing page size
+  currentPage.value = 1
 }
 
 const openEditModal = (record) => {
@@ -515,17 +492,16 @@ const closeEditModal = () => {
 const submitEdit = async () => {
   try {
     await editCustomData(editingRecord.value)
-    showSuccess('更新成功')
+    showSuccess(t('user.dataPage.messages.updateSuccess'))
     closeEditModal()
     await fetchData()
   } catch (error) {
-    showError('更新失敗：' + error.message)
+    showError(t('user.dataPage.messages.updateFailed', { message: error.message }))
   }
 }
 
 const openBatchCreateModal = () => {
   showBatchCreateModal.value = true
-  // 添加一個默認行，讓用戶知道可以在哪裡粘貼數據
   if (batchRows.value.length === 0) {
     addBatchRow()
   }
@@ -553,11 +529,17 @@ const removeBatchRow = (index) => {
   batchRows.value.splice(index, 1)
 }
 
-const clearBatchRows = () => {
-  if (batchRows.value.length > 0) {
-    if (confirm('確定要清空所有行嗎？')) {
-      batchRows.value = []
-    }
+const clearBatchRows = async () => {
+  if (batchRows.value.length === 0) return
+
+  const confirmed = await showConfirm(t('user.dataPage.messages.clearRowsConfirm'), {
+    title: t('user.dataPage.messages.clearRowsTitle'),
+    confirmText: t('common.button.confirm'),
+    cancelText: t('common.button.cancel')
+  })
+
+  if (confirmed) {
+    batchRows.value = []
   }
 }
 
@@ -567,9 +549,8 @@ const handlePaste = (event) => {
 
   if (!pastedText) return
 
-  // 解析粘貼的數據
   const lines = pastedText.trim().split('\n')
-  const newRows = lines.map(line => {
+  const newRows = lines.map((line) => {
     const parts = line.split('\t')
     return {
       簡稱: parts[0]?.trim() || '',
@@ -582,57 +563,51 @@ const handlePaste = (event) => {
     }
   })
 
-  // 如果當前表格為空，直接添加
   if (batchRows.value.length === 0) {
     batchRows.value = newRows
   } else {
-    // 否則追加到末尾
     batchRows.value.push(...newRows)
   }
 
   event.preventDefault()
-  showSuccess(`已粘貼 ${newRows.length} 行數據`)
+  showSuccess(t('user.dataPage.messages.pastedRows', { count: newRows.length }))
 }
 
 const submitBatchCreate = async () => {
-  const data = validBatchRows.value.map(row => ({
+  const data = validBatchRows.value.map((row) => ({
     ...row,
     username: userStore.username
   }))
 
   if (data.length === 0) {
-    showWarning('請輸入有效數據（必填項：簡稱、分區、經緯度、特徵、值）')
+    showWarning(t('user.dataPage.messages.invalidBatchData'))
     return
   }
 
   if (data.length > 50) {
-    showWarning('單次最多提交 50 條數據')
+    showWarning(t('user.dataPage.messages.maxBatchLimit'))
     return
   }
 
   try {
     const response = await batchCreateCustomData(data)
-    showSuccess(response.message || `批量創建成功：${data.length} 條`)
+    showSuccess(response.message || t('user.dataPage.messages.batchCreateSuccess', { count: data.length }))
     closeBatchCreateModal()
     await fetchData()
   } catch (error) {
-    showError('批量創建失敗：' + error.message)
+    showError(t('user.dataPage.messages.batchCreateFailed', { message: error.message }))
   }
 }
 
 const handleBatchEdit = () => {
   if (selectedRecords.value.length === 0) {
-    showWarning('請先選擇要編輯的記錄')
+    showWarning(t('user.dataPage.messages.selectForEdit'))
     return
   }
 
-  // 找到选中的记录
-  const selectedData = dataList.value.filter(record =>
-    selectedRecords.value.includes(record.created_at)
-  )
+  const selectedData = dataList.value.filter((record) => selectedRecords.value.includes(record.created_at))
 
-  // 复制到编辑表格中
-  batchEditRows.value = selectedData.map(record => ({
+  batchEditRows.value = selectedData.map((record) => ({
     簡稱: record.簡稱,
     音典分區: record.音典分區,
     經緯度: record.經緯度,
@@ -640,7 +615,7 @@ const handleBatchEdit = () => {
     特徵: record.特徵,
     值: record.值,
     說明: record.說明 || '',
-    created_at: record.created_at // 保存原始 created_at 用于删除
+    created_at: record.created_at
   }))
 
   showBatchEditModal.value = true
@@ -655,20 +630,26 @@ const submitBatchEdit = async () => {
   const validRows = validBatchEditRows.value
 
   if (validRows.length === 0) {
-    showWarning('請輸入有效數據（必填項：簡稱、分區、經緯度、特徵、值）')
+    showWarning(t('user.dataPage.messages.invalidBatchData'))
     return
   }
 
-  const confirmed = await showConfirm(`確定要修改 ${validRows.length} 條記錄嗎？（將先刪除原記錄，再添加修改後的記錄）`)
+  const confirmed = await showConfirm(
+    t('user.dataPage.messages.batchEditConfirm', { count: validRows.length }),
+    {
+      title: t('user.dataPage.messages.batchEditTitle'),
+      confirmText: t('common.button.confirm'),
+      cancelText: t('common.button.cancel')
+    }
+  )
+
   if (!confirmed) return
 
   try {
-    // 第一步：删除原记录
-    const deleteIds = batchEditRows.value.map(row => row.created_at)
+    const deleteIds = batchEditRows.value.map((row) => row.created_at)
     await batchDeleteCustomData(deleteIds)
 
-    // 第二步：添加修改后的记录
-    const newData = validRows.map(row => ({
+    const newData = validRows.map((row) => ({
       簡稱: row.簡稱,
       音典分區: row.音典分區,
       經緯度: row.經緯度,
@@ -679,40 +660,55 @@ const submitBatchEdit = async () => {
       username: userStore.username
     }))
 
-    // ✅ 使用已导入的 batchCreateCustomData 函数
     await batchCreateCustomData(newData)
 
-    showSuccess(`批量編輯成功：${validRows.length} 條`)
+    showSuccess(t('user.dataPage.messages.batchEditSuccess', { count: validRows.length }))
     closeBatchEditModal()
     selectedRecords.value = []
     await fetchData()
   } catch (error) {
-    showError('批量編輯失敗：' + error.message)
+    showError(t('user.dataPage.messages.batchEditFailed', { message: error.message }))
   }
 }
 
 const handleBatchDelete = async () => {
   if (selectedRecords.value.length === 0) {
-    showWarning('請先選擇要刪除的記錄')
+    showWarning(t('user.dataPage.messages.selectForDelete'))
     return
   }
 
-  const confirmed = await showConfirm(`確定要刪除 ${selectedRecords.value.length} 條記錄嗎？`)
+  const confirmed = await showConfirm(
+    t('user.dataPage.messages.batchDeleteConfirm', { count: selectedRecords.value.length }),
+    {
+      title: t('user.dataPage.messages.batchDeleteTitle'),
+      confirmText: t('common.button.delete'),
+      cancelText: t('common.button.cancel')
+    }
+  )
+
   if (!confirmed) return
 
   try {
     const response = await batchDeleteCustomData(selectedRecords.value)
-    showSuccess(response.message || '刪除成功')
+    showSuccess(response.message || t('user.dataPage.messages.deleteSuccess'))
     selectedRecords.value = []
     await fetchData()
   } catch (error) {
-    showError('刪除失敗：' + error.message)
+    showError(t('user.dataPage.messages.deleteFailed', { message: error.message }))
   }
 }
 
 const formatDate = (dateStr) => {
   if (!dateStr) return '-'
-  return new Date(dateStr).toLocaleString('zh-CN')
+
+  const currentLocale = locale.value === 'en' ? 'en-US' : locale.value
+  return new Intl.DateTimeFormat(currentLocale, {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit'
+  }).format(new Date(dateStr))
 }
 
 const goBack = () => {
@@ -721,10 +717,12 @@ const goBack = () => {
 
 onMounted(() => {
   if (!userStore.isAuthenticated) {
-    showWarning('請先登錄')
+    showWarning(t('user.dataPage.messages.authRequired'))
     router.push('/auth')
     return
   }
+
+  void parsedBatchData.value
   fetchData()
 })
 </script>

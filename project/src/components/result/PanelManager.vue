@@ -7,13 +7,13 @@
         :ref="(el) => setPanelRef(el, panel.id)"
         class="query-detail-panel"
     >
-      <button class="close-btn" @click="removePanel(panel.id)">×</button>
+      <button class="close-btn" :aria-label="t('common.button.close')" @click="removePanel(panel.id)">✕</button>
 
       <div class="result-panel-vue" style="height: 100%; overflow-y: auto; display: flex; flex-direction: column;margin-bottom: 10px">
 
         <div v-if="panel.loading" class="loading-container">
           <div class="spinner"></div>
-          <span class="loading-text">查詢中...</span>
+          <span class="loading-text">{{ t('result.panelManager.loading') }}</span>
         </div>
 
         <template v-else>
@@ -51,6 +51,7 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted, nextTick } from 'vue';
+import { useI18n } from 'vue-i18n';
 import DataRow from "./DataRow.vue";
 // [修復] 導入漏掉的組件和工具函數
 import ValuePopup from './ValuePopup.vue';
@@ -73,6 +74,7 @@ const popupDataValue = ref({});
 const showPopupFeature = ref(false);
 const popupDataFeature = ref({});
 const popupPos = ref({ top: 0, left: 0 });
+const { t } = useI18n();
 
 // 动态 Ref 绑定 helper
 const setPanelRef = (el, id) => {

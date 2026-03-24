@@ -18,7 +18,7 @@
           <SimpleSelectDropdown
             v-model="selectedFeature"
             :options="featureOptions"
-            placeholder="請選擇特徵"
+            :placeholder="t('map.placeholder.selectFeature')"
           />
         </div>
         <div v-else-if="availableFeatures.length === 1" class="single-btn-wrapper">
@@ -72,7 +72,8 @@
 <script setup>
 import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { mapStore, resultCache } from '@/store/store.js'
+import { useI18n } from 'vue-i18n'
+import { mapStore } from '@/store/store.js'
 
 import TabsContainer from '@/components/common/TabsContainer.vue'
 import DivideTab from "@/components/map/DivideTab.vue";
@@ -82,8 +83,9 @@ import CustomDataPanel from '@/components/map/CustomDataPanel.vue'
 import HelpIcon from '@/components/ToastAndHelp/HelpIcon.vue'
 import SimpleSelectDropdown from "@/components/common/SimpleSelectDropdown.vue";
 import { showSuccess, showError } from '@/utils/message.js'
-import { func_mergeData, addCustomFeatureData } from '@/utils/MapData.js'
+import { addCustomFeatureData, refreshCurrentCustomLayer } from '@/utils/map/MapData.js'
 
+const { t } = useI18n()
 const selectedLevel = ref(3)
 const router = useRouter()
 const route = useRoute()
@@ -96,11 +98,11 @@ const currentTab = computed(() => {
   return route.query.sub || 'map'
 })
 
-const tabs = [
-  { name: 'map', label: '地圖' },
-  { name: 'divide', label: '分區圖' },
-  { name: 'custom', label: '自定義' }
-]
+const tabs = computed(() => [
+  { name: 'map', label: t('map.tabs.map') },
+  { name: 'divide', label: t('map.tabs.divide') },
+  { name: 'custom', label: t('map.tabs.custom') }
+])
 
 // 處理地圖點擊事件
 const handleMapClick = (coordinates) => {
@@ -109,17 +111,17 @@ const handleMapClick = (coordinates) => {
 
 // 處理提交成功事件
 const handleSubmitSuccess = async (response) => {
-  showSuccess('自定義數據提交成功！')
+  showSuccess(t('map.messages.submitSuccess'))
 
   // 自动打开自定义数据开关
   mapStore.showCustomData = true;
 
   // 重新加載合併數據
   try {
-    await func_mergeData(resultCache.latestResults, mapStore.mapData)
-    console.log('✅ 數據已刷新')
+    await refreshCurrentCustomLayer()
+    console.log(t('map.messages.dataRefreshed'))
   } catch (error) {
-    console.error('❌ 刷新數據失敗:', error)
+    console.error(t('map.messages.dataRefreshFailed'), error)
   }
 }
 
@@ -153,8 +155,8 @@ const comparePair = computed(() => {
 
 // 計算幫助文本
 const helpText = computed(() => {
-  if (!selectedFeature.value) return '如果你想添加個人自定義數據，請先選擇特徵'
-  return `如果你想添加個人自定義數據，特徵需填入：${selectedFeature.value}`
+  if (!selectedFeature.value) return t('map.help.noFeature')
+  return t('map.help.withFeature', { feature: selectedFeature.value })
 })
 
 // Watch for feature list changes
@@ -215,7 +217,7 @@ watch(
       // 自动切换到 feature 模式（关闭"查看地名"开关）
       mapStore.mode = 'feature'
 
-      showSuccess(`已加载特征：${newFeature}`)
+      showSuccess(t('map.messages.featureLoaded', { feature: newFeature }))
 
       // 清除路由参数（避免刷新重复加载）
       await router.replace({
@@ -228,8 +230,8 @@ watch(
         }
       })
     } catch (error) {
-      console.error('❌ 加载特征失败:', error)
-      showError('加载特征失败：' + (error.message || error))
+      console.error(t('map.messages.featureLoadFailed'), error)
+      showError(t('map.messages.loadFeatureFailed', { error: error.message || error }))
     }
   },
   { immediate: true } // 立即执行一次，检查初始路由参数

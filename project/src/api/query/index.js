@@ -24,3 +24,8 @@ export {
   getPhonologyClassificationMatrix,
   queryPhonology
 } from './phonology.js'
+
+export {
+  postPhoPieByValue,
+  postPhoPieByStatus
+} from './phoPie.js'

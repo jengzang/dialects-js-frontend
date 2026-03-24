@@ -3,18 +3,18 @@
     <!-- Header Section -->
     <div class="header-section">
       <div class="title-row">
-        <h2 style="margin: 0;">廣東自然村樹狀圖</h2>
+        <h2 style="margin: 0;">{{ t('villages.pages.gdTree.title') }}</h2>
 <!--        <button class="village-link-btn" @click="goToYCVillages">-->
 <!--          <span role="img" aria-label="ycVillages">🏠</span> 陽春自然村-->
 <!--        </button>-->
       </div>
-      <p class="subtitle">點擊「加載」按鈕展開城市資料</p>
+      <p class="subtitle">{{ t('villages.pages.gdTree.subtitle') }}</p>
       <div class="search-wrapper">
         <span class="search-icon">🔍</span>
         <input
             type="text"
             v-model="searchQuery"
-            placeholder="搜索已加載的村落..."
+            :placeholder="t('villages.pages.gdTree.searchPlaceholder')"
             class="glass-input"
         />
       </div>
@@ -25,7 +25,7 @@
       <!-- Initial Loading State -->
       <div v-if="isInitialLoading" class="initial-state">
         <div class="loading-spinner"></div>
-        <p>正在加載城市列表...</p>
+        <p>{{ t('villages.pages.gdTree.loadingCities') }}</p>
       </div>
 
       <!-- Initial Error State -->
@@ -33,7 +33,7 @@
         <div class="error-icon">⚠️</div>
         <p class="error-message">{{ initialLoadError }}</p>
         <button @click="loadInitialCities" class="retry-btn">
-          重試
+          {{ t('villages.pages.gdTree.retry') }}
         </button>
       </div>
 
@@ -54,31 +54,31 @@
                 :disabled="loadingStates[city]"
                 class="load-btn"
             >
-              {{ loadingStates[city] ? '加載中...' : '加載' }}
+              {{ loadingStates[city] ? t('villages.pages.gdTree.loading') : t('villages.pages.gdTree.load') }}
             </button>
             <div v-else class="loaded-badge">
-              ✓ 已加載
+              ✓ {{ t('villages.pages.gdTree.loaded') }}
             </div>
           </div>
 
           <!-- City Loading State -->
           <div v-if="loadingStates[city]" class="city-loading">
             <div class="loading-spinner small"></div>
-            <span>正在獲取數據...</span>
+            <span>{{ t('villages.pages.gdTree.fetching') }}</span>
           </div>
 
           <!-- City Error State -->
           <div v-else-if="cityLoadErrors[city]" class="city-error">
             <p class="error-text">{{ cityLoadErrors[city] }}</p>
             <button @click="loadCityData(city)" class="retry-btn-small">
-              重試
+              {{ t('villages.pages.gdTree.retry') }}
             </button>
           </div>
 
           <!-- Tree Container -->
           <div v-else-if="loadedCitiesData[city]" class="tree-container">
             <div v-if="getFilteredCityData(city).length === 0" class="empty-state">
-              {{ searchQuery ? '沒有找到匹配的結果' : '暫無數據' }}
+              {{ searchQuery ? t('villages.pages.gdTree.noResults') : t('villages.pages.gdTree.noData') }}
             </div>
             <VillagesTreeItem
                 v-for="item in getFilteredCityData(city)"
@@ -103,11 +103,11 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
+import { useI18n } from 'vue-i18n';
 import VillagesTreeItem from '@/components/TableAndTree/VillagesTreeItem.vue';
 import VillageMapPopup from '@/components/map/VillageMapPopup.vue';
 import { lazyLoadTree, loadFullTree } from '@/api/sql/index.js';
-import { useRouter } from 'vue-router';
-const router = useRouter();
+const { t } = useI18n();
 
 // API Configuration
 const API_CONFIG = {
@@ -155,11 +155,11 @@ const loadInitialCities = async () => {
     if (result && result.children && Array.isArray(result.children) && result.children.length > 0) {
       topLevelCities.value = result.children;
     } else {
-      throw new Error('返回的城市列表格式錯誤');
+      throw new Error(t('villages.pages.gdTree.errors.invalidCityList'));
     }
   } catch (error) {
     console.error('❌ 加載城市列表失敗:', error);
-    initialLoadError.value = error.message || '無法加載城市列表，請重試';
+    initialLoadError.value = error.message || t('villages.pages.gdTree.errors.loadCities');
   } finally {
     isInitialLoading.value = false;
   }
@@ -193,11 +193,11 @@ const loadCityData = async (cityName) => {
       const normalizedData = normalizeTreeData(result.tree[cityName], cityName);
       loadedCitiesData.value[cityName] = normalizedData;
     } else {
-      throw new Error('返回的數據格式錯誤或城市無數據');
+      throw new Error(t('villages.pages.gdTree.errors.invalidCityData'));
     }
   } catch (error) {
     console.error(`❌ 加載 ${cityName} 數據失敗:`, error);
-    cityLoadErrors.value[cityName] = error.message || '加載失敗，請重試';
+    cityLoadErrors.value[cityName] = error.message || t('villages.pages.gdTree.errors.loadCity');
   } finally {
     loadingStates.value[cityName] = false;
   }

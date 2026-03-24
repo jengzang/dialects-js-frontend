@@ -4,51 +4,51 @@
     <div v-if="!fileUploaded" class="welcome-screen">
       <div class="glass-container welcome-card">
         <div class="welcome-icon">📋</div>
-        <h2 class="title">方言字表檢查工具</h2>
+        <h2 class="title">{{ t('tools.checkTool.welcome.title') }}</h2>
 <!--        <p class="subtitle">上傳文件開始檢查和編輯</p>-->
 
         <div class="welcome-features">
           <div class="feature-item">
             <span class="feature-icon">✓</span>
-            <span>自動檢測非單字、異常音標、缺聲調</span>
+            <span>{{ t('tools.checkTool.welcome.feature1') }}</span>
           </div>
           <div class="feature-item">
             <span class="feature-icon">✓</span>
-            <span>支持批量編輯以及指令編輯</span>
+            <span>{{ t('tools.checkTool.welcome.feature2') }}</span>
           </div>
           <div class="feature-item">
             <span class="feature-icon">✓</span>
-            <span>單元格點擊編輯，快速修復</span>
+            <span>{{ t('tools.checkTool.welcome.feature3') }}</span>
           </div>
         </div>
 
         <div class="format-selector">
           <div class="format-label-row">
-            <label class="format-label">文件格式：</label>
+            <label class="format-label">{{ t('tools.checkTool.welcome.formatLabel') }}</label>
             <button class="glass-button small" @click="showFormatHelpModal = true">
-              📋 說明
+              📋 {{ t('tools.checkTool.welcome.formatHelp') }}
             </button>
           </div>
           <div class="format-options">
             <label class="format-option">
               <input type="radio" name="format" value="音典" v-model="selectedFormat" />
-              <span>一字一音(音典)</span>
+              <span>{{ t('tools.checkTool.welcome.formatYindian') }}</span>
             </label>
             <label class="format-option">
               <input type="radio" name="format" value="跳跳老鼠" v-model="selectedFormat" />
-              <span>一音多字</span>
+              <span>{{ t('tools.checkTool.welcome.formatMultiChar') }}</span>
             </label>
             <label class="format-option">
               <input type="radio" name="format" value="縣志" v-model="selectedFormat" />
-              <span>縣志</span>
+              <span>{{ t('tools.checkTool.welcome.formatGazetteer') }}</span>
             </label>
             <label class="format-option">
               <input type="radio" name="script" :value="false" v-model="isSimplified" />
-              <span>繁體(推薦)</span>
+              <span>{{ t('tools.checkTool.welcome.traditionalRecommended') }}</span>
             </label>
             <label class="format-option">
               <input type="radio" name="script" :value="true" v-model="isSimplified" />
-              <span>简体(簡轉繁,會更改字表)</span>
+              <span>{{ t('tools.checkTool.welcome.simplifiedConvert') }}</span>
             </label>
           </div>
         </div>
@@ -70,13 +70,13 @@
         >
           <template v-if="!isUploading">
             <div class="upload-icon-large">📄</div>
-            <h3 class="upload-text">點擊或拖拽文件到此處</h3>
-            <p class="hint-text">支持 .xlsx, .xls, .doc, .docx, .tsv 格式</p>
+            <h3 class="upload-text">{{ t('tools.checkTool.welcome.uploadTitle') }}</h3>
+            <p class="hint-text">{{ t('tools.checkTool.welcome.uploadHint') }}</p>
           </template>
           <template v-else>
             <div class="loading-spinner"></div>
-            <h3 class="upload-text">上傳中...</h3>
-            <p class="hint-text">請稍候，正在處理文件</p>
+            <h3 class="upload-text">{{ t('tools.checkTool.welcome.uploadingTitle') }}</h3>
+            <p class="hint-text">{{ t('tools.checkTool.welcome.uploadingHint') }}</p>
           </template>
         </div>
       </div>
@@ -87,9 +87,9 @@
       <!-- 侧边栏 -->
       <aside v-if="!isPortrait" class="sidebar glass-panel" :class="{ collapsed: sidebarCollapsed }">
         <div class="sidebar-header">
-          <h3>📋 邊欄</h3>
+          <h3>📋 {{ t('tools.checkTool.sidebar.title') }}</h3>
           <button class="glass-button small" @click="toggleShowAll">
-            {{ showingAll ? '👁️ 只顯示錯誤' : '👁️ 顯示全部' }}
+            {{ showingAll ? '👁️ ' + t('tools.checkTool.sidebar.showErrorsOnly') : '👁️ ' + t('tools.checkTool.sidebar.showAll') }}
           </button>
           <button class="collapse-btn" @click="toggleSidebar">
             {{ sidebarCollapsed ? '▶' : '◀' }}
@@ -100,7 +100,7 @@
           <!-- 错误统计卡片 -->
           <div class="sidebar-section" :class="{ collapsed: !errorStatsExpanded }">
             <div class="section-header" @click="toggleErrorStats">
-              <span class="section-title">🔍 錯誤列表</span>
+              <span class="section-title">🔍 {{ t('tools.checkTool.sidebar.errorListTitle') }}</span>
               <span class="toggle-icon">{{ errorStatsExpanded ? '▼' : '▶' }}</span>
             </div>
 
@@ -127,10 +127,10 @@
                   v-model="searchQuery"
                   type="text"
                   class="glass-input search-input"
-                  placeholder="🔍 搜索漢字..."
+                  :placeholder="`🔍 ${t('tools.checkTool.sidebar.searchPlaceholder')}`"
                   @input="handleSearch"
                 />
-                <button class="glass-button small" @click="resetFilter">清除篩選</button>
+                <button class="glass-button small" @click="resetFilter">{{ t('tools.checkTool.sidebar.clearFilter') }}</button>
               </div>
 
               <!-- 错误列表 -->
@@ -141,14 +141,14 @@
                   class="error-item"
                   @click="jumpToRow(error.row)"
                 >
-                  <div class="error-row-num">行 {{ error.row }}</div>
+                  <div class="error-row-num">{{ t('tools.checkTool.sidebar.rowLabel', { row: error.row }) }}</div>
                   <div class="error-char">{{ error.value || error.char || '' }}</div>
                   <div class="error-type-badge" :class="error.error_type || error.type">
                     {{ getErrorTypeLabel(error.error_type || error.type) }}
                   </div>
                 </div>
                 <div v-if="displayedErrors.length > 50" class="error-more">
-                  還有 {{ displayedErrors.length - 50 }} 個錯誤...
+                  {{ t('tools.checkTool.sidebar.moreErrors', { count: displayedErrors.length - 50 }) }}
                 </div>
               </div>
             </div>
@@ -157,7 +157,7 @@
           <!-- 调值统计卡片 -->
           <div class="sidebar-section" :class="{ collapsed: !toneStatsExpanded }">
             <div class="section-header" @click="toggleToneStats">
-              <span class="section-title">📊 調值統計</span>
+              <span class="section-title">📊 {{ t('tools.checkTool.sidebar.toneStatsTitle') }}</span>
               <span class="toggle-icon">{{ toneStatsExpanded ? '▼' : '▶' }}</span>
             </div>
 
@@ -165,16 +165,16 @@
               <div v-if="toneStats" class="tone-stats-content">
                 <!-- 入声调 -->
                 <div v-if="Object.keys(toneStats.ru_tones).length > 0" class="tone-section">
-                  <div class="tone-section-title ru">入聲調</div>
+                  <div class="tone-section-title ru">{{ t('tools.checkTool.sidebar.ruToneTitle') }}</div>
                   <div
                     v-for="([tone, info], index) in sortedRuTones"
                     :key="'ru-' + index"
                     class="tone-item ru"
-                    @click="showAllChars(tone, info, '入声')"
+                    @click="showAllChars(tone, info, 'ru')"
                   >
                     <div class="tone-header">
                       <span class="tone-value">{{ tone }}</span>
-                      <span class="tone-count">{{ info.count }}字{{ info.count > info.chars.length ? ' 👁️' : '' }}</span>
+                      <span class="tone-count">{{ t('tools.checkTool.sidebar.charCount', { count: info.count }) }}{{ info.count > info.chars.length ? ' 👁️' : '' }}</span>
                     </div>
                     <div class="tone-chars">
                       {{ info.chars.join(' ') }}{{ info.count > info.chars.length ? '...' : '' }}
@@ -184,16 +184,16 @@
 
                 <!-- 舒声调 -->
                 <div v-if="Object.keys(toneStats.shu_tones).length > 0" class="tone-section">
-                  <div class="tone-section-title shu">舒聲調</div>
+                  <div class="tone-section-title shu">{{ t('tools.checkTool.sidebar.shuToneTitle') }}</div>
                   <div
                     v-for="([tone, info], index) in sortedShuTones"
                     :key="'shu-' + index"
                     class="tone-item shu"
-                    @click="showAllChars(tone, info, '舒声')"
+                    @click="showAllChars(tone, info, 'shu')"
                   >
                     <div class="tone-header">
                       <span class="tone-value">{{ tone }}</span>
-                      <span class="tone-count">{{ info.count }}字{{ info.count > info.chars.length ? ' 👁️' : '' }}</span>
+                      <span class="tone-count">{{ t('tools.checkTool.sidebar.charCount', { count: info.count }) }}{{ info.count > info.chars.length ? ' 👁️' : '' }}</span>
                     </div>
                     <div class="tone-chars">
                       {{ info.chars.join(' ') }}{{ info.count > info.chars.length ? '...' : '' }}
@@ -202,7 +202,7 @@
                 </div>
               </div>
               <div v-else class="empty-state">
-                暫無調值統計
+                {{ t('tools.checkTool.sidebar.noToneStats') }}
               </div>
             </div>
           </div>
@@ -210,7 +210,7 @@
           <!-- 声韵统计卡片 -->
           <div class="sidebar-section" :class="{ collapsed: !onsetRimeStatsExpanded }">
             <div class="section-header" @click="toggleOnsetRimeStats">
-              <span class="section-title">🔤 聲韻統計</span>
+              <span class="section-title">🔤 {{ t('tools.checkTool.sidebar.onsetRimeTitle') }}</span>
               <span class="toggle-icon">{{ onsetRimeStatsExpanded ? '▼' : '▶' }}</span>
             </div>
 
@@ -218,7 +218,7 @@
               <div v-if="onsetStats.length > 0 || rimeStats.length > 0" class="onset-rime-stats-content">
                 <!-- 声母统计 -->
                 <div v-if="onsetStats.length > 0" class="onset-rime-section">
-                  <div class="onset-rime-section-title">聲母</div>
+                  <div class="onset-rime-section-title">{{ t('tools.checkTool.sidebar.onsetTitle') }}</div>
                   <div class="onset-rime-items">
                     <div
                       v-for="(item, index) in onsetStats"
@@ -227,7 +227,7 @@
                       :class="{ 'filtered': isOnsetFiltered(item.value) }"
                       @click="filterByOnset(item.value)"
                     >
-                      <span class="onset-rime-value">{{ item.value || '(空)' }}</span>
+                      <span class="onset-rime-value">{{ item.value || t('tools.checkTool.sidebar.emptyValue') }}</span>
                       <span class="onset-rime-count">{{ item.count }}</span>
                     </div>
                   </div>
@@ -235,7 +235,7 @@
 
                 <!-- 韵母统计 -->
                 <div v-if="rimeStats.length > 0" class="onset-rime-section">
-                  <div class="onset-rime-section-title">韻母</div>
+                  <div class="onset-rime-section-title">{{ t('tools.checkTool.sidebar.rimeTitle') }}</div>
                   <div class="onset-rime-items">
                     <div
                       v-for="(item, index) in rimeStats"
@@ -244,14 +244,14 @@
                       :class="{ 'filtered': isRimeFiltered(item.value) }"
                       @click="filterByRime(item.value)"
                     >
-                      <span class="onset-rime-value">{{ item.value || '(空)' }}</span>
+                      <span class="onset-rime-value">{{ item.value || t('tools.checkTool.sidebar.emptyValue') }}</span>
                       <span class="onset-rime-count">{{ item.count }}</span>
                     </div>
                   </div>
                 </div>
               </div>
               <div v-else class="empty-state">
-                暫無聲韻統計
+                {{ t('tools.checkTool.sidebar.noOnsetRimeStats') }}
               </div>
             </div>
           </div>
@@ -264,11 +264,11 @@
         <div class="file-info-bar glass-panel">
           <div class="file-info-left">
             <span class="file-name">📁 {{ fileName }}</span>
-            <span class="file-rows">{{ totalRows }} 行</span>
+            <span class="file-rows">{{ t('tools.checkTool.fileBar.rows', { count: totalRows }) }}</span>
           </div>
-          <button v-if="!isPortrait" class="glass-button secondary small" @click="resetUpload">更換文件</button>
+          <button v-if="!isPortrait" class="glass-button secondary small" @click="resetUpload">{{ t('tools.checkTool.fileBar.changeFile') }}</button>
           <button v-if="!isPortrait" class="glass-button small" @click="showHelpModal = true">
-            ❓ 幫助
+            ❓ {{ t('tools.checkTool.fileBar.help') }}
           </button>
           <!-- 模式切换 -->
           <div class="mode-tabs glass-panel">
@@ -277,14 +277,14 @@
                 :class="{ active: currentMode === 'table' }"
                 @click="switchMode('table')"
             >
-              📊 表格視圖
+              📊 {{ t('tools.checkTool.fileBar.tableView') }}
             </button>
             <button
                 class="tab-btn"
                 :class="{ active: currentMode === 'command' }"
                 @click="switchMode('command')"
             >
-              💻 指令模式
+              💻 {{ t('tools.checkTool.fileBar.commandMode') }}
             </button>
           </div>
         </div>
@@ -296,9 +296,9 @@
           <!-- 工具栏 -->
           <div class="table-toolbar glass-panel">
             <div class="table-stats">
-              <span>錯誤數：<strong>{{ errorStats.total }}</strong></span>
-              <span class="ml-2">待保存：<strong>{{ totalPendingChanges }}</strong></span>
-              <span v-if="isEditMode" class="edit-hint">💡 單擊單元格編輯</span>
+              <span>{{ t('tools.checkTool.table.errorCount') }}<strong>{{ errorStats.total }}</strong></span>
+              <span class="ml-2">{{ t('tools.checkTool.table.pendingCount') }}<strong>{{ totalPendingChanges }}</strong></span>
+              <span v-if="isEditMode" class="edit-hint">💡 {{ t('tools.checkTool.table.clickToEdit') }}</span>
             </div>
             <div class="table-actions">
               <button
@@ -306,7 +306,7 @@
                 :class="{ active: isEditMode }"
                 @click="toggleEditMode"
               >
-                {{ isEditMode ? '👁️ 退出編輯' : '✏️ 進入編輯' }}
+                {{ isEditMode ? '👁️ ' + t('tools.checkTool.table.exitEdit') : '✏️ ' + t('tools.checkTool.table.enterEdit') }}
               </button>
               <button
                 v-show="isEditMode"
@@ -314,20 +314,20 @@
                 :disabled="totalPendingChanges === 0"
                 @click="batchSave"
               >
-                💾 保存修改 ({{ totalPendingChanges }})
+                💾 {{ t('tools.checkTool.table.saveChanges') }} ({{ totalPendingChanges }})
               </button>
               <button
                 v-show="isEditMode"
                 class="glass-button small"
                 @click="cancelEdit"
               >
-                ❌ 取消
+                ❌ {{ t('tools.checkTool.table.cancel') }}
               </button>
               <button v-show="!isEditMode" class="glass-button small" @click="showBatchReplaceModal = true">
-                🔄 批量替換
+                🔄 {{ t('tools.checkTool.table.batchReplace') }}
               </button>
               <button v-show="!isEditMode" class="glass-button small" @click="downloadFile">
-                ⬇️ 下載
+                ⬇️ {{ t('tools.checkTool.table.download') }}
               </button>
             </div>
           </div>
@@ -336,37 +336,37 @@
           <div class="table-container glass-panel" :class="{ 'loading': isLoadingTable || isEditModeLoading }">
             <div v-if="isLoadingTable || isEditModeLoading " class="table-loading-overlay">
               <div class="table-loading-spinner"></div>
-              <div class="table-loading-text">加載中...</div>
+              <div class="table-loading-text">{{ t('tools.checkTool.table.loading') }}</div>
             </div>
 
             <!-- Fixed Header -->
             <div class="virtual-table-header" :style="{ gridTemplateColumns: isEditMode ? '60px 80px 90px 80px 80px 80px 1fr 80px' : '60px 80px 90px 80px 80px 80px 1fr' }">
-              <div class="header-cell">行</div>
-              <div class="header-cell">漢字</div>
-              <div class="header-cell">音標</div>
+              <div class="header-cell">{{ t('tools.checkTool.table.row') }}</div>
+              <div class="header-cell">{{ t('tools.checkTool.table.char') }}</div>
+              <div class="header-cell">{{ t('tools.checkTool.table.ipa') }}</div>
               <div
                 class="header-cell filterable-header"
                 @click="openFilterModal('onset')"
                 :class="{ 'filtered': filterOnset.size > 0 }"
               >
-                聲母{{ getFilterDisplayText('onset') }}
+                {{ t('tools.checkTool.table.onset') }}{{ getFilterDisplayText('onset') }}
               </div>
               <div
                 class="header-cell filterable-header"
                 @click="openFilterModal('rime')"
                 :class="{ 'filtered': filterRime.size > 0 }"
               >
-                韻母{{ getFilterDisplayText('rime') }}
+                {{ t('tools.checkTool.table.rime') }}{{ getFilterDisplayText('rime') }}
               </div>
               <div
                 class="header-cell filterable-header"
                 @click="openFilterModal('tone')"
                 :class="{ 'filtered': filterTone.size > 0 }"
               >
-                聲調{{ getFilterDisplayText('tone') }}
+                {{ t('tools.checkTool.table.tone') }}{{ getFilterDisplayText('tone') }}
               </div>
-              <div class="header-cell">解釋</div>
-              <div v-show="isEditMode" class="header-cell">操作</div>
+              <div class="header-cell">{{ t('tools.checkTool.table.note') }}</div>
+              <div v-show="isEditMode" class="header-cell">{{ t('tools.checkTool.table.actions') }}</div>
             </div>
 
             <!-- Virtual Scroller Body -->
@@ -534,7 +534,7 @@
                     class="delete-btn-icon"
                     :class="{ 'delete-active': rowsToDelete.has(row.row) }"
                     @click="markForDelete(row.row)"
-                    :title="rowsToDelete.has(row.row) ? '取消刪除' : '標記刪除'"
+                    :title="rowsToDelete.has(row.row) ? t('tools.checkTool.table.cancelDelete') : t('tools.checkTool.table.markDelete')"
                   >
                     {{ rowsToDelete.has(row.row) ? '↩️' : '🗑️' }}
                   </button>
@@ -548,38 +548,28 @@
         <div v-show="currentMode === 'command'" class="command-view">
           <div class="command-panel glass-panel">
             <div class="command-header">
-              <h3>💻 指令輸入</h3>
+              <h3>💻 {{ t('tools.checkTool.command.title') }}</h3>
               <button v-if="!isPortrait" class="glass-button small" @click="showHelpModal = true">
-                ❓ 指令說明
+                ❓ {{ t('tools.checkTool.command.help') }}
               </button>
             </div>
 
             <textarea
               v-model="commandInput"
               class="command-textarea custom-scrollbar"
-              placeholder="輸入指令，每行一條或用分號分隔
-
-                示例：
-                c-帥-好
-                i-帥-jat4
-                p-'-ʰ
-                r5>3
-                s22>33
-
-                多條指令用分號分隔：
-                c-帥-好; i-帥-jat4"
+              :placeholder="t('tools.checkTool.command.placeholder')"
             ></textarea>
 
             <div class="command-actions">
-              <button class="glass-button" @click="clearCommand">🗑️ 清空</button>
-              <button class="glass-button primary" @click="executeCommand">▶️ 執行指令</button>
+              <button class="glass-button" @click="clearCommand">🗑️ {{ t('tools.checkTool.command.clear') }}</button>
+              <button class="glass-button primary" @click="executeCommand">▶️ {{ t('tools.checkTool.command.execute') }}</button>
             </div>
 
             <!-- 执行结果 -->
             <div v-if="commandLog.length > 0" class="command-result glass-panel">
               <div class="result-header">
-                <h4>📋 執行結果</h4>
-                <button class="glass-button small" @click="clearCommandLog">清空</button>
+                <h4>📋 {{ t('tools.checkTool.command.resultTitle') }}</h4>
+                <button class="glass-button small" @click="clearCommandLog">{{ t('tools.checkTool.command.clearResult') }}</button>
               </div>
               <div class="result-log custom-scrollbar">
                 <div
@@ -602,13 +592,13 @@
       <div v-if="showBatchReplaceModal" class="modal-overlay" @click.self="showBatchReplaceModal = false">
         <div class="modal-content glass-panel">
           <div class="modal-header">
-            <h3>🔄 批量替換</h3>
+            <h3>🔄 {{ t('tools.checkTool.batchReplace.title') }}</h3>
             <button class="close-btn" @click="showBatchReplaceModal = false">×</button>
           </div>
 
           <div class="modal-body">
             <div class="form-group">
-              <label>替換類型</label>
+              <label>{{ t('tools.checkTool.batchReplace.replaceType') }}</label>
               <SimpleSelectDropdown
                 v-model="replaceType"
                 :options="replaceTypeOptions"
@@ -617,46 +607,46 @@
             </div>
 
             <div v-if="replaceType === 'p'" class="form-group">
-              <label>原字符</label>
-              <input v-model="replaceFrom" type="text" class="glass-input" placeholder="例如：'" />
-              <div class="hint">要替換的字符或字符串</div>
+              <label>{{ t('tools.checkTool.batchReplace.sourceChar') }}</label>
+              <input v-model="replaceFrom" type="text" class="glass-input" :placeholder="t('tools.checkTool.batchReplace.sourceCharPlaceholder')" />
+              <div class="hint">{{ t('tools.checkTool.batchReplace.sourceCharHint') }}</div>
             </div>
 
             <div v-if="replaceType !== 'p'" class="form-group">
-              <label>原調值</label>
-              <input v-model="replaceFrom" type="text" class="glass-input" placeholder="例如：5" />
-              <div class="hint">要替換的調值（1-4位數字）</div>
+              <label>{{ t('tools.checkTool.batchReplace.sourceTone') }}</label>
+              <input v-model="replaceFrom" type="text" class="glass-input" :placeholder="t('tools.checkTool.batchReplace.sourceTonePlaceholder')" />
+              <div class="hint">{{ t('tools.checkTool.batchReplace.sourceToneHint') }}</div>
             </div>
 
             <div class="form-group">
-              <label>{{ replaceType === 'p' ? '新字符' : '新調值' }}</label>
+              <label>{{ replaceType === 'p' ? t('tools.checkTool.batchReplace.targetChar') : t('tools.checkTool.batchReplace.targetTone') }}</label>
               <input
                 v-model="replaceTo"
                 type="text"
                 class="glass-input"
-                :placeholder="replaceType === 'p' ? '例如：ʰ' : '例如：2'"
+                :placeholder="replaceType === 'p' ? t('tools.checkTool.batchReplace.targetCharPlaceholder') : t('tools.checkTool.batchReplace.targetTonePlaceholder')"
               />
-              <div class="hint">{{ replaceType === 'p' ? '替換後的字符或字符串' : '替換後的調值（1-4位數字）' }}</div>
+              <div class="hint">{{ replaceType === 'p' ? t('tools.checkTool.batchReplace.targetCharHint') : t('tools.checkTool.batchReplace.targetToneHint') }}</div>
             </div>
 
             <div v-if="replaceType !== 'p'" class="hint-box">
-              <strong>{{ replaceType === 'r' ? '入聲調：' : '舒聲調：' }}</strong>
+              <strong>{{ replaceType === 'r' ? t('tools.checkTool.batchReplace.ruToneTitle') : t('tools.checkTool.batchReplace.shuToneTitle') }}</strong>
               {{
                 replaceType === 'r'
-                  ? '只替換以塞音結尾的調值（p, t, k, ʔ, b, d, g）'
-                  : '只替換舒聲的調值'
+                  ? t('tools.checkTool.batchReplace.ruToneHint')
+                  : t('tools.checkTool.batchReplace.shuToneHint')
               }}
             </div>
 
             <div class="form-group">
-              <label>預覽命令</label>
+              <label>{{ t('tools.checkTool.batchReplace.previewCommand') }}</label>
               <input :value="commandPreview" type="text" class="glass-input" readonly style="background: rgba(0,0,0,0.1);" />
             </div>
           </div>
 
           <div class="modal-footer">
-            <button class="glass-button secondary" @click="showBatchReplaceModal = false">取消</button>
-            <button class="glass-button primary" @click="executeBatchReplace">🔄 執行替換</button>
+            <button class="glass-button secondary" @click="showBatchReplaceModal = false">{{ t('tools.checkTool.batchReplace.cancel') }}</button>
+            <button class="glass-button primary" @click="executeBatchReplace">🔄 {{ t('tools.checkTool.batchReplace.execute') }}</button>
           </div>
         </div>
       </div>
@@ -667,7 +657,7 @@
       <div v-if="showHelpModal" class="modal-overlay" @click.self="showHelpModal = false">
         <div class="modal-content glass-panel help-modal">
           <div class="modal-header">
-            <h3>❓ 使用幫助</h3>
+            <h3>❓ {{ t('tools.checkTool.help.title') }}</h3>
             <button class="close-btn" @click="showHelpModal = false">×</button>
           </div>
 
@@ -683,72 +673,72 @@
 <!--            </div>-->
 
             <div class="help-section">
-              <h4>🔍 檢查項目</h4>
+              <h4>🔍 {{ t('tools.checkTool.help.checksTitle') }}</h4>
               <ul>
-                <li><strong>非漢字</strong>：漢字列應為單個字符</li>
-                <li><strong>異常音標</strong>：包含非法字符或格式錯誤</li>
-                <li><strong>缺聲調</strong>：音標末尾缺少數字聲調</li>
+                <li>{{ t('tools.checkTool.help.checkNonSingleChar') }}</li>
+                <li>{{ t('tools.checkTool.help.checkInvalidIpa') }}</li>
+                <li>{{ t('tools.checkTool.help.checkMissingTone') }}</li>
               </ul>
             </div>
 
             <div class="help-section">
-              <h4>💻 指令格式</h4>
+              <h4>💻 {{ t('tools.checkTool.help.commandTitle') }}</h4>
               <table class="help-table">
                 <thead>
                   <tr>
-                    <th>指令</th>
-                    <th>說明</th>
-                    <th>示例</th>
+                    <th>{{ t('tools.checkTool.help.commandHeader') }}</th>
+                    <th>{{ t('tools.checkTool.help.descriptionHeader') }}</th>
+                    <th>{{ t('tools.checkTool.help.exampleHeader') }}</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr>
                     <td><code>c-漢字-新字</code></td>
-                    <td>替換漢字</td>
+                    <td>{{ t('tools.checkTool.help.replaceCharDesc') }}</td>
                     <td><code>c-帥-好</code></td>
                   </tr>
                   <tr>
                     <td><code>c-漢字-d</code></td>
-                    <td>刪除行</td>
+                    <td>{{ t('tools.checkTool.help.deleteRowDesc') }}</td>
                     <td><code>c-帥-d</code></td>
                   </tr>
                   <tr>
                     <td><code>i-漢字-新音標</code></td>
-                    <td>修改音標</td>
+                    <td>{{ t('tools.checkTool.help.modifyIpaDesc') }}</td>
                     <td><code>i-帥-jat4</code></td>
                   </tr>
                   <tr>
                     <td><code>p-原-新</code></td>
-                    <td>全表替換音標</td>
+                    <td>{{ t('tools.checkTool.help.replaceIpaDesc') }}</td>
                     <td><code>p-'-ʰ</code></td>
                   </tr>
                   <tr>
                     <td><code>r{原}>{新}</code></td>
-                    <td>只替換入聲的調值</td>
+                    <td>{{ t('tools.checkTool.help.replaceRuToneDesc') }}</td>
                     <td><code>r5>2</code></td>
                   </tr>
                   <tr>
                     <td><code>s{原}>{新}</code></td>
-                    <td>只替換舒聲的調值</td>
+                    <td>{{ t('tools.checkTool.help.replaceShuToneDesc') }}</td>
                     <td><code>s22>33</code></td>
                   </tr>
                 </tbody>
               </table>
-              <p class="hint-text">💡 多條指令用分號分隔，例如：<code>c-帥-好; i-帥-jat4</code></p>
+              <p class="hint-text">💡 {{ t('tools.checkTool.help.commandHint') }}<code>c-帥-好; i-帥-jat4</code></p>
             </div>
 
             <div class="help-section">
-              <h4>✏️ 編輯方式</h4>
+              <h4>✏️ {{ t('tools.checkTool.help.editTitle') }}</h4>
               <ul>
-                <li><strong>單元格編輯</strong>：雙擊表格單元格直接編輯</li>
-                <li><strong>批量編輯</strong>：進入編輯模式，修改後統一保存</li>
-                <li><strong>指令模式</strong>：批量處理多個修改</li>
+                <li>{{ t('tools.checkTool.help.editCell') }}</li>
+                <li>{{ t('tools.checkTool.help.editBatch') }}</li>
+                <li>{{ t('tools.checkTool.help.editCommand') }}</li>
               </ul>
             </div>
           </div>
 
           <div class="modal-footer">
-            <button class="glass-button primary" @click="showHelpModal = false">知道了</button>
+            <button class="glass-button primary" @click="showHelpModal = false">{{ t('tools.checkTool.help.gotIt') }}</button>
           </div>
         </div>
       </div>
@@ -759,76 +749,76 @@
       <div v-if="showFormatHelpModal" class="modal-overlay" @click.self="showFormatHelpModal = false">
         <div class="modal-content glass-panel help-modal">
           <div class="modal-header">
-            <h3>📋 文件格式說明</h3>
+            <h3>📋 {{ t('tools.checkTool.formatHelp.title') }}</h3>
             <button class="close-btn" @click="showFormatHelpModal = false">×</button>
           </div>
 
           <div class="modal-body help-content custom-scrollbar">
             <!-- 音典格式 -->
             <div class="help-section">
-              <h4>1. 一字一音(音典)</h4>
+              <h4>{{ t('tools.checkTool.formatHelp.singleTitle') }}</h4>
               <div class="format-details">
-                <p><strong>文件要求：</strong>Excel (.xlsx, .xls)。</p>
-                <p><strong>必須包含三列：</strong></p>
+                <p><strong>{{ t('tools.checkTool.formatHelp.fileRequirement') }}</strong>{{ t('tools.checkTool.formatHelp.excelRequirement') }}</p>
+                <p><strong>{{ t('tools.checkTool.formatHelp.requiredColumns') }}</strong></p>
                 <ul>
-                  <li><strong>漢字列：</strong>列名可以是「單字」、「phrase」、「单字」、「漢字」、「汉字」</li>
-                  <li><strong>音標列：</strong>列名可以是「IPA」、「ipa」、「音標」、「音标」、「syllable」</li>
-                  <li><strong>解釋列：</strong>列名可以是「注释」、「注釋」、「解釋」、「notes」</li>
+                  <li>{{ t('tools.checkTool.formatHelp.singleCharColumn') }}</li>
+                  <li>{{ t('tools.checkTool.formatHelp.singleIpaColumn') }}</li>
+                  <li>{{ t('tools.checkTool.formatHelp.singleNoteColumn') }}</li>
                 </ul>
-                <p><strong>特點：</strong>系統會自動識別列名，支持多種列名變體。</p>
+                <p><strong>{{ t('tools.checkTool.formatHelp.feature') }}</strong>{{ t('tools.checkTool.formatHelp.singleFeature') }}</p>
               </div>
             </div>
 
             <!-- 跳跳老鼠格式 -->
             <div class="help-section">
-              <h4>2. 一音多字(跳跳老鼠)</h4>
-              <p>「一音對多字」</p>
+              <h4>{{ t('tools.checkTool.formatHelp.multiTitle') }}</h4>
+              <p>{{ t('tools.checkTool.formatHelp.multiSubtitle') }}</p>
               <div class="format-details">
-                <p><strong>文件要求：</strong>Excel (.xlsx, .xls)。</p>
-                <p><strong>欄位排版：</strong></p>
+                <p><strong>{{ t('tools.checkTool.formatHelp.fileRequirement') }}</strong>{{ t('tools.checkTool.formatHelp.excelRequirement') }}</p>
+                <p><strong>{{ t('tools.checkTool.formatHelp.layout') }}</strong></p>
                 <ul>
-                  <li>第一欄 (A)：音節（如：ka1）。</li>
-                  <li>第二欄 (B)：漢字組，支持註釋（如：家{住所} 加[增加] 佳）。</li>
+                  <li>{{ t('tools.checkTool.formatHelp.multiRule1') }}</li>
+                  <li>{{ t('tools.checkTool.formatHelp.multiRule2') }}</li>
                 </ul>
-                <p><strong>特點：</strong>系統會自動拆分第二欄的每個字，並配上第一欄的音標。</p>
+                <p><strong>{{ t('tools.checkTool.formatHelp.feature') }}</strong>{{ t('tools.checkTool.formatHelp.multiFeature') }}</p>
               </div>
             </div>
 
             <!-- 縣志格式 -->
             <div class="help-section">
-              <h4>3. 縣志</h4>
+              <h4>{{ t('tools.checkTool.formatHelp.gazetteerTitle') }}</h4>
               
               <div class="format-subsection">
-                <h5>Excel 格式：</h5>
+                <h5>{{ t('tools.checkTool.formatHelp.excelTitle') }}</h5>
                 <div class="format-details">
-                  <p><strong>文件要求：</strong>Excel (.xlsx, .xls)。</p>
-                  <p><strong>內容規則：</strong></p>
+                  <p><strong>{{ t('tools.checkTool.formatHelp.fileRequirement') }}</strong>{{ t('tools.checkTool.formatHelp.excelRequirement') }}</p>
+                  <p><strong>{{ t('tools.checkTool.formatHelp.contentRules') }}</strong></p>
                   <ul>
-                    <li>行首：聲母+韻母（如：pan）。</li>
-                    <li>後續內容：必須包含「方括號調號」，格式為 [調號]漢字{註釋}。</li>
-                    <li>範例：pan [1]班{班級} [2]板 [3]拌。</li>
+                    <li>{{ t('tools.checkTool.formatHelp.gazetteerExcelRule1') }}</li>
+                    <li>{{ t('tools.checkTool.formatHelp.gazetteerExcelRule2') }}</li>
+                    <li>{{ t('tools.checkTool.formatHelp.gazetteerExcelRule3') }}</li>
                   </ul>
-                  <p><strong>特點：</strong>自動識別 [ ] 或 ［ ］ 內的調號並與行首拼音組合成完整音標。</p>
+                  <p><strong>{{ t('tools.checkTool.formatHelp.feature') }}</strong>{{ t('tools.checkTool.formatHelp.gazetteerExcelFeature') }}</p>
                 </div>
               </div>
 
               <div class="format-subsection">
-                <h5>Word 格式：</h5>
+                <h5>{{ t('tools.checkTool.formatHelp.wordTitle') }}</h5>
                 <div class="format-details">
-                  <p><strong>文件要求：</strong>Word (.docx)</p>
-                  <p><strong>層級規則：</strong></p>
+                  <p><strong>{{ t('tools.checkTool.formatHelp.fileRequirement') }}</strong>{{ t('tools.checkTool.formatHelp.wordRequirement') }}</p>
+                  <p><strong>{{ t('tools.checkTool.formatHelp.hierarchyRules') }}</strong></p>
                   <ul>
-                    <li>韻母層：以 # 開頭（如：#ang）。</li>
-                    <li>內容行：聲母 [調號]漢字{註釋}。</li>
+                    <li>{{ t('tools.checkTool.formatHelp.gazetteerWordRule1') }}</li>
+                    <li>{{ t('tools.checkTool.formatHelp.gazetteerWordRule2') }}</li>
                   </ul>
-                  <p><strong>特點：</strong>支持複雜匹配。若一項中有多個字或多個音標（用 ; 或 / 分隔），系統會自動進行交叉匹配（笛卡爾積）。</p>
+                  <p><strong>{{ t('tools.checkTool.formatHelp.feature') }}</strong>{{ t('tools.checkTool.formatHelp.gazetteerWordFeature') }}</p>
                 </div>
               </div>
             </div>
           </div>
 
           <div class="modal-footer">
-            <button class="glass-button primary" @click="showFormatHelpModal = false">知道了</button>
+            <button class="glass-button primary" @click="showFormatHelpModal = false">{{ t('tools.checkTool.formatHelp.gotIt') }}</button>
           </div>
         </div>
       </div>
@@ -850,7 +840,7 @@
           </div>
 
           <div class="modal-footer">
-            <button class="glass-button primary" @click="showToneCharsModal = false">關閉</button>
+            <button class="glass-button primary" @click="showToneCharsModal = false">{{ t('tools.checkTool.toneChars.close') }}</button>
           </div>
         </div>
       </div>
@@ -862,10 +852,7 @@
         <div class="modal-content glass-panel filter-modal">
           <div class="modal-header">
             <h3>
-              🔍 篩選
-              <span v-if="filterColumnType === 'onset'">聲母</span>
-              <span v-else-if="filterColumnType === 'rime'">韻母</span>
-              <span v-else-if="filterColumnType === 'tone'">聲調</span>
+              🔍 {{ t('tools.checkTool.filter.title', { column: getFilterColumnLabel(filterColumnType) }) }}
             </h3>
             <button class="close-btn" @click="showFilterModal = false">×</button>
           </div>
@@ -873,10 +860,10 @@
           <div class="modal-body filter-modal-body">
             <div class="filter-actions">
               <button class="glass-button small" @click="toggleSelectAll">
-                {{ isAllSelected ? '全消' : '全選' }}
+                {{ isAllSelected ? t('tools.checkTool.filter.clearAll') : t('tools.checkTool.filter.selectAll') }}
               </button>
               <button class="glass-button small secondary" @click="invertSelection">
-                反選
+                {{ t('tools.checkTool.filter.invert') }}
               </button>
             </div>
             
@@ -889,7 +876,7 @@
                 @click="toggleFilterValue(value)"
               >
                 <span class="checkbox">{{ getCurrentFilterSet().has(value) ? '✓' : '' }}</span>
-                <span class="value-text">{{ value || '(空)' }}</span>
+                <span class="value-text">{{ value || t('tools.checkTool.filter.emptyValue') }}</span>
                 <span class="value-count">
                   {{ getValueCount(filterColumnType, value) }}
                 </span>
@@ -898,8 +885,8 @@
           </div>
 
           <div class="modal-footer">
-            <button class="glass-button secondary" @click="showFilterModal = false">關閉</button>
-            <button class="glass-button primary" @click="showFilterModal = false">確定</button>
+            <button class="glass-button secondary" @click="showFilterModal = false">{{ t('tools.checkTool.filter.close') }}</button>
+            <button class="glass-button primary" @click="showFilterModal = false">{{ t('tools.checkTool.filter.confirm') }}</button>
           </div>
         </div>
       </div>
@@ -909,6 +896,7 @@
 
 <script setup>
 import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { RecycleScroller } from 'vue-virtual-scroller'
 import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
@@ -926,6 +914,7 @@ import {
 import { userStore } from '@/store/store.js'
 import { showSuccess, showError, showWarning, showConfirm } from '@/utils/message.js'
 
+const { t } = useI18n()
 const router = useRouter()
 
 // 基本状态
@@ -969,11 +958,11 @@ const errorStats = ref({
   total: 0
 })
 
-const errorStatsConfig = {
-  nonSingleChar: { icon: '❌', label: '非漢字', type: 'error' },
-  invalidIpa: { icon: '⚠️', label: '異常音標', type: 'warning' },
-  missingTone: { icon: '🔍', label: '缺聲調', type: 'info' }
-}
+const errorStatsConfig = computed(() => ({
+  nonSingleChar: { icon: '❌', label: t('tools.checkTool.errorTypes.nonSingleChar'), type: 'error' },
+  invalidIpa: { icon: '⚠️', label: t('tools.checkTool.errorTypes.invalidIpa'), type: 'warning' },
+  missingTone: { icon: '🔍', label: t('tools.checkTool.errorTypes.missingTone'), type: 'info' }
+}))
 
 // 调值统计
 const toneStats = ref(null)
@@ -990,7 +979,9 @@ const commandLog = ref([])
 const showBatchReplaceModal = ref(false)
 const showHelpModal = ref(false)
 const showToneCharsModal = ref(false)
-const toneCharsModalTitle = ref('')
+const toneCharsModalToneType = ref('')
+const toneCharsModalTone = ref('')
+const toneCharsModalCount = ref(0)
 const toneCharsModalContent = ref('')
 const showFilterModal = ref(false)
 const filterColumnType = ref(null) // 'onset', 'rime', 'tone'
@@ -1007,20 +998,28 @@ const replaceFrom = ref('')
 const replaceTo = ref('')
 
 // Replace type options
-const replaceTypeOptions = [
-  { label: '全表音標(ipa)替換', value: 'p' },
-  { label: '入聲調替換', value: 'r' },
-  { label: '舒聲調替換', value: 's' }
-]
+const replaceTypeOptions = computed(() => [
+  { label: t('tools.checkTool.batchReplace.replaceTypeAll'), value: 'p' },
+  { label: t('tools.checkTool.batchReplace.replaceTypeRu'), value: 'r' },
+  { label: t('tools.checkTool.batchReplace.replaceTypeShu'), value: 's' }
+])
 
 // 计算属性
 const totalPendingChanges = computed(() => {
   return pendingChanges.value.size + rowsToDelete.value.size
 })
 
+const toneCharsModalTitle = computed(() =>
+  t('tools.checkTool.toneChars.title', {
+    toneType: getToneTypeLabel(toneCharsModalToneType.value),
+    tone: toneCharsModalTone.value,
+    count: toneCharsModalCount.value
+  })
+)
+
 const displayedErrors = computed(() => {
   // 侧边栏显示错误元数据，不是完整行数据
-  if (currentFilter.value) {
+  if (currentFilter.value && currentFilter.value !== 'search') {
     return errorMetadata.value.filter(e =>
       (e.error_type === currentFilter.value) || (e.type === currentFilter.value)
     )
@@ -1186,7 +1185,7 @@ const handleFileUpload = (event) => {
 const uploadFile = async (file) => {
   // 检查登录状态
   if (!userStore.isAuthenticated) {
-    showWarning('請先登錄')
+    showWarning(t('tools.checkTool.messages.loginRequired'))
     router.push('/auth')
     return
   }
@@ -1195,12 +1194,12 @@ const uploadFile = async (file) => {
   const ext = file.name.substring(file.name.lastIndexOf('.')).toLowerCase()
 
   if (!allowedExts.includes(ext)) {
-    showError('請上傳支持的文件格式（.xlsx, .xls, .doc, .docx, .tsv）')
+    showError(t('tools.checkTool.messages.invalidFileType'))
     return
   }
 
   if (file.size > 3 * 1024 * 1024) {
-    showError('文件大小不得超過3MB')
+    showError(t('tools.checkTool.messages.fileTooLarge'))
     return
   }
 
@@ -1216,7 +1215,7 @@ const uploadFile = async (file) => {
 
     await analyzeFile()
   } catch (error) {
-    showError('上傳失敗: ' + error.message)
+    showError(t('tools.checkTool.messages.uploadFailed', { message: error.message }))
   } finally {
     isUploading.value = false
   }
@@ -1248,7 +1247,7 @@ const analyzeFile = async () => {
     await loadErrorRowsData(errorMetadata)
     isLoadingTable.value = false
   } catch (error) {
-    showError('分析失敗: ' + error.message)
+    showError(t('tools.checkTool.messages.analyzeFailed', { message: error.message }))
   }
 }
 
@@ -1319,7 +1318,7 @@ const loadErrorRowsData = async (errors) => {
 
 // UI操作
 const resetUpload = async () => {
-  const confirmed = await showConfirm('確定要更換文件？未保存的修改將丟失。')
+  const confirmed = await showConfirm(t('tools.checkTool.messages.confirmChangeFile'))
   if (confirmed) {
     fileUploaded.value = false
     fileName.value = ''
@@ -1649,11 +1648,14 @@ const batchSave = async () => {
   const totalChanges = totalPendingChanges.value
 
   if (totalChanges === 0) {
-    showWarning('沒有需要保存的更改')
+    showWarning(t('tools.checkTool.messages.nothingToSave'))
     return
   }
 
-  const confirmMsg = `確認保存？\n- 修改：${pendingChanges.value.size} 行\n- 刪除：${rowsToDelete.value.size} 行`
+  const confirmMsg = t('tools.checkTool.messages.confirmSave', {
+    modified: pendingChanges.value.size,
+    deleted: rowsToDelete.value.size
+  })
   const confirmed = await showConfirm(confirmMsg)
   if (!confirmed) {
     return
@@ -1670,7 +1672,10 @@ const batchSave = async () => {
       await batchDeleteApi(taskId.value, Array.from(rowsToDelete.value))
     }
 
-    showSuccess(`保存成功：修改 ${pendingChanges.value.size} 行，刪除 ${rowsToDelete.value.size} 行`)
+    showSuccess(t('tools.checkTool.messages.saveSuccess', {
+      modified: pendingChanges.value.size,
+      deleted: rowsToDelete.value.size
+    }))
 
     // 清空并重新分析
     pendingChanges.value.clear()
@@ -1678,13 +1683,13 @@ const batchSave = async () => {
     isEditMode.value = false
     await analyzeFile()
   } catch (error) {
-    showError('保存失敗: ' + error.message)
+    showError(t('tools.checkTool.messages.saveFailed', { message: error.message }))
   }
 }
 
 const cancelEdit = async () => {
   if (totalPendingChanges.value > 0) {
-    const confirmed = await showConfirm('放棄所有未保存的修改？')
+    const confirmed = await showConfirm(t('tools.checkTool.messages.discardChanges'))
     if (!confirmed) {
       return
     }
@@ -1699,7 +1704,7 @@ const cancelEdit = async () => {
 const executeCommand = async () => {
   const command = commandInput.value.trim()
   if (!command) {
-    showWarning('請輸入指令')
+    showWarning(t('tools.checkTool.messages.enterCommand'))
     return
   }
 
@@ -1711,7 +1716,7 @@ const executeCommand = async () => {
 
     if (data.success) {
       commandLog.value = data.logs.map(log => ({
-        type: log.includes('✅') || log.includes('成功') ? 'success' : 'error',
+        type: log.includes('✅') || /成功|success/i.test(log) ? 'success' : 'error',
         message: log
       }))
 
@@ -1720,7 +1725,7 @@ const executeCommand = async () => {
   } catch (error) {
     commandLog.value.push({
       type: 'error',
-      message: '❌ 執行失敗: ' + error.message
+      message: '❌ ' + t('tools.checkTool.messages.commandExecutionFailed', { message: error.message })
     })
   }
 }
@@ -1736,7 +1741,7 @@ const clearCommandLog = () => {
 // 批量替换
 const executeBatchReplace = async () => {
   if (!replaceFrom.value) {
-    showWarning('請輸入原字符/調值')
+    showWarning(t('tools.checkTool.messages.enterReplaceSource'))
     return
   }
 
@@ -1754,14 +1759,14 @@ const executeBatchReplace = async () => {
     })
 
     if (data.success) {
-      showSuccess('替換成功')
+      showSuccess(t('tools.checkTool.messages.replaceSuccess'))
       showBatchReplaceModal.value = false
       replaceFrom.value = ''
       replaceTo.value = ''
       await analyzeFile()
     }
   } catch (error) {
-    showError('替換失敗: ' + error.message)
+    showError(t('tools.checkTool.messages.replaceFailed', { message: error.message }))
   }
 }
 
@@ -1806,17 +1811,19 @@ const showAllChars = async (tone, info, toneType) => {
 
         const isRu = RU_FINALS.has(lastChar)
 
-        if ((toneType === '入声' && isRu) || (toneType === '舒声' && !isRu)) {
+        if ((toneType === 'ru' && isRu) || (toneType === 'shu' && !isRu)) {
           chars.push(row.char)
         }
       }
 
-      toneCharsModalTitle.value = `${toneType} ${tone} (${chars.length}字)`
+      toneCharsModalToneType.value = toneType
+      toneCharsModalTone.value = tone
+      toneCharsModalCount.value = chars.length
       toneCharsModalContent.value = chars.join(' ')
       showToneCharsModal.value = true
     }
   } catch (error) {
-    showError('獲取數據失敗: ' + error.message)
+    showError(t('tools.checkTool.messages.fetchDataFailed', { message: error.message }))
   }
 }
 
@@ -1831,24 +1838,35 @@ const downloadFile = async () => {
     const originalName = fileName.value
     const nameWithoutExt = originalName.substring(0, originalName.lastIndexOf('.')) || originalName
     // 2. 强制加上 .xlsx 后缀
-    a.download = '方音圖鑑_' + nameWithoutExt + '.xlsx'
+    a.download = t('tools.checkTool.export.filePrefix') + nameWithoutExt + '.xlsx'
     document.body.appendChild(a)
     a.click()
     window.URL.revokeObjectURL(url)
     document.body.removeChild(a)
   } catch (error) {
-    showError('下載失敗: ' + error.message)
+    showError(t('tools.checkTool.messages.downloadFailed', { message: error.message }))
   }
 }
 
 // 工具函数
+const getFilterColumnLabel = (columnType) => {
+  if (columnType === 'onset') return t('tools.checkTool.filter.onset')
+  if (columnType === 'rime') return t('tools.checkTool.filter.rime')
+  if (columnType === 'tone') return t('tools.checkTool.filter.tone')
+  return ''
+}
+
+const getToneTypeLabel = (toneType) => {
+  if (toneType === 'ru') return t('tools.checkTool.sidebar.ruToneTitle')
+  if (toneType === 'shu') return t('tools.checkTool.sidebar.shuToneTitle')
+  return ''
+}
+
 const getErrorTypeLabel = (type) => {
-  const labels = {
-    nonSingleChar: '非單字',
-    invalidIpa: '異常音標',
-    missingTone: '缺聲調'
-  }
-  return labels[type] || type
+  if (type === 'nonSingleChar') return t('tools.checkTool.errorTypes.nonSingleChar')
+  if (type === 'invalidIpa') return t('tools.checkTool.errorTypes.invalidIpa')
+  if (type === 'missingTone') return t('tools.checkTool.errorTypes.missingTone')
+  return type
 }
 
 // 竖屏检测

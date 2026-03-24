@@ -2,13 +2,13 @@
   <div>
     <div class="cards-container">
       <h2 class="tabs-title like-author-title">
-        ❤️ 喜歡作者
+        {{ $t('home.intro.likeAuthor.title') }}
         <button class="follow-button" @click="followClicked">
-          關注
+          {{ $t('home.intro.likeAuthor.follow') }}
         </button>
       </h2>
       <p style="display: block; width: 100%; clear: both; margin: 0;">
-        「如果你覺得項目不錯，可以給個 ⭐️ 嗎！」
+        {{ $t('home.intro.likeAuthor.starText') }}
       </p>
 
       <a
@@ -27,15 +27,14 @@
         <div class="glow-border"></div>
       </a>
       <p style="margin-top: 2rem">
-        「若網站對您有幫助，可以請作者喝杯咖啡☕️，您的支持將是作者持續維護的動力🙏」
+        {{ $t('home.intro.likeAuthor.supportText') }}
         <br />
         <button class="support-button" @click="showQRCodes = true">
-          🙌 支持一下
+          🙌 {{ $t('home.intro.likeAuthor.supportButton') }}
         </button>
         <br />
         <span class="support-note">
-          「注：本站由一名本科生開發運營，從字表處理、後端API到前端界面皆一人完成；
-          服務器和域名的開銷，也是從生活費中省出來的💸」
+          {{ $t('home.intro.likeAuthor.supportNote') }}
         </span>
       </p>
       <p></p>
@@ -47,16 +46,16 @@
         <button class="qr-close-btn" @click="showQRCodes = false">✖️</button>
 
         <!-- 標題 -->
-        <h3 class="qr-title">☕️ 請作者喝杯咖啡</h3>
-        <p class="qr-subtitle">感謝您的支持！ 💖</p>
+        <h3 class="qr-title">{{ $t('home.intro.likeAuthor.modalTitle') }}</h3>
+        <p class="qr-subtitle">{{ $t('home.intro.likeAuthor.modalSubtitle') }}</p>
         <!-- 二維碼區 -->
         <div class="qr-image-group">
           <div class="qr-box">
-            <img :src="weixinQR" alt="微信收款碼" />
+            <img :src="weixinQR" :alt="$t('home.intro.likeAuthor.weixinAlt')" />
 <!--            <p>微信支付</p>-->
           </div>
           <div class="qr-box">
-            <img :src="alipayQR" alt="支付寶收款碼" />
+            <img :src="alipayQR" :alt="$t('home.intro.likeAuthor.alipayAlt')" />
 <!--            <p>支付寶</p>-->
           </div>
         </div>
@@ -67,29 +66,32 @@
 </template>
 
 <script setup>
-import { ref } from 'vue' // ✅ 別忘了引入 ref
-import weixinQR from '@/assets/weixin.png'
-import alipayQR from '@/assets/zfb.jpg'
-// ✅ 控制彈窗顯示的開關
+import { ref, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
+import weixinQR from '@/assets/picture/weixin.png'
+import alipayQR from '@/assets/picture/zfb.jpg'
+
+const { t } = useI18n()
 const showQRCodes = ref(false)
 
-const projects = [
+const projects = computed(() => [
   {
     name: 'dialects-vue-frontend',
     url: 'https://github.com/jengzang/dialects-vue-frontend',
-    description: '前端倉庫 - 使用vue框架和原生js開發'
+    description: t('home.intro.likeAuthor.frontendRepo')
   },
   {
     name: 'dialects-backend',
     url: 'https://github.com/jengzang/dialects-backend',
-    description: '後端倉庫 - 基於fastapi'
+    description: t('home.intro.likeAuthor.backendRepo')
   },
   {
     name: 'dialects-build',
     url: 'https://github.com/jengzang/dialects-build',
-    description: '字表預處理倉庫 - 提取字表的聲韻調'
+    description: t('home.intro.likeAuthor.buildRepo')
   },
-]
+])
+
 function followClicked() {
   window.open('https://www.zhihu.com/people/da-shu-18-11', '_blank');
 }

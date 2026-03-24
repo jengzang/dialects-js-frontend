@@ -1,0 +1,15 @@
+{
+  "title": "資料來源",
+  "privacyLink": "想要引用?了解隱私政策?",
+  "totalRecords": "共 {locationCount} 份方言字表，合計 {dataCount} 行數據",
+  "columns": {
+    "location": "方言點",
+    "atlasRegion": "地圖集分區",
+    "dictRegion": "音典分區",
+    "source": "字表來源",
+    "province": "省",
+    "city": "市",
+    "county": "縣",
+    "town": "鎮"
+  }
+}

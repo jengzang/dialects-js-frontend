@@ -49,7 +49,17 @@ export default defineConfig(({ mode }) => {
           assetFileNames: 'assets/[name].[hash].[ext]', // 在资产文件（如 css, images）中添加哈希值
           // 启用代码分割 - 将大型依赖拆分为独立chunks
           manualChunks(id) {
-            // 首頁不需要的大型庫單獨打包
+            // ========== 首页相关（优先级最高）==========
+            // 首页组件单独打包
+            if (id.includes('/views/HomePage.vue')) {
+              return 'homepage'
+            }
+            // 首页使用的 API（logs）
+            if (id.includes('/api/logs/')) {
+              return 'homepage'
+            }
+
+            // ========== 大型库（首页不需要）==========
             if (id.includes('echarts')) {
               return 'echarts'
             }
@@ -62,11 +72,13 @@ export default defineConfig(({ mode }) => {
             if (id.includes('wavesurfer')) {
               return 'wavesurfer'
             }
-            // Vue 核心庫（首頁需要）
+
+            // ========== Vue 核心库（首页需要）==========
             if (id.includes('node_modules/vue') || id.includes('node_modules/vue-router')) {
               return 'vue-vendor'
             }
-            // 其他 node_modules 依賴
+
+            // ========== 其他 node_modules 依赖 ==========
             if (id.includes('node_modules')) {
               return 'vendor'
             }
