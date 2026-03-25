@@ -10,7 +10,7 @@
               :aria-label="t('common.button.close')"
               @click="closePopup"
             >
-              ×
+              ✕
             </button>
           </div>
 
@@ -23,7 +23,7 @@
                     <tr>
                       <th>{{ t('user.benefitsPopup.table.feature') }}</th>
                       <th class="visitor-col">{{ t('user.benefitsPopup.table.visitor') }}</th>
-                      <th class="member-col">{{ t('user.benefitsPopup.table.member') }}</th>
+                      <th class="member-col">{{ t('user.benefitsPopup.table.user') }}</th>
                     </tr>
                   </thead>
                   <tbody>

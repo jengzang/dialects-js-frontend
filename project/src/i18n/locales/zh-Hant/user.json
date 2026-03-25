@@ -1,67 +1,67 @@
 {
   "benefitsPopup": {
-    "title": "會員功能對比",
-    "comparisonTitle": "功能與配額對比",
+    "title": "✨ 登錄解鎖更多功能",
+    "comparisonTitle": "🎯 權限對比",
     "table": {
       "feature": "功能",
-      "visitor": "訪客",
-      "member": "會員"
+      "visitor": "🚶 遊客",
+      "user": "👑 用戶"
     },
-    "notice": "會員可使用更高查詢配額、更多工具與個人資料功能；VillagesML 相關能力目前暫不納入本輪三語整理。",
-    "coreFeaturesTitle": "會員核心功能",
-    "ctaButton": "登入或註冊以解鎖完整功能",
-    "ctaHint": "註冊後可立即使用會員配額與個人化功能。",
+    "notice": "💡 登錄解鎖更多權益！為保證流暢體驗，目前多地點併發查詢及進階分析功能僅對登錄用戶開放🚀（遊客仍可無限次使用基礎查詢功能）",
+    "coreFeaturesTitle": "🌟 核心功能",
+    "ctaButton": "🚀 立即註冊，升級用戶權限",
+    "ctaHint": "完全免費，30秒完成註冊",
     "format": {
-      "limitWithUnit": "{value} {unit}",
+      "limitWithUnit": "{value}{unit}",
       "upgradePercent": "+{value}%"
     },
     "units": {
       "location": "個地點",
       "group": "組",
-      "second": "秒 / 小時",
+      "second": "秒",
       "mb": "MB"
     },
     "status": {
       "unlimited": "無限制",
-      "userOnly": "僅會員",
-      "open": "開放",
-      "partial": "部分開放",
-      "full": "完整開放"
+      "userOnly": "🔒 用戶",
+      "open": "✅️ 開放",
+      "partial": "🔓 部分開放",
+      "full": "✅️ 完整開放"
     },
     "items": {
-      "queryChars": "查字",
-      "queryMiddleChinese": "查中古",
-      "queryPhoneme": "查音位",
-      "queryTone": "查調",
-      "customRegions": "自定分區",
-      "locationCombination": "地點組合數",
-      "compareChars": "比較漢字",
-      "compareMiddleChinese": "比較中古",
-      "compareToneCategory": "比較調類",
-      "regionalMap": "分區圖",
-      "phonologyQuery": "音系查詢",
-      "phonemeClassification": "音素分類",
-      "syllableStats": "音節統計",
-      "customData": "自定資料",
-      "praatAnalysis": "聲學分析",
-      "charListCheck": "字表檢查",
-      "jyutpingToIPA": "粵拼轉 IPA",
-      "mergeCharList": "合併字表",
-      "corpusQuery": "語料查詢",
-      "guangdongVillages": "廣東村情",
-      "machineLearning": "機器學習",
-      "hourlyApiUsage": "每小時 API 額度",
-      "maxJsonResponse": "JSON 回傳上限"
+      "queryChars": "🔍 查字",
+      "queryMiddleChinese": "📜 查中古",
+      "queryPhoneme": "🔊 查音位",
+      "queryTone": "🎵 查調",
+      "customRegions": "🗺️ 自定分區",
+      "locationCombination": "🎯 地位組合",
+      "compareChars": "🔤 比較漢字",
+      "compareMiddleChinese": "📜 比較中古",
+      "compareToneCategory": "🎵 比較調類",
+      "regionalMap": "🗺️ 分區圖",
+      "phonologyQuery": "📊 音系查詢",
+      "phonemeClassification": "🎯 音素分類",
+      "syllableStats": "📈 音節統計",
+      "customData": "📁 自定義數據",
+      "praatAnalysis": "🎙️ Praat分析",
+      "charListCheck": "✏️ 字表檢查",
+      "jyutpingToIPA": "🔤 粵拼轉IPA",
+      "mergeCharList": "🔗 字表合併",
+      "corpusQuery": "🗂️ 語保查詢",
+      "guangdongVillages": "🏘️ 廣東村落",
+      "machineLearning": "🤖 機器學習",
+      "hourlyApiUsage": "⏳ 每小時接口使用",
+      "maxJsonResponse": "📦 最大返回json"
     },
     "coreFeatures": {
       "phonologyQuery": "音韻查詢",
-      "geoVisualization": "地理視覺化",
+      "geoVisualization": "地理可視化",
       "phonologyAnalysis": "音系分析",
       "charTableTools": "字表工具",
       "acousticAnalysis": "聲學分析",
-      "guangdongVillages": "廣東村情",
-      "customData": "自定資料",
-      "dataExport": "資料輸出"
+      "guangdongVillages": "廣東村落",
+      "customData": "自定義數據",
+      "dataExport": "數據導出"
     }
   },
   "regionPage": {

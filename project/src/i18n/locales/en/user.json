@@ -1,16 +1,16 @@
 {
   "benefitsPopup": {
-    "title": "Member Feature Comparison",
-    "comparisonTitle": "Features and Quota Comparison",
+    "title": "✨ Sign in to unlock more features",
+    "comparisonTitle": "🎯 Access comparison",
     "table": {
       "feature": "Feature",
-      "visitor": "Guest",
-      "member": "Member"
+      "visitor": "🚶 Visitor",
+      "user": "👑 User"
     },
-    "notice": "Members get higher query quotas, more tools, and personal-data features. VillagesML-related capabilities remain out of scope for this localization pass.",
-    "coreFeaturesTitle": "Core Member Features",
-    "ctaButton": "Sign in or register to unlock full access",
-    "ctaHint": "After registration, member quotas and personalized features are available immediately.",
+    "notice": "💡 Sign in to unlock more benefits! To keep the experience smooth, multi-location concurrent queries and advanced analysis are currently available only to signed-in users 🚀 (visitors can still use the basic query features without limits)",
+    "coreFeaturesTitle": "🌟 Core features",
+    "ctaButton": "🚀 Register now to unlock full access",
+    "ctaHint": "Free to use. Registration takes about 30 seconds.",
     "format": {
       "limitWithUnit": "{value} {unit}",
       "upgradePercent": "+{value}%"
@@ -18,40 +18,40 @@
     "units": {
       "location": "locations",
       "group": "groups",
-      "second": "seconds / hour",
+      "second": "sec",
       "mb": "MB"
     },
     "status": {
       "unlimited": "Unlimited",
-      "userOnly": "Members only",
-      "open": "Available",
-      "partial": "Partially available",
-      "full": "Fully available"
+      "userOnly": "🔒 Users only",
+      "open": "✅ Available",
+      "partial": "🔓 Partial access",
+      "full": "✅ Full access"
     },
     "items": {
-      "queryChars": "Character lookup",
-      "queryMiddleChinese": "Middle Chinese lookup",
-      "queryPhoneme": "Phoneme lookup",
-      "queryTone": "Tone lookup",
-      "customRegions": "Custom regions",
-      "locationCombination": "Location combinations",
-      "compareChars": "Character comparison",
-      "compareMiddleChinese": "Middle Chinese comparison",
-      "compareToneCategory": "Tone-category comparison",
-      "regionalMap": "Regional map",
-      "phonologyQuery": "Phonology query",
-      "phonemeClassification": "Phoneme classification",
-      "syllableStats": "Syllable statistics",
-      "customData": "Custom data",
-      "praatAnalysis": "Acoustic analysis",
-      "charListCheck": "Character-list check",
-      "jyutpingToIPA": "Jyutping to IPA",
-      "mergeCharList": "Merge character lists",
-      "corpusQuery": "Corpus query",
-      "guangdongVillages": "Guangdong villages",
-      "machineLearning": "Machine learning",
-      "hourlyApiUsage": "Hourly API quota",
-      "maxJsonResponse": "Max JSON response"
+      "queryChars": "🔍 Character lookup",
+      "queryMiddleChinese": "📜 Middle Chinese lookup",
+      "queryPhoneme": "🔊 Phoneme lookup",
+      "queryTone": "🎵 Tone lookup",
+      "customRegions": "🗺️ Custom regions",
+      "locationCombination": "🎯 Phonological status combinations",
+      "compareChars": "🔤 Character comparison",
+      "compareMiddleChinese": "📜 Middle Chinese comparison",
+      "compareToneCategory": "🎵 Tone-category comparison",
+      "regionalMap": "🗺️ Regional map",
+      "phonologyQuery": "📊 Phonology query",
+      "phonemeClassification": "🎯 Phoneme classification",
+      "syllableStats": "📈 Syllable statistics",
+      "customData": "📁 Custom data",
+      "praatAnalysis": "🎙️ Praat analysis",
+      "charListCheck": "✏️ Character-list check",
+      "jyutpingToIPA": "🔤 Jyutping to IPA",
+      "mergeCharList": "🔗 Merge character lists",
+      "corpusQuery": "🗂️ Corpus query",
+      "guangdongVillages": "🏘️ Guangdong villages",
+      "machineLearning": "🤖 Machine learning",
+      "hourlyApiUsage": "⏳ Hourly API usage",
+      "maxJsonResponse": "📦 Max JSON response"
     },
     "coreFeatures": {
       "phonologyQuery": "Phonology queries",
