@@ -1,5 +1,5 @@
 import { api, saveToken, clearToken, update_userdatas_bytoken, ensureAuthenticated } from './auth.js'
-import { userStore } from '@/store/store.js'
+import { userStore } from '@/main/store/store.js'
 
 /**
  * Login with email or username

@@ -62,12 +62,13 @@ export default defineConfig(({ mode }) => {
           manualChunks(id) {
             // ========== 首页相关（优先级最高）==========
             // 首页组件单独打包
-            if (id.includes('/views/HomePage.vue')) {
-              return 'homepage'
-            }
+            // HomePage uses default chunking.
             // 首页使用的 API（logs）
             if (id.includes('/api/logs/')) {
-              return 'homepage'
+              return 'logs'
+            }
+            if (id.includes('/src/i18n/')) {
+              return 'i18n'
             }
 
             // ========== 大型库（首页不需要）==========

@@ -1,5 +1,5 @@
 // 整理數據,用於地圖繪製
-import { globalPayload, queryStore, mapStore, resultCache, userStore } from '../../store/store.js'
+import { globalPayload, queryStore, mapStore, resultCache, userStore } from '../../main/store/store.js'
 import { getCustomData } from '../../api/user/custom.js'
 
 export async function func_mergeData(resultData = null, mapData = null, customData = null) {

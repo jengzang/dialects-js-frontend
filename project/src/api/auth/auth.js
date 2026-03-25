@@ -1,5 +1,5 @@
 // utils/auth.js
-import { userStore } from '../../store/store.js'
+import { userStore } from '../../main/store/store.js'
 import { WEB_BASE } from '@/env-config.js'
 import { showRateLimitNotice } from '@/utils/rateLimitNotice.js'
 

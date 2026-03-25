@@ -232,10 +232,10 @@ import {useRoute, useRouter} from 'vue-router'
 import { useI18n } from 'vue-i18n'
 // import { clearToken, getToken, saveToken } from '../../api/auth/auth.js'
 import { getTodayVisits, getTotalVisits, getVisitHistory } from '@/api/logs/index.js'
-import { useMenuConfig } from '@/config/SideBarConfig.js'
-import { useMenuTabsConfig } from '@/config/TabsConfig.js'
+import { useMenuConfig } from '@/main/config/SideBarConfig.js'
+import { useMenuTabsConfig } from '@/main/config/TabsConfig.js'
 import { WEB_BASE } from '@/env-config.js'
-import { userStore, resultCache } from '@/store/store.js'
+import { userStore, resultCache } from '@/main/store/store.js'
 
 const { t } = useI18n()
 const route = useRoute()

@@ -6,7 +6,7 @@ import {
   VALID_CHARACTER_TABLES,
   getCharacterTableHierarchy,
   isValidCharacterTable
-} from '@/config'
+} from '@/main/config'
 
 /**
  * @typedef {'characters'|'fenyun'|'hongwu'|'menggu'|'old_chinese'|'zhongyuan'} PhoPieTableName

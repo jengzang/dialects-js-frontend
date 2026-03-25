@@ -1,11 +1,11 @@
 // utils/ResultTable.js
 import { queryPhonology } from '../api/query/phonology.js'
-import { API_CONFIG } from '../config/constants.js'
-import { resultCache } from '../store/store.js'
+import { API_CONFIG } from '../main/config/constants.js'
+import { resultCache } from '../main/store/store.js'
 import {
     DEFAULT_CHARACTER_TABLE,
     getCharacterTableColumnValues
-} from '@/config'
+} from '@/main/config'
 
 export function buildReverseMap(tableName = DEFAULT_CHARACTER_TABLE) {
     const columnValues = getCharacterTableColumnValues(tableName);

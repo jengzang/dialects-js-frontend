@@ -123,10 +123,10 @@
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { useExploreTabsConfig } from '@/config/TabsConfig.js'
-import { userStore } from '@/store/store.js'
+import { useExploreTabsConfig } from '@/main/config/TabsConfig.js'
+import { userStore } from '@/main/store/store.js'
 import SimpleSidebar from '@/components/bar/SimpleSidebar.vue'
-import { useMenuConfig } from '@/config/SideBarConfig.js'
+import { useMenuConfig } from '@/main/config/SideBarConfig.js'
 
 const { t } = useI18n()
 const route = useRoute()

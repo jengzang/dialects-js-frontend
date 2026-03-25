@@ -39,7 +39,7 @@
 import { computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
-import { userStore } from '@/store/store.js';
+import { userStore } from '@/main/store/store.js';
 
 const props = defineProps({
   // 认证按钮位置: 'top-right' | 'bottom-left'

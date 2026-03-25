@@ -131,7 +131,7 @@
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
-import { userStore } from '@/store/store.js'
+import { userStore } from '@/main/store/store.js'
 
 // Props definition
 const props = defineProps({
