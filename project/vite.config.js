@@ -3,6 +3,39 @@ import { defineConfig, loadEnv } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import path from 'path'
 
+const mpaEntryRoots = ['auth', 'menu', 'intro', 'explore', 'villagesML']
+
+function rewriteDevMpaRequest(req) {
+  if (!req?.url || !req.headers?.accept?.includes('text/html')) {
+    return
+  }
+
+  const url = new URL(req.url, 'http://localhost')
+  const pathname = url.pathname.replace(/\/+$/, '') || '/'
+  const matchedRoot = mpaEntryRoots.find((root) => (
+    pathname === `/${root}` || pathname.startsWith(`/${root}/`)
+  ))
+
+  if (!matchedRoot || path.extname(pathname)) {
+    return
+  }
+
+  url.pathname = `/${matchedRoot}/index.html`
+  req.url = `${url.pathname}${url.search}`
+}
+
+function devMpaRewritePlugin() {
+  return {
+    name: 'dev-mpa-rewrite',
+    configureServer(server) {
+      server.middlewares.use((req, _res, next) => {
+        rewriteDevMpaRequest(req)
+        next()
+      })
+    },
+  }
+}
+
 export default defineConfig(({ mode }) => {
   // 加载环境变量
   const env = loadEnv(mode, process.cwd(), '')
@@ -24,7 +57,7 @@ export default defineConfig(({ mode }) => {
   console.log(`[Vite] Mode: ${mode}, WEB_BASE: ${webBase}`)
 
   return {
-    plugins: [vue()],
+    plugins: [vue(), devMpaRewritePlugin()],
     resolve: {
       alias: {
         '@': path.resolve(__dirname, 'src'),
