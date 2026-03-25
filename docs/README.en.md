@@ -1,40 +1,91 @@
-# Documentation Index
+# Chinese Dialect Atlas (方音圖鑑)
 
-> Entry point for the maintained documentation set.
+> Professional Chinese dialect linguistics analysis and geographic visualization platform
 
-Chinese documentation is the primary source of truth. This English index is kept as a concise navigation aid.
+[![Vue 3](https://img.shields.io/badge/Vue-3.5.20-4FC08D?logo=vue.js)](https://vuejs.org/)
+[![Vite](https://img.shields.io/badge/Vite-7.1.3-646CFF?logo=vite)](https://vitejs.dev/)
+[![MapLibre GL](https://img.shields.io/badge/MapLibre%20GL-5.16-396CB2)](https://maplibre.org/)
 
-## Start here
+**Live Demo:** [https://dialects.yzup.top](https://dialects.yzup.top)
 
-- [Root README](../README.md)
+**Documentation Language:** English | [中文](../README.md)
+
+---
+
+## Overview
+
+The Chinese Dialect Atlas is a comprehensive web platform for exploring and analyzing Chinese dialect phonology. It combines powerful phonological query capabilities with interactive geographic visualization and advanced audio analysis tools.
+
+**For detailed information, please refer to:**
+
+- **[Architecture Documentation](./ARCHITECTURE.en.md)** - Technical architecture and system design
+- **[API Reference](./API.en.md)** - Complete API documentation
+- **[User Guide](./USER_GUIDE.en.md)** - How to use the platform
+- **[Design System](./DESIGN_SYSTEM.en.md)** - Visual design guidelines
+- **[Contributing Guide](./CONTRIBUTING.en.md)** - How to contribute
+
+---
+
+## Quick Start
+
+```bash
+# Clone repository
+git clone <repository-url>
+
+# Install dependencies
+cd project
+npm install
+
+# Start development server
+npm run dev
+```
+
+Visit `http://localhost:5173` in your browser.
+
+---
+
+## Key Features
+
+- 📝 **Phonological Query System** - 4 query modes (character, Middle Chinese, phoneme, tone)
+- 🗺️ **Geographic Visualization** - Interactive maps with 10,000+ marker support
+- 📊 **Phonology Matrix Analysis** - Complete sound system visualization
+- 🎙️ **Praat Audio Analysis** - Professional acoustic analysis integration
+- 🛠️ **Data Management Tools** - Character table validation, merging, conversion
+
+---
+
+## Technology Stack
+
+- **Frontend:** Vue 3.5.20, Vite 7.1.3, Vue Router 4
+- **Visualization:** MapLibre GL 5.16, ECharts 5.6, wavesurfer.js 7.12
+- **State Management:** Custom reactive stores (no Vuex/Pinia)
+- **Backend API:** JWT-based authentication, 27 API modules
+
+---
+
+## Documentation
+
+### English Documentation
 - [Architecture](./ARCHITECTURE.en.md)
-- [User Guide](./USER_GUIDE.en.md)
-- [VillagesML Feature Overview](./VillagesML/FEATURE_OVERVIEW.md)
-- [VillagesML User Guide](./VillagesML/USER_GUIDE.md)
-- [Deploy Guide](../project/DEPLOY.md)
-- [i18n Guide](../project/src/i18n/README.md)
-- [Contributing](./CONTRIBUTING.en.md)
-
-## Maintained documents
-
-- [Architecture](./ARCHITECTURE.en.md)
-  Current repository split, entry points, routing, and deployment constraints.
-- [User Guide](./USER_GUIDE.en.md)
-  Route-oriented overview of the main app and VillagesML.
-- [VillagesML Feature Overview](./VillagesML/FEATURE_OVERVIEW.md)
-  Current VillagesML structure, modules, and source layout.
-- [VillagesML User Guide](./VillagesML/USER_GUIDE.md)
-  Entry paths, query parameters, and workspace navigation.
-- [Deploy Guide](../project/DEPLOY.md)
-  Build outputs and routing requirements, especially for `/villagesML*`.
-- [i18n Guide](../project/src/i18n/README.md)
-  Locale loading and language switching.
-- [Contributing](./CONTRIBUTING.en.md)
-  Development workflow and documentation update expectations.
-
-## Supplemental references
-
-These are still useful, but when they differ from the current codebase, prefer the maintained docs above and the implementation under `project/`:
-
 - [API Reference](./API.en.md)
+- [User Guide](./USER_GUIDE.en.md)
 - [Design System](./DESIGN_SYSTEM.en.md)
+- [Contributing](./CONTRIBUTING.en.md)
+
+### 中文文檔
+- [主 README](../README.md)
+- [架構文檔](./ARCHITECTURE.md)
+- [API 文檔](./API.md)
+- [用戶指南](./USER_GUIDE.md)
+- [設計系統](./DESIGN_SYSTEM.md)
+- [貢獻指南](./CONTRIBUTING.md)
+
+---
+
+## License
+
+ISC License
+
+---
+
+**Made with ❤️ for Chinese dialect research**
