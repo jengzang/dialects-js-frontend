@@ -24,7 +24,8 @@ $FilesToUpload = @(
     "detail/",
     "explore/",
     "intro/",
-    "menu/"
+    "menu/",
+    "villagesML/"
 )
 
 Write-Host "步骤 1/2: 清空服务器上的 assets 目录" -ForegroundColor Cyan

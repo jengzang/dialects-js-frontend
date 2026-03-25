@@ -1,320 +1,64 @@
-# VillagesML 新功能使用指南
+# VillagesML 使用說明
 
-## 新增功能概覽
+## 入口方式
 
-本次更新為 VillagesML 系統新增了 2 個強大的分析工具，集成了 Phase 15 和 Phase 17 的 10 個 API 端點。
+VillagesML 有兩種入口方式。
 
----
+### 1. 從主站 dashboard 進入
 
-## 1. 區域相似度分析 🔍
-
-### 訪問路徑
-**URL**: `/villagesML?module=regional&subtab=similarity`
-**導航**: 地名分析 → 區域分析 → 相似度分析
-
-### 功能說明
-
-#### 模式 1: 查找相似區域
-找出與目標區域命名模式最相似的其他區域。
-
-**使用步驟**:
-1. 選擇目標區域（如：龍門縣）
-2. 選擇相似度指標（Cosine 或 Jaccard）
-3. 設置返回數量（1-50）
-4. 設置最小相似度閾值（0-1）
-5. 點擊「查詢」
-
-**結果展示**:
-- 相似度排行卡片
-- 共同字符列表
-- 特征字符列表
-- 可點擊「詳細對比」查看更多信息
-
-#### 模式 2: 兩區域對比
-深入對比兩個區域的命名特征。
-
-**使用步驟**:
-1. 選擇區域 1
-2. 選擇區域 2
-3. 點擊「對比」
-
-**結果展示**:
-- Cosine 相似度
-- Jaccard 相似度
-- 共同字符（綠色標籤）
-- 區域 1 特有字符（藍色標籤）
-- 區域 2 特有字符（橙色標籤）
-
-#### 模式 3: 相似度矩陣
-生成多個區域之間的相似度熱力圖。
-
-**使用步驟**:
-1. 從下拉列表選擇區域
-2. 點擊「添加」（最多 20 個區域）
-3. 選擇相似度指標
-4. 點擊「生成矩陣」
-
-**結果展示**:
-- ECharts 熱力圖
-- 顏色越深表示相似度越高
-- 鼠標懸停查看具體數值
-
-### 應用場景
-- 方言區劃分析
-- 區域命名模式研究
-- 文化圈識別
-- 歷史遷徙路徑推測
-
----
-
-## 2. 語義子類別分析 🏷️
-
-### 訪問路徑
-**URL**: `/villagesML?module=semantic&subtab=subcategories`
-**導航**: 地名分析 → 語義分析 → 子類別分析
-
-### 功能說明
-
-#### 模式 1: 子類別列表
-瀏覽所有語義子類別及其字符組成。
-
-**使用步驟**:
-1. 選擇父類別（可選）：
-   - 山地 (mountain)
-   - 水系 (water)
-   - 聚落 (settlement)
-   - 方位 (direction)
-   - 植被 (vegetation)
-   - 建築 (structure)
-   - 動物 (animal)
-   - 顏色 (color)
-   - 其他 (other)
-2. 點擊「查詢」
-
-**結果展示**:
-- 子類別卡片網格
-- 每個卡片顯示：
-  - 子類別名稱
-  - 父類別標籤
-  - 字符數量
-  - 字符預覽（前 15 個）
-- 點擊「查看詳情」獲取完整字符列表
-
-#### 模式 2: 區域對比
-分析特定區域的語義子類別分布特征。
-
-**使用步驟**:
-1. 輸入區域名稱（如：廣州市）
-2. 選擇區域層級（市級/縣級/鄉鎮級）
-3. 選擇父類別
-4. 點擊「查詢」
-
-**結果展示**:
-- **雷達圖**: 展示該區域各子類別的 VTF 分布
-- **詳情表格**: 包含
-  - 子類別名稱
-  - VTF（虛擬詞頻）
-  - 傾向值 (Z-score)
-  - 百分比
-
-**解讀提示**:
-- 傾向值 > 0.2: 該子類別在該區域顯著高於全局平均
-- 傾向值 < -0.2: 該子類別在該區域顯著低於全局平均
-
-#### 模式 3: 傾向排行
-發現哪些區域對特定語義子類別有最強的傾向性。
-
-**使用步驟**:
-1. 選擇區域層級
-2. 選擇父類別（可選）
-3. 設置返回數量（5-50）
-4. 點擊「查詢」
-
-**結果展示**:
-- **柱狀圖**: 傾向值排行可視化
-- **排行榜表格**: 包含
-  - 排名（前三名有金銀銅徽章）
-  - 區域名稱
-  - 子類別
-  - 傾向值
-  - VTF
-  - 百分比
-
-### 應用場景
-- 區域命名特色分析
-- 語義類別細分研究
-- 地理環境與命名關係
-- 文化語義偏好識別
-
----
-
-## 技術說明
-
-### 相似度指標
-
-#### Cosine 相似度
-- 基於向量夾角計算
-- 範圍: 0-1（1 表示完全相同）
-- 適合比較字符分布模式
-- 對字符頻率敏感
-
-#### Jaccard 相似度
-- 基於集合交集與並集
-- 範圍: 0-1（1 表示完全相同）
-- 適合比較字符集合
-- 對字符出現與否敏感
-
-### 虛擬詞頻 (VTF)
-- 計算方法: 字符在該類別中的出現次數
-- 用途: 衡量語義類別的使用頻率
-- 全局 VTF: 整個數據集的統計
-- 區域 VTF: 特定區域的統計
-
-### 傾向值 (Z-score)
-- 計算方法: (區域頻率 - 全局平均) / 標準差
-- 解讀:
-  - Z > 2: 極顯著高於平均
-  - Z > 0.5: 顯著高於平均
-  - -0.5 < Z < 0.5: 接近平均
-  - Z < -0.5: 顯著低於平均
-  - Z < -2: 極顯著低於平均
-
----
-
-## 常見問題
-
-### Q1: 為什麼有些區域找不到相似區域？
-**A**: 可能原因：
-- 該區域命名模式非常獨特
-- 最小相似度閾值設置過高
-- 建議降低閾值或增加返回數量
-
-### Q2: 相似度矩陣為什麼限制 20 個區域？
-**A**: 為了保證：
-- 熱力圖可讀性
-- API 響應速度
-- 瀏覽器渲染性能
-
-### Q3: 子類別列表為什麼沒有顯示所有字符？
-**A**:
-- 卡片預覽只顯示前 15 個字符
-- 點擊「查看詳情」可查看完整列表
-
-### Q4: 傾向排行榜為什麼沒有我的區域？
-**A**: 可能原因：
-- 該區域的傾向值不在前 N 名
-- 增加返回數量（top_n）
-- 或切換到「區域對比」模式直接查詢
-
----
-
-## 性能提示
-
-### 優化建議
-1. **相似度矩陣**: 建議選擇 5-10 個區域以獲得最佳體驗
-2. **子類別列表**: 使用父類別篩選可加快加載速度
-3. **傾向排行**: 較大的 top_n 值會增加加載時間
-
-### 瀏覽器要求
-- Chrome >= 90
-- Firefox >= 88
-- Safari >= 14
-- Edge >= 90
-
----
-
-## API 參考
-
-### 區域相似度 API
-
-```javascript
-import {
-  getRegionSimilaritySearch,
-  getRegionSimilarityPair,
-  getRegionSimilarityMatrix
-} from '@/api'
-
-// 查找相似區域
-const results = await getRegionSimilaritySearch({
-  region: '龍門縣',
-  top_k: 10,
-  metric: 'cosine',
-  min_similarity: 0.8
-})
-
-// 對比兩個區域
-const comparison = await getRegionSimilarityPair({
-  region1: '龍門縣',
-  region2: '博羅縣'
-})
-
-// 生成相似度矩陣
-const matrix = await getRegionSimilarityMatrix({
-  regions: ['龍門縣', '博羅縣', '惠東縣'],
-  metric: 'cosine'
-})
+```text
+/explore?page=VillagesML
 ```
 
-### 語義子類別 API
+這個入口仍然屬於主站，主要用來：
 
-```javascript
-import {
-  getSemanticSubcategoryList,
-  getSemanticSubcategoryChars,
-  getSemanticSubcategoryVTFGlobal,
-  getSemanticSubcategoryVTFRegional,
-  getSemanticSubcategoryTendencyTop,
-  getSemanticSubcategoryComparison
-} from '@/api'
+- 展示 VillagesML 導覽頁
+- 說明功能入口
+- 分流到具體模塊
 
-// 獲取子類別列表
-const subcategories = await getSemanticSubcategoryList({
-  parent_category: 'mountain'
-})
+### 2. 直接進入工作台
 
-// 獲取子類別字符
-const chars = await getSemanticSubcategoryChars('mountain_peak')
-
-// 全局 VTF
-const globalVTF = await getSemanticSubcategoryVTFGlobal({
-  parent_category: 'mountain',
-  limit: 100
-})
-
-// 區域 VTF
-const regionalVTF = await getSemanticSubcategoryVTFRegional({
-  region_name: '廣州市',
-  region_level: '市級',
-  parent_category: 'mountain'
-})
-
-// 傾向排行
-const topTendencies = await getSemanticSubcategoryTendencyTop({
-  region_level: '市級',
-  parent_category: 'mountain',
-  top_n: 10
-})
-
-// 區域對比
-const comparison = await getSemanticSubcategoryComparison({
-  region_name: '廣州市',
-  region_level: '市級',
-  parent_category: 'mountain'
-})
+```text
+/villagesML?module=search
 ```
 
----
+這是 VillagesML 子應用的實際工作台入口。
 
-## 反饋與支持
+## 常見 URL 形式
 
-如遇到問題或有改進建議，請：
-1. 檢查瀏覽器控制台錯誤信息
-2. 確認 API 端點可訪問
-3. 查看 `IMPLEMENTATION_SUMMARY.md` 了解技術細節
-4. 聯繫開發團隊
+```text
+/villagesML?module=search
+/villagesML?module=character&subtab=frequency
+/villagesML?module=semantic&subtab=indices
+/villagesML?module=spatial&subtab=clusters
+/villagesML?module=pattern&subtab=ngram-stats
+/villagesML?module=regional&subtab=vectors
+/villagesML?module=compute&subtab=clustering
+```
 
----
+## 參數說明
 
-**版本**: v1.0.0
-**更新日期**: 2026-02-27
-**文檔維護**: VillagesML 開發團隊
+- `module`
+  - 指定主模塊
+- `subtab`
+  - 指定模塊內的子標籤
+
+如果只給 `module`，工作台會使用該模塊的默認子頁或默認狀態。
+
+## 從主站跳轉到工作台
+
+當前主站保留了兼容邏輯：
+
+- `page=VillagesML` 且只顯示 dashboard 時，仍留在 `/explore`
+- `page=VillagesML` 且帶了非 dashboard 的 `module` 時，會改跳 `/villagesML?...`
+
+因此舊鏈接與主站導航仍可共存。
+
+## 部署提醒
+
+若要直接訪問 `/villagesML?...`，部署必須保證：
+
+- `/villagesML`
+- `/villagesML/*`
+
+都回退到 `villagesML/index.html`。
