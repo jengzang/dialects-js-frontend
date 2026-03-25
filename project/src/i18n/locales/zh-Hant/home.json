@@ -39,7 +39,7 @@
                                        "phonemeClassify":  "音素分類 - 自定義音素分類",
                                        "syllableCount":  "音節統計 - 統計音節數量",
                                        "middlePosition":  "中古地位 - 查詢漢字中古地位",
-                                       "pieVector":  "餅圖向量 - 餅圖向量分析占位入口"
+                                       "evolution":  "演變 - 演變分析占位入口"
                                    },
                      "words":  {
                                    "title":  "詞句資料",

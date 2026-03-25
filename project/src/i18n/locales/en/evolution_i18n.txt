@@ -1,5 +1,5 @@
-                      "pieVector": {
-                                        "title": "Pie Vectors",
+                      "evolution": {
+                                        "title": "Evolution",
                                         "queryMode": {
                                                     "byValue": "By Value",
                                                     "byStatus": "By Status"
@@ -38,8 +38,8 @@
                                         },
                                         "errors": {
                                                     "minLocation": "Please select at least one location",
-                                                    "maxLocation": "Pie vector analysis only supports single location, please remove extra locations",
-                                                    "autoLimitLocation": "Pie vector analysis only supports single location, automatically kept the first one",
+                                                    "maxLocation": "Evolution analysis only supports single location, please remove extra locations",
+                                                    "autoLimitLocation": "Evolution analysis only supports single location, automatically kept the first one",
                                                     "selectDimensions": "Please select two dimensions",
                                                     "sameDimensions": "Two dimensions cannot be the same",
                                                     "queryFailed": "Query failed"

@@ -38,7 +38,7 @@
       "phonologyQuery": "Phonology Query - View dialect phonology tables",
       "phonemeClassify": "Phoneme Classification - Custom phoneme classification",
       "syllableCount": "Syllable Statistics - Count syllable quantities",
-      "pieVector": "Pie Vectors - Placeholder entry for pie chart vector analysis",
+      "evolution": "Evolution - Placeholder entry for evolution analysis",
       "middlePosition": "Middle Chinese Position - Query Middle Chinese position of characters"
     },
     "words": {

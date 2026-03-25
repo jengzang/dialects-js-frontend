@@ -89,9 +89,9 @@ export function useMenuConfig() {
           path: '/menu?tab=pho&sub=Countphos'
         },
         {
-          label: t('navigation.submenu.pho.pieVector'),
+          label: t('navigation.submenu.pho.evolution'),
           icon: '🥧',
-          path: '/menu?tab=pho&sub=pieVector'
+          path: '/menu?tab=pho&sub=evolution'
         },
       ],
     },
@@ -300,7 +300,7 @@ export const menuConfig = {
       { label: '音系查詢', icon: '⚛️', path: '/menu?tab=pho&sub=phonologyMatrix' },
       { label: '音素分類', icon: '📐', path: '/menu?tab=pho&sub=phonologyCustom' },
       { label: '音節統計', icon: '🧮', path: '/menu?tab=pho&sub=Countphos' },
-      { label: '餅圖向量', icon: '🥧', path: '/menu?tab=pho&sub=pieVector' },
+      { label: '演變', icon: '🥧', path: '/menu?tab=pho&sub=evolution' },
     ],
   },
   'cluster': {

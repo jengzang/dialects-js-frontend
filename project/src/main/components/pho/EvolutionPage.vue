@@ -1,10 +1,10 @@
 <template>
-  <div class="pie-vector-page">
+  <div class="evolution-page">
     <!-- 控制面板 -->
     <div class="control-panel glass-panel">
       <!-- 统计模式选择 -->
       <div class="control-row">
-        <label class="control-label">{{ t('phonology.phonology.pieVector.queryMode.label', '统计模式') }}：</label>
+        <label class="control-label">{{ t('phonology.phonology.evolution.queryMode.label', '统计模式') }}：</label>
         <div class="mode-selector">
           <label class="mode-radio-label">
             <input
@@ -14,7 +14,7 @@
               class="hidden-radio"
             />
             <span class="glass-indicator"></span>
-            {{ t('phonology.phonology.pieVector.queryMode.byValue') }}
+            {{ t('phonology.phonology.evolution.queryMode.byValue') }}
           </label>
           <label class="mode-radio-label">
             <input
@@ -24,14 +24,14 @@
               class="hidden-radio"
             />
             <span class="glass-indicator"></span>
-            {{ t('phonology.phonology.pieVector.queryMode.byStatus') }}
+            {{ t('phonology.phonology.evolution.queryMode.byStatus') }}
           </label>
         </div>
       </div>
 
       <!-- 字符表和维度选择 -->
       <div class="control-row">
-        <label class="control-label">{{ t('phonology.phonology.pieVector.controls.table') }}：</label>
+        <label class="control-label">{{ t('phonology.phonology.evolution.controls.table') }}：</label>
         <SimpleSelectDropdown
           v-model="selectedTable"
           :options="tableOptions"
@@ -40,22 +40,22 @@
       </div>
 
       <div class="control-row">
-        <label class="control-label">{{ t('phonology.phonology.pieVector.controls.level1') }}：</label>
+        <label class="control-label">{{ t('phonology.phonology.evolution.controls.level1') }}：</label>
         <SimpleSelectDropdown
           v-model="level1Column"
           :options="availableColumns"
-          :placeholder="t('phonology.phonology.pieVector.controls.level1')"
+          :placeholder="t('phonology.phonology.evolution.controls.level1')"
           :disabled="!selectedTable"
           class="control-select"
         />
       </div>
 
       <div class="control-row">
-        <label class="control-label">{{ t('phonology.phonology.pieVector.controls.level2') }}：</label>
+        <label class="control-label">{{ t('phonology.phonology.evolution.controls.level2') }}：</label>
         <SimpleSelectDropdown
           v-model="level2Column"
           :options="level2Options"
-          :placeholder="t('phonology.phonology.pieVector.controls.level2')"
+          :placeholder="t('phonology.phonology.evolution.controls.level2')"
           :disabled="!level1Column"
           class="control-select"
         />
@@ -63,14 +63,14 @@
 
       <!-- 地点输入 -->
       <div class="control-row">
-        <label class="control-label">{{ t('phonology.phonology.pieVector.controls.location') }}：</label>
+        <label class="control-label">{{ t('phonology.phonology.evolution.controls.location') }}：</label>
         <div class="control-input-wrapper">
           <LocationMultiInput
             v-model="selectedLocations"
             :max-locations="1"
             class="control-input"
           />
-          <div class="input-hint">{{ t('phonology.phonology.pieVector.controls.locationHint') }}</div>
+          <div class="input-hint">{{ t('phonology.phonology.evolution.controls.locationHint') }}</div>
         </div>
       </div>
 
@@ -81,7 +81,7 @@
           :disabled="isLoading || !canQuery"
           class="query-button"
         >
-          {{ isLoading ? t('phonology.phonology.pieVector.controls.loading') : t('phonology.phonology.pieVector.controls.query') }}
+          {{ isLoading ? t('phonology.phonology.evolution.controls.loading') : t('phonology.phonology.evolution.controls.query') }}
         </button>
       </div>
 
@@ -94,7 +94,7 @@
     <!-- 相似度控制面板 -->
     <div v-if="rawData" class="similarity-panel glass-panel">
       <div class="control-row">
-        <label class="control-label">{{ t('phonology.phonology.pieVector.similarity.algorithm') }}：</label>
+        <label class="control-label">{{ t('phonology.phonology.evolution.similarity.algorithm') }}：</label>
         <SimpleSelectDropdown
           v-model="similarityAlgorithm"
           :options="similarityAlgorithmOptions"
@@ -103,7 +103,7 @@
       </div>
 
       <div class="control-row">
-        <label class="control-label">{{ t('phonology.phonology.pieVector.similarity.threshold') }}：</label>
+        <label class="control-label">{{ t('phonology.phonology.evolution.similarity.threshold') }}：</label>
         <input
           type="range"
           v-model.number="similarityThreshold"
@@ -118,11 +118,11 @@
       <div class="control-row">
         <label class="checkbox-label">
           <input type="checkbox" v-model="showConnections" />
-          {{ t('phonology.phonology.pieVector.similarity.showConnections') }}
+          {{ t('phonology.phonology.evolution.similarity.showConnections') }}
         </label>
         <label class="checkbox-label">
           <input type="checkbox" v-model="showCategoryLinks" />
-          {{ t('phonology.phonology.pieVector.similarity.showCategoryLinks') }}
+          {{ t('phonology.phonology.evolution.similarity.showCategoryLinks') }}
         </label>
       </div>
     </div>
@@ -142,7 +142,7 @@
     <!-- 加载状态 -->
     <div v-if="isLoading" class="loading-state">
       <div class="loading-spinner"></div>
-      <p>{{ t('phonology.phonology.pieVector.states.loading') }}</p>
+      <p>{{ t('phonology.phonology.evolution.states.loading') }}</p>
     </div>
 
     <!-- 饼图展示区域 -->
@@ -185,7 +185,7 @@
 
     <!-- 空状态 -->
     <div v-else-if="rawData && currentPieData.length === 0" class="empty-state">
-      <p>{{ t('phonology.phonology.pieVector.states.empty') }}</p>
+      <p>{{ t('phonology.phonology.evolution.states.empty') }}</p>
     </div>
   </div>
 </template>
@@ -238,10 +238,10 @@ const handlePieHover = (index) => {
 
   // 第一次hover时才计算相似度矩阵
   if (!similarityCalculated.value && currentPieData.value.length > 0) {
-    console.log('[PieVector] First hover, calculating similarity matrix...')
+    console.log('[Evolution] First hover, calculating similarity matrix...')
     similarityMatrix.value = calculateSimilarityMatrix()
     similarityCalculated.value = true
-    console.log('[PieVector] Similarity matrix calculated:', similarityMatrix.value.length, 'pairs')
+    console.log('[Evolution] Similarity matrix calculated:', similarityMatrix.value.length, 'pairs')
   }
 }
 
@@ -266,16 +266,16 @@ const tableOptions = [
 ]
 
 const similarityAlgorithmOptions = computed(() => [
-  { value: 'cosine', label: t('phonology.phonology.pieVector.similarity.algorithms.cosine') },
-  { value: 'overlap', label: t('phonology.phonology.pieVector.similarity.algorithms.overlap') },
-  { value: 'topK', label: t('phonology.phonology.pieVector.similarity.algorithms.topK') },
-  { value: 'kl', label: t('phonology.phonology.pieVector.similarity.algorithms.kl') },
-  { value: 'jaccard', label: t('phonology.phonology.pieVector.similarity.algorithms.jaccard') },
-  { value: 'charWeighted', label: t('phonology.phonology.pieVector.similarity.algorithms.charWeighted') },
-  { value: 'structural', label: t('phonology.phonology.pieVector.similarity.algorithms.structural') },
-  { value: 'cooccurrence', label: t('phonology.phonology.pieVector.similarity.algorithms.cooccurrence') },
-  { value: 'entropy', label: t('phonology.phonology.pieVector.similarity.algorithms.entropy') },
-  { value: 'hierarchical', label: t('phonology.phonology.pieVector.similarity.algorithms.hierarchical') }
+  { value: 'cosine', label: t('phonology.phonology.evolution.similarity.algorithms.cosine') },
+  { value: 'overlap', label: t('phonology.phonology.evolution.similarity.algorithms.overlap') },
+  { value: 'topK', label: t('phonology.phonology.evolution.similarity.algorithms.topK') },
+  { value: 'kl', label: t('phonology.phonology.evolution.similarity.algorithms.kl') },
+  { value: 'jaccard', label: t('phonology.phonology.evolution.similarity.algorithms.jaccard') },
+  { value: 'charWeighted', label: t('phonology.phonology.evolution.similarity.algorithms.charWeighted') },
+  { value: 'structural', label: t('phonology.phonology.evolution.similarity.algorithms.structural') },
+  { value: 'cooccurrence', label: t('phonology.phonology.evolution.similarity.algorithms.cooccurrence') },
+  { value: 'entropy', label: t('phonology.phonology.evolution.similarity.algorithms.entropy') },
+  { value: 'hierarchical', label: t('phonology.phonology.evolution.similarity.algorithms.hierarchical') }
 ])
 
 
@@ -384,19 +384,19 @@ const gridStyle = computed(() => {
 // ========== 查询方法 ==========
 const handleQuery = async () => {
   if (!selectedLocations.value.length) {
-    errorMessage.value = t('phonology.phonology.pieVector.errors.minLocation')
+    errorMessage.value = t('phonology.phonology.evolution.errors.minLocation')
     return
   }
   if (selectedLocations.value.length > 1) {
-    errorMessage.value = t('phonology.phonology.pieVector.errors.maxLocation')
+    errorMessage.value = t('phonology.phonology.evolution.errors.maxLocation')
     return
   }
   if (!level1Column.value || !level2Column.value) {
-    errorMessage.value = t('phonology.phonology.pieVector.errors.selectDimensions')
+    errorMessage.value = t('phonology.phonology.evolution.errors.selectDimensions')
     return
   }
   if (level1Column.value === level2Column.value) {
-    errorMessage.value = t('phonology.phonology.pieVector.errors.sameDimensions')
+    errorMessage.value = t('phonology.phonology.evolution.errors.sameDimensions')
     return
   }
 
@@ -422,7 +422,7 @@ const handleQuery = async () => {
     updateContainerSize()
     renderAllPies()
   } catch (error) {
-    errorMessage.value = error.message || t('phonology.phonology.pieVector.errors.queryFailed')
+    errorMessage.value = error.message || t('phonology.phonology.evolution.errors.queryFailed')
     console.error('Query error:', error)
   } finally {
     isLoading.value = false
@@ -543,7 +543,7 @@ const initPieChart = (container, pieData, index) => {
   const width = container.clientWidth
   const height = container.clientHeight
   if (width === 0 || height === 0) {
-    console.warn(`[PieVector] Container ${index} has zero size, skipping initialization`)
+    console.warn(`[Evolution] Container ${index} has zero size, skipping initialization`)
     return null
   }
 
@@ -579,7 +579,7 @@ const initPieChart = (container, pieData, index) => {
 
 const renderAllPies = async () => {
   const startTime = performance.now()
-  console.log(`[PieVector] Starting to render ${currentPieData.value.length} pies...`)
+  console.log(`[Evolution] Starting to render ${currentPieData.value.length} pies...`)
 
   await nextTick()
   chartInstances.value.forEach(chart => chart?.dispose())
@@ -607,7 +607,7 @@ const renderAllPies = async () => {
       })
       // 每批之间让出控制权，避免阻塞UI
       await nextTick()
-      console.log(`[PieVector] Batch ${Math.floor(i / batchSize) + 1} rendered in ${(performance.now() - batchStart).toFixed(2)}ms`)
+      console.log(`[Evolution] Batch ${Math.floor(i / batchSize) + 1} rendered in ${(performance.now() - batchStart).toFixed(2)}ms`)
     }
   }
 
@@ -619,7 +619,7 @@ const renderAllPies = async () => {
   updatePieCentersCache()
 
   const endTime = performance.now()
-  console.log(`[PieVector] Total rendering took ${(endTime - startTime).toFixed(2)}ms`)
+  console.log(`[Evolution] Total rendering took ${(endTime - startTime).toFixed(2)}ms`)
 }
 
 // ========== 相似度计算 ==========
@@ -646,7 +646,7 @@ const calculateSimilarityMatrix = () => {
 
   const maxPairs = 500 // 限制最大连线数
 
-  console.log(`[PieVector] Calculating similarity for ${pies.length} pies using ${similarityAlgorithm.value}...`)
+  console.log(`[Evolution] Calculating similarity for ${pies.length} pies using ${similarityAlgorithm.value}...`)
 
   for (let i = 0; i < pies.length; i++) {
     for (let j = i + 1; j < pies.length; j++) {
@@ -664,7 +664,7 @@ const calculateSimilarityMatrix = () => {
   matrix.sort((a, b) => b[2] - a[2])
 
   const endTime = performance.now()
-  console.log(`[PieVector] Similarity calculation took ${(endTime - startTime).toFixed(2)}ms, ${matrix.length} pairs`)
+  console.log(`[Evolution] Similarity calculation took ${(endTime - startTime).toFixed(2)}ms, ${matrix.length} pairs`)
 
   return matrix
 }
@@ -774,7 +774,7 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-.pie-vector-page {
+.evolution-page {
   width: 100%;
   padding: 20px;
 }
@@ -1114,7 +1114,7 @@ onUnmounted(() => {
 
 /* 响应式 */
 @media (max-aspect-ratio: 1/1) {
-  .pie-vector-page {
+  .evolution-page {
     padding: 12px;
   }
 

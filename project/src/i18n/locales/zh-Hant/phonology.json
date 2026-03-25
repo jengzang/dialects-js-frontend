@@ -110,9 +110,10 @@
         "loadError": "加載數據時發生錯誤"
       }
     },
-    "pieVector": {
-      "title": "餅圖向量",
+    "evolution": {
+      "title": "演變",
       "queryMode": {
+        "label": "統計模式",
         "byValue": "按值統計",
         "byStatus": "按狀態統計"
       },
@@ -150,8 +151,8 @@
       },
       "errors": {
         "minLocation": "請至少選擇一個地點",
-        "maxLocation": "餅圖向量分析只支持單個地點，請刪除多餘的地點",
-        "autoLimitLocation": "餅圖向量分析只支持單個地點，已自動保留第一個地點",
+        "maxLocation": "演變分析只支持單個地點，請刪除多餘的地點",
+        "autoLimitLocation": "演變分析只支持單個地點，已自動保留第一個地點",
         "selectDimensions": "請選擇兩個維度",
         "sameDimensions": "兩個維度不能相同",
         "queryFailed": "查詢失敗"
@@ -166,6 +167,6 @@
     "matrix": "音系",
     "custom": "音素分類",
     "count": "音節統計",
-    "pieVector": "餅圖向量"
+    "evolution": "演變"
   }
 }

@@ -110,9 +110,10 @@
         "loadError": "加载数据时发生错误"
       }
     },
-    "pieVector": {
-      "title": "饼图向量",
+    "evolution": {
+      "title": "演变",
       "queryMode": {
+        "label": "统计模式",
         "byValue": "按值统计",
         "byStatus": "按状态统计"
       },
@@ -150,8 +151,8 @@
       },
       "errors": {
         "minLocation": "请至少选择一个地点",
-        "maxLocation": "饼图向量分析只支持单个地点，请删除多余的地点",
-        "autoLimitLocation": "饼图向量分析只支持单个地点，已自动保留第一个地点",
+        "maxLocation": "演变分析只支持单个地点，请删除多余的地点",
+        "autoLimitLocation": "演变分析只支持单个地点，已自动保留第一个地点",
         "selectDimensions": "请选择两个维度",
         "sameDimensions": "两个维度不能相同",
         "queryFailed": "查询失败"
@@ -166,6 +167,6 @@
     "matrix": "音系",
     "custom": "音素分类",
     "count": "音节统计",
-    "pieVector": "饼图向量"
+    "evolution": "演变"
   }
 }

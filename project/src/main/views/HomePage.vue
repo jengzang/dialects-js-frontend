@@ -152,9 +152,9 @@
                 <span class="link-icon">📊</span>
                 <span class="link-text">{{ $t('home.features.phonology.syllableCount') }}</span>
               </a>
-              <a @click.stop="navigateTo('/menu?tab=pho&sub=pieVector')" class="feature-link">
+              <a @click.stop="navigateTo('/menu?tab=pho&sub=evolution')" class="feature-link">
                 <span class="link-icon">🥧</span>
-                <span class="link-text">{{ $t('home.features.phonology.pieVector') }}</span>
+                <span class="link-text">{{ $t('home.features.phonology.evolution') }}</span>
               </a>
             </div>
           </transition>

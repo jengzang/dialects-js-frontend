@@ -7,7 +7,7 @@
       "visitor": "🚶 Visitor",
       "user": "👑 User"
     },
-    "notice": "💡 Sign in to unlock more benefits! To keep the experience smooth, current API call quotas are 100 calls/h for visitors and 1000 calls/h for users. 🚀",
+    "notice": "💡 Sign in to unlock more benefits! To keep the experience smooth, multi-location concurrent queries and advanced analysis are currently available only to signed-in users 🚀 (visitors can still use the basic query features without limits)",
     "coreFeaturesTitle": "🌟 Core features",
     "ctaButton": "🚀 Register now to unlock full access",
     "ctaHint": "Free to use. Registration takes about 30 seconds.",

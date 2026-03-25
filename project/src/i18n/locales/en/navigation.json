@@ -29,7 +29,7 @@
       "phonologyMatrix": "Phonology Query",
       "phonologyCustom": "Phoneme Classification",
       "Countphos": "Syllable Statistics",
-      "pieVector": "Pie Vectors"
+      "evolution": "Evolution"
     },
     "charClass": {
       "zhonggu": "Middle Chinese",
