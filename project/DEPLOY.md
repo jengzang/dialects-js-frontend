@@ -20,8 +20,27 @@
 - `explore/` - 覆盖
 - `intro/` - 覆盖
 - `menu/` - 覆盖
+- `villagesML/` - 覆盖
 
 **服务器上的其他文件不会被删除或修改！**
+
+### 当前多入口补充说明（2026-03）
+
+当前构建产物不是单一入口，至少包含以下路径：
+
+- `/`
+- `/auth`
+- `/explore`
+- `/intro`
+- `/menu`
+- `/villagesML`
+
+其中 `VillagesML` 是独立入口，部署时至少需要保证：
+
+- `/villagesML`
+- `/villagesML/*`
+
+都回退到 `villagesML/index.html`，不能错误回退到根目录 `index.html`。
 
 ## 一、配置SSH密钥（一次性配置，避免每次输入密码）
 
@@ -120,6 +139,7 @@ FILES_TO_UPLOAD=(
     "explore/"
     "intro/"
     "menu/"
+    "villagesML/"
     # 在这里添加新的文件或目录
 )
 ```
@@ -136,7 +156,8 @@ $FilesToUpload = @(
     "detail/",
     "explore/",
     "intro/",
-    "menu/"
+    "menu/",
+    "villagesML/"
     # 在这里添加新的文件或目录
 )
 ```

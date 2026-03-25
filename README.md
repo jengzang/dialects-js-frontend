@@ -10,6 +10,25 @@
 
 **文檔語言：** [English](./docs/README.en.md) | 中文
 
+## 📌 當前倉庫補充說明（2026-03）
+
+以下內容是基於當前代碼結構補充的現狀說明，原有 README 主體內容保持不變：
+
+- 倉庫分為兩層：根目錄放說明文檔，實際前端工程在 `project/`
+- 日常開發、構建、測試命令都應在 `project/` 目錄下執行
+- 目前前端運行時已拆分為兩個入口：
+  - 主站應用：`project/src/main`
+  - VillagesML 子應用：`project/src/VillagesML`
+- `VillagesML` 目前保留兩種入口語義：
+  - `/explore?page=VillagesML`：主站中的導覽頁 / dashboard
+  - `/villagesML?...`：真正的 VillagesML 工作台
+
+補充參考：
+
+- [文檔索引](./docs/README.md)
+- [部署說明](./project/DEPLOY.md)
+- [i18n 說明](./project/src/i18n/README.md)
+
 ---
 
 ## 📖 項目簡介

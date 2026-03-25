@@ -12,6 +12,25 @@
 
 ---
 
+## Current Maintenance Note (2026-03)
+
+This page keeps the original document index. The notes below only supplement the current code layout:
+
+- The repository root is mainly for documentation; the actual frontend project lives in `project/`
+- The frontend runtime is currently split into:
+  - `project/src/main` for the main site
+  - `project/src/VillagesML` for the VillagesML sub-application
+- VillagesML currently keeps two entry semantics:
+  - `/explore?page=VillagesML` for the main-site dashboard / gateway
+  - `/villagesML?...` for the actual VillagesML workspace
+- The documents that should be treated as the primary up-to-date entry points for this structure are:
+  - [root README](../README.md)
+  - [deployment guide](../project/DEPLOY.md)
+  - [i18n guide](../project/src/i18n/README.md)
+  - this index page and its Chinese counterpart
+
+---
+
 ## Overview
 
 The Chinese Dialect Atlas is a comprehensive web platform for exploring and analyzing Chinese dialect phonology. It combines powerful phonological query capabilities with interactive geographic visualization and advanced audio analysis tools.

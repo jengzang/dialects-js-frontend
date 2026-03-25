@@ -6,6 +6,25 @@
 
 ---
 
+## 📌 維護補充（2026-03）
+
+本頁保留原有文檔導航，以下補充僅用於說明當前代碼結構與優先參考入口：
+
+- 倉庫根目錄以文檔為主，實際前端工程位於 `project/`
+- 當前前端運行時拆分為：
+  - `project/src/main`：主站應用
+  - `project/src/VillagesML`：VillagesML 子應用
+- `VillagesML` 的兩個入口語義目前同時存在：
+  - `/explore?page=VillagesML`
+  - `/villagesML?...`
+- 本輪優先維護並已按現狀補充的文檔入口是：
+  - 根目錄 [README](../README.md)
+  - [部署說明](../project/DEPLOY.md)
+  - [i18n 說明](../project/src/i18n/README.md)
+  - 本頁及英文索引頁
+
+---
+
 ## 📚 文檔導航
 
 ### 核心文檔
