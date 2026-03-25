@@ -400,6 +400,9 @@ onUnmounted(() => {
   cursor: pointer;
   font-size: 14px;
   transition: background-color 0.2s;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .dropdown-item.active {

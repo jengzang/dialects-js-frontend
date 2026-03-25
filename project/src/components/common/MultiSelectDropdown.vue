@@ -298,6 +298,9 @@ watch(() => props.triggerEl, () => {
   font-size: 14px;
   color: rgba(0, 0, 0, 0.85);
   transition: background-color 0.2s;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .dropdown-item:hover {
