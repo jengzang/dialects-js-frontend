@@ -237,16 +237,9 @@ const comparisonData = computed(() => [
   {
     key: 'hourlyApiUsage',
     feature: t('user.benefitsPopup.items.hourlyApiUsage'),
-    unit: 'second',
-    anonymous: 300,
-    user: 2000
-  },
-  {
-    key: 'maxJsonResponse',
-    feature: t('user.benefitsPopup.items.maxJsonResponse'),
-    unit: 'mb',
-    anonymous: 1,
-    user: 6
+    unit: 'callRate',
+    anonymous: 100,
+    user: 1000
   }
 ])
 
@@ -275,8 +268,7 @@ const statusMap = computed(() => ({
 const unitMap = computed(() => ({
   location: t('user.benefitsPopup.units.location'),
   group: t('user.benefitsPopup.units.group'),
-  second: t('user.benefitsPopup.units.second'),
-  mb: t('user.benefitsPopup.units.mb')
+  callRate: t('user.benefitsPopup.units.callRate')
 }))
 
 const formatNumber = (value) => Number(value).toLocaleString(locale.value)

@@ -7,7 +7,7 @@
       "visitor": "🚶 遊客",
       "user": "👑 用戶"
     },
-    "notice": "💡 登錄解鎖更多權益！為保證流暢體驗，目前多地點併發查詢及進階分析功能僅對登錄用戶開放🚀（遊客仍可無限次使用基礎查詢功能）",
+    "notice": "💡 登錄解鎖更多權益！為保證流暢體驗，目前 API 調用配額為：遊客 100 次/h，用戶 1000 次/h。🚀",
     "coreFeaturesTitle": "🌟 核心功能",
     "ctaButton": "🚀 立即註冊，升級用戶權限",
     "ctaHint": "完全免費，30秒完成註冊",
@@ -18,8 +18,7 @@
     "units": {
       "location": "個地點",
       "group": "組",
-      "second": "秒",
-      "mb": "MB"
+      "callRate": "次/h"
     },
     "status": {
       "unlimited": "無限制",
@@ -50,8 +49,7 @@
       "corpusQuery": "🗂️ 語保查詢",
       "guangdongVillages": "🏘️ 廣東村落",
       "machineLearning": "🤖 機器學習",
-      "hourlyApiUsage": "⏳ 每小時接口使用",
-      "maxJsonResponse": "📦 最大返回json"
+      "hourlyApiUsage": "⏳ 每小時 API 調用次數"
     },
     "coreFeatures": {
       "phonologyQuery": "音韻查詢",
