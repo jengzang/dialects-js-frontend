@@ -86,7 +86,7 @@
                                    "setting":  "設定 - 語言與音韻資料選擇"
                                },
                      "dialectClustering":  {
-                                               "title":  "聚類",
+                                               "title":  "方言聚類",
                                                "desc":  "方言聚類流程頁面占位"
                                            }
                  },

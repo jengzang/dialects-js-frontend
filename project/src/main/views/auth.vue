@@ -95,7 +95,7 @@ import {
 } from '@/api'
 import { userStore } from '@/main/store/store.js'
 import { computeQueryStats } from '@/main/store/userStats.js'
-import { manualReport } from '@/utils/onlineTimeTracker.js'
+import { initOnlineTimeTracker, manualReport, stopOnlineTimeTracker } from '@/utils/onlineTimeTracker.js'
 import { WEB_BASE } from '@/env-config.js'
 import { showConfirm, showSuccess } from '@/utils/message.js'
 
@@ -206,6 +206,11 @@ const handleLogin = async (credentials) => {
     await loginUser(credentials)
     await fetchUser()
     await getUserRole()
+    try {
+      await initOnlineTimeTracker()
+    } catch (trackerError) {
+      console.error('Failed to start online time tracker after login', trackerError)
+    }
 
     showSuccess(t('auth.messages.loginSuccess'))
     success.value = t('auth.messages.loginSuccessDetail')
@@ -378,6 +383,7 @@ const logout = async () => {
   try {
     // console.log('🚪 [登出] 用户登出，先上报在线时长')
     await manualReport()
+    stopOnlineTimeTracker({ clearPending: true })
 
     const refreshToken = getRefreshToken()
     await logoutUser(refreshToken)

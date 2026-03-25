@@ -98,7 +98,7 @@
       "desc": "Batch acoustic parameter estimation, multi-algorithm pitch detection, EGG signal analysis, glottal parameter extraction"
     },
     "dialectClustering": {
-      "title": "Clustering",
+      "title": "Dialect Clustering",
       "desc": "Custom phonetic value and phoneme weights, adjust clustering algorithm parameters, multi-dimensional similarity calculation based on phoneme vectors"
     },
     "evolutionTree": {
