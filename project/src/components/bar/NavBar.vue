@@ -280,6 +280,11 @@ watch(() => route.query, (query) => {
     saveLastSub(query.tab, query.sub)
   }
 }, { immediate: true })
+
+function getTargetTabKey(tabConfig) {
+  const routeTab = tabConfig?.to?.query?.tab
+  return routeTab || tabConfig?.tab || null
+}
 // ===== sessionStorage 管理结束 =====
 
 // Mobile detection
@@ -402,7 +407,8 @@ const onClick = async (tabConfig, navigate) => {
   }
 
   // 检查是否有记录的 sub
-  const lastSub = getLastSub(tabConfig.tab)
+  const targetTabKey = getTargetTabKey(tabConfig)
+  const lastSub = targetTabKey ? getLastSub(targetTabKey) : null
 
   // 构建目标路由
   let targetRoute
@@ -425,7 +431,7 @@ const onClick = async (tabConfig, navigate) => {
     targetRoute = {
       path: '/menu',
       query: {
-        tab: tabConfig.tab,
+        tab: targetTabKey || tabConfig.tab,
         ...(lastSub ? { sub: lastSub } : {})
       }
     }

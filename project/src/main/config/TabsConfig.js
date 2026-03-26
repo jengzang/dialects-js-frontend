@@ -60,7 +60,7 @@ export function useMenuTabsConfig() {
     cssClass: ''
   },
   {
-    tab: 'data',
+    tab: 'pho',
     label: t('navigation.tabs.phonology'),
     icon: '🧬',
     weight: 0.9,                          // 桌面端标签显示时的 flex 权重
