@@ -707,6 +707,7 @@ watch(detailMode, () => {
 }
 
 .toggle-hint {
+  white-space: nowrap;
   font-size: 12px;
   color: var(--text-secondary);
 }
