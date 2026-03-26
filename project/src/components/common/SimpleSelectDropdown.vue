@@ -105,6 +105,20 @@ const handleUpdate = (value) => {
 const handleClose = () => {
   isOpen.value = false
 }
+
+const openDropdown = () => {
+  if (props.disabled) return
+  isOpen.value = true
+}
+
+const closeDropdown = () => {
+  isOpen.value = false
+}
+
+defineExpose({
+  openDropdown,
+  closeDropdown
+})
 </script>
 
 <style scoped>

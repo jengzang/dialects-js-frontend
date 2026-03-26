@@ -1,0 +1,813 @@
+<template>
+  <div class="char-class-page">
+    <div class="page-shell">
+      <section class="config-panel glass-panel">
+        <div class="panel-header">
+          <div class="panel-title-group">
+            <h2 class="page-title">{{ t(currentPageConfig.titleKey) }}</h2>
+            <p class="page-subtitle">{{ t('charClass.common.subtitle') }}</p>
+          </div>
+
+          <button
+            class="annotation-toggle"
+            :class="{ active: showAnnotations }"
+            @click="toggleAnnotations"
+          >
+            {{ showAnnotations ? t('charClass.actions.hideAnnotations') : t('charClass.actions.showAnnotations') }}
+          </button>
+        </div>
+
+        <div v-if="hasMultipleTables" class="control-section">
+          <div class="control-heading">{{ t('charClass.common.table') }}</div>
+          <SimpleSelectDropdown
+            :modelValue="selectedTableKey"
+            :options="tableOptions"
+            width="100%"
+            @update:modelValue="handleTableChange"
+          />
+        </div>
+
+        <div class="control-section">
+          <div class="control-heading">{{ t('charClass.common.recommended') }}</div>
+          <div class="preset-list">
+            <button
+              v-for="preset in currentTableConfig.presets"
+              :key="preset.key"
+              type="button"
+              class="preset-chip"
+              :class="{ active: activePresetKey === preset.key }"
+              @click="applyPreset(preset.key)"
+            >
+              {{ t(preset.labelKey) }}
+            </button>
+          </div>
+        </div>
+
+        <div class="control-section levels-section">
+          <div class="levels-header">
+            <div>
+              <div class="control-heading">{{ t('charClass.common.levels') }}</div>
+              <div class="section-hint">{{ t('charClass.common.levelsHint') }}</div>
+            </div>
+
+            <button
+              type="button"
+              class="glass-button add-level-button"
+              :disabled="!canAddLevel"
+              @click="addLevel"
+            >
+              {{ t('charClass.actions.addLevel') }}
+            </button>
+          </div>
+
+          <div class="levels-list">
+            <div
+              v-for="(levelKey, index) in levels"
+              :key="`${selectedTableKey}-${index}-${levelKey}`"
+              class="level-row glass-panel-inner"
+            >
+              <div class="level-row-header">
+                <span class="level-badge">{{ t('charClass.common.level', { index: index + 1 }) }}</span>
+
+                <div class="level-actions">
+                  <button
+                    type="button"
+                    class="level-action"
+                    :disabled="index === 0"
+                    :title="t('charClass.actions.moveUp')"
+                    @click="moveLevel(index, -1)"
+                  >
+                    ↑
+                  </button>
+                  <button
+                    type="button"
+                    class="level-action"
+                    :disabled="index === levels.length - 1"
+                    :title="t('charClass.actions.moveDown')"
+                    @click="moveLevel(index, 1)"
+                  >
+                    ↓
+                  </button>
+                  <button
+                    type="button"
+                    class="level-action danger"
+                    :disabled="levels.length <= 1"
+                    :title="t('charClass.actions.removeLevel')"
+                    @click="removeLevel(index)"
+                  >
+                    −
+                  </button>
+                </div>
+              </div>
+
+              <SimpleSelectDropdown
+                ref="levelDropdownRefs"
+                :modelValue="levelKey"
+                :options="getLevelOptions(index)"
+                width="100%"
+                searchable
+                matchTriggerWidth
+                @update:modelValue="(value) => updateLevel(index, value)"
+              />
+            </div>
+          </div>
+
+          <div v-if="!canAddLevel" class="section-hint limit-hint">
+            {{ t('charClass.states.noMoreLevels') }}
+          </div>
+        </div>
+      </section>
+
+      <section class="tree-panel glass-panel">
+        <div class="tree-header">
+          <div class="tree-title-group">
+            <h3 class="tree-title">{{ t('charClass.common.resultsTitle') }}</h3>
+            <p class="tree-meta">
+              {{ t(currentTableConfig.labelKey) }}
+              <span class="tree-meta-separator">·</span>
+              {{ activePresetLabel || t('charClass.common.custom') }}
+            </p>
+          </div>
+
+          <div class="search-wrapper">
+            <span class="search-icon">🔍</span>
+            <input
+              v-model="searchQuery"
+              type="text"
+              class="glass-input"
+              :placeholder="t('charClass.search.placeholder')"
+              :disabled="loading"
+            />
+          </div>
+        </div>
+
+        <div class="tree-body custom-scrollbar">
+          <div v-if="loading" class="state-block">
+            <div class="loading-spinner"></div>
+            <p>{{ t('charClass.states.loading', { name: t(currentTableConfig.labelKey) }) }}</p>
+            <p class="state-hint">{{ t('charClass.states.loadingHint') }}</p>
+          </div>
+
+          <div v-else-if="loadError" class="state-block">
+            <div class="state-icon">⚠️</div>
+            <p class="state-message">{{ loadError }}</p>
+            <button type="button" class="glass-button retry-button" @click="retryCurrentState">
+              {{ t('charClass.actions.retry') }}
+            </button>
+          </div>
+
+          <div v-else-if="displayTree.length === 0" class="state-block">
+            <div class="state-icon">{{ searchQuery.trim() ? '🔎' : '📚' }}</div>
+            <p class="state-message">
+              {{ searchQuery.trim() ? t('charClass.search.noResults') : t('charClass.states.emptyTree') }}
+            </p>
+            <p v-if="!searchQuery.trim()" class="state-hint">{{ t('charClass.states.emptyTreeHint') }}</p>
+          </div>
+
+          <div v-else class="tree-container">
+            <CharTreeItem
+              v-for="item in displayTree"
+              :key="item.id"
+              :node="item"
+              :search-query="searchQuery"
+              :show-annotations="showAnnotations"
+            />
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { computed, nextTick, ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
+import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
+import CharTreeItem from '@/main/components/TableAndTree/CharTreeItem.vue'
+import { loadFullTree } from '@/api/sql/index.js'
+import {
+  parseCharClassParams,
+  updateUrlWithCharClassConfig
+} from '@/api/urlParams.js'
+import {
+  buildCharClassTreePayload,
+  findCharClassPresetKey,
+  getCharClassPageConfig,
+  sanitizeCharClassLevelKeys,
+  sanitizeCharClassTableKey
+} from '@/main/config/charClassPageConfigs.js'
+import {
+  filterCharClassTree,
+  normalizeCharClassTree
+} from '@/main/utils/charClassTree.js'
+
+const props = defineProps({
+  pageKey: {
+    type: String,
+    required: true
+  }
+})
+
+const route = useRoute()
+const router = useRouter()
+const { t } = useI18n()
+
+const selectedTableKey = ref('')
+const levels = ref([])
+const showAnnotations = ref(true)
+const searchQuery = ref('')
+const loading = ref(false)
+const loadError = ref('')
+const levelDropdownRefs = ref([])
+const treeCache = ref({})
+const activeTreeCacheKey = ref('')
+const loadingCacheKey = ref('')
+
+let loadRequestId = 0
+
+const currentPageConfig = computed(() => getCharClassPageConfig(props.pageKey))
+const hasMultipleTables = computed(() => Object.keys(currentPageConfig.value.tables).length > 1)
+const currentTableConfig = computed(() => {
+  const normalizedTableKey = sanitizeCharClassTableKey(currentPageConfig.value, selectedTableKey.value)
+  return currentPageConfig.value.tables[normalizedTableKey]
+})
+const activePresetKey = computed(() => findCharClassPresetKey(currentTableConfig.value, levels.value))
+const activePresetLabel = computed(() => {
+  const preset = currentTableConfig.value.presetMap[activePresetKey.value]
+  return preset ? t(preset.labelKey) : ''
+})
+const currentTreeData = computed(() => treeCache.value[activeTreeCacheKey.value] || [])
+const displayTree = computed(() => {
+  const query = searchQuery.value.trim()
+  return query ? filterCharClassTree(currentTreeData.value, query) : currentTreeData.value
+})
+const canAddLevel = computed(() => levels.value.length < currentTableConfig.value.levelColumns.length)
+const tableOptions = computed(() =>
+  Object.entries(currentPageConfig.value.tables).map(([tableKey, tableConfig]) => ({
+    label: t(tableConfig.labelKey),
+    value: tableKey
+  }))
+)
+
+const areArraysEqual = (left, right) =>
+  left.length === right.length && left.every((item, index) => item === right[index])
+
+const buildCacheKey = (tableKey, levelKeys) => `${props.pageKey}:${tableKey}:${levelKeys.join('|')}`
+
+const normalizeState = (tableKey, levelKeys) => {
+  const normalizedTableKey = sanitizeCharClassTableKey(currentPageConfig.value, tableKey)
+  const tableConfig = currentPageConfig.value.tables[normalizedTableKey]
+
+  return {
+    tableKey: normalizedTableKey,
+    levels: sanitizeCharClassLevelKeys(tableConfig, levelKeys)
+  }
+}
+
+const syncUrlToState = (state) => {
+  const parsedParams = parseCharClassParams(route)
+  const hasExtraTableParam = !hasMultipleTables.value && Boolean(route.query.table)
+  const subMatches = route.query.sub === props.pageKey
+  const tableMatches = hasMultipleTables.value
+    ? parsedParams.table === state.tableKey
+    : !hasExtraTableParam
+  const levelsMatch = areArraysEqual(parsedParams.levels, state.levels)
+
+  if (subMatches && tableMatches && levelsMatch) {
+    return
+  }
+
+  updateUrlWithCharClassConfig(router, route, {
+    pageKey: props.pageKey,
+    tableKey: state.tableKey,
+    levels: state.levels,
+    includeTable: hasMultipleTables.value
+  })
+}
+
+const loadTreeForState = async (state) => {
+  const cacheKey = buildCacheKey(state.tableKey, state.levels)
+  activeTreeCacheKey.value = cacheKey
+  loadError.value = ''
+
+  if (treeCache.value[cacheKey]) {
+    loading.value = false
+    loadingCacheKey.value = ''
+    return
+  }
+
+  if (loadingCacheKey.value === cacheKey) {
+    return
+  }
+
+  const requestId = ++loadRequestId
+  loading.value = true
+  loadingCacheKey.value = cacheKey
+
+  try {
+    const result = await loadFullTree(
+      buildCharClassTreePayload(props.pageKey, state.tableKey, state.levels)
+    )
+
+    if (requestId !== loadRequestId) {
+      return
+    }
+
+    if (!result?.tree) {
+      throw new Error(t('charClass.states.dataFormatError'))
+    }
+
+    treeCache.value = {
+      ...treeCache.value,
+      [cacheKey]: normalizeCharClassTree(result.tree)
+    }
+  } catch (error) {
+    if (requestId !== loadRequestId) {
+      return
+    }
+
+    loadError.value = error.message || t('charClass.states.loadFailed')
+  } finally {
+    if (requestId === loadRequestId) {
+      loading.value = false
+      loadingCacheKey.value = ''
+    }
+  }
+}
+
+const commitState = (nextTableKey, nextLevels, options = { syncUrl: true, resetSearch: false }) => {
+  const normalizedState = normalizeState(nextTableKey, nextLevels)
+  const cacheKey = buildCacheKey(normalizedState.tableKey, normalizedState.levels)
+  const stateChanged =
+    selectedTableKey.value !== normalizedState.tableKey ||
+    !areArraysEqual(levels.value, normalizedState.levels)
+
+  selectedTableKey.value = normalizedState.tableKey
+  levels.value = [...normalizedState.levels]
+  activeTreeCacheKey.value = cacheKey
+
+  if (options.resetSearch) {
+    searchQuery.value = ''
+  }
+
+  if (options.syncUrl) {
+    syncUrlToState(normalizedState)
+  }
+
+  if (stateChanged || (!treeCache.value[cacheKey] && loadingCacheKey.value !== cacheKey)) {
+    loadTreeForState(normalizedState)
+  }
+}
+
+const getLevelOptions = (index) => {
+  const usedByOthers = new Set(levels.value.filter((_, currentIndex) => currentIndex !== index))
+
+  return currentTableConfig.value.levelColumns
+    .filter((column) => column.key === levels.value[index] || !usedByOthers.has(column.key))
+    .map((column) => ({
+      label: column.label,
+      value: column.key
+    }))
+}
+
+const toggleAnnotations = () => {
+  showAnnotations.value = !showAnnotations.value
+}
+
+const handleTableChange = (nextTableKey) => {
+  commitState(nextTableKey, levels.value)
+}
+
+const applyPreset = (presetKey) => {
+  const preset = currentTableConfig.value.presetMap[presetKey]
+  if (!preset) return
+
+  commitState(selectedTableKey.value, preset.levelKeys)
+}
+
+const updateLevel = (index, nextLevelKey) => {
+  if (!nextLevelKey || levels.value[index] === nextLevelKey) {
+    return
+  }
+
+  const nextLevels = [...levels.value]
+  nextLevels[index] = nextLevelKey
+  commitState(selectedTableKey.value, nextLevels)
+}
+
+const moveLevel = (index, direction) => {
+  const targetIndex = index + direction
+  if (targetIndex < 0 || targetIndex >= levels.value.length) {
+    return
+  }
+
+  const nextLevels = [...levels.value]
+  ;[nextLevels[index], nextLevels[targetIndex]] = [nextLevels[targetIndex], nextLevels[index]]
+  commitState(selectedTableKey.value, nextLevels)
+}
+
+const removeLevel = (index) => {
+  if (levels.value.length <= 1) {
+    return
+  }
+
+  const nextLevels = levels.value.filter((_, currentIndex) => currentIndex !== index)
+  commitState(selectedTableKey.value, nextLevels)
+}
+
+const addLevel = async () => {
+  const nextColumn = currentTableConfig.value.levelColumns.find(
+    (column) => !levels.value.includes(column.key)
+  )
+
+  if (!nextColumn) {
+    return
+  }
+
+  commitState(selectedTableKey.value, [...levels.value, nextColumn.key])
+  await nextTick()
+  levelDropdownRefs.value.at(-1)?.openDropdown?.()
+}
+
+const retryCurrentState = () => {
+  loadTreeForState({
+    tableKey: selectedTableKey.value,
+    levels: [...levels.value]
+  })
+}
+
+const applyRouteState = () => {
+  const parsedParams = parseCharClassParams(route)
+  const normalizedState = normalizeState(parsedParams.table, parsedParams.levels)
+  commitState(normalizedState.tableKey, normalizedState.levels, {
+    syncUrl: true,
+    resetSearch: false
+  })
+}
+
+watch(
+  () => [props.pageKey, route.query.table, route.query.levels],
+  () => {
+    applyRouteState()
+  },
+  { immediate: true }
+)
+</script>
+
+<style scoped>
+.char-class-page {
+  width: 100%;
+  padding: 12px 0 24px;
+}
+
+.page-shell {
+  width: min(94dvw, 1380px);
+  margin: 0 auto;
+  display: grid;
+  gap: 18px;
+  align-items: start;
+}
+
+.config-panel,
+.tree-panel {
+  border-radius: 28px;
+  padding: 22px;
+  color: var(--text-dark);
+}
+
+.panel-header,
+.tree-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.panel-title-group,
+.tree-title-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.page-title,
+.tree-title {
+  margin: 0;
+  color: #1d1d1f;
+}
+
+.page-title {
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.tree-title {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.page-subtitle,
+.tree-meta,
+.section-hint,
+.state-hint {
+  margin: 0;
+  color: #6e6e73;
+}
+
+.tree-meta {
+  font-size: 14px;
+}
+
+.tree-meta-separator {
+  margin: 0 6px;
+  opacity: 0.65;
+}
+
+.annotation-toggle {
+  border: 1px solid var(--glass-border-weak);
+  background: var(--glass-light);
+  color: #0a84ff;
+  border-radius: 999px;
+  padding: 10px 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+}
+
+.annotation-toggle:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-glass-hover);
+}
+
+.annotation-toggle.active {
+  background: rgba(10, 132, 255, 0.18);
+  border-color: rgba(10, 132, 255, 0.4);
+}
+
+.control-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.control-heading {
+  font-size: 14px;
+  font-weight: 700;
+  color: #3a3a3c;
+}
+
+.preset-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.preset-chip {
+  border: 1px solid var(--glass-border-weak);
+  background: var(--glass-light);
+  border-radius: 999px;
+  padding: 10px 14px;
+  color: #1d1d1f;
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+  backdrop-filter: blur(14px) saturate(170%);
+  -webkit-backdrop-filter: blur(14px) saturate(170%);
+}
+
+.preset-chip:hover {
+  transform: translateY(-1px);
+  border-color: rgba(10, 132, 255, 0.35);
+}
+
+.preset-chip.active {
+  background: rgba(10, 132, 255, 0.16);
+  border-color: rgba(10, 132, 255, 0.45);
+  color: #0057d9;
+}
+
+.levels-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.add-level-button {
+  white-space: nowrap;
+}
+
+.levels-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.level-row {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px;
+  border-radius: 22px;
+}
+
+.level-row-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.level-badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid var(--glass-border-weak);
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #3a3a3c;
+}
+
+.level-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.level-action {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid var(--glass-border-weak);
+  background: rgba(255, 255, 255, 0.68);
+  color: #1d1d1f;
+  cursor: pointer;
+  transition: transform 0.2s ease, opacity 0.2s ease, background 0.2s ease;
+}
+
+.level-action:hover:not(:disabled) {
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.85);
+}
+
+.level-action:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.level-action.danger {
+  color: #d70015;
+}
+
+.limit-hint {
+  font-size: 13px;
+}
+
+.tree-panel {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.search-wrapper {
+  position: relative;
+  min-width: 240px;
+}
+
+.search-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0.6;
+}
+
+.glass-input {
+  width: 100%;
+  padding: 11px 14px 11px 40px;
+  border-radius: 16px;
+  border: 1px solid var(--glass-border-weak);
+  background: var(--glass-light);
+  color: #1d1d1f;
+  outline: none;
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.glass-input:focus {
+  border-color: rgba(10, 132, 255, 0.35);
+  box-shadow: 0 0 0 3px rgba(10, 132, 255, 0.08);
+}
+
+.tree-body {
+  margin-top: 18px;
+  flex: 1;
+  overflow: auto;
+}
+
+.tree-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.state-block {
+  min-height: 48dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  text-align: center;
+  padding: 24px;
+}
+
+.state-icon {
+  font-size: 34px;
+}
+
+.state-message {
+  margin: 0;
+  font-size: 16px;
+  color: #1d1d1f;
+}
+
+.retry-button {
+  margin-top: 4px;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 3px solid rgba(10, 132, 255, 0.16);
+  border-top-color: #0a84ff;
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (orientation: landscape) {
+  .page-shell {
+    grid-template-columns: minmax(340px, 430px) minmax(0, 1fr);
+  }
+
+  .tree-panel {
+    min-height: 84dvh;
+  }
+
+  .tree-body {
+    max-height: calc(84dvh - 110px);
+  }
+}
+
+@media (orientation: portrait) {
+  .page-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .config-panel,
+  .tree-panel {
+    padding: 18px;
+    border-radius: 24px;
+  }
+
+  .panel-header,
+  .tree-header,
+  .levels-header,
+  .level-row-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .search-wrapper {
+    min-width: 100%;
+  }
+
+  .level-actions {
+    justify-content: flex-end;
+  }
+
+  .tree-body {
+    min-height: 52dvh;
+  }
+
+  .page-title {
+    font-size: 24px;
+  }
+}
+</style>

@@ -218,3 +218,63 @@ export function validatePhonologyParams(params, allowedFeatures, allowedColumns)
   }
 }
 
+const decodeSingleQueryParam = (param) => {
+  if (Array.isArray(param)) {
+    return decodeSingleQueryParam(param[0])
+  }
+
+  if (!param) return ''
+
+  try {
+    return decodeURIComponent(param)
+  } catch {
+    return param
+  }
+}
+
+/**
+ * 解析字音分類頁面的 URL 參數。
+ * @param {Object} route - Vue Router route 物件
+ * @returns {{table: string, levels: string[]}}
+ */
+export function parseCharClassParams(route) {
+  const levelsParam = decodeSingleQueryParam(route.query.levels)
+
+  return {
+    table: decodeSingleQueryParam(route.query.table),
+    levels: levelsParam
+      ? levelsParam
+        .split(',')
+        .map(level => decodeSingleQueryParam(level))
+        .filter(Boolean)
+      : []
+  }
+}
+
+/**
+ * 更新字音分類頁面的 URL 參數。
+ * @param {Object} router - Vue Router router 物件
+ * @param {Object} route - Vue Router route 物件
+ * @param {{pageKey: string, tableKey?: string, levels: string[], includeTable?: boolean}} params - URL 同步參數
+ */
+export function updateUrlWithCharClassConfig(router, route, params) {
+  const query = {
+    ...route.query,
+    sub: params.pageKey
+  }
+
+  if (params.includeTable && params.tableKey) {
+    query.table = params.tableKey
+  } else {
+    delete query.table
+  }
+
+  if (params.levels?.length) {
+    query.levels = params.levels.join(',')
+  } else {
+    delete query.levels
+  }
+
+  router.replace({ query })
+}
+
