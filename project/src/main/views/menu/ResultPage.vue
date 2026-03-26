@@ -165,7 +165,8 @@ watch(
             chars: [],
             locations: newPayload.locations || "",
             regions: Array.isArray(newPayload.regions) ? newPayload.regions : (newPayload.regions || ""),
-            region_mode: newPayload.region_mode || 'yindian'
+            region_mode: newPayload.region_mode || 'yindian',
+            response_mode: 'compact'
           }
 
           let rawChars = newPayload.chars;

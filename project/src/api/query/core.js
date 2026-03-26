@@ -101,6 +101,20 @@ export async function searchYinWei(params) {
  *   region_mode: 'yindian'
  * })
  */
+const normalizeCompactSearchCharsResponse = (data) => {
+  const charMeta = data?.char_meta || {}
+  const result = Array.isArray(data?.result) ? data.result : []
+
+  return {
+    ...data,
+    result: result.map(item => ({
+      ...item,
+      positions: item.positions ?? charMeta[item.char]?.positions ?? [],
+      old_position: item.old_position ?? charMeta[item.char]?.old_position ?? []
+    }))
+  }
+}
+
 export async function searchChars(params) {
   try {
     const query = new URLSearchParams()
@@ -135,7 +149,17 @@ export async function searchChars(params) {
       query.append('region_mode', params.region_mode)
     }
 
-    return await api(`/api/search_chars/?${query.toString()}`)
+    if (params.response_mode) {
+      query.append('response_mode', params.response_mode)
+    }
+
+    const data = await api(`/api/search_chars/?${query.toString()}`)
+
+    if (params.response_mode === 'compact') {
+      return normalizeCompactSearchCharsResponse(data)
+    }
+
+    return data
   } catch (error) {
     console.error('Search chars error:', error)
     showError(error.message || '字查詢失敗')
