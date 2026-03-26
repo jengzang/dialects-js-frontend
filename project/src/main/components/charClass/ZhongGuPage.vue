@@ -95,39 +95,22 @@ import {computed, ref} from 'vue';
 import { useI18n } from 'vue-i18n';
 import CharTreeItem from '@/main/components/TableAndTree/CharTreeItem.vue';
 import {loadFullTree} from '@/api/sql/index.js';
+import { ZHONGGU_SQL_TREE_CLASSIFICATIONS } from '@/main/config/sqlTreeColumnMappings.js';
 
 const { t } = useI18n();
 
 // Classification Types Configuration
-const CLASSIFICATION_TYPES = computed(() => ({
-  rhyme: {
-    name: t('charClass.zhonggu.classifications.rhyme'),
-    payload: {
-      db_key: "chars",
-      table_name: "characters",
-      level_columns: [0, 3, 1, 2, 5],
-      data_columns: [12, 13]
-    }
-  },
-  initial: {
-    name: t('charClass.zhonggu.classifications.initial'),
-    payload: {
-      db_key: "chars",
-      table_name: "characters",
-      level_columns: [7, 8, 9, 0],
-      data_columns: [12, 13]
-    }
-  },
-  voicing: {
-    name: t('charClass.zhonggu.classifications.voicing'),
-    payload: {
-      db_key: "chars",
-      table_name: "characters",
-      level_columns: [6, 9, 1, 2],
-      data_columns: [12, 13]
-    }
-  }
-}));
+const CLASSIFICATION_TYPES = computed(() =>
+  Object.fromEntries(
+    Object.entries(ZHONGGU_SQL_TREE_CLASSIFICATIONS).map(([type, config]) => [
+      type,
+      {
+        name: t(config.translationKey),
+        payload: config.payload
+      }
+    ])
+  )
+);
 
 // State Management
 const activeClassification = ref(null);
