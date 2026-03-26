@@ -95,9 +95,35 @@ import {computed, ref} from 'vue';
 import { useI18n } from 'vue-i18n';
 import CharTreeItem from '@/main/components/TableAndTree/CharTreeItem.vue';
 import {loadFullTree} from '@/api/sql/index.js';
-import { ZHONGGU_SQL_TREE_CLASSIFICATIONS } from '@/main/config/sqlTreeColumnMappings.js';
+import { getSqlTreeColumnIndexes } from '@/main/config/sqlTreeColumnMappings.js';
 
 const { t } = useI18n();
+
+const ZHONGGU_DB_KEY = 'chars';
+const ZHONGGU_TABLE_NAME = 'characters';
+const ZHONGGU_DATA_COLUMN_NAMES = ['漢字', '釋義'];
+
+const createZhongguPayload = (levelColumnNames, dataColumnNames = ZHONGGU_DATA_COLUMN_NAMES) => ({
+  db_key: ZHONGGU_DB_KEY,
+  table_name: ZHONGGU_TABLE_NAME,
+  level_columns: getSqlTreeColumnIndexes(ZHONGGU_DB_KEY, ZHONGGU_TABLE_NAME, levelColumnNames),
+  data_columns: getSqlTreeColumnIndexes(ZHONGGU_DB_KEY, ZHONGGU_TABLE_NAME, dataColumnNames)
+});
+
+const ZHONGGU_SQL_TREE_CLASSIFICATIONS = Object.freeze({
+  rhyme: Object.freeze({
+    translationKey: 'charClass.zhonggu.classifications.rhyme',
+    payload: createZhongguPayload(['攝', '韻', '呼', '等', '調'])
+  }),
+  initial: Object.freeze({
+    translationKey: 'charClass.zhonggu.classifications.initial',
+    payload: createZhongguPayload(['系', '組', '母', '攝'])
+  }),
+  voicing: Object.freeze({
+    translationKey: 'charClass.zhonggu.classifications.voicing',
+    payload: createZhongguPayload(['清濁', '母', '呼', '等'])
+  })
+});
 
 // Classification Types Configuration
 const CLASSIFICATION_TYPES = computed(() =>
