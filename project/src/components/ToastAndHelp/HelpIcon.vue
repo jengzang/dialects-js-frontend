@@ -3,7 +3,7 @@
     <!-- 触发图标 -->
     <div
       ref="iconRef"
-      class="help-icon"
+      class="help-icon global-help-icon-shell"
       :class="[sizeClass, { 'is-visible': isVisible }]"
       :style="iconStyle"
       @mouseenter="handleHover('enter')"
@@ -19,7 +19,7 @@
       <Transition name="tooltip-fade">
         <div
           v-if="isVisible"
-          class="help-tooltip"
+          class="help-tooltip global-tooltip-surface"
           :style="[tooltipPosition, { maxWidth: tooltipMaxWidth }]"
         >
           <slot name="content">{{ content }}</slot>
@@ -306,31 +306,11 @@ onBeforeUnmount(() => {
 
 /* 帮助图标 - Apple 玻璃态风格 */
 .help-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
   border-radius: 50%;
-  font-weight: 700;
-  cursor: pointer;
-  user-select: none;
 
   /* 液态玻璃效果 */
-  background: linear-gradient(
-    145deg,
-    rgba(255, 255, 255, 0.9),
-    rgba(255, 255, 255, 0.7)
-  );
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
 
   /* 边框和阴影 */
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  box-shadow:
-    inset 0 0 0.5px rgba(255, 255, 255, 0.3),
-    0 4px 12px rgba(0, 122, 255, 0.15),
-    0 0 0 0.5px rgba(255, 255, 255, 0.1);
-
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* 尺寸变体 */
@@ -422,21 +402,8 @@ onBeforeUnmount(() => {
   word-wrap: break-word;
 
   /* 液态玻璃效果 */
-  background: linear-gradient(
-    145deg,
-    rgba(255, 255, 255, 0.95),
-    rgba(255, 255, 255, 0.85)
-  );
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
 
   /* 边框和阴影 */
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  border-radius: 12px;
-  box-shadow:
-    inset 0 0 0.5px rgba(255, 255, 255, 0.3),
-    0 8px 24px rgba(0, 0, 0, 0.15),
-    0 0 0 0.5px rgba(255, 255, 255, 0.1);
 }
 
 /* Tooltip 过渡动画 */

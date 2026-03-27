@@ -1,0 +1,46 @@
+.vm-level-shell {
+  padding: 10px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(10px);
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  user-select: none;
+}
+
+.vm-level-shell:hover {
+  border-color: var(--color-primary);
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.vm-control-shell {
+  flex: 1;
+  display: flex;
+  position: relative;
+  border: 2px solid var(--color-primary-hover);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(10px);
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.vm-control-shell:focus-within {
+  border-color: var(--color-primary);
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.vm-setting-input {
+  padding: 10px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(10px);
+  font-size: 14px;
+}

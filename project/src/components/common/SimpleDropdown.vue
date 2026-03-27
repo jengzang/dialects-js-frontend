@@ -7,7 +7,7 @@
     >
       <div
         ref="dropdownPanel"
-        class="dropdown-panel"
+        class="dropdown-panel global-floating-panel"
         :style="dropdownStyle"
         @click.stop
         @keydown="handleKeydown"
@@ -306,17 +306,6 @@ watch(searchQuery, () => {
 .dropdown-panel {
   min-width: 80px;
   max-width: 300px;
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(200, 200, 200, 0.3);
-  border-radius: 10px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  outline: none;
-  padding: 6px 0;
 }
 
 .search-wrapper {

@@ -2,7 +2,7 @@
   <div class="simple-select-dropdown" :style="containerStyle">
     <div
       ref="triggerRef"
-      class="select-trigger"
+      class="select-trigger global-select-trigger"
       :class="{ 'is-open': isOpen, 'is-disabled': disabled }"
       @click="handleToggle"
     >
@@ -125,36 +125,6 @@ defineExpose({
 .simple-select-dropdown {
   position: relative;
   display: inline-block;
-}
-
-.select-trigger {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 14px;
-  background: rgba(255, 255, 255, 0.5);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 10px;
-  backdrop-filter: blur(10px);
-  font-size: 14px;
-  cursor: pointer;
-  user-select: none;
-  transition: all 0.2s ease;
-}
-
-.select-trigger:hover:not(.is-disabled) {
-  border-color: var(--color-primary, #4a90e2);
-  background: rgba(255, 255, 255, 0.7);
-}
-
-.select-trigger.is-open {
-  border-color: var(--color-primary, #4a90e2);
-  background: rgba(255, 255, 255, 0.8);
-}
-
-.select-trigger.is-disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
 }
 
 .select-label {

@@ -1,9 +1,9 @@
 <template>
   <Teleport to="body">
     <Transition name="confirm-fade">
-      <div v-if="confirmState.show" class="confirm-overlay" @click.self="handleCancel">
+      <div v-if="confirmState.show" class="confirm-overlay global-overlay-blur" @click.self="handleCancel">
         <Transition name="confirm-scale">
-          <div v-if="confirmState.show" class="confirm-dialog">
+          <div v-if="confirmState.show" class="confirm-dialog global-dialog-surface">
             <!-- 标题 -->
             <div class="confirm-header">
               <span class="confirm-icon">⚠️</span>
@@ -17,10 +17,10 @@
 
             <!-- 按钮组 -->
             <div class="confirm-actions">
-              <button class="confirm-btn cancel-btn" @click="handleCancel">
+              <button class="confirm-btn global-action-btn global-action-btn-secondary cancel-btn" @click="handleCancel">
                 {{ confirmState.cancelText }}
               </button>
-              <button class="confirm-btn confirm-btn" @click="handleConfirm">
+              <button class="confirm-btn global-action-btn global-action-btn-primary" @click="handleConfirm">
                 {{ confirmState.confirmText }}
               </button>
             </div>
@@ -54,28 +54,12 @@ function handleCancel() {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
 }
 
 /* 对话框主体 */
 .confirm-dialog {
   width: 90%;
   max-width: 400px;
-  background: linear-gradient(
-    145deg,
-    rgba(255, 255, 255, 0.95),
-    rgba(255, 255, 255, 0.85)
-  );
-  backdrop-filter: blur(40px) saturate(180%);
-  -webkit-backdrop-filter: blur(40px) saturate(180%);
-  border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  box-shadow:
-    0 20px 60px rgba(0, 0, 0, 0.25),
-    0 8px 16px rgba(0, 0, 0, 0.15),
-    inset 0 0 0 0.5px rgba(255, 255, 255, 0.3);
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -121,61 +105,8 @@ function handleCancel() {
   padding: 0 24px 24px;
 }
 
-.confirm-btn {
-  flex: 1;
-  padding: 12px 24px;
-  border-radius: 12px;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  border: none;
-  transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  position: relative;
-  overflow: hidden;
-}
-
 /* 取消按钮 */
-.cancel-btn {
-  background: rgba(0, 0, 0, 0.05)!important;
-  color: rgba(0, 0, 0, 0.7)!important;
-  border: 1px solid rgba(0, 0, 0, 0.1)!important;
-}
-
-.cancel-btn:hover {
-  background: rgba(0, 0, 0, 0.08);
-  transform: translateY(-1px);
-}
-
-.cancel-btn:active {
-  transform: translateY(0);
-}
-
 /* 确认按钮 - 苹果蓝 */
-.confirm-btn.confirm-btn {
-  background: linear-gradient(
-    135deg,
-    rgba(0, 122, 255, 1),
-    rgba(10, 132, 255, 1)
-  );
-  color: white;
-  box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
-}
-
-.confirm-btn.confirm-btn:hover {
-  background: linear-gradient(
-    135deg,
-    rgba(0, 112, 245, 1),
-    rgba(0, 122, 255, 1)
-  );
-  transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(0, 122, 255, 0.4);
-}
-
-.confirm-btn.confirm-btn:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 8px rgba(0, 122, 255, 0.3);
-}
-
 /* 🎬 动画 */
 
 /* 遮罩层淡入淡出 */

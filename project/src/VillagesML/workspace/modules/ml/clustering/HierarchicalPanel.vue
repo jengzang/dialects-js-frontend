@@ -9,12 +9,12 @@
       <h3 class="panel-title">層次聚類</h3>
       <p class="panel-description">市-縣-鎮三級層次聚類分析</p>
 
-      <div v-if="!isAuthenticated" class="auth-notice">
+      <div v-if="!isAuthenticated" class="auth-notice vm-auth-notice">
         <span class="notice-icon">🔒</span>
         <span>此功能需要登錄後使用</span>
       </div>
 
-      <div v-else class="settings-form">
+      <div v-else class="settings-form vm-settings-form">
         <AlgorithmSelector v-model="settings.algorithm" />
 
         <div class="hierarchical-k-settings">
@@ -22,17 +22,35 @@
 
           <div class="setting-row">
             <label class="setting-label">市級 k</label>
-            <input type="number" v-model.number="settings.k_city" min="2" max="10" class="setting-input" />
+            <input
+              type="number"
+              v-model.number="settings.k_city"
+              min="2"
+              max="10"
+              class="setting-input vm-setting-input"
+            />
           </div>
 
           <div class="setting-row">
             <label class="setting-label">縣級 k</label>
-            <input type="number" v-model.number="settings.k_county" min="2" max="15" class="setting-input" />
+            <input
+              type="number"
+              v-model.number="settings.k_county"
+              min="2"
+              max="15"
+              class="setting-input vm-setting-input"
+            />
           </div>
 
           <div class="setting-row">
             <label class="setting-label">鎮級 k</label>
-            <input type="number" v-model.number="settings.k_township" min="2" max="20" class="setting-input" />
+            <input
+              type="number"
+              v-model.number="settings.k_township"
+              min="2"
+              max="20"
+              class="setting-input vm-setting-input"
+            />
           </div>
 
           <p class="setting-hint">建議：市級 2-5，縣級 3-10，鎮級 5-15</p>
@@ -143,26 +161,6 @@ async function runClustering() {
   line-height: 1.5;
 }
 
-.auth-notice {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 16px;
-  background: rgba(255, 193, 7, 0.15);
-  border: 1px solid rgba(255, 193, 7, 0.3);
-  border-radius: 10px;
-  margin-bottom: 16px;
-  font-size: 13px;
-  color: #856404;
-  font-weight: 500;
-}
-
-.settings-form {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
 .hierarchical-k-settings {
   padding: 16px;
   background: rgba(74, 144, 226, 0.08);
@@ -192,12 +190,6 @@ async function runClustering() {
 }
 
 .setting-input {
-  padding: 10px 14px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.5);
-  backdrop-filter: blur(10px);
-  font-size: 14px;
   width: 100px;
 }
 

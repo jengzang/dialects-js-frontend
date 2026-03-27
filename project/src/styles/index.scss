@@ -1,0 +1,17 @@
+@use './_legacy' as legacy;
+
+@use './global/tokens' as global-tokens;
+@use './global/base' as global-base;
+@use './global/utilities' as global-utilities;
+@use './global/glass' as global-glass;
+
+@use './main/surfaces' as main-surfaces;
+@use './main/buttons' as main-buttons;
+@use './main/forms' as main-forms;
+@use './main/toolbars' as main-toolbars;
+@use './main/overlays' as main-overlays;
+
+@use './villagesml/surfaces' as villagesml-surfaces;
+@use './villagesml/panels' as villagesml-panels;
+@use './villagesml/controls' as villagesml-controls;
+@use './villagesml/workspace' as villagesml-workspace;

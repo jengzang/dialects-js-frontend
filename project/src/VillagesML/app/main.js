@@ -3,7 +3,7 @@ import '../../env-config.js'
 import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
-import '../../style.css'
+import '../../styles/index.scss'
 import '../../utils/message.js'
 import i18n from '../../i18n'
 

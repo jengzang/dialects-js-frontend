@@ -1,7 +1,7 @@
 <template>
   <Teleport to="body">
     <Transition name="toast-fade">
-      <div v-if="messageState.show" :class="['global-toast', messageState.type]">
+      <div v-if="messageState.show" :class="['global-toast', 'global-toast-shell', messageState.type]">
         <span class="toast-icon">{{ getIcon(messageState.type) }}</span>
         <span class="toast-message">{{ messageState.message }}</span>
       </div>
@@ -32,31 +32,12 @@ function getIcon(type) {
   transform: translateX(-50%);
   z-index: 99999;
 
-  display: flex;
-  align-items: center;
-  gap: 12px;
-
-  padding: 14px 28px;
-  border-radius: 18px;
-
-  font-size: 15px;
-  font-weight: 500;
 
   /* 🔹 液态玻璃核心效果 */
-  backdrop-filter: blur(40px) saturate(180%);
-  -webkit-backdrop-filter: blur(40px) saturate(180%);
 
   /* 🔹 柔和阴影 */
-  box-shadow:
-    0 8px 32px rgba(0, 0, 0, 0.12),
-    0 2px 8px rgba(0, 0, 0, 0.08),
-    inset 0 0 0 0.5px rgba(255, 255, 255, 0.3);
-
-  max-width: 90vw;
-  word-break: break-word;
 
   /* 🔹 添加细腻的边框高光 */
-  border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 /* ✅ 成功消息 - 苹果绿 */

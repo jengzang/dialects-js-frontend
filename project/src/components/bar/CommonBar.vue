@@ -1,5 +1,5 @@
 <template>
-  <div class="commonbar">
+  <div class="commonbar main-nav-surface">
     <!-- 桌面端：单行布局 -->
     <div class="commonbar-desktop">
       <div class="logo-and-title" @click="toggleSidebar" :style="{ zIndex: isSidebarVisible ? '1100' : '999' }">
@@ -103,7 +103,7 @@
       <Transition name="submenu-fade">
         <div
           v-if="activeSubmenu"
-          class="submenu-panel"
+          class="submenu-panel main-submenu-surface"
           :style="{
             top: submenuPosition.top + 'px',
             left: submenuPosition.left + 'px'
@@ -422,11 +422,6 @@ const goToAuthPage = () => {
   left: 0;
   width: 100%;
   z-index: 999;
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.15));
-  border-bottom: 1px solid rgba(255, 255, 255, 0.5);
-  backdrop-filter: blur(12px) saturate(160%);
-  -webkit-backdrop-filter: blur(12px) saturate(160%);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 /* 桌面端：单行，7.5dvh 高度 */
@@ -656,16 +651,6 @@ const goToAuthPage = () => {
   width: auto;
   max-width: min(300px, calc(100vw - 20px));
   z-index: 10001;
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.85));
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  border-radius: 16px;
-  box-shadow: inset 0 0 0.5px rgba(255, 255, 255, 0.3),
-              0 12px 40px rgba(0, 0, 0, 0.2),
-              0 0 0 0.5px rgba(255, 255, 255, 0.1);
-  padding: 8px;
-  overflow: hidden;
 }
 
 .submenu-item {

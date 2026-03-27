@@ -1,9 +1,13 @@
 <template>
   <Teleport to="body">
     <Transition name="modal-fade">
-      <div v-if="visible" class="update-modal-overlay" @click.self="handleClose">
-        <div class="update-modal">
-          <button class="modal-close-btn" @click="handleClose">✕</button>
+      <div
+        v-if="visible"
+        class="update-modal-overlay main-modal-overlay-center"
+        @click.self="handleClose"
+      >
+        <div class="update-modal main-modal-frame">
+          <button class="modal-close-btn main-icon-close-btn" @click="handleClose">✕</button>
 
           <div class="modal-header">
             <div class="update-icon">🎉</div>
@@ -92,55 +96,29 @@ defineExpose({
 
 <style scoped>
 .update-modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
   background: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(8px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
   z-index: 10000;
 }
 
 .update-modal {
-  position: relative;
   background: rgba(255, 255, 255, 0.98);
   border-radius: 24px;
   max-width: 600px;
   width: 100%;
   max-height: 80vh;
-  overflow: hidden;
   box-shadow: 0 20px 60px rgba(0, 122, 255, 0.3);
   border: 1px solid rgba(0, 122, 255, 0.2);
-  display: flex;
-  flex-direction: column;
 }
 
 .modal-close-btn {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  border: none;
   background: rgba(0, 0, 0, 0.05);
   color: rgba(0, 0, 0, 0.6);
   font-size: 1.25rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1;
 }
 
 .modal-close-btn:hover {
   background: rgba(0, 0, 0, 0.1);
-  transform: scale(1.1);
 }
 
 .modal-header {

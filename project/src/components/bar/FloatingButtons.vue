@@ -2,7 +2,7 @@
 <template>
   <!-- 认证按钮 -->
   <div
-    class="auth-button"
+    class="auth-button main-floating-surface"
     :class="authButtonPositionClass"
     @click="goToAuth"
   >
@@ -15,7 +15,7 @@
   <div class="floating-buttons">
     <!-- 返回首页按钮 -->
     <button
-      class="float-btn menu-btn"
+      class="float-btn menu-btn main-floating-surface"
       @click="$emit('toggle-sidebar')"
       :title="t('navigation.actions.openMenu')"
 
@@ -26,7 +26,7 @@
     <!-- 打开侧边栏按钮 - 只在非首页时显示 -->
     <button
       v-if="!isHomePage"
-      class="float-btn home-btn"
+      class="float-btn home-btn main-floating-surface"
       @click="goToHome"
       :title="t('navigation.actions.backHome')"
     >
@@ -87,25 +87,12 @@ const goToAuth = () => {
   border-radius: 25px; /* Pill shape */
 
   /* 玻璃态效果 */
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.15));
-  backdrop-filter: blur(15px) saturate(150%);
-  -webkit-backdrop-filter: blur(15px) saturate(150%);
 
   /* 边框和阴影 */
-  border: 3px solid rgba(255, 255, 255, 0.5);
-  box-shadow:
-    0 8px 16px rgba(0, 0, 0, 0.15),
-    0 2px 6px rgba(0, 0, 0, 0.1);
 
   /* 布局 */
-  display: flex;
-  align-items: center;
-  justify-content: center;
 
   /* 交互 */
-  cursor: pointer;
-  user-select: none;
-  transition: all 0.3s ease;
 }
 
 /* 位置变体 - 右上角（默认） */
@@ -121,11 +108,7 @@ const goToAuth = () => {
 }
 
 .auth-button:hover {
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.3));
   transform: scale(1.05) translateY(-2px);
-  box-shadow:
-    0 12px 24px rgba(0, 0, 0, 0.2),
-    0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 .auth-button:active {
@@ -157,25 +140,12 @@ const goToAuth = () => {
   width: 60px;
   height: 60px;
   border-radius: 50%;
-  border: 3px solid rgba(255, 255, 255, 0.5);
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.15));
-  backdrop-filter: blur(15px) saturate(150%);
-  -webkit-backdrop-filter: blur(15px) saturate(150%);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15), 0 2px 6px rgba(0, 0, 0, 0.1);
-  cursor: pointer;
   font-size: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.3s ease;
-  user-select: none;
   padding: 8px;
 }
 
 .float-btn:hover {
   transform: scale(1.1) translateY(-2px);
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2), 0 4px 8px rgba(0, 0, 0, 0.15);
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.3));
 }
 
 .float-btn:active {

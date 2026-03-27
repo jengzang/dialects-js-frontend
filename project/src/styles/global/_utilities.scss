@@ -1,0 +1,18 @@
+.u-nowrap {
+  white-space: nowrap;
+}
+
+.u-ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.u-hidden-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.u-hidden-scrollbar::-webkit-scrollbar {
+  display: none;
+}

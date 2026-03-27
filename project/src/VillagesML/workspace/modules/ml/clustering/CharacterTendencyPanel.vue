@@ -11,36 +11,36 @@
       <p class="panel-description">基於字符使用傾向性的區域聚類分析</p>
 
       <!-- 認證提示 -->
-      <div v-if="!isAuthenticated" class="auth-notice">
+      <div v-if="!isAuthenticated" class="auth-notice vm-auth-notice">
         <span class="notice-icon">🔒</span>
         <span>此功能需要登錄後使用</span>
       </div>
 
-      <div v-else class="settings-form">
+      <div v-else class="settings-form vm-settings-form">
         <!-- 算法選擇 -->
         <AlgorithmSelector
           v-model="settings.algorithm"
         />
 
         <!-- K值設置（僅 kmeans/gmm） -->
-        <div v-if="settings.algorithm !== 'dbscan'" class="setting-row">
-          <label class="setting-label">聚類數量 (k)</label>
-          <div class="setting-control">
+        <div v-if="settings.algorithm !== 'dbscan'" class="setting-row vm-setting-row-top">
+          <label class="setting-label vm-setting-label-top">聚類數量 (k)</label>
+          <div class="setting-control vm-setting-control">
             <input
               type="number"
               v-model.number="settings.k"
               min="2"
               max="20"
-              class="setting-input"
+              class="setting-input vm-setting-input"
             />
             <span class="setting-hint">建議 2-10 個聚類</span>
           </div>
         </div>
 
         <!-- 區域級別 -->
-        <div class="setting-row">
-          <label class="setting-label">區域級別</label>
-          <div class="setting-control">
+        <div class="setting-row vm-setting-row-top">
+          <label class="setting-label vm-setting-label-top">區域級別</label>
+          <div class="setting-control vm-setting-control">
             <SimpleSelectDropdown
               v-model="settings.region_level"
               :options="regionLevelOptions"
@@ -63,24 +63,24 @@
 <!--        </div>-->
 
         <!-- Top N 字符 -->
-        <div class="setting-row">
-          <label class="setting-label">Top N 字符</label>
-          <div class="setting-control">
+        <div class="setting-row vm-setting-row-top">
+          <label class="setting-label vm-setting-label-top">Top N 字符</label>
+          <div class="setting-control vm-setting-control">
             <input
               type="number"
               v-model.number="settings.top_n_chars"
               min="10"
               max="200"
-              class="setting-input"
+              class="setting-input vm-setting-input"
             />
             <span class="setting-hint">使用前 N 個高頻字符（10-200）</span>
           </div>
         </div>
 
         <!-- 傾向性指標 -->
-        <div class="setting-row">
-          <label class="setting-label">傾向性指標</label>
-          <div class="setting-control">
+        <div class="setting-row vm-setting-row-top">
+          <label class="setting-label vm-setting-label-top">傾向性指標</label>
+          <div class="setting-control vm-setting-control">
             <SimpleSelectDropdown
               v-model="settings.tendency_metric"
               :options="tendencyMetricOptions"
@@ -97,25 +97,25 @@
         <!-- DBSCAN 參數 -->
         <div v-if="settings.algorithm === 'dbscan'" class="dbscan-params">
           <h4 class="section-title">DBSCAN 參數</h4>
-          <div class="setting-row">
-            <label class="setting-label">Epsilon (eps)</label>
+          <div class="setting-row vm-setting-row-top">
+            <label class="setting-label vm-setting-label-top">Epsilon (eps)</label>
             <input
               type="number"
               v-model.number="settings.dbscan_config.eps"
               step="0.1"
               min="0.1"
               placeholder="自動調整"
-              class="setting-input"
+              class="setting-input vm-setting-input"
             />
           </div>
-          <div class="setting-row">
-            <label class="setting-label">Min Samples</label>
+          <div class="setting-row vm-setting-row-top">
+            <label class="setting-label vm-setting-label-top">Min Samples</label>
             <input
               type="number"
               v-model.number="settings.dbscan_config.min_samples"
               min="2"
               placeholder="自動調整"
-              class="setting-input"
+              class="setting-input vm-setting-input"
             />
           </div>
         </div>
@@ -268,56 +268,9 @@ async function runClustering() {
   line-height: 1.5;
 }
 
-.auth-notice {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 16px;
-  background: rgba(255, 193, 7, 0.15);
-  border: 1px solid rgba(255, 193, 7, 0.3);
-  border-radius: 10px;
-  margin-bottom: 16px;
-  font-size: 13px;
-  color: #856404;
-  font-weight: 500;
-}
-
-.settings-form {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.setting-row {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-}
-
-.setting-label {
-  min-width: 100px;
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--text-primary);
-  padding-top: 10px;
-}
-
-.setting-control {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
 .setting-input,
 .setting-select {
   flex: 1;
-  padding: 10px 14px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.5);
-  backdrop-filter: blur(10px);
-  font-size: 14px;
 }
 
 .setting-input:focus,

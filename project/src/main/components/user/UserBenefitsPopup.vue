@@ -1,8 +1,12 @@
 <template>
   <Teleport to="body">
     <Transition name="popup-fade">
-      <div v-if="visible" class="benefits-popup-overlay" @click.self="closePopup">
-        <div class="benefits-popup popup-animated">
+      <div
+        v-if="visible"
+        class="benefits-popup-overlay main-modal-overlay-center"
+        @click.self="closePopup"
+      >
+        <div class="benefits-popup main-modal-frame popup-animated">
           <div class="popup-header">
             <h3>{{ t('user.benefitsPopup.title') }}</h3>
             <button
@@ -332,21 +336,12 @@ onBeforeUnmount(() => {
 
 <style scoped>
 .benefits-popup-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
   background: rgba(0, 0, 0, 0.4);
   backdrop-filter: blur(8px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
   z-index: 999999;
 }
 
 .benefits-popup {
-  position: relative;
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(40px) saturate(180%);
   -webkit-backdrop-filter: blur(40px) saturate(180%);
@@ -354,15 +349,12 @@ onBeforeUnmount(() => {
   max-width: 700px;
   width: 90%;
   max-height: 85vh;
-  overflow: hidden;
   box-shadow:
     0 1px 2px rgba(0, 0, 0, 0.04),
     0 8px 32px rgba(0, 0, 0, 0.12),
     0 16px 64px rgba(0, 0, 0, 0.08),
     inset 0 0 0 1px rgba(255, 255, 255, 0.9);
   border: 0.5px solid rgba(255, 255, 255, 0.8);
-  display: flex;
-  flex-direction: column;
 }
 
 .popup-header {
