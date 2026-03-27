@@ -1,15 +1,15 @@
 <template>
   <Teleport to="body">
-    <div v-if="visible" class="glass-overlay" @mousedown.self="$emit('close')">
-      <div class="location-detail-modal glass-modal" role="dialog" aria-modal="true" @click.stop>
-        <div class="modal-header">
-          <div class="modal-title">📍 {{ t('result.locationDetailPopup.title', { name: locationName }) }}</div>
-          <button class="modal-close" type="button" :aria-label="t('common.button.close')" @click="$emit('close')">✕</button>
+    <div v-if="visible" class="glass-overlay main-glass-overlay" @mousedown.self="$emit('close')">
+      <div class="location-detail-modal glass-modal main-glass-modal" role="dialog" aria-modal="true" @click.stop>
+        <div class="modal-header main-glass-modal-header">
+          <div class="modal-title main-glass-modal-title">📍 {{ t('result.locationDetailPopup.title', { name: locationName }) }}</div>
+          <button class="modal-close main-glass-modal-close" type="button" :aria-label="t('common.button.close')" @click="$emit('close')">✕</button>
         </div>
 
-        <div class="modal-body">
-          <div v-if="loading" class="loading-state">
-            <div class="spinner"></div>
+        <div class="modal-body main-glass-modal-body">
+          <div v-if="loading" class="loading-state main-modal-loading-state">
+            <div class="spinner main-modal-spinner"></div>
             <span>{{ t('result.locationDetailPopup.loading') }}</span>
           </div>
 
@@ -62,7 +62,7 @@
             </div>
           </div>
 
-          <div v-else class="error-state">
+          <div v-else class="error-state main-modal-error-state">
             <span>{{ t('result.locationDetailPopup.noData') }}</span>
           </div>
         </div>
@@ -138,7 +138,7 @@ const getToneData = (data) => {
 
 <style>
 /* 非 scoped 样式 - 全局遮罩和模态框 */
-.glass-overlay {
+.location-detail-glass-overlay-unused {
   position: fixed;
   inset: 0;
   z-index: 20000;
@@ -151,7 +151,7 @@ const getToneData = (data) => {
   -webkit-backdrop-filter: blur(6px);
 }
 
-.glass-modal {
+.location-detail-glass-modal-unused {
   width: min(720px, 94vw);
   max-height: min(70vh, 640px);
   overflow: hidden;
@@ -163,7 +163,7 @@ const getToneData = (data) => {
   -webkit-backdrop-filter: blur(18px) saturate(160%);
 }
 
-.modal-header {
+.location-detail-modal-header-unused {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -171,13 +171,13 @@ const getToneData = (data) => {
   border-bottom: 1px solid rgba(0, 0, 0, 0.08);
 }
 
-.modal-title {
+.location-detail-modal-title-unused {
   font-size: 15px;
   font-weight: 650;
   color: #1d1d1f;
 }
 
-.modal-close {
+.location-detail-modal-close-unused {
   appearance: none;
   border: none;
   background: rgba(142, 142, 147, 0.15);
@@ -191,12 +191,12 @@ const getToneData = (data) => {
   transition: all 0.2s ease;
 }
 
-.modal-close:hover {
+.location-detail-modal-close-unused:hover {
   background: rgba(142, 142, 147, 0.25);
   color: #333;
 }
 
-.modal-body {
+.location-detail-modal-body-unused {
   padding: 12px 14px 16px;
   overflow: auto;
   max-height: calc(min(70vh, 640px) - 100px);
@@ -241,7 +241,7 @@ const getToneData = (data) => {
 }
 
 /* 加载状态 */
-.loading-state {
+.location-detail-loading-state-unused {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -251,22 +251,22 @@ const getToneData = (data) => {
   font-size: 14px;
 }
 
-.spinner {
+.location-detail-spinner-unused {
   width: 20px;
   height: 20px;
   border: 3px solid rgba(0, 122, 255, 0.2);
   border-top: 3px solid #007aff;
   border-radius: 50%;
-  animation: spin 1s linear infinite;
+  animation: location-detail-spin-unused 1s linear infinite;
 }
 
-@keyframes spin {
+@keyframes location-detail-spin-unused {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
 
 /* 错误状态 */
-.error-state {
+.location-detail-error-state-unused {
   padding: 40px 20px;
   text-align: center;
   color: #999;

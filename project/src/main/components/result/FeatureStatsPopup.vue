@@ -1,17 +1,17 @@
 <template>
   <Teleport to="body">
-    <div v-if="visible" class="glass-overlay" @mousedown.self="$emit('close')">
-      <div class="feature-stats-modal glass-modal" role="dialog" aria-modal="true" @click.stop>
-        <div class="modal-header">
-          <div class="modal-title">
+    <div v-if="visible" class="glass-overlay main-glass-overlay" @mousedown.self="$emit('close')">
+      <div class="feature-stats-modal glass-modal main-glass-modal" role="dialog" aria-modal="true" @click.stop>
+        <div class="modal-header main-glass-modal-header">
+          <div class="modal-title main-glass-modal-title">
             📊 {{ t('result.featureStatsPopup.title', { location: locationName, featureKey: translatedFeatureKey, featureVal }) }}
           </div>
-          <button class="modal-close" type="button" :aria-label="t('common.button.close')" @click="$emit('close')">✕</button>
+          <button class="modal-close main-glass-modal-close" type="button" :aria-label="t('common.button.close')" @click="$emit('close')">✕</button>
         </div>
 
-        <div class="modal-body">
-          <div v-if="loading" class="loading-state">
-            <div class="spinner"></div>
+        <div class="modal-body main-glass-modal-body">
+          <div v-if="loading" class="loading-state main-modal-loading-state">
+            <div class="spinner main-modal-spinner"></div>
             <span>{{ t('result.featureStatsPopup.loading') }}</span>
           </div>
 
@@ -40,7 +40,7 @@
             </div>
           </div>
 
-          <div v-else class="error-state">
+          <div v-else class="error-state main-modal-error-state">
             <span>{{ t('result.featureStatsPopup.noData') }}</span>
           </div>
         </div>
@@ -96,7 +96,7 @@ const getCharsString = (charIndices) => {
 
 <style>
 /* 非 scoped 樣式 - 全域遮罩和模態框（複用 LocationDetailPopup 的樣式）*/
-.glass-overlay {
+.feature-stats-glass-overlay-unused {
   position: fixed;
   inset: 0;
   z-index: 20000;
@@ -109,7 +109,7 @@ const getCharsString = (charIndices) => {
   -webkit-backdrop-filter: blur(6px);
 }
 
-.glass-modal {
+.feature-stats-glass-modal-unused {
   width: min(720px, 94vw);
   max-height: min(70vh, 640px);
   overflow: hidden;
@@ -121,7 +121,7 @@ const getCharsString = (charIndices) => {
   -webkit-backdrop-filter: blur(18px) saturate(160%);
 }
 
-.modal-header {
+.feature-stats-modal-header-unused {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -129,13 +129,13 @@ const getCharsString = (charIndices) => {
   border-bottom: 1px solid rgba(0, 0, 0, 0.08);
 }
 
-.modal-title {
+.feature-stats-modal-title-unused {
   font-size: 15px;
   font-weight: 650;
   color: #1d1d1f;
 }
 
-.modal-close {
+.feature-stats-modal-close-unused {
   appearance: none;
   border: none;
   background: rgba(142, 142, 147, 0.15);
@@ -149,15 +149,15 @@ const getCharsString = (charIndices) => {
   transition: all 0.2s ease;
 }
 
-.modal-close:hover {
+.feature-stats-modal-close-unused:hover {
   background: rgba(142, 142, 147, 0.25);
   color: #333;
 }
 
-.modal-body {
+.feature-stats-modal-body-unused {
   padding: 12px 14px 16px;
   overflow: auto;
-  //max-height: calc(min(70vh, 640px) - 100px);
+  /* max-height: calc(min(70vh, 640px) - 100px); */
 }
 </style>
 
@@ -167,7 +167,7 @@ const getCharsString = (charIndices) => {
   width: min(600px, 94vw);
 }
 
-.loading-state {
+.feature-stats-loading-state-unused {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -177,21 +177,21 @@ const getCharsString = (charIndices) => {
   font-size: 14px;
 }
 
-.spinner {
+.feature-stats-spinner-unused {
   width: 20px;
   height: 20px;
   border: 3px solid rgba(0, 122, 255, 0.2);
   border-top: 3px solid #007aff;
   border-radius: 50%;
-  animation: spin 1s linear infinite;
+  animation: feature-stats-spin-unused 1s linear infinite;
 }
 
-@keyframes spin {
+@keyframes feature-stats-spin-unused {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
 
-.error-state {
+.feature-stats-error-state-unused {
   padding: 40px 20px;
   text-align: center;
   color: #999;

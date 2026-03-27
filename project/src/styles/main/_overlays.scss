@@ -13,6 +13,104 @@
   flex-direction: column;
 }
 
+.main-glass-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 20000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 18px;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(7px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.main-glass-modal {
+  width: min(720px, 94vw);
+  max-height: min(70vh, 640px);
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 18px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(18px) saturate(160%);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+}
+
+.main-glass-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.main-glass-modal-title {
+  font-size: 15px;
+  font-weight: 650;
+  color: #1d1d1f;
+}
+
+.main-glass-modal-close {
+  appearance: none;
+  border: none;
+  background: rgba(142, 142, 147, 0.15);
+  width: 28px;
+  height: 28px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 28px;
+  color: #666;
+  transition: all 0.2s ease;
+}
+
+.main-glass-modal-close:hover {
+  background: rgba(142, 142, 147, 0.25);
+  color: #333;
+}
+
+.main-glass-modal-body {
+  padding: 12px 14px 16px;
+  overflow: auto;
+}
+
+.main-modal-loading-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 40px 20px;
+  color: #666;
+  font-size: 14px;
+}
+
+.main-modal-spinner {
+  width: 20px;
+  height: 20px;
+  border: 3px solid rgba(0, 122, 255, 0.2);
+  border-top: 3px solid #007aff;
+  border-radius: 50%;
+  animation: main-modal-spin 1s linear infinite;
+}
+
+.main-modal-error-state {
+  padding: 40px 20px;
+  text-align: center;
+  color: #999;
+  font-size: 14px;
+}
+
+@keyframes main-modal-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
 .main-icon-close-btn {
   position: absolute;
   top: 1rem;
