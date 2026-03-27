@@ -1,6 +1,6 @@
 <template>
   <TabsContainer :tabs="tabs" :default-tab="route.query.sub || 'tab2'" v-slot="{ currentTab }">
-    <div class="tab-content-inner">
+    <div class="tab-content-inner main-query-compare-shell">
       <!-- Tab1: 比較漢字 -->
       <div v-show="currentTab === 'tab1'" class="page">
         <div class="page-content-stack tab1-layout">
@@ -102,11 +102,11 @@
                 <Teleport to="body">
                   <div
                       v-if="excludeDropdownOpen === 'tab2_current'"
-                      class="dropdown-panel"
+                      class="dropdown-panel main-query-compare-dropdown-panel"
                       :style="excludeDropdownStyle"
                   >
                     <div
-                        class="dropdown-item"
+                        class="dropdown-item main-query-compare-dropdown-item"
                         v-for="option in excludeOptions"
                         :key="option.value"
                         :class="{ active: isExcludeSelected(option.value, 'tab2', 'current') }"
@@ -1322,7 +1322,7 @@ export default {
   align-items: center;
   gap: 1.5dvh;
 }
-.triple-select-box {
+.comparepage-triple-select-box-unused {
   display: flex;
   gap: 1.5dvw;
   width: 100%;
@@ -1330,7 +1330,7 @@ export default {
   flex-direction: column;
 }
 
-.card-group{
+.comparepage-card-group-unused{
   display: flex;
   flex-direction: row; /* ⬅️ 水平排列 */
   border-radius: 12px;
@@ -1341,7 +1341,7 @@ export default {
   max-height: 45px;
 }
 
-.card-group-item {
+.comparepage-card-group-item-unused {
   padding: 10px 16px;
   text-align: center;
   cursor: pointer;
@@ -1362,21 +1362,21 @@ export default {
   text-overflow: ellipsis;
 }
 
-.card-group-item:hover {
+.comparepage-card-group-item-unused:hover {
   background: var(--glass-medium);
 }
 
-.card-group-item.first {
+.comparepage-card-group-item-unused.first {
   border-radius: 12px 0 0 12px; /* ⬅️ 左圓角 */
   border-left-color: var(--color-primary-medium);
 }
 
-.card-group-item.last {
+.comparepage-card-group-item-unused.last {
   border-radius: 0 12px 12px 0; /* ⬅️ 右圓角 */
   border-right-color: var(--color-primary-medium);
 }
 
-.card-group-item.active {
+.comparepage-card-group-item-unused.active {
   background: var(--color-primary-medium);
   color: var(--color-primary);
   font-weight: 600;
@@ -1394,7 +1394,7 @@ export default {
   .card-row{
     gap:0;
   }
-  .card-group-item{
+  .comparepage-card-group-item-unused{
     padding:12px 12px;
   }
 }
@@ -1560,7 +1560,7 @@ export default {
 }
 
 /* Dropdown 样式 */
-.dropdown-panel {
+.comparepage-dropdown-panel-unused {
   background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
@@ -1574,7 +1574,7 @@ export default {
   z-index: 1000;
 }
 
-.dropdown-item {
+.comparepage-dropdown-item-unused {
   padding: 8px 16px;
   cursor: pointer;
   font-size: 14px;
@@ -1584,13 +1584,13 @@ export default {
   text-overflow: ellipsis;
 }
 
-.dropdown-item.active {
+.comparepage-dropdown-item-unused.active {
   background-color: #e6f0ff;
   color: #02469e;
   font-weight: bold;
 }
 
-.dropdown-item:hover {
+.comparepage-dropdown-item-unused:hover {
   background-color: #e6f0ff;
 }
 

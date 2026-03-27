@@ -1,1 +1,99 @@
-/* Main-specific form abstractions are intentionally deferred in phase 1. */
+.main-query-compare-shell .triple-select-box {
+  display: flex;
+  gap: 1.5dvw;
+  width: 100%;
+  justify-content: space-between;
+  flex-direction: column;
+}
+
+.main-query-compare-shell .card-group {
+  display: flex;
+  flex-direction: row;
+  border-radius: 12px;
+  overflow: hidden;
+  width: fit-content;
+  max-width: 100%;
+  max-height: 45px;
+  box-shadow: var(--shadow-md);
+}
+
+.main-query-compare-shell .card-group-item {
+  padding: 10px 16px;
+  flex: 1;
+  text-align: center;
+  cursor: pointer;
+  font-weight: 500;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--color-primary-medium);
+  border-right-color: var(--border-gray-medium);
+  border-left-color: var(--border-gray-medium);
+  transition: background 0.2s ease;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.main-query-compare-shell .card-group-item:hover {
+  background: var(--glass-medium);
+}
+
+.main-query-compare-shell .card-group-item.first {
+  border-radius: 12px 0 0 12px;
+  border-left-color: var(--color-primary-medium);
+}
+
+.main-query-compare-shell .card-group-item.last {
+  border-radius: 0 12px 12px 0;
+  border-right-color: var(--color-primary-medium);
+}
+
+.main-query-compare-shell .card-group-item.active {
+  background: var(--color-primary-medium);
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.main-query-compare-dropdown-panel {
+  position: absolute;
+  min-width: 80px;
+  max-height: 40dvh;
+  overflow: auto;
+  z-index: 1000;
+  padding: 6px 0;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.main-query-compare-dropdown-item {
+  padding: 8px 16px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.main-query-compare-dropdown-item.active {
+  background-color: #e6f0ff;
+  color: #02469e;
+  font-weight: bold;
+}
+
+.main-query-compare-dropdown-item:hover {
+  background-color: #e6f0ff;
+}
+
+@media (max-aspect-ratio: 1/1) {
+  .main-query-compare-shell .triple-select-box {
+    flex-wrap: wrap;
+  }
+
+  .main-query-compare-shell .card-group-item {
+    padding: 12px 12px;
+  }
+}

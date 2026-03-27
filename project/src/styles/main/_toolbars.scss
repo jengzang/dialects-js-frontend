@@ -19,3 +19,105 @@
   padding: 8px;
   overflow: hidden;
 }
+
+.main-bar-tab {
+  height: 6.5dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  flex: 1 1 0;
+  min-width: 0;
+  white-space: nowrap;
+  text-align: center;
+  text-decoration: none;
+  font-size: 1.3rem;
+  border-radius: 12px;
+  transition: all 0.25s ease;
+  cursor: pointer;
+  user-select: none;
+  background: rgba(255, 255, 255, 0.1);
+  color: #007aff;
+}
+
+.main-bar-tab:hover {
+  background: rgba(0, 122, 255, 0.12);
+  height: 90%;
+  color: #007aff;
+}
+
+.main-bar-tab.active {
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
+  color: darkblue;
+  font-weight: 1000;
+  border-radius: 0 0 25px 25px;
+  border: 3px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.1), 0 1px 4px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+
+.main-bar-tab.active:hover {
+  margin: 0;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.3));
+  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+}
+
+.main-bar-logo {
+  width: 6dvh;
+  height: 6dvh;
+  min-width: 5dvh;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
+  border: 3px solid rgba(255, 255, 255, 0.4);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.main-bar-logo:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.main-bar-login {
+  min-width: 6dvh;
+  max-width: 10dvh;
+  height: 6dvh;
+  padding: 0 12px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 30px;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
+  border: 3px solid rgba(255, 255, 255, 0.4);
+  color: #005fd3;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.main-bar-login:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.main-bar-submenu-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+  font-size: 15px;
+  font-weight: 500;
+  color: #333;
+}
+
+.main-bar-submenu-item:hover {
+  background: linear-gradient(145deg, rgba(0, 122, 255, 0.15), rgba(0, 122, 255, 0.08));
+  transform: translateX(4px);
+}

@@ -3,7 +3,7 @@
     <!-- 桌面端：单行布局 -->
     <div class="commonbar-desktop">
       <div class="logo-and-title" @click="toggleSidebar" :style="{ zIndex: isSidebarVisible ? '1100' : '999' }">
-        <div class="logo-container">
+        <div class="logo-container main-bar-logo">
           <img class="logo" src="../../assets/favicon.ico" alt="Logo" />
         </div>
         <div v-if="titleImage" class="title">
@@ -24,7 +24,7 @@
         >
           <a
             :href="href"
-            class="tab-item"
+            class="tab-item main-bar-tab"
             :class="{ active: isActiveComputed(t.tab) }"
             :style="{
               flex: getFlexWeight(t, isActiveComputed(t.tab), false) + ' 1 0',
@@ -42,14 +42,14 @@
         </RouterLink>
       </nav>
 
-      <div v-if="showLoginButton" class="login-container" @click="goToAuthPage">
+      <div v-if="showLoginButton" class="login-container main-bar-login" @click="goToAuthPage">
         <span class="login-text">{{ userStore.username || t('navigation.login') }}</span>
       </div>
     </div>
 
     <!-- 移动端：单行布局（无 title.png） -->
     <div class="commonbar-mobile">
-      <div class="logo-container" @click="toggleSidebar" :style="{ zIndex: isSidebarVisible ? '1100' : '999' }">
+      <div class="logo-container main-bar-logo" @click="toggleSidebar" :style="{ zIndex: isSidebarVisible ? '1100' : '999' }">
         <img class="logo" src="../../assets/favicon.ico" alt="Logo" />
       </div>
       <div v-if="title && showTitleOnMobile" class="title-text-mobile">
@@ -67,7 +67,7 @@
           <a
             v-if="!t.hideOnMobile"
             :href="href"
-            class="tab-item"
+            class="tab-item main-bar-tab"
             :class="{ active: isActiveComputed(t.tab) }"
             :style="{
               flex: getFlexWeight(t, isActiveComputed(t.tab), true) + ' 1 0',
@@ -84,7 +84,7 @@
         </RouterLink>
       </nav>
 
-      <div v-if="showLoginButton" class="login-container" @click="goToAuthPage">
+      <div v-if="showLoginButton" class="login-container main-bar-login" @click="goToAuthPage">
         <span class="login-text">{{ userStore.username || t('navigation.login') }}</span>
       </div>
     </div>
@@ -115,7 +115,7 @@
           <div
             v-for="(child, index) in getTabChildren(activeSubmenu)"
             :key="index"
-            class="submenu-item"
+            class="submenu-item main-bar-submenu-item"
             @click="handleSubmenuClick(child)"
           >
             <span class="submenu-icon">{{ child.icon }}</span>
@@ -461,68 +461,6 @@ const goToAuthPage = () => {
   display: none;
 }
 
-.tab-item {
-  height: 6.5dvh;
-  display: flex;
-  align-items: center;
-  white-space: nowrap;
-  justify-content: center;
-  font-size: 1.3rem;
-  flex: 1 1 0;
-  min-width: 0;
-  text-align: center;
-  text-decoration: none;
-  border-radius: 12px;
-  transition: all 0.25s ease;
-  gap: 1px;
-  cursor: pointer;
-  user-select: none;
-  background: rgba(255, 255, 255, 0.10);
-  color: #007aff;
-}
-
-.tab-item:hover {
-  background: rgba(0, 122, 255, 0.12);
-  height: 90%;
-  color: #007aff;
-}
-
-.tab-item.active {
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
-  color: darkblue;
-  font-weight: 1000;
-  border-radius: 0 0 25px 25px;
-  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.1), 0 1px 4px rgba(0, 0, 0, 0.08);
-  border: 3px solid rgba(255, 255, 255, 0.4);
-  transition: all 0.3s ease;
-}
-
-.tab-item.active:hover {
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.3));
-  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
-  margin:0;
-}
-
-.logo-container {
-  width: 6dvh;
-  height: 6dvh;
-  min-width: 5dvh;
-  flex-shrink: 0;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
-  border: 3px solid rgba(255, 255, 255, 0.4);
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.logo-container:hover {
-  transform: scale(1.1);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
 .logo {
   width: 80%;
   height: auto;
@@ -546,28 +484,6 @@ const goToAuthPage = () => {
   font-weight: 600;
   color: var(--text-primary, #2c3e50);
   white-space: nowrap;
-}
-
-.login-container {
-  min-width: 6dvh;
-  max-width: 10dvh;
-  height: 6dvh;
-  padding: 0 12px;
-  border-radius: 30px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
-  border: 3px solid rgba(255, 255, 255, 0.4);
-  color: #005fd3;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  flex-shrink: 0;
-}
-
-.login-container:hover {
-  transform: scale(1.05);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .login-text {
@@ -651,24 +567,6 @@ const goToAuthPage = () => {
   width: auto;
   max-width: min(300px, calc(100vw - 20px));
   z-index: 10001;
-}
-
-.submenu-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
-  font-size: 15px;
-  font-weight: 500;
-  color: #333;
-}
-
-.submenu-item:hover {
-  background: linear-gradient(145deg, rgba(0, 122, 255, 0.15), rgba(0, 122, 255, 0.08));
-  transform: translateX(4px);
 }
 
 .submenu-icon {
