@@ -133,8 +133,8 @@
     </div>
 
     <transition name="modal">
-      <div class="modal-overlay" v-if="showConfigModal" @click.self="showConfigModal = false">
-        <div class="modal-content large-modal">
+      <div class="modal-overlay main-tool-modal-overlay" v-if="showConfigModal" @click.self="showConfigModal = false">
+        <div class="modal-content main-tool-modal-shell large-modal">
           <div class="modal-header">
             <div class="header-left">
               <h3 class="modal-title">⚙️ {{ t('tools.jyut2ipa.modal.title') }}</h3>
@@ -169,7 +169,7 @@
                 📥
               </button>
               <button
-                class="close-btn"
+                class="close-btn main-tool-modal-close-base"
                 :title="t('tools.common.close')"
                 @click="showConfigModal = false"
               >
@@ -1055,7 +1055,7 @@ loadConfig()
 }
 
 /* 模态框样式 */
-.modal-overlay {
+.jyut2ipa-modal-overlay-unused {
   position: fixed;
   top: 0;
   left: 0;
@@ -1073,15 +1073,6 @@ loadConfig()
 .modal-content {
   width: min(90vw, 700px);
   max-height: 85vh;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(30px);
-  -webkit-backdrop-filter: blur(30px);
-  border: 1px solid rgba(255, 255, 255, 0.6);
-  border-radius: 24px;
-  box-shadow: 0 16px 64px rgba(0, 0, 0, 0.2);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
 }
 
 .modal-content.large-modal {
@@ -1146,17 +1137,10 @@ loadConfig()
 }
 
 .close-btn {
-  width: 32px;
-  height: 32px;
-  background: rgba(255, 255, 255, 0.5);
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  border-radius: 8px;
   font-size: 18px;
-  cursor: pointer;
-  transition: all 0.2s ease;
 }
 
-.close-btn:hover {
+.jyut2ipa-close-btn-hover-unused:hover {
   background: rgba(255, 59, 48, 0.7);
   color: white;
 }

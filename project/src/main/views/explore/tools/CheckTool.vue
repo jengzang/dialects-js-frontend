@@ -589,11 +589,11 @@
 
     <!-- 批量替换对话框 -->
     <teleport to="body">
-      <div v-if="showBatchReplaceModal" class="modal-overlay" @click.self="showBatchReplaceModal = false">
-        <div class="modal-content glass-panel">
+      <div v-if="showBatchReplaceModal" class="modal-overlay main-tool-modal-overlay" @click.self="showBatchReplaceModal = false">
+        <div class="modal-content main-tool-modal-shell glass-panel">
           <div class="modal-header">
             <h3>🔄 {{ t('tools.checkTool.batchReplace.title') }}</h3>
-            <button class="close-btn" @click="showBatchReplaceModal = false">×</button>
+            <button class="close-btn main-tool-modal-close-base" @click="showBatchReplaceModal = false">×</button>
           </div>
 
           <div class="modal-body">
@@ -654,11 +654,11 @@
 
     <!-- 帮助对话框 -->
     <teleport to="body">
-      <div v-if="showHelpModal" class="modal-overlay" @click.self="showHelpModal = false">
-        <div class="modal-content glass-panel help-modal">
+      <div v-if="showHelpModal" class="modal-overlay main-tool-modal-overlay" @click.self="showHelpModal = false">
+        <div class="modal-content main-tool-modal-shell glass-panel help-modal">
           <div class="modal-header">
             <h3>❓ {{ t('tools.checkTool.help.title') }}</h3>
-            <button class="close-btn" @click="showHelpModal = false">×</button>
+            <button class="close-btn main-tool-modal-close-base" @click="showHelpModal = false">×</button>
           </div>
 
           <div class="modal-body help-content custom-scrollbar">
@@ -746,11 +746,11 @@
 
     <!-- 文件格式说明对话框 -->
     <teleport to="body">
-      <div v-if="showFormatHelpModal" class="modal-overlay" @click.self="showFormatHelpModal = false">
-        <div class="modal-content glass-panel help-modal">
+      <div v-if="showFormatHelpModal" class="modal-overlay main-tool-modal-overlay" @click.self="showFormatHelpModal = false">
+        <div class="modal-content main-tool-modal-shell glass-panel help-modal">
           <div class="modal-header">
             <h3>📋 {{ t('tools.checkTool.formatHelp.title') }}</h3>
-            <button class="close-btn" @click="showFormatHelpModal = false">×</button>
+            <button class="close-btn main-tool-modal-close-base" @click="showFormatHelpModal = false">×</button>
           </div>
 
           <div class="modal-body help-content custom-scrollbar">
@@ -826,11 +826,11 @@
 
     <!-- 调值字符显示对话框 -->
     <teleport to="body">
-      <div v-if="showToneCharsModal" class="modal-overlay" @click.self="showToneCharsModal = false">
-        <div class="modal-content glass-panel">
+      <div v-if="showToneCharsModal" class="modal-overlay main-tool-modal-overlay" @click.self="showToneCharsModal = false">
+        <div class="modal-content main-tool-modal-shell glass-panel">
           <div class="modal-header">
             <h3>📊 {{ toneCharsModalTitle }}</h3>
-            <button class="close-btn" @click="showToneCharsModal = false">×</button>
+            <button class="close-btn main-tool-modal-close-base" @click="showToneCharsModal = false">×</button>
           </div>
 
           <div class="modal-body">
@@ -848,13 +848,13 @@
 
     <!-- 列筛选对话框 -->
     <teleport to="body">
-      <div v-if="showFilterModal" class="modal-overlay" @click.self="showFilterModal = false">
-        <div class="modal-content glass-panel filter-modal">
+      <div v-if="showFilterModal" class="modal-overlay main-tool-modal-overlay" @click.self="showFilterModal = false">
+        <div class="modal-content main-tool-modal-shell glass-panel filter-modal">
           <div class="modal-header">
             <h3>
               🔍 {{ t('tools.checkTool.filter.title', { column: getFilterColumnLabel(filterColumnType) }) }}
             </h3>
-            <button class="close-btn" @click="showFilterModal = false">×</button>
+            <button class="close-btn main-tool-modal-close-base" @click="showFilterModal = false">×</button>
           </div>
 
           <div class="modal-body filter-modal-body">
@@ -3014,7 +3014,7 @@ justify-content: center;
 }
 
 /* 模态框 */
-.modal-overlay {
+.checktool-modal-overlay-unused {
   position: fixed;
   top: 0;
   left: 0;
@@ -3031,14 +3031,6 @@ justify-content: center;
 .modal-content {
   width: min(90vw, 600px);
   max-height: 85vh;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(30px);
-  border: 1px solid rgba(255, 255, 255, 0.6);
-  border-radius: 24px;
-  box-shadow: 0 16px 64px rgba(0, 0, 0, 0.2);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
 }
 
 .modal-content.help-modal {
@@ -3059,17 +3051,10 @@ justify-content: center;
 }
 
 .close-btn {
-  width: 32px;
-  height: 32px;
-  background: rgba(255, 255, 255, 0.5);
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  border-radius: 8px;
   font-size: 20px;
-  cursor: pointer;
-  transition: all 0.2s ease;
 }
 
-.close-btn:hover {
+.checktool-close-btn-hover-unused:hover {
   background: rgba(255, 59, 48, 0.7);
   color: white;
 }
