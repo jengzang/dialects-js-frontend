@@ -28,17 +28,17 @@
   },
   "jyut2ipa": {
     "page": {
-      "title": "粤拼转 IPA 工具",
-      "subtitle": "上传含粤拼列的 Excel 文件，批量转换为 IPA 音标"
+      "title": "粤拼转IPA工具",
+      "subtitle": "表内需要有“粤拼”列"
     },
     "upload": {
-      "title": "点击或拖拽上传待转换的 Excel 文件",
-      "hint": "支持 .xlsx 与 .xls 格式",
-      "info": "请上传包含 jyut6ping3 列的 Excel 文件，系统会自动批量转换为 IPA 音标。"
+      "title": "点击上传或拖拽文件到此处",
+      "hint": "支持 .xlsx 和 .xls 格式",
+      "info": "支持粤拼格式（例如：jyut6ping3），可转换声母、韵母、声调及完整IPA"
     },
     "configCard": {
       "title": "自定义转换规则",
-      "desc": "可调整韵腹、声母、声调与韵尾的替换规则。"
+      "desc": "配置声母、韵母、韵尾、声调对照表"
     },
     "processing": {
       "title": "正在处理转换...",
@@ -111,7 +111,7 @@
     },
     "export": {
       "configFileName": "jyut2ipa-rules.json",
-      "resultPrefix": "方音图鉴_"
+      "resultPrefix": "方音圖鑒_"
     }
   },
   "merge": {
@@ -192,11 +192,11 @@
       "useDefaultFailed": "使用参考表失败：{message}"
     },
     "export": {
-      "resultFileName": "方音图鉴_合并字表.xlsx",
+      "resultFileName": "方音圖鑑_合併字表.xlsx",
       "defaultReferencePath": "/参考表.xlsx",
       "defaultReferenceFileName": "参考表.xlsx",
       "mainSheetName": "主表",
-      "supplementSheetName": "补充表"
+      "supplementSheetName": "補充表"
     }
   },
   "checkTool": {
@@ -339,20 +339,20 @@
       "multiSubtitle": "「一音对多字」",
       "layout": "栏位排版：",
       "multiRule1": "第一栏（A）：音节（如：ka1）。",
-      "multiRule2": "第二栏（B）：汉字组，支持注释（如：家{住所} 加[增加] 佳）。",
+      "multiRule2": "第二栏（B）：汉字组，支持注释（如：家｛住所｝ 加[增加] 佳）。",
       "multiFeature": "系统会自动拆分第二栏的每个字，并配上第一栏的音标。",
       "gazetteerTitle": "3. 县志",
       "excelTitle": "Excel 格式：",
       "contentRules": "内容规则：",
       "gazetteerExcelRule1": "行首：声母+韵母（如：pan）。",
-      "gazetteerExcelRule2": "后续内容：必须包含「方括号调号」，格式为 [调号]汉字{注释}。",
-      "gazetteerExcelRule3": "范例：pan [1]班{班级} [2]板 [3]拌。",
+      "gazetteerExcelRule2": "后续内容：必须包含「方括号调号」，格式为 [调号]汉字｛注释｝。",
+      "gazetteerExcelRule3": "范例：pan [1]班｛班级｝ [2]板 [3]拌。",
       "gazetteerExcelFeature": "自动识别 [ ] 或 ［ ］ 内的调号并与行首拼音组合成完整音标。",
       "wordTitle": "Word 格式：",
       "wordRequirement": "Word（.docx）",
       "hierarchyRules": "层级规则：",
       "gazetteerWordRule1": "韵母层：以 # 开头（如：#ang）。",
-      "gazetteerWordRule2": "内容行：声母 [调号]汉字{注释}。",
+      "gazetteerWordRule2": "内容行：声母 [调号]汉字｛注释｝。",
       "gazetteerWordFeature": "支持复杂匹配。若一项中有多个字或多个音标（用 ; 或 / 分隔），系统会自动进行交叉匹配（笛卡尔积）。",
       "gotIt": "知道了"
     },

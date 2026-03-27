@@ -22,7 +22,7 @@
             @change="handleFileSelect"
             style="display: none"
           />
-          <div class="upload-icon">📤</div>
+          <div class="upload-icon">📄</div>
           <h3 class="upload-title">{{ t('tools.jyut2ipa.upload.title') }}</h3>
           <p class="upload-hint">{{ t('tools.jyut2ipa.upload.hint') }}</p>
         </div>
@@ -291,6 +291,8 @@ import { showConfirm, showError, showSuccess, showWarning } from '@/utils/messag
 
 const router = useRouter()
 const { t } = useI18n()
+const JYUT2IPA_CONFIG_FILE_NAME = 'jyut2ipa-rules.json'
+const JYUT2IPA_RESULT_FILE_PREFIX = '方音圖鑒_'
 const fileName = ref('')
 const taskId = ref(null)
 const fileInput = ref(null)
@@ -455,7 +457,7 @@ const exportConfig = () => {
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
   a.href = url
-  a.download = t('tools.jyut2ipa.export.configFileName')
+  a.download = JYUT2IPA_CONFIG_FILE_NAME
   a.click()
   URL.revokeObjectURL(url)
 }
@@ -591,7 +593,7 @@ const downloadResult = async () => {
     const url = window.URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = `${t('tools.jyut2ipa.export.resultPrefix')}${fileName.value}`
+    a.download = `${JYUT2IPA_RESULT_FILE_PREFIX}${fileName.value}`
     document.body.appendChild(a)
     a.click()
     window.URL.revokeObjectURL(url)

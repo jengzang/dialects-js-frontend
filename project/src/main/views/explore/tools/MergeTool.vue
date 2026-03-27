@@ -342,14 +342,16 @@ import * as XLSX from 'xlsx'
 import { uploadReference, uploadFiles, executeMerge, getMergeProgress, downloadMerge } from '@/api/tools/index.js'
 import { userStore } from '@/main/store/store.js'
 import { showError, showSuccess, showWarning } from '@/utils/message.js'
+import defaultReferenceWorkbookUrl from '@/assets/data/参考表.xlsx?url'
 
 const router = useRouter()
 const { t } = useI18n()
 
-const DEFAULT_REFERENCE_PATH = '/参考表.xlsx'
+const DEFAULT_REFERENCE_PATH = defaultReferenceWorkbookUrl
 const DEFAULT_REFERENCE_FILE_NAME = '参考表.xlsx'
 const MAIN_SHEET_NAME = '主表'
 const SUPPLEMENT_SHEET_NAME = '補充表'
+const MERGE_RESULT_FILE_NAME = '方音圖鑑_合併字表.xlsx'
 
 const currentStep = ref(1)
 const referenceFile = ref(null)
@@ -590,7 +592,7 @@ const downloadMerged = async () => {
     const url = window.URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = t('tools.merge.export.resultFileName')
+    a.download = MERGE_RESULT_FILE_NAME
     document.body.appendChild(a)
     a.click()
     window.URL.revokeObjectURL(url)

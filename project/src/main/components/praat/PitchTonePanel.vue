@@ -116,6 +116,9 @@ const props = defineProps({
   results: { type: Object, default: null }
 })
 const { t } = useI18n()
+const PITCH_TONE_EXPORT_FILE_PREFIX = '方音圖鑑_T值法定調_'
+const PITCH_TONE_EXPORT_SHEET_NAME = '石峰T值分析'
+const PITCH_TONE_EXPORT_TIME_COLUMN = '時間 (ms)'
 
 // === 狀態變量 ===
 const pitchChartContainer = ref(null)
@@ -559,7 +562,7 @@ const exportToExcel = () => {
 
     // 时间列
     const firstTime = tValueResults.value[0].data[i]?.[0]
-    row[t('praat.pitchTone.step3.export.columns.time')] = firstTime?.toFixed(1) || ''
+    row[PITCH_TONE_EXPORT_TIME_COLUMN] = firstTime?.toFixed(1) || ''
 
     // 每个调类的 T 值列
     tValueResults.value.forEach(result => {
@@ -573,11 +576,11 @@ const exportToExcel = () => {
   // 3. 生成 Excel
   const ws = XLSX.utils.json_to_sheet(excelData)
   const wb = XLSX.utils.book_new()
-  XLSX.utils.book_append_sheet(wb, ws, t('praat.pitchTone.step3.export.sheetName'))
+  XLSX.utils.book_append_sheet(wb, ws, PITCH_TONE_EXPORT_SHEET_NAME)
 
   // 4. 下载文件
   const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-')
-  XLSX.writeFile(wb, t('praat.pitchTone.step3.export.fileName', { timestamp }))
+  XLSX.writeFile(wb, `${PITCH_TONE_EXPORT_FILE_PREFIX}${timestamp}.xlsx`)
 
   showSuccess(t('praat.pitchTone.step3.export.success'))
 }
