@@ -70,7 +70,13 @@ export default defineConfig(({ mode }) => {
     server: {
       proxy: {
         // 代理所有非静态资源请求到后端
-        '^/(api|logs|sql|auth|upload|download|static|files)': {
+        '^/(api|logs|sql|upload|download|static|files)(?:/|$)': {
+          target: 'https://dialects.yzup.top',
+          changeOrigin: true,
+          secure: false,
+        },
+        // 仅代理真正的认证 API，保留 /auth、/auth/data、/auth/regions 等前端页面路由
+        '^/auth/(?:me|refresh|report-online-time|login|register|updateProfile|logout|leaderboard)(?:\\?|$)': {
           target: 'https://dialects.yzup.top',
           changeOrigin: true,
           secure: false,
