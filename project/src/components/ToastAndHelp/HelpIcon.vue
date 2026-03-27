@@ -32,6 +32,8 @@
 <script setup>
 import { ref, reactive, computed, nextTick, onMounted, onBeforeUnmount } from 'vue'
 
+const HELP_ICON_OPEN_EVENT = 'help-icon-open'
+
 // Props 定义
 const props = defineProps({
   content: {
@@ -101,6 +103,7 @@ const tooltipPosition = reactive({
 
 // 自动隐藏定时器
 let autoHideTimer = null
+const instanceId = `help-icon-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`
 
 // 计算属性 - 尺寸 class
 const sizeClass = computed(() => {
@@ -197,6 +200,7 @@ const updatePosition = async () => {
 
 // 显示 Tooltip
 const showTooltip = () => {
+  window.dispatchEvent(new CustomEvent(HELP_ICON_OPEN_EVENT, { detail: instanceId }))
   isVisible.value = true
   updatePosition()
   emit('show')
@@ -274,14 +278,22 @@ const handleClickOutside = (event) => {
   }
 }
 
+const handleOtherHelpIconOpen = (event) => {
+  if (event.detail !== instanceId) {
+    hideTooltip()
+  }
+}
+
 // 生命周期
 onMounted(() => {
   checkMobile()
   document.addEventListener('click', handleClickOutside)
+  window.addEventListener(HELP_ICON_OPEN_EVENT, handleOtherHelpIconOpen)
 })
 
 onBeforeUnmount(() => {
   document.removeEventListener('click', handleClickOutside)
+  window.removeEventListener(HELP_ICON_OPEN_EVENT, handleOtherHelpIconOpen)
   clearTimeout(autoHideTimer)
 })
 </script>
