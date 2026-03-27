@@ -1680,7 +1680,6 @@ export default {
 }
 
 .compare-group {
-  width: 98%;
   padding: 1rem;
   border-radius: 12px;
   backdrop-filter: blur(10px);
