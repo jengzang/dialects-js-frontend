@@ -169,7 +169,7 @@
                 📥
               </button>
               <button
-                class="close-btn main-tool-modal-close-base"
+                class="close-btn global-close-btn-base main-tool-modal-close-base"
                 :title="t('tools.common.close')"
                 @click="showConfigModal = false"
               >

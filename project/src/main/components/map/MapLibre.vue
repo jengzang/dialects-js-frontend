@@ -17,8 +17,8 @@
           @click="toggleCustomSwitch"
         >
           <span class="switch-label-text">{{ t('map.mapLibre.controls.personalData') }}</span>
-          <div class="custom-switch" :class="{ open: mapStore.showCustomData }" id="custom-toggle">
-            <span class="custom-slider">
+          <div class="custom-switch global-custom-switch" :class="{ open: mapStore.showCustomData }" id="custom-toggle">
+            <span class="custom-slider global-custom-switch-slider">
               <span id="switch-text" class="switch-text">
                 {{ mapStore.showCustomData ? t('map.mapLibre.controls.show') : t('map.mapLibre.controls.hide') }}
               </span>
@@ -33,8 +33,8 @@
         >
           <span class="switch-label-text">{{ t('map.mapLibre.controls.viewPlaceNames') }}</span>
 
-          <div class="custom-switch" :class="{ open: isBaseModeActive }" id="base-toggle">
-            <span class="custom-slider">
+          <div class="custom-switch global-custom-switch" :class="{ open: isBaseModeActive }" id="base-toggle">
+            <span class="custom-slider global-custom-switch-slider">
               <span class="switch-text">
                 {{ isBaseModeActive ? t('map.mapLibre.controls.enabled') : t('map.mapLibre.controls.disabled') }}
               </span>
@@ -1466,41 +1466,7 @@ const resetView = () => {
 }
 
 .custom-switch {
-  position: relative;
   cursor: pointer;
-  width: 50px;
-  height: 30px;
-  background-color: #ccc;
-  border-radius: 30px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background-color 0.3s ease;
-}
-
-.custom-slider {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.custom-slider:before {
-  content: "";
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  width: 26px;
-  height: 26px;
-  background-color: white;
-  border-radius: 50%;
-  transition: all 0.3s ease;
-}
-
-.custom-switch.open .custom-slider:before {
-  transform: translateX(20px);
 }
 
 .custom-switch:hover {

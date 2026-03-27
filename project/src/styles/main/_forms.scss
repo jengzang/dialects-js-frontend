@@ -1,4 +1,4 @@
-.main-query-compare-shell .triple-select-box {
+.main-choice-shell .triple-select-box {
   display: flex;
   gap: 1.5dvw;
   width: 100%;
@@ -6,7 +6,7 @@
   flex-direction: column;
 }
 
-.main-query-compare-shell .card-group {
+.main-choice-shell .card-group {
   display: flex;
   flex-direction: row;
   border-radius: 12px;
@@ -17,7 +17,7 @@
   box-shadow: var(--shadow-md);
 }
 
-.main-query-compare-shell .card-group-item {
+.main-choice-shell .card-group-item {
   padding: 10px 16px;
   flex: 1;
   text-align: center;
@@ -34,27 +34,27 @@
   text-overflow: ellipsis;
 }
 
-.main-query-compare-shell .card-group-item:hover {
+.main-choice-shell .card-group-item:hover {
   background: var(--glass-medium);
 }
 
-.main-query-compare-shell .card-group-item.first {
+.main-choice-shell .card-group-item.first {
   border-radius: 12px 0 0 12px;
   border-left-color: var(--color-primary-medium);
 }
 
-.main-query-compare-shell .card-group-item.last {
+.main-choice-shell .card-group-item.last {
   border-radius: 0 12px 12px 0;
   border-right-color: var(--color-primary-medium);
 }
 
-.main-query-compare-shell .card-group-item.active {
+.main-choice-shell .card-group-item.active {
   background: var(--color-primary-medium);
   color: var(--color-primary);
   font-weight: 600;
 }
 
-.main-query-compare-dropdown-panel {
+.main-choice-dropdown-panel {
   position: absolute;
   min-width: 80px;
   max-height: 40dvh;
@@ -68,7 +68,7 @@
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
 }
 
-.main-query-compare-dropdown-item {
+.main-choice-dropdown-item {
   padding: 8px 16px;
   cursor: pointer;
   font-size: 14px;
@@ -78,22 +78,22 @@
   text-overflow: ellipsis;
 }
 
-.main-query-compare-dropdown-item.active {
+.main-choice-dropdown-item.active {
   background-color: #e6f0ff;
   color: #02469e;
   font-weight: bold;
 }
 
-.main-query-compare-dropdown-item:hover {
+.main-choice-dropdown-item:hover {
   background-color: #e6f0ff;
 }
 
 @media (max-aspect-ratio: 1/1) {
-  .main-query-compare-shell .triple-select-box {
+  .main-choice-shell .triple-select-box {
     flex-wrap: wrap;
   }
 
-  .main-query-compare-shell .card-group-item {
+  .main-choice-shell .card-group-item {
     padding: 12px 12px;
   }
 }

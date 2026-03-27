@@ -2,11 +2,7 @@
    Base element styles continue to come from ../_legacy.scss.
    This file reserves the global base layer for later migration. */
 
-.global-close-btn-base,
-.main-glass-modal-close,
-.main-query-modal-close,
-.main-tool-modal-close-base,
-.main-icon-close-btn {
+.global-close-btn-base {
   appearance: none;
   border: none;
   background: transparent;
@@ -91,4 +87,41 @@
 
 .global-input-switch input:checked + .global-input-switch-slider::before {
   transform: translateX(22px);
+}
+
+.global-custom-switch {
+  position: relative;
+  width: 50px;
+  height: 30px;
+  background-color: #ccc;
+  border-radius: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.3s ease;
+}
+
+.global-custom-switch-slider {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.global-custom-switch-slider::before {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 26px;
+  height: 26px;
+  background-color: white;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.global-custom-switch.open .global-custom-switch-slider::before {
+  transform: translateX(20px);
 }

@@ -18,8 +18,8 @@
           :title="vowelSegments.length === 0 ? t('praat.vowelSpace.controls.segmentedDisabled') : ''"
         >
           <span class="switch-label-text">{{ t('praat.vowelSpace.controls.segmentedDisplay') }}</span>
-          <div class="custom-switch" :class="{ 'open': showSegmented }">
-            <span class="custom-slider">
+          <div class="custom-switch global-custom-switch" :class="{ 'open': showSegmented }">
+            <span class="custom-slider global-custom-switch-slider">
 <!--              <span class="switch-text">-->
 <!--                {{ showSegmented ? '開啟' : '關閉' }}-->
 <!--              </span>-->
@@ -619,45 +619,8 @@ onBeforeUnmount(() => {
   color: var(--color-text-primary);
 }
 
-.custom-switch {
-  position: relative;
-  width: 50px;
-  height: 30px;
-  background-color: #ccc;
-  border-radius: 30px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background-color 0.3s ease;
-}
-
-.custom-slider {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.custom-slider:before {
-  content: "";
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  width: 26px;
-  height: 26px;
-  background-color: white;
-  border-radius: 50%;
-  transition: all 0.3s ease;
-}
-
 .custom-switch.open {
   background-color: #007aff;
-}
-
-.custom-switch.open .custom-slider:before {
-  transform: translateX(20px);
 }
 
 .custom-switch:hover {

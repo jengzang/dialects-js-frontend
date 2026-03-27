@@ -66,8 +66,8 @@
         </div>
 
         <div id="toggleColumnsBtn" @click="isCondensedMode = !isCondensedMode" class="custom-switch-container">
-          <div class="custom-switch" :class="{ open: !isCondensedMode }">
-            <div class="custom-slider"></div>
+          <div class="custom-switch global-custom-switch" :class="{ open: !isCondensedMode }">
+            <div class="custom-slider global-custom-switch-slider"></div>
           </div>
           <span class="switch-text">{{ !isCondensedMode ? t('result.resultList.displayMode.full') : t('result.resultList.displayMode.main') }}</span>
         </div>
@@ -554,32 +554,7 @@ onUnmounted(() => {
 }
 
 .custom-switch {
-  position: relative;
   cursor: pointer;
-  width: 50px;
-  height: 30px;
-  background-color: #ccc;
-  border-radius: 30px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background-color 0.3s ease;
-}
-
-.custom-slider:before {
-  content: "";
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  width: 26px;
-  height: 26px;
-  background-color: white;
-  border-radius: 50%;
-  transition: all 0.3s ease;
-}
-
-.custom-switch.open .custom-slider:before {
-  transform: translateX(20px);
 }
 
 .custom-switch:hover {

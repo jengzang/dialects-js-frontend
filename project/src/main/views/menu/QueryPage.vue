@@ -1,6 +1,6 @@
 <template>
   <TabsContainer :tabs="tabs" :default-tab="route.query.sub || 'tab2'" v-slot="{ currentTab }">
-    <div class="tab-content-inner main-query-compare-shell">
+    <div class="tab-content-inner main-choice-shell">
       <div v-show="currentTab === 'tab1'" class="page">
         <div class="page-content-stack">
           <!-- 🔹 輸入框區塊 -->
@@ -53,11 +53,11 @@
                 <Teleport to="body">
                   <div
                       v-if="excludeDropdownOpen === 'tab2'"
-                      class="dropdown-panel main-query-compare-dropdown-panel"
+                      class="dropdown-panel main-choice-dropdown-panel"
                       :style="excludeDropdownStyle"
                   >
                     <div
-                        class="dropdown-item main-query-compare-dropdown-item"
+                        class="dropdown-item main-choice-dropdown-item"
                         v-for="option in excludeOptions"
                         :key="option.value"
                         :class="{ active: isExcludeSelected(option.value, 'tab2') }"
@@ -137,12 +137,12 @@
                 <Teleport to="body">
                   <div
                       v-if="excludeDropdownOpen === 'tab3'"
-                      class="dropdown-panel main-query-compare-dropdown-panel"
+                      class="dropdown-panel main-choice-dropdown-panel"
                       :style="excludeDropdownStyle"
                   >
 
                     <div
-                        class="dropdown-item main-query-compare-dropdown-item"
+                        class="dropdown-item main-choice-dropdown-item"
                         v-for="option in excludeOptions"
                         :key="option.value"
                         :class="{ active: isExcludeSelected(option.value, 'tab3') }"

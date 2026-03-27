@@ -19,7 +19,7 @@
               </button>
             </div>
 <!--          </div>-->
-          <button class="modal-close main-query-modal-close" type="button" @click="closeModal">×</button>
+          <button class="modal-close global-close-btn-base main-query-modal-close" type="button" @click="closeModal">×</button>
         </div>
 
         <!-- Tab 切换 + 确认按钮 -->
