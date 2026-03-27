@@ -1,6 +1,8 @@
 import { api, saveToken, clearToken, update_userdatas_bytoken, ensureAuthenticated } from './auth.js'
 import { userStore } from '@/main/store/store.js'
 
+const AUTH_API_BASE = '/api/auth'
+
 /**
  * Login with email or username
  * @param {Object} credentials - { email?, username?, password }
@@ -16,7 +18,7 @@ export async function loginUser({ email, username, password }) {
   }
   form.append('password', password)
 
-  const data = await api('/auth/login', {
+  const data = await api(`${AUTH_API_BASE}/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: form
@@ -35,7 +37,7 @@ export async function loginUser({ email, username, password }) {
  * @returns {Promise<Object>} User data with tokens
  */
 export async function registerUser({ username, email, password }) {
-  const data = await api('/auth/register', {
+  const data = await api(`${AUTH_API_BASE}/register`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ username, email, password })
@@ -57,7 +59,7 @@ export async function updateUsername(newUsername, email) {
   form.append('username', newUsername)
   form.append('email', email)
 
-  const data = await api('/auth/updateProfile', {
+  const data = await api(`${AUTH_API_BASE}/updateProfile`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: form
@@ -82,7 +84,7 @@ export async function updatePassword({ currentPassword, newPassword, email }) {
   form.append('new_password', newPassword)
   form.append('email', email)
 
-  const data = await api('/auth/updateProfile', {
+  const data = await api(`${AUTH_API_BASE}/updateProfile`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: form
@@ -98,7 +100,7 @@ export async function updatePassword({ currentPassword, newPassword, email }) {
  */
 export async function logoutUser(refreshToken) {
   try {
-    await api('/auth/logout', {
+    await api(`${AUTH_API_BASE}/logout`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: { refresh_token: refreshToken }
@@ -117,5 +119,5 @@ export async function logoutUser(refreshToken) {
  * @returns {Promise<Object>} Leaderboard data with rankings and total users
  */
 export async function getLeaderboard() {
-  return await api('/auth/leaderboard')
+  return await api(`${AUTH_API_BASE}/leaderboard`)
 }

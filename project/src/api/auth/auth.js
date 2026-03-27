@@ -3,6 +3,8 @@ import { userStore } from '../../main/store/store.js'
 import { WEB_BASE } from '@/env-config.js'
 import { showRateLimitNotice } from '@/utils/rateLimitNotice.js'
 
+const AUTH_API_BASE = '/api/auth'
+
 // ==========================================
 // 1. 用户信息缓存管理 (新增)
 // ==========================================
@@ -181,7 +183,7 @@ export async function initUserByToken({ forceRefresh = false, console_log = fals
 
     // 3. 缓存未命中或强制刷新：请求 API
     try {
-        const res = await api('/auth/me');
+        const res = await api(`${AUTH_API_BASE}/me`);
 
         if (!res) {
             throw new Error("API 返回空数据");
@@ -250,7 +252,7 @@ export async function refreshAccessToken() {
         }
 
         try {
-            const res = await fetch(WEB_BASE + '/auth/refresh', {
+            const res = await fetch(WEB_BASE + `${AUTH_API_BASE}/refresh`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ refresh_token: refreshToken })
@@ -586,7 +588,7 @@ export async function api(path, options = {}) {
 
 export async function ensureAuthenticated(e) {
     try {
-        const res = await api('/auth/me');
+        const res = await api(`${AUTH_API_BASE}/me`);
         if (res && res.id && res.username) {
             return { id: res.id, username: res.username };
         }
@@ -610,7 +612,7 @@ export async function ensureAuthenticated(e) {
  */
 export async function update_userdatas_bytoken(token, console_log = false) {
     try {
-        const userData = await api('/auth/me', {
+        const userData = await api(`${AUTH_API_BASE}/me`, {
             headers: { Authorization: `Bearer ${token}` },
             showError: false
         });
@@ -699,7 +701,7 @@ export async function reportOnlineTime(duration) {
     // }
 
     try {
-        await api('/auth/report-online-time', {
+        await api(`${AUTH_API_BASE}/report-online-time`, {
             method: 'POST',
             body: { seconds },  // ✅ 修复：使用 seconds 而不是 duration
             showError: false

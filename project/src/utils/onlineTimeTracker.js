@@ -2,6 +2,7 @@ import { reportOnlineTime, getToken } from '../api/auth/auth.js'
 import { userStore } from '@/main/store/store.js'
 import { WEB_BASE } from '@/env-config.js'
 
+const AUTH_API_BASE = '/api/auth'
 const REPORT_INTERVAL = 5 * 60 * 1000
 const INVISIBLE_THRESHOLD = 5 * 60 * 1000
 const SAVE_INTERVAL = 30 * 1000
@@ -162,7 +163,7 @@ function handlePageHide() {
       const data = JSON.stringify({ seconds })
 
       try {
-        fetch(WEB_BASE + '/auth/report-online-time', {
+        fetch(WEB_BASE + `${AUTH_API_BASE}/report-online-time`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
