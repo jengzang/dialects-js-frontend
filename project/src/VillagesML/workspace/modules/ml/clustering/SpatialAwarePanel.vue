@@ -9,28 +9,28 @@
       <h3 class="panel-title">空間感知聚類</h3>
       <p class="panel-description">基於空間聚類結果的二次聚類分析</p>
 
-      <div v-if="!isAuthenticated" class="auth-notice vm-auth-notice">
+      <div v-if="!isAuthenticated" class="auth-notice">
         <span class="notice-icon">🔒</span>
         <span>此功能需要登錄後使用</span>
       </div>
 
-      <div v-else class="settings-form vm-settings-form">
+      <div v-else class="settings-form">
         <AlgorithmSelector v-model="settings.algorithm" />
 
-        <div v-if="settings.algorithm !== 'dbscan'" class="setting-row vm-setting-row-top">
-          <label class="setting-label vm-setting-label-top">聚類數量 (k)</label>
+        <div v-if="settings.algorithm !== 'dbscan'" class="setting-row">
+          <label class="setting-label">聚類數量 (k)</label>
           <input
             type="number"
             v-model.number="settings.k"
             min="2"
             max="20"
-            class="setting-input vm-setting-input"
+            class="setting-input"
           />
         </div>
 
-        <div class="setting-row vm-setting-row-top">
-          <label class="setting-label vm-setting-label-top">空間聚類 Run ID</label>
-          <div class="setting-control vm-setting-control">
+        <div class="setting-row">
+          <label class="setting-label">空間聚類 Run ID</label>
+          <div class="setting-control">
             <SimpleSelectDropdown
               v-model="settings.spatial_run_id"
               :options="spatialRunIdOptions"
@@ -163,9 +163,56 @@ async function runClustering() {
   line-height: 1.5;
 }
 
+.auth-notice {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: rgba(255, 193, 7, 0.15);
+  border: 1px solid rgba(255, 193, 7, 0.3);
+  border-radius: 10px;
+  margin-bottom: 16px;
+  font-size: 13px;
+  color: #856404;
+  font-weight: 500;
+}
+
+.settings-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.setting-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.setting-label {
+  min-width: 100px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+  padding-top: 10px;
+}
+
+.setting-control {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
 .setting-input,
 .setting-select {
   flex: 1;
+  padding: 10px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(10px);
+  font-size: 14px;
 }
 
 .setting-input:focus,

@@ -1,9 +1,9 @@
 <template>
-  <div class="explorebar main-nav-surface">
+  <div class="explorebar">
     <!-- 桌面端：单行布局 -->
     <div class="explorebar-desktop">
       <div class="logo-and-title" @click="toggleSidebar" :style="{ zIndex: isSidebarVisible ? '1100' : '999' }">
-        <div class="logo-container main-bar-logo">
+        <div class="logo-container">
           <img class="logo" src="../../assets/favicon.ico" alt="Logo" />
         </div>
         <div class="title">
@@ -21,7 +21,7 @@
         >
           <a
             :href="href"
-            class="tab-item main-bar-tab"
+            class="tab-item"
             :class="{ active: isActiveComputed(t.tab) }"
             :style="{
               flex: getFlexWeight(t, isActiveComputed(t.tab), false) + ' 1 0',
@@ -39,14 +39,14 @@
         </RouterLink>
       </nav>
 
-      <div class="login-container main-bar-login" @click="goToAuthPage">
+      <div class="login-container" @click="goToAuthPage">
         <span class="login-text">{{ userStore.username || t('navigation.login') }}</span>
       </div>
     </div>
 
     <!-- 移动端：单行布局（无 title.png） -->
     <div class="explorebar-mobile">
-      <div class="logo-container main-bar-logo" @click="toggleSidebar" :style="{ zIndex: isSidebarVisible ? '1100' : '999' }">
+      <div class="logo-container" @click="toggleSidebar" :style="{ zIndex: isSidebarVisible ? '1100' : '999' }">
         <img class="logo" src="../../assets/favicon.ico" alt="Logo" />
       </div>
 
@@ -61,7 +61,7 @@
           <a
             v-if="!t.hideOnMobile"
             :href="href"
-            class="tab-item main-bar-tab"
+            class="tab-item"
             :class="{ active: isActiveComputed(t.tab) }"
             :style="{
               flex: getFlexWeight(t, isActiveComputed(t.tab), true) + ' 1 0',
@@ -78,7 +78,7 @@
         </RouterLink>
       </nav>
 
-      <div class="login-container main-bar-login" @click="goToAuthPage">
+      <div class="login-container" @click="goToAuthPage">
         <span class="login-text">{{ userStore.username || t('navigation.login') }}</span>
       </div>
     </div>
@@ -95,7 +95,7 @@
       <Transition name="submenu-fade">
         <div
           v-if="activeSubmenu"
-          class="submenu-panel main-submenu-surface"
+          class="submenu-panel"
           :style="{
             top: submenuPosition.top + 'px',
             left: submenuPosition.left + 'px'
@@ -107,7 +107,7 @@
           <div
             v-for="(child, index) in getTabChildren(activeSubmenu)"
             :key="index"
-            class="submenu-item main-bar-submenu-item"
+            class="submenu-item"
             @click="handleSubmenuClick(child)"
           >
             <span class="submenu-icon">{{ child.icon }}</span>
@@ -427,6 +427,11 @@ const goToAuthPage = () => {
   left: 0;
   width: 100%;
   z-index: 999;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.15));
+  border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(12px) saturate(160%);
+  -webkit-backdrop-filter: blur(12px) saturate(160%);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 /* 桌面端：单行，7dvh 高度 */
@@ -469,7 +474,7 @@ const goToAuthPage = () => {
 }
 
 /* 完全复刻 NavBar 的 .menu-item 样式 */
-.explorebar-tab-item-unused {
+.tab-item {
   height: 6.5dvh;
   display: flex;
   align-items: center;
@@ -489,13 +494,13 @@ const goToAuthPage = () => {
   color: #007aff;
 }
 
-.explorebar-tab-item-unused:hover {
+.tab-item:hover {
   background: rgba(0, 122, 255, 0.12);
   height: 90%;
   color: #007aff;
 }
 
-.explorebar-tab-item-unused.active {
+.tab-item.active {
   background: linear-gradient(145deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
   color: darkblue;
   font-weight: 1000;
@@ -505,13 +510,13 @@ const goToAuthPage = () => {
   transition: all 0.3s ease;
 }
 
-.explorebar-tab-item-unused.active:hover {
+.tab-item.active:hover {
   background: linear-gradient(145deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.3));
   box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
   margin:0;
 }
 
-.explorebar-logo-container-unused {
+.logo-container {
   width: 6dvh;
   height: 6dvh;
   min-width: 5dvh;  /* 防止被压缩 */
@@ -526,7 +531,7 @@ const goToAuthPage = () => {
   transition: all 0.3s ease;
 }
 
-.explorebar-logo-container-unused:hover {
+.logo-container:hover {
   transform: scale(1.1);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
@@ -546,7 +551,7 @@ const goToAuthPage = () => {
   object-fit: contain;
 }
 
-.explorebar-login-container-unused {
+.login-container {
   min-width: 6dvh;
   max-width: 10dvh;
   height: 6dvh;
@@ -563,7 +568,7 @@ const goToAuthPage = () => {
   flex-shrink: 0;  /* 防止被压缩 */
 }
 
-.explorebar-login-container-unused:hover {
+.login-container:hover {
   transform: scale(1.05);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
@@ -642,9 +647,20 @@ const goToAuthPage = () => {
   width: auto;
   max-width: min(300px, calc(100vw - 20px));
   z-index: 10001;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.85));
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 16px;
+  box-shadow:
+    inset 0 0 0.5px rgba(255, 255, 255, 0.3),
+    0 12px 40px rgba(0, 0, 0, 0.2),
+    0 0 0 0.5px rgba(255, 255, 255, 0.1);
+  padding: 8px;
+  overflow: hidden;
 }
 
-.explorebar-submenu-item-unused {
+.submenu-item {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -657,7 +673,7 @@ const goToAuthPage = () => {
   color: #333;
 }
 
-.explorebar-submenu-item-unused:hover {
+.submenu-item:hover {
   background: linear-gradient(145deg, rgba(0, 122, 255, 0.15), rgba(0, 122, 255, 0.08));
   transform: translateX(4px);
 }

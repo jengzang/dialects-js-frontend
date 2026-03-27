@@ -9,12 +9,12 @@
       <h3 class="panel-title">層次聚類</h3>
       <p class="panel-description">市-縣-鎮三級層次聚類分析</p>
 
-      <div v-if="!isAuthenticated" class="auth-notice vm-auth-notice">
+      <div v-if="!isAuthenticated" class="auth-notice">
         <span class="notice-icon">🔒</span>
         <span>此功能需要登錄後使用</span>
       </div>
 
-      <div v-else class="settings-form vm-settings-form">
+      <div v-else class="settings-form">
         <AlgorithmSelector v-model="settings.algorithm" />
 
         <div class="hierarchical-k-settings">
@@ -27,7 +27,7 @@
               v-model.number="settings.k_city"
               min="2"
               max="10"
-              class="setting-input vm-setting-input"
+              class="setting-input"
             />
           </div>
 
@@ -38,7 +38,7 @@
               v-model.number="settings.k_county"
               min="2"
               max="15"
-              class="setting-input vm-setting-input"
+              class="setting-input"
             />
           </div>
 
@@ -49,7 +49,7 @@
               v-model.number="settings.k_township"
               min="2"
               max="20"
-              class="setting-input vm-setting-input"
+              class="setting-input"
             />
           </div>
 
@@ -161,6 +161,26 @@ async function runClustering() {
   line-height: 1.5;
 }
 
+.auth-notice {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: rgba(255, 193, 7, 0.15);
+  border: 1px solid rgba(255, 193, 7, 0.3);
+  border-radius: 10px;
+  margin-bottom: 16px;
+  font-size: 13px;
+  color: #856404;
+  font-weight: 500;
+}
+
+.settings-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
 .hierarchical-k-settings {
   padding: 16px;
   background: rgba(74, 144, 226, 0.08);
@@ -190,6 +210,12 @@ async function runClustering() {
 }
 
 .setting-input {
+  padding: 10px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(10px);
+  font-size: 14px;
   width: 100px;
 }
 

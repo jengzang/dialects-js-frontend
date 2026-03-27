@@ -4,7 +4,7 @@
     <div v-if="showLevelSelector" class="level-selector-wrapper">
       <div
         ref="levelTriggerRef"
-        class="level-select vm-level-shell"
+        class="level-select"
         @click="toggleLevelDropdown"
       >
         {{ levelLabel }}
@@ -21,7 +21,7 @@
     </div>
 
     <!-- Input + Dropdown Trigger -->
-    <div class="dropdown-wrapper vm-control-shell" ref="triggerRef">
+    <div class="dropdown-wrapper" ref="triggerRef">
       <input
         v-model="inputValue"
         @input="handleInput"
@@ -46,7 +46,7 @@
       <div
         v-if="dropdownOpen"
         ref="dropdownRef"
-        class="select-dropdown vm-dropdown-surface"
+        class="select-dropdown"
         :style="dropdownStyle"
         @click.stop
       >
@@ -491,10 +491,24 @@ onUnmounted(() => {
 }
 
 .level-select {
+  padding: 10px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(10px);
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 8px;
+  user-select: none;
+}
+
+.level-select:hover {
+  border-color: var(--color-primary);
+  background: rgba(255, 255, 255, 0.7);
 }
 
 .level-select .arrow-icon {
@@ -506,8 +520,19 @@ onUnmounted(() => {
   flex: 1;
   display: flex;
   position: relative;
+  border: 2px solid var(--color-primary-hover);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(10px);
+  overflow: hidden;
+  transition: all 0.3s ease;
   align-items: center;
   justify-content: center;
+}
+
+.dropdown-wrapper:focus-within {
+  border-color: var(--color-primary);
+  background: rgba(255, 255, 255, 0.7);
 }
 
 .select-input {
@@ -545,6 +570,15 @@ onUnmounted(() => {
 
 .arrow-icon {
   font-size: 12px;
+}
+
+.select-dropdown {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
 }
 
 .dropdown-loading,
