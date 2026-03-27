@@ -80,7 +80,7 @@ import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue';
 import { useI18n } from 'vue-i18n';
 import LocationDetailPopup from '@/main/components/result/LocationDetailPopup.vue';
 import PhonologyCellDetailModal from '@/main/components/TableAndTree/PhonologyCellDetailModal.vue';
-import { sqlQuery } from '@/api/sql';
+import { getLocationDetail } from '@/api';
 
 const { t } = useI18n();
 
@@ -263,7 +263,7 @@ const handleShowDetails = async () => {
       }
     };
 
-    const response = await sqlQuery(payload)
+    const response = await getLocationDetail(location.value)
 
     locationData.value = response;
   } catch (error) {

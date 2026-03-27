@@ -94,8 +94,7 @@
 import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { getCorrespondingCharacters } from '@/utils/ResultTable.js';
-import { sqlQuery } from '@/api/sql';
-import { getFeatureStats } from '@/api';
+import { getFeatureStats, getLocationDetail } from '@/api';
 import { globalPayload } from '@/main/store/store.js';
 import LocationDetailPopup from './LocationDetailPopup.vue';
 import FeatureStatsPopup from './FeatureStatsPopup.vue';
@@ -175,7 +174,7 @@ const handleLocationClick = async (e) => {
       }
     };
 
-    const response = await sqlQuery(payload)
+    const response = await getLocationDetail(locationName)
 
     locationPopup.value.data = response;
   } catch (error) {

@@ -10,6 +10,8 @@ export {
 
 export {
   getLocations,
+  getLocationDetail,
+  getLocationPartitions,
   batchMatch,
   getPartitions,
   getRegions

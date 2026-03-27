@@ -136,7 +136,7 @@ import { mapStyle, mapStyleConfig, calculateDenseMapCenterAndZoom } from '@/util
 import {get_detail} from "@/utils/ResultTable.js";
 import {mapStore, userStore, resultCache} from "@/main/store/store.js";
 import { showSuccess, showError, showWarning, showConfirm } from '@/utils/message.js';
-import { sqlQuery } from '@/api/sql'
+import { getLocationDetail } from '@/api'
 import { deleteCustomForm } from '@/api/user/custom.js'
 import { refreshCurrentCustomLayer } from '@/utils/map/MapData.js';
 import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
@@ -249,7 +249,7 @@ const handleLocationClick = async (locationName) => {
       }
     };
 
-    const response = await sqlQuery(payload);
+    const response = await getLocationDetail(locationName);
 
     locationPopup.value.data = response;
   } catch (error) {

@@ -234,7 +234,7 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
-import { createOrUpdateCustomRegion, deleteCustomRegion, sqlQuery } from '@/api'
+import { createOrUpdateCustomRegion, deleteCustomRegion, getLocationPartitions } from '@/api'
 import PartitionInfoModal from '@/main/components/query/PartitionInfoModal.vue'
 import { useCustomRegionStore } from '@/main/store/customRegionStore'
 import { showConfirm, showError, showSuccess, showWarning } from '@/utils/message.js'
@@ -354,17 +354,7 @@ const fetchPartitionData = async () => {
       return
     }
 
-    const response = await sqlQuery({
-      db_key: 'query',
-      table_name: 'dialects',
-      page: 1,
-      page_size: 9999,
-      sort_by: null,
-      sort_desc: false,
-      filters: {},
-      search_text: '',
-      search_columns: []
-    })
+    const response = await getLocationPartitions()
 
     partitionData.value = response.data || []
     sessionStorage.setItem('partition_data_cache', JSON.stringify(partitionData.value))

@@ -89,6 +89,7 @@ const { t } = useI18n()
 const TAB_MAP = 'map'
 const TAB_YINDIAN = 'yindian'
 const TAB_ADMINISTRATIVE_DIVISION = 'administrativeDivision'
+const TREE_LEAF_KEY = '__locations__'
 const tabOptions = [TAB_MAP, TAB_YINDIAN, TAB_ADMINISTRATIVE_DIVISION]
 
 const FIELD_KEYS = {
@@ -309,6 +310,31 @@ const currentTree = computed(() => {
 const buildPartitionTree = (data, columnKeys) => {
   const tree = {}
 
+  const ensureLeafList = (container, key) => {
+    if (Array.isArray(container[key])) {
+      return container[key]
+    }
+    if (!container[key]) {
+      container[key] = []
+      return container[key]
+    }
+    if (!Array.isArray(container[key][TREE_LEAF_KEY])) {
+      container[key][TREE_LEAF_KEY] = []
+    }
+    return container[key][TREE_LEAF_KEY]
+  }
+
+  const ensureBranchNode = (container, key) => {
+    if (!container[key]) {
+      container[key] = {}
+    } else if (Array.isArray(container[key])) {
+      container[key] = {
+        [TREE_LEAF_KEY]: container[key]
+      }
+    }
+    return container[key]
+  }
+
   data.forEach(row => {
     const dialectName = getDialectName(row)
     const partitionStr = getStringField(row, columnKeys)
@@ -325,15 +351,9 @@ const buildPartitionTree = (data, columnKeys) => {
     let current = tree
     parts.forEach((part, index) => {
       if (index === parts.length - 1) {
-        if (!Array.isArray(current[part])) {
-          current[part] = []
-        }
-        current[part].push(dialectName)
+        ensureLeafList(current, part).push(dialectName)
       } else {
-        if (!current[part] || Array.isArray(current[part])) {
-          current[part] = {}
-        }
-        current = current[part]
+        current = ensureBranchNode(current, part)
       }
     })
   })
@@ -343,6 +363,31 @@ const buildPartitionTree = (data, columnKeys) => {
 
 const buildAdminTree = (data) => {
   const tree = {}
+
+  const ensureLeafList = (container, key) => {
+    if (Array.isArray(container[key])) {
+      return container[key]
+    }
+    if (!container[key]) {
+      container[key] = []
+      return container[key]
+    }
+    if (!Array.isArray(container[key][TREE_LEAF_KEY])) {
+      container[key][TREE_LEAF_KEY] = []
+    }
+    return container[key][TREE_LEAF_KEY]
+  }
+
+  const ensureBranchNode = (container, key) => {
+    if (!container[key]) {
+      container[key] = {}
+    } else if (Array.isArray(container[key])) {
+      container[key] = {
+        [TREE_LEAF_KEY]: container[key]
+      }
+    }
+    return container[key]
+  }
 
   data.forEach(row => {
     const dialectName = getDialectName(row)
@@ -363,15 +408,9 @@ const buildAdminTree = (data) => {
     let current = tree
     levels.forEach((part, index) => {
       if (index === levels.length - 1) {
-        if (!Array.isArray(current[part])) {
-          current[part] = []
-        }
-        current[part].push(dialectName)
+        ensureLeafList(current, part).push(dialectName)
       } else {
-        if (!current[part] || Array.isArray(current[part])) {
-          current[part] = {}
-        }
-        current = current[part]
+        current = ensureBranchNode(current, part)
       }
     })
   })
@@ -486,7 +525,22 @@ const PartitionTreeNode = defineComponent({
   emits: ['toggle-location', 'toggle-subtree'],
   setup(props, { emit }) {
     const isExpanded = ref(false)
-    const isLeaf = computed(() => Array.isArray(props.children))
+    const directLeaves = computed(() => {
+      if (Array.isArray(props.children)) {
+        return props.children
+      }
+      if (props.children && typeof props.children === 'object' && Array.isArray(props.children[TREE_LEAF_KEY])) {
+        return props.children[TREE_LEAF_KEY]
+      }
+      return []
+    })
+    const childEntries = computed(() => {
+      if (!props.children || typeof props.children !== 'object' || Array.isArray(props.children)) {
+        return []
+      }
+      return Object.entries(props.children).filter(([key]) => key !== TREE_LEAF_KEY)
+    })
+    const isLeaf = computed(() => Array.isArray(props.children) || childEntries.value.length === 0)
     const childCount = computed(() => getTotalLeafCount(props.children))
 
     const toggleExpand = () => {
@@ -516,6 +570,8 @@ const PartitionTreeNode = defineComponent({
     return {
       isExpanded,
       isLeaf,
+      directLeaves,
+      childEntries,
       childCount,
       toggleExpand,
       handleLocationClick,
@@ -528,6 +584,8 @@ const PartitionTreeNode = defineComponent({
     const {
       isExpanded,
       isLeaf,
+      directLeaves,
+      childEntries,
       childCount,
       toggleExpand,
       handleLocationClick,
@@ -579,7 +637,7 @@ const PartitionTreeNode = defineComponent({
       isExpanded && h('div', { class: 'children-container' }, [
         isLeaf
           ? h('div', { class: 'leaf-list' },
-              children.map(item => {
+              directLeaves.map(item => {
                 const isSelected = selectionMode && selectedLocations.has(item)
                 const isDisabled = selectionMode && !isSelected && isAtLimit
                 return h('div', {
@@ -606,19 +664,51 @@ const PartitionTreeNode = defineComponent({
                 ])
               })
             )
-          : Object.entries(children).map(([key, value]) =>
-              h(PartitionTreeNode, {
-                key,
-                label: key,
-                children: value,
-                level: level + 1,
-                selectionMode,
-                selectedLocations,
-                maxSelection,
-                onToggleLocation: (location) => this.$emit('toggle-location', location),
-                onToggleSubtree: (subtree) => this.$emit('toggle-subtree', subtree)
-              })
-            )
+          : [
+              directLeaves.length > 0
+                ? h('div', { class: 'leaf-list' },
+                    directLeaves.map(item => {
+                      const isSelected = selectionMode && selectedLocations.has(item)
+                      const isDisabled = selectionMode && !isSelected && isAtLimit
+                      return h('div', {
+                        class: ['leaf-item', {
+                          selected: isSelected,
+                          disabled: isDisabled
+                        }],
+                        key: item,
+                        onClick: () => !isDisabled && handleLocationClick(item)
+                      }, [
+                        selectionMode && h('input', {
+                          type: 'checkbox',
+                          class: 'location-checkbox',
+                          checked: isSelected,
+                          disabled: isDisabled,
+                          onClick: (e) => {
+                            e.stopPropagation()
+                            if (!isDisabled) {
+                              handleLocationClick(item)
+                            }
+                          }
+                        }),
+                        h('span', { class: 'location-name' }, item)
+                      ])
+                    })
+                  )
+                : null,
+              childEntries.map(([key, value]) =>
+                h(PartitionTreeNode, {
+                  key,
+                  label: key,
+                  children: value,
+                  level: level + 1,
+                  selectionMode,
+                  selectedLocations,
+                  maxSelection,
+                  onToggleLocation: (location) => this.$emit('toggle-location', location),
+                  onToggleSubtree: (subtree) => this.$emit('toggle-subtree', subtree)
+                })
+              )
+            ]
       ])
     ])
   }

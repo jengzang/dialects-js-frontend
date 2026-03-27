@@ -769,7 +769,7 @@ async function loadCardsPage() {
     const response = await sqlQuery({
       db_key: 'yubao',
       table_name: tableName,
-      page_size: 9999,
+      page_size: 2000,
       page: 1,
       filters: filters,
       search_text: '',

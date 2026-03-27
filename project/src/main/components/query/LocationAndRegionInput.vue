@@ -247,7 +247,7 @@
 <script setup>
 import { ref, nextTick ,onMounted, onActivated, watch, computed,defineProps } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { getLocations, getCustomFeature, sqlQuery, batchMatch, getPartitions } from '@/api'
+import { getLocations, getCustomFeature, getLocationPartitions, batchMatch, getPartitions } from '@/api'
 import { useCustomRegionStore } from '@/main/store/customRegionStore'
 import RegionSelector from "@/main/components/query/RegionSelector.vue"
 import PartitionInfoModal from "@/main/components/query/PartitionInfoModal.vue"
@@ -1250,17 +1250,7 @@ const fetchPartitionData = async () => {
     }
 
     // 缓存不存在，从 API 获取
-    const response = await sqlQuery({
-      db_key: 'query',
-      table_name: 'dialects',
-      page: 1,
-      page_size: 9999,
-      sort_by: null,
-      sort_desc: false,
-      filters: {},
-      search_text: '',
-      search_columns: []
-    })
+    const response = await getLocationPartitions()
 
     partitionData.value = response.data || []
 

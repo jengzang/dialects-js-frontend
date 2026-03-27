@@ -77,6 +77,8 @@ export {
 // 地点查询
 export {
   getLocations,
+  getLocationDetail,
+  getLocationPartitions,
   batchMatch,
   getPartitions,
   getRegions

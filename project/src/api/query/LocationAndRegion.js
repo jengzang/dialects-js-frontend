@@ -57,6 +57,30 @@ export async function getLocations(params = {}) {
   }
 }
 
+export async function getLocationDetail(name) {
+  try {
+    const query = new URLSearchParams()
+    if (name) {
+      query.append('name', name)
+    }
+    return await api(`/api/locations/detail?${query.toString()}`)
+  } catch (error) {
+    console.error('Get location detail error:', error)
+    showError(error.message || 'Failed to fetch location detail')
+    throw new Error(error.message || 'Failed to fetch location detail')
+  }
+}
+
+export async function getLocationPartitions() {
+  try {
+    return await api('/api/locations/partitions')
+  } catch (error) {
+    console.error('Get location partitions error:', error)
+    showError(error.message || 'Failed to fetch partition data')
+    throw new Error(error.message || 'Failed to fetch partition data')
+  }
+}
+
 /**
  * 批量匹配地点
  * @param {string} inputString - 输入字符串（多个地点用逗号或空格分隔）
