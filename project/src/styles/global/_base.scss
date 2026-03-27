@@ -1,3 +1,94 @@
 /* Phase 1 note:
    Base element styles continue to come from ../_legacy.scss.
    This file reserves the global base layer for later migration. */
+
+.global-close-btn-base,
+.main-glass-modal-close,
+.main-query-modal-close,
+.main-tool-modal-close-base,
+.main-icon-close-btn {
+  appearance: none;
+  border: none;
+  background: transparent;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: inherit;
+  font: inherit;
+  transition: all 0.2s ease;
+}
+
+.global-toggle-switch {
+  position: relative;
+  width: 50px;
+  height: 30px;
+  border-radius: 15px;
+  border: none;
+  background: rgba(142, 142, 147, 0.3);
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.global-toggle-switch.active {
+  background: #007aff;
+}
+
+.global-toggle-switch-slider {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease;
+}
+
+.global-toggle-switch.active .global-toggle-switch-slider {
+  transform: translateX(20px);
+}
+
+.global-input-switch {
+  position: relative;
+  width: 44px;
+  height: 22px;
+  display: inline-block;
+}
+
+.global-input-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.global-input-switch-slider {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background-color: #ccc;
+  transition: 0.3s;
+  border-radius: 22px;
+}
+
+.global-input-switch-slider::before {
+  position: absolute;
+  content: '';
+  height: 16px;
+  width: 16px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: 0.3s;
+  border-radius: 50%;
+}
+
+.global-input-switch input:checked + .global-input-switch-slider {
+  background-color: #007aff;
+}
+
+.global-input-switch input:checked + .global-input-switch-slider::before {
+  transform: translateX(22px);
+}

@@ -53,17 +53,13 @@
 }
 
 .main-glass-modal-close {
-  appearance: none;
-  border: none;
   background: rgba(142, 142, 147, 0.15);
   width: 28px;
   height: 28px;
   border-radius: 10px;
-  cursor: pointer;
   font-size: 18px;
   line-height: 28px;
   color: #666;
-  transition: all 0.2s ease;
 }
 
 .main-glass-modal-close:hover {
@@ -139,13 +135,10 @@
 }
 
 .main-query-modal-close {
-  appearance: none;
-  border: none;
   background: var(--bg-hover-medium);
   width: 28px;
   height: 28px;
   border-radius: 10px;
-  cursor: pointer;
   font-size: 18px;
   line-height: 28px;
   color: var(--text-dark-lighter);
@@ -188,8 +181,6 @@
   background: rgba(255, 255, 255, 0.5);
   border: 1px solid rgba(255, 255, 255, 0.5);
   border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.2s ease;
 }
 
 .main-tool-modal-close-base:hover {
@@ -204,12 +195,6 @@
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  border: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.2s ease;
   z-index: 1;
 }
 

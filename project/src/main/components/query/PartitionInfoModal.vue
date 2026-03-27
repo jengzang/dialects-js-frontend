@@ -10,12 +10,12 @@
             <div class="selection-mode-toggle">
               <label class="toggle-label">{{ $t('query.components.partitionModal.enableSelection') }}</label>
               <button
-                  class="toggle-switch"
+                  class="toggle-switch global-toggle-switch"
                   :class="{ active: selectionMode }"
                   @click="toggleSelectionMode"
                   type="button"
               >
-                <span class="toggle-slider"></span>
+                <span class="toggle-slider global-toggle-switch-slider"></span>
               </button>
             </div>
 <!--          </div>-->
@@ -799,7 +799,7 @@ const PartitionTreeNode = defineComponent({
   color: var(--text-dark-medium);
 }
 
-.toggle-switch {
+.partition-toggle-switch-unused {
   position: relative;
   width: 50px;
   height: 30px;
@@ -810,11 +810,11 @@ const PartitionTreeNode = defineComponent({
   transition: background 0.3s ease;
 }
 
-.toggle-switch.active {
+.partition-toggle-switch-unused.active {
   background: #007aff;
 }
 
-.toggle-slider {
+.partition-toggle-slider-unused {
   position: absolute;
   top: 3px;
   left: 3px;
@@ -826,7 +826,7 @@ const PartitionTreeNode = defineComponent({
   transition: transform 0.3s ease;
 }
 
-.toggle-switch.active .toggle-slider {
+.partition-toggle-switch-unused.active .partition-toggle-slider-unused {
   transform: translateX(20px);
 }
 

@@ -226,13 +226,13 @@
                       </span>
                     </td>
                     <td>
-                      <label class="toggle-switch">
+                      <label class="toggle-switch global-input-switch">
                         <input
                           type="checkbox"
                           v-model="rule.enabled"
                           @change="updateStats"
                         />
-                        <span class="toggle-slider"></span>
+                        <span class="toggle-slider global-input-switch-slider"></span>
                       </label>
                     </td>
                     <td>
@@ -1273,20 +1273,20 @@ loadConfig()
 }
 
 /* Toggle开关 */
-.toggle-switch {
+.jyut2ipa-toggle-switch-unused {
   position: relative;
   width: 44px;
   height: 22px;
   display: inline-block;
 }
 
-.toggle-switch input {
+.jyut2ipa-toggle-switch-unused input {
   opacity: 0;
   width: 0;
   height: 0;
 }
 
-.toggle-slider {
+.jyut2ipa-toggle-slider-unused {
   position: absolute;
   cursor: pointer;
   top: 0;
@@ -1298,7 +1298,7 @@ loadConfig()
   border-radius: 22px;
 }
 
-.toggle-slider:before {
+.jyut2ipa-toggle-slider-unused:before {
   position: absolute;
   content: '';
   height: 16px;
@@ -1310,11 +1310,11 @@ loadConfig()
   border-radius: 50%;
 }
 
-.toggle-switch input:checked + .toggle-slider {
+.jyut2ipa-toggle-switch-unused input:checked + .jyut2ipa-toggle-slider-unused {
   background-color: #007aff;
 }
 
-.toggle-switch input:checked + .toggle-slider:before {
+.jyut2ipa-toggle-switch-unused input:checked + .jyut2ipa-toggle-slider-unused:before {
   transform: translateX(22px);
 }
 

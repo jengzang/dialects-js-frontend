@@ -4,7 +4,7 @@
       <div class="location-detail-modal glass-modal main-glass-modal" role="dialog" aria-modal="true" @click.stop>
         <div class="modal-header main-glass-modal-header">
           <div class="modal-title main-glass-modal-title">📍 {{ t('result.locationDetailPopup.title', { name: locationName }) }}</div>
-          <button class="modal-close main-glass-modal-close" type="button" :aria-label="t('common.button.close')" @click="$emit('close')">✕</button>
+          <button class="modal-close global-close-btn-base main-glass-modal-close" type="button" :aria-label="t('common.button.close')" @click="$emit('close')">✕</button>
         </div>
 
         <div class="modal-body main-glass-modal-body">
