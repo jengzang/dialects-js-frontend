@@ -1,5 +1,5 @@
 <template>
-  <div class="feature-toggles">
+  <div class="feature-toggles vm-subpanel-shell vm-subpanel-shell-spaced">
     <h4 class="section-title">特徵選擇</h4>
 
     <div class="setting-row">
@@ -27,7 +27,7 @@
     </div>
 
     <div v-if="modelValue.use_morphology" class="morphology-params">
-      <div class="setting-row indented">
+      <div class="setting-row indented vm-setting-indent">
         <label class="setting-label">Top N (2-gram)</label>
         <input
           type="number"
@@ -35,11 +35,11 @@
           @input="updateFeature('top_n_suffix2', parseInt($event.target.value))"
           min="10"
           max="500"
-          class="setting-input"
+          class="setting-input vm-setting-input-compact"
         />
       </div>
 
-      <div class="setting-row indented">
+      <div class="setting-row indented vm-setting-indent">
         <label class="setting-label">Top N (3-gram)</label>
         <input
           type="number"
@@ -47,7 +47,7 @@
           @input="updateFeature('top_n_suffix3', parseInt($event.target.value))"
           min="10"
           max="500"
-          class="setting-input"
+          class="setting-input vm-setting-input-compact"
         />
       </div>
     </div>
@@ -85,14 +85,6 @@ function updateFeature(key, value) {
 </script>
 
 <style scoped>
-.feature-toggles {
-  margin-top: 1.5rem;
-  padding: 1rem;
-  background: rgba(255, 255, 255, 0.5);
-  border-radius: 12px;
-  border: 1px solid rgba(0, 0, 0, 0.05);
-}
-
 .section-title {
   font-size: 1rem;
   font-weight: 600;
@@ -107,10 +99,6 @@ function updateFeature(key, value) {
   margin-bottom: 0.75rem;
 }
 
-.setting-row.indented {
-  margin-left: 1.5rem;
-}
-
 .setting-label {
   display: flex;
   align-items: center;
@@ -123,21 +111,6 @@ function updateFeature(key, value) {
 
 .setting-label input[type="checkbox"] {
   cursor: pointer;
-}
-
-.setting-input {
-  padding: 0.5rem;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.9);
-  font-size: 0.95rem;
-  width: 100px;
-}
-
-.setting-input:focus {
-  outline: none;
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
 }
 
 .setting-hint {

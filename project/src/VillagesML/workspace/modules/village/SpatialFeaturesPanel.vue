@@ -104,36 +104,6 @@ defineProps({
 </script>
 
 <style scoped>
-.spatial-features-panel {
-  padding: 24px;
-}
-
-.panel-title {
-  font-size: 20px;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin-bottom: 20px;
-}
-
-.loading-state {
-  text-align: center;
-  padding: 40px 20px;
-}
-
-.spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid rgba(74, 144, 226, 0.2);
-  border-top-color: var(--color-primary);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin: 0 auto 15px;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
 .spatial-content {
   animation: fadeIn 0.3s ease;
 }
@@ -153,9 +123,6 @@ defineProps({
 .spatial-item {
   display: flex;
   align-items: center;
-  padding: 16px;
-  background: rgba(255, 255, 255, 0.3);
-  border-radius: 12px;
   transition: transform 0.3s ease;
 }
 
@@ -196,8 +163,6 @@ defineProps({
 
 .map-placeholder {
   padding: 60px 20px;
-  background: rgba(255, 255, 255, 0.3);
-  border-radius: 12px;
   text-align: center;
 }
 
@@ -212,9 +177,4 @@ defineProps({
   color: var(--text-secondary);
 }
 
-.empty-state {
-  text-align: center;
-  padding: 40px 20px;
-  color: var(--text-secondary);
-}
 </style>

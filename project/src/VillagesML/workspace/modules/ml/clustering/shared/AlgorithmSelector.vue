@@ -7,7 +7,7 @@
         :options="algorithmOptions"
         @update:modelValue="$emit('update:modelValue', $event)"
       />
-      <span class="setting-hint">{{ algorithmHint }}</span>
+      <span class="setting-hint vm-setting-hint-muted">{{ algorithmHint }}</span>
     </div>
   </div>
 </template>
@@ -88,9 +88,4 @@ const algorithmHint = computed(() => {
   box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
 }
 
-.setting-hint {
-  font-size: 0.85rem;
-  color: #666;
-  font-style: italic;
-}
 </style>

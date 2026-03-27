@@ -1,1 +1,76 @@
-/* VillagesML workspace shell abstractions are intentionally deferred in phase 1. */
+.village-info-panel,
+.feature-vector-panel,
+.semantic-structure-panel,
+.spatial-features-panel,
+.ngram-panel {
+  padding: 24px;
+}
+
+.village-info-panel .panel-title,
+.feature-vector-panel .panel-title,
+.semantic-structure-panel .panel-title,
+.spatial-features-panel .panel-title,
+.ngram-panel .panel-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 20px;
+}
+
+.village-info-panel .loading-state,
+.feature-vector-panel .loading-state,
+.semantic-structure-panel .loading-state,
+.spatial-features-panel .loading-state,
+.ngram-panel .loading-state {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.village-info-panel .spinner,
+.feature-vector-panel .spinner,
+.semantic-structure-panel .spinner,
+.spatial-features-panel .spinner,
+.ngram-panel .spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(74, 144, 226, 0.2);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: vm-village-spin 1s linear infinite;
+  margin: 0 auto 15px;
+}
+
+.village-info-panel .empty-state,
+.feature-vector-panel .empty-state,
+.semantic-structure-panel .empty-state,
+.spatial-features-panel .empty-state,
+.ngram-panel .empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-secondary);
+}
+
+@keyframes vm-village-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.feature-vector-panel .feature-type,
+.feature-vector-panel .vector-visualization,
+.semantic-structure-panel .section,
+.ngram-panel .ngram-section,
+.ngram-panel .ngram-stats,
+.spatial-features-panel .spatial-item,
+.spatial-features-panel .map-placeholder {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+}
+
+.feature-vector-panel .feature-type,
+.semantic-structure-panel .section,
+.ngram-panel .ngram-section,
+.ngram-panel .ngram-stats,
+.spatial-features-panel .spatial-item {
+  padding: 16px;
+}

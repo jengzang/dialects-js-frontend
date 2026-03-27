@@ -1,5 +1,5 @@
 <template>
-  <div class="feature-toggles">
+  <div class="feature-toggles vm-subpanel-shell">
     <h4 class="section-title">特徵選擇</h4>
 
     <div class="setting-row">
@@ -53,13 +53,6 @@ function update(key, value) {
 </script>
 
 <style scoped>
-.feature-toggles {
-  padding: 16px;
-  background: rgba(255, 255, 255, 0.5);
-  border-radius: 12px;
-  border: 1px solid rgba(0, 0, 0, 0.05);
-}
-
 .section-title {
   font-size: 14px;
   font-weight: 600;
