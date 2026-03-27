@@ -17,9 +17,9 @@
           @click="toggleCustomSwitch"
         >
           <span class="switch-label-text">{{ t('map.mapLibre.controls.personalData') }}</span>
-          <div class="custom-switch global-custom-switch" :class="{ open: mapStore.showCustomData }" id="custom-toggle">
+          <div class="custom-switch global-custom-switch main-glow-switch" :class="{ open: mapStore.showCustomData }" id="custom-toggle">
             <span class="custom-slider global-custom-switch-slider">
-              <span id="switch-text" class="switch-text">
+              <span id="switch-text" class="switch-text main-glow-switch-text">
                 {{ mapStore.showCustomData ? t('map.mapLibre.controls.show') : t('map.mapLibre.controls.hide') }}
               </span>
             </span>
@@ -33,9 +33,9 @@
         >
           <span class="switch-label-text">{{ t('map.mapLibre.controls.viewPlaceNames') }}</span>
 
-          <div class="custom-switch global-custom-switch" :class="{ open: isBaseModeActive }" id="base-toggle">
+          <div class="custom-switch global-custom-switch main-glow-switch" :class="{ open: isBaseModeActive }" id="base-toggle">
             <span class="custom-slider global-custom-switch-slider">
-              <span class="switch-text">
+              <span class="switch-text main-glow-switch-text">
                 {{ isBaseModeActive ? t('map.mapLibre.controls.enabled') : t('map.mapLibre.controls.disabled') }}
               </span>
             </span>
@@ -1470,84 +1470,11 @@ const resetView = () => {
 }
 
 .custom-switch:hover {
-  background-color: dimgray;
-  box-shadow: 0 0 10px 4px rgba(0, 123, 255, 0.7);
   transform: scale(1.1);
-}
-
-.custom-switch:hover .custom-slider:before {
-  background-color: white;
-  box-shadow: 0 0 8px rgba(0, 123, 255, 0.5);
-}
-
-.custom-switch.open {
-  background-color: #007aff;
-  animation: blueGlow 2s infinite ease-in-out;
 }
 
 .custom-switch.open:hover {
-  background: linear-gradient(135deg, #00bfff, #66ccff);
   transform: scale(1.1);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
-}
-
-@keyframes blueGlow {
-  0% {
-    box-shadow: 0 0 5px rgba(0, 122, 255, 0.4),
-    0 0 10px rgba(0, 122, 255, 0.6),
-    0 0 20px rgba(0, 122, 255, 0.8),
-    0 0 30px rgba(0, 122, 255, 0.9);
-  }
-  50% {
-    box-shadow: 0 0 10px rgba(102, 204, 255, 0.6),
-    0 0 20px rgba(102, 204, 255, 0.8),
-    0 0 30px rgba(102, 204, 255, 1),
-    0 0 40px rgba(102, 204, 255, 1);
-  }
-  100% {
-    box-shadow: 0 0 5px rgba(0, 122, 255, 0.4),
-    0 0 10px rgba(0, 122, 255, 0.6),
-    0 0 20px rgba(0, 122, 255, 0.8),
-    0 0 30px rgba(0, 122, 255, 0.9);
-  }
-}
-
-.custom-switch.open:hover .custom-slider:before {
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-}
-
-.switch-text {
-  color: black;
-  font-size: 12px;
-  font-weight: bold;
-  text-transform: uppercase;
-  position: absolute;
-  z-index: 1;
-  transition: transform 0.3s ease, color 0.3s ease;
-  pointer-events: none;
-  top: 50%;
-  transform: translateY(-50%);
-}
-
-.custom-switch.open .switch-text {
-  color: black;
-  transform: translateX(-25px) translateY(-50%);
-  top: 50%;
-  position: absolute;
-  z-index: 1;
-  pointer-events: none;
-  transition: transform 0.3s ease, color 0.3s ease, text-shadow 0.3s ease;
-  animation: glowing 2s infinite linear;
-  white-space: nowrap;
-}
-
-@keyframes glowing {
-  0%, 100% {
-    text-shadow: 0 0 2px rgba(255, 255, 255, 0.5);
-  }
-  50% {
-    text-shadow: 0 0 4px rgba(255, 255, 255, 0.8);
-  }
 }
 
 /* 地名點擊彈窗樣式 */
