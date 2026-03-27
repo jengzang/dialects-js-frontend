@@ -111,6 +111,50 @@
   }
 }
 
+.main-query-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 20000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 18px;
+  background: var(--border-medium);
+  backdrop-filter: blur(7px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.main-query-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border-gray-lightest);
+}
+
+.main-query-modal-title {
+  font-size: 15px;
+  font-weight: 650;
+  color: var(--text-dark-light);
+}
+
+.main-query-modal-close {
+  appearance: none;
+  border: none;
+  background: var(--bg-hover-medium);
+  width: 28px;
+  height: 28px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 28px;
+  color: var(--text-dark-lighter);
+}
+
+.main-query-modal-close:hover {
+  background: var(--bg-hover-strong);
+}
+
 .main-icon-close-btn {
   position: absolute;
   top: 1rem;

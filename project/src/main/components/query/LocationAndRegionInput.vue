@@ -174,13 +174,13 @@
       <Teleport to="body">
         <div
             v-if="showLocationsModal"
-            class="glass-overlay"
+            class="glass-overlay main-query-modal-overlay"
             @mousedown.self="closeModal"
         >
           <div class="glass-modal" role="dialog" aria-modal="true">
-            <div class="modal-header">
-              <div class="modal-title">{{ $t('query.components.locationAndRegionInput.selectedLocationsModalTitle', { count: locationsResult.length }) }}</div>
-              <button class="modal-close" type="button" @click="closeModal">✕</button>
+            <div class="modal-header main-query-modal-header">
+              <div class="modal-title main-query-modal-title">{{ $t('query.components.locationAndRegionInput.selectedLocationsModalTitle', { count: locationsResult.length }) }}</div>
+              <button class="modal-close main-query-modal-close" type="button" @click="closeModal">✕</button>
             </div>
 
             <div class="modal-body">
@@ -203,13 +203,13 @@
     <Teleport to="body">
       <div
           v-if="showCustomModal"
-          class="glass-overlay"
+          class="glass-overlay main-query-modal-overlay"
           @mousedown.self="closeCustomModal"
       >
         <div class="glass-modal" role="dialog" aria-modal="true">
-          <div class="modal-header">
-            <div class="modal-title">{{ $t('query.components.locationAndRegionInput.customLocationsModalTitle', { count: customFeatureLocations.length }) }}</div>
-            <button class="modal-close" type="button" @click="closeCustomModal">✕</button>
+          <div class="modal-header main-query-modal-header">
+            <div class="modal-title main-query-modal-title">{{ $t('query.components.locationAndRegionInput.customLocationsModalTitle', { count: customFeatureLocations.length }) }}</div>
+            <button class="modal-close main-query-modal-close" type="button" @click="closeCustomModal">✕</button>
           </div>
 
           <div class="modal-body">
@@ -1600,7 +1600,7 @@ defineExpose({
 }
 
 /* 全局遮罩 + 玻璃彈層 */
-.glass-overlay {
+.location-region-glass-overlay-unused {
   position: fixed;
   inset: 0;
   z-index: 20000;
@@ -1626,7 +1626,7 @@ defineExpose({
   -webkit-backdrop-filter: blur(18px) saturate(160%);
 }
 
-.modal-header {
+.location-region-modal-header-unused {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1634,13 +1634,13 @@ defineExpose({
   border-bottom: 1px solid var(--border-gray-lightest);
 }
 
-.modal-title {
+.location-region-modal-title-unused {
   font-size: 15px;
   font-weight: 650;
   color: var(--text-dark-light);
 }
 
-.modal-close {
+.location-region-modal-close-unused {
   appearance: none;
   border: none;
   background: var(--bg-hover-medium);
@@ -1653,7 +1653,7 @@ defineExpose({
   color: var(--text-dark-lighter);
 }
 
-.modal-close:hover {
+.location-region-modal-close-unused:hover {
   background: var(--bg-hover-strong);
 }
 

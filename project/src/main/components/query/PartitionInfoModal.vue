@@ -1,11 +1,11 @@
 <template>
   <Teleport to="body">
-    <div v-if="modelValue" class="glass-overlay" @mousedown.self="closeModal">
+    <div v-if="modelValue" class="glass-overlay main-query-modal-overlay" @mousedown.self="closeModal">
       <div class="partition-info-modal glass-modal" role="dialog" aria-modal="true">
         <!-- 头部 -->
-        <div class="modal-header">
+        <div class="modal-header main-query-modal-header">
 <!--          <div class="header-left">-->
-            <div class="modal-title">🗂️ {{ $t('query.components.partitionModal.title') }}</div>
+            <div class="modal-title main-query-modal-title">🗂️ {{ $t('query.components.partitionModal.title') }}</div>
             <!-- 选择模式开关 -->
             <div class="selection-mode-toggle">
               <label class="toggle-label">{{ $t('query.components.partitionModal.enableSelection') }}</label>
@@ -19,7 +19,7 @@
               </button>
             </div>
 <!--          </div>-->
-          <button class="modal-close" type="button" @click="closeModal">×</button>
+          <button class="modal-close main-query-modal-close" type="button" @click="closeModal">×</button>
         </div>
 
         <!-- Tab 切换 + 确认按钮 -->
@@ -717,7 +717,7 @@ const PartitionTreeNode = defineComponent({
 
 <style scoped>
 /* Modal overlay */
-.glass-overlay {
+.partition-modal-glass-overlay-unused {
   position: fixed;
   inset: 0;
   z-index: 20000;
@@ -748,7 +748,7 @@ const PartitionTreeNode = defineComponent({
 }
 
 /* Modal header */
-.modal-header {
+.partition-modal-header-unused {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -762,13 +762,13 @@ const PartitionTreeNode = defineComponent({
   gap: 16px;
 }
 
-.modal-title {
+.partition-modal-title-unused {
   font-size: 15px;
   font-weight: 650;
   color: var(--text-dark-light);
 }
 
-.modal-close {
+.partition-modal-close-unused {
   appearance: none;
   border: none;
   background: var(--bg-hover-medium);
@@ -782,7 +782,7 @@ const PartitionTreeNode = defineComponent({
   transition: background 0.3s ease;
 }
 
-.modal-close:hover {
+.partition-modal-close-unused:hover {
   background: var(--bg-hover-strong);
 }
 
