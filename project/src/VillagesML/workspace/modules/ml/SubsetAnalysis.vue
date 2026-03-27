@@ -1255,13 +1255,8 @@ const handleApiError = (error) => {
 
 /* Glass Panel */
 .glass-panel {
-  background: var(--glass-heavy);
-  backdrop-filter: blur(10px);
-  border: 1px solid var(--glass-border);
-  border-radius: 16px;
   padding: 20px;
   margin-bottom: 24px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
   width: 100%;
   max-width: 100%;

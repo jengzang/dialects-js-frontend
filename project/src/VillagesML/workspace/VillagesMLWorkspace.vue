@@ -505,15 +505,6 @@ const handleAdjustParams = (action) => {
   to { opacity: 1; transform: translateY(0); }
 }
 
-.glass-panel {
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.15));
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  border-radius: 16px;
-  padding: 16px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-}
-
 .empty-state {
   display: flex;
   align-items: center;

@@ -452,13 +452,7 @@ onMounted(() => {
 }
 
 .glass-panel {
-  background: var(--glass-heavy);
-  backdrop-filter: blur(10px);
-  border: 1px solid var(--glass-border);
-  border-radius: 16px;
-  padding: 16px;
   margin-bottom: 24px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
 }
 
 .panel-header {
