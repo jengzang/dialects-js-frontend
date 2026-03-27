@@ -5,7 +5,7 @@ import '../env-config.js'
 import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
-import '../styles/index.scss'
+import '../styles/main-entry.scss'
 
 // 🍎 导入全局消息系统（会自动挂载到 window）
 import '../utils/message.js'
