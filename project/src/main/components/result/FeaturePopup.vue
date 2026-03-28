@@ -6,14 +6,14 @@
       :style="{ position: 'fixed', top: `${position.top}px`, left: `${position.left}px`, zIndex: 999999 }"
       @click.stop
     >
-      <div class="popup-content">
+      <div class="popup-content main-inline-popup-content">
         <p>📍 {{ t('result.terms.location') }}: {{ data.location }}</p>
         <p>🧩 {{ t('result.terms.feature') }}: {{ checkedFeatures }}</p>
         <p>🔍 {{ t('result.featurePopup.queryLabel') }}: {{ t('result.featurePopup.queryHint', { feature: data.feature || '' }) }}</p>
 
         <template v-for="field in unmatchedFields" :key="field">
           <button
-            class="mini-button"
+            class="mini-button main-inline-mini-button"
             style="font-size: 16px; margin: 0 2px;"
             @click="handleFieldClick(field)"
           >
@@ -122,43 +122,4 @@ onUnmounted(() => document.removeEventListener('click', handleGlobalClick));
   }
 }
 
-.popup-content {
-  font-family: 'Arial', sans-serif;
-  color: #333;
-  text-align: center;
-}
-
-.mini-button {
-  margin-top: 2px;
-  padding: 1px 2px;
-  font-size: 11px;
-  background-color: #007aff;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.2s ease, transform 0.2s ease;
-}
-
-.mini-button:hover {
-  background-color: #005fcc;
-  transform: scale(1.2);
-}
-
-.mini-button-delete {
-  margin-top: 2px;
-  padding: 1px 2px;
-  font-size: 11px;
-  background-color: #8B0000;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.2s ease, transform 0.2s ease;
-}
-
-.mini-button-delete:hover {
-  background-color: #A52A2A;
-  transform: scale(1.2);
-}
 </style>
