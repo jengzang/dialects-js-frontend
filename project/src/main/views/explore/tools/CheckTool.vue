@@ -2,7 +2,7 @@
   <div class="check-tool-container">
     <!-- 欢迎屏幕 -->
     <div v-if="!fileUploaded" class="welcome-screen">
-      <div class="glass-container welcome-card">
+      <div class="glass-container tool-glass-container welcome-card">
         <div class="welcome-icon">📋</div>
         <h2 class="title">{{ t('tools.checkTool.welcome.title') }}</h2>
 <!--        <p class="subtitle">上傳文件開始檢查和編輯</p>-->
@@ -589,11 +589,11 @@
 
     <!-- 批量替换对话框 -->
     <teleport to="body">
-      <div v-if="showBatchReplaceModal" class="modal-overlay main-tool-modal-overlay" @click.self="showBatchReplaceModal = false">
-        <div class="modal-content main-tool-modal-shell glass-panel">
+      <div v-if="showBatchReplaceModal" class="modal-overlay tool-modal-overlay" @click.self="showBatchReplaceModal = false">
+        <div class="modal-content tool-modal-shell glass-panel">
           <div class="modal-header">
             <h3>🔄 {{ t('tools.checkTool.batchReplace.title') }}</h3>
-            <button class="close-btn close-btn-base main-tool-modal-close-base" @click="showBatchReplaceModal = false">×</button>
+            <button class="close-btn close-btn-base tool-modal-close-base" @click="showBatchReplaceModal = false">×</button>
           </div>
 
           <div class="modal-body">
@@ -654,11 +654,11 @@
 
     <!-- 帮助对话框 -->
     <teleport to="body">
-      <div v-if="showHelpModal" class="modal-overlay main-tool-modal-overlay" @click.self="showHelpModal = false">
-        <div class="modal-content main-tool-modal-shell glass-panel help-modal">
+      <div v-if="showHelpModal" class="modal-overlay tool-modal-overlay" @click.self="showHelpModal = false">
+        <div class="modal-content tool-modal-shell glass-panel help-modal">
           <div class="modal-header">
             <h3>❓ {{ t('tools.checkTool.help.title') }}</h3>
-            <button class="close-btn close-btn-base main-tool-modal-close-base" @click="showHelpModal = false">×</button>
+            <button class="close-btn close-btn-base tool-modal-close-base" @click="showHelpModal = false">×</button>
           </div>
 
           <div class="modal-body help-content custom-scrollbar">
@@ -746,11 +746,11 @@
 
     <!-- 文件格式说明对话框 -->
     <teleport to="body">
-      <div v-if="showFormatHelpModal" class="modal-overlay main-tool-modal-overlay" @click.self="showFormatHelpModal = false">
-        <div class="modal-content main-tool-modal-shell glass-panel help-modal">
+      <div v-if="showFormatHelpModal" class="modal-overlay tool-modal-overlay" @click.self="showFormatHelpModal = false">
+        <div class="modal-content tool-modal-shell glass-panel help-modal">
           <div class="modal-header">
             <h3>📋 {{ t('tools.checkTool.formatHelp.title') }}</h3>
-            <button class="close-btn close-btn-base main-tool-modal-close-base" @click="showFormatHelpModal = false">×</button>
+            <button class="close-btn close-btn-base tool-modal-close-base" @click="showFormatHelpModal = false">×</button>
           </div>
 
           <div class="modal-body help-content custom-scrollbar">
@@ -826,11 +826,11 @@
 
     <!-- 调值字符显示对话框 -->
     <teleport to="body">
-      <div v-if="showToneCharsModal" class="modal-overlay main-tool-modal-overlay" @click.self="showToneCharsModal = false">
-        <div class="modal-content main-tool-modal-shell glass-panel">
+      <div v-if="showToneCharsModal" class="modal-overlay tool-modal-overlay" @click.self="showToneCharsModal = false">
+        <div class="modal-content tool-modal-shell glass-panel">
           <div class="modal-header">
             <h3>📊 {{ toneCharsModalTitle }}</h3>
-            <button class="close-btn close-btn-base main-tool-modal-close-base" @click="showToneCharsModal = false">×</button>
+            <button class="close-btn close-btn-base tool-modal-close-base" @click="showToneCharsModal = false">×</button>
           </div>
 
           <div class="modal-body">
@@ -848,13 +848,13 @@
 
     <!-- 列筛选对话框 -->
     <teleport to="body">
-      <div v-if="showFilterModal" class="modal-overlay main-tool-modal-overlay" @click.self="showFilterModal = false">
-        <div class="modal-content main-tool-modal-shell glass-panel filter-modal">
+      <div v-if="showFilterModal" class="modal-overlay tool-modal-overlay" @click.self="showFilterModal = false">
+        <div class="modal-content tool-modal-shell glass-panel filter-modal">
           <div class="modal-header">
             <h3>
               🔍 {{ t('tools.checkTool.filter.title', { column: getFilterColumnLabel(filterColumnType) }) }}
             </h3>
-            <button class="close-btn close-btn-base main-tool-modal-close-base" @click="showFilterModal = false">×</button>
+            <button class="close-btn close-btn-base tool-modal-close-base" @click="showFilterModal = false">×</button>
           </div>
 
           <div class="modal-body filter-modal-body">
@@ -2851,12 +2851,6 @@ justify-content: center;
 
 /* 通用样式 */
 .glass-container {
-  background: rgba(255, 255, 255, 0.65);
-  backdrop-filter: blur(25px) saturate(180%);
-  -webkit-backdrop-filter: blur(25px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  border-radius: 30px;
-  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
 }
 
 .glass-panel {

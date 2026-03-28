@@ -1,6 +1,6 @@
 <template>
   <div class="merge-tool-container">
-    <div class="glass-container">
+    <div class="glass-container tool-glass-container">
       <div class="header-section">
         <h2 class="title">{{ t('tools.merge.page.title') }}</h2>
         <p class="subtitle">{{ t('tools.merge.page.subtitle') }}</p>
@@ -252,8 +252,8 @@
       </div>
     </div>
 
-    <div v-if="showDefaultRefModal" class="modal-overlay" @click.self="showDefaultRefModal = false">
-      <div class="modal-container">
+    <div v-if="showDefaultRefModal" class="modal-overlay tool-modal-overlay" @click.self="showDefaultRefModal = false">
+      <div class="modal-container tool-modal-shell large-modal">
         <div class="modal-header">
           <h3 class="modal-title">📋 {{ t('tools.merge.modal.title') }}</h3>
           <button class="close-btn" :title="t('tools.common.close')" @click="showDefaultRefModal = false">✕</button>
@@ -709,12 +709,6 @@ const reset = () => {
 
 .glass-container {
   width: min(95vw, 900px);
-  background: rgba(255, 255, 255, 0.65);
-  backdrop-filter: blur(25px) saturate(180%);
-  -webkit-backdrop-filter: blur(25px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  border-radius: 30px;
-  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
   padding: 30px 40px;
   display: flex;
   flex-direction: column;
@@ -1302,18 +1296,8 @@ const reset = () => {
 }
 
 .modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
   padding: 20px 28px;
   border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-}
-
-.modal-title {
-  font-size: 20px;
-  font-weight: 600;
-  color: #0b2540;
-  margin: 0;
 }
 
 .close-btn {

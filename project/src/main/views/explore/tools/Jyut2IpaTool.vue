@@ -1,6 +1,6 @@
 <template>
   <div class="jyut2ipa-container">
-    <div class="glass-container">
+    <div class="glass-container tool-glass-container">
       <div class="header-section">
         <h2 class="title">{{ t('tools.jyut2ipa.page.title') }}</h2>
         <p class="subtitle">{{ t('tools.jyut2ipa.page.subtitle') }}</p>
@@ -133,8 +133,8 @@
     </div>
 
     <transition name="modal">
-      <div class="modal-overlay main-tool-modal-overlay" v-if="showConfigModal" @click.self="showConfigModal = false">
-        <div class="modal-content main-tool-modal-shell large-modal">
+      <div class="modal-overlay tool-modal-overlay" v-if="showConfigModal" @click.self="showConfigModal = false">
+        <div class="modal-content tool-modal-shell large-modal">
           <div class="modal-header">
             <div class="header-left">
               <h3 class="modal-title">⚙️ {{ t('tools.jyut2ipa.modal.title') }}</h3>
@@ -169,7 +169,7 @@
                 📥
               </button>
               <button
-                class="close-btn close-btn-base main-tool-modal-close-base"
+                class="close-btn close-btn-base tool-modal-close-base"
                 :title="t('tools.common.close')"
                 @click="showConfigModal = false"
               >
@@ -643,12 +643,6 @@ loadConfig()
 
 .glass-container {
   width: min(95dvw, 800px);
-  background: rgba(255, 255, 255, 0.65);
-  backdrop-filter: blur(25px) saturate(180%);
-  -webkit-backdrop-filter: blur(25px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  border-radius: 30px;
-  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
   padding: 40px;
   display: flex;
   flex-direction: column;
@@ -1036,9 +1030,6 @@ loadConfig()
 }
 
 .modal-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
   padding: 20px 32px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.5);
 }
@@ -1051,10 +1042,6 @@ loadConfig()
 }
 
 .modal-title {
-  font-size: 20px;
-  font-weight: 600;
-  color: #0b2540;
-  margin: 0;
   white-space: nowrap;
 }
 
