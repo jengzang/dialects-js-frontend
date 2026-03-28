@@ -304,13 +304,19 @@
 
     <!-- 查看全部弹窗 -->
     <Teleport to="body">
-      <div v-if="showAllModal" class="modal-overlay" @click.self="showAllModal = false">
+      <div
+        v-if="showAllModal"
+        class="modal-overlay main-modal-overlay-base"
+        @click.self="showAllModal = false"
+      >
         <div class="modal-content">
-          <div class="modal-header">
-            <h3>{{ t('words.yuBaoPage.modal.allItemsTitle', { name: activeTabLabel }) }}</h3>
+          <div class="modal-header main-modal-header-base">
+            <h3 class="main-modal-title-base">
+              {{ t('words.yuBaoPage.modal.allItemsTitle', { name: activeTabLabel }) }}
+            </h3>
             <button class="modal-close" @click="showAllModal = false">×</button>
           </div>
-          <div class="modal-body">
+          <div class="modal-body main-modal-body-base">
             <div class="search-in-modal">
               <input
                   v-model="modalSearchQuery"

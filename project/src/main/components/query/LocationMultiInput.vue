@@ -67,15 +67,17 @@
     <Teleport to="body">
       <div
         v-if="showModal"
-        class="modal-overlay"
+        class="modal-overlay main-modal-overlay-base"
         @mousedown.self="showModal = false"
       >
         <div class="modal-content">
-          <div class="modal-header">
-            <h3>{{ $t('query.components.locationMultiInput.modalTitle', { count: matchedLocations.length }) }}</h3>
+          <div class="modal-header main-modal-header-base">
+            <h3 class="main-modal-title-base">
+              {{ $t('query.components.locationMultiInput.modalTitle', { count: matchedLocations.length }) }}
+            </h3>
             <button class="close-btn" @click="showModal = false">×</button>
           </div>
-          <div class="modal-body">
+          <div class="modal-body main-modal-body-base">
             <div class="locations-list">
               <span
                 v-for="(loc, idx) in matchedLocations"

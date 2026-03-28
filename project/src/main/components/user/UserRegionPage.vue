@@ -108,10 +108,10 @@
     </div>
 
     <Teleport to="body">
-      <div v-if="showEditModal" class="modal-overlay" @click.self="closeEditModal">
+      <div v-if="showEditModal" class="modal-overlay main-modal-overlay-base" @click.self="closeEditModal">
         <div class="modal-content">
-          <div class="modal-header">
-            <h2>
+          <div class="modal-header main-modal-header-base">
+            <h2 class="main-modal-title-base">
               {{
                 editingRegion.id
                   ? t('user.regionPage.modal.editTitle')
@@ -119,14 +119,14 @@
               }}
             </h2>
             <button
-              class="close-btn"
+              class="close-btn global-close-btn-base main-modal-close-base main-modal-close-round"
               :aria-label="t('common.button.close')"
               @click="closeEditModal"
             >
               ✕
             </button>
           </div>
-          <div class="modal-body">
+          <div class="modal-body main-modal-body-base">
             <div class="form-group">
               <label class="form-label">{{ t('user.regionPage.form.nameLabel') }}</label>
               <textarea

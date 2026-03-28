@@ -157,13 +157,19 @@
     </div>
 
     <Teleport to="body">
-      <div v-if="showBatchEditModal" class="modal-overlay" @click.self="closeBatchEditModal">
+      <div
+        v-if="showBatchEditModal"
+        class="modal-overlay main-modal-overlay-base"
+        @click.self="closeBatchEditModal"
+      >
         <div class="modal-content modal-large">
-          <div class="modal-header">
-            <h3>{{ t('user.dataPage.batchEdit.title', { count: batchEditRows.length }) }}</h3>
+          <div class="modal-header main-modal-header-base">
+            <h3 class="main-modal-title-base">
+              {{ t('user.dataPage.batchEdit.title', { count: batchEditRows.length }) }}
+            </h3>
             <button class="modal-close" @click="closeBatchEditModal">×</button>
           </div>
-          <div class="modal-body">
+          <div class="modal-body main-modal-body-base">
             <p class="hint">💡 {{ t('user.dataPage.batchEdit.hint') }}</p>
             <div class="batch-table-wrapper">
               <table class="batch-table">
@@ -207,13 +213,17 @@
     </Teleport>
 
     <Teleport to="body">
-      <div v-if="showBatchCreateModal" class="modal-overlay" @click.self="closeBatchCreateModal">
+      <div
+        v-if="showBatchCreateModal"
+        class="modal-overlay main-modal-overlay-base"
+        @click.self="closeBatchCreateModal"
+      >
         <div class="modal-content modal-large">
-          <div class="modal-header">
-            <h3>{{ t('user.dataPage.batchCreate.title') }}</h3>
+          <div class="modal-header main-modal-header-base">
+            <h3 class="main-modal-title-base">{{ t('user.dataPage.batchCreate.title') }}</h3>
             <button class="modal-close" @click="closeBatchCreateModal">×</button>
           </div>
-          <div class="modal-body">
+          <div class="modal-body main-modal-body-base">
             <p class="hint">💡 {{ t('user.dataPage.batchCreate.hint') }}</p>
             <div class="batch-table-controls">
               <button class="btn-add-row" @click="addBatchRow">
@@ -272,13 +282,17 @@
     </Teleport>
 
     <Teleport to="body">
-      <div v-if="showEditModal" class="modal-overlay" @click.self="closeEditModal">
+      <div
+        v-if="showEditModal"
+        class="modal-overlay main-modal-overlay-base"
+        @click.self="closeEditModal"
+      >
         <div class="modal-content">
-          <div class="modal-header">
-            <h3>{{ t('user.dataPage.singleEdit.title') }}</h3>
+          <div class="modal-header main-modal-header-base">
+            <h3 class="main-modal-title-base">{{ t('user.dataPage.singleEdit.title') }}</h3>
             <button class="modal-close" @click="closeEditModal">×</button>
           </div>
-          <div class="modal-body">
+          <div class="modal-body main-modal-body-base">
             <div class="form-group">
               <label>{{ t('user.dataPage.table.shortNameRequired') }}</label>
               <input v-model="editingRecord.簡稱" />
