@@ -1,20 +1,25 @@
 <template>
-  <div class="choice-selector" role="tablist" :aria-label="ariaLabel">
-    <button
+  <div class="card-group choice-selector" role="tablist" :aria-label="ariaLabel">
+    <div
       v-for="(option, index) in options"
       :key="option.value"
-      type="button"
-      class="choice-selector-item"
+      class="card-group-item choice-selector-item"
       :class="{
         active: modelValue === option.value,
         first: index === 0,
-        last: index === options.length - 1
+        last: index === options.length - 1,
+        disabled
       }"
-      :disabled="disabled"
+      role="tab"
+      :tabindex="disabled ? -1 : 0"
+      :aria-selected="modelValue === option.value"
+      :aria-disabled="disabled"
       @click="handleSelect(option.value)"
+      @keydown.enter.prevent="handleSelect(option.value)"
+      @keydown.space.prevent="handleSelect(option.value)"
     >
       {{ option.label }}
-    </button>
+    </div>
   </div>
 </template>
 
@@ -49,7 +54,7 @@ function handleSelect(value) {
 </script>
 
 <style scoped>
-.choice-selector {
+.card-group {
   display: flex;
   flex-direction: row;
   border-radius: 12px;
@@ -60,12 +65,16 @@ function handleSelect(value) {
   box-shadow: var(--shadow-md);
 }
 
-.choice-selector-item {
+.card-group-item {
   padding: 10px 16px;
   flex: 1;
   text-align: center;
   cursor: pointer;
   font-weight: 500;
+  font-size: inherit;
+  line-height: inherit;
+  color: inherit;
+  user-select: none;
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border: 1px solid var(--color-primary-medium);
@@ -75,36 +84,35 @@ function handleSelect(value) {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  background: transparent;
 }
 
-.choice-selector-item:hover:not(:disabled) {
+.card-group-item:hover:not(.disabled) {
   background: var(--glass-medium);
 }
 
-.choice-selector-item:disabled {
+.card-group-item.disabled {
   cursor: not-allowed;
   opacity: 0.65;
 }
 
-.choice-selector-item.first {
+.card-group-item.first {
   border-radius: 12px 0 0 12px;
   border-left-color: var(--color-primary-medium);
 }
 
-.choice-selector-item.last {
+.card-group-item.last {
   border-radius: 0 12px 12px 0;
   border-right-color: var(--color-primary-medium);
 }
 
-.choice-selector-item.active {
+.card-group-item.active {
   background: var(--color-primary-medium);
   color: var(--color-primary);
   font-weight: 600;
 }
 
 @media (max-aspect-ratio: 1/1) {
-  .choice-selector-item {
+  .card-group-item {
     padding: 12px 12px;
   }
 }
