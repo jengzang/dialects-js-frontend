@@ -1028,7 +1028,6 @@ onMounted(() => {
 
 .modal-body {
   padding: 20px;
-  overflow-y: auto;
   flex: 1;
 }
 

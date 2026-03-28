@@ -38,6 +38,7 @@
 .modal-body-base {
   flex: 1;
   min-height: 0;
+  overflow-y: auto;
 }
 
 .modal-close-base {

@@ -780,7 +780,6 @@ const getToneData = (data) => {
 
 .modal-body {
   padding: 20px 24px;
-  overflow-y: auto;
   flex: 1;
 }
 
