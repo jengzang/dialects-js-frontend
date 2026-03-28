@@ -2867,55 +2867,6 @@ justify-content: center;
   border-radius: 16px;
 }
 
-.glass-button {
-  padding: 8px 16px;
-  background: rgba(255, 255, 255, 0.4);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  border-radius: 10px;
-  color: #0b2540;
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  white-space: nowrap;
-}
-
-.glass-button:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.6);
-  transform: translateY(-1px);
-}
-
-.glass-button.primary {
-  background: linear-gradient(135deg, rgba(0, 122, 255, 0.8), rgba(0, 122, 255, 0.6));
-  color: white;
-  border-color: rgba(0, 122, 255, 0.6);
-}
-
-.glass-button.primary:hover:not(:disabled) {
-  background: linear-gradient(135deg, rgba(0, 122, 255, 0.9), rgba(0, 122, 255, 0.7));
-  box-shadow: 0 4px 20px rgba(0, 122, 255, 0.3);
-}
-
-.glass-button.secondary {
-  background: rgba(255, 255, 255, 0.5);
-}
-
-.glass-button.small {
-  padding: 6px 12px;
-  font-size: 12px;
-}
-
-.glass-button.active {
-  background: rgba(0, 122, 255, 0.2);
-  border-color: rgba(0, 122, 255, 0.5);
-}
-
-.glass-button:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
 .glass-input {
   padding: 8px 12px;
   background: rgba(255, 255, 255, 0.6);

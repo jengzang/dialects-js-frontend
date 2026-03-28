@@ -59,3 +59,53 @@
   padding: 8px 16px;
   font-size: 13px;
 }
+
+.check-tool-container .glass-button {
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 10px;
+  color: #0b2540;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.check-tool-container .glass-button:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.6);
+  transform: translateY(-1px);
+}
+
+.check-tool-container .glass-button.primary {
+  background: linear-gradient(135deg, rgba(0, 122, 255, 0.8), rgba(0, 122, 255, 0.6));
+  color: white;
+  border-color: rgba(0, 122, 255, 0.6);
+}
+
+.check-tool-container .glass-button.primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, rgba(0, 122, 255, 0.9), rgba(0, 122, 255, 0.7));
+  box-shadow: 0 4px 20px rgba(0, 122, 255, 0.3);
+}
+
+.check-tool-container .glass-button.secondary {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.check-tool-container .glass-button.small {
+  padding: 6px 12px;
+  font-size: 12px;
+}
+
+.check-tool-container .glass-button.active {
+  background: rgba(0, 122, 255, 0.2);
+  border-color: rgba(0, 122, 255, 0.5);
+}
+
+.check-tool-container .glass-button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
