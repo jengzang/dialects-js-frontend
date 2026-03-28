@@ -67,15 +67,15 @@
     <Teleport to="body">
       <div
         v-if="showModal"
-        class="modal-overlay modal-overlay-base"
+        class="modal-overlay modal-overlay-base query-modal-overlay"
         @mousedown.self="showModal = false"
       >
         <div class="modal-content">
-          <div class="modal-header modal-header-base">
-            <h3 class="modal-title-base">
+          <div class="modal-header modal-header-base query-modal-header">
+            <h3 class="modal-title-base query-modal-title">
               {{ $t('query.components.locationMultiInput.modalTitle', { count: matchedLocations.length }) }}
             </h3>
-            <button class="close-btn" @click="showModal = false">×</button>
+            <button class="close-btn close-btn-base query-modal-close" @click="showModal = false">×</button>
           </div>
           <div class="modal-body modal-body-base">
             <div class="locations-list">
@@ -686,16 +686,7 @@ watch(showPartitionInfoModal, (isVisible) => {
 }
 
 .modal-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 20000;
-  display: flex;
-  justify-content: center;
-  align-items: center;
   padding: 18px;
-  background: var(--border-medium);
-  backdrop-filter: blur(7px);
-  -webkit-backdrop-filter: blur(7px);
 }
 
 .modal-content {
@@ -711,35 +702,18 @@ watch(showPartitionInfoModal, (isVisible) => {
 }
 
 .modal-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
   padding: 14px 18px;
-  border-bottom: 1px solid var(--border-gray-lightest);
 }
 
-.modal-header h3 {
-  margin: 0;
+.modal-title-base {
   font-size: 16px;
-  font-weight: 650;
-  color: var(--text-dark-light);
 }
 
 .close-btn {
-  background: var(--bg-hover-medium);
-  border: none;
   width: 30px;
   height: 30px;
-  border-radius: var(--radius-md);
-  cursor: pointer;
   font-size: 20px;
   line-height: 30px;
-  color: var(--text-dark-lighter);
-  transition: all 0.2s ease;
-}
-
-.close-btn:hover {
-  background: var(--bg-hover-strong);
 }
 
 .modal-body {
