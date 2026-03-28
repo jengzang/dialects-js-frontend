@@ -1,7 +1,7 @@
 <template>
   <Teleport to="body">
     <Transition name="modal-fade">
-      <div v-if="visible" class="modal-overlay modal-overlay-base" @click.self="handleClose">
+      <div v-if="visible" class="modal-overlay modal-overlay-base overlay-dim-md" @click.self="handleClose">
         <div class="map-modal-container" :class="{ fullscreen: isFullscreen }">
           <div v-if="!isFullscreen" class="modal-header modal-header-base">
             <h3 class="modal-title-base">{{ t('map.villageMapPopup.title') }}</h3>
@@ -568,15 +568,7 @@ onBeforeUnmount(() => {
 <style scoped>
 /* 遮罩层 */
 .modal-overlay {
-  position: fixed;
-  inset: 0;
   z-index: 1000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
 }
 
 /* 地图容器 */
