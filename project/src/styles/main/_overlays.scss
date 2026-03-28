@@ -190,6 +190,14 @@
   background: var(--bg-hover-strong);
 }
 
+.crud-modal-overlay {
+  z-index: 10000;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
 .tool-modal-overlay {
   position: fixed;
   top: 0;

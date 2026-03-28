@@ -108,7 +108,7 @@
     </div>
 
     <Teleport to="body">
-      <div v-if="showEditModal" class="modal-overlay modal-overlay-base" @click.self="closeEditModal">
+      <div v-if="showEditModal" class="modal-overlay modal-overlay-base crud-modal-overlay" @click.self="closeEditModal">
         <div class="modal-content">
           <div class="modal-header modal-header-base">
             <h2 class="modal-title-base">
@@ -893,18 +893,6 @@ onMounted(() => {
 }
 
 .modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(4px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-  padding: 20px;
 }
 
 .modal-content {

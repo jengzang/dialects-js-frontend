@@ -159,7 +159,7 @@
     <Teleport to="body">
       <div
         v-if="showBatchEditModal"
-        class="modal-overlay modal-overlay-base"
+        class="modal-overlay modal-overlay-base crud-modal-overlay"
         @click.self="closeBatchEditModal"
       >
         <div class="modal-content modal-large">
@@ -215,7 +215,7 @@
     <Teleport to="body">
       <div
         v-if="showBatchCreateModal"
-        class="modal-overlay modal-overlay-base"
+        class="modal-overlay modal-overlay-base crud-modal-overlay"
         @click.self="closeBatchCreateModal"
       >
         <div class="modal-content modal-large">
@@ -284,7 +284,7 @@
     <Teleport to="body">
       <div
         v-if="showEditModal"
-        class="modal-overlay modal-overlay-base"
+        class="modal-overlay modal-overlay-base crud-modal-overlay"
         @click.self="closeEditModal"
       >
         <div class="modal-content">
@@ -999,15 +999,6 @@ onMounted(() => {
 
 /* Modal styles */
 .modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(8px);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 10000;
-  padding: 20px;
 }
 
 .modal-content {
