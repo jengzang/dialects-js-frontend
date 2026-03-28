@@ -1,6 +1,6 @@
 <template>
   <div class="merge-tool-container">
-    <div class="glass-container tool-glass-container">
+    <div class="glass-container glass-container-shell">
       <div class="header-section">
         <h2 class="title">{{ t('tools.merge.page.title') }}</h2>
         <p class="subtitle">{{ t('tools.merge.page.subtitle') }}</p>

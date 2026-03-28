@@ -1,5 +1,5 @@
 <template>
-  <div class="glass-container">
+  <div class="glass-container glass-container-shell">
     <div class="header-section">
       <div class="title-row">
         <h2 style="margin: 0;">{{ t('villages.pages.yangChun.title') }}</h2>
@@ -145,11 +145,6 @@ const displayData = computed(() => {
   width: 60dvw;
   height: 95%;
   margin: 20px auto;
-  border-radius: 30px;
-  background: rgba(255, 255, 255, 0.65);
-  backdrop-filter: blur(25px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
   display: flex;
   flex-direction: column;
   overflow: hidden;

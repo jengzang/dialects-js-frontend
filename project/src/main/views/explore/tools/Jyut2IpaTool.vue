@@ -1,6 +1,6 @@
 <template>
   <div class="jyut2ipa-container">
-    <div class="glass-container tool-glass-container">
+    <div class="glass-container glass-container-shell">
       <div class="header-section">
         <h2 class="title">{{ t('tools.jyut2ipa.page.title') }}</h2>
         <p class="subtitle">{{ t('tools.jyut2ipa.page.subtitle') }}</p>
