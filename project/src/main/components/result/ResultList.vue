@@ -66,10 +66,10 @@
         </div>
 
         <div id="toggleColumnsBtn" @click="isCondensedMode = !isCondensedMode" class="custom-switch-container">
-          <div class="custom-switch global-custom-switch main-glow-switch" :class="{ open: !isCondensedMode }">
-            <div class="custom-slider global-custom-switch-slider"></div>
+          <div class="result-custom-switch global-custom-switch main-glow-switch" :class="{ open: !isCondensedMode }">
+            <div class="result-custom-slider global-custom-switch-slider"></div>
           </div>
-          <span class="switch-text main-glow-switch-text">{{ !isCondensedMode ? t('result.resultList.displayMode.full') : t('result.resultList.displayMode.main') }}</span>
+          <span class="result-switch-text main-glow-switch-text">{{ !isCondensedMode ? t('result.resultList.displayMode.full') : t('result.resultList.displayMode.main') }}</span>
         </div>
       </div>
     </div>
@@ -553,15 +553,15 @@ onUnmounted(() => {
   font-size: 16px;
 }
 
-.custom-switch {
+.result-custom-switch {
   cursor: pointer;
 }
 
-.custom-switch:hover {
+.result-custom-switch:hover {
   transform: scale(1.3);
 }
 
-.custom-switch.open:hover {
+.result-custom-switch.open:hover {
   transform: scale(1.3);
 }
 
@@ -777,124 +777,6 @@ onUnmounted(() => {
 <!--}-->
 
 <!--.stickybar-filter-option input[type="checkbox"] {-->
-<!--    margin-right: 6px;-->
-<!--}-->
-
-<!--/* ========================================-->
-<!--   Custom Switch Toggle-->
-<!--   ======================================== */-->
-<!--.custom-switch-container {-->
-<!--    position: absolute;-->
-<!--    right: 5%;-->
-<!--    transform: translateX(-50%);-->
-<!--    display: flex;-->
-<!--    align-items: center;-->
-<!--    justify-content: center;-->
-<!--    font-family: 'Arial', sans-serif;-->
-<!--    font-size: 16px;-->
-<!--}-->
-
-<!--.custom-switch {-->
-<!--    position: relative;-->
-<!--    cursor: pointer;-->
-<!--    width: 50px;-->
-<!--    height: 30px;-->
-<!--    background-color: #ccc;-->
-<!--    border-radius: 30px;-->
-<!--    display: flex;-->
-<!--    align-items: center;-->
-<!--    justify-content: center;-->
-<!--    transition: background-color 0.3s ease;-->
-<!--}-->
-
-<!--.custom-slider:before {-->
-<!--    content: "";-->
-<!--    position: absolute;-->
-<!--    top: 2px;-->
-<!--    left: 2px;-->
-<!--    width: 26px;-->
-<!--    height: 26px;-->
-<!--    background-color: white;-->
-<!--    border-radius: 50%;-->
-<!--    transition: all 0.3s ease;-->
-<!--}-->
-
-<!--.custom-switch.open .custom-slider:before {-->
-<!--    transform: translateX(20px);-->
-<!--}-->
-
-<!--.custom-switch:hover {-->
-<!--    background-color: dimgray;-->
-<!--    box-shadow: 0 0 10px 4px rgba(0, 123, 255, 0.7);-->
-<!--    transform: scale(1.3);-->
-<!--}-->
-
-<!--.custom-switch:hover .custom-slider:before {-->
-<!--    background-color: white;-->
-<!--    box-shadow: 0 0 8px rgba(0, 123, 255, 0.5);-->
-<!--}-->
-
-<!--.custom-switch.open {-->
-<!--    background-color: #007aff;-->
-<!--    animation: blueGlow 2s infinite ease-in-out;-->
-<!--}-->
-
-<!--.custom-switch.open:hover {-->
-<!--    background: linear-gradient(135deg, #00bfff, #66ccff);-->
-<!--    transform: scale(1.3);-->
-<!--    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);-->
-<!--}-->
-
-<!--@keyframes blueGlow {-->
-<!--    0% {-->
-<!--        box-shadow: 0 0 5px rgba(0, 122, 255, 0.4),-->
-<!--        0 0 10px rgba(0, 122, 255, 0.6),-->
-<!--        0 0 20px rgba(0, 122, 255, 0.8),-->
-<!--        0 0 30px rgba(0, 122, 255, 0.9);-->
-<!--    }-->
-<!--    50% {-->
-<!--        box-shadow: 0 0 10px rgba(102, 204, 255, 0.6),-->
-<!--        0 0 20px rgba(102, 204, 255, 0.8),-->
-<!--        0 0 30px rgba(102, 204, 255, 1),-->
-<!--        0 0 40px rgba(102, 204, 255, 1);-->
-<!--    }-->
-<!--    100% {-->
-<!--        box-shadow: 0 0 5px rgba(0, 122, 255, 0.4),-->
-<!--        0 0 10px rgba(0, 122, 255, 0.6),-->
-<!--        0 0 20px rgba(0, 122, 255, 0.8),-->
-<!--        0 0 30px rgba(0, 122, 255, 0.9);-->
-<!--    }-->
-<!--}-->
-
-<!--.custom-switch.open:hover .custom-slider:before {-->
-<!--    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);-->
-<!--}-->
-
-<!--.switch-text {-->
-<!--    color: black;-->
-<!--    font-size: 12px;-->
-<!--    font-weight: bold;-->
-<!--    text-transform: uppercase;-->
-<!--    position: absolute;-->
-<!--    z-index: 1;-->
-<!--    transition: transform 0.3s ease, color 0.3s ease;-->
-<!--    pointer-events: none;-->
-<!--    top: 50%;-->
-<!--    transform: translateY(-50%);-->
-<!--}-->
-
-<!--.custom-switch.open .switch-text {-->
-<!--    color: black;-->
-<!--    transform: translateX(-25px) translateY(-50%);-->
-<!--    top: 50%;-->
-<!--    position: absolute;-->
-<!--    z-index: 1;-->
-<!--    pointer-events: none;-->
-<!--    transition: transform 0.3s ease, color 0.3s ease, text-shadow 0.3s ease;-->
-<!--    animation: glowing 2s infinite linear;-->
-<!--    white-space: nowrap;-->
-<!--}-->
-
 <!--/* ========================================-->
 <!--   Location Edit Input-->
 <!--   ======================================== */-->

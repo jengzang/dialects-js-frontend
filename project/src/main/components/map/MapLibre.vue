@@ -17,9 +17,9 @@
           @click="toggleCustomSwitch"
         >
           <span class="switch-label-text">{{ t('map.mapLibre.controls.personalData') }}</span>
-          <div class="custom-switch global-custom-switch main-glow-switch" :class="{ open: mapStore.showCustomData }" id="custom-toggle">
-            <span class="custom-slider global-custom-switch-slider">
-              <span id="switch-text" class="switch-text main-glow-switch-text">
+          <div class="map-custom-switch global-custom-switch main-glow-switch" :class="{ open: mapStore.showCustomData }" id="custom-toggle">
+            <span class="map-custom-slider global-custom-switch-slider">
+              <span id="switch-text" class="map-switch-text main-glow-switch-text">
                 {{ mapStore.showCustomData ? t('map.mapLibre.controls.show') : t('map.mapLibre.controls.hide') }}
               </span>
             </span>
@@ -33,9 +33,9 @@
         >
           <span class="switch-label-text">{{ t('map.mapLibre.controls.viewPlaceNames') }}</span>
 
-          <div class="custom-switch global-custom-switch main-glow-switch" :class="{ open: isBaseModeActive }" id="base-toggle">
-            <span class="custom-slider global-custom-switch-slider">
-              <span class="switch-text main-glow-switch-text">
+          <div class="map-custom-switch global-custom-switch main-glow-switch" :class="{ open: isBaseModeActive }" id="base-toggle">
+            <span class="map-custom-slider global-custom-switch-slider">
+              <span class="map-switch-text main-glow-switch-text">
                 {{ isBaseModeActive ? t('map.mapLibre.controls.enabled') : t('map.mapLibre.controls.disabled') }}
               </span>
             </span>
@@ -1465,15 +1465,15 @@ const resetView = () => {
   color: #333;
 }
 
-.custom-switch {
+.map-custom-switch {
   cursor: pointer;
 }
 
-.custom-switch:hover {
+.map-custom-switch:hover {
   transform: scale(1.1);
 }
 
-.custom-switch.open:hover {
+.map-custom-switch.open:hover {
   transform: scale(1.1);
 }
 

@@ -18,8 +18,8 @@
           :title="vowelSegments.length === 0 ? t('praat.vowelSpace.controls.segmentedDisabled') : ''"
         >
           <span class="switch-label-text">{{ t('praat.vowelSpace.controls.segmentedDisplay') }}</span>
-          <div class="custom-switch global-custom-switch" :class="{ 'open': showSegmented }">
-            <span class="custom-slider global-custom-switch-slider">
+          <div class="vowel-custom-switch global-custom-switch" :class="{ 'open': showSegmented }">
+            <span class="vowel-custom-slider global-custom-switch-slider">
 <!--              <span class="switch-text">-->
 <!--                {{ showSegmented ? '開啟' : '關閉' }}-->
 <!--              </span>-->
@@ -619,20 +619,12 @@ onBeforeUnmount(() => {
   color: var(--color-text-primary);
 }
 
-.custom-switch.open {
+.vowel-custom-switch.open {
   background-color: #007aff;
 }
 
-.custom-switch:hover {
+.vowel-custom-switch:hover {
   box-shadow: 0 0 10px 4px rgba(0, 122, 255, 0.3);
-}
-
-.switch-text {
-  font-size: 0.7rem;
-  font-weight: 600;
-  color: white;
-  z-index: 1;
-  pointer-events: none;
 }
 
 /* Reference Vowels Checkbox */
@@ -867,8 +859,5 @@ onBeforeUnmount(() => {
     font-size: 0.8rem;
   }
 
-  .switch-text {
-    font-size: 0.6rem;
-  }
 }
 </style>
