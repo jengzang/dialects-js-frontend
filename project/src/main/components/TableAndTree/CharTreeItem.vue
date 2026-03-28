@@ -1,57 +1,92 @@
 <template>
   <div class="tree-node">
-    <div class="node-content" :class="{ 'is-match': isMatch }" @click="toggle">
+    <div
+      v-if="hasDisplayName"
+      class="node-content"
+      :class="{ 'is-match': isMatch }"
+      @click="toggle"
+    >
       <div class="node-label">
-        <span class="icon">{{ hasChildren ? '📁' : '✍️' }}</span>
+        <span class="icon">{{ hasChildren ? '>' : '*' }}</span>
         <span class="text" v-if="isMatch" v-html="highlightName"></span>
-        <span class="text" v-else>{{ node.name }}</span>
+        <span class="text" v-else>{{ displayName }}</span>
       </div>
 
       <button
-          v-if="hasChildren"
-          class="expand-btn"
-          :class="{ 'is-open': isOpen }"
-          @click.stop="toggle"
+        v-if="hasChildren"
+        class="expand-btn"
+        :class="{ 'is-open': isOpen }"
+        @click.stop="toggle"
       >
-        <span class="plus-icon">＋</span>
+        <span class="plus-icon">+</span>
       </button>
     </div>
 
+    <div
+      v-if="!hasDisplayName && hasChildren"
+      class="children-container promoted-content"
+    >
+      <div v-if="hasLeafContent" class="leaf-content">
+        <div v-if="!showAnnotations" class="chars-row">
+          {{ node.chars.join(' ') }}
+        </div>
+
+        <div v-else class="char-annotation-list">
+          <div
+            v-for="(char, index) in node.chars"
+            :key="index"
+            class="char-annotation-item"
+          >
+            <span class="char">{{ char }}</span>
+            <span class="annotation">{{
+              node.annotations[index] || t('tableTree.charTreeItem.noAnnotation')
+            }}</span>
+          </div>
+        </div>
+      </div>
+
+      <CharTreeItem
+        v-for="child in node.children"
+        :key="child.id"
+        :node="child"
+        :search-query="searchQuery"
+        :show-annotations="showAnnotations"
+      />
+    </div>
+
     <transition
-        name="expand"
-        @enter="enter"
-        @after-enter="afterEnter"
-        @leave="leave"
+      v-else-if="hasDisplayName"
+      name="expand"
+      @enter="enter"
+      @after-enter="afterEnter"
+      @leave="leave"
     >
       <div v-if="isOpen && hasChildren" class="children-container">
-        <!-- Leaf Node: Display Characters -->
-        <div v-if="node.isLeaf" class="leaf-content">
-          <!-- Without Annotations Mode -->
+        <div v-if="hasLeafContent" class="leaf-content">
           <div v-if="!showAnnotations" class="chars-row">
             {{ node.chars.join(' ') }}
           </div>
 
-          <!-- With Annotations Mode -->
           <div v-else class="char-annotation-list">
             <div
-                v-for="(char, index) in node.chars"
-                :key="index"
-                class="char-annotation-item"
+              v-for="(char, index) in node.chars"
+              :key="index"
+              class="char-annotation-item"
             >
               <span class="char">{{ char }}</span>
-              <span class="annotation">{{ node.annotations[index] || t('tableTree.charTreeItem.noAnnotation') }}</span>
+              <span class="annotation">{{
+                node.annotations[index] || t('tableTree.charTreeItem.noAnnotation')
+              }}</span>
             </div>
           </div>
         </div>
 
-        <!-- Branch Node: Recursive Rendering -->
         <CharTreeItem
-            v-else
-            v-for="child in node.children"
-            :key="child.id"
-            :node="child"
-            :search-query="searchQuery"
-            :show-annotations="showAnnotations"
+          v-for="child in node.children"
+          :key="child.id"
+          :node="child"
+          :search-query="searchQuery"
+          :show-annotations="showAnnotations"
         />
       </div>
     </transition>
@@ -59,12 +94,12 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue';
-import { useI18n } from 'vue-i18n';
+import { computed, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 defineOptions({
   name: 'CharTreeItem'
-});
+})
 
 const props = defineProps({
   node: Object,
@@ -73,74 +108,80 @@ const props = defineProps({
     type: Boolean,
     default: true
   }
-});
+})
 
-const { t } = useI18n();
+const { t } = useI18n()
 
-const isOpen = ref(false);
+const isOpen = ref(false)
+const displayName = computed(() => (typeof props.node?.name === 'string' ? props.node.name : ''))
+const hasDisplayName = computed(() => displayName.value.trim().length > 0)
+const hasLeafContent = computed(() => Array.isArray(props.node?.chars) && props.node.chars.length > 0)
+const hasChildNodes = computed(
+  () => Array.isArray(props.node?.children) && props.node.children.length > 0
+)
+const hasChildren = computed(() => hasLeafContent.value || hasChildNodes.value)
 
-const hasChildren = computed(() => {
-  if (props.node.isLeaf) {
-    return props.node.chars && props.node.chars.length > 0;
-  }
-  return props.node.children && props.node.children.length > 0;
-});
+watch(
+  () => props.node,
+  (newNode) => {
+    if (!hasDisplayName.value) {
+      isOpen.value = true
+      return
+    }
 
-// Auto-expand based on _autoExpand flag
-watch(() => props.node, (newNode) => {
-  if (newNode && newNode._autoExpand) {
-    isOpen.value = true;
-  } else {
-    isOpen.value = false;
-  }
-}, { immediate: true, deep: true });
+    if (newNode && newNode._autoExpand) {
+      isOpen.value = true
+    } else {
+      isOpen.value = false
+    }
+  },
+  { immediate: true, deep: true }
+)
 
 const toggle = () => {
-  isOpen.value = !isOpen.value;
-};
-
-// Highlight matching nodes
-const isMatch = computed(() => {
-  if (!props.searchQuery) return false;
-
-  // Check node name
-  const nameMatch = props.node.name.toLowerCase().includes(props.searchQuery.toLowerCase());
-
-  // For leaf nodes, also check if any character matches
-  if (props.node.isLeaf && props.node.chars) {
-    const charMatch = props.node.chars.some(char =>
-      char.includes(props.searchQuery)
-    );
-    return nameMatch || charMatch;
+  if (!hasDisplayName.value || !hasChildren.value) {
+    return
   }
 
-  return nameMatch;
-});
+  isOpen.value = !isOpen.value
+}
 
-// Highlight HTML processing
+const isMatch = computed(() => {
+  if (!props.searchQuery) {
+    return false
+  }
+
+  const nameMatch = displayName.value.toLowerCase().includes(props.searchQuery.toLowerCase())
+  const charMatch = (props.node?.chars || []).some((char) => char.includes(props.searchQuery))
+
+  return nameMatch || charMatch
+})
+
 const highlightName = computed(() => {
-  if (!props.searchQuery) return props.node.name;
-  const re = new RegExp(props.searchQuery, 'gi');
-  return props.node.name.replace(re, match => `<span class="highlight">${match}</span>`);
-});
+  if (!props.searchQuery) {
+    return displayName.value
+  }
 
-// Animation hooks
+  const re = new RegExp(props.searchQuery, 'gi')
+  return displayName.value.replace(re, (match) => `<span class="highlight">${match}</span>`)
+})
+
 const enter = (el) => {
-  el.style.height = el.scrollHeight + 'px';
-  el.style.overflow = 'hidden';
-};
+  el.style.height = `${el.scrollHeight}px`
+  el.style.overflow = 'hidden'
+}
 
 const afterEnter = (el) => {
-  el.style.height = 'auto';
-  el.style.overflow = 'visible';
-};
+  el.style.height = 'auto'
+  el.style.overflow = 'visible'
+}
 
 const leave = (el) => {
-  el.style.height = el.scrollHeight + 'px';
-  el.style.overflow = 'hidden';
-  el.offsetHeight; // Force reflow
-  el.style.height = '0';
-};
+  el.style.height = `${el.scrollHeight}px`
+  el.style.overflow = 'hidden'
+  el.offsetHeight
+  el.style.height = '0'
+}
 </script>
 
 <style scoped>
@@ -183,6 +224,16 @@ const leave = (el) => {
   transition: height 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
+.children-container.promoted-content {
+  padding-left: 0;
+  border-left: none;
+  margin-left: 0;
+}
+
+.children-container.promoted-content .leaf-content {
+  margin-top: 0;
+}
+
 .expand-btn {
   background: transparent;
   border: none;
@@ -206,12 +257,10 @@ const leave = (el) => {
   transform: rotate(45deg);
 }
 
-/* Leaf Content Styles */
 .leaf-content {
   margin-top: 8px;
 }
 
-/* Characters Row - No Annotations Mode */
 .chars-row {
   padding: 12px 16px;
   background: rgba(0, 122, 255, 0.05);
@@ -224,7 +273,6 @@ const leave = (el) => {
   letter-spacing: 2px;
 }
 
-/* Character Annotation List - With Annotations Mode */
 .char-annotation-list {
   display: flex;
   flex-direction: column;
@@ -260,7 +308,6 @@ const leave = (el) => {
   color: #3a3a3c;
 }
 
-/* Highlight style for search */
 :deep(.highlight) {
   background: rgba(255, 255, 0, 0.4);
   border-radius: 4px;
@@ -268,18 +315,25 @@ const leave = (el) => {
   color: #000;
 }
 
-/* Responsive Design */
 @media (max-aspect-ratio: 1/1) {
-  /* Reduce indentation on small screens */
   .children-container {
     padding-left: 10px;
     margin-left: 5px;
   }
 
-  /* Break out of children-container padding for leaf content on small screens */
+  .children-container.promoted-content {
+    padding-left: 0;
+    margin-left: 0;
+  }
+
   .leaf-content {
     margin-left: -10px;
     margin-right: -10px;
+  }
+
+  .children-container.promoted-content .leaf-content {
+    margin-left: 0;
+    margin-right: 0;
   }
 
   .char-annotation-item {

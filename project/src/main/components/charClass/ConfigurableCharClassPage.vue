@@ -199,6 +199,7 @@ import {
 import {
   buildCharClassTreePayload,
   findCharClassPresetKey,
+  getDefaultCharClassLevelKeys,
   getCharClassPageConfig,
   sanitizeCharClassLevelKeys,
   sanitizeCharClassTableKey
@@ -294,6 +295,7 @@ const syncUrlToState = (state) => {
 
 const loadTreeForState = async (state) => {
   const cacheKey = buildCacheKey(state.tableKey, state.levels)
+  const tableConfig = currentPageConfig.value.tables[state.tableKey]
   activeTreeCacheKey.value = cacheKey
   loadError.value = ''
 
@@ -326,7 +328,10 @@ const loadTreeForState = async (state) => {
 
     treeCache.value = {
       ...treeCache.value,
-      [cacheKey]: normalizeCharClassTree(result.tree)
+      [cacheKey]: normalizeCharClassTree(result.tree, {
+        leafData: tableConfig?.leafData,
+        dataColumnNames: tableConfig?.dataColumnNames
+      })
     }
   } catch (error) {
     if (requestId !== loadRequestId) {
@@ -381,7 +386,17 @@ const toggleAnnotations = () => {
   showAnnotations.value = !showAnnotations.value
 }
 
+const getFirstPresetLevelKeys = (tableConfig) =>
+  tableConfig.presets[0]?.levelKeys || getDefaultCharClassLevelKeys(tableConfig)
+
 const handleTableChange = (nextTableKey) => {
+  if (props.pageKey === 'jingu') {
+    const normalizedTableKey = sanitizeCharClassTableKey(currentPageConfig.value, nextTableKey)
+    const nextTableConfig = currentPageConfig.value.tables[normalizedTableKey]
+    commitState(normalizedTableKey, getFirstPresetLevelKeys(nextTableConfig))
+    return
+  }
+
   commitState(nextTableKey, levels.value)
 }
 
@@ -528,6 +543,7 @@ watch(
 .tree-meta,
 .section-hint,
 .state-hint {
+  font-size: 14px;
   margin: 0;
   color: #6e6e73;
 }
@@ -659,7 +675,7 @@ watch(
 
 .level-row {
   min-width: 0;
-  padding: 12px;
+  padding: 12px 6px;
   border-radius: 18px;
   container-type: inline-size;
 }
@@ -679,7 +695,7 @@ watch(
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.7);
   border: 1px solid var(--glass-border-weak);
-  padding: 5px 9px;
+  padding: 3px 6px;
   font-size: 11px;
   font-weight: 700;
   color: #3a3a3c;
