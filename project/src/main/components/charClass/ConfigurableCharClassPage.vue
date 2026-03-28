@@ -7,14 +7,6 @@
             <h2 class="page-title">{{ t(currentPageConfig.titleKey) }}</h2>
             <p class="page-subtitle">{{ t('charClass.common.subtitle') }}</p>
           </div>
-
-          <button
-            class="annotation-toggle"
-            :class="{ active: showAnnotations }"
-            @click="toggleAnnotations"
-          >
-            {{ showAnnotations ? t('charClass.actions.hideAnnotations') : t('charClass.actions.showAnnotations') }}
-          </button>
         </div>
 
         <div v-if="hasMultipleTables" class="control-section">
@@ -73,6 +65,7 @@
                   <button
                     type="button"
                     class="level-action"
+                    :aria-label="t('charClass.actions.moveUp')"
                     :disabled="index === 0"
                     :title="t('charClass.actions.moveUp')"
                     @click="moveLevel(index, -1)"
@@ -82,6 +75,7 @@
                   <button
                     type="button"
                     class="level-action"
+                    :aria-label="t('charClass.actions.moveDown')"
                     :disabled="index === levels.length - 1"
                     :title="t('charClass.actions.moveDown')"
                     @click="moveLevel(index, 1)"
@@ -91,6 +85,7 @@
                   <button
                     type="button"
                     class="level-action danger"
+                    :aria-label="t('charClass.actions.removeLevel')"
                     :disabled="levels.length <= 1"
                     :title="t('charClass.actions.removeLevel')"
                     @click="removeLevel(index)"
@@ -129,15 +124,25 @@
             </p>
           </div>
 
-          <div class="search-wrapper">
-            <span class="search-icon">🔍</span>
-            <input
-              v-model="searchQuery"
-              type="text"
-              class="glass-input"
-              :placeholder="t('charClass.search.placeholder')"
-              :disabled="loading"
-            />
+          <div class="tree-actions">
+            <button
+              class="annotation-toggle"
+              :class="{ active: showAnnotations }"
+              @click="toggleAnnotations"
+            >
+              {{ showAnnotations ? t('charClass.actions.hideAnnotations') : t('charClass.actions.showAnnotations') }}
+            </button>
+            
+            <div class="search-wrapper">
+              <span class="search-icon">🔍</span>
+              <input
+                v-model="searchQuery"
+                type="text"
+                class="glass-input"
+                :placeholder="t('charClass.search.placeholder')"
+                :disabled="loading"
+              />
+            </div>
           </div>
         </div>
 
@@ -466,6 +471,7 @@ watch(
   margin: 0 auto;
   display: grid;
   gap: 18px;
+  grid-template-columns: 1fr 2fr;
   align-items: start;
 }
 
@@ -474,6 +480,9 @@ watch(
   border-radius: 28px;
   padding: 22px;
   color: var(--text-dark);
+  height: 80dvh!important;
+  overflow-y:auto;
+  overflow-x:hidden;
 }
 
 .panel-header,
@@ -482,6 +491,13 @@ watch(
   align-items: flex-start;
   justify-content: space-between;
   gap: 16px;
+}
+
+  .tree-actions {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
 }
 
 .panel-title-group,
@@ -525,6 +541,7 @@ watch(
 }
 
 .annotation-toggle {
+  white-space: nowrap;
   border: 1px solid var(--glass-border-weak);
   background: var(--glass-light);
   color: #0a84ff;
@@ -598,27 +615,45 @@ watch(
 
 .add-level-button {
   white-space: nowrap;
+  border-color: rgba(10, 132, 255, 0.34);
+  background: linear-gradient(135deg, rgba(10, 132, 255, 0.22), rgba(255, 255, 255, 0.9));
+  color: #0057d9;
+  font-weight: 700;
+  box-shadow: 0 12px 28px rgba(10, 132, 255, 0.12);
+}
+
+.add-level-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 16px 32px rgba(10, 132, 255, 0.16);
+}
+
+.add-level-button:disabled {
+  opacity: 0.55;
+  box-shadow: none;
 }
 
 .levels-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
+  gap: 10px;
+  align-items: stretch;
 }
 
 .level-row {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  padding: 14px;
-  border-radius: 22px;
+  gap: 10px;
+  min-width: 0;
+  padding: 12px;
+  border-radius: 18px;
 }
 
 .level-row-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .level-badge {
@@ -627,8 +662,8 @@ watch(
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.7);
   border: 1px solid var(--glass-border-weak);
-  padding: 6px 10px;
-  font-size: 12px;
+  padding: 5px 9px;
+  font-size: 11px;
   font-weight: 700;
   color: #3a3a3c;
 }
@@ -636,32 +671,56 @@ watch(
 .level-actions {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 }
 
 .level-action {
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  border: 1px solid var(--glass-border-weak);
-  background: rgba(255, 255, 255, 0.68);
-  color: #1d1d1f;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  border: 1px solid rgba(10, 132, 255, 0.2);
+  background: linear-gradient(180deg, rgba(10, 132, 255, 0.18), rgba(255, 255, 255, 0.94));
+  color: #0057d9;
   cursor: pointer;
-  transition: transform 0.2s ease, opacity 0.2s ease, background 0.2s ease;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1;
+  box-shadow: 0 10px 24px rgba(10, 132, 255, 0.12);
+  transition:
+    transform 0.2s ease,
+    opacity 0.2s ease,
+    background 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .level-action:hover:not(:disabled) {
-  transform: translateY(-1px);
-  background: rgba(255, 255, 255, 0.85);
+  transform: translateY(-1px) scale(1.02);
+  border-color: rgba(10, 132, 255, 0.38);
+  background: linear-gradient(180deg, rgba(10, 132, 255, 0.28), rgba(255, 255, 255, 0.98));
+  box-shadow: 0 14px 28px rgba(10, 132, 255, 0.16);
 }
 
 .level-action:disabled {
-  opacity: 0.45;
+  opacity: 0.4;
   cursor: not-allowed;
+  box-shadow: none;
 }
 
 .level-action.danger {
-  color: #d70015;
+  border-color: rgba(215, 0, 21, 0.2);
+  background: linear-gradient(180deg, rgba(215, 0, 21, 0.16), rgba(255, 255, 255, 0.94));
+  color: #c21b31;
+  box-shadow: 0 10px 24px rgba(215, 0, 21, 0.12);
+}
+
+.level-action.danger:hover:not(:disabled) {
+  border-color: rgba(215, 0, 21, 0.34);
+  background: linear-gradient(180deg, rgba(215, 0, 21, 0.24), rgba(255, 255, 255, 0.98));
+  box-shadow: 0 14px 28px rgba(215, 0, 21, 0.16);
 }
 
 .limit-hint {
@@ -688,7 +747,6 @@ watch(
 }
 
 .glass-input {
-  width: 100%;
   padding: 11px 14px 11px 40px;
   border-radius: 16px;
   border: 1px solid var(--glass-border-weak);
@@ -761,19 +819,6 @@ watch(
   }
 }
 
-@media (orientation: landscape) {
-  .page-shell {
-    grid-template-columns: minmax(340px, 430px) minmax(0, 1fr);
-  }
-
-  .tree-panel {
-    min-height: 84dvh;
-  }
-
-  .tree-body {
-    max-height: calc(84dvh - 110px);
-  }
-}
 
 @media (orientation: portrait) {
   .page-shell {
