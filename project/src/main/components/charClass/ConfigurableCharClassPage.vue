@@ -5,7 +5,7 @@
         <div class="panel-header">
           <div class="panel-title-group">
             <h2 class="page-title">{{ t(currentPageConfig.titleKey) }}</h2>
-            <p class="page-subtitle">{{ t('charClass.common.subtitle') }}</p>
+            <!-- <p class="page-subtitle">{{ t('charClass.common.subtitle') }}</p> -->
           </div>
         </div>
 
@@ -19,7 +19,7 @@
           />
         </div>
 
-        <div class="control-section">
+        <div class="control-section preset-section">
           <div class="control-heading">{{ t('charClass.common.recommended') }}</div>
           <div class="preset-list">
             <button
@@ -61,10 +61,20 @@
               <div class="level-row-header">
                 <span class="level-badge">{{ t('charClass.common.level', { index: index + 1 }) }}</span>
 
+                <SimpleSelectDropdown
+                  class="level-select"
+                  ref="levelDropdownRefs"
+                  :modelValue="levelKey"
+                  :options="getLevelOptions(index)"
+                  searchable
+                  matchTriggerWidth
+                  @update:modelValue="(value) => updateLevel(index, value)"
+                />
+
                 <div class="level-actions">
                   <button
                     type="button"
-                    class="level-action"
+                    class="level-action level-action-up"
                     :aria-label="t('charClass.actions.moveUp')"
                     :disabled="index === 0"
                     :title="t('charClass.actions.moveUp')"
@@ -74,7 +84,7 @@
                   </button>
                   <button
                     type="button"
-                    class="level-action"
+                    class="level-action level-action-down"
                     :aria-label="t('charClass.actions.moveDown')"
                     :disabled="index === levels.length - 1"
                     :title="t('charClass.actions.moveDown')"
@@ -84,7 +94,7 @@
                   </button>
                   <button
                     type="button"
-                    class="level-action danger"
+                    class="level-action danger level-action-close"
                     :aria-label="t('charClass.actions.removeLevel')"
                     :disabled="levels.length <= 1"
                     :title="t('charClass.actions.removeLevel')"
@@ -95,15 +105,6 @@
                 </div>
               </div>
 
-              <SimpleSelectDropdown
-                ref="levelDropdownRefs"
-                :modelValue="levelKey"
-                :options="getLevelOptions(index)"
-                width="100%"
-                searchable
-                matchTriggerWidth
-                @update:modelValue="(value) => updateLevel(index, value)"
-              />
             </div>
           </div>
 
@@ -571,16 +572,33 @@ watch(
   margin-top: 20px;
 }
 
+.preset-section {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px 16px;
+}
+
 .control-heading {
   font-size: 14px;
   font-weight: 700;
   color: #3a3a3c;
 }
 
+.preset-section .control-heading {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
 .preset-list {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
+}
+
+.preset-section .preset-list {
+  flex: 1 1 320px;
+  min-width: 0;
 }
 
 .preset-chip {
@@ -640,20 +658,19 @@ watch(
 }
 
 .level-row {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
   min-width: 0;
   padding: 12px;
   border-radius: 18px;
+  container-type: inline-size;
 }
 
 .level-row-header {
-  display: flex;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 10px;
+  gap: 8px 10px;
+  width: 100%;
+  min-width: 0;
 }
 
 .level-badge {
@@ -668,27 +685,33 @@ watch(
   color: #3a3a3c;
 }
 
+.level-select {
+  min-width: 0;
+  width: 100%;
+}
+
 .level-actions {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
+  justify-self: end;
 }
 
 .level-action {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 38px;
-  height: 38px;
-  border-radius: 12px;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
   border: 1px solid rgba(10, 132, 255, 0.2);
   background: linear-gradient(180deg, rgba(10, 132, 255, 0.18), rgba(255, 255, 255, 0.94));
   color: #0057d9;
   cursor: pointer;
-  font-size: 18px;
+  font-size: 0;
   font-weight: 700;
   line-height: 1;
-  box-shadow: 0 10px 24px rgba(10, 132, 255, 0.12);
+  box-shadow: 0 8px 18px rgba(10, 132, 255, 0.12);
   transition:
     transform 0.2s ease,
     opacity 0.2s ease,
@@ -697,11 +720,28 @@ watch(
     box-shadow 0.2s ease;
 }
 
+.level-action::before {
+  font-size: 15px;
+  line-height: 1;
+}
+
+.level-action-up::before {
+  content: "\2191";
+}
+
+.level-action-down::before {
+  content: "\2193";
+}
+
+.level-action-close::before {
+  content: "\00D7";
+}
+
 .level-action:hover:not(:disabled) {
   transform: translateY(-1px) scale(1.02);
   border-color: rgba(10, 132, 255, 0.38);
   background: linear-gradient(180deg, rgba(10, 132, 255, 0.28), rgba(255, 255, 255, 0.98));
-  box-shadow: 0 14px 28px rgba(10, 132, 255, 0.16);
+  box-shadow: 0 10px 20px rgba(10, 132, 255, 0.16);
 }
 
 .level-action:disabled {
@@ -714,13 +754,13 @@ watch(
   border-color: rgba(215, 0, 21, 0.2);
   background: linear-gradient(180deg, rgba(215, 0, 21, 0.16), rgba(255, 255, 255, 0.94));
   color: #c21b31;
-  box-shadow: 0 10px 24px rgba(215, 0, 21, 0.12);
+  box-shadow: 0 8px 18px rgba(215, 0, 21, 0.12);
 }
 
 .level-action.danger:hover:not(:disabled) {
   border-color: rgba(215, 0, 21, 0.34);
   background: linear-gradient(180deg, rgba(215, 0, 21, 0.24), rgba(255, 255, 255, 0.98));
-  box-shadow: 0 14px 28px rgba(215, 0, 21, 0.16);
+  box-shadow: 0 10px 20px rgba(215, 0, 21, 0.16);
 }
 
 .limit-hint {
@@ -830,13 +870,19 @@ watch(
     padding: 18px;
     border-radius: 24px;
   }
+  .config-panel{
+    max-height: 60dvh;
+  }
 
   .panel-header,
   .tree-header,
-  .levels-header,
-  .level-row-header {
+  .levels-header {
     flex-direction: column;
     align-items: stretch;
+  }
+
+  .level-row-header {
+    justify-content: flex-start;
   }
 
   .search-wrapper {
@@ -845,6 +891,7 @@ watch(
 
   .level-actions {
     justify-content: flex-end;
+    margin-left: 0;
   }
 
   .tree-body {
