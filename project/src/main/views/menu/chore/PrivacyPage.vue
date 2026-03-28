@@ -11,7 +11,7 @@ const copyCitation = () => {
 
 <template>
   <div class="privacy-container">
-    <div class="privacy-content glass-container">
+    <div class="privacy-content glass-container glass-container-soft">
       <!-- 标题和语言切换 -->
       <div class="header">
         <h1 class="title">📜 {{ t('privacy.title') }}</h1>
@@ -127,10 +127,6 @@ const copyCitation = () => {
 }
 
 .glass-container {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.8);
 }
 
 .header {

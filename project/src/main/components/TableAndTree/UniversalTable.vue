@@ -1,5 +1,5 @@
 <template>
-  <div class="universal-table glass-container">
+  <div class="universal-table glass-container glass-container-soft">
     <div class="toolbar">
       <div class="search-wrapper">
         <span class="search-icon">🔍</span>
@@ -316,7 +316,7 @@
     <Teleport to="body">
       <Transition name="modal-fade">
         <div v-if="showBatchReplaceModal" class="modal-overlay" @click.self="closeBatchReplaceModal">
-          <div class="batch-replace-modal glass-container">
+          <div class="batch-replace-modal glass-container glass-container-soft">
             <!-- 标题栏 -->
             <div class="modal-header">
               <h3>{{ t('tableTree.universalTable.batchReplace.title') }}</h3>
@@ -1506,11 +1506,7 @@ onUnmounted(() => {
 
 .glass-container {
   /* 使用全局变量替代局部变量 */
-  background: var(--glass-light);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
   border-radius: var(--radius-xl);
-  border: 1px solid var(--glass-border);
   box-shadow: var(--shadow-md);
   padding: 12px 4px;
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
