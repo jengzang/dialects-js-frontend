@@ -3,10 +3,10 @@
     <Transition name="popup-fade">
       <div
         v-if="visible"
-        class="benefits-popup-overlay main-modal-overlay-center"
+        class="benefits-popup-overlay modal-overlay-center"
         @click.self="closePopup"
       >
-        <div class="benefits-popup main-modal-frame popup-animated">
+        <div class="benefits-popup modal-frame popup-animated">
           <div class="popup-header">
             <h3>{{ t('user.benefitsPopup.title') }}</h3>
             <button

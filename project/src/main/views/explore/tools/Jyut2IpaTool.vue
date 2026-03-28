@@ -169,7 +169,7 @@
                 📥
               </button>
               <button
-                class="close-btn global-close-btn-base main-tool-modal-close-base"
+                class="close-btn close-btn-base main-tool-modal-close-base"
                 :title="t('tools.common.close')"
                 @click="showConfigModal = false"
               >
@@ -226,13 +226,13 @@
                       </span>
                     </td>
                     <td>
-                      <label class="toggle-switch global-input-switch">
+                      <label class="toggle-switch input-switch-base">
                         <input
                           type="checkbox"
                           v-model="rule.enabled"
                           @change="updateStats"
                         />
-                        <span class="toggle-slider global-input-switch-slider"></span>
+                        <span class="toggle-slider input-switch-slider-base"></span>
                       </label>
                     </td>
                     <td>

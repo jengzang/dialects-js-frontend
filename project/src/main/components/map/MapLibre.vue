@@ -17,8 +17,8 @@
           @click="toggleCustomSwitch"
         >
           <span class="switch-label-text">{{ t('map.mapLibre.controls.personalData') }}</span>
-          <div class="map-custom-switch global-custom-switch main-glow-switch" :class="{ open: mapStore.showCustomData }" id="custom-toggle">
-            <span class="map-custom-slider global-custom-switch-slider">
+          <div class="map-custom-switch custom-switch-base main-glow-switch" :class="{ open: mapStore.showCustomData }" id="custom-toggle">
+            <span class="map-custom-slider custom-switch-slider-base">
               <span id="switch-text" class="map-switch-text main-glow-switch-text">
                 {{ mapStore.showCustomData ? t('map.mapLibre.controls.show') : t('map.mapLibre.controls.hide') }}
               </span>
@@ -33,8 +33,8 @@
         >
           <span class="switch-label-text">{{ t('map.mapLibre.controls.viewPlaceNames') }}</span>
 
-          <div class="map-custom-switch global-custom-switch main-glow-switch" :class="{ open: isBaseModeActive }" id="base-toggle">
-            <span class="map-custom-slider global-custom-switch-slider">
+          <div class="map-custom-switch custom-switch-base main-glow-switch" :class="{ open: isBaseModeActive }" id="base-toggle">
+            <span class="map-custom-slider custom-switch-slider-base">
               <span class="map-switch-text main-glow-switch-text">
                 {{ isBaseModeActive ? t('map.mapLibre.controls.enabled') : t('map.mapLibre.controls.disabled') }}
               </span>

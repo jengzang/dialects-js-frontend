@@ -140,8 +140,8 @@
     <!-- 内容区 -->
     <!-- 加载状态 -->
     <div v-if="isLoading" class="content-area">
-      <div class="loading-state main-loading-state-base">
-        <div class="spinner main-spinner-base main-spinner-md"></div>
+      <div class="loading-state loading-state-base">
+        <div class="spinner spinner-base spinner-md"></div>
         <span>{{ t('words.yuBaoPage.states.loadingData') }}</span>
       </div>
     </div>
@@ -179,7 +179,7 @@
       <div class="card-mode">
 
         <div v-if="isLoadingCards" class="cards-loading">
-          <div class="spinner main-spinner-base main-spinner-md"></div>
+          <div class="spinner spinner-base spinner-md"></div>
           <span>{{ t('words.yuBaoPage.states.loadingCards') }}</span>
         </div>
 
@@ -253,13 +253,13 @@
             <span v-else-if="filteredCardData.length > 0" class="no-more">{{ t('words.yuBaoPage.states.loadedAll') }}</span>
           </div>
 
-          <div v-if="filteredCardData.length === 0" class="empty-state main-empty-state-base">
+          <div v-if="filteredCardData.length === 0" class="empty-state empty-state-base">
             <p>{{ t('words.yuBaoPage.states.noFilterResult', { query: localFilterQuery }) }}</p>
           </div>
 
         </template>
 
-        <div v-else class="empty-state main-empty-state-base">
+        <div v-else class="empty-state empty-state-base">
           <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
             <circle cx="12" cy="12" r="10"/>
             <line x1="12" y1="8" x2="12" y2="12"/>
@@ -276,11 +276,11 @@
     <!-- 地图模式 -->
     <div v-else-if="viewMode === 'map'" class="map-mode">
       <div v-if="isLoadingCards" class="cards-loading">
-        <div class="spinner main-spinner-base main-spinner-md"></div>
+        <div class="spinner spinner-base spinner-md"></div>
         <span>{{ t('words.yuBaoPage.states.loadingData') }}</span>
       </div>
       <template v-else>
-        <div v-if="!isValidInput || cardData.length === 0" class="empty-state main-empty-state-base">
+        <div v-if="!isValidInput || cardData.length === 0" class="empty-state empty-state-base">
           <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
             <circle cx="12" cy="12" r="10"/>
             <line x1="12" y1="8" x2="12" y2="12"/>
@@ -306,17 +306,17 @@
     <Teleport to="body">
       <div
         v-if="showAllModal"
-        class="modal-overlay main-modal-overlay-base"
+        class="modal-overlay modal-overlay-base"
         @click.self="showAllModal = false"
       >
         <div class="modal-content">
-          <div class="modal-header main-modal-header-base">
-            <h3 class="main-modal-title-base">
+          <div class="modal-header modal-header-base">
+            <h3 class="modal-title-base">
               {{ t('words.yuBaoPage.modal.allItemsTitle', { name: activeTabLabel }) }}
             </h3>
             <button class="modal-close" @click="showAllModal = false">×</button>
           </div>
-          <div class="modal-body main-modal-body-base">
+          <div class="modal-body modal-body-base">
             <div class="search-in-modal">
               <input
                   v-model="modalSearchQuery"

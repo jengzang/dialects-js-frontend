@@ -18,8 +18,8 @@
           :title="vowelSegments.length === 0 ? t('praat.vowelSpace.controls.segmentedDisabled') : ''"
         >
           <span class="switch-label-text">{{ t('praat.vowelSpace.controls.segmentedDisplay') }}</span>
-          <div class="vowel-custom-switch global-custom-switch" :class="{ 'open': showSegmented }">
-            <span class="vowel-custom-slider global-custom-switch-slider">
+          <div class="vowel-custom-switch custom-switch-base" :class="{ 'open': showSegmented }">
+            <span class="vowel-custom-slider custom-switch-slider-base">
 <!--              <span class="switch-text">-->
 <!--                {{ showSegmented ? '開啟' : '關閉' }}-->
 <!--              </span>-->

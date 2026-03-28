@@ -10,16 +10,16 @@
             <div class="selection-mode-toggle">
               <label class="toggle-label">{{ $t('query.components.partitionModal.enableSelection') }}</label>
               <button
-                  class="toggle-switch global-toggle-switch"
+                  class="toggle-switch toggle-switch-base"
                   :class="{ active: selectionMode }"
                   @click="toggleSelectionMode"
                   type="button"
               >
-                <span class="toggle-slider global-toggle-switch-slider"></span>
+                <span class="toggle-slider toggle-switch-slider-base"></span>
               </button>
             </div>
 <!--          </div>-->
-          <button class="modal-close global-close-btn-base main-query-modal-close" type="button" @click="closeModal">×</button>
+          <button class="modal-close close-btn-base main-query-modal-close" type="button" @click="closeModal">×</button>
         </div>
 
         <!-- Tab 切换 + 确认按钮 -->
@@ -51,8 +51,8 @@
 
         <!-- 主体：树状图 -->
         <div class="modal-body">
-          <div v-if="isLoading" class="loading-state main-loading-state-base">
-            <div class="spinner main-spinner-base main-spinner-lg"></div>
+          <div v-if="isLoading" class="loading-state loading-state-base">
+            <div class="spinner spinner-base spinner-lg"></div>
             <span>{{ $t('query.components.partitionModal.loading') }}</span>
           </div>
 

@@ -37,7 +37,7 @@
   box-shadow: 0 0 10px 4px rgba(0, 123, 255, 0.7);
 }
 
-.main-glow-switch:hover .global-custom-switch-slider::before {
+.main-glow-switch:hover .custom-switch-slider-base::before {
   background-color: white;
   box-shadow: 0 0 8px rgba(0, 123, 255, 0.5);
 }
@@ -52,7 +52,7 @@
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
 }
 
-.main-glow-switch.open:hover .global-custom-switch-slider::before {
+.main-glow-switch.open:hover .custom-switch-slider-base::before {
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
 }
 

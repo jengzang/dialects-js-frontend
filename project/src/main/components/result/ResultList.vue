@@ -66,8 +66,8 @@
         </div>
 
         <div id="toggleColumnsBtn" @click="isCondensedMode = !isCondensedMode" class="custom-switch-container">
-          <div class="result-custom-switch global-custom-switch main-glow-switch" :class="{ open: !isCondensedMode }">
-            <div class="result-custom-slider global-custom-switch-slider"></div>
+          <div class="result-custom-switch custom-switch-base main-glow-switch" :class="{ open: !isCondensedMode }">
+            <div class="result-custom-slider custom-switch-slider-base"></div>
           </div>
           <span class="result-switch-text main-glow-switch-text">{{ !isCondensedMode ? t('result.resultList.displayMode.full') : t('result.resultList.displayMode.main') }}</span>
         </div>

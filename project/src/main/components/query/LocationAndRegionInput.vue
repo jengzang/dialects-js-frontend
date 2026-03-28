@@ -180,7 +180,7 @@
           <div class="glass-modal" role="dialog" aria-modal="true">
             <div class="modal-header main-query-modal-header">
               <div class="modal-title main-query-modal-title">{{ $t('query.components.locationAndRegionInput.selectedLocationsModalTitle', { count: locationsResult.length }) }}</div>
-              <button class="modal-close global-close-btn-base main-query-modal-close" type="button" @click="closeModal">✕</button>
+              <button class="modal-close close-btn-base main-query-modal-close" type="button" @click="closeModal">✕</button>
             </div>
 
             <div class="modal-body">
@@ -209,7 +209,7 @@
         <div class="glass-modal" role="dialog" aria-modal="true">
           <div class="modal-header main-query-modal-header">
             <div class="modal-title main-query-modal-title">{{ $t('query.components.locationAndRegionInput.customLocationsModalTitle', { count: customFeatureLocations.length }) }}</div>
-            <button class="modal-close global-close-btn-base main-query-modal-close" type="button" @click="closeCustomModal">✕</button>
+            <button class="modal-close close-btn-base main-query-modal-close" type="button" @click="closeCustomModal">✕</button>
           </div>
 
           <div class="modal-body">

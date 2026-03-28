@@ -6,7 +6,7 @@
       :style="{ position: 'fixed', top: `${position.top}px`, left: `${position.left}px`, zIndex: 999999 }"
       @click.stop
     >
-      <div class="popup-content main-inline-popup-content">
+      <div class="popup-content">
         <p>📍 {{ t('result.terms.location') }}: {{ data.location }}</p>
         <p>🧩 {{ t('result.terms.feature') }}: {{ checkedFeatures }}</p>
 
@@ -17,7 +17,7 @@
         <button
           v-for="option in modeOptions"
           :key="`${option.id}-${option.bool}`"
-          class="mini-button main-inline-mini-button"
+          class="mini-button"
           :style="shouldUseBaseDescription(option.id) ? { fontSize: '17px' } : {}"
           @click="handleAction(option.id, option.bool)"
         >

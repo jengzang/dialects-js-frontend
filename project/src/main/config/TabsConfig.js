@@ -41,24 +41,24 @@ export function useMenuTabsConfig() {
   //   mobileShowLabelOnlyWhenActive: true, // 移动端：始终显示文字（不同于桌面端）
   //   cssClass: ''                     // 应用 'small' CSS class
   // },
-  {
-    tab: 'cluster',
-    label: t('navigation.tabs.dialectClustering'),
-    icon: '🧩',
-    weight: 0.9,
-    mobileWeight: 0.9,
-    weightIconOnly: 0.6,
-    mobileWeightIconOnly: 0.5,
-    fontSize: 1.4,
-    mobileFontSize: 1.5,
-    to: { path: '/menu', query: { tab: 'cluster' } },
-    isPseudo: false,
-    hideOnMobile: false,
-    hideLabelOnMobile: false,
-    showLabelOnlyWhenActive: false,
-    mobileShowLabelOnlyWhenActive: true,
-    cssClass: ''
-  },
+  // {
+  //   tab: 'cluster',
+  //   label: t('navigation.tabs.dialectClustering'),
+  //   icon: '🧩',
+  //   weight: 0.9,
+  //   mobileWeight: 0.9,
+  //   weightIconOnly: 0.6,
+  //   mobileWeightIconOnly: 0.5,
+  //   fontSize: 1.4,
+  //   mobileFontSize: 1.5,
+  //   to: { path: '/menu', query: { tab: 'cluster' } },
+  //   isPseudo: false,
+  //   hideOnMobile: false,
+  //   hideLabelOnMobile: false,
+  //   showLabelOnlyWhenActive: false,
+  //   mobileShowLabelOnlyWhenActive: true,
+  //   cssClass: ''
+  // },
   {
     tab: 'pho',
     label: t('navigation.tabs.phonology'),

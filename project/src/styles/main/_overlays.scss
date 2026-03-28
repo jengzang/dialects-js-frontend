@@ -1,4 +1,4 @@
-.main-modal-overlay-base {
+.modal-overlay-base {
   position: fixed;
   inset: 0;
   display: flex;
@@ -6,36 +6,36 @@
   justify-content: center;
 }
 
-.main-modal-header-base {
+.modal-header-base {
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 
-.main-modal-title-base {
+.modal-title-base {
   margin: 0;
   line-height: 1.3;
 }
 
-.main-modal-body-base {
+.modal-body-base {
   flex: 1;
   min-height: 0;
 }
 
-.main-modal-close-base {
+.modal-close-base {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
 }
 
-.main-modal-close-round {
+.modal-close-round {
   width: 32px;
   height: 32px;
   border-radius: 50%;
 }
 
-.main-modal-overlay-center {
+.modal-overlay-center {
   position: fixed;
   inset: 0;
   display: flex;
@@ -43,7 +43,7 @@
   justify-content: center;
 }
 
-.main-modal-frame {
+.modal-frame {
   position: relative;
   overflow: hidden;
   display: flex;
@@ -225,7 +225,7 @@
   color: white;
 }
 
-.main-icon-close-btn {
+.icon-close-btn {
   position: absolute;
   top: 1rem;
   right: 1rem;
@@ -235,6 +235,6 @@
   z-index: 1;
 }
 
-.main-icon-close-btn:hover {
+.icon-close-btn:hover {
   transform: scale(1.1);
 }

@@ -6,14 +6,14 @@
       :style="{ position: 'fixed', top: `${position.top}px`, left: `${position.left}px`, zIndex: 999999 }"
       @click.stop
     >
-      <div class="popup-content main-inline-popup-content">
+      <div class="popup-content">
         <p>📍 {{ t('result.terms.location') }}: {{ data.location }}</p>
         <p>🧩 {{ t('result.terms.feature') }}: {{ checkedFeatures }}</p>
         <p>🔍 {{ t('result.featurePopup.queryLabel') }}: {{ t('result.featurePopup.queryHint', { feature: data.feature || '' }) }}</p>
 
         <template v-for="field in unmatchedFields" :key="field">
           <button
-            class="mini-button main-inline-mini-button"
+            class="mini-button"
             style="font-size: 16px; margin: 0 2px;"
             @click="handleFieldClick(field)"
           >

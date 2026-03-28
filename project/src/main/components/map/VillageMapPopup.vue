@@ -1,13 +1,13 @@
 <template>
   <Teleport to="body">
     <Transition name="modal-fade">
-      <div v-if="visible" class="modal-overlay main-modal-overlay-base" @click.self="handleClose">
+      <div v-if="visible" class="modal-overlay modal-overlay-base" @click.self="handleClose">
         <div class="map-modal-container" :class="{ fullscreen: isFullscreen }">
-          <div v-if="!isFullscreen" class="modal-header main-modal-header-base">
-            <h3 class="main-modal-title-base">{{ t('map.villageMapPopup.title') }}</h3>
+          <div v-if="!isFullscreen" class="modal-header modal-header-base">
+            <h3 class="modal-title-base">{{ t('map.villageMapPopup.title') }}</h3>
             <span class="village-count">{{ t('map.villageMapPopup.count', { count: validVillages.length }) }}</span>
             <button
-              class="close-btn global-close-btn-base main-modal-close-base main-modal-close-round"
+              class="close-btn close-btn-base modal-close-base modal-close-round"
               @click="handleClose"
               :title="t('common.button.close')"
               :aria-label="t('common.button.close')"

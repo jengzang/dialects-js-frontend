@@ -2,7 +2,7 @@
    Base element styles continue to come from ../_legacy.scss.
    This file reserves the global base layer for later migration. */
 
-.global-close-btn-base {
+.close-btn-base {
   appearance: none;
   border: none;
   background: transparent;
@@ -16,7 +16,7 @@
   transition: all 0.2s ease;
 }
 
-.global-toggle-switch {
+.toggle-switch-base {
   position: relative;
   width: 50px;
   height: 30px;
@@ -27,11 +27,11 @@
   transition: background 0.3s ease;
 }
 
-.global-toggle-switch.active {
+.toggle-switch-base.active {
   background: #007aff;
 }
 
-.global-toggle-switch-slider {
+.toggle-switch-slider-base {
   position: absolute;
   top: 3px;
   left: 3px;
@@ -43,24 +43,24 @@
   transition: transform 0.3s ease;
 }
 
-.global-toggle-switch.active .global-toggle-switch-slider {
+.toggle-switch-base.active .toggle-switch-slider-base {
   transform: translateX(20px);
 }
 
-.global-input-switch {
+.input-switch-base {
   position: relative;
   width: 44px;
   height: 22px;
   display: inline-block;
 }
 
-.global-input-switch input {
+.input-switch-base input {
   opacity: 0;
   width: 0;
   height: 0;
 }
 
-.global-input-switch-slider {
+.input-switch-slider-base {
   position: absolute;
   cursor: pointer;
   inset: 0;
@@ -69,7 +69,7 @@
   border-radius: 22px;
 }
 
-.global-input-switch-slider::before {
+.input-switch-slider-base::before {
   position: absolute;
   content: '';
   height: 16px;
@@ -81,15 +81,15 @@
   border-radius: 50%;
 }
 
-.global-input-switch input:checked + .global-input-switch-slider {
+.input-switch-base input:checked + .input-switch-slider-base {
   background-color: #007aff;
 }
 
-.global-input-switch input:checked + .global-input-switch-slider::before {
+.input-switch-base input:checked + .input-switch-slider-base::before {
   transform: translateX(22px);
 }
 
-.global-custom-switch {
+.custom-switch-base {
   position: relative;
   width: 50px;
   height: 30px;
@@ -101,7 +101,7 @@
   transition: background-color 0.3s ease;
 }
 
-.global-custom-switch-slider {
+.custom-switch-slider-base {
   position: relative;
   width: 100%;
   height: 100%;
@@ -110,7 +110,7 @@
   justify-content: center;
 }
 
-.global-custom-switch-slider::before {
+.custom-switch-slider-base::before {
   content: '';
   position: absolute;
   top: 2px;
@@ -122,6 +122,6 @@
   transition: all 0.3s ease;
 }
 
-.global-custom-switch.open .global-custom-switch-slider::before {
+.custom-switch-base.open .custom-switch-slider-base::before {
   transform: translateX(20px);
 }

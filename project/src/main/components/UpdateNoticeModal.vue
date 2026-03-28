@@ -3,11 +3,11 @@
     <Transition name="modal-fade">
       <div
         v-if="visible"
-        class="update-modal-overlay main-modal-overlay-center"
+        class="update-modal-overlay modal-overlay-center"
         @click.self="handleClose"
       >
-        <div class="update-modal main-modal-frame">
-          <button class="modal-close-btn global-close-btn-base main-icon-close-btn" @click="handleClose">✕</button>
+        <div class="update-modal modal-frame">
+          <button class="modal-close-btn close-btn-base icon-close-btn" @click="handleClose">✕</button>
 
           <div class="modal-header">
             <div class="update-icon">🎉</div>

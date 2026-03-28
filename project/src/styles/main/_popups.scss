@@ -1,10 +1,10 @@
-.main-inline-popup-content {
+.popup-vue .popup-content {
   font-family: 'Arial', sans-serif;
   color: #333;
   text-align: center;
 }
 
-.main-inline-mini-button {
+.popup-vue .mini-button {
   margin-top: 2px;
   padding: 1px 2px;
   font-size: 11px;
@@ -16,12 +16,12 @@
   transition: background-color 0.2s ease, transform 0.2s ease;
 }
 
-.main-inline-mini-button:hover {
+.popup-vue .mini-button:hover {
   background-color: #005fcc;
   transform: scale(1.2);
 }
 
-.main-inline-mini-button-delete {
+.popup-vue .mini-button-delete {
   margin-top: 2px;
   padding: 1px 2px;
   font-size: 11px;
@@ -33,7 +33,7 @@
   transition: background-color 0.2s ease, transform 0.2s ease;
 }
 
-.main-inline-mini-button-delete:hover {
+.popup-vue .mini-button-delete:hover {
   background-color: #a52a2a;
   transform: scale(1.2);
 }

@@ -593,7 +593,7 @@
         <div class="modal-content main-tool-modal-shell glass-panel">
           <div class="modal-header">
             <h3>🔄 {{ t('tools.checkTool.batchReplace.title') }}</h3>
-            <button class="close-btn global-close-btn-base main-tool-modal-close-base" @click="showBatchReplaceModal = false">×</button>
+            <button class="close-btn close-btn-base main-tool-modal-close-base" @click="showBatchReplaceModal = false">×</button>
           </div>
 
           <div class="modal-body">
@@ -658,7 +658,7 @@
         <div class="modal-content main-tool-modal-shell glass-panel help-modal">
           <div class="modal-header">
             <h3>❓ {{ t('tools.checkTool.help.title') }}</h3>
-            <button class="close-btn global-close-btn-base main-tool-modal-close-base" @click="showHelpModal = false">×</button>
+            <button class="close-btn close-btn-base main-tool-modal-close-base" @click="showHelpModal = false">×</button>
           </div>
 
           <div class="modal-body help-content custom-scrollbar">
@@ -750,7 +750,7 @@
         <div class="modal-content main-tool-modal-shell glass-panel help-modal">
           <div class="modal-header">
             <h3>📋 {{ t('tools.checkTool.formatHelp.title') }}</h3>
-            <button class="close-btn global-close-btn-base main-tool-modal-close-base" @click="showFormatHelpModal = false">×</button>
+            <button class="close-btn close-btn-base main-tool-modal-close-base" @click="showFormatHelpModal = false">×</button>
           </div>
 
           <div class="modal-body help-content custom-scrollbar">
@@ -830,7 +830,7 @@
         <div class="modal-content main-tool-modal-shell glass-panel">
           <div class="modal-header">
             <h3>📊 {{ toneCharsModalTitle }}</h3>
-            <button class="close-btn global-close-btn-base main-tool-modal-close-base" @click="showToneCharsModal = false">×</button>
+            <button class="close-btn close-btn-base main-tool-modal-close-base" @click="showToneCharsModal = false">×</button>
           </div>
 
           <div class="modal-body">
@@ -854,7 +854,7 @@
             <h3>
               🔍 {{ t('tools.checkTool.filter.title', { column: getFilterColumnLabel(filterColumnType) }) }}
             </h3>
-            <button class="close-btn global-close-btn-base main-tool-modal-close-base" @click="showFilterModal = false">×</button>
+            <button class="close-btn close-btn-base main-tool-modal-close-base" @click="showFilterModal = false">×</button>
           </div>
 
           <div class="modal-body filter-modal-body">
