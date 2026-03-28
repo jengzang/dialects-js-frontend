@@ -73,21 +73,11 @@
             <div class="triple-select-box">
               <!-- 卡片選擇區 -->
               <div class="card-row">
-                <div class="card-group">
-                  <div
-                      v-for="(item, index) in cards"
-                      :key="item"
-                      class="card-group-item"
-                      :class="{
-                        active: tabStates.tab2.current.card === item,
-                        first: index === 0,
-                        last: index === cards.length - 1
-                      }"
-                      @click="tabStates.tab2.current.card = item"
-                  >
-                    {{ getCardLabel(item) }}
-                  </div>
-                </div>
+                <ChoiceSelector
+                  v-model="tabStates.tab2.current.card"
+                  :options="cardOptions"
+                  :aria-label="$t('compare.group.label1')"
+                />
 
                 <div class="dropdown"
                      :ref="(el) => excludeFilterTriggerRef.tab2_current = el"
@@ -267,6 +257,7 @@ import LocationAndRegionInput from "@/main/components/query/LocationAndRegionInp
 import ZhongguSelector from "@/main/components/query/ZhongguSelector.vue";
 import KeyButtonGroup from "@/main/components/query/KeyButtonGroup.vue";
 import DropdownValueSelector from "@/main/components/query/DropdownValueSelector.vue";
+import ChoiceSelector from "@/components/common/ChoiceSelector.vue";
 import { globalPayload, queryStore, uiStore, isCompareButtonDisabled, setRunning, setTabContentDisabled, mapStore, userStore } from '@/main/store/store.js'
 import { S2T_T2S_MAPPING } from '@/main/config'
 import { compareChars, compareZhongGu, compareTones } from '@/api/index.js'
@@ -479,6 +470,13 @@ const getCardLabel = (card) => {
 }
 
 // 本地按鈕狀態，與 QueryPage 完全隔離
+const cardOptions = computed(() =>
+  cards.map((item) => ({
+    value: item,
+    label: getCardLabel(item)
+  }))
+)
+
 const buttonState = uiStore.buttonStates.compare
 
 // 2️⃣ 监听 Tab 1 的输入框内容
@@ -1321,6 +1319,14 @@ export default {
   flex-direction: column;
   align-items: center;
   gap: 1.5dvh;
+}
+
+.triple-select-box {
+  display: flex;
+  gap: 1.5dvw;
+  width: 100%;
+  justify-content: space-between;
+  flex-direction: column;
 }
 
 .card-row {

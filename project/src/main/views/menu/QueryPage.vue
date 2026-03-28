@@ -24,21 +24,11 @@
           <div class="triple-select-box">
             <!-- ✅ 卡片選擇區：獨立一行 -->
             <div class="card-row">
-              <div class="card-group">
-                <div
-                    v-for="(item, index) in cards"
-                    :key="item"
-                    class="card-group-item"
-                    :class="{
-                              active: tabStates.tab2.card === item,
-                              first: index === 0,
-                              last: index === cards.length - 1
-                            }"
-                    @click="tabStates.tab2.card = item"
-                >
-                  {{ translateResultTerm(t, item) }}
-                </div>
-              </div>
+              <ChoiceSelector
+                v-model="tabStates.tab2.card"
+                :options="cardOptions"
+                :aria-label="$t('query.tab2.title')"
+              />
 
                 <div class="dropdown"
                      :ref="(el) => excludeFilterTriggerRef.tab2 = el"
@@ -105,21 +95,11 @@
           <div class="triple-select-box">
             <!-- ✅ 卡片選擇區：獨立一行 -->
             <div class="card-row">
-              <div class="card-group">
-                <div
-                    v-for="(item, index) in cards"
-                    :key="item"
-                    class="card-group-item"
-                    :class="{
-                              active: tabStates.tab3.card === item,
-                              first: index === 0,
-                              last: index === cards.length - 1
-                            }"
-                    @click="tabStates.tab3.card = item"
-                >
-                  {{ translateResultTerm(t, item) }}
-                </div>
-              </div>
+              <ChoiceSelector
+                v-model="tabStates.tab3.card"
+                :options="cardOptions"
+                :aria-label="$t('query.tab3.title')"
+              />
 
               <!-- ✨ 過濾器下拉框 -->
 
@@ -232,6 +212,7 @@ import YinweiSelector from "@/main/components/query/YinweiSelector.vue";
 import FloatingDice from "@/main/components/query/FloatingDice.vue";
 import KeyButtonGroup from "@/main/components/query/KeyButtonGroup.vue";
 import DropdownValueSelector from "@/main/components/query/DropdownValueSelector.vue";
+import ChoiceSelector from "@/components/common/ChoiceSelector.vue";
 import { globalPayload, queryStore, uiStore, isQueryButtonDisabled, setRunning, setTabContentDisabled } from '@/main/store/store.js'
 import { S2T_T2S_MAPPING } from '@/main/config'
 import { useQueryConfig } from '@/utils/useQueryConfig'
@@ -293,6 +274,13 @@ const tabStates = reactive({
 })
 
 const cards = ['聲母', '韻母', '聲調']
+
+const cardOptions = computed(() =>
+  cards.map((item) => ({
+    value: item,
+    label: translateResultTerm(t, item)
+  }))
+)
 
 const tab3KeyTriggerEl = ref(null)
 const keyTriggerEl = ref(null)
@@ -628,6 +616,14 @@ export default {
   .triple-select-box{
     flex-wrap: wrap;
   }
+}
+
+.triple-select-box {
+  display: flex;
+  gap: 1.5dvw;
+  width: 100%;
+  justify-content: space-between;
+  flex-direction: column;
 }
 
 .page-content-stack {
