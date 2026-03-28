@@ -286,7 +286,12 @@
     <!-- 新增记录模态框 -->
     <Teleport to="body">
       <transition name="fade-scale">
-        <div v-if="showAddModal" class="glass-modal-overlay" @click="closeAddModal">
+        <div
+          v-if="showAddModal"
+          class="modal-overlay"
+          style="--overlay-z-index: 9999; --overlay-padding: 0"
+          @click="closeAddModal"
+        >
           <div class="add-modal glass-card" @click.stop>
             <button class="close-btn" :aria-label="t('common.button.close')" @click="closeAddModal">×</button>
             <h3 class="modal-title">{{ t('tableTree.universalTable.addModal.title') }}</h3>
@@ -317,7 +322,8 @@
       <Transition name="modal-fade">
         <div
           v-if="showBatchReplaceModal"
-          class="modal-overlay modal-overlay-base overlay-dim-strong"
+          class="modal-overlay"
+          style="--overlay-z-index: 9999; --overlay-padding: 20px"
           @click.self="closeBatchReplaceModal"
         >
           <div class="batch-replace-modal glass-container glass-container-soft">
@@ -2380,11 +2386,6 @@ td.cell-changed::after {
 /* ==========================================
    批量替换对话框样式
    ========================================== */
-
-.modal-overlay {
-  z-index: 9999;
-  padding: 20px;
-}
 
 .modal-fade-enter-active,
 .modal-fade-leave-active {

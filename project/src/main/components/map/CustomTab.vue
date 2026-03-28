@@ -129,7 +129,7 @@
     <!-- 帮助弹窗 -->
     <Teleport to="body">
       <Transition name="fade-scale">
-        <div v-if="isHelpModalOpen" class="glass-modal-overlay" @click.self="closeHelpModal">
+        <div v-if="isHelpModalOpen" class="modal-overlay" @click.self="closeHelpModal">
           <div class="glass-card help-modal">
             <button
               class="close-btn"
@@ -1015,6 +1015,10 @@ const handleAddBatch = () => {
   font-weight: 600;
   color: #333;
   text-align: center;
+}
+
+.modal-overlay {
+  --overlay-padding: 0;
 }
 
 .help-content {

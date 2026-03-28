@@ -1,6 +1,6 @@
 <template>
   <Teleport to="body">
-    <div v-if="visible" class="glass-overlay main-glass-overlay" @mousedown.self="$emit('close')">
+    <div v-if="visible" class="modal-overlay" @mousedown.self="$emit('close')">
       <div class="feature-stats-modal glass-modal main-glass-modal" role="dialog" aria-modal="true" @click.stop>
         <div class="modal-header main-glass-modal-header">
           <div class="modal-title main-glass-modal-title">
@@ -96,19 +96,6 @@ const getCharsString = (charIndices) => {
 
 <style>
 /* 非 scoped 樣式 - 全域遮罩和模態框（複用 LocationDetailPopup 的樣式）*/
-.feature-stats-glass-overlay-unused {
-  position: fixed;
-  inset: 0;
-  z-index: 20000;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 18px;
-  background: rgba(0, 0, 0, 0.3);
-  backdrop-filter: blur(7px);
-  -webkit-backdrop-filter: blur(6px);
-}
-
 .feature-stats-glass-modal-unused {
   width: min(720px, 94vw);
   max-height: min(70vh, 640px);
@@ -119,6 +106,10 @@ const getCharsString = (charIndices) => {
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
   backdrop-filter: blur(18px) saturate(160%);
   -webkit-backdrop-filter: blur(18px) saturate(160%);
+}
+
+.modal-overlay {
+  --overlay-z-index: 20000;
 }
 
 .feature-stats-modal-header-unused {

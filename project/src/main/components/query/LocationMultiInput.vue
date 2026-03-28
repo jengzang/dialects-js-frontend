@@ -67,7 +67,7 @@
     <Teleport to="body">
       <div
         v-if="showModal"
-        class="modal-overlay modal-overlay-base query-modal-overlay"
+        class="modal-overlay"
         @mousedown.self="showModal = false"
       >
         <div class="modal-content">
@@ -686,7 +686,8 @@ watch(showPartitionInfoModal, (isVisible) => {
 }
 
 .modal-overlay {
-  padding: 18px;
+  --overlay-z-index: 20000;
+  --overlay-padding: 18px;
 }
 
 .modal-content {

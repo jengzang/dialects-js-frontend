@@ -252,7 +252,7 @@
       </div>
     </div>
 
-    <div v-if="showDefaultRefModal" class="modal-overlay tool-modal-overlay" @click.self="showDefaultRefModal = false">
+    <div v-if="showDefaultRefModal" class="modal-overlay" @click.self="showDefaultRefModal = false">
       <div class="modal-container tool-modal-shell large-modal">
         <div class="modal-header">
           <h3 class="modal-title">📋 {{ t('tools.merge.modal.title') }}</h3>
@@ -1268,19 +1268,8 @@ const reset = () => {
 
 /* 模态弹窗样式 */
 .modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-  padding: 20px;
+  --overlay-z-index: 1000;
+  --overlay-padding: 20px;
 }
 
 .modal-container {
@@ -1616,7 +1605,7 @@ const reset = () => {
 
   /* 默认参考表模态框移动端适配 */
   .modal-overlay {
-    padding: 10px;
+    --overlay-padding: 10px;
   }
 
   .modal-container {

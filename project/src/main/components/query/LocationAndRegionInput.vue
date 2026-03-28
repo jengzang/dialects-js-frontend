@@ -174,7 +174,7 @@
       <Teleport to="body">
         <div
             v-if="showLocationsModal"
-            class="glass-overlay main-query-modal-overlay"
+            class="modal-overlay"
             @mousedown.self="closeModal"
         >
           <div class="glass-modal" role="dialog" aria-modal="true">
@@ -203,7 +203,7 @@
     <Teleport to="body">
       <div
           v-if="showCustomModal"
-          class="glass-overlay main-query-modal-overlay"
+          class="modal-overlay"
           @mousedown.self="closeCustomModal"
       >
         <div class="glass-modal" role="dialog" aria-modal="true">
@@ -1600,17 +1600,8 @@ defineExpose({
 }
 
 /* 全局遮罩 + 玻璃彈層 */
-.location-region-glass-overlay-unused {
-  position: fixed;
-  inset: 0;
-  z-index: 20000;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 18px;
-  background: var(--border-medium);
-  backdrop-filter: blur(7px);
-  -webkit-backdrop-filter: blur(6px);
+.modal-overlay {
+  --overlay-z-index: 20000;
 }
 
 .glass-modal {

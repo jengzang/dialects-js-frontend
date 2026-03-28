@@ -473,22 +473,6 @@ textarea:focus {
    毛玻璃效果样式（已存在的类名保持不变）
    ======================================== */
 
-/* 全屏遮罩 */
-.glass-modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  z-index: 9999;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: rgba(0, 0, 0, 0.2);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-}
-
 /* 玻璃卡片 */
 .glass-card {
   background: var(--glass-light);

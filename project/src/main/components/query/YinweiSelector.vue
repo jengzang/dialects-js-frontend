@@ -18,7 +18,7 @@
 
   <Teleport to="body">
     <Transition name="fade-scale">
-      <div v-if="isHelpModalOpen" class="glass-modal-overlay" @click.self="closeHelpModal">
+      <div v-if="isHelpModalOpen" class="modal-overlay" @click.self="closeHelpModal">
         <div class="glass-card">
           <button
             class="close-btn"
@@ -220,6 +220,10 @@ defineExpose({
   font-weight: 700;
   text-align: center;
   color: #1d1d1f;
+}
+
+.modal-overlay {
+  --overlay-padding: 0;
 }
 
 /* 空状态 */

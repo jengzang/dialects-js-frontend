@@ -25,7 +25,7 @@
 
   <Teleport to="body">
     <Transition name="fade-modal">
-      <div v-if="isHelpOpen" class="glass-modal-overlay" @click.self="isHelpOpen = false">
+      <div v-if="isHelpOpen" class="modal-overlay" @click.self="isHelpOpen = false">
         <div class="glass-card">
           <button
             class="close-btn"
@@ -522,6 +522,10 @@ function handleRoll() {
   font-weight: bold;
   color: #007aff; /* 蘋果藍 */
   margin: 0 2px;
+}
+
+.modal-overlay {
+  --overlay-padding: 0;
 }
 
 :deep(.example-desc) {

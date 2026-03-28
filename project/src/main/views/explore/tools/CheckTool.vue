@@ -589,7 +589,7 @@
 
     <!-- 批量替换对话框 -->
     <teleport to="body">
-      <div v-if="showBatchReplaceModal" class="modal-overlay tool-modal-overlay" @click.self="showBatchReplaceModal = false">
+      <div v-if="showBatchReplaceModal" class="modal-overlay" @click.self="showBatchReplaceModal = false">
         <div class="modal-content tool-modal-shell glass-panel">
           <div class="modal-header">
             <h3>🔄 {{ t('tools.checkTool.batchReplace.title') }}</h3>
@@ -654,7 +654,7 @@
 
     <!-- 帮助对话框 -->
     <teleport to="body">
-      <div v-if="showHelpModal" class="modal-overlay tool-modal-overlay" @click.self="showHelpModal = false">
+      <div v-if="showHelpModal" class="modal-overlay" @click.self="showHelpModal = false">
         <div class="modal-content tool-modal-shell glass-panel help-modal">
           <div class="modal-header">
             <h3>❓ {{ t('tools.checkTool.help.title') }}</h3>
@@ -746,7 +746,7 @@
 
     <!-- 文件格式说明对话框 -->
     <teleport to="body">
-      <div v-if="showFormatHelpModal" class="modal-overlay tool-modal-overlay" @click.self="showFormatHelpModal = false">
+      <div v-if="showFormatHelpModal" class="modal-overlay" @click.self="showFormatHelpModal = false">
         <div class="modal-content tool-modal-shell glass-panel help-modal">
           <div class="modal-header">
             <h3>📋 {{ t('tools.checkTool.formatHelp.title') }}</h3>
@@ -826,7 +826,7 @@
 
     <!-- 调值字符显示对话框 -->
     <teleport to="body">
-      <div v-if="showToneCharsModal" class="modal-overlay tool-modal-overlay" @click.self="showToneCharsModal = false">
+      <div v-if="showToneCharsModal" class="modal-overlay" @click.self="showToneCharsModal = false">
         <div class="modal-content tool-modal-shell glass-panel">
           <div class="modal-header">
             <h3>📊 {{ toneCharsModalTitle }}</h3>
@@ -848,7 +848,7 @@
 
     <!-- 列筛选对话框 -->
     <teleport to="body">
-      <div v-if="showFilterModal" class="modal-overlay tool-modal-overlay" @click.self="showFilterModal = false">
+      <div v-if="showFilterModal" class="modal-overlay" @click.self="showFilterModal = false">
         <div class="modal-content tool-modal-shell glass-panel filter-modal">
           <div class="modal-header">
             <h3>
@@ -2959,18 +2959,9 @@ justify-content: center;
 }
 
 /* 模态框 */
-.checktool-modal-overlay-unused {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(4px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
+.modal-overlay {
+  --overlay-z-index: 1000;
+  --overlay-padding: 0;
 }
 
 .modal-content {

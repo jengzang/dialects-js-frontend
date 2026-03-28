@@ -3,7 +3,7 @@
     <Transition name="modal-fade">
       <div
         v-if="visible"
-        class="update-modal-overlay modal-overlay-center"
+        class="modal-overlay"
         @click.self="handleClose"
       >
         <div class="update-modal modal-frame">
@@ -95,10 +95,8 @@ defineExpose({
 </script>
 
 <style scoped>
-.update-modal-overlay {
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(8px);
-  z-index: 10000;
+.modal-overlay {
+  --overlay-padding: 0;
 }
 
 .update-modal {

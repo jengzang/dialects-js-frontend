@@ -547,7 +547,7 @@
     <!-- Support Modal -->
     <Teleport to="body">
       <transition name="modal">
-        <div v-if="showSupport" class="modal-overlay modal-overlay-base overlay-dim-strong" @click="showSupport = false">
+        <div v-if="showSupport" class="modal-overlay" @click="showSupport = false">
           <div class="modal-content" @click.stop>
             <button class="modal-close" @click="showSupport = false">✕</button>
             <h3 class="modal-title">{{ $t('home.supportModal.title') }}</h3>
@@ -1521,8 +1521,8 @@ onMounted(() => {
 
 /* Modal */
 .modal-overlay {
-  z-index: 9999;
-  padding: 1.5rem;
+  --overlay-z-index: 9999;
+  --overlay-padding: 1.5rem;
 }
 
 .modal-content {
@@ -1670,7 +1670,7 @@ onMounted(() => {
 
   /* Modal 移動端優化 */
   .modal-overlay {
-    padding: 0;
+    --overlay-padding: 0;
   }
 
   .modal-content {

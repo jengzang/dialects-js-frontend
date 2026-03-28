@@ -306,7 +306,7 @@
     <Teleport to="body">
       <div
         v-if="showAllModal"
-        class="modal-overlay modal-overlay-base overlay-dim-md"
+        class="modal-overlay"
         @click.self="showAllModal = false"
       >
         <div class="modal-content">
@@ -1156,7 +1156,7 @@ watch(viewMode, async (newMode) => {
 
 /* 弹窗遮罩 */
 .modal-overlay {
-  z-index: 100000;
+  --overlay-z-index: 100000;
   animation: fadeIn 0.2s ease-out;
 }
 

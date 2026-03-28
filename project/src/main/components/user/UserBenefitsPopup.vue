@@ -3,7 +3,7 @@
     <Transition name="popup-fade">
       <div
         v-if="visible"
-        class="benefits-popup-overlay modal-overlay-center"
+        class="modal-overlay"
         @click.self="closePopup"
       >
         <div class="benefits-popup modal-frame popup-animated">
@@ -335,10 +335,9 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
-.benefits-popup-overlay {
-  background: rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(8px);
-  z-index: 999999;
+.modal-overlay {
+  --overlay-z-index: 999999;
+  --overlay-padding: 0;
 }
 
 .benefits-popup {

@@ -159,10 +159,10 @@
     <Teleport to="body">
       <div
         v-if="showBatchEditModal"
-        class="modal-overlay modal-overlay-base crud-modal-overlay"
+        class="modal-overlay"
         @click.self="closeBatchEditModal"
       >
-        <div class="modal-content modal-large">
+        <div class="modal-content modal-large crud-modal">
           <div class="modal-header modal-header-base">
             <h3 class="modal-title-base">
               {{ t('user.dataPage.batchEdit.title', { count: batchEditRows.length }) }}
@@ -215,10 +215,10 @@
     <Teleport to="body">
       <div
         v-if="showBatchCreateModal"
-        class="modal-overlay modal-overlay-base crud-modal-overlay"
+        class="modal-overlay"
         @click.self="closeBatchCreateModal"
       >
-        <div class="modal-content modal-large">
+        <div class="modal-content modal-large crud-modal">
           <div class="modal-header modal-header-base">
             <h3 class="modal-title-base">{{ t('user.dataPage.batchCreate.title') }}</h3>
             <button class="modal-close" @click="closeBatchCreateModal">×</button>
@@ -284,10 +284,10 @@
     <Teleport to="body">
       <div
         v-if="showEditModal"
-        class="modal-overlay modal-overlay-base crud-modal-overlay"
+        class="modal-overlay"
         @click.self="closeEditModal"
       >
-        <div class="modal-content">
+        <div class="modal-content crud-modal">
           <div class="modal-header modal-header-base">
             <h3 class="modal-title-base">{{ t('user.dataPage.singleEdit.title') }}</h3>
             <button class="modal-close" @click="closeEditModal">×</button>
@@ -999,6 +999,7 @@ onMounted(() => {
 
 /* Modal styles */
 .modal-overlay {
+  --overlay-padding: 20px;
 }
 
 .modal-content {

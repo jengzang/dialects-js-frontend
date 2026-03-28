@@ -46,7 +46,7 @@
 
   <Teleport to="body">
     <Transition name="modal-fade">
-      <div v-if="isModalOpen" class="glass-modal-overlay" @click.self="isModalOpen = false">
+      <div v-if="isModalOpen" class="modal-overlay" @click.self="isModalOpen = false">
         <div class="modal-content glass-card-high">
           <div class="modal-header">
             <h2>{{ $t('query.components.zhongguSelector.detailsTitle') }}</h2>
@@ -376,6 +376,10 @@ defineExpose({ combinations })
   flex-direction: column;
   overflow: hidden;
   border: 1px solid var(--glass-border-strong);
+}
+
+.modal-overlay {
+  --overlay-padding: 0;
 }
 
 .modal-header {

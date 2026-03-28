@@ -133,7 +133,7 @@
     </div>
 
     <transition name="modal">
-      <div class="modal-overlay tool-modal-overlay" v-if="showConfigModal" @click.self="showConfigModal = false">
+      <div class="modal-overlay" v-if="showConfigModal" @click.self="showConfigModal = false">
         <div class="modal-content tool-modal-shell large-modal">
           <div class="modal-header">
             <div class="header-left">
@@ -1004,21 +1004,6 @@ loadConfig()
 }
 
 /* 模态框样式 */
-.jyut2ipa-modal-overlay-unused {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
-
 .modal-content {
   width: min(90vw, 700px);
   max-height: 85vh;
@@ -1032,6 +1017,11 @@ loadConfig()
 .modal-header {
   padding: 20px 32px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.modal-overlay {
+  --overlay-z-index: 1000;
+  --overlay-padding: 0;
 }
 
 .header-left {

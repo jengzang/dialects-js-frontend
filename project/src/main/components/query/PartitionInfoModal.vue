@@ -1,6 +1,6 @@
 <template>
   <Teleport to="body">
-    <div v-if="modelValue" class="glass-overlay main-query-modal-overlay" @mousedown.self="closeModal">
+    <div v-if="modelValue" class="modal-overlay" @mousedown.self="closeModal">
       <div class="partition-info-modal glass-modal" role="dialog" aria-modal="true">
         <!-- 头部 -->
         <div class="modal-header main-query-modal-header">
@@ -717,19 +717,6 @@ const PartitionTreeNode = defineComponent({
 
 <style scoped>
 /* Modal overlay */
-.partition-modal-glass-overlay-unused {
-  position: fixed;
-  inset: 0;
-  z-index: 20000;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 18px;
-  background: var(--border-medium);
-  backdrop-filter: blur(7px);
-  -webkit-backdrop-filter: blur(6px);
-}
-
 .glass-modal {
   width: min(920px, 94vw);
   max-height: 88vh;
@@ -939,6 +926,10 @@ const PartitionTreeNode = defineComponent({
   padding: 80px 20px;
   gap: 16px;
   color: #6e6e73;
+}
+
+.modal-overlay {
+  --overlay-z-index: 20000;
 }
 
 .spinner {

@@ -55,7 +55,7 @@
   <!-- 访问历史弹窗 -->
   <Teleport to="body">
     <Transition name="fade-scale">
-      <div v-if="isStatsExpanded" class="glass-modal-overlay" @click.self="closeStatsPanel">
+      <div v-if="isStatsExpanded" class="modal-overlay" @click.self="closeStatsPanel">
         <div class="glass-card stats-modal-card">
           <button class="close-btn" @click="closeStatsPanel">&times;</button>
           <h3 class="modal-title">📊 {{ t('navigation.stats.historyTitle') }}</h3>
@@ -932,5 +932,8 @@ onBeforeUnmount(() => {
     /* 在移動設備上確保不會超出螢幕 */
     max-width: calc(100vw - 20px);
   }
+}
+.modal-overlay {
+  --overlay-padding: 0;
 }
 </style>
