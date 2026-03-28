@@ -908,38 +908,16 @@ onMounted(() => {
 }
 
 .modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20px 24px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 .modal-header h2 {
   margin: 0;
-  font-size: 20px;
-  font-weight: 600;
-  color: #2c3e50;
 }
 
 .close-btn {
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(0, 0, 0, 0.05);
-  border: none;
-  border-radius: 50%;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-size: 18px;
-  color: #666;
 }
 
 .close-btn:hover {
-  background: rgba(255, 59, 48, 0.1);
-  color: #ff3b30;
 }
 
 .modal-body {

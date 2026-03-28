@@ -114,42 +114,16 @@ const titleText = computed(() => {
 }
 
 .modal-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 14px 18px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-  background: rgba(255, 255, 255, 0.56);
 }
 
 .modal-title {
-  font-size: 16px;
-  font-weight: 700;
-  color: #1f2937;
   line-height: 1.3;
 }
 
 .modal-close {
-  width: 32px;
-  height: 32px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid rgba(0, 0, 0, 0.16);
-  background: rgba(255, 255, 255, 0.9);
-  color: #1f2937;
-  border-radius: 50%;
-  padding: 0;
-  font-size: 20px;
-  line-height: 1;
-  cursor: pointer;
-  transition: all 0.2s ease;
 }
 
 .modal-close:hover {
-  background: rgba(255, 255, 255, 1);
-  transform: translateY(-1px);
 }
 
 .modal-body {

@@ -216,6 +216,77 @@
   -webkit-backdrop-filter: blur(6px);
 }
 
+.crud-modal-overlay .modal-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.crud-modal-overlay .modal-title-base,
+.crud-modal-overlay .modal-header h2,
+.crud-modal-overlay .modal-header h3 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #333;
+}
+
+.crud-modal-overlay .close-btn,
+.crud-modal-overlay .modal-close {
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.05);
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 20px;
+  color: #666;
+  line-height: 1;
+}
+
+.crud-modal-overlay .close-btn:hover,
+.crud-modal-overlay .modal-close:hover {
+  background: rgba(255, 59, 48, 0.1);
+  color: #ff3b30;
+}
+
+.cell-detail-modal .modal-header {
+  gap: 12px;
+  padding: 14px 18px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  background: rgba(255, 255, 255, 0.56);
+}
+
+.cell-detail-modal .modal-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.cell-detail-modal .modal-close {
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(0, 0, 0, 0.16);
+  background: rgba(255, 255, 255, 0.9);
+  color: #1f2937;
+  border-radius: 50%;
+  padding: 0;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cell-detail-modal .modal-close:hover {
+  background: rgba(255, 255, 255, 1);
+  transform: translateY(-1px);
+}
+
 .tool-modal-overlay {
   position: fixed;
   top: 0;

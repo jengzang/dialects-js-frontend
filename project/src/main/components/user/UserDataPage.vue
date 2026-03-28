@@ -1017,26 +1017,13 @@ onMounted(() => {
 }
 
 .modal-header {
-  padding: 20px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
 }
 
 .modal-header h3 {
   margin: 0;
-  font-size: 20px;
-  color: #333;
 }
 
 .modal-close {
-  background: none;
-  border: none;
-  font-size: 28px;
-  cursor: pointer;
-  color: #666;
-  line-height: 1;
 }
 
 .modal-body {
