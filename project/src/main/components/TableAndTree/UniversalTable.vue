@@ -315,12 +315,16 @@
     <!-- 批量替换对话框 -->
     <Teleport to="body">
       <Transition name="modal-fade">
-        <div v-if="showBatchReplaceModal" class="modal-overlay" @click.self="closeBatchReplaceModal">
+        <div
+          v-if="showBatchReplaceModal"
+          class="modal-overlay modal-overlay-base overlay-dim-strong"
+          @click.self="closeBatchReplaceModal"
+        >
           <div class="batch-replace-modal glass-container glass-container-soft">
             <!-- 标题栏 -->
             <div class="modal-header">
               <h3>{{ t('tableTree.universalTable.batchReplace.title') }}</h3>
-              <button class="close-btn" :aria-label="t('common.button.close')" @click="closeBatchReplaceModal">✕</button>
+              <button class="close-btn close-btn-base" :aria-label="t('common.button.close')" @click="closeBatchReplaceModal">✕</button>
             </div>
 
             <!-- 主体内容 -->
@@ -2378,16 +2382,8 @@ td.cell-changed::after {
    ========================================== */
 
 .modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.5);
   z-index: 9999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   padding: 20px;
-  backdrop-filter: blur(5px);
-  -webkit-backdrop-filter: blur(5px);
 }
 
 .modal-fade-enter-active,
@@ -2429,17 +2425,11 @@ td.cell-changed::after {
 
 .batch-replace-modal .close-btn {
   background: transparent;
-  border: none;
   font-size: 24px;
   color: #666;
-  cursor: pointer;
   width: 32px;
   height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   border-radius: 50%;
-  transition: all 0.2s;
 }
 
 .batch-replace-modal .close-btn:hover {

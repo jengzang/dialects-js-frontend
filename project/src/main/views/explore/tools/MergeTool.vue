@@ -256,7 +256,7 @@
       <div class="modal-container tool-modal-shell large-modal">
         <div class="modal-header">
           <h3 class="modal-title">📋 {{ t('tools.merge.modal.title') }}</h3>
-          <button class="close-btn" :title="t('tools.common.close')" @click="showDefaultRefModal = false">✕</button>
+          <button class="close-btn close-btn-base" :title="t('tools.common.close')" @click="showDefaultRefModal = false">✕</button>
         </div>
 
         <div class="modal-tabs">
@@ -1303,15 +1303,9 @@ const reset = () => {
 .close-btn {
   width: 32px;
   height: 32px;
-  border: none;
   background: rgba(0, 0, 0, 0.05);
   border-radius: 50%;
   font-size: 18px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
   color: #0b2540;
 }
 

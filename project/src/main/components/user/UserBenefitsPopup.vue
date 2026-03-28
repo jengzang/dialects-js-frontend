@@ -10,7 +10,7 @@
           <div class="popup-header">
             <h3>{{ t('user.benefitsPopup.title') }}</h3>
             <button
-              class="popup-close-btn"
+              class="popup-close-btn close-btn-base"
               :aria-label="t('common.button.close')"
               @click="closePopup"
             >
@@ -383,17 +383,11 @@ onBeforeUnmount(() => {
 .popup-close-btn {
   flex-shrink: 0;
   background: rgba(0, 0, 0, 0.05);
-  border: none;
   border-radius: 50%;
   width: 32px;
   height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
   font-size: 20px;
   color: #86868b;
-  transition: all 0.2s ease;
 }
 
 .popup-close-btn:hover {
