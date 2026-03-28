@@ -42,14 +42,14 @@
             <div id='display-detail3' class="panel-content">
               <p style="margin: 0">
                 {{ $t('query.components.floatingDice.examples.title') }}<br>
-                {{ $t('query.components.floatingDice.examples.example1') }}
+                <span v-html="formattedExamples[0]"></span>
               </p>
               <p
-                v-for="index in [2, 3, 4, 5, 6, 7, 8, 9, 10]"
-                :key="`example-${index}`"
+                v-for="(exampleHtml, index) in formattedExamples.slice(1)"
+                :key="`example-${index + 2}`"
                 style="margin: 0"
               >
-                {{ $t(`query.components.floatingDice.examples.example${index}`) }}
+                <span v-html="exampleHtml"></span>
               </p>
 
               <div class="divider"></div>
@@ -74,10 +74,8 @@
               </div>
 
               <div class="divider"></div>
-              <p v-for="index in [1, 2, 3, 4, 5, 6, 7, 8, 9]" :key="`note-${index}`">
-                <span :class="index === 1 ? 'example-desc' : null">
-                  {{ $t(`query.components.floatingDice.notes.note${index}`) }}
-                </span>
+              <p v-for="(noteHtml, index) in formattedNotes" :key="`note-${index + 1}`">
+                <span v-html="noteHtml"></span>
               </p>
             </div>
           </div>
@@ -126,6 +124,139 @@ const supportedInputRows = computed(() =>
     values: t(`query.components.floatingDice.inputRows.${rowKey}.values`)
   }))
 )
+
+const formattedExamples = computed(() =>
+  Array.from({ length: 10 }, (_, index) =>
+    formatExampleText(
+      t(`query.components.floatingDice.examples.example${index + 1}`),
+      index + 1
+    )
+  )
+)
+
+const formattedNotes = computed(() =>
+  Array.from({ length: 9 }, (_, index) =>
+    formatNoteText(
+      t(`query.components.floatingDice.notes.note${index + 1}`),
+      index + 1
+    )
+  )
+)
+
+function escapeHtml(text) {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+}
+
+function highlightExampleInput(text) {
+  return text.replace(
+    /(「[^」]+」|“[^”]+”|&quot;.*?&quot;)/,
+    '<span class="example-input"><strong>$1</strong></span>'
+  )
+}
+
+function highlightDesc(text, patterns) {
+  return patterns.reduce(
+    (result, pattern) => result.replace(pattern, '$1<span class="example-desc">$2</span>$3'),
+    text
+  )
+}
+
+function formatExampleText(text, index) {
+  let formatted = highlightExampleInput(escapeHtml(text))
+
+  const sharedChineseUsage = /(\s使用\s)(.+?)(\s(?:进行分析|進行分析))/g
+  const sharedEnglishUsage = /(\suses\s)(.+?)(\sfor analysis)/gi
+
+  switch (index) {
+    case 1:
+    case 2:
+    case 4:
+    case 7:
+    case 8:
+      formatted = highlightDesc(formatted, [sharedChineseUsage, sharedEnglishUsage])
+      break
+    case 3:
+      formatted = highlightDesc(formatted, [sharedChineseUsage, sharedEnglishUsage])
+      break
+    case 5:
+      formatted = highlightDesc(formatted, [
+        /(\s使用(?:合并后的|合併後的)\s)(.+?)(\s(?:辑字|輯字)进行分析|\s(?:輯字|辑字)進行分析)/g,
+        /(\suses\smerged\s)(.+?)(\sfor analysis)/gi
+      ])
+      break
+    case 6:
+      formatted = highlightDesc(formatted, [
+        sharedChineseUsage,
+        sharedEnglishUsage,
+        /(\s(?:会使用|會使用)\s)(.+?)(\s分析)/g,
+        /(\s)(.+?)(\sinitial will be used)/gi
+      ])
+      break
+    case 9:
+      formatted = highlightDesc(formatted, [
+        /(\s提取\s)(.+?)(\s(?:进行分析|進行分析))/g,
+        /(\sextracts\s)(.+?)(\sfor analysis)/gi
+      ])
+      break
+    case 10:
+      formatted = highlightDesc(formatted, [
+        /(\s分析\s)(.+?)(\s[，,])/g,
+        /(\sanalyzes\s)(.+?)(\s, including)/gi
+      ])
+      break
+    default:
+      formatted = highlightDesc(formatted, [sharedChineseUsage, sharedEnglishUsage])
+  }
+
+  return formatted
+}
+
+function formatNoteText(text, index) {
+  let formatted = escapeHtml(text)
+
+  switch (index) {
+    case 1:
+      return `<span class="example-desc">${formatted}</span>`
+    case 2:
+      formatted = formatted
+        .replace(/(蓝色字|藍色字|blue text like this)/i, '<span class="example-input"><strong>$1</strong></span>')
+        .replace(/(可点击|可點擊|clickable)/i, '<span class="example-desc">$1</span>')
+      break
+    case 3:
+      formatted = formatted.replace(/(细分查询|細分查詢|detailed query)/i, '<span class="example-desc">$1</span>')
+      break
+    case 4:
+      formatted = formatted.replace(/(无限生成|無限生成|generated infinitely)/i, '<span class="example-desc">$1</span>')
+      break
+    case 5:
+      formatted = formatted.replace(/(移动端|移動端|Mobile interface)/i, '<span class="example-desc">$1</span>')
+      break
+    case 6:
+      formatted = formatted
+        .replace(/(分区\s*[▼▼]|分區\s*[▼▼]|Partition\s*▼)/i, '<span class="example-input"><strong>$1</strong></span>')
+        .replace(/(单击|單擊|click)/i, '<span class="example-desc">$1</span>')
+      break
+    case 7:
+      formatted = formatted
+        .replace(/(电脑端|電腦端|Desktop)/i, '<span class="example-desc">$1</span>')
+        .replace(/(光标|光標|cursor)/i, '<span class="example-desc">$1</span>')
+      break
+    case 8:
+      formatted = formatted
+        .replace(/(移动端|移動端|Mobile)/i, '<span class="example-desc">$1</span>')
+        .replace(/(点击箭头⌵|點擊箭頭⌵|click arrow ⌵)/i, '<span class="example-desc">$1</span>')
+      break
+    default:
+      break
+  }
+
+  return formatted
+}
 // ==========================================
 // 1. 數據部分
 // ==========================================
@@ -386,14 +517,14 @@ function handleRoll() {
 }
 
 /* ----------- 你的自定义样式类 ----------- */
-.example-input {
+:deep(.example-input) {
   font-family: "SF Pro Display", "PingFang TC", "Helvetica Neue", sans-serif;
   font-weight: bold;
   color: #007aff; /* 蘋果藍 */
   margin: 0 2px;
 }
 
-.example-desc {
+:deep(.example-desc) {
   font-family: "楷体", "Times New Roman", serif;
   font-size: 17px; /*稍微调整以匹配正文*/
   font-weight: bold;

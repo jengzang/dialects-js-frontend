@@ -111,6 +111,10 @@ function handleSelect(value) {
   font-weight: 600;
 }
 
+.card-group-item.active:hover:not(.disabled) {
+  background: var(--color-primary-medium2);
+}
+
 @media (max-aspect-ratio: 1/1) {
   .card-group-item {
     padding: 12px 12px;
