@@ -140,8 +140,8 @@
     <!-- 内容区 -->
     <!-- 加载状态 -->
     <div v-if="isLoading" class="content-area">
-      <div class="loading-state">
-        <div class="spinner"></div>
+      <div class="loading-state main-loading-state-base">
+        <div class="spinner main-spinner-base main-spinner-md"></div>
         <span>{{ t('words.yuBaoPage.states.loadingData') }}</span>
       </div>
     </div>
@@ -179,7 +179,7 @@
       <div class="card-mode">
 
         <div v-if="isLoadingCards" class="cards-loading">
-          <div class="spinner"></div>
+          <div class="spinner main-spinner-base main-spinner-md"></div>
           <span>{{ t('words.yuBaoPage.states.loadingCards') }}</span>
         </div>
 
@@ -253,13 +253,13 @@
             <span v-else-if="filteredCardData.length > 0" class="no-more">{{ t('words.yuBaoPage.states.loadedAll') }}</span>
           </div>
 
-          <div v-if="filteredCardData.length === 0" class="empty-state">
+          <div v-if="filteredCardData.length === 0" class="empty-state main-empty-state-base">
             <p>{{ t('words.yuBaoPage.states.noFilterResult', { query: localFilterQuery }) }}</p>
           </div>
 
         </template>
 
-        <div v-else class="empty-state">
+        <div v-else class="empty-state main-empty-state-base">
           <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
             <circle cx="12" cy="12" r="10"/>
             <line x1="12" y1="8" x2="12" y2="12"/>
@@ -276,11 +276,11 @@
     <!-- 地图模式 -->
     <div v-else-if="viewMode === 'map'" class="map-mode">
       <div v-if="isLoadingCards" class="cards-loading">
-        <div class="spinner"></div>
+        <div class="spinner main-spinner-base main-spinner-md"></div>
         <span>{{ t('words.yuBaoPage.states.loadingData') }}</span>
       </div>
       <template v-else>
-        <div v-if="!isValidInput || cardData.length === 0" class="empty-state">
+        <div v-if="!isValidInput || cardData.length === 0" class="empty-state main-empty-state-base">
           <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
             <circle cx="12" cy="12" r="10"/>
             <line x1="12" y1="8" x2="12" y2="12"/>
@@ -1303,21 +1303,13 @@ watch(viewMode, async (newMode) => {
 
 /* 加载状态 */
 .loading-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
   padding: 60px 20px;
   gap: 16px;
 }
 
 .spinner {
-  width: 40px;
-  height: 40px;
   border: 3px solid rgba(0, 113, 227, 0.2);
   border-top-color: #0071e3;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
 }
 
 @keyframes spin {
@@ -1602,10 +1594,6 @@ watch(viewMode, async (newMode) => {
 
 /* 空状态 */
 .empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
   padding: 80px 20px;
   gap: 12px;
   color: #6e6e73;

@@ -38,12 +38,12 @@
       </div>
     </div>
 
-    <div v-if="loading" class="loading-container">
-      <div class="spinner"></div>
+    <div v-if="loading" class="loading-container main-loading-state-base">
+      <div class="spinner main-spinner-base main-spinner-md"></div>
       <p>{{ t('common.label.loading') }}</p>
     </div>
 
-    <div v-else-if="!loading && filteredRegions.length === 0" class="empty-state">
+    <div v-else-if="!loading && filteredRegions.length === 0" class="empty-state main-empty-state-base">
       <div class="empty-icon">📭</div>
       <p class="empty-text">
         {{ searchQuery ? t('user.regionPage.empty.noMatch') : t('user.regionPage.empty.noRegions') }}
@@ -708,21 +708,13 @@ onMounted(() => {
 }
 
 .loading-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
   padding: 60px 20px;
   color: #666;
 }
 
 .spinner {
-  width: 40px;
-  height: 40px;
   border: 3px solid rgba(0, 122, 255, 0.2);
   border-top-color: #007aff;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
 }
 
 @keyframes spin {
@@ -759,12 +751,7 @@ onMounted(() => {
 }
 
 .empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
   padding: 20px;
-  text-align: center;
 }
 
 .empty-icon {

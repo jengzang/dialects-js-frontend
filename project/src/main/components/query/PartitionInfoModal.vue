@@ -51,8 +51,8 @@
 
         <!-- 主体：树状图 -->
         <div class="modal-body">
-          <div v-if="isLoading" class="loading-state">
-            <div class="spinner"></div>
+          <div v-if="isLoading" class="loading-state main-loading-state-base">
+            <div class="spinner main-spinner-base main-spinner-lg"></div>
             <span>{{ $t('query.components.partitionModal.loading') }}</span>
           </div>
 
@@ -936,22 +936,14 @@ const PartitionTreeNode = defineComponent({
 /* Loading and error states */
 .loading-state,
 .error-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
   padding: 80px 20px;
   gap: 16px;
   color: #6e6e73;
 }
 
 .spinner {
-  width: 48px;
-  height: 48px;
   border: 4px solid rgba(0, 122, 255, 0.1);
   border-top-color: #007AFF;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
 }
 
 @keyframes spin {
