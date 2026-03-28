@@ -228,10 +228,6 @@ async function runClustering() {
   font-style: italic;
 }
 
-.run-button {
-  margin-top: 8px;
-  padding: 12px 24px;
-}
 
 .results-section {
   overflow-y: auto;

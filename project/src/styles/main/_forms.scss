@@ -1,4 +1,5 @@
-.main-choice-shell .triple-select-box {
+.query-page-root .triple-select-box,
+.compare-page-root .triple-select-box {
   display: flex;
   gap: 1.5dvw;
   width: 100%;
@@ -6,7 +7,8 @@
   flex-direction: column;
 }
 
-.main-choice-shell .card-group {
+.query-page-root .card-group,
+.compare-page-root .card-group {
   display: flex;
   flex-direction: row;
   border-radius: 12px;
@@ -17,7 +19,8 @@
   box-shadow: var(--shadow-md);
 }
 
-.main-choice-shell .card-group-item {
+.query-page-root .card-group-item,
+.compare-page-root .card-group-item {
   padding: 10px 16px;
   flex: 1;
   text-align: center;
@@ -34,27 +37,31 @@
   text-overflow: ellipsis;
 }
 
-.main-choice-shell .card-group-item:hover {
+.query-page-root .card-group-item:hover,
+.compare-page-root .card-group-item:hover {
   background: var(--glass-medium);
 }
 
-.main-choice-shell .card-group-item.first {
+.query-page-root .card-group-item.first,
+.compare-page-root .card-group-item.first {
   border-radius: 12px 0 0 12px;
   border-left-color: var(--color-primary-medium);
 }
 
-.main-choice-shell .card-group-item.last {
+.query-page-root .card-group-item.last,
+.compare-page-root .card-group-item.last {
   border-radius: 0 12px 12px 0;
   border-right-color: var(--color-primary-medium);
 }
 
-.main-choice-shell .card-group-item.active {
+.query-page-root .card-group-item.active,
+.compare-page-root .card-group-item.active {
   background: var(--color-primary-medium);
   color: var(--color-primary);
   font-weight: 600;
 }
 
-.main-choice-dropdown-panel {
+.choice-dropdown-panel {
   position: absolute;
   min-width: 80px;
   max-height: 40dvh;
@@ -68,7 +75,7 @@
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
 }
 
-.main-choice-dropdown-item {
+.choice-dropdown-item {
   padding: 8px 16px;
   cursor: pointer;
   font-size: 14px;
@@ -78,13 +85,13 @@
   text-overflow: ellipsis;
 }
 
-.main-choice-dropdown-item.active {
+.choice-dropdown-item.active {
   background-color: #e6f0ff;
   color: #02469e;
   font-weight: bold;
 }
 
-.main-choice-dropdown-item:hover {
+.choice-dropdown-item:hover {
   background-color: #e6f0ff;
 }
 
@@ -169,11 +176,13 @@
 }
 
 @media (max-aspect-ratio: 1/1) {
-  .main-choice-shell .triple-select-box {
+  .query-page-root .triple-select-box,
+  .compare-page-root .triple-select-box {
     flex-wrap: wrap;
   }
 
-  .main-choice-shell .card-group-item {
+  .query-page-root .card-group-item,
+  .compare-page-root .card-group-item {
     padding: 12px 12px;
   }
 }

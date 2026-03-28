@@ -146,47 +146,6 @@ const goToTendency = (pattern) => {
   width: 200px;
 }
 
-.query-button {
-  white-space: nowrap;
-  padding: 10px 24px;
-  background: var(--color-primary);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.query-button:hover:not(:disabled) {
-  background: #3a7bc8;
-}
-
-.query-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.loading-state {
-  text-align: center;
-  padding: 40px 20px;
-}
-
-.spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid rgba(74, 144, 226, 0.2);
-  border-top-color: var(--color-primary);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin: 0 auto 15px;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
 .structural-list {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));

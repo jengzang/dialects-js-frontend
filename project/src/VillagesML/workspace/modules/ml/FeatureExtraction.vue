@@ -1228,24 +1228,6 @@ onMounted(() => {
   background: rgba(255, 255, 255, 0.8);
 }
 
-.solid-button.secondary {
-  background: linear-gradient(135deg, #95a5a6, #7f8c8d);
-}
-
-.solid-button.secondary:hover:not(:disabled) {
-  background: linear-gradient(135deg, #a8b5b6, #8d9a9b);
-}
-
-.solid-button.small {
-  padding: 8px 16px;
-  font-size: 13px;
-}
-
-.solid-button.large {
-  padding: 14px 32px;
-  font-size: 16px;
-}
-
 .village-list {
   max-height: 400px;
   overflow-y: auto;

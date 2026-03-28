@@ -459,28 +459,6 @@ onBeforeUnmount(() => {
   background: rgba(255, 255, 255, 0.8);
 }
 
-.query-button {
-  white-space: nowrap;
-  padding: 10px 24px;
-  background: var(--color-primary);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.query-button:hover:not(:disabled) {
-  background: #3a7bc8;
-}
-
-.query-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
 .loading-state {
   text-align: center;
   padding: 60px 20px;

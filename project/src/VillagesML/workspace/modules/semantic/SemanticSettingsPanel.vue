@@ -242,15 +242,6 @@ const runAnalysis = () => {
   cursor: pointer;
 }
 
-.run-button {
-  padding: 12px 24px;
-  margin-top: 8px;
-}
-
-.run-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
 
 .auth-notice {
   display: flex;

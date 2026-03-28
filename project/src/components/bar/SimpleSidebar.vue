@@ -2,24 +2,25 @@
 <template>
   <!-- 遮罩层 -->
   <Transition name="fade">
-    <div v-if="isOpen" class="overlay" @click="$emit('close')" @wheel.prevent @touchmove.prevent></div>
+    <div v-if="isOpen" class="overlay main-sidebar-overlay" @click="$emit('close')" @wheel.prevent @touchmove.prevent></div>
   </Transition>
 
   <!-- 侧边栏 -->
   <Transition name="slide-fade">
-    <div v-if="isOpen" class="sidebar" @touchmove.stop>
+    <div v-if="isOpen" class="sidebar main-sidebar-shell" @touchmove.stop>
       <!-- 标题图片 (可选) -->
       <div v-if="showTitle" class="sidebar-header">
         <img src="../../assets/picture/title.png" alt="Title" class="title-img" />
       </div>
-      <div v-else class="sidebar-empty"></div>
+      <div v-else class="sidebar-empty main-sidebar-empty"></div>
 
-      <div class="sidebar-content">
-        <ul>
+      <div class="sidebar-content main-sidebar-content">
+        <ul class="main-sidebar-list">
           <!-- Dynamic menu items from config (includes 返回查詢 for SimpleSidebar) -->
           <li
             v-for="(item, key) in filteredMenuConfig"
             :key="key"
+            class="main-sidebar-item"
             @click="handleMainClick(item, key, $event)"
             @mouseenter="handleItemMouseEnter(item, key, $event)"
             @mouseleave="item.children && !isMobile ? scheduleCloseSubmenu() : null"
@@ -30,8 +31,8 @@
         </ul>
 
         <!-- 访问统计区域 -->
-        <div class="visit-stats">
-          <div class="stats-summary">
+        <div class="visit-stats main-sidebar-stats">
+          <div class="stats-summary main-sidebar-stats-summary">
             <div class="stat-item">
               <span class="stat-label">{{ t('common.label.today') }}</span>
               <span class="stat-value">{{ todayVisits }}</span>
@@ -40,7 +41,7 @@
               <span class="stat-label">{{ t('common.label.totalVisits') }}</span>
               <span class="stat-value">{{ totalVisits }}</span>
             </div>
-            <button class="expand-btn" @click="toggleStatsPanel">
+            <button class="expand-btn main-sidebar-expand-btn" @click="toggleStatsPanel">
               📊
             </button>
           </div>
@@ -108,7 +109,7 @@
     <Transition name="submenu-fade">
       <div
         v-if="activeSubmenu"
-        class="submenu-panel"
+        class="submenu-panel main-sidebar-submenu-panel"
         :style="{
           top: submenuPosition.top + 'px',
           left: submenuPosition.left + 'px'
@@ -120,7 +121,7 @@
         <div
           v-for="(child, index) in menuConfigData[activeSubmenu]?.children"
           :key="index"
-          class="submenu-item"
+          class="submenu-item main-sidebar-submenu-item"
           @click="handleSubmenuClick(child)"
         >
           <span class="submenu-icon">{{ child.icon }}</span>

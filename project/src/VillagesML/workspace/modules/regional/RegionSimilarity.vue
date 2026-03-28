@@ -654,29 +654,6 @@ export default {
   padding: 12px;
 }
 
-.mode-button {
-  flex: 1;
-  padding: 8px 16px;
-  border: 2px solid rgba(74, 144, 226, 0.3);
-  background: rgba(255, 255, 255, 0.5);
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 16px;
-  font-weight: 500;
-  transition: all 0.3s ease;
-}
-
-.mode-button:hover {
-  background: rgba(74, 144, 226, 0.1);
-  border-color: rgba(74, 144, 226, 0.5);
-}
-
-.mode-button.active {
-  background: var(--color-primary, #4a90e2);
-  color: white;
-  border-color: var(--color-primary, #4a90e2);
-}
-
 .query-form h3 {
   margin-bottom: 16px;
   font-size: 20px;

@@ -280,30 +280,6 @@ const loadRegionalNgrams = async () => {
   align-items: center;
 }
 
-.query-button {
-  padding: 10px 20px;
-  font-size: 14px;
-}
-
-.loading-state {
-  text-align: center;
-  padding: 40px 20px;
-}
-
-.spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid rgba(74, 144, 226, 0.2);
-  border-top-color: var(--color-primary);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin: 0 auto 15px;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
 .tendency-results {
   display: flex;
   flex-direction: column;

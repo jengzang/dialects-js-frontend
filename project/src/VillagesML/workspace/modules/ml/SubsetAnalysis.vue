@@ -1343,56 +1343,6 @@ const handleApiError = (error) => {
   max-width: 120px;
 }
 
-/* Button Styles */
-.solid-button {
-  padding: 10px 20px;
-  background: linear-gradient(135deg, #4a90e2, #357abd);
-  color: white;
-  border: none;
-  border-radius: 10px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(74, 144, 226, 0.25);
-  max-width: 100%;
-  box-sizing: border-box;
-}
-
-.solid-button:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(74, 144, 226, 0.45);
-  background: linear-gradient(135deg, #5ba3f5, #4a90e2);
-}
-
-.solid-button:active:not(:disabled) {
-  transform: translateY(0);
-}
-
-.solid-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  transform: none;
-}
-
-.solid-button.primary {
-  background: linear-gradient(135deg, #4a90e2, #2b6cb0);
-}
-
-.solid-button.primary:hover:not(:disabled) {
-  background: linear-gradient(135deg, #5ba3f5, #4a90e2);
-}
-
-.solid-button.secondary {
-  background: linear-gradient(135deg, #b0bec5, #90a4ae);
-  box-shadow: 0 4px 12px rgba(144, 164, 174, 0.25);
-}
-
-.solid-button.secondary:hover:not(:disabled) {
-  background: linear-gradient(135deg, #cfd8dc, #b0bec5);
-  box-shadow: 0 6px 20px rgba(144, 164, 174, 0.35);
-}
-
 .solid-button.danger {
   background: linear-gradient(135deg, #e57373, #d32f2f);
   box-shadow: 0 4px 12px rgba(229, 115, 115, 0.25);
@@ -1401,16 +1351,6 @@ const handleApiError = (error) => {
 .solid-button.danger:hover:not(:disabled) {
   background: linear-gradient(135deg, #ef5350, #c62828);
   box-shadow: 0 6px 20px rgba(229, 115, 115, 0.45);
-}
-
-.solid-button.small {
-  padding: 8px 16px;
-  font-size: 13px;
-}
-
-.solid-button.large {
-  padding: 14px 32px;
-  font-size: 16px;
 }
 
 /* Filter Actions */

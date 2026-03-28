@@ -1027,54 +1027,6 @@ const reset = () => {
   padding-top: 12px;
 }
 
-.glass-button {
-  padding: 12px 32px;
-  background: rgba(255, 255, 255, 0.4);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  border-radius: 16px;
-  color: #0b2540;
-  font-size: 15px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-
-}
-
-.glass-button:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-.glass-button.primary {
-  background: linear-gradient(135deg, rgba(0, 122, 255, 0.8), rgba(0, 122, 255, 0.6));
-  color: white;
-  border-color: rgba(0, 122, 255, 0.6);
-}
-
-.glass-button.primary:hover:not(:disabled) {
-  background: linear-gradient(135deg, rgba(0, 122, 255, 0.9), rgba(0, 122, 255, 0.7));
-  box-shadow: 0 4px 20px rgba(0, 122, 255, 0.3);
-  transform: translateY(-2px);
-}
-
-.glass-button.secondary {
-  background: rgba(255, 255, 255, 0.5);
-}
-
-.glass-button.secondary:hover {
-  background: rgba(255, 255, 255, 0.7);
-}
-
-.glass-button.large {
-  padding: 14px 40px;
-  font-size: 16px;
-}
-
 .processing-view,
 .complete-view {
   display: flex;

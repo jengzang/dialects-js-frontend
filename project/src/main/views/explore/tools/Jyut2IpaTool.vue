@@ -958,53 +958,6 @@ loadConfig()
   gap: 16px;
 }
 
-.glass-button {
-  padding: 12px 32px;
-  background: rgba(255, 255, 255, 0.4);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  border-radius: 16px;
-  color: #0b2540;
-  font-size: 15px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.glass-button.primary {
-  background: linear-gradient(135deg, rgba(0, 122, 255, 0.8), rgba(0, 122, 255, 0.6));
-  color: white;
-  border-color: rgba(0, 122, 255, 0.6);
-}
-
-.glass-button.primary:hover {
-  background: linear-gradient(135deg, rgba(0, 122, 255, 0.9), rgba(0, 122, 255, 0.7));
-  box-shadow: 0 4px 20px rgba(0, 122, 255, 0.3);
-  transform: translateY(-2px);
-}
-
-.glass-button.secondary {
-  background: rgba(255, 255, 255, 0.5);
-}
-
-.glass-button.secondary:hover {
-  background: rgba(255, 255, 255, 0.7);
-}
-
-.glass-button.large {
-  padding: 16px 48px;
-  font-size: 16px;
-}
-
-.glass-button.small {
-  padding: 8px 16px;
-  font-size: 13px;
-}
-
 .preview-section {
   width: 100%;
   margin-top: 24px;

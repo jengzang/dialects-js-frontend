@@ -1,6 +1,6 @@
 <template>
   <TabsContainer :tabs="tabs" :default-tab="route.query.sub || 'tab2'" v-slot="{ currentTab }">
-    <div class="tab-content-inner main-choice-shell">
+    <div class="tab-content-inner query-page-root">
       <div v-show="currentTab === 'tab1'" class="page">
         <div class="page-content-stack">
           <!-- 🔹 輸入框區塊 -->
@@ -53,11 +53,11 @@
                 <Teleport to="body">
                   <div
                       v-if="excludeDropdownOpen === 'tab2'"
-                      class="dropdown-panel main-choice-dropdown-panel"
+                      class="dropdown-panel choice-dropdown-panel"
                       :style="excludeDropdownStyle"
                   >
                     <div
-                        class="dropdown-item main-choice-dropdown-item"
+                        class="dropdown-item choice-dropdown-item"
                         v-for="option in excludeOptions"
                         :key="option.value"
                         :class="{ active: isExcludeSelected(option.value, 'tab2') }"
@@ -137,12 +137,12 @@
                 <Teleport to="body">
                   <div
                       v-if="excludeDropdownOpen === 'tab3'"
-                      class="dropdown-panel main-choice-dropdown-panel"
+                      class="dropdown-panel choice-dropdown-panel"
                       :style="excludeDropdownStyle"
                   >
 
                     <div
-                        class="dropdown-item main-choice-dropdown-item"
+                        class="dropdown-item choice-dropdown-item"
                         v-for="option in excludeOptions"
                         :key="option.value"
                         :class="{ active: isExcludeSelected(option.value, 'tab3') }"
@@ -636,57 +636,6 @@ export default {
   align-items: center;
   gap: 1.5dvh;
 }
-.querypage-card-group-unused{
-  display: flex;
-  flex-direction: row; /* ⬅️ 水平排列 */
-  border-radius: 12px;
-  overflow: hidden;
-  width: fit-content;
-  max-width: 100%;
-  box-shadow: var(--shadow-md);
-  max-height: 45px;
-}
-
-.querypage-card-group-item-unused {
-  padding: 10px 16px;
-  text-align: center;
-  cursor: pointer;
-  font-weight: 500;
-  flex: 1;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  /* 上边框是蓝色 */
-  /* 下边框是蓝色 */
-  /* 左边框是浅灰色 */
-  /* 右边框是浅灰色 */
-  border: 1px solid var(--color-primary-medium);
-  border-right-color: var(--border-gray-medium);
-  border-left-color: var(--border-gray-medium);
-  transition: background 0.2s ease;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.querypage-card-group-item-unused:hover {
-  background: var(--glass-medium);
-}
-
-.querypage-card-group-item-unused.first {
-  border-radius: 12px 0 0 12px; /* ⬅️ 左圓角 */
-  border-left-color: var(--color-primary-medium);
-}
-
-.querypage-card-group-item-unused.last {
-  border-radius: 0 12px 12px 0; /* ⬅️ 右圓角 */
-  border-right-color: var(--color-primary-medium);
-}
-
-.querypage-card-group-item-unused.active {
-  background: var(--color-primary-medium);
-  color: var(--color-primary);
-  font-weight: 600;
-}
 
 .card-row {
   width: 100%;
@@ -699,9 +648,6 @@ export default {
 @media (max-aspect-ratio: 1/1) {
   .card-row{
     gap:0;
-  }
-  .querypage-card-group-item-unused{
-    padding:12px 12px;
   }
 }
 
@@ -866,39 +812,6 @@ export default {
 }
 
 /* Dropdown 样式 */
-.querypage-dropdown-panel-unused {
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-radius: 10px;
-  padding: 6px 0;
-  position: absolute;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  min-width: 80px;
-  max-height: 40dvh;
-  overflow: auto;
-  z-index: 1000;
-}
-
-.querypage-dropdown-item-unused {
-  padding: 8px 16px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: background-color 0.2s;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.querypage-dropdown-item-unused.active {
-  background-color: #e6f0ff;
-  color: #02469e;
-  font-weight: bold;
-}
-
-.querypage-dropdown-item-unused:hover {
-  background-color: #e6f0ff;
-}
 
 /* Dropdown 触发器样式（用于 tab2/tab3 的"不排除"下拉框） */
 .dropdown {
