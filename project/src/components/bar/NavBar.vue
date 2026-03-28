@@ -83,7 +83,7 @@
             </div>
           </div>
 
-          <div class="icp-number">ICP 2025466875</div>
+          <div class="icp-number">粤ICP备2025466875号</div>
         </div>
       </div>
     </Transition>
