@@ -1,5 +1,5 @@
 <template>
-  <div class="search-panel glass-panel">
+  <div class="vml-glass-panel">
     <h3 class="villagesml-subtab-title">
       搜索特定自然村
       <HelpIcon
@@ -144,7 +144,7 @@ const clearFilters = () => {
 </script>
 
 <style scoped>
-.search-panel {
+.vml-glass-panel {
   padding: 20px;
   margin-bottom: 20px;
 }
@@ -200,7 +200,7 @@ const clearFilters = () => {
 }
 
 @media (max-width: 768px) {
-  .search-panel {
+  .vml-glass-panel {
     padding: 14px;
   }
 

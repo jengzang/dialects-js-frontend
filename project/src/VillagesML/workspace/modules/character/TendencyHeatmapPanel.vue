@@ -1,5 +1,5 @@
 <template>
-  <div class="tendency-heatmap-panel glass-panel">
+  <div class="vml-glass-panel">
     <div class="panel-header">
       <h3 class="panel-title">
         字傾向性熱力圖
@@ -137,7 +137,7 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.tendency-heatmap-panel {
+.vml-glass-panel {
   padding: 20px;
   min-height: 400px;
 }

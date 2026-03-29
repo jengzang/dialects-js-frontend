@@ -90,7 +90,7 @@
       </div>
 
       <!-- Fallback -->
-      <div v-else class="empty-state glass-panel">
+      <div v-else class="empty-state vml-glass-panel">
         <p>模塊開發中...</p>
       </div>
 

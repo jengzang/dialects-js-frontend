@@ -8,7 +8,7 @@
       </h1>
 
       <!-- Query Mode Selector -->
-      <div class="mode-selector glass-panel">
+      <div class="mode-selector vml-glass-panel">
         <button
           class="mode-button"
           :class="{ 'active': queryMode === 'overview' }"
@@ -35,14 +35,14 @@
       <!-- Overview Mode -->
       <div v-if="queryMode === 'overview'" class="overview-section">
 
-        <div v-if="loadingIntegration" class="loading-state glass-panel">
+        <div v-if="loadingIntegration" class="loading-state vml-glass-panel">
           <div class="spinner"></div>
           <p>加載中...</p>
         </div>
 
         <div v-else-if="integrationData && integrationData.length > 0" class="integration-results">
           <!-- Statistics -->
-          <div class="stats-section glass-panel">
+          <div class="stats-section vml-glass-panel">
             <h3>空間整合查詢</h3>
             <p class="query-note">查詢統計顯著的字符-聚類整合數據</p>
             <div class="stats-grid">
@@ -121,7 +121,7 @@
 
       <!-- By Character Mode -->
       <div v-if="queryMode === 'by-char'" class="by-char-section">
-        <div class="query-form glass-panel">
+        <div class="query-form vml-glass-panel">
           <h3>按字符查詢空間分佈</h3>
 
           <!-- Load Characters Button -->
@@ -144,14 +144,14 @@
           </div>
         </div>
 
-        <div v-if="loadingByChar" class="loading-state glass-panel">
+        <div v-if="loadingByChar" class="loading-state vml-glass-panel">
           <div class="spinner"></div>
           <p>加載中...</p>
         </div>
 
         <div v-else-if="charData" class="char-results">
           <!-- Spatial Distribution Map -->
-          <div class="map-section glass-panel">
+          <div class="map-section vml-glass-panel">
             <h3>{{ queryChar }} 的空間分佈</h3>
             <SpatialMap
               v-if="charMapLayers.length > 0"
@@ -164,7 +164,7 @@
           </div>
 
           <!-- Tendency Data -->
-          <div v-if="charData.tendency" class="tendency-section glass-panel">
+          <div v-if="charData.tendency" class="tendency-section vml-glass-panel">
             <h3>區域傾向性</h3>
             <div class="tendency-list">
               <div
@@ -191,7 +191,7 @@
 
       <!-- By Cluster Mode -->
       <div v-if="queryMode === 'by-cluster'" class="by-cluster-section">
-        <div class="query-form glass-panel">
+        <div class="query-form vml-glass-panel">
           <h3>按聚類查詢</h3>
 
           <!-- Load Clusters Button -->
@@ -214,14 +214,14 @@
           </div>
         </div>
 
-        <div v-if="loadingByCluster" class="loading-state glass-panel">
+        <div v-if="loadingByCluster" class="loading-state vml-glass-panel">
           <div class="spinner"></div>
           <p>加載中...</p>
         </div>
 
         <div v-else-if="clusterData" class="cluster-results">
           <!-- Cluster Map -->
-          <div class="map-section glass-panel">
+          <div class="map-section vml-glass-panel">
             <h3>聚類 #{{ clusterId }} 空間分佈</h3>
             <SpatialMap
               v-if="clusterMapLayers.length > 0"
@@ -234,7 +234,7 @@
           </div>
 
           <!-- Cluster Statistics -->
-          <div v-if="clusterData.characters && clusterData.characters.length > 0" class="characteristics-section glass-panel">
+          <div v-if="clusterData.characters && clusterData.characters.length > 0" class="characteristics-section vml-glass-panel">
             <h3>聚類統計</h3>
             <div class="characteristics-grid">
               <div class="char-item">
@@ -265,7 +265,7 @@
           </div>
 
           <!-- Character Tendency List -->
-          <div v-if="clusterData.characters" class="villages-section glass-panel">
+          <div v-if="clusterData.characters" class="villages-section vml-glass-panel">
             <h3>字符傾向性 ({{ clusterData.characters.length }})</h3>
             <div class="characters-table">
               <div class="char-table-header">
@@ -319,7 +319,7 @@
       </div>
 
       <!-- Summary Section -->
-      <div v-if="summary" class="summary-section glass-panel">
+      <div v-if="summary" class="summary-section vml-glass-panel">
         <h2>整合摘要</h2>
         <div class="summary-grid">
           <div class="summary-card">
@@ -690,8 +690,8 @@ onMounted(() => {
   margin: 0 auto;
 }
 
-/* Override glass-panel to prevent overflow */
-.glass-panel {
+/* Prevent surface containers from forcing overflow */
+.vml-glass-panel {
   min-width: 0;
 }
 

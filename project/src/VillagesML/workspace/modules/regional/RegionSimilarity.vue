@@ -7,7 +7,7 @@
 <!--    <h1 class="page-title">🔍 區域相似度分析</h1>-->
 
     <!-- Mode Selector -->
-    <div class="mode-selector glass-panel">
+    <div class="mode-selector vml-glass-panel">
       <button
         class="mode-button"
         :class="{ 'active': queryMode === 'search' }"
@@ -33,7 +33,7 @@
 
     <!-- Search Mode -->
     <div v-if="queryMode === 'search'" class="search-section">
-      <div class="query-form glass-panel">
+      <div class="query-form vml-glass-panel">
         <h3>查找相似區域</h3>
 
         <div class="form-group">
@@ -78,13 +78,13 @@
       </div>
 
       <!-- Search Results -->
-      <div v-if="loadingSearch" class="loading-state glass-panel">
+      <div v-if="loadingSearch" class="loading-state vml-glass-panel">
         <div class="spinner"></div>
         <p>加載中...</p>
       </div>
 
       <div v-else-if="searchResults && searchResults.length > 0" class="search-results">
-<!--        <div class="results-header glass-panel">-->
+<!--        <div class="results-header vml-glass-panel">-->
 <!--          <h3>找到 {{ searchResults.length }} 個相似區域</h3>-->
 <!--        </div>-->
 
@@ -92,7 +92,7 @@
           <div
             v-for="(result, index) in searchResults"
             :key="result.region"
-            class="result-card glass-panel"
+            class="result-card vml-glass-panel"
           >
             <div class="card-header">
               <span class="rank-badge">#{{ index + 1 }}</span>
@@ -130,7 +130,7 @@
 
     <!-- Pair Comparison Mode -->
     <div v-if="queryMode === 'pair'" class="pair-section">
-      <div class="query-form glass-panel">
+      <div class="query-form vml-glass-panel">
         <h3>兩區域對比</h3>
 
         <div class="form-row">
@@ -169,13 +169,13 @@
       </div>
 
       <!-- Pair Results -->
-      <div v-if="loadingPair" class="loading-state glass-panel">
+      <div v-if="loadingPair" class="loading-state vml-glass-panel">
         <div class="spinner"></div>
         <p>加載中...</p>
       </div>
 
       <div v-else-if="pairData" class="pair-results">
-        <div class="similarity-metrics glass-panel">
+        <div class="similarity-metrics vml-glass-panel">
           <h3>相似度指標</h3>
           <div class="metrics-grid">
             <div class="metric-card">
@@ -197,7 +197,7 @@
           </div>
         </div>
 
-        <div class="comparison-details glass-panel">
+        <div class="comparison-details vml-glass-panel">
           <h3>字符對比</h3>
           <div class="comparison-grid">
             <div class="comparison-section">
@@ -233,7 +233,7 @@
 
     <!-- Matrix Mode -->
     <div v-if="queryMode === 'matrix'" class="matrix-section">
-      <div class="query-form glass-panel">
+      <div class="query-form vml-glass-panel">
         <h3>相似度矩陣</h3>
 
         <div class="form-group">
@@ -286,12 +286,12 @@
       </div>
 
       <!-- Matrix Results -->
-      <div v-if="loadingMatrix" class="loading-state glass-panel">
+      <div v-if="loadingMatrix" class="loading-state vml-glass-panel">
         <div class="spinner"></div>
         <p>加載中...</p>
       </div>
 
-      <div v-else-if="matrixData" class="matrix-results glass-panel">
+      <div v-else-if="matrixData" class="matrix-results vml-glass-panel">
         <h3>相似度矩陣熱力圖</h3>
         <div ref="heatmapChart" class="heatmap-container"></div>
       </div>
@@ -643,7 +643,7 @@ export default {
   color: var(--text-primary, #2c3e50);
 }
 
-.glass-panel {
+.vml-glass-panel {
   padding: 20px;
   margin-bottom: 20px;
 }

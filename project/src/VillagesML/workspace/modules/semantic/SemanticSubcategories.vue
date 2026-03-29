@@ -6,7 +6,7 @@
     </h3>
 
     <!-- Mode Selector -->
-    <div class="mode-selector glass-panel">
+    <div class="mode-selector vml-glass-panel">
       <button
         class="mode-button"
         :class="{ 'active': viewMode === 'regional' }"
@@ -25,7 +25,7 @@
 
     <!-- Regional Comparison Mode -->
     <div v-if="viewMode === 'regional'" class="regional-section">
-      <div class="query-form glass-panel">
+      <div class="query-form vml-glass-panel">
         <h3>區域子類別對比</h3>
 
         <div class="form-group">
@@ -56,13 +56,13 @@
       </div>
 
       <!-- Regional Results -->
-      <div v-if="loadingRegional" class="loading-state glass-panel">
+      <div v-if="loadingRegional" class="loading-state vml-glass-panel">
         <div class="spinner"></div>
         <p>加載中...</p>
       </div>
 
       <div v-else-if="regionalData" class="regional-results">
-        <div class="regional-header glass-panel">
+        <div class="regional-header vml-glass-panel">
           <h3>{{ regionalData.region_name }} - {{ getSubcategoryName(regionalData.parent_category) || regionalData.parent_category }} 子類別分布</h3>
           <p style="font-size: 14px; color: #666; margin-top: 8px;">
             包含 {{ regionalData.subcategories?.length || 0 }} 個子類別：
@@ -73,13 +73,13 @@
         </div>
 
         <!-- Radar Chart -->
-        <div class="chart-section glass-panel">
+        <div class="chart-section vml-glass-panel">
           <h4>子類別雷達圖</h4>
           <div ref="radarChart" class="radar-container"></div>
         </div>
 
         <!-- Subcategory Table -->
-        <div class="subcategory-table glass-panel">
+        <div class="subcategory-table vml-glass-panel">
           <h4>子類別詳情</h4>
           <div class="table-wrapper">
             <table>
@@ -118,7 +118,7 @@
 
     <!-- Ranking Mode -->
     <div v-if="viewMode === 'ranking'" class="ranking-section">
-      <div class="query-form glass-panel">
+      <div class="query-form vml-glass-panel">
         <h3>子類別傾向排行</h3>
 
         <div class="form-row">
@@ -154,24 +154,24 @@
       </div>
 
       <!-- Ranking Results -->
-      <div v-if="loadingRanking" class="loading-state glass-panel">
+      <div v-if="loadingRanking" class="loading-state vml-glass-panel">
         <div class="spinner"></div>
         <p>加載中...</p>
       </div>
 
       <div v-else-if="rankingData && rankingData.length > 0" class="ranking-results">
-        <div class="results-header glass-panel">
+        <div class="results-header vml-glass-panel">
           <h3>Top {{ rankingData.length }} 子類別傾向排行</h3>
         </div>
 
         <!-- Bar Chart -->
-        <div class="chart-section glass-panel">
+        <div class="chart-section vml-glass-panel">
           <h4>傾向值柱狀圖</h4>
           <div ref="barChart" class="bar-container"></div>
         </div>
 
         <!-- Ranking Table -->
-        <div class="ranking-table glass-panel">
+        <div class="ranking-table vml-glass-panel">
           <h4>排行榜詳情</h4>
           <div class="table-wrapper">
             <table>
@@ -624,7 +624,7 @@ export default {
   color: var(--text-primary, #2c3e50);
 }
 
-.glass-panel {
+.vml-glass-panel {
   padding: 20px;
   margin-bottom: 20px;
 }

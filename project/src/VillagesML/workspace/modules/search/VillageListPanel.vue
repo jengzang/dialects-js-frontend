@@ -1,5 +1,5 @@
 <template>
-  <div class="village-list-panel glass-panel">
+  <div class="vml-glass-panel">
     <!-- Loading State -->
     <div v-if="loading" class="loading-state">
       <div class="spinner"></div>
@@ -126,7 +126,7 @@ const changePage = (page) => {
 </script>
 
 <style scoped>
-.village-list-panel {
+.vml-glass-panel {
   padding: 20px;
   min-height: 400px;
 }
@@ -252,7 +252,7 @@ const changePage = (page) => {
 }
 
 @media (max-width: 768px) {
-  .village-list-panel {
+  .vml-glass-panel {
     padding: 12px;
   }
 

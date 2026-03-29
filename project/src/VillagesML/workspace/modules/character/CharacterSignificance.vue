@@ -12,7 +12,7 @@
       </h3>
 
       <!-- Query Mode Selector -->
-      <div class="mode-selector glass-panel">
+      <div class="mode-selector vml-glass-panel">
         <button
           class="mode-button"
           :class="{ 'active': queryMode === 'by-char' }"
@@ -30,7 +30,7 @@
       </div>
 
       <!-- Query Form -->
-      <div class="query-form glass-panel">
+      <div class="query-form vml-glass-panel">
         <!-- By Character Mode -->
         <div v-if="queryMode === 'by-char'" class="form-content">
           <h3>按字符查詢顯著性</h3>
@@ -94,7 +94,7 @@
       </div>
 
       <!-- Results Table -->
-      <div v-if="results.length > 0" class="results-table glass-panel">
+      <div v-if="results.length > 0" class="results-table vml-glass-panel">
         <h3>顯著性分析結果</h3>
 
         <div v-if="loading" class="loading-state">
@@ -142,7 +142,7 @@
       </div>
 
       <!-- Summary Statistics -->
-      <div v-if="summary" class="summary-panel glass-panel">
+      <div v-if="summary" class="summary-panel vml-glass-panel">
         <h3>統計摘要</h3>
         <div class="summary-grid">
           <div class="summary-item">

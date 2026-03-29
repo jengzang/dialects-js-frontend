@@ -1,5 +1,5 @@
 <template>
-  <div class="region-selector-panel glass-panel">
+  <div class="vml-glass-panel">
     <div class="panel-header">
       <h3 class="panel-title">
         區域選擇
@@ -62,7 +62,7 @@ const handleAnalyze = () => {
 </script>
 
 <style scoped>
-.region-selector-panel {
+.vml-glass-panel {
   padding: 20px;
   margin-bottom: 20px;
 }
