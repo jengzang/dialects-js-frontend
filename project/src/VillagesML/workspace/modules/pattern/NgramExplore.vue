@@ -6,7 +6,8 @@
     </h3>
 
     <!-- Statistics Banner -->
-    <div v-if="ngramStats" class="stats-banner glass-panel">
+    <div v-if="ngramStats" class="vml-glass-panel">
+      <div class="stats-banner">
       <div class="banner-item">
         <span class="banner-label">總 N-gram</span>
         <span class="banner-value">{{ formatBannerNum(ngramStats.ngram_significance?.total_before_filter) }}</span>
@@ -35,8 +36,11 @@
       <div class="banner-tip">只顯示統計顯著的 N-gram (p &lt; 0.05)</div>
     </div>
 
+    </div>
+
     <!-- N-gram Frequency -->
-    <div class="frequency-section glass-panel">
+    <div class="vml-glass-panel">
+      <div class="frequency-section">
       <h2>N-gram 頻率分析</h2>
       <div class="controls">
         <SimpleSelectDropdown :match-trigger-width="true"
@@ -119,8 +123,11 @@
       </div>
     </div>
 
+    </div>
+
     <!-- Pattern Search -->
-    <div class="pattern-section glass-panel">
+    <div class="vml-glass-panel">
+      <div class="pattern-section">
       <h2>模式搜索</h2>
       <div class="search-controls">
         <input
@@ -171,6 +178,7 @@
           </div>
         </div>
       </div>
+    </div>
     </div>
   </div>
 </template>
@@ -291,10 +299,12 @@ onMounted(async () => {
   margin: 0 auto;
 }
 
+.vml-glass-panel + .vml-glass-panel {
+  margin-top: 16px;
+}
+
 .frequency-section,
 .pattern-section {
-  padding: 16px;
-  margin-bottom: 16px;
   display: flex;
   align-items: center;
   flex-direction: column;
@@ -306,7 +316,6 @@ onMounted(async () => {
   align-items: center;
   gap: 8px 0;
   padding: 10px 14px;
-  margin-bottom: 14px;
   background: rgba(74, 144, 226, 0.08);
   border: 1px solid rgba(74, 144, 226, 0.25);
   border-radius: 10px;
