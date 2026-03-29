@@ -1,7 +1,7 @@
 <template>
   <Teleport to="body">
     <div v-if="visible" class="modal-overlay" @mousedown.self="$emit('close')">
-      <div class="location-detail-modal glass-modal main-glass-modal" role="dialog" aria-modal="true" @click.stop>
+      <div class="main-glass-modal" role="dialog" aria-modal="true" @click.stop>
         <div class="modal-header main-glass-modal-header">
           <div class="modal-title main-glass-modal-title">📍 {{ t('result.locationDetailPopup.title', { name: locationName }) }}</div>
           <button class="modal-close close-btn-base main-glass-modal-close" type="button" :aria-label="t('common.button.close')" @click="$emit('close')">✕</button>
@@ -196,7 +196,7 @@ const getToneData = (data) => {
 
 <style scoped>
 /* 地名详情弹窗 */
-.location-detail-modal {
+.main-glass-modal {
   width: min(500px, 94vw);
   max-height: 80vh;
   display: flex;
@@ -204,7 +204,7 @@ const getToneData = (data) => {
   overflow: hidden;
 }
 
-.location-detail-modal .modal-body {
+.main-glass-modal .modal-body {
   flex: 1;
   overflow-y: auto;
   padding: 20px 24px;
@@ -212,22 +212,22 @@ const getToneData = (data) => {
 }
 
 /* 自定义滚动条 */
-.location-detail-modal .modal-body::-webkit-scrollbar {
+.main-glass-modal .modal-body::-webkit-scrollbar {
   width: 8px;
 }
 
-.location-detail-modal .modal-body::-webkit-scrollbar-track {
+.main-glass-modal .modal-body::-webkit-scrollbar-track {
   background: rgba(0, 0, 0, 0.05);
   border-radius: 10px;
 }
 
-.location-detail-modal .modal-body::-webkit-scrollbar-thumb {
+.main-glass-modal .modal-body::-webkit-scrollbar-thumb {
   background: rgba(0, 0, 0, 0.15);
   border-radius: 10px;
   transition: background 0.2s;
 }
 
-.location-detail-modal .modal-body::-webkit-scrollbar-thumb:hover {
+.main-glass-modal .modal-body::-webkit-scrollbar-thumb:hover {
   background: rgba(0, 0, 0, 0.25);
 }
 
@@ -376,14 +376,14 @@ const getToneData = (data) => {
 
 /* 响应式设计 */
 @media (max-width: 768px) {
-  .location-detail-modal {
+  .main-glass-modal {
     width: 100%;
     max-width: 100%;
     max-height: 90vh;
     border-radius: 20px 20px 0 0;
   }
 
-  .location-detail-modal .modal-body {
+  .main-glass-modal .modal-body {
     padding: 16px;
   }
 

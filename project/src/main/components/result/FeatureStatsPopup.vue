@@ -1,7 +1,7 @@
 <template>
   <Teleport to="body">
     <div v-if="visible" class="modal-overlay" @mousedown.self="$emit('close')">
-      <div class="feature-stats-modal glass-modal main-glass-modal" role="dialog" aria-modal="true" @click.stop>
+      <div class="main-glass-modal" role="dialog" aria-modal="true" @click.stop>
         <div class="modal-header main-glass-modal-header">
           <div class="modal-title main-glass-modal-title">
             📊 {{ t('result.featureStatsPopup.title', { location: locationName, featureKey: translatedFeatureKey, featureVal }) }}
@@ -154,7 +154,7 @@ const getCharsString = (charIndices) => {
 
 <style scoped>
 /* 特徵統計彈窗特定樣式 */
-.feature-stats-modal {
+.main-glass-modal {
   width: min(600px, 94vw);
 }
 
@@ -259,7 +259,7 @@ const getCharsString = (charIndices) => {
 
 /* 響應式設計 */
 @media (max-width: 768px) {
-  .feature-stats-modal {
+  .main-glass-modal {
     width: 100%;
     max-width: 100%;
     max-height: 90vh;
