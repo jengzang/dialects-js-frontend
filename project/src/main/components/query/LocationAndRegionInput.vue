@@ -177,9 +177,9 @@
             class="modal-overlay"
             @mousedown.self="closeModal"
         >
-          <div class="glass-modal" role="dialog" aria-modal="true">
-            <div class="modal-header main-query-modal-header">
-              <div class="modal-title main-query-modal-title">{{ $t('query.components.locationAndRegionInput.selectedLocationsModalTitle', { count: locationsResult.length }) }}</div>
+          <div class="main-query-modal" role="dialog" aria-modal="true">
+            <div class="modal-header">
+              <div class="modal-title">{{ $t('query.components.locationAndRegionInput.selectedLocationsModalTitle', { count: locationsResult.length }) }}</div>
               <button class="modal-close close-btn-base main-query-modal-close" type="button" @click="closeModal">✕</button>
             </div>
 
@@ -206,9 +206,9 @@
           class="modal-overlay"
           @mousedown.self="closeCustomModal"
       >
-        <div class="glass-modal" role="dialog" aria-modal="true">
-          <div class="modal-header main-query-modal-header">
-            <div class="modal-title main-query-modal-title">{{ $t('query.components.locationAndRegionInput.customLocationsModalTitle', { count: customFeatureLocations.length }) }}</div>
+        <div class="main-query-modal" role="dialog" aria-modal="true">
+          <div class="modal-header">
+            <div class="modal-title">{{ $t('query.components.locationAndRegionInput.customLocationsModalTitle', { count: customFeatureLocations.length }) }}</div>
             <button class="modal-close close-btn-base main-query-modal-close" type="button" @click="closeCustomModal">✕</button>
           </div>
 
@@ -1604,19 +1604,6 @@ defineExpose({
   --overlay-z-index: 20000;
 }
 
-.glass-modal {
-  width: min(720px, 94vw);
-  max-height: min(70vh, 640px);
-  overflow: hidden;
-  background: var(--glass-lighter2);
-  border: 1px solid var(--border-gray-lighter);
-  border-radius: 18px;
-  box-shadow: var(--shadow-xl);
-
-  backdrop-filter: blur(18px) saturate(160%);
-  -webkit-backdrop-filter: blur(18px) saturate(160%);
-}
-
 .location-region-modal-header-unused {
   display: flex;
   align-items: center;
@@ -1646,12 +1633,6 @@ defineExpose({
 
 .location-region-modal-close-unused:hover {
   background: var(--bg-hover-strong);
-}
-
-.modal-body {
-  padding: 12px 14px 16px;
-  overflow: auto;
-  max-height: calc(min(70vh, 640px) - 100px);
 }
 
 .locations-list {

@@ -70,14 +70,14 @@
         class="modal-overlay"
         @mousedown.self="showModal = false"
       >
-        <div class="modal-content">
-          <div class="modal-header modal-header-base query-modal-header">
-            <h3 class="modal-title-base query-modal-title">
+        <div class="main-query-modal">
+          <div class="modal-header">
+            <h3 class="modal-title">
               {{ $t('query.components.locationMultiInput.modalTitle', { count: matchedLocations.length }) }}
             </h3>
             <button class="close-btn close-btn-base query-modal-close" @click="showModal = false">×</button>
           </div>
-          <div class="modal-body modal-body-base">
+          <div class="modal-body">
             <div class="locations-list">
               <span
                 v-for="(loc, idx) in matchedLocations"
@@ -690,37 +690,15 @@ watch(showPartitionInfoModal, (isVisible) => {
   --overlay-padding: 18px;
 }
 
-.modal-content {
-  width: min(720px, 94vw);
-  max-height: min(70vh, 640px);
-  overflow: hidden;
-  background: var(--glass-lighter2);
-  border: 1px solid var(--border-gray-lighter);
-  border-radius: var(--radius-2xl);
-  box-shadow: var(--shadow-xl);
-  backdrop-filter: blur(18px) saturate(160%);
-  -webkit-backdrop-filter: blur(18px) saturate(160%);
+.main-query-modal {
+  --main-query-modal-radius: var(--radius-2xl);
+  --main-query-modal-header-padding: 14px 18px;
+  --main-query-modal-body-padding: 16px 18px 20px;
+  --main-query-modal-body-offset: 80px;
 }
 
-.modal-header {
-  padding: 14px 18px;
-}
-
-.modal-title-base {
+.modal-title {
   font-size: 16px;
-}
-
-.close-btn {
-  width: 30px;
-  height: 30px;
-  font-size: 20px;
-  line-height: 30px;
-}
-
-.modal-body {
-  padding: 16px 18px 20px;
-  overflow: auto;
-  max-height: calc(min(70vh, 640px) - 80px);
 }
 
 /* 自定义滚动条样式 */

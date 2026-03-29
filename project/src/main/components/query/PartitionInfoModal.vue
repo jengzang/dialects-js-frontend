@@ -1,9 +1,9 @@
 <template>
   <Teleport to="body">
     <div v-if="modelValue" class="modal-overlay" @mousedown.self="closeModal">
-      <div class="partition-info-modal glass-modal" role="dialog" aria-modal="true">
+      <div class="main-query-modal" role="dialog" aria-modal="true">
         <!-- 头部 -->
-        <div class="modal-header main-query-modal-header">
+        <div class="modal-header">
 <!--          <div class="header-left">-->
             <div class="modal-title main-query-modal-title">🗂️ {{ $t('query.components.partitionModal.title') }}</div>
             <!-- 选择模式开关 -->
@@ -717,21 +717,10 @@ const PartitionTreeNode = defineComponent({
 
 <style scoped>
 /* Modal overlay */
-.glass-modal {
-  width: min(920px, 94vw);
-  max-height: 88vh;
-  overflow: hidden;
-  background: var(--glass-lighter3);
-  border: 1px solid var(--border-gray-lighter);
-  border-radius: 18px;
-  box-shadow: var(--shadow-xl);
-  backdrop-filter: blur(18px) saturate(160%);
-  -webkit-backdrop-filter: blur(18px) saturate(160%);
-}
-
-.partition-info-modal {
-  display: flex;
-  flex-direction: column;
+.main-query-modal {
+  --main-query-modal-width: min(920px, 94vw);
+  --main-query-modal-max-height: 88vh;
+  --main-query-modal-background: var(--glass-lighter3);
 }
 
 /* Modal header */
@@ -1139,7 +1128,7 @@ const PartitionTreeNode = defineComponent({
 
 /* Responsive */
 @media (max-width: 768px) {
-  .partition-info-modal {
+  .main-query-modal {
     width: 100%;
     max-width: 100%;
     max-height: 100dvh;
