@@ -171,61 +171,43 @@
       <div v-if="limitHint" class="hint-warning">
         {{ limitHint }}
       </div>
-      <Teleport to="body">
-        <div
-            v-if="showLocationsModal"
-            class="modal-overlay"
-            @mousedown.self="closeModal"
-        >
-          <div class="main-query-modal" role="dialog" aria-modal="true">
-            <div class="modal-header">
-              <div class="modal-title">{{ $t('query.components.locationAndRegionInput.selectedLocationsModalTitle', { count: locationsResult.length }) }}</div>
-              <button class="close-btn close-btn-sm close-btn-inline" type="button" @click="closeModal">✕</button>
-            </div>
-
-            <div class="modal-body">
-              <div class="locations-list">
-            <span
-                v-for="(loc, idx) in locationsResult"
-                :key="loc + '_' + idx"
-                class="loc-chip"
-            >
-              {{ loc }}
-            </span>
-              </div>
-            </div>
-          </div>
+      <AppModal
+        v-model="showLocationsModal"
+        variant="query"
+        :title="$t('query.components.locationAndRegionInput.selectedLocationsModalTitle', { count: locationsResult.length })"
+        :close-label="$t('common.button.close')"
+        :overlay-style="locationRegionOverlayStyle"
+      >
+        <div class="locations-list">
+          <span
+            v-for="(loc, idx) in locationsResult"
+            :key="loc + '_' + idx"
+            class="loc-chip"
+          >
+            {{ loc }}
+          </span>
         </div>
-      </Teleport>
+      </AppModal>
     </div>
 
     <!-- 自定義地點彈窗 -->
-    <Teleport to="body">
-      <div
-          v-if="showCustomModal"
-          class="modal-overlay"
-          @mousedown.self="closeCustomModal"
-      >
-        <div class="main-query-modal" role="dialog" aria-modal="true">
-          <div class="modal-header">
-            <div class="modal-title">{{ $t('query.components.locationAndRegionInput.customLocationsModalTitle', { count: customFeatureLocations.length }) }}</div>
-            <button class="close-btn close-btn-sm close-btn-inline" type="button" @click="closeCustomModal">✕</button>
-          </div>
-
-          <div class="modal-body">
-            <div class="locations-list">
-            <span
-                v-for="(loc, idx) in customFeatureLocations"
-                :key="loc + '_' + idx"
-                class="loc-chip custom-chip"
-            >
-              {{ loc }}
-            </span>
-            </div>
-          </div>
-        </div>
+    <AppModal
+      v-model="showCustomModal"
+      variant="query"
+      :title="$t('query.components.locationAndRegionInput.customLocationsModalTitle', { count: customFeatureLocations.length })"
+      :close-label="$t('common.button.close')"
+      :overlay-style="locationRegionOverlayStyle"
+    >
+      <div class="locations-list">
+        <span
+          v-for="(loc, idx) in customFeatureLocations"
+          :key="loc + '_' + idx"
+          class="loc-chip custom-chip"
+        >
+          {{ loc }}
+        </span>
       </div>
-    </Teleport>
+    </AppModal>
 
     <!-- 分区详情弹窗 -->
     <PartitionInfoModal
@@ -248,6 +230,7 @@
 import { ref, nextTick ,onMounted, onActivated, watch, computed,defineProps } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { getLocations, getCustomFeature, getLocationPartitions, batchMatch, getPartitions } from '@/api'
+import AppModal from '@/components/common/AppModal.vue'
 import { useCustomRegionStore } from '@/main/store/customRegionStore'
 import RegionSelector from "@/main/components/query/RegionSelector.vue"
 import PartitionInfoModal from "@/main/components/query/PartitionInfoModal.vue"
@@ -264,6 +247,10 @@ const s2t = OpenCC.Converter({ from: 'cn', to: 'tw' })  // 简 → 繁
 // const YINDIAN_TREE = top_yindian;
 // 接收外部传入的地點和分區
 const { t } = useI18n()
+
+const locationRegionOverlayStyle = {
+  '--overlay-z-index': 20000
+}
 
 const props = defineProps({
   modelValue: {
@@ -1597,25 +1584,6 @@ defineExpose({
 
 .expand-btn:hover {
   background: var(--color-primary-light2);
-}
-
-/* 全局遮罩 + 玻璃彈層 */
-.modal-overlay {
-  --overlay-z-index: 20000;
-}
-
-.location-region-modal-header-unused {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 14px;
-  border-bottom: 1px solid var(--border-gray-lightest);
-}
-
-.location-region-modal-title-unused {
-  font-size: 15px;
-  font-weight: 650;
-  color: var(--text-dark-light);
 }
 
 .locations-list {

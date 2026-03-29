@@ -64,33 +64,25 @@
     </div>
 
     <!-- 地点详情弹窗 -->
-    <Teleport to="body">
-      <div
-        v-if="showModal"
-        class="modal-overlay"
-        @mousedown.self="showModal = false"
-      >
-        <div class="main-query-modal">
-          <div class="modal-header">
-            <h3 class="modal-title">
-              {{ $t('query.components.locationMultiInput.modalTitle', { count: matchedLocations.length }) }}
-            </h3>
-            <button class="close-btn close-btn-sm close-btn-inline" @click="showModal = false">×</button>
-          </div>
-          <div class="modal-body">
-            <div class="locations-list">
-              <span
-                v-for="(loc, idx) in matchedLocations"
-                :key="idx"
-                class="location-chip"
-              >
-                {{ loc }}
-              </span>
-            </div>
-          </div>
-        </div>
+    <AppModal
+      v-model="showModal"
+      variant="query"
+      :title="$t('query.components.locationMultiInput.modalTitle', { count: matchedLocations.length })"
+      :close-label="$t('common.button.close')"
+      :overlay-style="locationModalOverlayStyle"
+      :surface-style="locationModalSurfaceStyle"
+      :title-style="locationModalTitleStyle"
+    >
+      <div class="locations-list">
+        <span
+          v-for="(loc, idx) in matchedLocations"
+          :key="idx"
+          class="location-chip"
+        >
+          {{ loc }}
+        </span>
       </div>
-    </Teleport>
+    </AppModal>
 
     <!-- 分区详情弹窗 -->
     <PartitionInfoModal
@@ -112,9 +104,26 @@
 import { ref, computed, watch, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { getLocations, batchMatch, getLocationPartitions } from '@/api'
+import AppModal from '@/components/common/AppModal.vue'
 import PartitionInfoModal from '@/main/components/query/PartitionInfoModal.vue'
 
 const { t } = useI18n()
+
+const locationModalOverlayStyle = {
+  '--overlay-z-index': 20000,
+  '--overlay-padding': '18px'
+}
+
+const locationModalSurfaceStyle = {
+  '--main-query-modal-radius': 'var(--radius-2xl)',
+  '--main-query-modal-header-padding': '14px 18px',
+  '--main-query-modal-body-padding': '16px 18px 20px',
+  '--main-query-modal-body-offset': '80px'
+}
+
+const locationModalTitleStyle = {
+  fontSize: '16px'
+}
 
 const props = defineProps({
   modelValue: {
@@ -663,22 +672,6 @@ watch(showPartitionInfoModal, (isVisible) => {
 
 .suggestion-item:hover {
   background: var(--bg-blue-hover);
-}
-
-.modal-overlay {
-  --overlay-z-index: 20000;
-  --overlay-padding: 18px;
-}
-
-.main-query-modal {
-  --main-query-modal-radius: var(--radius-2xl);
-  --main-query-modal-header-padding: 14px 18px;
-  --main-query-modal-body-padding: 16px 18px 20px;
-  --main-query-modal-body-offset: 80px;
-}
-
-.modal-title {
-  font-size: 16px;
 }
 
 .locations-list {
