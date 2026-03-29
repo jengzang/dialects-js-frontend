@@ -265,7 +265,7 @@ const closeLocationModal = () => {
     <!-- 地点详情弹窗 -->
     <Teleport to="body">
       <div v-if="showLocationModal" class="glass-overlay" @mousedown.self="closeLocationModal">
-        <div class="glass-modal" role="dialog" aria-modal="true">
+        <div class="main-glass-modal" role="dialog" aria-modal="true">
           <!-- 头部 -->
           <div class="modal-header">
             <div class="modal-title">
@@ -681,16 +681,9 @@ const closeLocationModal = () => {
   -webkit-backdrop-filter: blur(6px);
 }
 
-.glass-modal {
-  width: min(720px, 94vw);
-  max-height: min(70vh, 640px);
-  overflow: hidden;
-  background: rgba(255, 255, 255, 0.95);
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  border-radius: 18px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  backdrop-filter: blur(18px) saturate(160%);
-  -webkit-backdrop-filter: blur(18px) saturate(160%);
+.main-glass-modal {
+  --main-glass-modal-background: rgba(255, 255, 255, 0.95);
+  --main-glass-modal-border: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 .modal-header {

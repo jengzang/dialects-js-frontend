@@ -1,7 +1,7 @@
 <template>
   <div class="evolution-page">
     <!-- 控制面板 -->
-    <div class="control-panel glass-panel">
+    <div class="main-glass-panel" data-panel="control">
       <!-- 统计模式选择 -->
       <div class="control-row">
         <label class="control-label">{{ t('phonology.phonology.evolution.queryMode.label', '统计模式') }}：</label>
@@ -92,7 +92,7 @@
     </div>
 
     <!-- 相似度控制面板 -->
-    <div v-if="rawData" class="similarity-panel glass-panel">
+    <div v-if="rawData" class="main-glass-panel" data-panel="similarity">
       <div class="control-row">
         <label class="control-label">{{ t('phonology.phonology.evolution.similarity.algorithm') }}：</label>
         <SimpleSelectDropdown
@@ -780,15 +780,15 @@ onUnmounted(() => {
 }
 
 /* 控制面板 */
-.glass-panel {
-  background: var(--glass-medium2);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-radius: var(--radius-lg);
+.main-glass-panel {
+  --main-glass-panel-background: var(--glass-medium2);
+  --main-glass-panel-backdrop-filter: blur(12px);
+  --main-glass-panel-border-radius: var(--radius-lg);
+  --main-glass-panel-border: 1px solid var(--glass-border-weak);
+  --main-glass-panel-shadow: 0 4px 16px rgba(0, 0, 0, 0.08), inset 0 0 0 1px rgba(255, 255, 255, 0.3);
+  --main-glass-panel-hover-shadow: 0 4px 16px rgba(0, 0, 0, 0.08), inset 0 0 0 1px rgba(255, 255, 255, 0.3);
   padding: 20px;
   margin-bottom: 20px;
-  border: 1px solid var(--glass-border-weak);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08), inset 0 0 0 1px rgba(255, 255, 255, 0.3);
 }
 
 .control-row {
@@ -938,10 +938,9 @@ onUnmounted(() => {
 }
 
 /* 相似度控制面板 */
-.similarity-panel {
-  background: var(--glass-light);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+.main-glass-panel[data-panel='similarity'] {
+  --main-glass-panel-background: var(--glass-light);
+  --main-glass-panel-backdrop-filter: blur(10px);
 }
 
 .threshold-slider {
@@ -1118,7 +1117,7 @@ onUnmounted(() => {
     padding: 12px;
   }
 
-  .glass-panel {
+  .main-glass-panel {
     padding: 16px;
   }
 

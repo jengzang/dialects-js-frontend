@@ -36,15 +36,22 @@
 }
 
 .main-glass-modal {
-  width: min(720px, 94vw);
-  max-height: min(70vh, 640px);
+  --main-glass-modal-width: min(720px, 94vw);
+  --main-glass-modal-max-height: min(70vh, 640px);
+  --main-glass-modal-background: rgba(255, 255, 255, 0.85);
+  --main-glass-modal-border: 1px solid rgba(255, 255, 255, 0.5);
+  --main-glass-modal-radius: 18px;
+  --main-glass-modal-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  --main-glass-modal-backdrop-filter: blur(18px) saturate(160%);
+  width: var(--main-glass-modal-width);
+  max-height: var(--main-glass-modal-max-height);
   overflow: hidden;
-  background: rgba(255, 255, 255, 0.85);
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  border-radius: 18px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  backdrop-filter: blur(18px) saturate(160%);
-  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  background: var(--main-glass-modal-background);
+  border: var(--main-glass-modal-border);
+  border-radius: var(--main-glass-modal-radius);
+  box-shadow: var(--main-glass-modal-shadow);
+  backdrop-filter: var(--main-glass-modal-backdrop-filter);
+  -webkit-backdrop-filter: var(--main-glass-modal-backdrop-filter);
 }
 
 .main-glass-modal-header {
