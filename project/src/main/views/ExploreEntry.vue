@@ -7,69 +7,66 @@
 </template>
 
 <script setup>
-import { computed, watch } from 'vue'
+import { computed, defineAsyncComponent, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-
-// 引入 explore 相关的页面组件
-import YangChunVillages from "./explore/villages/YangChunVillages.vue";
-import CheckTool from "./explore/tools/CheckTool.vue";
-import Jyut2IpaTool from "./explore/tools/Jyut2IpaTool.vue";
-import MergeTool from "./explore/tools/MergeTool.vue";
-import gdVillages from "./explore/villages/gdVillagesTree.vue";
-import SimpleLayout from "./explore/tools/TableManage.vue";
-import YangChunSpoken from "./explore/word/YangChunSpoken.vue";
-import YuBaoPage from "./explore/word/YuBaoPage.vue";
-import gdVillagesTable from "./explore/villages/gdVillagesTable.vue";
-import Praat from "@/main/views/Praat.vue";
-import VillagesML from "@/main/views/explore/villages/VillagesML.vue";
-import CharacterClassification from "./explore/charClass/CharacterClassification.vue";
 
 const route = useRoute()
 const router = useRouter()
 
-// 監聽路由變化，重定向 VillagesML 非 dashboard 模組到新路徑
+const createAsyncPage = (loader) => defineAsyncComponent({
+  loader,
+  delay: 120,
+})
+
+const YangChunVillages = createAsyncPage(() => import('./explore/villages/YangChunVillages.vue'))
+const CheckTool = createAsyncPage(() => import('./explore/tools/CheckTool.vue'))
+const Jyut2IpaTool = createAsyncPage(() => import('./explore/tools/Jyut2IpaTool.vue'))
+const MergeTool = createAsyncPage(() => import('./explore/tools/MergeTool.vue'))
+const gdVillages = createAsyncPage(() => import('./explore/villages/gdVillagesTree.vue'))
+const SimpleLayout = createAsyncPage(() => import('./explore/tools/TableManage.vue'))
+const YangChunSpoken = createAsyncPage(() => import('./explore/word/YangChunSpoken.vue'))
+const YuBaoPage = createAsyncPage(() => import('./explore/word/YuBaoPage.vue'))
+const gdVillagesTable = createAsyncPage(() => import('./explore/villages/gdVillagesTable.vue'))
+const Praat = createAsyncPage(() => import('@/main/views/Praat.vue'))
+const VillagesML = createAsyncPage(() => import('@/main/views/explore/villages/VillagesML.vue'))
+const CharacterClassification = createAsyncPage(() => import('./explore/charClass/CharacterClassification.vue'))
+
+const pageMap = {
+  ycVillages: YangChunVillages,
+  check: CheckTool,
+  jyut2ipa: Jyut2IpaTool,
+  merge: MergeTool,
+  gdVillages,
+  manage: SimpleLayout,
+  ycSpoken: YangChunSpoken,
+  YuBao: YuBaoPage,
+  gdVillagesTable,
+  praat: Praat,
+  CharacterClassification,
+}
+
 watch(() => route.query, (query) => {
   if (query.page === 'VillagesML' && query.module && query.module !== 'dashboard') {
-    // 重定向到新的 villagesML 路徑
     const { page, ...newQuery } = query
     router.replace({ path: '/villagesML', query: newQuery })
   }
 }, { immediate: true })
 
-// 根据 query.page 和 module 决定使用哪个 layout
 const currentLayout = computed(() => {
-  // All pages use default div layout (no extra wrapper)
   return 'div'
 })
 
-// 根据 query.page 映射组件
 const activeComponent = computed(() => {
   const page = route.query.page
   const module = route.query.module
 
-  // VillagesML 路由逻辑 - 只保留 dashboard
   if (page === 'VillagesML') {
     if (module === 'dashboard' || !module) {
-      return VillagesML  // Dashboard 使用原 VillagesML.vue
+      return VillagesML
     }
-    // 其他模組會被 watch 重定向，這裡返回 null
     return null
   }
 
-  // 其他页面映射
-  const pageMap = {
-    ycVillages: YangChunVillages,
-    check: CheckTool,
-    jyut2ipa: Jyut2IpaTool,
-    merge: MergeTool,
-    gdVillages:gdVillages,
-    manage: SimpleLayout,
-    ycSpoken: YangChunSpoken,
-    YuBao: YuBaoPage,
-    gdVillagesTable: gdVillagesTable,
-    praat : Praat,
-    CharacterClassification: CharacterClassification,
-  }
   return pageMap[page] || Praat
 })
 </script>
