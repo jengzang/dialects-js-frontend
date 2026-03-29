@@ -2,7 +2,7 @@
   <div class="praat-page">
 <!--    &lt;!&ndash; Login Button (top right) &ndash;&gt;-->
 <!--    <div v-if="!userStore.isAuthenticated" class="login-prompt">-->
-<!--      <button class="login-button glass-button" @click="goToLogin">-->
+<!--      <button class="login-button main-glass-button" @click="goToLogin">-->
 <!--        <span>🔒</span>-->
 <!--        <span>請先登錄</span>-->
 <!--      </button>-->
@@ -56,18 +56,18 @@
       <div v-show="activeTab === 'upload'" class="page-content" :class="{ 'tab-hidden': activeTab !== 'upload' }">
           <!-- Settings Button and Mode Selector -->
           <div class="settings-trigger">
-            <button class="settings-button glass-button" @click="showSettings = true">
+            <button class="settings-button main-glass-button" @click="showSettings = true">
               <span class="settings-icon">⚙️</span>
               <span>{{ t('praat.main.settings.button') }}</span>
             </button>
 
             <div class="mode-selector-inline">
               <div class="mode-options">
-                <label class="radio-option glass-button" :class="{ active: settings.mode === 'single' }">
+                <label class="radio-option main-glass-button" :class="{ active: settings.mode === 'single' }">
                   <input type="radio" value="single" v-model="settings.mode" />
                   <span>{{ t('praat.main.mode.single') }}</span>
                 </label>
-                <label class="radio-option glass-button" :class="{ active: settings.mode === 'continuous' }">
+                <label class="radio-option main-glass-button" :class="{ active: settings.mode === 'continuous' }">
                   <input type="radio" value="continuous" v-model="settings.mode" />
                   <span>{{ t('praat.main.mode.continuous') }}</span>
                 </label>
@@ -86,7 +86,7 @@
 <!--          <div v-if="audioFile && !jobId" class="action-section">-->
           <div  class="action-section">
             <button
-                class="start-button glass-button"
+                class="start-button main-glass-button"
                 @click="startAnalysis"
                 :disabled="isUploading || !audioFile"
                 :class="{ 'disabled-state': !audioFile }"

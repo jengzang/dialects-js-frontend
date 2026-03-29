@@ -36,13 +36,13 @@
       <div class="control-buttons">
         <button
           @click="confirmManualSegments"
-          class="btn-confirm glass-button"
+          class="btn-confirm main-glass-button"
           :disabled="!selectedRegionId || isConfirming"
         >
           <span v-if="isConfirming">{{ t('praat.audioPreview.manual.processing') }}</span>
           <span v-else>✓ {{ t('praat.audioPreview.manual.confirmButton') }}</span>
         </button>
-        <button @click="clearAllRegions" class="btn-clear glass-button">
+        <button @click="clearAllRegions" class="btn-clear main-glass-button">
           🗑️ {{ t('praat.audioPreview.manual.clearButton') }}
         </button>
       </div>
@@ -105,10 +105,10 @@
 
           <!-- Playback Controls -->
           <div class="playback-controls">
-            <button @click="togglePlayRegion(region.id)" class="control-button glass-button">
+            <button @click="togglePlayRegion(region.id)" class="control-button main-glass-button">
               {{ region.playing ? '⏸️' : '▶️' }}
             </button>
-            <button @click="stopRegion(region.id)" class="control-button glass-button">
+            <button @click="stopRegion(region.id)" class="control-button main-glass-button">
               ⏹️
             </button>
             <span class="time-display">
@@ -158,7 +158,7 @@
           <div :ref="el => waveformRefs[index] = el" class="waveform-container"></div>
 
           <div class="controls">
-            <button class="control-button glass-button" @click.stop="togglePlayPause(index)">
+            <button class="control-button main-glass-button" @click.stop="togglePlayPause(index)">
               <span class="control-icon">{{ playingIndex === index ? '⏸' : '▶' }}</span>
             </button>
 
@@ -170,7 +170,7 @@
               </span>
             </div>
 
-            <button class="control-button glass-button" @click.stop="stop(index)">
+            <button class="control-button main-glass-button" @click.stop="stop(index)">
               <span class="control-icon">⏹</span>
             </button>
           </div>
