@@ -134,7 +134,7 @@
 
     <transition name="modal">
       <div class="modal-overlay" v-if="showConfigModal" @click.self="showConfigModal = false">
-        <div class="modal-content tool-modal-shell large-modal">
+        <div class="main-tool-modal">
           <div class="modal-header">
             <div class="header-left">
               <h3 class="modal-title">⚙️ {{ t('tools.jyut2ipa.modal.title') }}</h3>
@@ -1004,19 +1004,12 @@ loadConfig()
 }
 
 /* 模态框样式 */
-.modal-content {
-  width: min(90vw, 700px);
-  max-height: 85vh;
-}
-
-.modal-content.large-modal {
-  width: min(95vw, 1200px);
-  max-height: 90vh;
-}
-
-.modal-header {
-  padding: 20px 32px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+.main-tool-modal {
+  --main-tool-modal-width: min(95vw, 1200px);
+  --main-tool-modal-max-height: 90vh;
+  --main-tool-modal-header-padding: 20px 32px;
+  --main-tool-modal-header-border-color: rgba(255, 255, 255, 0.5);
+  --main-tool-modal-body-padding: 2px 3px;
 }
 
 .modal-overlay {
@@ -1110,9 +1103,6 @@ loadConfig()
 }
 
 .modal-body {
-  flex: 1;
-  padding: 2px 3px;
-  overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   justify-items: center;
 }
@@ -1325,13 +1315,13 @@ loadConfig()
   opacity: 0;
 }
 
-.modal-enter-active .modal-content,
-.modal-leave-active .modal-content {
+.modal-enter-active .main-tool-modal,
+.modal-leave-active .main-tool-modal {
   transition: transform 0.3s ease;
 }
 
-.modal-enter-from .modal-content,
-.modal-leave-to .modal-content {
+.modal-enter-from .main-tool-modal,
+.modal-leave-to .main-tool-modal {
   transform: scale(0.9);
 }
 
@@ -1534,15 +1524,15 @@ loadConfig()
     padding: 10px;
   }
 
-  .config-modal {
-    width: 100%;
-    max-width: 100vw;
-    max-height: 90vh;
-    border-radius: 16px;
+  .main-tool-modal {
+    --main-tool-modal-width: 100%;
+    --main-tool-modal-max-height: 90vh;
+    --main-tool-modal-header-padding: 16px;
+    --main-tool-modal-body-padding: 12px 16px;
+    --main-tool-modal-radius: 16px;
   }
 
   .modal-header {
-    padding: 16px;
     flex-wrap: wrap;
     gap: 12px;
   }
@@ -1582,10 +1572,6 @@ loadConfig()
     padding: 8px 12px;
     font-size: 13px;
     white-space: nowrap;
-  }
-
-  .modal-body {
-    padding: 12px 16px;
   }
 
   .rules-table-container {

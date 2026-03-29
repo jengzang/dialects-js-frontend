@@ -253,7 +253,7 @@
     </div>
 
     <div v-if="showDefaultRefModal" class="modal-overlay" @click.self="showDefaultRefModal = false">
-      <div class="modal-container tool-modal-shell large-modal">
+      <div class="main-tool-modal">
         <div class="modal-header">
           <h3 class="modal-title">📋 {{ t('tools.merge.modal.title') }}</h3>
           <button class="close-btn close-btn-base" :title="t('tools.common.close')" @click="showDefaultRefModal = false">✕</button>
@@ -1272,21 +1272,17 @@ const reset = () => {
   --overlay-padding: 20px;
 }
 
-.modal-container {
-  width: min(95vw, 1100px);
-  max-height: 80vh;
-  background: rgba(255, 255, 255, 0.98);
-  border: 1px solid rgba(255, 255, 255, 0.8);
-  border-radius: 20px;
-  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-.modal-header {
-  padding: 20px 28px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+.main-tool-modal {
+  --main-tool-modal-width: min(95vw, 1100px);
+  --main-tool-modal-max-height: 80vh;
+  --main-tool-modal-header-padding: 20px 28px;
+  --main-tool-modal-header-border-color: rgba(0, 0, 0, 0.08);
+  --main-tool-modal-body-padding: 0;
+  --main-tool-modal-body-overflow-y: hidden;
+  --main-tool-modal-background: rgba(255, 255, 255, 0.98);
+  --main-tool-modal-border-color: rgba(255, 255, 255, 0.8);
+  --main-tool-modal-radius: 20px;
+  --main-tool-modal-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
 }
 
 .close-btn {
@@ -1332,13 +1328,6 @@ const reset = () => {
   background: rgba(0, 122, 255, 0.12);
   color: #007aff;
   font-weight: 600;
-}
-
-.modal-body {
-  flex: 1;
-  overflow: hidden;
-  padding: 0;
-  min-height: 0;
 }
 
 .table-container {
@@ -1608,15 +1597,11 @@ const reset = () => {
     --overlay-padding: 10px;
   }
 
-  .modal-container {
-    width: 100%;
-    max-width: 100vw;
-    max-height: 85vh;
-    border-radius: 16px;
-  }
-
-  .modal-header {
-    padding: 16px;
+  .main-tool-modal {
+    --main-tool-modal-width: 100%;
+    --main-tool-modal-max-height: 85vh;
+    --main-tool-modal-header-padding: 16px;
+    --main-tool-modal-radius: 16px;
   }
 
   .modal-title {
@@ -1639,10 +1624,6 @@ const reset = () => {
     padding: 8px 14px;
     font-size: 13px;
     white-space: nowrap;
-  }
-
-  .modal-body {
-    padding: 0;
   }
 
   .table-container {
