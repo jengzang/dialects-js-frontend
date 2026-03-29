@@ -21,7 +21,7 @@
     </div>
 
     <!-- Content Area -->
-    <div class="content-area custom-scrollbar">
+    <div class="content-area u-scrollbar">
       <!-- Initial Loading State -->
       <div v-if="isInitialLoading" class="initial-state">
         <div class="loading-spinner"></div>

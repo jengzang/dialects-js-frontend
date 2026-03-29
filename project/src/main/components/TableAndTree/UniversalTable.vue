@@ -248,7 +248,7 @@
               <button class="close-btn close-btn-sm close-btn-inline close-btn-mobile-only" :aria-label="t('common.button.close')" @click="closeFilter">✕</button>
             </div>
 
-            <div v-bind="containerProps" class="filter-list custom-scrollbar" style="max-height: 300px">
+            <div v-bind="containerProps" class="filter-list u-scrollbar" style="max-height: 300px">
 
               <div v-bind="wrapperProps">
 
@@ -299,7 +299,7 @@
             <button class="close-btn close-btn-lg close-btn-corner" :aria-label="t('common.button.close')" @click="closeAddModal">×</button>
             <h3 class="modal-title">{{ t('tableTree.universalTable.addModal.title') }}</h3>
 
-            <div class="form-content custom-scrollbar">
+            <div class="form-content u-scrollbar">
               <div v-for="col in columns" :key="col.key" class="form-field">
                 <label class="field-label">{{ col.label }}</label>
                 <input
@@ -459,7 +459,7 @@
                 <!-- 原有的当前页预览列表 -->
                 <div v-else-if="batchReplace.previewResults.length > 0">
                   <h4>{{ t('tableTree.universalTable.batchReplace.previewTitle', { count: batchReplace.previewResults.length }) }}</h4>
-                  <div class="preview-list custom-scrollbar">
+                  <div class="preview-list u-scrollbar">
                     <div
                       v-for="(item, index) in batchReplace.previewResults.slice(0, 50)"
                       :key="index"

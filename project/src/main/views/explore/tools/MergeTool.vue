@@ -241,7 +241,7 @@
 
             <div class="merged-files-info">
               <h4 class="info-title">{{ t('tools.merge.complete.mergedFilesTitle') }}</h4>
-              <div class="merged-list custom-scrollbar">
+              <div class="merged-list u-scrollbar">
                 <div
                   v-for="(file, index) in mergedFilesList"
                   :key="index"
@@ -283,7 +283,7 @@
         </div>
 
         <div class="modal-body">
-          <div class="table-container custom-scrollbar">
+          <div class="table-container u-scrollbar">
             <table v-if="currentTab === 'main'" class="data-table">
               <thead>
                 <tr>

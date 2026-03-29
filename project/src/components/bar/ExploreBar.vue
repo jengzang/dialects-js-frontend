@@ -11,7 +11,7 @@
         </div>
       </div>
 
-      <nav class="explorebar-tabs" @mouseleave="handleTabLeave">
+      <nav class="explorebar-tabs u-hidden-scrollbar" @mouseleave="handleTabLeave">
         <RouterLink
           v-for="t in tabs"
           :key="t.tab"
@@ -50,7 +50,7 @@
         <img class="logo" src="../../assets/favicon.ico" alt="Logo" />
       </div>
 
-      <nav class="explorebar-tabs">
+      <nav class="explorebar-tabs u-hidden-scrollbar">
         <RouterLink
           v-for="t in tabs"
           :key="t.tab"

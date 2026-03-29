@@ -104,7 +104,7 @@
 
         <div class="preview-section" v-if="previewData.length > 0">
           <h4 class="preview-title">{{ t('tools.jyut2ipa.complete.previewTitle') }}</h4>
-          <div class="preview-table-wrapper custom-scrollbar">
+          <div class="preview-table-wrapper u-scrollbar">
             <table class="preview-table">
               <thead>
                 <tr>
@@ -190,7 +190,7 @@
             </button>
           </div>
 
-          <div class="modal-body custom-scrollbar">
+          <div class="modal-body u-scrollbar">
             <div class="rules-table-container">
               <table class="rules-table">
                 <thead>

@@ -58,8 +58,6 @@
 
 :where(
   .u-scrollbar,
-  .smooth-scroll,
-  .custom-scrollbar,
   .main-sidebar-list,
   .history-list,
   .stats-content,
@@ -103,8 +101,6 @@
 
 :where(
   .u-scrollbar,
-  .smooth-scroll,
-  .custom-scrollbar,
   .main-sidebar-list,
   .history-list,
   .stats-content,
@@ -146,26 +142,10 @@
   @include visible-scrollbar-webkit;
 }
 
-:where(
-  .u-hidden-scrollbar,
-  .hide-scrollbar,
-  .tabs,
-  .commonbar-tabs,
-  .commonbar-mobile .commonbar-tabs,
-  .explorebar-tabs,
-  .explorebar-mobile .explorebar-tabs
-) {
+:where(.u-hidden-scrollbar) {
   @include hidden-scrollbar;
 }
 
-:where(
-  .u-hidden-scrollbar,
-  .hide-scrollbar,
-  .tabs,
-  .commonbar-tabs,
-  .commonbar-mobile .commonbar-tabs,
-  .explorebar-tabs,
-  .explorebar-mobile .explorebar-tabs
-) {
+:where(.u-hidden-scrollbar) {
   @include hidden-scrollbar-webkit;
 }
