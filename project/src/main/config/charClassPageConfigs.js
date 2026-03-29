@@ -218,13 +218,13 @@ export const CHAR_CLASS_PAGE_CONFIGS = freezeRecord({
       zhongyuan: createTableConfig({
         tableName: 'zhongyuan',
         labelKey: 'charClass.tables.zhongyuan',
-        dataColumnNames: ['\u6f22\u5b57', '\u64ec\u97f3'],
+        dataColumnNames: ['漢字', '擬音'],
         leafData: {
           chars: {
-            columns: ['\u6f22\u5b57']
+            columns: ['漢字']
           },
           annotations: {
-            columns: ['\u64ec\u97f3']
+            columns: ['擬音']
           }
         },
         levelColumns: [
@@ -259,14 +259,14 @@ export const CHAR_CLASS_PAGE_CONFIGS = freezeRecord({
       hongwu: createTableConfig({
         tableName: 'hongwu',
         labelKey: 'charClass.tables.hongwu',
-        dataColumnNames: ['\u6f22\u5b57', '\u4e0a\u5b57', '\u4e0b\u5b57'],
+        dataColumnNames: ['漢字', '上字', '下字'],
         leafData: {
           chars: {
-            columns: ['\u6f22\u5b57']
+            columns: ['漢字']
           },
           annotations: {
-            columns: ['\u4e0a\u5b57', '\u4e0b\u5b57'],
-            joiner: ''
+            columns: ['上字', '下字'],
+            joiner: '-'
           }
         },
         levelColumns: [
@@ -302,20 +302,20 @@ export const CHAR_CLASS_PAGE_CONFIGS = freezeRecord({
         tableName: 'menggu',
         labelKey: 'charClass.tables.menggu',
         dataColumnNames: [
-          '\u6f22\u5b57',
-          '\u516b\u601d\u5df4\u5b57',
-          '\u64ec\u97f3',
-          '\u5c0d\u61c9\u5207\u97fb\u97f3\u7cfb\u97f3\u97fb\u5730\u4f4d'
+          '漢字',
+          '八思巴字',
+          '擬音',
+          '對應切韻音系音韻地位'
         ],
         leafData: {
           chars: {
-            columns: ['\u6f22\u5b57']
+            columns: ['漢字']
           },
           annotations: {
             columns: [
-              '\u516b\u601d\u5df4\u5b57',
-              '\u64ec\u97f3',
-              '\u5c0d\u61c9\u5207\u97fb\u97f3\u7cfb\u97f3\u97fb\u5730\u4f4d'
+              '八思巴字',
+              '擬音',
+              '對應切韻音系音韻地位'
             ],
             joiner: ' / '
           }

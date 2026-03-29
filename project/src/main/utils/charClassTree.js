@@ -1,10 +1,5 @@
-const CHAR_KEYS = Object.freeze(['\u6f22\u5b57', '\u6c49\u5b57', 'chars', 'characters'])
-const ANNOTATION_KEYS = Object.freeze([
-  '\u91cb\u7fa9',
-  '\u91ca\u4e49',
-  'annotations',
-  'notes'
-])
+const CHAR_KEYS = Object.freeze(['漢字', '汉字', 'chars', 'characters'])
+const ANNOTATION_KEYS = Object.freeze(['釋義', '释义', 'annotations', 'notes'])
 
 const isObject = (value) => typeof value === 'object' && value !== null && !Array.isArray(value)
 
@@ -12,35 +7,19 @@ const normalizeLeafText = (value) => {
   if (value === null || value === undefined) {
     return ''
   }
-
   return String(value).trim()
 }
 
 const isBlankNodeName = (value) => normalizeLeafText(value) === ''
 
-const pickArrayByKeys = (data, keys) => {
+// 优化：直接基于预先分离好的 arrayMap 和 objectEntries 进行提取，避免重复 Object.entries
+const pickArrayByKeys = (arrayMap, keys) => {
   for (const key of keys) {
-    if (Array.isArray(data[key])) {
-      return data[key]
+    if (arrayMap.has(key)) {
+      return arrayMap.get(key)
     }
   }
-
   return null
-}
-
-const getArrayEntries = (data) => Object.entries(data).filter(([, value]) => Array.isArray(value))
-
-const buildColumnArrayMap = (data, dataColumnNames = []) => {
-  const arrayEntries = getArrayEntries(data)
-  const arrayMap = new Map(arrayEntries)
-
-  dataColumnNames.forEach((columnName, index) => {
-    if (!arrayMap.has(columnName) && Array.isArray(arrayEntries[index]?.[1])) {
-      arrayMap.set(columnName, arrayEntries[index][1])
-    }
-  })
-
-  return arrayMap
 }
 
 const getConfiguredColumnArrays = (columnNames, arrayMap) =>
@@ -80,20 +59,17 @@ const composeLeafValues = (fieldConfig, arrayMap) => {
   )
 }
 
-const buildConfiguredLeafPayload = (data, options) => {
+const buildConfiguredLeafPayload = (arrayMap, options) => {
   const leafData = options?.leafData
   if (!leafData) {
     return null
   }
 
-  const arrayMap = buildColumnArrayMap(data, options?.dataColumnNames || [])
   const requestedColumns = [
     ...(leafData.chars?.columns || []),
     ...(leafData.annotations?.columns || [])
   ]
-  const hasRequestedValues = requestedColumns.some((columnName) =>
-    Array.isArray(arrayMap.get(columnName))
-  )
+  const hasRequestedValues = requestedColumns.some((columnName) => arrayMap.has(columnName))
 
   if (!hasRequestedValues) {
     return null
@@ -130,9 +106,9 @@ const buildConfiguredLeafPayload = (data, options) => {
   }
 }
 
-const buildLegacyLeafPayload = (data) => {
-  const charsByKey = pickArrayByKeys(data, CHAR_KEYS)
-  const annotationsByKey = pickArrayByKeys(data, ANNOTATION_KEYS)
+const buildLegacyLeafPayload = (arrayMap, objectEntries) => {
+  const charsByKey = pickArrayByKeys(arrayMap, CHAR_KEYS)
+  const annotationsByKey = pickArrayByKeys(arrayMap, ANNOTATION_KEYS)
 
   if (charsByKey || annotationsByKey) {
     return {
@@ -141,42 +117,39 @@ const buildLegacyLeafPayload = (data) => {
     }
   }
 
-  const arrayEntries = getArrayEntries(data)
-  const objectEntries = Object.entries(data).filter(([, value]) => isObject(value))
-
-  if (arrayEntries.length > 0 && objectEntries.length === 0) {
+  // 兜底逻辑：如果有数组，但没有任何子对象，默认取前两个数组
+  if (arrayMap.size > 0 && objectEntries.length === 0) {
+    const arrayValues = Array.from(arrayMap.values())
     return {
-      chars: arrayEntries[0]?.[1] || [],
-      annotations: arrayEntries[1]?.[1] || []
+      chars: arrayValues[0] || [],
+      annotations: arrayValues[1] || []
     }
   }
 
   return null
 }
 
-const normalizeChildNodes = (data, path, options) => {
+const normalizeChildNodes = (objectEntries, path, options) => {
   const normalizedChildren = []
   const promotedLeafContent = {
     chars: [],
     annotations: []
   }
 
-  Object.entries(data)
-    .filter(([, value]) => isObject(value))
-    .forEach(([key, value], index) => {
-      const childNode = normalizeNode(value, key, `${path}.${index}`, options)
-      if (!childNode) {
-        return
-      }
+  objectEntries.forEach(([key, value], index) => {
+    const childNode = normalizeNode(value, key, `${path}.${index}`, options)
+    if (!childNode) {
+      return
+    }
 
-      if (isBlankNodeName(childNode.name)) {
-        appendLeafContent(promotedLeafContent, childNode)
-        normalizedChildren.push(...(childNode.children || []))
-        return
-      }
+    if (isBlankNodeName(childNode.name)) {
+      appendLeafContent(promotedLeafContent, childNode)
+      normalizedChildren.push(...(childNode.children || []))
+      return
+    }
 
-      normalizedChildren.push(childNode)
-    })
+    normalizedChildren.push(childNode)
+  })
 
   return {
     children: normalizedChildren,
@@ -189,22 +162,37 @@ const normalizeNode = (data, name, path, options) => {
     return null
   }
 
-  const configuredLeafPayload = buildConfiguredLeafPayload(data, options)
+  // 核心优化：在入口处一次性完成数据分类，彻底避免在子函数中重复执行 Object.entries
+  const arrayMap = new Map()
+  const objectEntries = []
+
+  for (const [key, value] of Object.entries(data)) {
+    if (Array.isArray(value)) {
+      arrayMap.set(key, value)
+    } else if (isObject(value)) {
+      objectEntries.push([key, value])
+    }
+  }
+
+  // 将分类好的数据传入，取代旧版的 data 透传
+  const configuredLeafPayload = buildConfiguredLeafPayload(arrayMap, options)
   if (configuredLeafPayload) {
     return {
       id: path,
       name,
+      _normalizedName: normalizeLeafText(name).toLowerCase(), // 缓存用于搜索的小写名称
       ...configuredLeafPayload,
       children: [],
       isLeaf: true
     }
   }
 
-  const legacyLeafPayload = buildLegacyLeafPayload(data)
+  const legacyLeafPayload = buildLegacyLeafPayload(arrayMap, objectEntries)
   if (legacyLeafPayload) {
     return {
       id: path,
       name,
+      _normalizedName: normalizeLeafText(name).toLowerCase(),
       ...legacyLeafPayload,
       children: [],
       isLeaf: true
@@ -215,7 +203,7 @@ const normalizeNode = (data, name, path, options) => {
     children,
     chars,
     annotations
-  } = normalizeChildNodes(data, path, options)
+  } = normalizeChildNodes(objectEntries, path, options)
 
   if (!children.length && !chars.length) {
     return null
@@ -224,6 +212,7 @@ const normalizeNode = (data, name, path, options) => {
   return {
     id: path,
     name,
+    _normalizedName: normalizeLeafText(name).toLowerCase(),
     chars,
     annotations,
     children,
@@ -246,20 +235,19 @@ export const filterCharClassTree = (nodes, query) => {
     return nodes
   }
 
-  const queryChars = trimmedQuery.split('')
   const loweredQuery = trimmedQuery.toLowerCase()
 
   return nodes.reduce((accumulator, node) => {
-    const selfMatch = normalizeLeafText(node.name).toLowerCase().includes(loweredQuery)
-    const charMatch = (node.chars || []).some((char) =>
-      queryChars.some((queryChar) => char.includes(queryChar))
-    )
+    // 优化：直接使用初始化时缓存的名字，避免搜索时重复计算
+    const selfMatch = node._normalizedName.includes(loweredQuery)
+    
+    // 修正：从诡异的单字 OR 匹配，改为符合直觉的包含匹配
+    const charMatch = (node.chars || []).some((char) => char.includes(trimmedQuery))
 
     if (node.isLeaf) {
       if (selfMatch || charMatch) {
         accumulator.push({ ...node, _autoExpand: false })
       }
-
       return accumulator
     }
 

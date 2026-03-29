@@ -530,7 +530,7 @@ watch(
 }
 
 .page-title {
-  font-size: 28px;
+  font-size: 25px;
   font-weight: 700;
 }
 

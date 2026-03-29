@@ -7,7 +7,7 @@
       @click="toggle"
     >
       <div class="node-label">
-        <span class="icon">{{ hasChildren ? '>' : '*' }}</span>
+        <span class="icon">{{ hasChildren ? '📁' : '✍️' }}</span>
         <span class="text" v-if="isMatch" v-html="highlightName"></span>
         <span class="text" v-else>{{ displayName }}</span>
       </div>
@@ -18,7 +18,7 @@
         :class="{ 'is-open': isOpen }"
         @click.stop="toggle"
       >
-        <span class="plus-icon">+</span>
+        <span class="plus-icon">＋</span>
       </button>
     </div>
 
