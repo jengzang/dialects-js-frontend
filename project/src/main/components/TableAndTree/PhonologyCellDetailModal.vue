@@ -1,7 +1,7 @@
 <template>
   <Teleport to="body">
     <div v-if="visible" class="glass-overlay" @mousedown.self="emit('close')">
-      <div class="cell-detail-modal glass-modal" role="dialog" aria-modal="true">
+      <div class="main-cell-detail-modal" role="dialog" aria-modal="true">
         <div class="modal-header">
           <div class="modal-title">{{ titleText }}</div>
           <button
@@ -99,7 +99,7 @@ const titleText = computed(() => {
   -webkit-backdrop-filter: blur(8px);
 }
 
-.glass-modal {
+.main-cell-detail-modal {
   width: min(92vw, 860px);
   max-height: 82vh;
   display: flex;

@@ -216,20 +216,20 @@
   color: #ff3b30;
 }
 
-.cell-detail-modal .modal-header {
+.main-cell-detail-modal .modal-header {
   gap: 12px;
   padding: 14px 18px;
   border-bottom: 1px solid rgba(0, 0, 0, 0.08);
   background: rgba(255, 255, 255, 0.56);
 }
 
-.cell-detail-modal .modal-title {
+.main-cell-detail-modal .modal-title {
   font-size: 16px;
   font-weight: 700;
   color: #1f2937;
 }
 
-.cell-detail-modal .modal-close {
+.main-cell-detail-modal .modal-close {
   width: 32px;
   height: 32px;
   display: inline-flex;
@@ -246,7 +246,7 @@
   transition: all 0.2s ease;
 }
 
-.cell-detail-modal .modal-close:hover {
+.main-cell-detail-modal .modal-close:hover {
   background: rgba(255, 255, 255, 1);
   transform: translateY(-1px);
 }
