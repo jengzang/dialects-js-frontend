@@ -92,11 +92,11 @@
 <!--        </div>-->
 
         <div class="action-buttons">
-          <button class="glass-button primary large" @click="downloadResult">
+          <button class="main-glass-button" data-variant="primary" data-size="large" @click="downloadResult">
             <span class="icon">⬇️</span>
             <span>{{ t('tools.jyut2ipa.actions.downloadResult') }}</span>
           </button>
-          <button class="glass-button secondary" @click="reset">
+          <button class="main-glass-button" data-variant="secondary" @click="reset">
             <span class="icon">🔄</span>
             <span>{{ t('tools.jyut2ipa.actions.resetTask') }}</span>
           </button>
@@ -255,10 +255,10 @@
           </div>
 
           <div class="modal-footer">
-            <button class="glass-button secondary" @click="resetConfigConfirm">
+            <button class="main-glass-button" data-variant="secondary" @click="resetConfigConfirm">
               🔄 {{ t('tools.jyut2ipa.actions.resetDefault') }}
             </button>
-            <button class="glass-button primary" @click="saveConfig">
+            <button class="main-glass-button" data-variant="primary" @click="saveConfig">
               💾 {{ t('tools.jyut2ipa.actions.saveConfig') }}
             </button>
           </div>
@@ -1513,7 +1513,7 @@ loadConfig()
     gap: 12px;
   }
 
-  .glass-button {
+  .main-glass-button {
     width: 100%;
     justify-content: center;
     padding: 14px 24px;
@@ -1614,7 +1614,7 @@ loadConfig()
     gap: 8px;
   }
 
-  .footer-actions .glass-button {
+  .footer-actions .main-glass-button {
     flex: 1;
   }
 }

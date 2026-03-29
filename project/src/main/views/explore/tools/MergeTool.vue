@@ -81,7 +81,8 @@
 
           <div class="step-actions">
             <button
-              class="glass-button secondary"
+              class="main-glass-button"
+              data-variant="secondary"
               @click="showDefaultReference"
               :disabled="isLoadingRef"
             >
@@ -91,7 +92,9 @@
               </span>
             </button>
             <button
-              class="glass-button primary large"
+              class="main-glass-button"
+              data-variant="primary"
+              data-size="large"
               :disabled="!referenceFile"
               @click="nextStep"
             >
@@ -105,7 +108,8 @@
           <p class="step-desc">
             {{ t('tools.merge.files.descPrefix') }}
             <button
-                class="glass-button small"
+                class="main-glass-button"
+                data-size="small"
                 style="display: inline-block; padding: 2px 8px; margin: 0 2px; vertical-align: middle;background: #007aff;color:white"
                 @click="$router.push('/explore?page=check')"
             >
@@ -150,11 +154,13 @@
           </div>
 
           <div class="step-actions">
-            <button class="glass-button secondary" @click="prevStep">
+            <button class="main-glass-button" data-variant="secondary" @click="prevStep">
               ← {{ t('tools.merge.files.previous') }}
             </button>
             <button
-              class="glass-button primary large"
+              class="main-glass-button"
+              data-variant="primary"
+              data-size="large"
               :disabled="mergeFiles.length === 0"
               @click="startMerge"
             >
@@ -223,11 +229,11 @@
             </div>
 
             <div class="result-actions">
-              <button class="glass-button primary large" @click="downloadMerged">
+              <button class="main-glass-button" data-variant="primary" data-size="large" @click="downloadMerged">
                 <span class="icon">⬇️</span>
                 <span>{{ t('tools.merge.actions.downloadResult') }}</span>
               </button>
-              <button class="glass-button secondary" @click="reset">
+              <button class="main-glass-button" data-variant="secondary" @click="reset">
                 <span class="icon">🔄</span>
                 <span>{{ t('tools.merge.actions.resetTask') }}</span>
               </button>
@@ -316,12 +322,13 @@
         </div>
 
         <div class="modal-footer">
-          <button class="glass-button primary" @click="downloadDefaultReference">
+          <button class="main-glass-button" data-variant="primary" @click="downloadDefaultReference">
             <span class="icon">⬇️</span>
             <span>{{ t('tools.merge.modal.downloadDefault') }}</span>
           </button>
           <button
-              class="glass-button secondary"
+              class="main-glass-button"
+              data-variant="secondary"
               @click="useDefaultReference"
               style="background: rgba(31,138,54,0.43)"
           >
@@ -1508,7 +1515,8 @@ const reset = () => {
     padding-top: 16px;
   }
 
-  .glass-button ,.glass-button.large {
+  .main-glass-button,
+  .main-glass-button[data-size='large'] {
     width: 100%;
     justify-content: center;
     padding: 8px 24px;
@@ -1651,7 +1659,7 @@ const reset = () => {
     gap: 8px;
   }
 
-  .modal-footer .glass-button {
+  .modal-footer .main-glass-button {
     width: 100%;
   }
 }
