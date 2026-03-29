@@ -16,10 +16,15 @@
     ></textarea>
   </div>
 
-  <Teleport to="body">
-    <Transition name="fade-scale">
-      <div v-if="isHelpModalOpen" class="modal-overlay" @click.self="closeHelpModal">
-        <div class="glass-card close-btn-host">
+  <AppModal
+    v-model="isHelpModalOpen"
+    variant="glass"
+    transition-name="fade-scale"
+    :overlay-style="yinweiModalOverlayStyle"
+    :surface-style="yinweiModalSurfaceStyle"
+    :body-style="yinweiModalBodyStyle"
+    :show-close="false"
+  >
           <button
             class="close-btn close-btn-lg close-btn-corner"
             @click="closeHelpModal"
@@ -28,7 +33,7 @@
           >
             &times;
           </button>
-          <h3 class="modal-title">{{ $t('query.components.yinweiSelector.modalTitle') }}</h3>
+          <h3 class="yinwei-help-title">{{ $t('query.components.yinweiSelector.modalTitle') }}</h3>
             <div v-if="!hasLocations" class="empty-state">
               <div class="icon-warn">⚠️</div>
               <p style="white-space: pre-line">{{ $t('query.components.yinweiSelector.emptyState') }}</p>
@@ -85,19 +90,34 @@
                 </li>
               </ul>
             </div>
-        </div>
-      </div>
-    </Transition>
-  </Teleport>
+  </AppModal>
 </template>
 
 <script setup>
 import { ref, computed ,watch} from 'vue';
 import { useI18n } from 'vue-i18n'
+import AppModal from '@/components/common/AppModal.vue'
 import { getFeatureCounts } from '@/api/query/core'
 import { userStore, setTabContentDisabled } from '@/main/store/store.js'
 
 const { t } = useI18n()
+
+const yinweiModalOverlayStyle = {
+  '--overlay-padding': '0'
+}
+
+const yinweiModalSurfaceStyle = {
+  width: '90%',
+  maxWidth: '600px',
+  maxHeight: '80dvh',
+  color: '#1d1d1f',
+  fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif'
+}
+
+const yinweiModalBodyStyle = {
+  padding: '25px',
+  overflow: 'hidden'
+}
 
 // 1. 接收父組件傳入的 locationRef
 const props = defineProps({
@@ -204,26 +224,12 @@ defineExpose({
 /* ----------- 🍎 苹果液态玻璃弹窗样式 ----------- */
 
 /* 玻璃卡片主体 */
-.glass-card {
-  position: relative;
-  width: 90%;
-  max-width: 600px;
-  max-height: 80dvh;
-  padding: 25px;
-  color: #1d1d1f;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-}
-
-.modal-title {
+.yinwei-help-title {
   margin: 0 0 20px 0;
   font-size: 20px;
   font-weight: 700;
   text-align: center;
   color: #1d1d1f;
-}
-
-.modal-overlay {
-  --overlay-padding: 0;
 }
 
 /* 空状态 */

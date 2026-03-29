@@ -23,10 +23,15 @@
     </Transition>
   </div>
 
-  <Teleport to="body">
-    <Transition name="fade-modal">
-      <div v-if="isHelpOpen" class="modal-overlay" @click.self="isHelpOpen = false">
-        <div class="glass-card">
+  <AppModal
+    v-model="isHelpOpen"
+    variant="glass"
+    transition-name="fade-modal"
+    :overlay-style="floatingDiceModalOverlayStyle"
+    :surface-style="floatingDiceModalSurfaceStyle"
+    :body-style="floatingDiceModalBodyStyle"
+    :show-close="false"
+  >
           <button
             class="close-btn close-btn-lg close-btn-corner"
             @click="isHelpOpen = false"
@@ -36,7 +41,7 @@
             &times;
           </button>
 
-          <h2 class="modal-title">{{ $t('query.components.floatingDice.modalTitle') }}</h2>
+          <h2 class="floating-dice-help-title">{{ $t('query.components.floatingDice.modalTitle') }}</h2>
 
           <div class="scroll-content">
             <div id='display-detail3' class="panel-content">
@@ -79,17 +84,33 @@
               </p>
             </div>
           </div>
-        </div>
-      </div>
-    </Transition>
-  </Teleport>
+  </AppModal>
 </template>
 
 <script setup>
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import AppModal from '@/components/common/AppModal.vue'
 
 const { t } = useI18n()
+
+const floatingDiceModalOverlayStyle = {
+  '--overlay-padding': '0'
+}
+
+const floatingDiceModalSurfaceStyle = {
+  width: '90%',
+  maxWidth: '700px',
+  height: '85vh',
+  maxHeight: '85vh'
+}
+
+const floatingDiceModalBodyStyle = {
+  padding: '0',
+  overflow: 'hidden',
+  display: 'flex',
+  flexDirection: 'column'
+}
 
 const props = defineProps({
   currentTab: {
@@ -419,19 +440,8 @@ function handleRoll() {
 /* ----------- 🍎 全屏液态玻璃弹窗 ----------- */
 
 
-.glass-card {
-  position: relative;
-  width: 90%;
-  max-width: 700px;
-  height: 85vh; /* 弹窗高度 */
-  padding: 0; /* padding 交给内部容器 */
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
 
-
-.modal-title {
+.floating-dice-help-title {
   padding: 20px 20px 10px;
   margin: 0;
   font-size: 20px;
@@ -523,9 +533,6 @@ function handleRoll() {
   margin: 0 2px;
 }
 
-.modal-overlay {
-  --overlay-padding: 0;
-}
 
 :deep(.example-desc) {
   font-family: "楷体", "Times New Roman", serif;
