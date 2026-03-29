@@ -296,7 +296,12 @@ const props = defineProps({
   placeholder: { type: String, default: '' }
 })
 
-const emit = defineEmits(['update:selected', 'selectCustomRegion', 'update:customRegions'])
+const emit = defineEmits([
+  'update:selected',
+  'selectCustomRegion',
+  'update:customRegions',
+  'update:customRegionData'
+])
 
 const router = useRouter()
 

@@ -291,6 +291,13 @@ const formatCoordinates = (coords) => {
   return `${lng.toFixed(6)}, ${lat.toFixed(6)}`;
 };
 
+const isValidCoordinatePair = (coord) => {
+  return Array.isArray(coord) &&
+    coord.length >= 2 &&
+    Number.isFinite(coord[0]) &&
+    Number.isFinite(coord[1]);
+};
+
 // 提取調值數據
 const getToneData = (data) => {
   const tones = [
@@ -476,13 +483,13 @@ const drawBaseMap = () => {
 
   // 辅助函数：将坐标转换为字符串键
   const coordToKey = (coord) => {
-    if (!Array.isArray(coord) || coord.length < 2) return null;
+    if (!isValidCoordinatePair(coord)) return null;
     return `${coord[0].toFixed(6)},${coord[1].toFixed(6)}`;
   };
 
   // 辅助函数：创建地名标记
   const createLocationMarker = (locationName, coordinates) => {
-    if (!coordinates || coordinates.length < 2) return null;
+    if (!isValidCoordinatePair(coordinates)) return null;
     if (!locationName || !locationName.trim()) return null;
 
     const [lng, lat] = coordinates;
@@ -535,7 +542,7 @@ const drawBaseMap = () => {
     const customLocations = new Map(); // key: coordKey, value: locationName
 
     mapStore.mergedData.forEach(item => {
-      if (item.iscustoms === 1 && item.coordinate && item.location) {
+      if (item.iscustoms === 1 && isValidCoordinatePair(item.coordinate) && item.location) {
         const key = coordToKey(item.coordinate);
         if (key && !displayedCoordinates.has(key)) {
           // 同一个坐标可能有多个特征，只显示一次地名
@@ -576,6 +583,7 @@ const drawDotMap = () => {
   const pointsToDraw = [];
 
   data.coordinates_locations.forEach(([locName, coords]) => {
+    if (!isValidCoordinatePair(coords)) return;
     const regionStr = data.region_mappings?.[locName];
 
     if (regionStr) {
@@ -657,10 +665,7 @@ const drawFeatureMap = () => {
     // console.log(item.coordinate)
     // ✨ 新增魯棒性檢查：確保坐標存在、是數組、且前兩位是有效數字
     // 如果不滿足這些條件，直接 return 跳過，防止 maplibregl 報錯
-    if (!Array.isArray(item.coordinate) ||
-        item.coordinate.length < 2 ||
-        !Number.isFinite(item.coordinate[0]) ||
-        !Number.isFinite(item.coordinate[1])) {
+    if (!isValidCoordinatePair(item.coordinate)) {
       return;
     }
 
@@ -833,10 +838,7 @@ const drawCompareMap = () => {
     console.log(`  🔸 标记 ${index + 1}:`, item)
 
     // 坐標驗證
-    if (!Array.isArray(item.coordinate) ||
-        item.coordinate.length < 2 ||
-        !Number.isFinite(item.coordinate[0]) ||
-        !Number.isFinite(item.coordinate[1])) {
+    if (!isValidCoordinatePair(item.coordinate)) {
       console.warn(`  ⚠️ 标记 ${index + 1} 坐标无效:`, item.coordinate)
       return;
     }
@@ -961,14 +963,15 @@ const resetView = () => {
 
   // 1. 优先从 mapStore.mapData 提取坐标（基础地图数据）
   if (mapStore.mapData && mapStore.mapData.coordinates_locations) {
-    points = mapStore.mapData.coordinates_locations.map(item => item[1]);
+    points = mapStore.mapData.coordinates_locations
+      .map(item => item[1])
+      .filter(isValidCoordinatePair);
   }
   // 2. 如果没有基础数据，从 mergedData 提取坐标（自定义数据或特征数据）
   else if (mapStore.mergedData && mapStore.mergedData.length > 0) {
     points = mapStore.mergedData
       .map(item => item.coordinate)
-      .filter(coord => Array.isArray(coord) && coord.length >= 2 &&
-                      Number.isFinite(coord[0]) && Number.isFinite(coord[1]));
+      .filter(isValidCoordinatePair);
   }
 
   // 3. 如果有坐标数据，重新计算最佳视角
