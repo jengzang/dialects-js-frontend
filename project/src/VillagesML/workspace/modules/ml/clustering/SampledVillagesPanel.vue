@@ -6,7 +6,7 @@
     </h3>
     <div class="two-col-layout">
     <!-- 左側：參數設置 -->
-    <div class="settings-section glass-panel">
+    <div class="vml-glass-panel">
       <h3 class="panel-title">採樣村莊聚類</h3>
       <p class="panel-description">對採樣村莊進行聚類分析，適合大規模數據集</p>
 
@@ -191,7 +191,7 @@ async function runClustering() {
   gap: 16px;
 }
 
-.settings-section {
+.two-col-layout > .vml-glass-panel {
   padding: 20px;
   overflow-y: auto;
 }

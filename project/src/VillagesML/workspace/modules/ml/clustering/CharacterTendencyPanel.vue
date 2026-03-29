@@ -6,7 +6,7 @@
     </h3>
     <!-- 左側：參數設置 -->
     <div class="two-col-layout">
-    <div class="settings-section glass-panel">
+    <div class="vml-glass-panel">
       <h3 class="panel-title">字符傾向性聚類</h3>
       <p class="panel-description">基於字符使用傾向性的區域聚類分析</p>
 
@@ -249,7 +249,7 @@ async function runClustering() {
   gap: 16px;
 }
 
-.settings-section {
+.two-col-layout > .vml-glass-panel {
   padding: 20px;
   overflow-y: auto;
 }

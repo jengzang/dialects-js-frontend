@@ -5,7 +5,7 @@
       <HelpIcon content="基於空間聚類結果的二次聚類。先進行空間聚類（DBSCAN/HDBSCAN），再對每個空間聚類提取特徵（語義、字符、結構、空間統計）進行二次聚類。發現空間聚集區域的語言模式差異" />
     </h3>
     <div class="two-col-layout">
-    <div class="settings-section glass-panel">
+    <div class="vml-glass-panel">
       <h3 class="panel-title">空間感知聚類</h3>
       <p class="panel-description">基於空間聚類結果的二次聚類分析</p>
 
@@ -144,7 +144,7 @@ async function runClustering() {
   gap: 16px;
 }
 
-.settings-section {
+.two-col-layout > .vml-glass-panel {
   padding: 20px;
   overflow-y: auto;
 }

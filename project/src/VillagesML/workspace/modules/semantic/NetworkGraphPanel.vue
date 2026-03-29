@@ -1,5 +1,5 @@
 <template>
-  <div class="network-graph-panel glass-panel">
+  <div class="vml-glass-panel">
     <h3 class="panel-title">語義網絡圖</h3>
 
     <!-- 网络元数据 -->
@@ -252,7 +252,7 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
-.network-graph-panel {
+.vml-glass-panel {
   padding: 20px;
   min-height: 500px;
 }

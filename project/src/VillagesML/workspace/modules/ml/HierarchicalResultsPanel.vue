@@ -1,5 +1,5 @@
 <template>
-  <div class="hierarchical-results-panel glass-panel">
+  <div class="vml-glass-panel">
     <h3 class="panel-title">層次聚類結果</h3>
 
     <div v-if="loading" class="empty-state">
@@ -134,7 +134,7 @@ function levelColor(level, clusterId) {
 </script>
 
 <style scoped>
-.hierarchical-results-panel {
+.vml-glass-panel {
   padding: 20px;
   min-height: 400px;
 }

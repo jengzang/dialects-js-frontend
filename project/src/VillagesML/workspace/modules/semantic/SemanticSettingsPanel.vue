@@ -1,5 +1,5 @@
 <template>
-  <div class="semantic-settings-panel glass-panel">
+  <div class="vml-glass-panel">
     <h3 class="panel-title">語義網絡設定</h3>
 
     <!-- 登錄提示 -->
@@ -154,7 +154,7 @@ const runAnalysis = () => {
 </script>
 
 <style scoped>
-.semantic-settings-panel {
+.vml-glass-panel {
   padding: 20px;
 }
 

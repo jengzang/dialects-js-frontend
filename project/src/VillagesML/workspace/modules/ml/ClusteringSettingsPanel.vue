@@ -1,5 +1,5 @@
 <template>
-  <div class="clustering-settings-panel glass-panel">
+  <div class="vml-glass-panel">
     <h3 class="panel-title">聚類設定</h3>
 
     <!-- 登錄提示 -->
@@ -179,7 +179,7 @@ const runClustering = () => {
 </script>
 
 <style scoped>
-.clustering-settings-panel {
+.vml-glass-panel {
   padding: 20px;
 }
 

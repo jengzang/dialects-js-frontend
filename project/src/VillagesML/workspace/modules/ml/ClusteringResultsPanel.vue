@@ -1,5 +1,5 @@
 <template>
-  <div class="clustering-results-panel glass-panel">
+  <div class="vml-glass-panel">
     <h3 class="panel-title">聚類結果</h3>
 
     <div v-if="results" class="results-content">
@@ -324,7 +324,7 @@ const handleQuickAdjust = (action) => {
 </script>
 
 <style scoped>
-.clustering-results-panel {
+.vml-glass-panel {
   padding: 20px;
   min-height: 400px;
 }
