@@ -1,5 +1,5 @@
 <template>
-  <div class="vowel-space-panel glass-panel">
+  <div class="vowel-space-panel main-glass-panel">
     <div style="display: flex;align-items: center;flex-direction: column;justify-content: center;">
       <h2 class="panel-title">{{ t('praat.vowelSpace.title') }}</h2>
 
@@ -48,7 +48,7 @@
 
       <div v-else class="segment-list">
         <!-- Select All Checkbox -->
-        <label class="segment-checkbox glass-panel-inner">
+        <label class="segment-checkbox main-glass-panel-inner">
           <input
             type="checkbox"
             :checked="showAll"
@@ -61,7 +61,7 @@
         <label
           v-for="seg in vowelSegments"
           :key="seg.id"
-          class="segment-checkbox glass-panel-inner"
+          class="segment-checkbox main-glass-panel-inner"
         >
           <input
             type="checkbox"
@@ -96,7 +96,7 @@
         <div
           v-for="data in segmentVowelData.filter(d => selectedSegments.has(d.segment.id))"
           :key="data.segment.id"
-          class="stat-card glass-panel-inner"
+          class="stat-card main-glass-panel-inner"
         >
           <div class="stat-header">
             <span class="segment-color-dot" :style="{ backgroundColor: getSegmentColor(data.segment.id) }"></span>

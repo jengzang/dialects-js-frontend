@@ -1,3 +1,26 @@
+.main-glass-panel {
+  background: var(--glass-medium);
+  backdrop-filter: blur(40px) saturate(180%);
+  -webkit-backdrop-filter: blur(40px) saturate(180%);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-glass);
+  transition: all 0.3s ease;
+}
+
+.main-glass-panel:hover {
+  box-shadow: var(--shadow-glass-hover);
+}
+
+.main-glass-panel-inner {
+  background: var(--glass-light);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--glass-border-weak);
+  transition: all 0.3s ease;
+}
+
 .tool-glass-container,
 .glass-container-shell {
   background: rgba(255, 255, 255, 0.65);

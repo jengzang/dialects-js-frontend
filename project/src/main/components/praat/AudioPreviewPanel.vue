@@ -58,7 +58,7 @@
         <div
           v-for="(region, index) in manualRegions"
           :key="region.id"
-          class="region-card glass-panel-inner"
+          class="region-card main-glass-panel-inner"
           :class="{ 'selected-region': selectedRegionId === region.id }"
           @click="selectRegion(region.id)"
         >
