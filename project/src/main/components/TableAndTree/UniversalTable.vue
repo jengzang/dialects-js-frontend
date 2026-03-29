@@ -11,16 +11,16 @@
         />
       </div>
       <div v-if="userStore.role === 'admin'" class="action-buttons">
-        <button v-if="!isEditMode" class="glass-btn" style="padding:8px 6px " @click="exportToExcel">
+        <button v-if="!isEditMode" class="main-glass-button" data-size="compact" @click="exportToExcel">
           <span class="icon">📤</span><span class="btn-text">Excel</span>
         </button>
-        <button class="glass-btn primary" @click="openAddModal">
+        <button class="main-glass-button" data-variant="primary" @click="openAddModal">
           <span class="icon">＋</span> <span class="btn-text">{{ t('tableTree.universalTable.toolbar.add') }}</span>
         </button>
         <button
-          class="glass-btn"
-          style="background: darkgoldenrod"
-          :class="{ 'edit-mode': isEditMode }"
+          class="main-glass-button"
+          data-role="edit-toggle"
+          :data-state="isEditMode ? 'edit-mode' : 'default'"
           @click="toggleEditMode"
         >
           <span class="icon">{{ isEditMode ? '✕' : '✎' }}</span>
@@ -28,7 +28,8 @@
         </button>
         <button
           v-if="isEditMode"
-          class="glass-btn secondary"
+          class="main-glass-button"
+          data-variant="secondary"
           @click="openBatchReplaceModal"
           :title="t('tableTree.universalTable.toolbar.batchReplace')"
         >
@@ -37,7 +38,8 @@
         </button>
         <button
           v-if="isEditMode"
-          class="glass-btn primary submit-btn"
+          class="main-glass-button"
+          data-role="submit"
           @click="submitBatchEdit"
           :disabled="Object.keys(changedCells).length === 0"
         >
@@ -484,7 +486,8 @@
             <!-- 底部按钮 -->
             <div class="modal-footer">
               <button
-                class="glass-btn secondary"
+                class="main-glass-button"
+                data-variant="secondary"
                 @click="previewBatchReplace"
                 :disabled="!canPreview"
               >
@@ -492,7 +495,8 @@
                 <span>{{ t('tableTree.universalTable.batchReplace.preview') }}</span>
               </button>
               <button
-                class="glass-btn primary"
+                class="main-glass-button"
+                data-variant="primary"
                 @click="executeBatchReplace"
                 :disabled="batchReplace.replaceAllPages ? batchReplace.totalMatches === 0 : batchReplace.previewResults.length === 0"
               >
@@ -500,7 +504,7 @@
                 <span>{{ t('tableTree.universalTable.batchReplace.replaceWithCount', { count: batchReplaceCount }) }}</span>
               </button>
               <button
-                class="glass-btn"
+                class="main-glass-button"
                 @click="closeBatchReplaceModal"
               >
                 <span>{{ t('common.button.cancel') }}</span>
@@ -1577,12 +1581,13 @@ onUnmounted(() => {
 
 }
 
-.glass-btn {
+.main-glass-button {
+  --main-glass-button-padding: 8px 16px;
+  --main-glass-button-border-radius: var(--radius-md);
+  --main-glass-button-font-size: 13px;
   padding: 8px 16px;
-  border-radius: var(--radius-md);
   border: 1px solid var(--border-light);
   background: rgba(255, 255, 255, 0.8);
-  font-size: 13px;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -1592,18 +1597,26 @@ onUnmounted(() => {
   white-space: nowrap;
 }
 
-.glass-btn:hover {
+.main-glass-button:hover:not(:disabled) {
   background: var(--bg-white);
   transform: translateY(-1px);
 }
 
-.glass-btn.primary {
+.main-glass-button[data-size='compact'] {
+  --main-glass-button-padding: 8px 6px;
+}
+
+.main-glass-button[data-variant='primary'] {
   background: var(--color-primary);
   color: white;
 }
 
+.main-glass-button[data-role='edit-toggle'] {
+  background: darkgoldenrod;
+}
+
 /* 編輯模式按鈕樣式 */
-.glass-btn.edit-mode {
+.main-glass-button[data-role='edit-toggle'][data-state='edit-mode'] {
   background: #ff9500;
   color: white;
   animation: pulse 2s ease-in-out infinite;
@@ -1619,13 +1632,13 @@ onUnmounted(() => {
 }
 
 /* 提交按鈕樣式 */
-.glass-btn.submit-btn {
+.main-glass-button[data-role='submit'] {
   background: linear-gradient(135deg, #34c759, #28a745);
   color: white;
   font-weight: 600;
 }
 
-.glass-btn.submit-btn:disabled {
+.main-glass-button[data-role='submit']:disabled {
   opacity: 0.5;
   cursor: not-allowed;
   background: #ccc;
@@ -1954,7 +1967,7 @@ td.cell-changed::after {
     justify-content: space-between;
   }
 
-  .action-buttons .glass-btn {
+  .action-buttons .main-glass-button {
     flex: 1;
     justify-content: center;
     padding: 8px;
@@ -2779,22 +2792,22 @@ td.cell-changed::after {
   background: rgba(255, 255, 255, 0.5);
 }
 
-.main-glass-shell[data-surface='batch-modal'] .modal-footer .glass-btn {
+.main-glass-shell[data-surface='batch-modal'] .modal-footer .main-glass-button {
   flex: 1;
 }
 
-.main-glass-shell[data-surface='batch-modal'] .glass-btn:disabled {
+.main-glass-shell[data-surface='batch-modal'] .main-glass-button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
-.main-glass-shell[data-surface='batch-modal'] .glass-btn.secondary {
+.main-glass-shell[data-surface='batch-modal'] .main-glass-button[data-variant='secondary'] {
   background: rgba(108, 117, 125, 0.1);
   color: #495057;
   border: 1px solid rgba(108, 117, 125, 0.2);
 }
 
-.main-glass-shell[data-surface='batch-modal'] .glass-btn.secondary:hover:not(:disabled) {
+.main-glass-shell[data-surface='batch-modal'] .main-glass-button[data-variant='secondary']:hover:not(:disabled) {
   background: rgba(108, 117, 125, 0.2);
 }
 
