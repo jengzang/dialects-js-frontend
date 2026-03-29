@@ -5,7 +5,8 @@
       <HelpIcon content="分析區域對語義類別的偏好。Z分數衡量該區域使用某語義類別的傾向，Lift值表示相對於全局平均的提升倍數。同時提供區域N-gram排行榜功能" />
     </h3>
 
-    <div class="tendency-section glass-panel">
+    <div class="vml-glass-panel">
+      <div class="tendency-section">
       <h3>區域語義類別傾向性</h3>
       <p class="section-description">
         分析特定區域中各語義類別的傾向性，使用Z分數和Lift值衡量該區域對不同語義類別的偏好程度。
@@ -53,10 +54,12 @@
         </div>
       </div>
     </div>
+    </div>
   </div>
 
   <!-- Regional N-gram Rankings -->
-  <div class="ngram-section glass-panel">
+  <div class="vml-glass-panel">
+    <div class="ngram-section">
     <h2>區域 N-gram 排行榜</h2>
     <div class="ngram-controls">
       <SimpleSelectDropdown :match-trigger-width="true"
@@ -136,6 +139,7 @@
         </div>
       </div>
     </div>
+  </div>
   </div>
 </template>
 
@@ -256,8 +260,8 @@ const loadRegionalNgrams = async () => {
   margin: 0 auto;
 }
 
-.tendency-section {
-  padding: 16px;
+.vml-glass-panel + .vml-glass-panel {
+  margin-top: 16px;
 }
 
 .tendency-section h3 {
@@ -339,11 +343,6 @@ const loadRegionalNgrams = async () => {
   border-radius: 8px;
   font-size: 14px;
   background: rgba(255, 255, 255, 0.5);
-}
-
-.ngram-section {
-  padding: 16px;
-  margin-top: 16px;
 }
 
 .ngram-section h2 {
