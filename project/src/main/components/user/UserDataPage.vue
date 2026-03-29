@@ -162,7 +162,7 @@
         class="modal-overlay"
         @click.self="closeBatchEditModal"
       >
-        <div class="modal-content modal-large crud-modal">
+        <div class="main-crud-modal" data-size="large">
           <div class="modal-header modal-header-base">
             <h3 class="modal-title-base">
               {{ t('user.dataPage.batchEdit.title', { count: batchEditRows.length }) }}
@@ -218,7 +218,7 @@
         class="modal-overlay"
         @click.self="closeBatchCreateModal"
       >
-        <div class="modal-content modal-large crud-modal">
+        <div class="main-crud-modal" data-size="large">
           <div class="modal-header modal-header-base">
             <h3 class="modal-title-base">{{ t('user.dataPage.batchCreate.title') }}</h3>
             <button class="modal-close" @click="closeBatchCreateModal">×</button>
@@ -287,7 +287,7 @@
         class="modal-overlay"
         @click.self="closeEditModal"
       >
-        <div class="modal-content crud-modal">
+        <div class="main-crud-modal">
           <div class="modal-header modal-header-base">
             <h3 class="modal-title-base">{{ t('user.dataPage.singleEdit.title') }}</h3>
             <button class="modal-close" @click="closeEditModal">×</button>
@@ -1002,19 +1002,13 @@ onMounted(() => {
   --overlay-padding: 20px;
 }
 
-.modal-content {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(40px) saturate(180%);
-  -webkit-backdrop-filter: blur(40px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 18px;
-  max-width: 800px;
-  width: 100%;
-  max-height: 90vh;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+.main-crud-modal {
+  --main-crud-modal-width: min(800px, 100%);
+  --main-crud-modal-background: rgba(255, 255, 255, 0.95);
+  --main-crud-modal-border: 1px solid rgba(255, 255, 255, 0.3);
+  --main-crud-modal-radius: 18px;
+  --main-crud-modal-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  --main-crud-modal-backdrop-filter: blur(40px) saturate(180%);
 }
 
 .modal-header {
@@ -1097,8 +1091,8 @@ onMounted(() => {
 }
 
 /* Batch table styles */
-.modal-large {
-  max-width: 1200px;
+.main-crud-modal[data-size='large'] {
+  --main-crud-modal-width: min(1200px, 100%);
 }
 
 .batch-table-controls {
@@ -1426,14 +1420,13 @@ onMounted(() => {
     font-size: 13px;
   }
 
-  .modal-content {
-    max-width: 95%;
-    max-height: 90vh;
+  .main-crud-modal {
+    --main-crud-modal-width: 95%;
     margin: 10px;
   }
 
-  .modal-large {
-    max-width: 95%;
+  .main-crud-modal[data-size='large'] {
+    --main-crud-modal-width: 95%;
   }
 
   .modal-header {

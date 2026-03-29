@@ -109,7 +109,7 @@
 
     <Teleport to="body">
       <div v-if="showEditModal" class="modal-overlay" @click.self="closeEditModal">
-        <div class="modal-content crud-modal">
+        <div class="main-crud-modal">
           <div class="modal-header modal-header-base">
             <h2 class="modal-title-base">
               {{
@@ -896,16 +896,13 @@ onMounted(() => {
   --overlay-padding: 20px;
 }
 
-.modal-content {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px) saturate(180%);
-  border-radius: 16px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  max-width: 600px;
-  width: 100%;
-  max-height: 90vh;
-  display: flex;
-  flex-direction: column;
+.main-crud-modal {
+  --main-crud-modal-width: min(600px, 100%);
+  --main-crud-modal-background: rgba(255, 255, 255, 0.95);
+  --main-crud-modal-border: none;
+  --main-crud-modal-radius: 16px;
+  --main-crud-modal-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  --main-crud-modal-backdrop-filter: blur(20px) saturate(180%);
 }
 
 .modal-header {

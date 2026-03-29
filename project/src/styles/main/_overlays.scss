@@ -180,21 +180,47 @@
   }
 }
 
-.crud-modal .modal-header {
+.main-crud-modal {
+  --main-crud-modal-width: min(800px, 100%);
+  --main-crud-modal-max-height: 90vh;
+  --main-crud-modal-background: rgba(255, 255, 255, 0.95);
+  --main-crud-modal-border: 1px solid rgba(255, 255, 255, 0.3);
+  --main-crud-modal-radius: 18px;
+  --main-crud-modal-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  --main-crud-modal-backdrop-filter: blur(40px) saturate(180%);
+  width: 100%;
+  max-width: var(--main-crud-modal-width);
+  max-height: var(--main-crud-modal-max-height);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--main-crud-modal-background);
+  border: var(--main-crud-modal-border);
+  border-radius: var(--main-crud-modal-radius);
+  box-shadow: var(--main-crud-modal-shadow);
+  backdrop-filter: var(--main-crud-modal-backdrop-filter);
+  -webkit-backdrop-filter: var(--main-crud-modal-backdrop-filter);
+}
+
+.main-crud-modal[data-size='large'] {
+  --main-crud-modal-width: min(1200px, 100%);
+}
+
+.main-crud-modal .modal-header {
   padding: 20px 24px;
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 }
 
-.crud-modal .modal-title-base,
-.crud-modal .modal-header h2,
-.crud-modal .modal-header h3 {
+.main-crud-modal .modal-title-base,
+.main-crud-modal .modal-header h2,
+.main-crud-modal .modal-header h3 {
   font-size: 20px;
   font-weight: 600;
   color: #333;
 }
 
-.crud-modal .close-btn,
-.crud-modal .modal-close {
+.main-crud-modal .close-btn,
+.main-crud-modal .modal-close {
   width: 32px;
   height: 32px;
   display: inline-flex;
@@ -210,8 +236,8 @@
   line-height: 1;
 }
 
-.crud-modal .close-btn:hover,
-.crud-modal .modal-close:hover {
+.main-crud-modal .close-btn:hover,
+.main-crud-modal .modal-close:hover {
   background: rgba(255, 59, 48, 0.1);
   color: #ff3b30;
 }
