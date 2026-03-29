@@ -66,15 +66,16 @@
             <label>最小相似度:</label>
             <input v-model.number="minSimilarity" type="number" min="0" max="1" step="0.1" class="number-input" />
           </div>
+          <button
+            class="query-button"
+            :disabled="!targetRegion || loadingSearch"
+            @click="searchSimilarRegions"
+          >
+            {{ loadingSearch ? '查詢中...' : '查詢' }}
+        </button>
         </div>
 
-        <button
-          class="query-button"
-          :disabled="!targetRegion || loadingSearch"
-          @click="searchSimilarRegions"
-        >
-          {{ loadingSearch ? '查詢中...' : '查詢' }}
-        </button>
+
       </div>
 
       <!-- Search Results -->
@@ -274,15 +275,14 @@
             v-model="matrixMetric"
             :options="metricOptions"
           />
+          <button
+            class="query-button"
+            :disabled="selectedRegions.length < 2 || loadingMatrix"
+            @click="loadMatrix"
+          >
+            {{ loadingMatrix ? '生成中...' : '生成矩陣' }}
+          </button>
         </div>
-
-        <button
-          class="query-button"
-          :disabled="selectedRegions.length < 2 || loadingMatrix"
-          @click="loadMatrix"
-        >
-          {{ loadingMatrix ? '生成中...' : '生成矩陣' }}
-        </button>
       </div>
 
       <!-- Matrix Results -->
@@ -959,6 +959,9 @@ export default {
   }
   .mode-button{
     padding: 6px;
+  }
+  .number-input{
+    width: 100%;
   }
 }
 </style>
