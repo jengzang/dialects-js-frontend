@@ -25,7 +25,7 @@
         <div class="format-selector">
           <div class="format-label-row">
             <label class="format-label">{{ t('tools.checkTool.welcome.formatLabel') }}</label>
-            <button class="glass-button small" @click="showFormatHelpModal = true">
+            <button class="main-glass-button" data-size="small" @click="showFormatHelpModal = true">
               📋 {{ t('tools.checkTool.welcome.formatHelp') }}
             </button>
           </div>
@@ -88,7 +88,7 @@
       <aside v-if="!isPortrait" class="sidebar glass-panel" :class="{ collapsed: sidebarCollapsed }">
         <div class="sidebar-header">
           <h3>📋 {{ t('tools.checkTool.sidebar.title') }}</h3>
-          <button class="glass-button small" @click="toggleShowAll">
+          <button class="main-glass-button" data-size="small" @click="toggleShowAll">
             {{ showingAll ? '👁️ ' + t('tools.checkTool.sidebar.showErrorsOnly') : '👁️ ' + t('tools.checkTool.sidebar.showAll') }}
           </button>
           <button class="collapse-btn" @click="toggleSidebar">
@@ -130,7 +130,7 @@
                   :placeholder="`🔍 ${t('tools.checkTool.sidebar.searchPlaceholder')}`"
                   @input="handleSearch"
                 />
-                <button class="glass-button small" @click="resetFilter">{{ t('tools.checkTool.sidebar.clearFilter') }}</button>
+                <button class="main-glass-button" data-size="small" @click="resetFilter">{{ t('tools.checkTool.sidebar.clearFilter') }}</button>
               </div>
 
               <!-- 错误列表 -->
@@ -266,8 +266,8 @@
             <span class="file-name">📁 {{ fileName }}</span>
             <span class="file-rows">{{ t('tools.checkTool.fileBar.rows', { count: totalRows }) }}</span>
           </div>
-          <button v-if="!isPortrait" class="glass-button secondary small" @click="resetUpload">{{ t('tools.checkTool.fileBar.changeFile') }}</button>
-          <button v-if="!isPortrait" class="glass-button small" @click="showHelpModal = true">
+          <button v-if="!isPortrait" class="main-glass-button" data-variant="secondary" data-size="small" @click="resetUpload">{{ t('tools.checkTool.fileBar.changeFile') }}</button>
+          <button v-if="!isPortrait" class="main-glass-button" data-size="small" @click="showHelpModal = true">
             ❓ {{ t('tools.checkTool.fileBar.help') }}
           </button>
           <!-- 模式切换 -->
@@ -302,15 +302,18 @@
             </div>
             <div class="table-actions">
               <button
-                class="glass-button small"
-                :class="{ active: isEditMode }"
+                class="main-glass-button"
+                data-size="small"
+                :data-active="isEditMode ? 'true' : null"
                 @click="toggleEditMode"
               >
                 {{ isEditMode ? '👁️ ' + t('tools.checkTool.table.exitEdit') : '✏️ ' + t('tools.checkTool.table.enterEdit') }}
               </button>
               <button
                 v-show="isEditMode"
-                class="glass-button small primary"
+                class="main-glass-button"
+                data-size="small"
+                data-variant="primary"
                 :disabled="totalPendingChanges === 0"
                 @click="batchSave"
               >
@@ -318,15 +321,16 @@
               </button>
               <button
                 v-show="isEditMode"
-                class="glass-button small"
+                class="main-glass-button"
+                data-size="small"
                 @click="cancelEdit"
               >
                 ❌ {{ t('tools.checkTool.table.cancel') }}
               </button>
-              <button v-show="!isEditMode" class="glass-button small" @click="showBatchReplaceModal = true">
+              <button v-show="!isEditMode" class="main-glass-button" data-size="small" @click="showBatchReplaceModal = true">
                 🔄 {{ t('tools.checkTool.table.batchReplace') }}
               </button>
-              <button v-show="!isEditMode" class="glass-button small" @click="downloadFile">
+              <button v-show="!isEditMode" class="main-glass-button" data-size="small" @click="downloadFile">
                 ⬇️ {{ t('tools.checkTool.table.download') }}
               </button>
             </div>
@@ -549,7 +553,7 @@
           <div class="command-panel glass-panel">
             <div class="command-header">
               <h3>💻 {{ t('tools.checkTool.command.title') }}</h3>
-              <button v-if="!isPortrait" class="glass-button small" @click="showHelpModal = true">
+              <button v-if="!isPortrait" class="main-glass-button" data-size="small" @click="showHelpModal = true">
                 ❓ {{ t('tools.checkTool.command.help') }}
               </button>
             </div>
@@ -561,15 +565,15 @@
             ></textarea>
 
             <div class="command-actions">
-              <button class="glass-button" @click="clearCommand">🗑️ {{ t('tools.checkTool.command.clear') }}</button>
-              <button class="glass-button primary" @click="executeCommand">▶️ {{ t('tools.checkTool.command.execute') }}</button>
+              <button class="main-glass-button" @click="clearCommand">🗑️ {{ t('tools.checkTool.command.clear') }}</button>
+              <button class="main-glass-button" data-variant="primary" @click="executeCommand">▶️ {{ t('tools.checkTool.command.execute') }}</button>
             </div>
 
             <!-- 执行结果 -->
             <div v-if="commandLog.length > 0" class="command-result glass-panel">
               <div class="result-header">
                 <h4>📋 {{ t('tools.checkTool.command.resultTitle') }}</h4>
-                <button class="glass-button small" @click="clearCommandLog">{{ t('tools.checkTool.command.clearResult') }}</button>
+                <button class="main-glass-button" data-size="small" @click="clearCommandLog">{{ t('tools.checkTool.command.clearResult') }}</button>
               </div>
               <div class="result-log custom-scrollbar">
                 <div
@@ -645,8 +649,8 @@
           </div>
 
           <div class="modal-footer">
-            <button class="glass-button secondary" @click="showBatchReplaceModal = false">{{ t('tools.checkTool.batchReplace.cancel') }}</button>
-            <button class="glass-button primary" @click="executeBatchReplace">🔄 {{ t('tools.checkTool.batchReplace.execute') }}</button>
+            <button class="main-glass-button" data-variant="secondary" @click="showBatchReplaceModal = false">{{ t('tools.checkTool.batchReplace.cancel') }}</button>
+            <button class="main-glass-button" data-variant="primary" @click="executeBatchReplace">🔄 {{ t('tools.checkTool.batchReplace.execute') }}</button>
           </div>
         </div>
       </div>
@@ -738,7 +742,7 @@
           </div>
 
           <div class="modal-footer">
-            <button class="glass-button primary" @click="showHelpModal = false">{{ t('tools.checkTool.help.gotIt') }}</button>
+            <button class="main-glass-button" data-variant="primary" @click="showHelpModal = false">{{ t('tools.checkTool.help.gotIt') }}</button>
           </div>
         </div>
       </div>
@@ -818,7 +822,7 @@
           </div>
 
           <div class="modal-footer">
-            <button class="glass-button primary" @click="showFormatHelpModal = false">{{ t('tools.checkTool.formatHelp.gotIt') }}</button>
+            <button class="main-glass-button" data-variant="primary" @click="showFormatHelpModal = false">{{ t('tools.checkTool.formatHelp.gotIt') }}</button>
           </div>
         </div>
       </div>
@@ -840,7 +844,7 @@
           </div>
 
           <div class="modal-footer">
-            <button class="glass-button primary" @click="showToneCharsModal = false">{{ t('tools.checkTool.toneChars.close') }}</button>
+            <button class="main-glass-button" data-variant="primary" @click="showToneCharsModal = false">{{ t('tools.checkTool.toneChars.close') }}</button>
           </div>
         </div>
       </div>
@@ -859,10 +863,10 @@
 
           <div class="modal-body filter-modal-body">
             <div class="filter-actions">
-              <button class="glass-button small" @click="toggleSelectAll">
+              <button class="main-glass-button" data-size="small" @click="toggleSelectAll">
                 {{ isAllSelected ? t('tools.checkTool.filter.clearAll') : t('tools.checkTool.filter.selectAll') }}
               </button>
-              <button class="glass-button small secondary" @click="invertSelection">
+              <button class="main-glass-button" data-size="small" data-variant="secondary" @click="invertSelection">
                 {{ t('tools.checkTool.filter.invert') }}
               </button>
             </div>
@@ -885,8 +889,8 @@
           </div>
 
           <div class="modal-footer">
-            <button class="glass-button secondary" @click="showFilterModal = false">{{ t('tools.checkTool.filter.close') }}</button>
-            <button class="glass-button primary" @click="showFilterModal = false">{{ t('tools.checkTool.filter.confirm') }}</button>
+            <button class="main-glass-button" data-variant="secondary" @click="showFilterModal = false">{{ t('tools.checkTool.filter.close') }}</button>
+            <button class="main-glass-button" data-variant="primary" @click="showFilterModal = false">{{ t('tools.checkTool.filter.confirm') }}</button>
           </div>
         </div>
       </div>
@@ -1894,6 +1898,12 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   padding-top: 30px;
+  --main-glass-button-padding: 8px 16px;
+  --main-glass-button-border-radius: 10px;
+  --main-glass-button-font-size: 13px;
+  --main-glass-button-small-padding: 6px 12px;
+  --main-glass-button-small-font-size: 12px;
+  --main-glass-button-white-space: nowrap;
 }
 
 .welcome-screen {
@@ -3373,12 +3383,12 @@ justify-content: center;
     width: 100%;
   }
 
-  .filter-section .glass-button {
+  .filter-section .main-glass-button {
     width: 100%;
     padding: 8px 12px;
   }
 
-  .glass-button.small {
+  .main-glass-button[data-size='small'] {
     padding: 8px 12px;
     font-size: 12px;
   }
@@ -3691,7 +3701,7 @@ justify-content: center;
     font-size: 12px;
   }
 
-  .filter-section .glass-button {
+  .filter-section .main-glass-button {
     padding: 6px 12px;
     font-size: 12px;
   }
