@@ -1,5 +1,5 @@
 <template>
-  <div class="universal-table glass-container glass-container-soft">
+  <div class="main-glass-shell" data-surface="table">
     <div class="toolbar">
       <div class="search-wrapper">
         <span class="search-icon">🔍</span>
@@ -236,7 +236,8 @@
       <transition name="fade-scale">
         <div v-if="activeFilterCol" class="teleport-overlay" @click="closeFilter">
           <div
-              class="filter-popup glass-panel"
+              class="main-glass-panel"
+              data-surface="filter-popup"
               :style="popupStyle"
               @click.stop
             >
@@ -326,7 +327,7 @@
           style="--overlay-z-index: 9999; --overlay-padding: 20px"
           @click.self="closeBatchReplaceModal"
         >
-          <div class="batch-replace-modal glass-container glass-container-soft">
+          <div class="main-glass-shell" data-surface="batch-modal">
             <!-- 标题栏 -->
             <div class="modal-header">
               <h3>{{ t('tableTree.universalTable.batchReplace.title') }}</h3>
@@ -1514,10 +1515,10 @@ onUnmounted(() => {
    使用全局 CSS 变量和工具类
    ======================================== */
 
-.glass-container {
+.main-glass-shell[data-surface='table'] {
   /* 使用全局变量替代局部变量 */
-  border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-md);
+  --main-glass-shell-radius: var(--radius-xl);
+  --main-glass-shell-shadow: var(--shadow-md);
   padding: 12px 4px;
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   color: var(--text-primary);
@@ -1786,7 +1787,13 @@ td.cell-changed::after {
 }
 
 /* Filter Popup */
-.filter-popup {
+.main-glass-panel[data-surface='filter-popup'] {
+  --main-glass-panel-background: var(--glass-light);
+  --main-glass-panel-backdrop-filter: blur(25px);
+  --main-glass-panel-border: 1px solid rgba(255, 255, 255, 0.8);
+  --main-glass-panel-shadow: var(--shadow-lg);
+  --main-glass-panel-hover-shadow: var(--shadow-lg);
+  --main-glass-panel-border-radius: var(--radius-lg);
   position: absolute;
   top: 100%;
   left: 0;
@@ -1800,18 +1807,12 @@ td.cell-changed::after {
   max-height: 400px;
 }
 
-.filter-popup.align-right {
+.main-glass-panel[data-surface='filter-popup'].align-right {
   left: auto;
   right: 0;
 }
 
-.glass-panel {
-  background: var(--glass-light);
-  backdrop-filter: blur(25px);
-  -webkit-backdrop-filter: blur(25px);
-  border: 1px solid rgba(255, 255, 255, 0.8);
-  box-shadow: var(--shadow-lg);
-  border-radius: var(--radius-lg);
+.main-glass-panel[data-surface='filter-popup'] {
   max-height: 50dvh;
 }
 
@@ -1929,11 +1930,11 @@ td.cell-changed::after {
 
 /* Mobile Responsiveness */
 @media (max-width: 768px) {
-  .glass-container {
+  .main-glass-shell[data-surface='table'] {
     padding: 8px 2px;
-    border-radius: 20px;
+    --main-glass-shell-radius: 20px;
     height: 85dvh;
-    border: none;
+    --main-glass-shell-border: none;
   }
 
   th, td {
@@ -1972,8 +1973,8 @@ td.cell-changed::after {
     -webkit-backdrop-filter: blur(2px);
   }
 
-  .filter-popup,
-  .filter-popup.align-right {
+  .main-glass-panel[data-surface='filter-popup'],
+  .main-glass-panel[data-surface='filter-popup'].align-right {
     position: fixed;
     top: 50%;
     left: 50%;
@@ -2397,18 +2398,18 @@ td.cell-changed::after {
   opacity: 0;
 }
 
-.batch-replace-modal {
+.main-glass-shell[data-surface='batch-modal'] {
+  --main-glass-shell-radius: 20px;
+  --main-glass-shell-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
   width: 90%;
   max-width: 700px;
   max-height: 85vh;
   display: flex;
   flex-direction: column;
-  border-radius: 20px;
   overflow: hidden;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
 }
 
-.batch-replace-modal .modal-header {
+.main-glass-shell[data-surface='batch-modal'] .modal-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -2417,14 +2418,14 @@ td.cell-changed::after {
   background: rgba(255, 255, 255, 0.5);
 }
 
-.batch-replace-modal .modal-header h3 {
+.main-glass-shell[data-surface='batch-modal'] .modal-header h3 {
   margin: 0;
   font-size: 20px;
   font-weight: 600;
   color: #1d1d1f;
 }
 
-.batch-replace-modal .close-btn {
+.main-glass-shell[data-surface='batch-modal'] .close-btn {
   background: transparent;
   font-size: 24px;
   color: #666;
@@ -2433,21 +2434,21 @@ td.cell-changed::after {
   border-radius: 50%;
 }
 
-.batch-replace-modal .close-btn:hover {
+.main-glass-shell[data-surface='batch-modal'] .close-btn:hover {
   background: rgba(0, 0, 0, 0.05);
 }
 
-.batch-replace-modal .modal-body {
+.main-glass-shell[data-surface='batch-modal'] .modal-body {
   flex: 1;
   padding: 24px;
   overflow-y: auto;
 }
 
-.batch-replace-modal .form-group {
+.main-glass-shell[data-surface='batch-modal'] .form-group {
   margin-bottom: 20px;
 }
 
-.batch-replace-modal .form-group label {
+.main-glass-shell[data-surface='batch-modal'] .form-group label {
   display: block;
   margin-bottom: 8px;
   font-size: 14px;
@@ -2455,7 +2456,7 @@ td.cell-changed::after {
   color: #333;
 }
 
-.batch-replace-modal .glass-input {
+.main-glass-shell[data-surface='batch-modal'] .glass-input {
   width: 80%;
   padding: 10px 14px;
   border: 1px solid rgba(0, 0, 0, 0.1);
@@ -2466,7 +2467,7 @@ td.cell-changed::after {
   transition: all 0.2s;
 }
 
-.batch-replace-modal .glass-input:focus {
+.main-glass-shell[data-surface='batch-modal'] .glass-input:focus {
   border-color: #007aff;
   background: rgba(255, 255, 255, 0.9);
   box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
@@ -2770,7 +2771,7 @@ td.cell-changed::after {
 
 
 /* 底部按钮栏 */
-.batch-replace-modal .modal-footer {
+.main-glass-shell[data-surface='batch-modal'] .modal-footer {
   display: flex;
   gap: 12px;
   padding: 16px 24px;
@@ -2778,28 +2779,28 @@ td.cell-changed::after {
   background: rgba(255, 255, 255, 0.5);
 }
 
-.batch-replace-modal .modal-footer .glass-btn {
+.main-glass-shell[data-surface='batch-modal'] .modal-footer .glass-btn {
   flex: 1;
 }
 
-.batch-replace-modal .glass-btn:disabled {
+.main-glass-shell[data-surface='batch-modal'] .glass-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
-.batch-replace-modal .glass-btn.secondary {
+.main-glass-shell[data-surface='batch-modal'] .glass-btn.secondary {
   background: rgba(108, 117, 125, 0.1);
   color: #495057;
   border: 1px solid rgba(108, 117, 125, 0.2);
 }
 
-.batch-replace-modal .glass-btn.secondary:hover:not(:disabled) {
+.main-glass-shell[data-surface='batch-modal'] .glass-btn.secondary:hover:not(:disabled) {
   background: rgba(108, 117, 125, 0.2);
 }
 
 /* 响应式 */
 @media (max-width: 768px) {
-  .batch-replace-modal {
+  .main-glass-shell[data-surface='batch-modal'] {
     width: 95%;
     max-height: 90vh;
   }

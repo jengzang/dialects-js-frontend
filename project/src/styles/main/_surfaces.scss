@@ -31,6 +31,20 @@
   transition: all 0.3s ease;
 }
 
+.main-glass-shell {
+  --main-glass-shell-background: rgba(255, 255, 255, 0.95);
+  --main-glass-shell-backdrop-filter: blur(20px) saturate(180%);
+  --main-glass-shell-border: 1px solid rgba(255, 255, 255, 0.8);
+  --main-glass-shell-radius: 30px;
+  --main-glass-shell-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+  background: var(--main-glass-shell-background);
+  backdrop-filter: var(--main-glass-shell-backdrop-filter);
+  -webkit-backdrop-filter: var(--main-glass-shell-backdrop-filter);
+  border: var(--main-glass-shell-border);
+  border-radius: var(--main-glass-shell-radius);
+  box-shadow: var(--main-glass-shell-shadow);
+}
+
 .tool-glass-container,
 .glass-container-shell {
   background: rgba(255, 255, 255, 0.65);
