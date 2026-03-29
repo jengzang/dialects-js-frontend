@@ -30,40 +30,42 @@
       </div>
 
       <!-- 字符表和维度选择 -->
-      <div class="control-row">
-        <label class="control-label">{{ t('phonology.phonology.evolution.controls.table') }}：</label>
-        <SimpleSelectDropdown
-          v-model="selectedTable"
-          :options="tableOptions"
-          class="control-select"
-        />
-      </div>
+      <div class="dimension-grid">
+        <div class="dimension-field">
+          <label class="control-label dimension-label">{{ t('phonology.phonology.evolution.controls.table') }}：</label>
+          <SimpleSelectDropdown
+            v-model="selectedTable"
+            :options="tableOptions"
+            class="control-select dimension-select"
+          />
+        </div>
 
-      <div class="control-row">
-        <label class="control-label">{{ t('phonology.phonology.evolution.controls.level1') }}：</label>
-        <SimpleSelectDropdown
-          v-model="level1Column"
-          :options="availableColumns"
-          :placeholder="t('phonology.phonology.evolution.controls.level1')"
-          :disabled="!selectedTable"
-          class="control-select"
-        />
-      </div>
+        <div class="dimension-field">
+          <label class="control-label dimension-label">{{ t('phonology.phonology.evolution.controls.level1') }}：</label>
+          <SimpleSelectDropdown
+            v-model="level1Column"
+            :options="availableColumns"
+            :placeholder="t('phonology.phonology.evolution.controls.level1')"
+            :disabled="!selectedTable"
+            class="control-select dimension-select"
+          />
+        </div>
 
-      <div class="control-row">
-        <label class="control-label">{{ t('phonology.phonology.evolution.controls.level2') }}：</label>
-        <SimpleSelectDropdown
-          v-model="level2Column"
-          :options="level2Options"
-          :placeholder="t('phonology.phonology.evolution.controls.level2')"
-          :disabled="!level1Column"
-          class="control-select"
-        />
+        <div class="dimension-field">
+          <label class="control-label dimension-label">{{ t('phonology.phonology.evolution.controls.level2') }}：</label>
+          <SimpleSelectDropdown
+            v-model="level2Column"
+            :options="level2Options"
+            :placeholder="t('phonology.phonology.evolution.controls.level2')"
+            :disabled="!level1Column"
+            class="control-select dimension-select"
+          />
+        </div>
       </div>
 
       <!-- 地点输入 -->
       <div class="control-row">
-        <label class="control-label">{{ t('phonology.phonology.evolution.controls.location') }}：</label>
+        <!-- <label class="control-label">{{ t('phonology.phonology.evolution.controls.location') }}：</label> -->
         <div class="control-input-wrapper">
           <LocationMultiInput
             v-model="selectedLocations"
@@ -75,7 +77,7 @@
       </div>
 
       <!-- 查询按钮 -->
-      <div class="control-row">
+      <div class="control-row control-row--query">
         <button
           @click="handleQuery"
           :disabled="isLoading || !canQuery"
@@ -88,42 +90,6 @@
       <!-- 错误提示 -->
       <div v-if="errorMessage" class="error-message">
         {{ errorMessage }}
-      </div>
-    </div>
-
-    <!-- 相似度控制面板 -->
-    <div v-if="rawData" class="main-glass-panel" data-panel="similarity">
-      <div class="control-row">
-        <label class="control-label">{{ t('phonology.phonology.evolution.similarity.algorithm') }}：</label>
-        <SimpleSelectDropdown
-          v-model="similarityAlgorithm"
-          :options="similarityAlgorithmOptions"
-          class="control-select"
-        />
-      </div>
-
-      <div class="control-row">
-        <label class="control-label">{{ t('phonology.phonology.evolution.similarity.threshold') }}：</label>
-        <input
-          type="range"
-          v-model.number="similarityThreshold"
-          min="0"
-          max="1"
-          step="0.05"
-          class="threshold-slider"
-        />
-        <span class="threshold-value">{{ similarityThreshold.toFixed(2) }}</span>
-      </div>
-
-      <div class="control-row">
-        <label class="checkbox-label">
-          <input type="checkbox" v-model="showConnections" />
-          {{ t('phonology.phonology.evolution.similarity.showConnections') }}
-        </label>
-        <label class="checkbox-label">
-          <input type="checkbox" v-model="showCategoryLinks" />
-          {{ t('phonology.phonology.evolution.similarity.showCategoryLinks') }}
-        </label>
       </div>
     </div>
 
@@ -153,34 +119,10 @@
           :key="index"
           class="pie-item"
           :data-index="index"
-          @mouseenter="handlePieHover(index)"
-          @mouseleave="handlePieLeave"
         >
           <div class="pie-chart" :data-pie-index="index"></div>
         </div>
       </div>
-
-      <!-- SVG连线层 -->
-      <svg
-        v-if="showConnections && connectionLines.length > 0"
-        class="connection-layer"
-        :width="containerWidth"
-        :height="containerHeight"
-        :style="{ pointerEvents: 'none' }"
-      >
-        <line
-          v-for="line in connectionLines"
-          :key="line.key"
-          :x1="line.x1"
-          :y1="line.y1"
-          :x2="line.x2"
-          :y2="line.y2"
-          :stroke="line.stroke"
-          :stroke-width="line.strokeWidth"
-          :opacity="line.opacity"
-          stroke-linecap="round"
-        />
-      </svg>
     </div>
 
     <!-- 空状态 -->
@@ -198,7 +140,6 @@ import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
 import LocationMultiInput from '../query/LocationMultiInput.vue'
 import { postPhoPieByValue, postPhoPieByStatus } from '@/api/query/phoPie.js'
 import { TABLE_COLUMN_SCHEMAS } from '../../config/characters.js'
-import * as SimilarityUtils from '@/utils/similarity.js'
 
 const { t } = useI18n()
 
@@ -219,41 +160,10 @@ const rawData = ref(null)
 const features = ['聲母', '韻母', '聲調']
 const currentFeature = ref('聲母')
 
-// 相似度控制
-const similarityAlgorithm = ref('cooccurrence') // 默认使用最快的算法：共现类别数
-const similarityThreshold = ref(0.5)
-const showConnections = ref(true)
-const showCategoryLinks = ref(false)
-const similarityMatrix = ref([])
-
-// 交互状态
-const hoveredPieIndex = ref(null)
-const hoveredSectorCategory = ref(null)
-const pieCentersCache = ref(new Map()) // 缓存饼图中心坐标
-const similarityCalculated = ref(false) // 标记是否已计算相似度
-
-// Hover时才计算相似度矩阵
-const handlePieHover = (index) => {
-  hoveredPieIndex.value = index
-
-  // 第一次hover时才计算相似度矩阵
-  if (!similarityCalculated.value && currentPieData.value.length > 0) {
-    console.log('[Evolution] First hover, calculating similarity matrix...')
-    similarityMatrix.value = calculateSimilarityMatrix()
-    similarityCalculated.value = true
-    console.log('[Evolution] Similarity matrix calculated:', similarityMatrix.value.length, 'pairs')
-  }
-}
-
-const handlePieLeave = () => {
-  hoveredPieIndex.value = null
-}
-
 // 饼图容器
 const pieGridRef = ref(null)
 const chartInstances = ref([])
 const containerWidth = ref(1200)
-const containerHeight = ref(800)
 
 // ========== 配置数据 ==========
 const tableOptions = [
@@ -264,20 +174,6 @@ const tableOptions = [
   { value: 'old_chinese', label: '上古音' },
   { value: 'zhongyuan', label: '中原音韻' }
 ]
-
-const similarityAlgorithmOptions = computed(() => [
-  { value: 'cosine', label: t('phonology.phonology.evolution.similarity.algorithms.cosine') },
-  { value: 'overlap', label: t('phonology.phonology.evolution.similarity.algorithms.overlap') },
-  { value: 'topK', label: t('phonology.phonology.evolution.similarity.algorithms.topK') },
-  { value: 'kl', label: t('phonology.phonology.evolution.similarity.algorithms.kl') },
-  { value: 'jaccard', label: t('phonology.phonology.evolution.similarity.algorithms.jaccard') },
-  { value: 'charWeighted', label: t('phonology.phonology.evolution.similarity.algorithms.charWeighted') },
-  { value: 'structural', label: t('phonology.phonology.evolution.similarity.algorithms.structural') },
-  { value: 'cooccurrence', label: t('phonology.phonology.evolution.similarity.algorithms.cooccurrence') },
-  { value: 'entropy', label: t('phonology.phonology.evolution.similarity.algorithms.entropy') },
-  { value: 'hierarchical', label: t('phonology.phonology.evolution.similarity.algorithms.hierarchical') }
-])
-
 
 // ========== 计算属性 ==========
 const availableColumns = computed(() => {
@@ -303,40 +199,6 @@ const pieCountByFeature = computed(() => {
     韻母: rawData.value.data.韻母?.length || 0,
     聲調: rawData.value.data.聲調?.length || 0
   }
-})
-
-// 预计算所有连线的坐标和样式（只在hover时显示相关连线）
-const connectionLines = computed(() => {
-  if (!showConnections.value || similarityMatrix.value.length === 0) return []
-
-  const threshold = similarityThreshold.value
-  const hoveredIndex = hoveredPieIndex.value
-
-  // 如果没有hover任何饼图，不显示连线
-  if (hoveredIndex === null) return []
-
-  // 只显示与hover饼图相关的连线
-  return similarityMatrix.value
-    .filter(([i, j, similarity]) => {
-      return similarity >= threshold && (i === hoveredIndex || j === hoveredIndex)
-    })
-    .map(([i, j, similarity], idx) => {
-      const start = getPieCenter(i)
-      const end = getPieCenter(j)
-      return {
-        key: `conn-${i}-${j}`,
-        x1: start.x,
-        y1: start.y,
-        x2: end.x,
-        y2: end.y,
-        stroke: getConnectionColor(similarity),
-        strokeWidth: getConnectionWidth(similarity),
-        opacity: 0.8, // hover时固定高透明度
-        i,
-        j,
-        similarity
-      }
-    })
 })
 
 const canQuery = computed(() => {
@@ -434,7 +296,6 @@ const updateContainerSize = () => {
   if (pieGridRef.value) {
     const rect = pieGridRef.value.getBoundingClientRect()
     containerWidth.value = rect.width || 1200
-    containerHeight.value = rect.height || 800
   }
 }
 
@@ -611,129 +472,12 @@ const renderAllPies = async () => {
     }
   }
 
-  // 不在这里计算相似度矩阵，延迟到用户hover时才计算
-  // similarityMatrix.value = calculateSimilarityMatrix()
-
-  // 更新饼图中心坐标缓存
-  await nextTick()
-  updatePieCentersCache()
-
   const endTime = performance.now()
   console.log(`[Evolution] Total rendering took ${(endTime - startTime).toFixed(2)}ms`)
 }
 
-// ========== 相似度计算 ==========
-const SIMILARITY_ALGORITHMS = {
-  cosine: SimilarityUtils.calculateCosineSimilarity,
-  overlap: SimilarityUtils.calculateWeightedOverlap,
-  topK: SimilarityUtils.calculateTopKMatch,
-  kl: SimilarityUtils.calculateKLDivergence,
-  jaccard: SimilarityUtils.calculateJaccardSimilarity,
-  charWeighted: SimilarityUtils.calculateCharWeightedSimilarity,
-  structural: SimilarityUtils.calculateStructuralSimilarity,
-  cooccurrence: SimilarityUtils.calculateCooccurrence,
-  entropy: SimilarityUtils.calculateEntropySimilarity,
-  hierarchical: SimilarityUtils.calculateHierarchicalSimilarity
-}
-
-const calculateSimilarityMatrix = () => {
-  const startTime = performance.now()
-  const pies = currentPieData.value
-  const matrix = []
-
-  const algorithm = SIMILARITY_ALGORITHMS[similarityAlgorithm.value]
-  if (!algorithm) return []
-
-  const maxPairs = 500 // 限制最大连线数
-
-  console.log(`[Evolution] Calculating similarity for ${pies.length} pies using ${similarityAlgorithm.value}...`)
-
-  for (let i = 0; i < pies.length; i++) {
-    for (let j = i + 1; j < pies.length; j++) {
-      const similarity = algorithm(pies[i], pies[j], queryMode.value)
-      matrix.push([i, j, similarity])
-
-      // 如果超过最大数量，只保留相似度最高的
-      if (matrix.length > maxPairs) {
-        matrix.sort((a, b) => b[2] - a[2])
-        matrix.length = maxPairs
-      }
-    }
-  }
-
-  matrix.sort((a, b) => b[2] - a[2])
-
-  const endTime = performance.now()
-  console.log(`[Evolution] Similarity calculation took ${(endTime - startTime).toFixed(2)}ms, ${matrix.length} pairs`)
-
-  return matrix
-}
-
-// ========== 连线相关 ==========
-const getPieCenter = (index) => {
-  // 先检查缓存
-  if (pieCentersCache.value.has(index)) {
-    return pieCentersCache.value.get(index)
-  }
-
-  // 使用DOM元素的实际位置
-  const pieElement = pieGridRef.value?.querySelector(`[data-pie-index="${index}"]`)
-  if (!pieElement) {
-    // 降级方案：使用计算的位置
-    const { cols } = gridLayout.value
-    const row = Math.floor(index / cols)
-    const col = index % cols
-    const gap = 20
-    const size = pieSize.value
-    const x = gap + col * (size + gap) + size / 2
-    const y = gap + row * (size + gap) + size / 2
-    return { x, y }
-  }
-
-  const gridRect = pieGridRef.value.getBoundingClientRect()
-  const pieRect = pieElement.getBoundingClientRect()
-
-  // 计算相对于grid容器的中心点
-  const x = pieRect.left - gridRect.left + pieRect.width / 2
-  const y = pieRect.top - gridRect.top + pieRect.height / 2
-
-  const center = { x, y }
-  // 缓存结果
-  pieCentersCache.value.set(index, center)
-  return center
-}
-
-// 更新所有饼图中心坐标缓存
-const updatePieCentersCache = () => {
-  pieCentersCache.value.clear()
-  // 预计算所有饼图的中心坐标
-  currentPieData.value.forEach((_, index) => {
-    getPieCenter(index)
-  })
-}
-
-const getConnectionColor = (similarity) => {
-  const hue = 240 - similarity * 120
-  return `hsl(${hue}, 70%, 50%)`
-}
-
-const getConnectionWidth = (similarity) => {
-  return 1 + similarity * 4
-}
-
-// ========== 监听器 ==========
-// 当相似度算法改变时，重置计算标记（下次hover时重新计算）
-watch(similarityAlgorithm, () => {
-  similarityCalculated.value = false
-  similarityMatrix.value = []
-})
-
 // 当切换feature时，重新渲染饼图
 watch(currentFeature, async () => {
-  // 重置相似度计算标记
-  similarityCalculated.value = false
-  similarityMatrix.value = []
-
   await nextTick()
 
   // 清空旧的图表实例
@@ -761,10 +505,6 @@ watch(currentFeature, async () => {
       await nextTick()
     }
   }
-
-  // 更新饼图中心坐标缓存
-  await nextTick()
-  updatePieCentersCache()
 })
 
 // ========== 生命周期 ==========
@@ -773,7 +513,7 @@ onUnmounted(() => {
 })
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .evolution-page {
   width: 100%;
   padding: 20px;
@@ -796,10 +536,38 @@ onUnmounted(() => {
   align-items: center;
   gap: 12px;
   margin-bottom: 16px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  &--query {
+    justify-content: center;
+  }
 }
 
-.control-row:last-child {
-  margin-bottom: 0;
+.dimension-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 16px;
+  align-items: start;
+}
+
+.dimension-field {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.dimension-label {
+  min-width: 0;
+}
+
+.dimension-select {
+  width: 100%;
+  max-width: none;
 }
 
 .control-label {
@@ -847,10 +615,10 @@ onUnmounted(() => {
   color: var(--text-dark, #333);
   user-select: none;
   transition: opacity 0.2s ease;
-}
 
-.mode-radio-label:hover {
-  opacity: 0.8;
+  &:hover {
+    opacity: 0.8;
+  }
 }
 
 .hidden-radio {
@@ -858,6 +626,15 @@ onUnmounted(() => {
   opacity: 0;
   width: 0;
   height: 0;
+
+  &:checked + .glass-indicator {
+    border-color: var(--color-primary, #007aff);
+    background: rgba(255, 255, 255, 0.8);
+
+    &::after {
+      transform: translate(-50%, -50%) scale(1);
+    }
+  }
 }
 
 /* 液态玻璃圆圈（外圈） */
@@ -874,31 +651,20 @@ onUnmounted(() => {
     inset 0 1px 3px rgba(255, 255, 255, 0.5),
     0 2px 4px rgba(0, 0, 0, 0.05);
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-}
 
-/* 选中时的圆圈内部实心点 */
-.glass-indicator::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: var(--color-primary, #007aff);
-  transform: translate(-50%, -50%) scale(0);
-  transition: transform 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-}
-
-/* 选中状态触发器 */
-.hidden-radio:checked + .glass-indicator {
-  border-color: var(--color-primary, #007aff);
-  background: rgba(255, 255, 255, 0.8);
-}
-
-.hidden-radio:checked + .glass-indicator::after {
-  transform: translate(-50%, -50%) scale(1);
+  &::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--color-primary, #007aff);
+    transform: translate(-50%, -50%) scale(0);
+    transition: transform 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  }
 }
 
 /* 查询按钮 */
@@ -913,17 +679,17 @@ onUnmounted(() => {
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   box-shadow: 0 2px 8px var(--color-primary-shadow);
-}
 
-.query-button:hover:not(:disabled) {
-  background: var(--color-primary-hover);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px var(--color-primary-shadow-light);
-}
+  &:hover:not(:disabled) {
+    background: var(--color-primary-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px var(--color-primary-shadow-light);
+  }
 
-.query-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
 }
 
 /* 错误提示 */
@@ -935,65 +701,6 @@ onUnmounted(() => {
   color: #ff3b30;
   font-size: 13px;
   margin-top: 12px;
-}
-
-/* 相似度控制面板 */
-.main-glass-panel[data-panel='similarity'] {
-  --main-glass-panel-background: var(--glass-light);
-  --main-glass-panel-backdrop-filter: blur(10px);
-}
-
-.threshold-slider {
-  flex: 1;
-  max-width: 200px;
-  height: 4px;
-  border-radius: 2px;
-  outline: none;
-  -webkit-appearance: none;
-  background: linear-gradient(to right, #ddd 0%, var(--color-primary, #007aff) 100%);
-}
-
-.threshold-slider::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: var(--color-primary, #007aff);
-  cursor: pointer;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-.threshold-slider::-moz-range-thumb {
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: var(--color-primary, #007aff);
-  cursor: pointer;
-  border: none;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-.threshold-value {
-  min-width: 40px;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--text-dark, #333);
-}
-
-.checkbox-label {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 13px;
-  color: var(--text-dark, #333);
-  cursor: pointer;
-  user-select: none;
-}
-
-.checkbox-label input[type="checkbox"] {
-  width: 16px;
-  height: 16px;
-  cursor: pointer;
 }
 
 /* Tab切换 */
@@ -1017,19 +724,19 @@ onUnmounted(() => {
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-}
 
-.feature-tab:hover {
-  background: var(--glass-medium);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
+  &:hover {
+    background: var(--glass-medium);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
 
-.feature-tab.active {
-  background: var(--color-primary);
-  color: white;
-  border-color: var(--color-primary);
-  box-shadow: 0 4px 12px var(--color-primary-shadow);
+  &.active {
+    background: var(--color-primary);
+    color: white;
+    border-color: var(--color-primary);
+    box-shadow: 0 4px 12px var(--color-primary-shadow);
+  }
 }
 
 /* 加载状态 */
@@ -1040,6 +747,11 @@ onUnmounted(() => {
   justify-content: center;
   min-height: 300px;
   gap: 16px;
+
+  p {
+    font-size: 14px;
+    color: #666;
+  }
 }
 
 .loading-spinner {
@@ -1052,12 +764,9 @@ onUnmounted(() => {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-.loading-state p {
-  font-size: 14px;
-  color: #666;
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* 饼图容器 */
@@ -1068,37 +777,22 @@ onUnmounted(() => {
 
 .pie-grid {
   position: relative;
-  z-index: 1;
   transform: translateZ(0);
   backface-visibility: hidden;
 }
 
 .pie-item {
   position: relative;
-}
 
-.pie-item:hover {
-  z-index: 10;
+  &:hover {
+    z-index: 10;
+  }
 }
 
 .pie-chart {
   width: 100%;
   height: 200px;
   background: transparent;
-}
-
-/* SVG连线层 */
-.connection-layer {
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: 0;
-  pointer-events: none;
-  will-change: opacity;
-}
-
-.connection-layer line {
-  transition: none; /* 禁用过渡动画 */
 }
 
 /* 空状态 */
@@ -1131,8 +825,7 @@ onUnmounted(() => {
     min-width: auto;
   }
 
-  .control-select,
-  .threshold-slider {
+  .control-select {
     max-width: none;
   }
 
@@ -1147,6 +840,12 @@ onUnmounted(() => {
 
   .pie-chart {
     height: 180px;
+  }
+}
+
+@media (max-width: 768px) and (orientation: portrait) {
+  .dimension-grid {
+    grid-template-columns: 1fr;
   }
 }
 </style>
