@@ -1284,40 +1284,6 @@ const resetView = () => {
   color: #333;
 }
 
-.close-btn {
-  position: absolute;
-  top: 8px;
-  right: 10px;
-  background: rgba(255, 255, 255, 0.15);
-  border: none;
-  border-radius: 50%;
-  font-size: 20px;
-  color: #444;
-  width: 25px;
-  height: 25px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
-  z-index: 999;
-}
-
-.close-btn:hover {
-  color: #000;
-  transform: scale(1.4) rotate(10deg);
-  box-shadow: 0 0 8px rgba(255, 0, 0, 0.4), 0 0 14px rgba(255, 0, 0, 0.2);
-  background: rgba(255, 255, 255, 0.3);
-}
-
-.close-btn:active {
-  transform: scale(0.9);
-  box-shadow: 0 0 18px rgba(255, 0, 0, 0.6);
-}
-
 .spinner {
   width: 32px;
   height: 32px;

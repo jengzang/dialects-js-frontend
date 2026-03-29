@@ -5,7 +5,7 @@
         <div class="modal-header">
           <div class="modal-title">{{ titleText }}</div>
           <button
-            class="modal-close"
+            class="close-btn close-btn-sm close-btn-inline"
             type="button"
             :aria-label="t('result.phonologyTable.exitFullscreen')"
             @click="emit('close')"
@@ -118,12 +118,6 @@ const titleText = computed(() => {
 
 .modal-title {
   line-height: 1.3;
-}
-
-.modal-close {
-}
-
-.modal-close:hover {
 }
 
 .modal-body {

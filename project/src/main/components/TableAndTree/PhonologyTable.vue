@@ -742,31 +742,6 @@ const getToneData = (data) => {
   letter-spacing: -0.3px;
 }
 
-.close-btn {
-  width: 32px;
-  height: 32px;
-  border: none;
-  background: rgba(0, 0, 0, 0.05);
-  border-radius: 50%;
-  font-size: 20px;
-  color: #1d1d1f;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
-  line-height: 1;
-}
-
-.close-btn:hover {
-  background: rgba(0, 0, 0, 0.1);
-  transform: scale(1.05);
-}
-
-.close-btn:active {
-  transform: scale(0.95);
-}
-
 .modal-body {
   padding: 20px 24px;
   flex: 1;
@@ -778,30 +753,6 @@ const getToneData = (data) => {
   background: rgba(255, 255, 255, 0.5);
   display: flex;
   justify-content: flex-end;
-}
-
-.modal-close-btn {
-  padding: 8px 20px;
-  background: rgba(0, 122, 255, 0.1);
-  border: 1px solid rgba(0, 122, 255, 0.2);
-  border-radius: 10px;
-  color: #007aff;
-  font-size: 15px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-}
-
-.modal-close-btn:hover {
-  background: rgba(0, 122, 255, 0.15);
-  border-color: rgba(0, 122, 255, 0.3);
-  transform: translateY(-1px);
-}
-
-.modal-close-btn:active {
-  transform: translateY(0);
 }
 
 /* LocationDetailPopup 樣式 */

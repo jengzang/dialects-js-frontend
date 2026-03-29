@@ -245,7 +245,7 @@
             >
               <div class="filter-header">
               <span>{{ t('tableTree.universalTable.filter.title', { label: currentFilterLabel }) }}</span>
-              <button class="close-btn-mobile" :aria-label="t('common.button.close')" @click="closeFilter">✕</button>
+              <button class="close-btn close-btn-sm close-btn-inline close-btn-mobile-only" :aria-label="t('common.button.close')" @click="closeFilter">✕</button>
             </div>
 
             <div v-bind="containerProps" class="filter-list custom-scrollbar" style="max-height: 300px">
@@ -296,7 +296,7 @@
           @click="closeAddModal"
         >
           <div class="add-modal glass-card" @click.stop>
-            <button class="close-btn" :aria-label="t('common.button.close')" @click="closeAddModal">×</button>
+            <button class="close-btn close-btn-lg close-btn-corner" :aria-label="t('common.button.close')" @click="closeAddModal">×</button>
             <h3 class="modal-title">{{ t('tableTree.universalTable.addModal.title') }}</h3>
 
             <div class="form-content custom-scrollbar">
@@ -333,7 +333,7 @@
             <!-- 标题栏 -->
             <div class="modal-header">
               <h3>{{ t('tableTree.universalTable.batchReplace.title') }}</h3>
-              <button class="close-btn close-btn-base" :aria-label="t('common.button.close')" @click="closeBatchReplaceModal">✕</button>
+              <button class="close-btn close-btn-lg close-btn-inline" :aria-label="t('common.button.close')" @click="closeBatchReplaceModal">✕</button>
             </div>
 
             <!-- 主体内容 -->
@@ -1841,10 +1841,6 @@ td.cell-changed::after {
   flex-shrink: 0;
 }
 
-.close-btn-mobile {
-  display: none;
-}
-
 .filter-list {
   overflow-y: auto;
   flex: 1;
@@ -1998,14 +1994,6 @@ td.cell-changed::after {
     z-index: 1000;
   }
 
-  .close-btn-mobile {
-    display: block;
-    background: none;
-    border: none;
-    font-size: 16px;
-    color: #999;
-    padding: 0 5px;
-  }
 }
 
 /* Custom Scrollbar */
@@ -2436,19 +2424,6 @@ td.cell-changed::after {
   font-size: 20px;
   font-weight: 600;
   color: #1d1d1f;
-}
-
-.main-glass-shell[data-surface='batch-modal'] .close-btn {
-  background: transparent;
-  font-size: 24px;
-  color: #666;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-}
-
-.main-glass-shell[data-surface='batch-modal'] .close-btn:hover {
-  background: rgba(0, 0, 0, 0.05);
 }
 
 .main-glass-shell[data-surface='batch-modal'] .modal-body {

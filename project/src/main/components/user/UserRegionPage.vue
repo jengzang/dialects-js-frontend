@@ -119,7 +119,7 @@
               }}
             </h2>
             <button
-              class="close-btn close-btn-base modal-close-base modal-close-round"
+              class="close-btn close-btn-lg close-btn-inline"
               :aria-label="t('common.button.close')"
               @click="closeEditModal"
             >
@@ -910,12 +910,6 @@ onMounted(() => {
 
 .modal-header h2 {
   margin: 0;
-}
-
-.close-btn {
-}
-
-.close-btn:hover {
 }
 
 .modal-body {

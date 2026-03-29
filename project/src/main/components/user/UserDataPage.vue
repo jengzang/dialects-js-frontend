@@ -167,7 +167,7 @@
             <h3 class="modal-title-base">
               {{ t('user.dataPage.batchEdit.title', { count: batchEditRows.length }) }}
             </h3>
-            <button class="modal-close" @click="closeBatchEditModal">×</button>
+            <button class="close-btn close-btn-lg close-btn-inline" @click="closeBatchEditModal">×</button>
           </div>
           <div class="modal-body modal-body-base">
             <p class="hint">💡 {{ t('user.dataPage.batchEdit.hint') }}</p>
@@ -221,7 +221,7 @@
         <div class="main-crud-modal" data-size="large">
           <div class="modal-header modal-header-base">
             <h3 class="modal-title-base">{{ t('user.dataPage.batchCreate.title') }}</h3>
-            <button class="modal-close" @click="closeBatchCreateModal">×</button>
+            <button class="close-btn close-btn-lg close-btn-inline" @click="closeBatchCreateModal">×</button>
           </div>
           <div class="modal-body modal-body-base">
             <p class="hint">💡 {{ t('user.dataPage.batchCreate.hint') }}</p>
@@ -290,7 +290,7 @@
         <div class="main-crud-modal">
           <div class="modal-header modal-header-base">
             <h3 class="modal-title-base">{{ t('user.dataPage.singleEdit.title') }}</h3>
-            <button class="modal-close" @click="closeEditModal">×</button>
+            <button class="close-btn close-btn-lg close-btn-inline" @click="closeEditModal">×</button>
           </div>
           <div class="modal-body modal-body-base">
             <div class="form-group">
@@ -1018,9 +1018,6 @@ onMounted(() => {
   margin: 0;
 }
 
-.modal-close {
-}
-
 .modal-body {
   padding: 20px;
   flex: 1;
@@ -1542,10 +1539,6 @@ onMounted(() => {
 
   .modal-header h3 {
     font-size: 16px;
-  }
-
-  .modal-close {
-    font-size: 24px;
   }
 
   .batch-table {

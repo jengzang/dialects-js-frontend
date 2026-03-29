@@ -19,9 +19,9 @@
   <Teleport to="body">
     <Transition name="fade-scale">
       <div v-if="isHelpModalOpen" class="modal-overlay" @click.self="closeHelpModal">
-        <div class="glass-card">
+        <div class="glass-card close-btn-host">
           <button
-            class="close-btn"
+            class="close-btn close-btn-lg close-btn-corner"
             @click="closeHelpModal"
             :title="$t('common.button.close')"
             :aria-label="$t('common.button.close')"

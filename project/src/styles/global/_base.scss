@@ -2,20 +2,6 @@
    Base element styles continue to come from ../_legacy.scss.
    This file reserves the global base layer for later migration. */
 
-.close-btn-base {
-  appearance: none;
-  border: none;
-  background: transparent;
-  padding: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  color: inherit;
-  font: inherit;
-  transition: all 0.2s ease;
-}
-
 .toggle-switch-base {
   position: relative;
   width: 50px;

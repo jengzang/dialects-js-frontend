@@ -9,7 +9,7 @@
             <div class="village-modal-title">
               🏘️ {{ village.name }} - 深度分析
             </div>
-            <button class="village-modal-close" type="button" @click="close">×</button>
+            <button class="close-btn close-btn-lg close-btn-inline" type="button" @click="close">×</button>
           </div>
 
           <!-- Modal Body -->
@@ -244,28 +244,6 @@ const loadCompleteData = async () => {
   color: #333;
 }
 
-.village-modal-close {
-  appearance: none;
-  border: none;
-  background: rgba(142, 142, 147, 0.2);
-  color: #666;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  font-size: 24px;
-  line-height: 1;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.village-modal-close:hover {
-  background: rgba(142, 142, 147, 0.3);
-  transform: rotate(90deg);
-}
-
 /* Body */
 .village-modal-body {
   flex: 1;
@@ -325,4 +303,3 @@ const loadCompleteData = async () => {
   }
 }
 </style>
-

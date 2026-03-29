@@ -6,8 +6,8 @@
         class="modal-overlay"
         @click.self="handleClose"
       >
-        <div class="update-modal modal-frame">
-          <button class="modal-close-btn close-btn-base icon-close-btn" @click="handleClose">✕</button>
+        <div class="update-modal modal-frame close-btn-host">
+          <button class="close-btn close-btn-lg close-btn-corner" @click="handleClose">✕</button>
 
           <div class="modal-header">
             <div class="update-icon">🎉</div>
@@ -107,16 +107,6 @@ defineExpose({
   max-height: 80vh;
   box-shadow: 0 20px 60px rgba(0, 122, 255, 0.3);
   border: 1px solid rgba(0, 122, 255, 0.2);
-}
-
-.modal-close-btn {
-  background: rgba(0, 0, 0, 0.05);
-  color: rgba(0, 0, 0, 0.6);
-  font-size: 1.25rem;
-}
-
-.modal-close-btn:hover {
-  background: rgba(0, 0, 0, 0.1);
 }
 
 .modal-header {

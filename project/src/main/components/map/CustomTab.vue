@@ -132,8 +132,7 @@
         <div v-if="isHelpModalOpen" class="modal-overlay" @click.self="closeHelpModal">
           <div class="glass-card help-modal">
             <button
-              class="close-btn"
-              style="position: sticky; margin-left: auto"
+              class="close-btn close-btn-lg close-btn-sticky"
               @click="closeHelpModal"
               :title="t('common.button.close')"
               :aria-label="t('common.button.close')"

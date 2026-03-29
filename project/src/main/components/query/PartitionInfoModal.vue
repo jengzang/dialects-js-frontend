@@ -19,7 +19,7 @@
               </button>
             </div>
 <!--          </div>-->
-          <button class="modal-close close-btn-base main-query-modal-close" type="button" @click="closeModal">×</button>
+          <button class="close-btn close-btn-sm close-btn-inline" type="button" @click="closeModal">×</button>
         </div>
 
         <!-- Tab 切换 + 确认按钮 -->
@@ -742,24 +742,6 @@ const PartitionTreeNode = defineComponent({
   font-size: 15px;
   font-weight: 650;
   color: var(--text-dark-light);
-}
-
-.partition-modal-close-unused {
-  appearance: none;
-  border: none;
-  background: var(--bg-hover-medium);
-  width: 28px;
-  height: 28px;
-  border-radius: 10px;
-  cursor: pointer;
-  font-size: 18px;
-  line-height: 28px;
-  color: var(--text-dark-lighter);
-  transition: background 0.3s ease;
-}
-
-.partition-modal-close-unused:hover {
-  background: var(--bg-hover-strong);
 }
 
 /* Selection mode toggle */

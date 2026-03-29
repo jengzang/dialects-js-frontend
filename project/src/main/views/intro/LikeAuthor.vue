@@ -41,9 +41,9 @@
       <p></p>
     </div>
     <div v-if="showQRCodes" class="qr-modal">
-      <div class="qr-modal-content">
+      <div class="qr-modal-content close-btn-host">
         <!-- ❌ 右上角關閉 -->
-        <button class="qr-close-btn" @click="showQRCodes = false">✖️</button>
+        <button class="close-btn close-btn-lg close-btn-corner" @click="showQRCodes = false">✖️</button>
 
         <!-- 標題 -->
         <h3 class="qr-title">{{ $t('home.intro.likeAuthor.modalTitle') }}</h3>
@@ -332,22 +332,6 @@ function followClicked() {
 
 
 /* 關閉按鈕 */
-.qr-close-btn {
-  position: absolute;
-  top: 12px;
-  right: 14px;
-  font-size: 1.2rem;
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: #aaa;
-  transition: color 0.2s;
-}
-
-.qr-close-btn:hover {
-  color: #333;
-}
-
 @keyframes fadeIn {
   from {
     opacity: 0;

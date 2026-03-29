@@ -155,7 +155,7 @@
               </span>
               <span class="modal-title">所有區域 ({{ selectedProfile?.region_count }})</span>
             </h3>
-            <button class="modal-close" @click="closeRegionModal">✕</button>
+            <button class="close-btn close-btn-lg close-btn-inline" @click="closeRegionModal">✕</button>
           </div>
           <div class="modal-body">
             <div class="region-grid">
@@ -652,26 +652,6 @@ const handleQuickAdjust = (action) => {
   font-size: 16px;
   font-weight: 500;
   color: var(--text-secondary);
-}
-
-.modal-close {
-  width: 32px;
-  height: 32px;
-  border: none;
-  background: rgba(0, 0, 0, 0.05);
-  border-radius: 8px;
-  font-size: 18px;
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.modal-close:hover {
-  background: rgba(0, 0, 0, 0.1);
-  color: var(--text-primary);
 }
 
 .modal-body {

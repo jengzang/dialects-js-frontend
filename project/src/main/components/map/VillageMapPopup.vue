@@ -7,7 +7,7 @@
             <h3 class="modal-title-base">{{ t('map.villageMapPopup.title') }}</h3>
             <span class="village-count">{{ t('map.villageMapPopup.count', { count: validVillages.length }) }}</span>
             <button
-              class="close-btn close-btn-base modal-close-base modal-close-round"
+              class="close-btn close-btn-lg close-btn-inline"
               @click="handleClose"
               :title="t('common.button.close')"
               :aria-label="t('common.button.close')"
@@ -630,28 +630,6 @@ onBeforeUnmount(() => {
   font-weight: 600;
   white-space: nowrap;
   flex-shrink: 0;
-}
-
-.close-btn {
-  background: transparent;
-  border: none;
-  font-size: 24px;
-  color: #666;
-  cursor: pointer;
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  transition: all 0.2s;
-  flex-shrink: 0;
-  margin-left: auto;
-}
-
-.close-btn:hover {
-  background: rgba(0, 0, 0, 0.05);
-  color: #000;
 }
 
 /* 地图内容 */

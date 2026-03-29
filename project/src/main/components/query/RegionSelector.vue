@@ -228,7 +228,7 @@
         <div class="custom-region-popup" @mousedown.stop>
           <div class="popup-header">
             <h3>🗂️ {{ $t('query.components.regionSelector.customRegionModal.title') }}</h3>
-            <button class="close-btn close-btn-base" @click="showCustomRegionPopup = false">✕</button>
+            <button class="close-btn close-btn-lg close-btn-inline" @click="showCustomRegionPopup = false">✕</button>
           </div>
 
           <div class="popup-content">
@@ -1278,20 +1278,6 @@ defineExpose({ togglePopup, openPopup, closePopup })
   font-size: 18px;
   font-weight: 600;
   color: #2c3e50;
-}
-
-.close-btn {
-  width: 32px;
-  height: 32px;
-  background: rgba(0, 0, 0, 0.05);
-  border-radius: 50%;
-  font-size: 18px;
-  color: #666;
-}
-
-.close-btn:hover {
-  background: rgba(255, 59, 48, 0.1);
-  color: #ff3b30;
 }
 
 .popup-content {

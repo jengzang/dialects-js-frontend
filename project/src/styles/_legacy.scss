@@ -485,29 +485,6 @@ textarea:focus {
 }
 
 /* 关闭按钮 */
-.close-btn {
-  position: absolute;
-  top: 15px;
-  right: 15px;
-  background: rgba(0, 0, 0, 0.05);
-  border: none;
-  width: 28px;
-  height: 28px;
-  border-radius: var(--radius-full);
-  font-size: 20px;
-  line-height: 28px;
-  color: var(--text-tertiary);
-  cursor: pointer;
-  transition: background 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.close-btn:hover {
-  background: rgba(0, 0, 0, 0.1);
-}
-
 /* ========================================
    下拉菜单样式
    ======================================== */

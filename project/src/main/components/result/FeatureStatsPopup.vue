@@ -6,7 +6,7 @@
           <div class="modal-title main-glass-modal-title">
             📊 {{ t('result.featureStatsPopup.title', { location: locationName, featureKey: translatedFeatureKey, featureVal }) }}
           </div>
-          <button class="modal-close close-btn-base main-glass-modal-close" type="button" :aria-label="t('common.button.close')" @click="$emit('close')">✕</button>
+          <button class="close-btn close-btn-sm close-btn-inline" type="button" :aria-label="t('common.button.close')" @click="$emit('close')">✕</button>
         </div>
 
         <div class="modal-body main-glass-modal-body">
@@ -124,25 +124,6 @@ const getCharsString = (charIndices) => {
   font-size: 15px;
   font-weight: 650;
   color: #1d1d1f;
-}
-
-.feature-stats-modal-close-unused {
-  appearance: none;
-  border: none;
-  background: rgba(142, 142, 147, 0.15);
-  width: 28px;
-  height: 28px;
-  border-radius: 10px;
-  cursor: pointer;
-  font-size: 18px;
-  line-height: 28px;
-  color: #666;
-  transition: all 0.2s ease;
-}
-
-.feature-stats-modal-close-unused:hover {
-  background: rgba(142, 142, 147, 0.25);
-  color: #333;
 }
 
 .feature-stats-modal-body-unused {

@@ -50,7 +50,7 @@
         <div class="modal-content glass-card-high">
           <div class="modal-header">
             <h2>{{ $t('query.components.zhongguSelector.detailsTitle') }}</h2>
-            <button class="close-btn" @click="isModalOpen = false">✕</button>
+            <button class="close-btn close-btn-lg close-btn-inline" @click="isModalOpen = false">✕</button>
           </div>
 
           <div class="modal-body">

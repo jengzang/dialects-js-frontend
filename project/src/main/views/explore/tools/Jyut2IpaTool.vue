@@ -169,7 +169,7 @@
                 📥
               </button>
               <button
-                class="close-btn close-btn-base tool-modal-close-base"
+                class="close-btn close-btn-lg close-btn-inline"
                 :title="t('tools.common.close')"
                 @click="showConfigModal = false"
               >
@@ -1059,15 +1059,6 @@ loadConfig()
   align-items: center;
   gap: 8px;
   margin-right: 30px;
-}
-
-.close-btn {
-  font-size: 18px;
-}
-
-.jyut2ipa-close-btn-hover-unused:hover {
-  background: rgba(255, 59, 48, 0.7);
-  color: white;
 }
 
 /* 标签页 */

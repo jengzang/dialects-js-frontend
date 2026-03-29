@@ -271,7 +271,7 @@ const closeLocationModal = () => {
             <div class="modal-title">
               {{ $t('phonology.phonology.countphos.modal.title', { featureType: modalData.featureType, syllable: modalData.syllable }) }}
             </div>
-            <button class="modal-close" type="button" @click="closeLocationModal">×</button>
+            <button class="close-btn close-btn-sm close-btn-inline" type="button" @click="closeLocationModal">×</button>
           </div>
 
           <!-- 主体 -->
@@ -699,25 +699,6 @@ const closeLocationModal = () => {
   font-size: 18px;
   font-weight: 650;
   color: #333;
-}
-
-.modal-close {
-  appearance: none;
-  border: none;
-  background: rgba(142, 142, 147, 0.2);
-  width: 32px;
-  height: 32px;
-  border-radius: 10px;
-  cursor: pointer;
-  font-size: 24px;
-  line-height: 32px;
-  color: #666;
-  transition: all 0.2s ease;
-}
-
-.modal-close:hover {
-  background: rgba(142, 142, 147, 0.3);
-  transform: scale(1.05);
 }
 
 .modal-body {

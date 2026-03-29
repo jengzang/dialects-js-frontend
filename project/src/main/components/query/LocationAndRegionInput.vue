@@ -180,7 +180,7 @@
           <div class="main-query-modal" role="dialog" aria-modal="true">
             <div class="modal-header">
               <div class="modal-title">{{ $t('query.components.locationAndRegionInput.selectedLocationsModalTitle', { count: locationsResult.length }) }}</div>
-              <button class="modal-close close-btn-base main-query-modal-close" type="button" @click="closeModal">✕</button>
+              <button class="close-btn close-btn-sm close-btn-inline" type="button" @click="closeModal">✕</button>
             </div>
 
             <div class="modal-body">
@@ -209,7 +209,7 @@
         <div class="main-query-modal" role="dialog" aria-modal="true">
           <div class="modal-header">
             <div class="modal-title">{{ $t('query.components.locationAndRegionInput.customLocationsModalTitle', { count: customFeatureLocations.length }) }}</div>
-            <button class="modal-close close-btn-base main-query-modal-close" type="button" @click="closeCustomModal">✕</button>
+            <button class="close-btn close-btn-sm close-btn-inline" type="button" @click="closeCustomModal">✕</button>
           </div>
 
           <div class="modal-body">
@@ -1616,23 +1616,6 @@ defineExpose({
   font-size: 15px;
   font-weight: 650;
   color: var(--text-dark-light);
-}
-
-.location-region-modal-close-unused {
-  appearance: none;
-  border: none;
-  background: var(--bg-hover-medium);
-  width: 28px;
-  height: 28px;
-  border-radius: 10px;
-  cursor: pointer;
-  font-size: 18px;
-  line-height: 28px;
-  color: var(--text-dark-lighter);
-}
-
-.location-region-modal-close-unused:hover {
-  background: var(--bg-hover-strong);
 }
 
 .locations-list {

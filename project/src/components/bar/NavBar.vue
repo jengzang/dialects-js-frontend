@@ -124,8 +124,8 @@
     <Teleport to="body">
       <Transition name="fade-scale">
         <div v-if="isStatsExpanded" class="modal-overlay" @click.self="closeStatsPanel">
-          <div class="glass-card stats-modal-card">
-            <button class="close-btn" @click="closeStatsPanel">&times;</button>
+          <div class="glass-card stats-modal-card close-btn-host">
+            <button class="close-btn close-btn-lg close-btn-corner" @click="closeStatsPanel">&times;</button>
             <h3 class="modal-title">📊 {{ t('navigation.stats.historyTitle') }}</h3>
 
             <div v-if="loadingStats" class="loading-state">

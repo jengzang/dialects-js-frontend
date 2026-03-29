@@ -2,7 +2,7 @@
   <div v-if="isVisible" class="floating-tools">
 
     <button v-if="currentTab === 'tab2' || currentTab === 'tab3'"
-            class="close-btn" style="top:0;right: 0;height: 22px;width: 22px" @click="isVisible = false" :title="$t('query.components.floatingDice.closeButton')">
+            class="close-btn close-btn-sm close-btn-corner" @click="isVisible = false" :title="$t('query.components.floatingDice.closeButton')">
       ✕
     </button>
 
@@ -28,7 +28,7 @@
       <div v-if="isHelpOpen" class="modal-overlay" @click.self="isHelpOpen = false">
         <div class="glass-card">
           <button
-            class="close-btn"
+            class="close-btn close-btn-lg close-btn-corner"
             @click="isHelpOpen = false"
             :title="$t('common.button.close')"
             :aria-label="$t('common.button.close')"

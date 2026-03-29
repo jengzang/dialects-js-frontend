@@ -37,7 +37,7 @@
           <div class="village-popup-content" @click.stop>
             <div class="popup-header">
               <h3>{{ selectedVillage.village_name }}</h3>
-              <button class="close-btn" @click="closePopup">✕</button>
+              <button class="close-btn close-btn-lg close-btn-inline" @click="closePopup">✕</button>
             </div>
             <div class="popup-body">
               <div class="info-row">
@@ -500,27 +500,6 @@ const resetView = () => {
 .popup-header h3 {
   margin: 0;
   font-size: 18px;
-  color: #333;
-}
-
-.close-btn {
-  background: #f0f0f0;
-  border: none;
-  font-size: 20px;
-  cursor: pointer;
-  color: #666;
-  padding: 4px;
-  width: 28px;
-  height: 28px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 6px;
-  transition: all 0.2s;
-}
-
-.close-btn:hover {
-  background: #e0e0e0;
   color: #333;
 }
 

@@ -10,7 +10,7 @@
           <div class="popup-header">
             <h3>{{ t('user.benefitsPopup.title') }}</h3>
             <button
-              class="popup-close-btn close-btn-base"
+              class="close-btn close-btn-lg close-btn-inline"
               :aria-label="t('common.button.close')"
               @click="closePopup"
             >
@@ -377,22 +377,6 @@ onBeforeUnmount(() => {
   background: linear-gradient(135deg, #ff9500, #ff8000);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-}
-
-.popup-close-btn {
-  flex-shrink: 0;
-  background: rgba(0, 0, 0, 0.05);
-  border-radius: 50%;
-  width: 32px;
-  height: 32px;
-  font-size: 20px;
-  color: #86868b;
-}
-
-.popup-close-btn:hover {
-  background: rgba(0, 0, 0, 0.1);
-  color: #1d1d1f;
-  transform: scale(1.1);
 }
 
 .popup-content {

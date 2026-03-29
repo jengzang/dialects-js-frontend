@@ -314,7 +314,7 @@
             <h3 class="modal-title-base">
               {{ t('words.yuBaoPage.modal.allItemsTitle', { name: activeTabLabel }) }}
             </h3>
-            <button class="modal-close" @click="showAllModal = false">×</button>
+            <button class="close-btn close-btn-lg close-btn-inline" @click="showAllModal = false">×</button>
           </div>
           <div class="modal-body modal-body-base">
             <div class="search-in-modal">
@@ -1208,25 +1208,6 @@ watch(viewMode, async (newMode) => {
   font-weight: 600;
   color: #1d1d1f;
   letter-spacing: -0.02em;
-}
-
-.modal-close {
-  width: 32px;
-  height: 32px;
-  padding: 0;
-  border: none;
-  background: rgba(0, 0, 0, 0.04);
-  border-radius: 8px;
-  font-size: 24px;
-  line-height: 1;
-  color: #6e6e73;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.modal-close:hover {
-  background: rgba(0, 0, 0, 0.08);
-  color: #1d1d1f;
 }
 
 .modal-body {

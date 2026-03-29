@@ -548,8 +548,8 @@
     <Teleport to="body">
       <transition name="modal">
         <div v-if="showSupport" class="modal-overlay" @click="showSupport = false">
-          <div class="modal-content" @click.stop>
-            <button class="modal-close" @click="showSupport = false">✕</button>
+          <div class="modal-content close-btn-host" @click.stop>
+            <button class="close-btn close-btn-lg close-btn-corner" @click="showSupport = false">✕</button>
             <h3 class="modal-title">{{ $t('home.supportModal.title') }}</h3>
             <p class="modal-subtitle">{{ $t('home.supportModal.subtitle') }}</p>
             <div class="donate-qr-grid">
@@ -1553,26 +1553,6 @@ onMounted(() => {
   overflow-y: auto;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
   border: 1px solid rgba(0, 122, 255, 0.2);
-}
-
-.modal-close {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  border: none;
-  background: rgba(0, 0, 0, 0.05);
-  color: rgba(0, 0, 0, 0.6);
-  font-size: 1.125rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.modal-close:hover {
-  background: rgba(0, 0, 0, 0.1);
-  transform: scale(1.1);
 }
 
 .modal-title {

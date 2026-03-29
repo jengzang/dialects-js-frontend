@@ -75,7 +75,7 @@
             <h3 class="modal-title">
               {{ $t('query.components.locationMultiInput.modalTitle', { count: matchedLocations.length }) }}
             </h3>
-            <button class="close-btn close-btn-base query-modal-close" @click="showModal = false">×</button>
+            <button class="close-btn close-btn-sm close-btn-inline" @click="showModal = false">×</button>
           </div>
           <div class="modal-body">
             <div class="locations-list">
