@@ -2,7 +2,7 @@
   <div class="check-tool-container">
     <!-- 欢迎屏幕 -->
     <div v-if="!fileUploaded" class="welcome-screen">
-      <div class="glass-container glass-container-shell welcome-card">
+      <div class="main-glass-shell" data-surface="welcome-card">
         <div class="welcome-icon">📋</div>
         <h2 class="title">{{ t('tools.checkTool.welcome.title') }}</h2>
 <!--        <p class="subtitle">上傳文件開始檢查和編輯</p>-->
@@ -85,7 +85,7 @@
     <!-- 工作区域 -->
     <div v-else class="work-area">
       <!-- 侧边栏 -->
-      <aside v-if="!isPortrait" class="sidebar glass-panel" :class="{ collapsed: sidebarCollapsed }">
+      <aside v-if="!isPortrait" class="main-glass-panel" data-surface="sidebar" :data-collapsed="sidebarCollapsed ? 'true' : 'false'">
         <div class="sidebar-header">
           <h3>📋 {{ t('tools.checkTool.sidebar.title') }}</h3>
           <button class="main-glass-button" data-size="small" @click="toggleShowAll">
@@ -261,7 +261,7 @@
       <!-- 主工作区 -->
       <main class="main-work-area">
         <!-- 文件信息栏 -->
-        <div class="file-info-bar glass-panel">
+        <div class="main-glass-panel" data-surface="file-info-bar">
           <div class="file-info-left">
             <span class="file-name">📁 {{ fileName }}</span>
             <span class="file-rows">{{ t('tools.checkTool.fileBar.rows', { count: totalRows }) }}</span>
@@ -271,7 +271,7 @@
             ❓ {{ t('tools.checkTool.fileBar.help') }}
           </button>
           <!-- 模式切换 -->
-          <div class="mode-tabs glass-panel">
+          <div class="main-glass-panel" data-surface="mode-tabs">
             <button
                 class="tab-btn"
                 :class="{ active: currentMode === 'table' }"
@@ -294,7 +294,7 @@
         <!-- 表格视图 -->
         <div v-show="currentMode === 'table'" class="table-view">
           <!-- 工具栏 -->
-          <div class="table-toolbar glass-panel">
+          <div class="main-glass-panel" data-surface="table-toolbar">
             <div class="table-stats">
               <span>{{ t('tools.checkTool.table.errorCount') }}<strong>{{ errorStats.total }}</strong></span>
               <span class="ml-2">{{ t('tools.checkTool.table.pendingCount') }}<strong>{{ totalPendingChanges }}</strong></span>
@@ -337,7 +337,7 @@
           </div>
 
           <!-- 表格 -->
-          <div class="table-container glass-panel" :class="{ 'loading': isLoadingTable || isEditModeLoading }">
+          <div class="main-glass-panel" data-surface="table-container" :data-loading="isLoadingTable || isEditModeLoading ? 'true' : 'false'">
             <div v-if="isLoadingTable || isEditModeLoading " class="table-loading-overlay">
               <div class="table-loading-spinner"></div>
               <div class="table-loading-text">{{ t('tools.checkTool.table.loading') }}</div>
@@ -550,7 +550,7 @@
 
         <!-- 指令模式 -->
         <div v-show="currentMode === 'command'" class="command-view">
-          <div class="command-panel glass-panel">
+          <div class="main-glass-panel" data-surface="command-panel">
             <div class="command-header">
               <h3>💻 {{ t('tools.checkTool.command.title') }}</h3>
               <button v-if="!isPortrait" class="main-glass-button" data-size="small" @click="showHelpModal = true">
@@ -570,7 +570,7 @@
             </div>
 
             <!-- 执行结果 -->
-            <div v-if="commandLog.length > 0" class="command-result glass-panel">
+            <div v-if="commandLog.length > 0" class="main-glass-panel" data-surface="command-result">
               <div class="result-header">
                 <h4>📋 {{ t('tools.checkTool.command.resultTitle') }}</h4>
                 <button class="main-glass-button" data-size="small" @click="clearCommandLog">{{ t('tools.checkTool.command.clearResult') }}</button>
@@ -1919,7 +1919,7 @@ onUnmounted(() => {
     padding: 0;
   }
 
-  .welcome-card {
+  .main-glass-shell[data-surface='welcome-card'] {
     padding: 18px 20px;
     max-width: 100%;
   }
@@ -1945,16 +1945,16 @@ onUnmounted(() => {
     padding: 8px;
   }
 
-  .sidebar {
+  .main-glass-panel[data-surface='sidebar'] {
     max-height: 280px;
   }
 
-  .glass-container {
+  .main-glass-shell[data-surface='welcome-card'] {
     padding: 18px 14px;
   }
 }
 
-.welcome-card {
+.main-glass-shell[data-surface='welcome-card'] {
   max-width: 800px;
   width: 100%;
   padding: 20px 30px;
@@ -2061,7 +2061,7 @@ justify-content: center;
 }
 
 /* 侧边栏 */
-.sidebar {
+.main-glass-panel[data-surface='sidebar'] {
   width: 280px;
   min-width: 280px;
   height: 100%;
@@ -2072,7 +2072,7 @@ justify-content: center;
   transition: all 0.3s ease;
 }
 
-.sidebar.collapsed {
+.main-glass-panel[data-surface='sidebar'][data-collapsed='true'] {
   width: 60px;
   min-width: 60px;
 }
@@ -2458,7 +2458,7 @@ justify-content: center;
   overflow: hidden;
 }
 
-.file-info-bar {
+.main-glass-panel[data-surface='file-info-bar'] {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -2484,7 +2484,7 @@ justify-content: center;
 }
 
 /* 模式切换 */
-.mode-tabs {
+.main-glass-panel[data-surface='mode-tabs'] {
   display: flex;
   gap: 8px;
   padding: 8px;
@@ -2521,7 +2521,7 @@ justify-content: center;
   overflow: hidden;
 }
 
-.table-toolbar {
+.main-glass-panel[data-surface='table-toolbar'] {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -2575,14 +2575,14 @@ justify-content: center;
   flex-wrap: wrap;
 }
 
-.table-container {
+.main-glass-panel[data-surface='table-container'] {
   flex: 1;
   overflow: hidden;
   -webkit-overflow-scrolling: touch;
   position: relative;
 }
 
-.table-container.loading {
+.main-glass-panel[data-surface='table-container'][data-loading='true'] {
   pointer-events: none;
 }
 
@@ -2775,7 +2775,7 @@ justify-content: center;
   overflow-y: auto;
 }
 
-.command-panel {
+.main-glass-panel[data-surface='command-panel'] {
   padding: 20px;
   display: flex;
   flex-direction: column;
@@ -2819,7 +2819,7 @@ justify-content: center;
   gap: 12px;
 }
 
-.command-result {
+.main-glass-panel[data-surface='command-result'] {
   padding: 16px;
   max-height: 300px;
 }
@@ -2860,15 +2860,19 @@ justify-content: center;
 }
 
 /* 通用样式 */
-.glass-container {
+.main-glass-shell[data-surface='welcome-card'] {
+  --main-glass-shell-background: rgba(255, 255, 255, 0.65);
+  --main-glass-shell-backdrop-filter: blur(25px) saturate(180%);
+  --main-glass-shell-border: 1px solid rgba(255, 255, 255, 0.5);
 }
 
-.glass-panel {
-  background: rgba(255, 255, 255, 0.5);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  border-radius: 16px;
+.main-glass-panel {
+  --main-glass-panel-background: rgba(255, 255, 255, 0.5);
+  --main-glass-panel-backdrop-filter: blur(10px);
+  --main-glass-panel-border: 1px solid rgba(255, 255, 255, 0.5);
+  --main-glass-panel-border-radius: 16px;
+  --main-glass-panel-shadow: none;
+  --main-glass-panel-hover-shadow: none;
 }
 
 .glass-input {
@@ -3239,7 +3243,7 @@ justify-content: center;
     padding: 10px;
   }
 
-  .glass-container {
+  .main-glass-shell[data-surface='welcome-card'] {
     padding: 20px 16px;
     border-radius: 20px;
   }
@@ -3279,7 +3283,7 @@ justify-content: center;
     padding: 10px;
   }
 
-  .welcome-card {
+  .main-glass-shell[data-surface='welcome-card'] {
     padding: 20px 16px;
     max-width: 100%;
   }
@@ -3347,7 +3351,7 @@ justify-content: center;
     font-size: 15px;
   }
 
-  .sidebar {
+  .main-glass-panel[data-surface='sidebar'] {
     width: 100%;
     max-height: 300px;
     padding: 12px;
@@ -3428,7 +3432,7 @@ justify-content: center;
     font-size: 16px;
   }
 
-  .table-toolbar {
+  .main-glass-panel[data-surface='table-toolbar'] {
     flex-direction: column;
     align-items: stretch;
     gap: 10px;
@@ -3461,7 +3465,7 @@ justify-content: center;
     white-space: nowrap;
   }
 
-  .table-container {
+  .main-glass-panel[data-surface='table-container'] {
     border-radius: 12px;
   }
 
@@ -3587,7 +3591,7 @@ justify-content: center;
 
 /* 额外的小屏幕适配 */
 @media (max-width: 480px) {
-  .glass-container {
+  .main-glass-shell[data-surface='welcome-card'] {
     padding: 16px 12px;
   }
 
@@ -3595,7 +3599,7 @@ justify-content: center;
     padding: 5px;
   }
 
-  .welcome-card {
+  .main-glass-shell[data-surface='welcome-card'] {
     padding: 16px 12px;
   }
 
@@ -3662,7 +3666,7 @@ justify-content: center;
     font-size: 11px;
   }
 
-  .sidebar {
+  .main-glass-panel[data-surface='sidebar'] {
     max-height: 250px;
     padding: 10px;
   }
