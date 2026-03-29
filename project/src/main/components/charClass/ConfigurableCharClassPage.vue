@@ -203,11 +203,11 @@ import {
   getCharClassPageConfig,
   sanitizeCharClassLevelKeys,
   sanitizeCharClassTableKey
-} from '@/main/config/charClassPageConfigs.js'
+} from '@/main/config/chars_positions/charClassPageConfigs.js'
 import {
   filterCharClassTree,
   normalizeCharClassTree
-} from '@/main/config/charClassTreeAdapter.js'
+} from '@/main/config/chars_positions/charClassTreeAdapter.js'
 
 const props = defineProps({
   pageKey: {

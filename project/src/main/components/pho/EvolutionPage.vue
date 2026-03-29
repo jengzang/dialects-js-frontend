@@ -139,7 +139,7 @@ import * as echarts from 'echarts'
 import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
 import LocationMultiInput from '../query/LocationMultiInput.vue'
 import { postPhoPieByValue, postPhoPieByStatus } from '@/api/query/phoPie.js'
-import { TABLE_COLUMN_SCHEMAS } from '../../config/characters.js'
+import { TABLE_COLUMN_SCHEMAS } from '../../config/chars_positions/characters.js'
 
 const { t } = useI18n()
 

@@ -5,7 +5,7 @@
 export const DEFAULT_WEB_BASE = "https://dialects.yzup.top";
 export const DEFAULT_API_BASE = DEFAULT_WEB_BASE + '/api';
 
-export * from './characters.js'
+export * from './chars_positions/characters.js'
 
 export const STATIC_REGION_TREE = {
     "東北官話": {
