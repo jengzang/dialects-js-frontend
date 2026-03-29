@@ -322,29 +322,6 @@ const getSignificanceBadge = (pValue) => {
   margin-bottom: 16px;
 }
 
-.mode-button {
-  flex: 1;
-  padding: 10px 20px;
-  background: rgba(255, 255, 255, 0.5);
-  border: 2px solid rgba(74, 144, 226, 0.3);
-  border-radius: 12px;
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--text-primary);
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.mode-button:hover {
-  background: rgba(74, 144, 226, 0.1);
-}
-
-.mode-button.active {
-  background: var(--color-primary);
-  color: white;
-  border-color: var(--color-primary);
-}
-
 .query-form {
   padding: 16px;
   margin-bottom: 20px;
@@ -396,29 +373,6 @@ const getSignificanceBadge = (pValue) => {
   background: rgba(255, 255, 255, 0.8);
 }
 
-.query-button {
-  width: 100%;
-  padding: 10px 20px;
-  background: var(--color-primary);
-  color: white;
-  border: none;
-  border-radius: 12px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  margin-top: 8px;
-}
-
-.query-button:hover:not(:disabled) {
-  background: #3a7bc8;
-}
-
-.query-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
 .results-table {
   padding: 16px;
   margin-bottom: 20px;
@@ -428,25 +382,6 @@ const getSignificanceBadge = (pValue) => {
   font-size: 16px;
   margin-bottom: 16px;
   color: var(--text-primary);
-}
-
-.loading-state {
-  text-align: center;
-  padding: 40px 20px;
-}
-
-.spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid rgba(74, 144, 226, 0.2);
-  border-top-color: var(--color-primary);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin: 0 auto 15px;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
 }
 
 .table-container {

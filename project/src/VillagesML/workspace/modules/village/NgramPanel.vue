@@ -1,5 +1,5 @@
 <template>
-  <div class="ngram-panel glass-panel">
+  <div class="vml-glass-panel">
     <h3 class="panel-title">📐 N-gram 分解</h3>
 
     <div v-if="loading" class="loading-state">
@@ -142,6 +142,9 @@ const parseTrigrams = (trigrams) => {
 
 .ngram-section {
   margin-bottom: 6px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
 }
 
 .ngram-section h4 {
@@ -188,6 +191,9 @@ const parseTrigrams = (trigrams) => {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 12px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
 }
 
 .stat-item {

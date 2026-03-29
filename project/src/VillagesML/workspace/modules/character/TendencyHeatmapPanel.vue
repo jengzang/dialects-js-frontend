@@ -142,6 +142,12 @@ onMounted(() => {
   min-height: 400px;
 }
 
+.loading-state,
+.empty-state {
+  min-height: 300px;
+  color: var(--text-primary);
+}
+
 .panel-header {
   display: flex;
   justify-content: space-between;

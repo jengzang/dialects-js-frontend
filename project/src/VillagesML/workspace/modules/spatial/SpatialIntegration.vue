@@ -127,7 +127,7 @@
           <!-- Load Characters Button -->
           <button
             v-if="availableCharacters.length === 0"
-            class="load-clusters-button"
+            class="query-button load-clusters-button"
             :disabled="loadingCharacters"
             @click="loadCharacters"
           >
@@ -339,7 +339,7 @@
           </div>
         </div>
         <button
-          class="load-button"
+          class="query-button load-button"
           :disabled="loadingSummary"
           @click="loadSummary"
         >
@@ -710,29 +710,6 @@ onMounted(() => {
   margin-bottom: 16px;
 }
 
-.mode-button {
-  flex: 1;
-  padding: 8px 16px;
-  background: rgba(255, 255, 255, 0.5);
-  border: 2px solid rgba(74, 144, 226, 0.3);
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--text-primary);
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.mode-button:hover {
-  background: rgba(74, 144, 226, 0.1);
-}
-
-.mode-button.active {
-  background: var(--color-primary);
-  color: white;
-  border-color: var(--color-primary);
-}
-
 .query-form {
   padding: 12px;
   margin-bottom: 16px;
@@ -810,56 +787,8 @@ onMounted(() => {
   background: rgba(255, 255, 255, 0.8);
 }
 
-.query-button,
-.load-button,
-.load-clusters-button {
-  width: 100%;
-  padding: 10px 20px;
-  background: var(--color-primary);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  margin-top: 8px;
-}
-
 .load-clusters-button {
   background: rgba(74, 144, 226, 0.8);
-}
-
-.query-button:hover:not(:disabled),
-.load-button:hover:not(:disabled),
-.load-clusters-button:hover:not(:disabled) {
-  background: #3a7bc8;
-}
-
-.query-button:disabled,
-.load-button:disabled,
-.load-clusters-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.loading-state {
-  text-align: center;
-  padding: 40px 20px;
-}
-
-.spinner {
-  width: 36px;
-  height: 36px;
-  border: 3px solid rgba(74, 144, 226, 0.2);
-  border-top-color: var(--color-primary);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin: 0 auto 12px;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
 }
 
 .integration-results,

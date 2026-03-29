@@ -1,5 +1,5 @@
 <template>
-  <div class="semantic-structure-panel glass-panel">
+  <div class="vml-glass-panel">
     <h3 class="panel-title">🏷️ 語義結構</h3>
 
     <div v-if="loading" class="loading-state">
@@ -118,6 +118,9 @@ const parseSequence = (sequence) => {
 
 .section {
   margin-bottom: 6px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
 }
 
 .section h4 {

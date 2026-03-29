@@ -1,5 +1,5 @@
 <template>
-  <div class="feature-vector-panel glass-panel">
+  <div class="vml-glass-panel">
     <h3 class="panel-title">🎯 特徵向量</h3>
 
     <div v-if="loading" class="loading-state">
@@ -105,6 +105,9 @@ const formatValue = (value) => {
 }
 
 .feature-type {
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
 }
 
 .feature-type h4 {
@@ -140,6 +143,8 @@ const formatValue = (value) => {
 
 .vector-visualization {
   padding: 20px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
 }
 
 .vector-visualization h4 {

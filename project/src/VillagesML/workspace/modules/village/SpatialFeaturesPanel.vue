@@ -1,5 +1,5 @@
 <template>
-  <div class="spatial-features-panel glass-panel">
+  <div class="vml-glass-panel">
     <h3 class="panel-title">🗺️ 空間特徵</h3>
 
     <div v-if="loading" class="loading-state">
@@ -124,6 +124,9 @@ defineProps({
   display: flex;
   align-items: center;
   transition: transform 0.3s ease;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
 }
 
 .spatial-item:hover {
@@ -164,6 +167,8 @@ defineProps({
 .map-placeholder {
   padding: 60px 20px;
   text-align: center;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
 }
 
 .map-placeholder p {

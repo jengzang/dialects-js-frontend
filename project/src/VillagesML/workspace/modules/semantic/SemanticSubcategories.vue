@@ -677,51 +677,6 @@ export default {
   border-color: var(--color-primary, #4a90e2);
 }
 
-.query-button {
-  width: 100%;
-  padding: 12px 24px;
-  background: var(--color-primary, #4a90e2);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 16px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.query-button:hover:not(:disabled) {
-  background: #357abd;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(74, 144, 226, 0.3);
-}
-
-.query-button:disabled {
-  background: #ccc;
-  cursor: not-allowed;
-}
-
-.loading-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 40px;
-}
-
-.spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid rgba(74, 144, 226, 0.2);
-  border-top-color: var(--color-primary, #4a90e2);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
 .results-header h3 {
   margin: 0;
   font-size: 20px;

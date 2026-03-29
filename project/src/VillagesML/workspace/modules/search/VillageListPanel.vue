@@ -131,6 +131,12 @@ const changePage = (page) => {
   min-height: 400px;
 }
 
+.loading-state,
+.empty-state {
+  min-height: 300px;
+  color: var(--text-primary);
+}
+
 .empty-icon {
   font-size: 48px;
   margin-bottom: 16px;

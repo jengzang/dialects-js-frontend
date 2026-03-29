@@ -1,5 +1,5 @@
 <template>
-  <div class="village-info-panel glass-panel">
+  <div class="vml-glass-panel">
     <h3 class="panel-title">📋 完整信息</h3>
 
     <div v-if="loading" class="loading-state">

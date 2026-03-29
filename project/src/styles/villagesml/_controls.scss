@@ -1,3 +1,45 @@
+@mixin vm-query-button-styles($padding: 10px 20px, $radius: 8px, $font-size: 14px) {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  padding: $padding;
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: $radius;
+  font-size: $font-size;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+@mixin vm-query-button-disabled-styles {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+@mixin vm-mode-button-styles($padding: 8px 16px, $radius: 8px, $font-size: 14px) {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: $padding;
+  border: 2px solid rgba(74, 144, 226, 0.3);
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: $radius;
+  cursor: pointer;
+  font-size: $font-size;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+@mixin vm-run-button-styles {
+  margin-top: 8px;
+  padding: 12px 24px;
+}
+
 .vm-setting-input {
   padding: 10px 14px;
   border: 1px solid rgba(255, 255, 255, 0.3);
@@ -32,108 +74,37 @@
   margin-left: 1.5rem;
 }
 
-.pattern-frequency-page .query-button,
-.pattern-structural-page .query-button,
-.pattern-tendency-page .query-button,
-.ngram-explore-page .query-button,
-.ngram-stats-page .query-button,
-.regional-aggregates-page .query-button {
-  white-space: nowrap;
-  padding: 10px 24px;
-  background: var(--color-primary);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
+.villagesml-module .query-button {
+  @include vm-query-button-styles;
 }
 
-.pattern-frequency-page .query-button:hover:not(:disabled),
-.pattern-structural-page .query-button:hover:not(:disabled),
-.pattern-tendency-page .query-button:hover:not(:disabled),
-.ngram-explore-page .query-button:hover:not(:disabled),
-.ngram-stats-page .query-button:hover:not(:disabled),
-.regional-aggregates-page .query-button:hover:not(:disabled) {
+.villagesml-module .query-button:hover:not(:disabled) {
   background: #3a7bc8;
 }
 
-.pattern-frequency-page .query-button:disabled,
-.pattern-structural-page .query-button:disabled,
-.pattern-tendency-page .query-button:disabled,
-.ngram-explore-page .query-button:disabled,
-.ngram-stats-page .query-button:disabled,
-.regional-aggregates-page .query-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+.villagesml-module .query-button:disabled {
+  @include vm-query-button-disabled-styles;
 }
 
-.category-tendency-page .query-button,
-.semantic-categories-page .query-button {
-  padding: 10px 20px;
-  background: var(--color-primary);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 14px;
-  cursor: pointer;
-  transition: all 0.3s ease;
+.villagesml-module .mode-button {
+  @include vm-mode-button-styles;
 }
 
-.category-tendency-page .query-button:hover:not(:disabled),
-.semantic-categories-page .query-button:hover:not(:disabled) {
-  background: #3a7bc8;
-}
-
-.category-tendency-page .query-button:disabled,
-.semantic-categories-page .query-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.regional-similarity-page .mode-button,
-.semantic-subcategories-page .mode-button {
-  flex: 1;
-  padding: 8px 16px;
-  border: 2px solid rgba(74, 144, 226, 0.3);
-  background: rgba(255, 255, 255, 0.5);
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 16px;
-  font-weight: 500;
-  transition: all 0.3s ease;
-}
-
-.regional-similarity-page .mode-button:hover,
-.semantic-subcategories-page .mode-button:hover {
+.villagesml-module .mode-button:hover {
   background: rgba(74, 144, 226, 0.1);
   border-color: rgba(74, 144, 226, 0.5);
 }
 
-.regional-similarity-page .mode-button.active,
-.semantic-subcategories-page .mode-button.active {
+.villagesml-module .mode-button.active {
   background: var(--color-primary, #4a90e2);
   color: white;
   border-color: var(--color-primary, #4a90e2);
 }
 
-.clustering-settings-panel .run-button,
-.semantic-settings-panel .run-button,
-.hierarchical-panel .run-button,
-.spatial-aware-panel .run-button,
-.sampled-villages-panel .run-button,
-.char-tendency-panel .run-button {
-  margin-top: 8px;
-  padding: 12px 24px;
+.villagesml-module .run-button {
+  @include vm-run-button-styles;
 }
 
-.clustering-settings-panel .run-button:disabled,
-.semantic-settings-panel .run-button:disabled,
-.hierarchical-panel .run-button:disabled,
-.spatial-aware-panel .run-button:disabled,
-.sampled-villages-panel .run-button:disabled,
-.char-tendency-panel .run-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+.villagesml-module .run-button:disabled {
+  @include vm-query-button-disabled-styles;
 }
