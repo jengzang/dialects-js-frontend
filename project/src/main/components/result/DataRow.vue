@@ -36,7 +36,7 @@
           <span v-else>{{ statsButtonText }}</span>
         </button>
 
-        <p>{{ t('result.dataRow.countRatio') }}: {{ item['\u5b57\u6578'] }} | {{ (item['\u4f54\u6bd4'] * 100).toFixed(1) }}%</p>
+        <p>{{ t('result.dataRow.countRatio') }}: {{ item['字數'] }} | {{ (item['佔比'] * 100).toFixed(1) }}%</p>
       </div>
 
       <!-- 簡要統計：在容器外面 -->

@@ -142,7 +142,6 @@ import { refreshCurrentCustomLayer } from '@/utils/map/MapData.js';
 import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
 import MapLegend from './MapLegend.vue'
 import FeatureMapPopup from './FeatureMapPopup.vue'
-import CompareMapPopup from './CompareMapPopup.vue'
 
 // --- Props: 只接收數據，不負責請求 ---
 const props = defineProps({
@@ -825,14 +824,14 @@ const drawCompareMap = () => {
     });
 
     // 創建彈窗內容
-    const popupContent = createComparePopupNode(item);
+    const popupContent = createComparePopupContent(item);
 
     // 創建彈窗
     const popup = new maplibregl.Popup({
       offset: 15,
       maxWidth: '350px',
       className: 'compare-map-popup'
-    }).setDOMContent(popupContent);
+    }).setHTML(popupContent);
 
     const marker = new maplibregl.Marker({ element: el })
       .setLngLat(item.coordinate)
@@ -847,7 +846,7 @@ const drawCompareMap = () => {
 };
 
 // 創建比較模式的彈窗內容
-function createComparePopupNode(item) {
+function createComparePopupContent(item) {
   const statusMap = {
     same: { icon: 'OK', text: t('map.mapLibre.compare.status.same') },
     diff: { icon: 'X', text: t('map.mapLibre.compare.status.diff') },
@@ -860,43 +859,38 @@ function createComparePopupNode(item) {
   const statusText = currentStatus.text;
 
   const compareType = mapStore.compareType;
-  let detailLabel = '';
-  let detailText = '';
+  let contentHTML = `
+    <div class="map-feature-popup active compare-map-popup-content">
+      <p>${item.location}</p>
+      ${item.pair ? `<p>${item.pair}</p>` : ''}
+      <ul>
+        <li><span class="compare-map-popup__label">${t('map.mapLibre.compare.fields.feature')}</span><span class="val">${item.feature}</span></li>
+        <li><span class="compare-map-popup__label">${t('map.mapLibre.compare.fields.result')}</span><span class="val">${statusIcon} ${statusText}</span></li>
+  `;
 
   if (compareType === 'chars') {
     if (item.value) {
-      detailLabel = t('map.mapLibre.compare.fields.readingComparison');
-      detailText = item.value;
+      contentHTML += `<li><span class="compare-map-popup__label">${t('map.mapLibre.compare.fields.readingComparison')}</span><span class="compare-map-popup__detail">${item.value}</span></li>`;
     }
   } else if (compareType === 'zhonggu') {
+    if (item.overlap !== undefined) {
+      contentHTML += `<li><span class="compare-map-popup__label">${t('map.mapLibre.compare.fields.similarity')}</span><span class="map-feature-popup__percentage">${item.overlap}%</span></li>`;
+    }
     if (item.value) {
-      detailLabel = t('map.mapLibre.compare.fields.detail');
-      detailText = item.value;
+      contentHTML += `<li><span class="compare-map-popup__label">${t('map.mapLibre.compare.fields.detail')}</span><span class="compare-map-popup__detail">${item.value}</span></li>`;
     }
   } else if (compareType === 'tones') {
     if (item.value) {
-      detailLabel = t('map.mapLibre.compare.fields.toneComparison');
-      detailText = item.value;
+      contentHTML += `<li><span class="compare-map-popup__label">${t('map.mapLibre.compare.fields.toneComparison')}</span><span class="compare-map-popup__detail">${item.value}</span></li>`;
     }
   }
 
-  const container = document.createElement('div');
-  render(h(CompareMapPopup, {
-    location: item.location,
-    pair: item.pair || '',
-    feature: item.feature,
-    featureLabel: t('map.mapLibre.compare.fields.feature'),
-    resultLabel: t('map.mapLibre.compare.fields.result'),
-    resultIcon: statusIcon,
-    resultText: statusText,
-    similarityLabel: t('map.mapLibre.compare.fields.similarity'),
-    similarity: item.overlap,
-    detailLabel,
-    detailText
-  }), container);
-  currentPopupMountTargets.push(container);
+  contentHTML += `
+      </ul>
+    </div>
+  `;
 
-  return container;
+  return contentHTML;
 }
 
 

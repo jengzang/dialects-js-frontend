@@ -436,7 +436,7 @@ function formatSelectedItem(item) {
 
 function normalizeSingleChar(value) {
   if (!value) return ''
-  const compact = String(value).replace(/[\s,\uFF0C]/g, '')
+  const compact = String(value).replace(/[\s,，]/g, '')
   return compact.slice(0, 1)
 }
 
