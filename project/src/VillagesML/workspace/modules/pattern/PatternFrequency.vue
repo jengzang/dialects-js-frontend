@@ -5,7 +5,7 @@
       <HelpIcon content="統計村名模式的出現頻率。全局模式：分析全省範圍內最常見的模式。區域模式：分析特定區域內的高頻模式。支持設置最小佔比和返回數量" />
     </h3>
 
-    <div class="glass-panel">
+    <div class="vml-glass-panel">
       <h2>🔍 模式頻率分析</h2>
 
       <!-- Query Mode Selection -->
@@ -195,7 +195,7 @@ const goToTendency = (pattern) => {
   margin: 0 auto;
 }
 
-.glass-panel h2 {
+.vml-glass-panel h2 {
   font-size: 16px;
   margin-bottom: 16px;
   color: var(--text-primary);

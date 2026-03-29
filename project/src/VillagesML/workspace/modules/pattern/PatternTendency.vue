@@ -5,7 +5,7 @@
       <HelpIcon content="分析模式在不同區域的傾向性。Z分數≥2表示強傾向性，≥1表示中等傾向性。Z分數衡量該模式在特定區域的使用頻率是否顯著高於或低於全局平均" />
     </h3>
 
-    <div class="glass-panel">
+    <div class="vml-glass-panel">
       <h2>📊 模式傾向性分析</h2>
 
       <!-- Controls -->
@@ -165,7 +165,7 @@ watch(
   margin: 0 auto;
 }
 
-.glass-panel h2 {
+.vml-glass-panel h2 {
   font-size: 16px;
   margin-bottom: 16px;
   color: var(--text-primary);

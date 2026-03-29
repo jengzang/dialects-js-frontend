@@ -5,7 +5,7 @@
       <HelpIcon content="分析村名的結構模式。前綴模式：以特定字符開頭（如「新X」）。後綴模式：以特定字符結尾（如「X村」）。複合模式：包含特定字符組合的模式" />
     </h3>
 
-    <div class="glass-panel">
+    <div class="vml-glass-panel">
       <h2>🏗️ 模式結構分析</h2>
 
       <!-- Controls -->
@@ -125,7 +125,7 @@ const goToTendency = (pattern) => {
   margin: 0 auto;
 }
 
-.glass-panel h2 {
+.vml-glass-panel h2 {
   font-size: 16px;
   margin-bottom: 16px;
   color: var(--text-primary);
