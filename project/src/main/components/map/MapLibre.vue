@@ -81,19 +81,19 @@
             <div v-else-if="locationPopup.data && locationPopup.data.data && locationPopup.data.data.length > 0" class="data-display">
               <div class="dialect-info">
                 <div class="info-line title-line">
-                  {{ locationPopup.data.data[0]['\u8a9e\u8a00'] }}
+                  {{ locationPopup.data.data[0]['語言'] }}
                 </div>
                 <div class="info-line">
-                  <strong>{{ t('map.mapLibre.locationPopup.fields.mapRegion2') }}</strong>{{ locationPopup.data.data[0]['\u5730\u5716\u96c6\u4e8c\u5206\u5340'] || t('map.mapLibre.common.none') }}
+                  <strong>{{ t('map.mapLibre.locationPopup.fields.mapRegion2') }}</strong>{{ locationPopup.data.data[0]['地圖集二分區'] || t('map.mapLibre.common.none') }}
                 </div>
                 <div class="info-line">
-                  <strong>{{ t('map.mapLibre.locationPopup.fields.phoneticRegion') }}</strong>{{ locationPopup.data.data[0]['\u97f3\u5178\u5206\u5340'] || t('map.mapLibre.common.none') }}
+                  <strong>{{ t('map.mapLibre.locationPopup.fields.phoneticRegion') }}</strong>{{ locationPopup.data.data[0]['音典分區'] || t('map.mapLibre.common.none') }}
                 </div>
                 <div class="info-line">
-                  <strong>{{ t('map.mapLibre.locationPopup.fields.characterSource') }}</strong>{{ locationPopup.data.data[0]['\u5b57\u8868\u4f86\u6e90\uff08\u6bcd\u672c\uff09'] || t('map.mapLibre.common.none') }}
+                  <strong>{{ t('map.mapLibre.locationPopup.fields.characterSource') }}</strong>{{ locationPopup.data.data[0]['字表來源（母本）'] || t('map.mapLibre.common.none') }}
                 </div>
                 <div class="info-line">
-                  <strong>{{ t('map.mapLibre.locationPopup.fields.coordinates') }}</strong>{{ formatCoordinates(locationPopup.data.data[0]['\u7d93\u7def\u5ea6']) }}
+                  <strong>{{ t('map.mapLibre.locationPopup.fields.coordinates') }}</strong>{{ formatCoordinates(locationPopup.data.data[0]['經緯度']) }}
                 </div>
                 <div class="info-line">
                   <strong>{{ t('map.mapLibre.locationPopup.fields.adminRegion') }}</strong>{{ formatAdministrativeRegion(locationPopup.data.data[0]) }}
@@ -128,7 +128,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount, shallowRef, nextTick, watch, computed } from 'vue';
+import { ref, onMounted, onBeforeUnmount, shallowRef, nextTick, watch, computed, h, render } from 'vue';
 import { useI18n } from 'vue-i18n';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
@@ -141,6 +141,8 @@ import { deleteCustomForm } from '@/api/user/custom.js'
 import { refreshCurrentCustomLayer } from '@/utils/map/MapData.js';
 import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
 import MapLegend from './MapLegend.vue'
+import FeatureMapPopup from './FeatureMapPopup.vue'
+import CompareMapPopup from './CompareMapPopup.vue'
 
 // --- Props: 只接收數據，不負責請求 ---
 const props = defineProps({
@@ -218,6 +220,7 @@ const toggleBaseMode = (e) => {
 };
 // 管理所有的 Marker 實例，用於清除
 let currentMarkers = [];
+let currentPopupMountTargets = [];
 
 // 地名點擊彈窗狀態
 const locationPopup = ref({
@@ -245,7 +248,7 @@ const handleLocationClick = async (locationName) => {
       search_columns: [],
       search_text: "",
       filters: {
-        '\u7c21\u7a31': [locationName]
+        '簡稱': [locationName]
       }
     };
 
@@ -268,12 +271,12 @@ const closeLocationPopup = () => {
 // 格式化行政區劃
 const formatAdministrativeRegion = (data) => {
   const parts = [];
-  if (data['\u7701']) parts.push(data['\u7701']);
-  if (data['\u5e02']) parts.push(data['\u5e02']);
-  if (data['\u7e23']) parts.push(data['\u7e23']);
-  if (data['\u93ae']) parts.push(data['\u93ae']);
-  if (data['\u884c\u653f\u6751']) parts.push(data['\u884c\u653f\u6751']);
-  if (data['\u81ea\u7136\u6751']) parts.push(data['\u81ea\u7136\u6751']);
+  if (data['省']) parts.push(data['省']);
+  if (data['市']) parts.push(data['市']);
+  if (data['縣']) parts.push(data['縣']);
+  if (data['鎮']) parts.push(data['鎮']);
+  if (data['行政村']) parts.push(data['行政村']);
+  if (data['自然村']) parts.push(data['自然村']);
   return parts.length > 0 ? parts.join('-') : t('map.mapLibre.common.none');
 };
 
@@ -301,16 +304,16 @@ const isValidCoordinatePair = (coord) => {
 // 提取調值數據
 const getToneData = (data) => {
   const tones = [
-    { key: 'T1\u9670\u5e73', label: 'T1' },
-    { key: 'T2\u967d\u5e73', label: 'T2' },
-    { key: 'T3\u9670\u4e0a', label: 'T3' },
-    { key: 'T4\u967d\u4e0a', label: 'T4' },
-    { key: 'T5\u9670\u53bb', label: 'T5' },
-    { key: 'T6\u967d\u53bb', label: 'T6' },
-    { key: 'T7\u9670\u5165', label: 'T7' },
-    { key: 'T8\u967d\u5165', label: 'T8' },
-    { key: 'T9\u5176\u4ed6\u8abf', label: 'T9' },
-    { key: 'T10\u8f15\u8072', label: 'T10' }
+    { key: 'T1陰平', label: 'T1' },
+    { key: 'T2陽平', label: 'T2' },
+    { key: 'T3陰上', label: 'T3' },
+    { key: 'T4陽上', label: 'T4' },
+    { key: 'T5陰去', label: 'T5' },
+    { key: 'T6陽去', label: 'T6' },
+    { key: 'T7陰入', label: 'T7' },
+    { key: 'T8陽入', label: 'T8' },
+    { key: 'T9其他調', label: 'T9' },
+    { key: 'T10輕聲', label: 'T10' }
   ];
 
   return tones
@@ -470,6 +473,8 @@ const renderMapContent = async (shouldResetView = true) => {
 };
 
 const clearMarkers = () => {
+  currentPopupMountTargets.forEach(target => render(null, target));
+  currentPopupMountTargets = [];
   currentMarkers.forEach(marker => marker.remove());
   currentMarkers = [];
 };
@@ -687,7 +692,7 @@ const drawFeatureMap = () => {
       offset: 80,
       maxWidth: '300px',
       closeButton: false, // 建議隱藏默認關閉按鈕，用點擊地圖關閉，或者自己加
-      className: 'custom-popup-wrapper'
+      className: 'map-feature-popup-wrapper'
     }).setDOMContent(popupNode);
 
     marker.setPopup(popup);
@@ -698,67 +703,18 @@ const drawFeatureMap = () => {
 // ✨ 核心函數：生成 DOM 並綁定事件
 const createPopupDOM = (item) => {
   const container = document.createElement('div');
-  container.className = 'popup active';
-
-  let htmlContent = `
-            <p>${item.location}</p>
-            <p>${item.feature}</p>
-    `;
-
-  let showButtonType = null;
-
-  if (item.iscustoms === 1 && props.isCustom) {
-    htmlContent += `
-            <p style="margin-top:5px;">${t('map.mapLibre.popup.note', { note: item.notes || t('map.mapLibre.common.none') })}</p>
-        `;
-    showButtonType = 'custom';
-  }
-  else if (Array.isArray(item.detailContent) && item.detailContent.length > 0) {
-    const hasPercentage = item.detailContent.some(d => d.hasOwnProperty('percentage'));
-
-    if (hasPercentage) {
-      const sorted = [...item.detailContent].sort((a, b) => b.percentage - a.percentage);
-      htmlContent += `<ul>`;
-      sorted.forEach(d => {
-        const pct = (d.percentage * 100).toFixed(1) + '%';
-        htmlContent += `<li>
-                    <span class="dot">•</span>
-                    <span class="val">${d.value}</span>
-                    <span class="tilde">~</span>
-                    <span class="pct">${pct}</span>
-                </li>`;
-      });
-      htmlContent += `</ul>`;
-      showButtonType = 'detail';
-    } else {
-      htmlContent += `<p>${item.detailContent.join('<br>')}</p>`;
-    }
-  }
-
-  container.innerHTML = htmlContent;
-
-  if (showButtonType) {
-    const btn = document.createElement('button');
-    btn.style.cursor = 'pointer';
-
-    if (showButtonType === 'custom') {
-      btn.className = 'mini-button-delete';
-      btn.innerText = '🗑️ ' + t('map.mapLibre.buttons.delete');
-      btn.onclick = (e) => {
-        e.stopPropagation();
-        handleCustomBtnClick(item);
-      };
-    } else if (showButtonType === 'detail') {
-      btn.className = 'mini-button';
-      btn.innerText = '📝 ' + t('map.mapLibre.buttons.detail');
-      btn.onclick = (e) => {
-        e.stopPropagation();
-        handleDetailBtnClick(item);
-      };
-    }
-
-    container.appendChild(btn);
-  }
+  render(h(FeatureMapPopup, {
+    item,
+    isCustom: props.isCustom,
+    noteText: t('map.mapLibre.popup.note', {
+      note: item.notes || t('map.mapLibre.common.none')
+    }),
+    deleteButtonText: '🗑️ ' + t('map.mapLibre.buttons.delete'),
+    detailButtonText: '📝 ' + t('map.mapLibre.buttons.detail'),
+    onCustomClick: () => handleCustomBtnClick(item),
+    onDetailClick: () => handleDetailBtnClick(item)
+  }), container);
+  currentPopupMountTargets.push(container);
 
   return container;
 };
@@ -822,9 +778,9 @@ const handleDetailBtnClick = (item) => {
 // 邏輯 4: 比較模式 - 用圓點和顏色顯示比較結果
 // =======================================================
 const drawCompareMap = () => {
-  console.log('🗺️ drawCompareMap 被调用')
-  console.log('📦 mapStore.mergedData:', mapStore.mergedData)
-  console.log('📦 mergedData 长度:', mapStore.mergedData?.length)
+  // console.log('🗺️ drawCompareMap 被调用')
+  // console.log('📦 mapStore.mergedData:', mapStore.mergedData)
+  // console.log('📦 mergedData 长度:', mapStore.mergedData?.length)
 
   if (!mapStore.mergedData || mapStore.mergedData.length === 0) {
     console.warn('⚠️ mergedData 为空，无法绘制')
@@ -832,10 +788,10 @@ const drawCompareMap = () => {
   }
 
   const items = mapStore.mergedData;
-  console.log(`🎨 开始绘制 ${items.length} 个标记`)
+  // console.log(`🎨 开始绘制 ${items.length} 个标记`)
 
   items.forEach((item, index) => {
-    console.log(`  🔸 标记 ${index + 1}:`, item)
+    // console.log(`  🔸 标记 ${index + 1}:`, item)
 
     // 坐標驗證
     if (!isValidCoordinatePair(item.coordinate)) {
@@ -869,14 +825,14 @@ const drawCompareMap = () => {
     });
 
     // 創建彈窗內容
-    const popupContent = createComparePopupContent(item);
+    const popupContent = createComparePopupNode(item);
 
     // 創建彈窗
     const popup = new maplibregl.Popup({
       offset: 15,
       maxWidth: '350px',
-      className: 'compare-popup'
-    }).setHTML(popupContent);
+      className: 'compare-map-popup'
+    }).setDOMContent(popupContent);
 
     const marker = new maplibregl.Marker({ element: el })
       .setLngLat(item.coordinate)
@@ -884,14 +840,14 @@ const drawCompareMap = () => {
       .addTo(map.value);
 
     currentMarkers.push(marker);
-    console.log(`  ✅ 标记 ${index + 1} 已添加到地图`)
+    // console.log(`  ✅ 标记 ${index + 1} 已添加到地图`)
   });
 
-  console.log(`✅ 绘制完成，共添加 ${currentMarkers.length} 个标记`)
+  // console.log(`✅ 绘制完成，共添加 ${currentMarkers.length} 个标记`)
 };
 
 // 創建比較模式的彈窗內容
-function createComparePopupContent(item) {
+function createComparePopupNode(item) {
   const statusMap = {
     same: { icon: 'OK', text: t('map.mapLibre.compare.status.same') },
     diff: { icon: 'X', text: t('map.mapLibre.compare.status.diff') },
@@ -904,41 +860,43 @@ function createComparePopupContent(item) {
   const statusText = currentStatus.text;
 
   const compareType = mapStore.compareType;
-
-  let contentHTML = `
-    <div class="popup-container">
-      <div class="popup-header">
-        <strong>${item.location}</strong>
-        ${item.pair ? `<div class="sub">${item.pair}</div>` : ''}
-      </div>
-      <div class="popup-body">
-        <p><strong>${t('map.mapLibre.compare.fields.feature')}</strong>${item.feature}</p>
-        <p><strong>${t('map.mapLibre.compare.fields.result')}</strong>${statusIcon} ${statusText}</p>
-  `;
+  let detailLabel = '';
+  let detailText = '';
 
   if (compareType === 'chars') {
     if (item.value) {
-      contentHTML += `<p><strong>${t('map.mapLibre.compare.fields.readingComparison')}</strong><br/>${item.value}</p>`;
+      detailLabel = t('map.mapLibre.compare.fields.readingComparison');
+      detailText = item.value;
     }
   } else if (compareType === 'zhonggu') {
-    if (item.overlap !== undefined) {
-      contentHTML += `<p><strong>${t('map.mapLibre.compare.fields.similarity')}</strong>${item.overlap}%</p>`;
-    }
     if (item.value) {
-      contentHTML += `<p><strong>${t('map.mapLibre.compare.fields.detail')}</strong><br/>${item.value}</p>`;
+      detailLabel = t('map.mapLibre.compare.fields.detail');
+      detailText = item.value;
     }
   } else if (compareType === 'tones') {
     if (item.value) {
-      contentHTML += `<p><strong>${t('map.mapLibre.compare.fields.toneComparison')}</strong><br/>${item.value}</p>`;
+      detailLabel = t('map.mapLibre.compare.fields.toneComparison');
+      detailText = item.value;
     }
   }
 
-  contentHTML += `
-      </div>
-    </div>
-  `;
+  const container = document.createElement('div');
+  render(h(CompareMapPopup, {
+    location: item.location,
+    pair: item.pair || '',
+    feature: item.feature,
+    featureLabel: t('map.mapLibre.compare.fields.feature'),
+    resultLabel: t('map.mapLibre.compare.fields.result'),
+    resultIcon: statusIcon,
+    resultText: statusText,
+    similarityLabel: t('map.mapLibre.compare.fields.similarity'),
+    similarity: item.overlap,
+    detailLabel,
+    detailText
+  }), container);
+  currentPopupMountTargets.push(container);
 
-  return contentHTML;
+  return container;
 }
 
 
@@ -1025,126 +983,6 @@ const resetView = () => {
   opacity: 1;
 }
 
-/* MapLibre 地图标记点击弹窗样式 (非 scoped，用于动态创建的弹窗) */
-.popup,
-.popup2 {
-  position: fixed;
-  left: 50%;
-  transform: translateX(-50%);
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.05));
-  backdrop-filter: blur(8px) saturate(180%);
-  -webkit-backdrop-filter: blur(8px) saturate(180%);
-  padding: 6px 10px;
-  width: 100px;
-  border-radius: 12px;
-  box-shadow: inset 0 0 1px rgba(255, 255, 255, 0.3), 0 4px 14px rgba(0, 0, 0, 0.2), 0 0 8px rgba(255, 255, 255, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  z-index: 99999;
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 0.3s ease, transform 0.3s ease;
-  text-align: center;
-  color: #222;
-  font-weight: 500;
-}
-
-.popup.active {
-  opacity: 1;
-  z-index: 99999;
-  visibility: visible !important;
-  transform: translateX(-50%) translateY(20px);
-}
-
-.popup-content {
-  font-family: 'Arial', sans-serif;
-  color: #333;
-  text-align: center;
-}
-
-.popup h4 {
-  font-size: 18px;
-  font-weight: bold;
-  margin: 0 0 10px;
-}
-
-.popup p, .popup2 p {
-  margin: 2px 0;
-  font-size: 13px;
-  padding: 0;
-  border-radius: 5px;
-  font-weight: bold;
-  display: block;
-}
-
-.popup ul, .popup2 ul {
-  padding: 0;
-  list-style-type: none;
-  margin: 0;
-}
-
-.popup li, .popup2 li {
-  margin: 2px 0;
-  font-size: 12px;
-  font-weight: bold;
-  padding: 1px 6px;
-  background: linear-gradient(135deg, rgba(240, 240, 240, 0.4), rgba(255, 255, 255, 0.2));
-  backdrop-filter: blur(4px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 6px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1), inset 0 0 1px rgba(255, 255, 255, 0.5);
-  color: #333;
-}
-
-.popup-close-btn {
-  background-color: #007aff;
-  color: white;
-  padding: 8px 15px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  margin-top: 10px;
-}
-
-.popup-close-btn:hover {
-  background-color: #005bb5;
-}
-
-/* 迷你按钮样式 (用于动态创建的按钮) */
-.mini-button {
-  margin-top: 2px;
-  padding: 1px 2px;
-  font-size: 11px;
-  background-color: #007aff;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.2s ease, transform 0.2s ease;
-}
-
-.mini-button:hover {
-  background-color: #005fcc;
-  transform: scale(1.2);
-}
-
-.mini-button-delete {
-  margin-top: 2px;
-  padding: 1px 2px;
-  font-size: 11px;
-  background-color: #8B0000;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.2s ease, transform 0.2s ease;
-}
-
-.mini-button-delete:hover {
-  background-color: #A52A2A;
-  transform: scale(1.2);
-}
-
-
 </style>
 
 <style scoped>
@@ -1215,57 +1053,6 @@ const resetView = () => {
   /* 背景色在JS中動態設置 */
 }
 
-/* 4. 複雜彈窗樣式 */
-:deep(.maplibregl-popup-content) {
-  padding: 0;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-}
-:deep(.popup-container) {
-  min-width: 200px;
-  font-family: sans-serif;
-}
-:deep(.popup-header) {
-  background: #f5f5f7;
-  padding: 10px 15px;
-  border-bottom: 1px solid #e1e1e1;
-}
-:deep(.popup-header strong) {
-  display: block;
-  font-size: 16px;
-  color: #1d1d1f;
-}
-:deep(.popup-header .sub) {
-  font-size: 12px;
-  color: #86868b;
-}
-:deep(.popup-body), :deep(.popup-list) {
-  padding: 10px 15px;
-  max-height: 200px;
-  overflow-y: auto;
-}
-:deep(.popup-list ul) {
-  list-style: none;
-  padding: 0; margin: 0;
-}
-:deep(.popup-list li) {
-  font-size: 13px;
-  color: #424245;
-  margin-bottom: 4px;
-}
-:deep(.note-box) {
-  background: #fff9c4;
-  padding: 8px;
-  border-radius: 4px;
-  font-size: 12px;
-  margin-top: 5px;
-}
-:deep(.pct) {
-  font-weight: bold;
-  color: #007aff;
-  margin-left: 4px;
-}
 </style>
 
 <style scoped>
