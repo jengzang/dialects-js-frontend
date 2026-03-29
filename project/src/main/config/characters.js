@@ -191,7 +191,7 @@ function createTableSchema({
 export const TABLE_COLUMN_SCHEMAS = {
   characters: createTableSchema({
     meta: {
-      label: '中古音（廣韻音系）',
+      label: '中古音（廣韻）',
       description: '默認字表',
       is_default: true
     },
@@ -214,7 +214,7 @@ export const TABLE_COLUMN_SCHEMAS = {
           ['入', '調']
         ]
       },
-      single_select_keys: ['攝', '韻', '系', '組', '母', '入', '調'],
+      // single_select_keys: ['攝', '韻', '系', '組', '母', '入', '調'],
       key_groups: {
         '韻攝相關': ['攝', '韻', '等', '呼'],
         '聲母相關': ['清濁', '系', '組', '母', '部位', '方式'],
@@ -227,8 +227,8 @@ export const TABLE_COLUMN_SCHEMAS = {
   }),
   fenyun: createTableSchema({
     meta: {
-      label: '分韻撮要（粵語音系）',
-      description: '粵語音系'
+      label: '分韻撮要（1782粵語）',
+      description: '1782粵語韻書'
     },
     columns: {
       ...SHARED_COLUMN_META,
@@ -272,7 +272,7 @@ export const TABLE_COLUMN_SCHEMAS = {
   }),
   menggu: createTableSchema({
     meta: {
-      label: '蒙古字韻（元代音系）',
+      label: '蒙古字韻（元代）',
       description: '元代音系'
     },
     columns: {
@@ -292,7 +292,7 @@ export const TABLE_COLUMN_SCHEMAS = {
   }),
   old_chinese: createTableSchema({
     meta: {
-      label: '上古音構擬',
+      label: '上古音(諧聲)',
       description: '上古音'
     },
     columns: {
@@ -315,7 +315,7 @@ export const TABLE_COLUMN_SCHEMAS = {
   }),
   zhongyuan: createTableSchema({
     meta: {
-      label: '中原音韻（元代音系）',
+      label: '中原音韻（元代）',
       description: '元代音系'
     },
     columns: {
