@@ -590,7 +590,7 @@
     <!-- 批量替换对话框 -->
     <teleport to="body">
       <div v-if="showBatchReplaceModal" class="modal-overlay" @click.self="showBatchReplaceModal = false">
-        <div class="modal-content tool-modal-shell glass-panel">
+        <div class="main-tool-modal">
           <div class="modal-header">
             <h3>🔄 {{ t('tools.checkTool.batchReplace.title') }}</h3>
             <button class="close-btn close-btn-base tool-modal-close-base" @click="showBatchReplaceModal = false">×</button>
@@ -654,8 +654,8 @@
 
     <!-- 帮助对话框 -->
     <teleport to="body">
-      <div v-if="showHelpModal" class="modal-overlay" @click.self="showHelpModal = false">
-        <div class="modal-content tool-modal-shell glass-panel help-modal">
+      <div v-if="showHelpModal" class="modal-overlay help-modal-overlay" @click.self="showHelpModal = false">
+        <div class="main-tool-modal">
           <div class="modal-header">
             <h3>❓ {{ t('tools.checkTool.help.title') }}</h3>
             <button class="close-btn close-btn-base tool-modal-close-base" @click="showHelpModal = false">×</button>
@@ -746,8 +746,8 @@
 
     <!-- 文件格式说明对话框 -->
     <teleport to="body">
-      <div v-if="showFormatHelpModal" class="modal-overlay" @click.self="showFormatHelpModal = false">
-        <div class="modal-content tool-modal-shell glass-panel help-modal">
+      <div v-if="showFormatHelpModal" class="modal-overlay help-modal-overlay" @click.self="showFormatHelpModal = false">
+        <div class="main-tool-modal">
           <div class="modal-header">
             <h3>📋 {{ t('tools.checkTool.formatHelp.title') }}</h3>
             <button class="close-btn close-btn-base tool-modal-close-base" @click="showFormatHelpModal = false">×</button>
@@ -827,7 +827,7 @@
     <!-- 调值字符显示对话框 -->
     <teleport to="body">
       <div v-if="showToneCharsModal" class="modal-overlay" @click.self="showToneCharsModal = false">
-        <div class="modal-content tool-modal-shell glass-panel">
+        <div class="main-tool-modal">
           <div class="modal-header">
             <h3>📊 {{ toneCharsModalTitle }}</h3>
             <button class="close-btn close-btn-base tool-modal-close-base" @click="showToneCharsModal = false">×</button>
@@ -848,8 +848,8 @@
 
     <!-- 列筛选对话框 -->
     <teleport to="body">
-      <div v-if="showFilterModal" class="modal-overlay" @click.self="showFilterModal = false">
-        <div class="modal-content tool-modal-shell glass-panel filter-modal">
+      <div v-if="showFilterModal" class="modal-overlay filter-modal-overlay" @click.self="showFilterModal = false">
+        <div class="main-tool-modal">
           <div class="modal-header">
             <h3>
               🔍 {{ t('tools.checkTool.filter.title', { column: getFilterColumnLabel(filterColumnType) }) }}
@@ -2964,21 +2964,14 @@ justify-content: center;
   --overlay-padding: 0;
 }
 
-.modal-content {
-  width: min(90vw, 600px);
-  max-height: 85vh;
+.main-tool-modal {
+  --main-tool-modal-width: min(90vw, 600px);
+  --main-tool-modal-header-padding: 20px 24px;
+  --main-tool-modal-body-padding: 20px 24px;
 }
 
-.modal-content.help-modal {
-  width: min(90vw, 800px);
-}
-
-.modal-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 20px 24px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+.help-modal-overlay .main-tool-modal {
+  --main-tool-modal-width: min(90vw, 800px);
 }
 
 .modal-header h3 {
@@ -2993,12 +2986,6 @@ justify-content: center;
 .checktool-close-btn-hover-unused:hover {
   background: rgba(255, 59, 48, 0.7);
   color: white;
-}
-
-.modal-body {
-  flex: 1;
-  padding: 20px 24px;
-  overflow-y: auto;
 }
 
 .modal-footer {
@@ -3135,8 +3122,8 @@ justify-content: center;
 }
 
 /* 筛选弹窗 */
-.filter-modal {
-  width: min(90vw, 500px);
+.filter-modal-overlay .main-tool-modal {
+  --main-tool-modal-width: min(90vw, 500px);
 }
 
 .filter-modal-body {
