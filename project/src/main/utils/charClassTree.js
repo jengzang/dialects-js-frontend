@@ -11,6 +11,10 @@ const normalizeLeafText = (value) => {
 }
 
 const isBlankNodeName = (value) => normalizeLeafText(value) === ''
+const isEmptyLikeNodeName = (value) => {
+  const normalizedValue = normalizeLeafText(value)
+  return normalizedValue === '(空)' || normalizedValue === '（空）'
+}
 
 // 优化：直接基于预先分离好的 arrayMap 和 objectEntries 进行提取，避免重复 Object.entries
 const pickArrayByKeys = (arrayMap, keys) => {
@@ -59,50 +63,31 @@ const composeLeafValues = (fieldConfig, arrayMap) => {
   )
 }
 
-const buildConfiguredLeafPayload = (arrayMap, options) => {
-  const leafData = options?.leafData
-  if (!leafData) {
+const buildConfiguredLeafPayload = (name, arrayMap, objectEntries, options) => {
+  if (!options?.leafLevelColumnName || objectEntries.length > 0) {
     return null
   }
 
-  const requestedColumns = [
-    ...(leafData.chars?.columns || []),
-    ...(leafData.annotations?.columns || [])
-  ]
-  const hasRequestedValues = requestedColumns.some((columnName) => arrayMap.has(columnName))
-
-  if (!hasRequestedValues) {
+  const normalizedChar = normalizeLeafText(name)
+  if (!normalizedChar) {
     return null
   }
 
-  const chars = composeLeafValues(leafData.chars, arrayMap)
-  const annotations = composeLeafValues(leafData.annotations, arrayMap)
-  const rowCount = Math.max(chars.length, annotations.length)
-
-  if (!rowCount) {
-    return null
-  }
+  const annotations = composeLeafValues(options?.leafData?.annotations, arrayMap)
+  const rowCount = Math.max(annotations.length, 1)
 
   const normalizedChars = []
   const normalizedAnnotations = []
 
   for (let rowIndex = 0; rowIndex < rowCount; rowIndex += 1) {
-    const charValue = normalizeLeafText(chars[rowIndex])
-    if (!charValue) {
-      continue
-    }
-
-    normalizedChars.push(charValue)
+    normalizedChars.push(normalizedChar)
     normalizedAnnotations.push(normalizeLeafText(annotations[rowIndex]))
-  }
-
-  if (!normalizedChars.length) {
-    return null
   }
 
   return {
     chars: normalizedChars,
-    annotations: normalizedAnnotations
+    annotations: normalizedAnnotations,
+    promoteLeafContent: true
   }
 }
 
@@ -142,7 +127,10 @@ const normalizeChildNodes = (objectEntries, path, options) => {
       return
     }
 
-    if (isBlankNodeName(childNode.name)) {
+    const hasNestedChildren = Array.isArray(childNode.children) && childNode.children.length > 0
+    const shouldPromoteTrailingEmptyNode = isEmptyLikeNodeName(childNode.name) && !hasNestedChildren
+
+    if (isBlankNodeName(childNode.name) || shouldPromoteTrailingEmptyNode || childNode.promoteLeafContent) {
       appendLeafContent(promotedLeafContent, childNode)
       normalizedChildren.push(...(childNode.children || []))
       return
@@ -175,7 +163,7 @@ const normalizeNode = (data, name, path, options) => {
   }
 
   // 将分类好的数据传入，取代旧版的 data 透传
-  const configuredLeafPayload = buildConfiguredLeafPayload(arrayMap, options)
+  const configuredLeafPayload = buildConfiguredLeafPayload(name, arrayMap, objectEntries, options)
   if (configuredLeafPayload) {
     return {
       id: path,

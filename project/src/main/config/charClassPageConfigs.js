@@ -1,7 +1,8 @@
 import { getSqlTreeColumnIndexes } from './sqlTreeColumnMappings.js'
 
 const DEFAULT_DB_KEY = 'chars'
-const DEFAULT_DATA_COLUMN_NAMES = Object.freeze(['漢字', '釋義'])
+const DEFAULT_LEAF_LEVEL_COLUMN_NAME = '漢字'
+const DEFAULT_DATA_COLUMN_NAMES = Object.freeze(['釋義'])
 
 const freezeArray = (values) => Object.freeze([...values])
 const freezeRecord = (record) => Object.freeze(record)
@@ -40,15 +41,11 @@ const createLeafFieldConfig = (fieldConfig, fallbackColumns = []) =>
 
 const createLeafDataConfig = (leafData, dataColumnNames) =>
   freezeRecord({
-    chars: createLeafFieldConfig(leafData?.chars, dataColumnNames.slice(0, 1)),
-    annotations: createLeafFieldConfig(leafData?.annotations, dataColumnNames.slice(1))
+    annotations: createLeafFieldConfig(leafData?.annotations, dataColumnNames)
   })
 
 const collectLeafDataColumnNames = (leafDataConfig) =>
-  getUniqueValues([
-    ...leafDataConfig.chars.columns,
-    ...leafDataConfig.annotations.columns
-  ])
+  getUniqueValues(leafDataConfig.annotations.columns)
 
 const createTableConfig = ({
   tableName,
@@ -56,6 +53,7 @@ const createTableConfig = ({
   levelColumns,
   presets,
   defaultPresetKey,
+  leafLevelColumnName = DEFAULT_LEAF_LEVEL_COLUMN_NAME,
   dataColumnNames = DEFAULT_DATA_COLUMN_NAMES,
   leafData = null,
   dbKey = DEFAULT_DB_KEY
@@ -97,6 +95,7 @@ const createTableConfig = ({
     dbKey,
     tableName,
     labelKey,
+    leafLevelColumnName,
     dataColumnNames: resolvedDataColumnNames,
     leafData: normalizedLeafData,
     levelColumns: frozenLevelColumns,
@@ -194,18 +193,18 @@ export const CHAR_CLASS_PAGE_CONFIGS = freezeRecord({
           {
             key: 'rhyme',
             labelKey: 'charClass.pages.shanggu.presets.rhyme',
-            levelKeys: ['yunbu', 'shengdiao', 'shengmu']
+            levelKeys: ['yunbu', 'yunmu', 'shengdiao']
           },
           {
             key: 'initialGroup',
             labelKey: 'charClass.pages.shanggu.presets.initialGroup',
             levelKeys: ['shengmu_group', 'shengmu', 'shengdiao']
           },
-          {
-            key: 'xiesheng',
-            labelKey: 'charClass.pages.shanggu.presets.xiesheng',
-            levelKeys: ['xiesheng', 'yunbu', 'shengdiao']
-          }
+          // {
+          //   key: 'xiesheng',
+          //   labelKey: 'charClass.pages.shanggu.presets.xiesheng',
+          //   levelKeys: ['xiesheng', 'yunbu', 'shengdiao']
+          // }
         ],
         defaultPresetKey: 'rhyme'
       })
@@ -218,11 +217,8 @@ export const CHAR_CLASS_PAGE_CONFIGS = freezeRecord({
       zhongyuan: createTableConfig({
         tableName: 'zhongyuan',
         labelKey: 'charClass.tables.zhongyuan',
-        dataColumnNames: ['漢字', '擬音'],
+        dataColumnNames: ['擬音'],
         leafData: {
-          chars: {
-            columns: ['漢字']
-          },
           annotations: {
             columns: ['擬音']
           }
@@ -241,29 +237,26 @@ export const CHAR_CLASS_PAGE_CONFIGS = freezeRecord({
           {
             key: 'rhyme',
             labelKey: 'charClass.pages.jingu.tables.zhongyuan.presets.rhyme',
-            levelKeys: ['yunmu', 'shengdiao', 'xiaoyun', 'hu', 'deng']
+            levelKeys: ['yunmu', 'xiaoyun', 'shengdiao', 'hu', 'deng']
           },
           {
             key: 'initial',
             labelKey: 'charClass.pages.jingu.tables.zhongyuan.presets.initial',
-            levelKeys: ['shengmu', 'xiaoyun', 'yunmu']
+            levelKeys: ['shengmu', 'yunmu', 'shengdiao']
           },
-          {
-            key: 'transcription',
-            labelKey: 'charClass.pages.jingu.tables.zhongyuan.presets.transcription',
-            levelKeys: ['niyin', 'shengmu', 'yunmu']
-          }
+          // {
+          //   key: 'transcription',
+          //   labelKey: 'charClass.pages.jingu.tables.zhongyuan.presets.transcription',
+          //   levelKeys: ['niyin', 'shengmu', 'yunmu']
+          // }
         ],
         defaultPresetKey: 'rhyme'
       }),
       hongwu: createTableConfig({
         tableName: 'hongwu',
         labelKey: 'charClass.tables.hongwu',
-        dataColumnNames: ['漢字', '上字', '下字'],
+        dataColumnNames: ['上字', '下字'],
         leafData: {
-          chars: {
-            columns: ['漢字']
-          },
           annotations: {
             columns: ['上字', '下字'],
             joiner: '-'
@@ -288,13 +281,13 @@ export const CHAR_CLASS_PAGE_CONFIGS = freezeRecord({
           {
             key: 'initial',
             labelKey: 'charClass.pages.jingu.tables.hongwu.presets.initial',
-            levelKeys: ['shengmu', 'shenglei', 'qingzhuo']
+            levelKeys: ['shenglei', 'shengmu', 'qingzhuo']
           },
-          {
-            key: 'fanqie',
-            labelKey: 'charClass.pages.jingu.tables.hongwu.presets.fanqie',
-            levelKeys: ['shangzi', 'xiazi', 'shengdiao']
-          }
+          // {
+          //   key: 'fanqie',
+          //   labelKey: 'charClass.pages.jingu.tables.hongwu.presets.fanqie',
+          //   levelKeys: ['shangzi', 'xiazi', 'shengdiao']
+          // }
         ],
         defaultPresetKey: 'rhyme'
       }),
@@ -302,15 +295,11 @@ export const CHAR_CLASS_PAGE_CONFIGS = freezeRecord({
         tableName: 'menggu',
         labelKey: 'charClass.tables.menggu',
         dataColumnNames: [
-          '漢字',
           '八思巴字',
           '擬音',
           '對應切韻音系音韻地位'
         ],
         leafData: {
-          chars: {
-            columns: ['漢字']
-          },
           annotations: {
             columns: [
               '八思巴字',
@@ -375,12 +364,12 @@ export const CHAR_CLASS_PAGE_CONFIGS = freezeRecord({
           {
             key: 'native',
             labelKey: 'charClass.pages.yueyun.presets.native',
-            levelKeys: ['yunbu', 'yunmu', 'shengmu', 'shengdiao']
+            levelKeys: ['yunbu', 'yunmu', 'xiaoyun']
           },
           {
             key: 'syllable',
             labelKey: 'charClass.pages.yueyun.presets.syllable',
-            levelKeys: ['shengmu',  'yunbu', 'xiaoyun', 'shengdiao']
+            levelKeys: ['shengmu',  'shengdiao', 'yunbu', 'yunmu']
           }
         ],
         defaultPresetKey: 'native'
@@ -439,9 +428,12 @@ export const getCharClassColumnNameByKey = (tableConfig, columnKey) =>
 
 export const buildCharClassTreePayload = (pageKey, tableKey, levelKeys) => {
   const tableConfig = getCharClassTableConfig(pageKey, tableKey)
-  const levelColumnNames = levelKeys
-    .map((levelKey) => getCharClassColumnNameByKey(tableConfig, levelKey))
-    .filter(Boolean)
+  const levelColumnNames = getUniqueValues([
+    ...levelKeys
+      .map((levelKey) => getCharClassColumnNameByKey(tableConfig, levelKey))
+      .filter(Boolean),
+    tableConfig.leafLevelColumnName
+  ])
 
   return {
     db_key: tableConfig.dbKey,

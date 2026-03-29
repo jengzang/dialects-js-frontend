@@ -85,9 +85,8 @@
     "yueyun": {
       "title": "粵語韻書數據",
       "presets": {
-        "native": "傳統音系",
-        "japanese": "日語轉寫",
-        "syllable": "小韻"
+        "native": "韻母",
+        "syllable": "聲母"
       }
     }
   }

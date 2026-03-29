@@ -329,8 +329,8 @@ const loadTreeForState = async (state) => {
     treeCache.value = {
       ...treeCache.value,
       [cacheKey]: normalizeCharClassTree(result.tree, {
+        leafLevelColumnName: tableConfig?.leafLevelColumnName,
         leafData: tableConfig?.leafData,
-        dataColumnNames: tableConfig?.dataColumnNames
       })
     }
   } catch (error) {

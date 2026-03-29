@@ -85,9 +85,8 @@
     "yueyun": {
       "title": "Cantonese Rime Book Data",
       "presets": {
-        "native": "Native System",
-        "japanese": "Japanese Reading",
-        "syllable": "Xiaoyun"
+        "native": "Final",
+        "syllable": "Initial"
       }
     }
   }
