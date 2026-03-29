@@ -599,6 +599,9 @@ const sourceDataCount = ref('...')
 // 当前版本号和更新时间
 const CURRENT_VERSION = 'v4.2.0'
 const LAST_UPDATE_DATE = '2026-03-19'
+const UPDATE_NOTICE_DISMISS_STORAGE_KEY = 'update-notice-dismissed'
+const UPDATE_NOTICE_LAST_SHOWN_PREFIX = 'update-notice-last-shown'
+const UPDATE_NOTICE_COOLDOWN_MS = 24 * 60 * 60 * 1000
 
 const projects = [
   {
@@ -687,10 +690,23 @@ async function fetchSourceStats() {
 
 // Check if should show update notice
 function checkUpdateNotice() {
-  const dismissedVersions = JSON.parse(localStorage.getItem('update-notice-dismissed') || '[]')
-  if (!dismissedVersions.includes(CURRENT_VERSION)) {
-    showUpdateNotice.value = true
+  const dismissedVersions = JSON.parse(
+    localStorage.getItem(UPDATE_NOTICE_DISMISS_STORAGE_KEY) || '[]'
+  )
+  if (dismissedVersions.includes(CURRENT_VERSION)) {
+    return
   }
+
+  const lastShownKey = `${UPDATE_NOTICE_LAST_SHOWN_PREFIX}:${CURRENT_VERSION}`
+  const lastShownAt = Number(localStorage.getItem(lastShownKey))
+  const now = Date.now()
+
+  if (Number.isFinite(lastShownAt) && now - lastShownAt < UPDATE_NOTICE_COOLDOWN_MS) {
+    return
+  }
+
+  localStorage.setItem(lastShownKey, String(now))
+  showUpdateNotice.value = true
 }
 
 onMounted(() => {
