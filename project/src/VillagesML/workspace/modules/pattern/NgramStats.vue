@@ -968,7 +968,6 @@ watch(
 .table-scroll-wrapper {
   width: 100%;
   overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
 }
 
 .significance-table {

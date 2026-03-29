@@ -390,31 +390,6 @@ const getToneData = (data) => {
   contain: layout style;
 }
 
-/* 自定义滚动条样式 */
-.matrix-wrapper::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
-}
-
-.matrix-wrapper::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.05);
-  border-radius: 10px;
-}
-
-.matrix-wrapper::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.15);
-  border-radius: 10px;
-  transition: background 0.2s;
-}
-
-.matrix-wrapper::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 0, 0, 0.25);
-}
-
-.matrix-wrapper::-webkit-scrollbar-corner {
-  background: transparent;
-}
-
 .matrix-table {
   width: 100%;
 

@@ -519,7 +519,6 @@ onBeforeUnmount(() => {
 .table-scroll-wrapper {
   width: 100%;
   overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
   margin-bottom: 16px;
 }
 
@@ -853,22 +852,5 @@ onBeforeUnmount(() => {
 
 /* 移动端横向滚动条样式 */
 @media (max-aspect-ratio: 1/1) {
-  .table-scroll-wrapper::-webkit-scrollbar {
-    height: 8px;
-  }
-
-  .table-scroll-wrapper::-webkit-scrollbar-track {
-    background: rgba(0, 0, 0, 0.05);
-    border-radius: 4px;
-  }
-
-  .table-scroll-wrapper::-webkit-scrollbar-thumb {
-    background: rgba(74, 144, 226, 0.5);
-    border-radius: 4px;
-  }
-
-  .table-scroll-wrapper::-webkit-scrollbar-thumb:hover {
-    background: rgba(74, 144, 226, 0.7);
-  }
 }
 </style>

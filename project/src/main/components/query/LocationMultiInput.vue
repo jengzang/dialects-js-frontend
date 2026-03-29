@@ -645,26 +645,6 @@ watch(showPartitionInfoModal, (isVisible) => {
   z-index: 99999 !important;
 }
 
-/* 自定义滚动条样式 */
-.suggestions-dropdown::-webkit-scrollbar {
-  width: 8px;
-}
-
-.suggestions-dropdown::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.05);
-  border-radius: 10px;
-}
-
-.suggestions-dropdown::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.15);
-  border-radius: 10px;
-  transition: background 0.2s;
-}
-
-.suggestions-dropdown::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 0, 0, 0.25);
-}
-
 .success-message {
   color: var(--color-success);
   font-weight: 600;
@@ -699,26 +679,6 @@ watch(showPartitionInfoModal, (isVisible) => {
 
 .modal-title {
   font-size: 16px;
-}
-
-/* 自定义滚动条样式 */
-.modal-body::-webkit-scrollbar {
-  width: 8px;
-}
-
-.modal-body::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.05);
-  border-radius: 10px;
-}
-
-.modal-body::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.15);
-  border-radius: 10px;
-  transition: background 0.2s;
-}
-
-.modal-body::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 0, 0, 0.25);
 }
 
 .locations-list {

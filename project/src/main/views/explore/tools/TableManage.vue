@@ -979,25 +979,6 @@ onMounted(async () => {
   box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
-.table-wrapper::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-.table-wrapper::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.05);
-  border-radius: 4px;
-}
-
-.table-wrapper::-webkit-scrollbar-thumb {
-  background: linear-gradient(135deg, #007aff 0%, #0056b3 100%);
-  border-radius: 4px;
-}
-
-.table-wrapper::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(135deg, #0056b3 0%, #003d82 100%);
-}
-
 .column-config-table {
   width: 100%;
   border-collapse: separate;

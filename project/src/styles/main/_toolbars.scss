@@ -142,24 +142,6 @@
   color: #575757;
 }
 
-.main-sidebar-list::-webkit-scrollbar {
-  width: 6px;
-}
-
-.main-sidebar-list::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.05);
-  border-radius: 3px;
-}
-
-.main-sidebar-list::-webkit-scrollbar-thumb {
-  background: rgba(0, 95, 211, 0.3);
-  border-radius: 3px;
-}
-
-.main-sidebar-list::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 95, 211, 0.5);
-}
-
 .main-sidebar-submenu-panel {
   position: fixed;
   width: auto;

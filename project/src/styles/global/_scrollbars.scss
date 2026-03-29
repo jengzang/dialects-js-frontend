@@ -1,0 +1,171 @@
+:root {
+  --app-scrollbar-size: 8px;
+  --app-scrollbar-track: rgba(15, 23, 42, 0.06);
+  --app-scrollbar-thumb: rgba(0, 95, 211, 0.26);
+  --app-scrollbar-thumb-hover: rgba(0, 95, 211, 0.42);
+  --app-scrollbar-radius: 999px;
+}
+
+@media (max-width: 768px) {
+  :root {
+    --app-scrollbar-size: 4px;
+    --app-scrollbar-track: rgba(15, 23, 42, 0.03);
+    --app-scrollbar-thumb: rgba(0, 95, 211, 0.18);
+    --app-scrollbar-thumb-hover: rgba(0, 95, 211, 0.28);
+  }
+}
+
+@mixin visible-scrollbar {
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: var(--app-scrollbar-thumb) var(--app-scrollbar-track);
+}
+
+@mixin visible-scrollbar-webkit {
+  &::-webkit-scrollbar {
+    width: var(--app-scrollbar-size);
+    height: var(--app-scrollbar-size);
+  }
+
+  &::-webkit-scrollbar-track {
+    background: var(--app-scrollbar-track);
+    border-radius: var(--app-scrollbar-radius);
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: var(--app-scrollbar-thumb);
+    border-radius: var(--app-scrollbar-radius);
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background: var(--app-scrollbar-thumb-hover);
+  }
+}
+
+@mixin hidden-scrollbar {
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+@mixin hidden-scrollbar-webkit {
+  &::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+  }
+}
+
+:where(
+  .u-scrollbar,
+  .smooth-scroll,
+  .custom-scrollbar,
+  .main-sidebar-list,
+  .history-list,
+  .stats-content,
+  .sidebar-content,
+  .sidebar-content ul,
+  .options-list,
+  .dropdown-options,
+  .modal-content,
+  .modal-body,
+  .scroll-content,
+  .table-scroll-area,
+  .table-container,
+  .table-wrapper,
+  .table-scroll-wrapper,
+  .suggestions-dropdown,
+  .region-select-box,
+  .stickybar-filter-dropdown,
+  .matrix-wrapper,
+  .popup-content,
+  .benefits-popup,
+  .comparison-table-wrapper,
+  .feature-checkboxes,
+  .section-content,
+  .preview-table-wrapper,
+  .merged-list,
+  .inline-suggestion,
+  .segments-container,
+  .custom-data-panel,
+  .panelContent,
+  .feature-table-wrapper,
+  .villages-table-wrapper,
+  .feature-diff-table,
+  .tendency-table,
+  .patterns-table,
+  .indices-table,
+  .pmi-results,
+  .main-glass-panel[data-surface='table-container']
+) {
+  @include visible-scrollbar;
+}
+
+:where(
+  .u-scrollbar,
+  .smooth-scroll,
+  .custom-scrollbar,
+  .main-sidebar-list,
+  .history-list,
+  .stats-content,
+  .sidebar-content,
+  .sidebar-content ul,
+  .options-list,
+  .dropdown-options,
+  .modal-content,
+  .modal-body,
+  .scroll-content,
+  .table-scroll-area,
+  .table-container,
+  .table-wrapper,
+  .table-scroll-wrapper,
+  .suggestions-dropdown,
+  .region-select-box,
+  .stickybar-filter-dropdown,
+  .matrix-wrapper,
+  .popup-content,
+  .benefits-popup,
+  .comparison-table-wrapper,
+  .feature-checkboxes,
+  .section-content,
+  .preview-table-wrapper,
+  .merged-list,
+  .inline-suggestion,
+  .segments-container,
+  .custom-data-panel,
+  .panelContent,
+  .feature-table-wrapper,
+  .villages-table-wrapper,
+  .feature-diff-table,
+  .tendency-table,
+  .patterns-table,
+  .indices-table,
+  .pmi-results,
+  .main-glass-panel[data-surface='table-container']
+) {
+  @include visible-scrollbar-webkit;
+}
+
+:where(
+  .u-hidden-scrollbar,
+  .hide-scrollbar,
+  .tabs,
+  .commonbar-tabs,
+  .commonbar-mobile .commonbar-tabs,
+  .explorebar-tabs,
+  .explorebar-mobile .explorebar-tabs
+) {
+  @include hidden-scrollbar;
+}
+
+:where(
+  .u-hidden-scrollbar,
+  .hide-scrollbar,
+  .tabs,
+  .commonbar-tabs,
+  .commonbar-mobile .commonbar-tabs,
+  .explorebar-tabs,
+  .explorebar-mobile .explorebar-tabs
+) {
+  @include hidden-scrollbar-webkit;
+}

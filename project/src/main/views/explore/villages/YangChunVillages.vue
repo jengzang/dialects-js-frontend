@@ -216,14 +216,6 @@ const displayData = computed(() => {
   color: #888;
 }
 
-.custom-scrollbar::-webkit-scrollbar {
-  width: 6px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.1);
-  border-radius: 10px;
-}
 .title-row {
   display: flex;
   align-items: center;

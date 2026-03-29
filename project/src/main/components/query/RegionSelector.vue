@@ -894,19 +894,6 @@ defineExpose({ togglePopup, openPopup, closePopup })
   align-items: flex-start;
 }
 
-/* 滚动条 */
-.region-select-box::-webkit-scrollbar {
-  width: 6px;
-}
-.region-select-box::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.18);
-  border-radius: 6px;
-}
-.region-select-box::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.18);
-  border-radius: 6px;
-}
-
 .region-select-box.open {
   border-color: rgba(0, 122, 255, 0.35);
   box-shadow: 0 12px 36px rgba(0, 122, 255, 0.16);

@@ -1393,24 +1393,6 @@ watch(viewMode, async (newMode) => {
   background-color: var(--bg-blue-hover);
 }
 
-/* 滚动条样式 */
-.inline-suggestion::-webkit-scrollbar {
-  width: 6px;
-}
-
-.inline-suggestion::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.inline-suggestion::-webkit-scrollbar-thumb {
-  background: var(--border-gray);
-  border-radius: 3px;
-}
-
-.inline-suggestion::-webkit-scrollbar-thumb:hover {
-  background: var(--text-gray);
-}
-
 /* 响应式 */
 @media (max-width: 768px) {
   .yubao-page {

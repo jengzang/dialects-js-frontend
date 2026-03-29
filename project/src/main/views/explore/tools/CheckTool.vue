@@ -2164,7 +2164,6 @@ justify-content: center;
 .section-content {
   flex: 1;
   overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -2578,7 +2577,6 @@ justify-content: center;
 .main-glass-panel[data-surface='table-container'] {
   flex: 1;
   overflow: hidden;
-  -webkit-overflow-scrolling: touch;
   position: relative;
 }
 
@@ -3207,27 +3205,6 @@ justify-content: center;
   border-radius: 12px;
   flex-shrink: 0;
 }
-
-/* 滚动条 */
-.custom-scrollbar::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 4px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(0, 122, 255, 0.3);
-  border-radius: 4px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 122, 255, 0.5);
-}
-
 
 @media (max-aspect-ratio: 1/1)  {
   .work-area {

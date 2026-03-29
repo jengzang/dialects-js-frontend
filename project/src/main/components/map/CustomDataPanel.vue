@@ -530,28 +530,6 @@ const resetForm = () => {
   transform: translateY(0);
 }
 
-/* 滚动条样式 */
-.custom-data-panel::-webkit-scrollbar,
-.panelContent::-webkit-scrollbar {
-  width: 6px;
-}
-
-.custom-data-panel::-webkit-scrollbar-track,
-.panelContent::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.custom-data-panel::-webkit-scrollbar-thumb,
-.panelContent::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: 3px;
-}
-
-.custom-data-panel::-webkit-scrollbar-thumb:hover,
-.panelContent::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 0, 0, 0.3);
-}
-
 /* 响应式 */
 @media (max-width: 768px) {
   /* 移动端：面板占据大部分屏幕宽度 */

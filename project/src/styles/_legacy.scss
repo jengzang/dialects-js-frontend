@@ -312,12 +312,6 @@ textarea:focus {
   overflow-x: auto;
   max-width: 100%;
   padding: 8px 12px;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-}
-
-.tabs::-webkit-scrollbar {
-  display: none;
 }
 
 .tab {
@@ -695,34 +689,8 @@ textarea:focus {
 .overflow-x-auto { overflow-x: auto; }
 
 /* 滚动条优化 */
-.smooth-scroll {
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: thin;
-}
-
-.smooth-scroll::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-
-.smooth-scroll::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: 4px;
-}
-
-.smooth-scroll::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 0, 0, 0.3);
-}
 
 /* 隐藏滚动条 */
-.hide-scrollbar {
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-
-.hide-scrollbar::-webkit-scrollbar {
-  display: none;
-}
 
 /* 阴影工具类 */
 .shadow-sm { box-shadow: var(--shadow-sm); }

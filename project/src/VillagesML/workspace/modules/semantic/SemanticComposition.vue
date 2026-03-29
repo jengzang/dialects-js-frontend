@@ -194,7 +194,6 @@ const translatePattern = (patternStr) => {
   overflow-x: auto;
   overflow-y: visible;
   width: 100%;
-  -webkit-overflow-scrolling: touch;  /* 移动端平滑滚动 */
 }
 
 .table-header,
@@ -251,25 +250,6 @@ const translatePattern = (patternStr) => {
 .component-tag.head {
   background: rgba(74, 144, 226, 0.2);
   color: var(--color-primary);
-}
-
-/* 移动端横向滚动样式 */
-.patterns-table::-webkit-scrollbar {
-  height: 8px;
-}
-
-.patterns-table::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.05);
-  border-radius: 4px;
-}
-
-.patterns-table::-webkit-scrollbar-thumb {
-  background: rgba(74, 144, 226, 0.5);
-  border-radius: 4px;
-}
-
-.patterns-table::-webkit-scrollbar-thumb:hover {
-  background: rgba(74, 144, 226, 0.7);
 }
 
 @media (max-width: 768px) {

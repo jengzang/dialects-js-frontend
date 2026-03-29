@@ -106,12 +106,6 @@ const handleTabClick = (tabName) => {
   overflow-x: auto;
   max-width: 100%;
   padding: 8px 12px;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-}
-
-.tabs::-webkit-scrollbar {
-  display: none;
 }
 
 .tab {

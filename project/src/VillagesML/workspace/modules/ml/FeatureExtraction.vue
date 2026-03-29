@@ -1445,7 +1445,6 @@ onMounted(() => {
 .feature-table-wrapper {
   overflow-x: auto;
   margin-bottom: 16px;
-  -webkit-overflow-scrolling: touch;
 }
 
 .glass-table {

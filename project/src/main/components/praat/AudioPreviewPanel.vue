@@ -985,15 +985,6 @@ onBeforeUnmount(() => {
   padding-right: 0.25rem;
 }
 
-.segments-container::-webkit-scrollbar {
-  width: 6px;
-}
-
-.segments-container::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: 3px;
-}
-
 .segment-item {
   background: rgba(255, 255, 255, 0.5);
   border: 2px solid transparent;

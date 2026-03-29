@@ -8,11 +8,3 @@
   white-space: nowrap;
 }
 
-.u-hidden-scrollbar {
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-
-.u-hidden-scrollbar::-webkit-scrollbar {
-  display: none;
-}

@@ -1854,7 +1854,6 @@ const handleApiError = (error) => {
   .villages-table-wrapper,
   .feature-diff-table {
     overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
   }
 
   .feature-checkbox {
@@ -1916,14 +1915,12 @@ const handleApiError = (error) => {
   max-height: 400px;
   margin-bottom: 16px;
   width: 100%;
-  -webkit-overflow-scrolling: touch;
 }
 
 .feature-diff-table {
   overflow-x: auto;
   width: 100%;
   margin-bottom: 16px;
-  -webkit-overflow-scrolling: touch;
 }
 
 .village-name {

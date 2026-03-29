@@ -447,7 +447,6 @@ const getRegionLevelName = (level) => {
   overflow-x: auto;
   overflow-y: visible;
   margin-top: 20px;
-  -webkit-overflow-scrolling: touch;  /* 移动端平滑滚动 */
 }
 
 .indices-table .table-header,
@@ -528,25 +527,6 @@ const getRegionLevelName = (level) => {
 .rank-normal {
   background: rgba(74, 144, 226, 0.15);
   color: var(--color-primary);
-}
-
-/* 表格横向滚动样式 */
-.indices-table::-webkit-scrollbar {
-  height: 8px;
-}
-
-.indices-table::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.05);
-  border-radius: 4px;
-}
-
-.indices-table::-webkit-scrollbar-thumb {
-  background: rgba(74, 144, 226, 0.5);
-  border-radius: 4px;
-}
-
-.indices-table::-webkit-scrollbar-thumb:hover {
-  background: rgba(74, 144, 226, 0.7);
 }
 
 @media (max-width: 768px) {

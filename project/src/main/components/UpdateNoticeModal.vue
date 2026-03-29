@@ -240,25 +240,6 @@ defineExpose({
   transform: translateY(0);
 }
 
-/* 滚动条样式 */
-.modal-content::-webkit-scrollbar {
-  width: 8px;
-}
-
-.modal-content::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.05);
-  border-radius: 4px;
-}
-
-.modal-content::-webkit-scrollbar-thumb {
-  background: rgba(0, 122, 255, 0.3);
-  border-radius: 4px;
-}
-
-.modal-content::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 122, 255, 0.5);
-}
-
 /* 动画 */
 .modal-fade-enter-active,
 .modal-fade-leave-active {

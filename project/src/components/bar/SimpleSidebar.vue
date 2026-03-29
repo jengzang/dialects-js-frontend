@@ -726,44 +726,6 @@ onBeforeUnmount(() => {
   text-align: right;
 }
 
-/* 自定义滚动条 */
-.history-list::-webkit-scrollbar {
-  width: 8px;
-}
-
-.history-list::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.05);
-  border-radius: 4px;
-}
-
-.history-list::-webkit-scrollbar-thumb {
-  background: rgba(0, 95, 211, 0.3);
-  border-radius: 4px;
-}
-
-.history-list::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 95, 211, 0.5);
-}
-
-/* 侧边栏按钮列表滚动条 */
-.sidebar-content ul::-webkit-scrollbar {
-  width: 6px;
-}
-
-.sidebar-content ul::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.05);
-  border-radius: 3px;
-}
-
-.sidebar-content ul::-webkit-scrollbar-thumb {
-  background: rgba(0, 95, 211, 0.3);
-  border-radius: 3px;
-}
-
-.sidebar-content ul::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 95, 211, 0.5);
-}
-
 /* 过渡动画 */
 .fade-scale-enter-active,
 .fade-scale-leave-active {

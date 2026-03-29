@@ -372,17 +372,4 @@ watch(searchQuery, () => {
   font-size: 13px;
 }
 
-/* Scrollbar styling */
-.options-list::-webkit-scrollbar {
-  width: 6px;
-}
-
-.options-list::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: 3px;
-}
-
-.options-list::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.05);
-}
 </style>

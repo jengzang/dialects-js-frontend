@@ -457,13 +457,7 @@ const goToAuthPage = () => {
   margin: 0 10px;
   overflow-x: auto;
   overflow-y: hidden;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
   height: v-bind(height);
-}
-
-.commonbar-tabs::-webkit-scrollbar {
-  display: none;
 }
 
 .tab-item {
@@ -618,15 +612,9 @@ const goToAuthPage = () => {
     margin: 0 6px;
     overflow-x: auto;
     overflow-y: hidden;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
   }
 
-  .commonbar-mobile .commonbar-tabs::-webkit-scrollbar {
-    display: none;
-  }
-
-  .commonbar-mobile .tab-item {
+.commonbar-mobile .tab-item {
     height: max(6dvh, 40px);
     border-radius: 30px;
     flex-shrink: 0;

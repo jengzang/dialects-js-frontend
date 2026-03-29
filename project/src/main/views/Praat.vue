@@ -1020,19 +1020,6 @@ onBeforeUnmount(() => {
   padding: 0;
 }
 
-.sidebar-content::-webkit-scrollbar {
-  width: 6px;
-}
-
-.sidebar-content::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: 3px;
-}
-
-.sidebar-content::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 0, 0, 0.3);
-}
-
 /* Sidebar Transition */
 .sidebar-enter-active,
 .sidebar-leave-active {

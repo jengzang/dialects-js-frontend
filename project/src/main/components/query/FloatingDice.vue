@@ -444,7 +444,6 @@ function handleRoll() {
   flex: 1;
   overflow-y: auto;
   padding: 20px 25px;
-  -webkit-overflow-scrolling: touch;
 }
 
 .divider {

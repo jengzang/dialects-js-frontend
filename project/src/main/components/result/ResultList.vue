@@ -515,15 +515,6 @@ onUnmounted(() => {
   display: block;
 }
 
-.stickybar-filter-dropdown::-webkit-scrollbar {
-  width: 6px;
-}
-
-.stickybar-filter-dropdown::-webkit-scrollbar-thumb {
-  background-color: rgba(0, 122, 255, 0.3);
-  border-radius: 3px;
-}
-
 .stickybar-filter-option {
   display: flex;
   align-items: center;
@@ -753,14 +744,9 @@ onUnmounted(() => {
 <!--    display: block;-->
 <!--}-->
 
-<!--.stickybar-filter-dropdown::-webkit-scrollbar {-->
-<!--    width: 6px;-->
-<!--}-->
+-->
 
-<!--.stickybar-filter-dropdown::-webkit-scrollbar-thumb {-->
-<!--    background-color: rgba(0, 122, 255, 0.3);-->
-<!--    border-radius: 3px;-->
-<!--}-->
+-->
 
 <!--.stickybar-filter-option {-->
 <!--    display: flex;-->

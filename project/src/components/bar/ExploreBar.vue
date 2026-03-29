@@ -463,14 +463,7 @@ const goToAuthPage = () => {
   margin: 0 10px;
   overflow-x: auto;  /* 宽度不够时允许滚动 */
   overflow-y: hidden;
-  scrollbar-width: none;  /* Firefox */
-  -ms-overflow-style: none;  /* IE/Edge */
   height: 7.5dvh;  /* 与 NavBar 的 .navbar-btn 一致，使 hover 时的 90% 能正确计算为 9dvh */
-}
-
-/* 隐藏滚动条 */
-.explorebar-tabs::-webkit-scrollbar {
-  display: none;  /* Chrome/Safari */
 }
 
 /* 完全复刻 NavBar 的 .menu-item 样式 */
@@ -608,15 +601,9 @@ const goToAuthPage = () => {
     margin: 0 6px;
     overflow-x: auto;  /* 宽度不够时允许滚动 */
     overflow-y: hidden;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
   }
 
-  .explorebar-mobile .explorebar-tabs::-webkit-scrollbar {
-    display: none;
-  }
-
-  .explorebar-mobile .tab-item {
+.explorebar-mobile .tab-item {
     height: max(6dvh, 40px);
     border-radius: 30px;
     flex-shrink: 0;  /* 防止 tab 被压缩 */

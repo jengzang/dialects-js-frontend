@@ -384,25 +384,6 @@ onBeforeUnmount(() => {
   overflow-y: auto;
   overflow-x: hidden;
   padding: 24px 32px 32px 32px;
-  -webkit-overflow-scrolling: touch;
-}
-
-.popup-content::-webkit-scrollbar {
-  width: 8px;
-}
-
-.popup-content::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.05);
-  border-radius: 4px;
-}
-
-.popup-content::-webkit-scrollbar-thumb {
-  background: rgba(255, 149, 0, 0.3);
-  border-radius: 4px;
-}
-
-.popup-content::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 149, 0, 0.5);
 }
 
 .benefits-section {
@@ -423,7 +404,6 @@ onBeforeUnmount(() => {
 
 .comparison-table-wrapper {
   overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
   border-radius: 12px;
   background: rgba(247, 247, 247, 0.5);
 }
@@ -713,21 +693,4 @@ onBeforeUnmount(() => {
   }
 }
 
-.benefits-popup::-webkit-scrollbar {
-  width: 8px;
-}
-
-.benefits-popup::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.05);
-  border-radius: 4px;
-}
-
-.benefits-popup::-webkit-scrollbar-thumb {
-  background: rgba(255, 149, 0, 0.3);
-  border-radius: 4px;
-}
-
-.benefits-popup::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 149, 0, 0.5);
-}
 </style>

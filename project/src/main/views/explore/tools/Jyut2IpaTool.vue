@@ -967,7 +967,6 @@ loadConfig()
 .preview-table-wrapper {
   max-height: 200px;
   overflow: auto;
-  -webkit-overflow-scrolling: touch;
   border-radius: 16px;
   background: rgba(255, 255, 255, 0.4);
 }
@@ -1094,7 +1093,6 @@ loadConfig()
 }
 
 .modal-body {
-  -webkit-overflow-scrolling: touch;
   justify-items: center;
 }
 
@@ -1314,25 +1312,6 @@ loadConfig()
 .modal-enter-from .main-tool-modal,
 .modal-leave-to .main-tool-modal {
   transform: scale(0.9);
-}
-
-.custom-scrollbar::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 4px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(0, 122, 255, 0.3);
-  border-radius: 4px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 122, 255, 0.5);
 }
 
 .info-section {

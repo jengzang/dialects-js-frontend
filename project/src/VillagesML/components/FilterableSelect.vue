@@ -672,23 +672,5 @@ onUnmounted(() => {
   margin-left: 8px;
 }
 
-/* Scrollbar styling */
-.dropdown-options::-webkit-scrollbar {
-  width: 6px;
-}
-
-.dropdown-options::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.05);
-}
-
-.dropdown-options::-webkit-scrollbar-thumb {
-  background: rgba(74, 144, 226, 0.3);
-  border-radius: 3px;
-}
-
-.dropdown-options::-webkit-scrollbar-thumb:hover {
-  background: rgba(74, 144, 226, 0.5);
-}
-
 /* Dropdown 触发器样式 */
 </style>

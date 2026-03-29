@@ -904,7 +904,6 @@ onMounted(() => {
   /* 关键：确保横向滚动 */
   overflow-x: auto;
   overflow-y: visible;
-  -webkit-overflow-scrolling: touch;
   width: 97%;
   position: relative; /* 为 loading overlay 提供定位上下文 */
 }
@@ -1361,7 +1360,6 @@ onMounted(() => {
     /* 确保可以横向滚动 */
     overflow-x: scroll;
     overflow-y: visible;
-    -webkit-overflow-scrolling: touch;
   }
 
   .data-table {
@@ -1546,22 +1544,4 @@ onMounted(() => {
   }
 }
 
-/* 自定义滚动条样式 */
-.table-container::-webkit-scrollbar {
-  height: 10px;
-}
-
-.table-container::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.05);
-  border-radius: 5px;
-}
-
-.table-container::-webkit-scrollbar-thumb {
-  background: rgba(0, 122, 255, 0.6);
-  border-radius: 5px;
-}
-
-.table-container::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 122, 255, 0.8);
-}
 </style>

@@ -993,7 +993,6 @@ const tableData = computed(() => {
   .table-container {
     width: 100%;
     overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
     padding: 0 12px;
     box-sizing: border-box;
     border-radius: 0;

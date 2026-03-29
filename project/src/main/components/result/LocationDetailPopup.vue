@@ -192,26 +192,6 @@ const getToneData = (data) => {
   background: rgba(255, 255, 255, 0.3);
 }
 
-/* 自定义滚动条 */
-.main-glass-modal .modal-body::-webkit-scrollbar {
-  width: 8px;
-}
-
-.main-glass-modal .modal-body::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.05);
-  border-radius: 10px;
-}
-
-.main-glass-modal .modal-body::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.15);
-  border-radius: 10px;
-  transition: background 0.2s;
-}
-
-.main-glass-modal .modal-body::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 0, 0, 0.25);
-}
-
 /* 加载状态 */
 .location-detail-loading-state-unused {
   display: flex;

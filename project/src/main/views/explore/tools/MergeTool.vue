@@ -1209,7 +1209,6 @@ const reset = () => {
 .merged-list {
   max-height: 150px;
   overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
   padding: 12px;
   background: rgba(255, 255, 255, 0.3);
   border-radius: 16px;
@@ -1252,25 +1251,6 @@ const reset = () => {
   font-size: 12px;
   color: #34c759;
   font-weight: 500;
-}
-
-.custom-scrollbar::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 4px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(0, 122, 255, 0.3);
-  border-radius: 4px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 122, 255, 0.5);
 }
 
 /* 模态弹窗样式 */
@@ -1327,7 +1307,6 @@ const reset = () => {
   height: 100%;
   max-height: 60vh;
   overflow: auto;
-  -webkit-overflow-scrolling: touch;
   padding: 16px 28px;
 }
 

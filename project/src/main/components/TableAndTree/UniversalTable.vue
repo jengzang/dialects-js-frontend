@@ -1653,7 +1653,6 @@ onUnmounted(() => {
   border-radius: var(--radius-md);
   background: var(--glass-light);
   min-height: 200px;
-  -webkit-overflow-scrolling: touch;
 }
 
 table {
@@ -1994,16 +1993,6 @@ td.cell-changed::after {
     z-index: 1000;
   }
 
-}
-
-/* Custom Scrollbar */
-.custom-scrollbar::-webkit-scrollbar {
-  width: 4px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background: var(--border-medium);
-  border-radius: 4px;
 }
 
 /* Action Buttons */

@@ -516,7 +516,6 @@ watch(detailMode, () => {
   border-radius: 12px;
   overflow-x: auto;
   overflow-y: visible;
-  -webkit-overflow-scrolling: touch;  /* 移动端平滑滚动 */
 }
 
 .pmi-header,
@@ -586,25 +585,6 @@ watch(detailMode, () => {
 
 .strength-fill.negative {
   background: linear-gradient(90deg, #e74c3c, #c0392b);
-}
-
-/* PMI 表格横向滚动样式 */
-.pmi-results::-webkit-scrollbar {
-  height: 8px;
-}
-
-.pmi-results::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.05);
-  border-radius: 4px;
-}
-
-.pmi-results::-webkit-scrollbar-thumb {
-  background: rgba(74, 144, 226, 0.5);
-  border-radius: 4px;
-}
-
-.pmi-results::-webkit-scrollbar-thumb:hover {
-  background: rgba(74, 144, 226, 0.7);
 }
 
 @media (max-width: 600px) {
