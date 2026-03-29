@@ -1,5 +1,5 @@
 <template>
-  <div class="map-feature-popup active">
+  <div class="map-popup active">
     <p>{{ item.location }}</p>
     <p>{{ item.feature }}</p>
 
@@ -10,7 +10,7 @@
         <span class="dot">{{ bulletSymbol }}</span>
         <span class="val">{{ detail.value }}</span>
         <span class="tilde">~</span>
-        <span class="map-feature-popup__percentage">{{ formatPercentage(detail.percentage) }}</span>
+        <span class="map-popup__percentage">{{ formatPercentage(detail.percentage) }}</span>
       </li>
     </ul>
 
@@ -18,7 +18,7 @@
 
     <button
       v-if="showDeleteButton"
-      class="map-feature-popup__action map-feature-popup__action--danger"
+      class="map-popup__action map-popup__action--danger"
       @click.stop="$emit('custom-click')"
     >
       {{ deleteButtonText }}
@@ -26,7 +26,7 @@
 
     <button
       v-else-if="showDetailButton"
-      class="map-feature-popup__action"
+      class="map-popup__action"
       @click.stop="$emit('detail-click')"
     >
       {{ detailButtonText }}
