@@ -1,54 +1,46 @@
 <template>
-  <Teleport to="body">
-    <div v-if="visible" class="glass-overlay" @mousedown.self="emit('close')">
-      <div class="main-cell-detail-modal" role="dialog" aria-modal="true">
-        <div class="modal-header">
-          <div class="modal-title">{{ titleText }}</div>
-          <button
-            class="close-btn close-btn-sm close-btn-inline"
-            type="button"
-            :aria-label="t('result.phonologyTable.exitFullscreen')"
-            @click="emit('close')"
+  <AppModal
+    :model-value="visible"
+    size="sm"
+    :title="titleText"
+    :close-label="t('common.button.close')"
+    :z-index="100100"
+    @update:modelValue="handleVisibilityChange"
+  >
+    <div class="cell-detail-content">
+      <div v-if="toneSections.length === 0" class="empty-state">
+        {{ t('result.noData') }}
+      </div>
+
+      <div v-else class="tone-section-list">
+        <section
+          v-for="section in toneSections"
+          :key="section.tone"
+          class="tone-section"
+        >
+          <div class="tone-title">{{ section.tone }}</div>
+
+          <div
+            v-for="item in section.items"
+            :key="`${section.tone}-${item.label}`"
+            class="detail-item"
           >
-            x
-          </button>
-        </div>
-
-        <div class="modal-body">
-          <div v-if="toneSections.length === 0" class="empty-state">
-            {{ t('result.noData') }}
+            <div class="item-head">
+              <span class="item-label">{{ item.label }}</span>
+              <span class="item-count">{{ item.count }}</span>
+            </div>
+            <div class="item-chars">{{ (item.chars || []).join(' ') }}</div>
           </div>
-
-          <div v-else class="tone-section-list">
-            <section
-              v-for="section in toneSections"
-              :key="section.tone"
-              class="tone-section"
-            >
-              <div class="tone-title">{{ section.tone }}</div>
-
-              <div
-                v-for="item in section.items"
-                :key="`${section.tone}-${item.label}`"
-                class="detail-item"
-              >
-                <div class="item-head">
-                  <span class="item-label">{{ item.label }}</span>
-                  <span class="item-count">{{ item.count }}</span>
-                </div>
-                <div class="item-chars">{{ (item.chars || []).join(' ') }}</div>
-              </div>
-            </section>
-          </div>
-        </div>
+        </section>
       </div>
     </div>
-  </Teleport>
+  </AppModal>
 </template>
 
 <script setup>
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
+import AppModal from '@/components/common/AppModal.vue'
 
 const { t } = useI18n()
 
@@ -84,45 +76,17 @@ const titleText = computed(() => {
 
   return location ? `${location} - ${initial}/${final}` : `${initial}/${final}`
 })
+
+function handleVisibilityChange(value) {
+  if (!value) {
+    emit('close')
+  }
+}
 </script>
 
 <style scoped>
-.glass-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 100100;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(0, 0, 0, 0.42);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-}
-
-.main-cell-detail-modal {
-  width: min(92vw, 860px);
-  max-height: 82vh;
-  display: flex;
-  flex-direction: column;
-  border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.35);
-  background: rgba(255, 255, 255, 0.82);
-  backdrop-filter: blur(24px) saturate(160%);
-  -webkit-backdrop-filter: blur(24px) saturate(160%);
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.16);
-  overflow: hidden;
-}
-
-.modal-header {
-}
-
-.modal-title {
-  line-height: 1.3;
-}
-
-.modal-body {
-  overflow: auto;
-  padding: 14px 16px 16px;
+.cell-detail-content {
+  min-height: 0;
 }
 
 .empty-state {
