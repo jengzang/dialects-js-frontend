@@ -747,15 +747,15 @@
     </AppModal>
 
     <!-- 文件格式说明对话框 -->
-    <teleport to="body">
-      <div v-if="showFormatHelpModal" class="modal-overlay help-modal-overlay" @click.self="showFormatHelpModal = false">
-        <div class="main-tool-modal">
-          <div class="modal-header">
-            <h3>📋 {{ t('tools.checkTool.formatHelp.title') }}</h3>
-            <button class="close-btn close-btn-lg close-btn-inline" @click="showFormatHelpModal = false">×</button>
-          </div>
-
-          <div class="modal-body help-content ui-scrollbar">
+    <AppModal
+      :model-value="showFormatHelpModal"
+      size="lg"
+      :title="t('tools.checkTool.formatHelp.title')"
+      :close-label="t('tools.common.close')"
+      :z-index="1000"
+      @update:modelValue="showFormatHelpModal = false"
+    >
+      <div class="help-content ui-scrollbar">
             <!-- 音典格式 -->
             <div class="help-section">
               <h4>{{ t('tools.checkTool.formatHelp.singleTitle') }}</h4>
@@ -817,14 +817,12 @@
                 </div>
               </div>
             </div>
-          </div>
-
-          <div class="modal-footer">
-            <button class="main-glass-button" data-variant="primary" @click="showFormatHelpModal = false">{{ t('tools.checkTool.formatHelp.gotIt') }}</button>
-          </div>
-        </div>
       </div>
-    </teleport>
+
+      <div class="check-tool-simple-modal-footer">
+        <button class="main-glass-button" data-variant="primary" @click="showFormatHelpModal = false">{{ t('tools.checkTool.formatHelp.gotIt') }}</button>
+      </div>
+    </AppModal>
 
     <!-- 调值字符显示对话框 -->
     <AppModal
@@ -2954,10 +2952,6 @@ justify-content: center;
   --main-tool-modal-width: min(90vw, 600px);
   --main-tool-modal-header-padding: 20px 24px;
   --main-tool-modal-body-padding: 20px 24px;
-}
-
-.help-modal-overlay .main-tool-modal {
-  --main-tool-modal-width: min(90vw, 800px);
 }
 
 .modal-header h3 {
