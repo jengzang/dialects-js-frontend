@@ -199,55 +199,55 @@
     </div>
 
     <!-- Table Details Modal -->
-    <div v-if="selectedTable" class="modal-overlay" @click="closeModal">
-      <div class="modal-content" @click.stop>
-        <div class="modal-header">
-          <h3>表詳情: {{ selectedTable.name }}</h3>
-          <button @click="closeModal" class="close-button">✕</button>
+    <AppModal
+      :model-value="Boolean(selectedTable)"
+      size="lg"
+      :title="selectedTableTitle"
+      close-label="關閉"
+      @update:modelValue="closeModal"
+    >
+      <div v-if="selectedTable">
+        <div class="detail-grid">
+          <div class="detail-item">
+            <span class="detail-label">記錄數:</span>
+            <span class="detail-value">{{ formatNumber(selectedTable.records) }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">大小:</span>
+            <span class="detail-value">{{ formatSize(selectedTable.size) }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">索引數:</span>
+            <span class="detail-value">{{ selectedTable.indexes }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">最後更新:</span>
+            <span class="detail-value">{{ formatDate(selectedTable.last_updated) }}</span>
+          </div>
         </div>
-        <div class="modal-body">
-          <div class="detail-grid">
-            <div class="detail-item">
-              <span class="detail-label">記錄數:</span>
-              <span class="detail-value">{{ formatNumber(selectedTable.records) }}</span>
-            </div>
-            <div class="detail-item">
-              <span class="detail-label">大小:</span>
-              <span class="detail-value">{{ formatSize(selectedTable.size) }}</span>
-            </div>
-            <div class="detail-item">
-              <span class="detail-label">索引數:</span>
-              <span class="detail-value">{{ selectedTable.indexes }}</span>
-            </div>
-            <div class="detail-item">
-              <span class="detail-label">最後更新:</span>
-              <span class="detail-value">{{ formatDate(selectedTable.last_updated) }}</span>
-            </div>
-          </div>
-          <div class="detail-section">
-            <h4>列信息 Column Information</h4>
-            <table class="glass-table">
-              <thead>
-                <tr>
-                  <th>列名</th>
-                  <th>類型</th>
-                  <th>可空</th>
-                  <th>默認值</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="col in selectedTable.columns" :key="col.name">
-                  <td>{{ col.name }}</td>
-                  <td>{{ col.type }}</td>
-                  <td>{{ col.not_null ? '否' : '是' }}</td>
-                  <td>{{ col.default || 'NULL' }}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+        <div class="detail-section">
+          <h4>列信息 Column Information</h4>
+          <table class="glass-table">
+            <thead>
+              <tr>
+                <th>列名</th>
+                <th>類型</th>
+                <th>可空</th>
+                <th>默認值</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="col in selectedTable.columns" :key="col.name">
+                <td>{{ col.name }}</td>
+                <td>{{ col.type }}</td>
+                <td>{{ col.not_null ? '否' : '是' }}</td>
+                <td>{{ col.default || 'NULL' }}</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
-    </div>
+    </AppModal>
 
     <!-- Loading Overlay -->
     <div v-if="loading" class="loading-overlay">
@@ -262,6 +262,7 @@ import { ref, computed, onMounted } from 'vue'
 import { getMetadataOverview, getMetadataTables, getNgramStatistics } from '@/api/index.js'
 import { showError, showSuccess } from '@/utils/message.js'
 import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
+import AppModal from '@/components/common/AppModal.vue'
 
 // State
 const overview = ref(null)
@@ -317,6 +318,8 @@ const totalPages = computed(() => {
   }
   return Math.ceil(count / pageSize)
 })
+
+const selectedTableTitle = computed(() => selectedTable.value ? `表詳情: ${selectedTable.value.name}` : '')
 
 // Methods
 const refreshOverview = async () => {
@@ -788,55 +791,6 @@ onMounted(() => {
   color: var(--text-secondary);
 }
 
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-}
-
-.modal-content {
-  background: white;
-  border-radius: 16px;
-  padding: 16px;
-  max-width: 800px;
-  width: 90%;
-  max-height: 80vh;
-  overflow-y: auto;
-}
-
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-  padding-bottom: 12px;
-  border-bottom: 2px solid rgba(74, 144, 226, 0.2);
-}
-
-.modal-header h3 {
-  margin: 0;
-  color: var(--text-primary);
-}
-
-.close-button {
-  background: none;
-  border: none;
-  font-size: 24px;
-  cursor: pointer;
-  color: var(--text-secondary);
-}
-
-.close-button:hover {
-  color: var(--text-primary);
-}
-
 .detail-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -901,11 +855,6 @@ onMounted(() => {
 
   .header-controls {
     flex-direction: column;
-  }
-
-  .modal-content {
-    width: 95%;
-    padding: 16px;
   }
 }
 </style>
