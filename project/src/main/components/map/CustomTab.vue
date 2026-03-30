@@ -127,21 +127,24 @@
         </div>
       </div>
     <!-- 帮助弹窗 -->
-    <Teleport to="body">
-      <Transition name="fade-scale">
-        <div v-if="isHelpModalOpen" class="modal-overlay" @click.self="closeHelpModal">
-          <div class="glass-card help-modal">
-            <button
-              class="close-btn close-btn-lg close-btn-sticky"
-              @click="closeHelpModal"
-              :title="t('common.button.close')"
-              :aria-label="t('common.button.close')"
-            >
-              &times;
-            </button>
-            <h3 class="modal-title">{{ t('map.customTab.helpModal.title') }}</h3>
+    <AppModal
+      :model-value="isHelpModalOpen"
+      size="lg"
+      :show-close="false"
+      @update:modelValue="closeHelpModal"
+    >
+      <div class="custom-tab-help-shell">
+        <button
+          class="close-btn close-btn-lg close-btn-sticky"
+          @click="closeHelpModal"
+          :title="t('common.button.close')"
+          :aria-label="t('common.button.close')"
+        >
+          &times;
+        </button>
+        <h3 class="custom-tab-help-title">{{ t('map.customTab.helpModal.title') }}</h3>
 
-            <div class="help-content">
+        <div class="help-content">
               <div class="help-section">
                 <h4 class="section-title">🌟 {{ t('map.customTab.helpModal.sections.overview.title') }}</h4>
                 <ul class="help-list">
@@ -359,11 +362,9 @@
                   </li>
                 </ul>
               </div>
-            </div>
-          </div>
         </div>
-      </Transition>
-    </Teleport>
+      </div>
+    </AppModal>
   </div>
 </template>
 
@@ -377,6 +378,7 @@ import { getCustomFeature } from '@/api/user/custom.js'
 import { getAllCustomData } from '@/api/user'
 import { userStore, resultCache, mapStore, uiStore, isCustomButtonDisabled, setRunning } from '@/main/store/store.js'
 import { showSuccess, showError, showWarning, showInfo } from '@/utils/message.js'
+import AppModal from '@/components/common/AppModal.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -999,25 +1001,21 @@ const handleAddBatch = () => {
 }
 
 /* 帮助弹窗样式 */
-.help-modal {
+.custom-tab-help-shell {
   position: relative;
-  width: 90%;
-  max-width: 800px;
-  max-height: 80vh;
-  overflow-y: auto;
+  margin:
+    calc(-1 * var(--modal-content-padding-top))
+    calc(-1 * var(--modal-content-padding-inline))
+    calc(-1 * var(--modal-content-padding-bottom));
   padding: 30px;
 }
 
-.modal-title {
+.custom-tab-help-title {
   margin: 0 0 20px 0;
   font-size: 20px;
   font-weight: 600;
   color: #333;
   text-align: center;
-}
-
-.modal-overlay {
-  --overlay-padding: 0;
 }
 
 .help-content {
@@ -1064,18 +1062,6 @@ const handleAddBatch = () => {
   color: #555;
 }
 
-/* 过渡动画 */
-.fade-scale-enter-active,
-.fade-scale-leave-active {
-  transition: opacity 0.3s ease, transform 0.3s ease;
-}
-
-.fade-scale-enter-from,
-.fade-scale-leave-to {
-  opacity: 0;
-  transform: scale(0.9);
-}
-
 /* 移动端适配 */
 @media (max-aspect-ratio: 1/1) {
   .button-group {
@@ -1091,7 +1077,7 @@ const handleAddBatch = () => {
     max-width: 90%;
   }
 
-  .help-modal {
+  .custom-tab-help-shell {
     padding: 20px;
   }
 }
