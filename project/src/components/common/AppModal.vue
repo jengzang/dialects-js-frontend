@@ -226,4 +226,49 @@ function handleBackdropClose() {
   --modal-content-padding-inline: 24px;
   --modal-content-padding-bottom: 20px;
 }
+
+.modal-fade-enter-active,
+.modal-fade-leave-active,
+.fade-scale-enter-active,
+.fade-scale-leave-active,
+.fade-modal-enter-active,
+.fade-modal-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.modal-fade-enter-active .panel,
+.modal-fade-leave-active .panel,
+.fade-scale-enter-active .panel,
+.fade-scale-leave-active .panel,
+.fade-modal-enter-active .panel,
+.fade-modal-leave-active .panel {
+  transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), opacity 0.3s ease;
+}
+
+.modal-fade-enter-from,
+.modal-fade-leave-to,
+.fade-scale-enter-from,
+.fade-scale-leave-to,
+.fade-modal-enter-from,
+.fade-modal-leave-to {
+  opacity: 0;
+}
+
+.modal-fade-enter-from .panel,
+.modal-fade-leave-to .panel {
+  opacity: 0;
+  transform: scale(0.97);
+}
+
+.fade-scale-enter-from .panel,
+.fade-scale-leave-to .panel {
+  opacity: 0;
+  transform: scale(0.95);
+}
+
+.fade-modal-enter-from .panel,
+.fade-modal-leave-to .panel {
+  opacity: 0;
+  transform: translateY(12px) scale(0.98);
+}
 </style>

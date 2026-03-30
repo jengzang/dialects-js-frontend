@@ -324,17 +324,6 @@ defineExpose({
 }
 
 /* 动画效果 */
-.fade-scale-enter-active,
-.fade-scale-leave-active {
-  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-}
-
-.fade-scale-enter-from,
-.fade-scale-leave-to {
-  opacity: 0;
-  transform: scale(0.95);
-}
-
 .slide-down-enter-active,
 .slide-down-leave-active {
   transition: all 0.3s ease;
