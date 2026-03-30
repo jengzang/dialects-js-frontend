@@ -24,7 +24,7 @@
     <div class="content-area u-scrollbar">
       <!-- Initial Loading State -->
       <div v-if="isInitialLoading" class="initial-state">
-        <div class="loading-spinner"></div>
+        <div class="ui-loading--page" aria-hidden="true"></div>
         <p>{{ t('villages.pages.gdTree.loadingCities') }}</p>
       </div>
 
@@ -462,24 +462,8 @@ onMounted(() => {
 }
 
 /* Loading Spinner */
-.loading-spinner {
-  width: 48px;
-  height: 48px;
-  border: 4px solid rgba(0, 122, 255, 0.1);
-  border-top-color: #007AFF;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
 
-.loading-spinner.small {
-  width: 24px;
-  height: 24px;
-  border-width: 3px;
-}
 
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
 
 /* Cities Grid */
 .cities-grid {

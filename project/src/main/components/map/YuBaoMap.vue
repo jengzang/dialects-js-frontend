@@ -3,7 +3,7 @@
     <div ref="mapContainer" class="map-container">
       <div v-if="isLoadingMarkers" class="map-loading-overlay">
         <div class="loading-content">
-          <div class="loading-spinner"></div>
+          <div class="ui-loading--page" aria-hidden="true"></div>
           <span class="loading-text">{{ t('map.yuBaoMap.loading.mapData') }}</span>
         </div>
       </div>
@@ -887,20 +887,7 @@ watch(() => props.activeTab, () => {
   gap: 16px;
 }
 
-.loading-spinner {
-  width: 48px;
-  height: 48px;
-  border: 4px solid rgba(0, 113, 227, 0.2);
-  border-top-color: #0071e3;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
 
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
 
 .loading-text {
   font-size: 15px;

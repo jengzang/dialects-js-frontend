@@ -21,7 +21,7 @@
 
         <!-- 加載狀態 -->
         <div v-if="loading" class="loading-overlay">
-          <div class="spinner"></div>
+          <div class="ui-loading--page" aria-hidden="true"></div>
           <span>地圖加載中...</span>
         </div>
       </div>
@@ -29,8 +29,8 @@
       <!-- 全屏退出按鈕 -->
       <button v-if="isFullScreen" class="exit-fullscreen-btn" @click="toggleFullScreen">
         ✕ 退出全屏
-      </button>
 
+      <!-- 鏉戣帄瑭虫儏褰堢獥 -->
       <!-- 村莊詳情彈窗 -->
       <Teleport to="body">
         <div v-if="showPopup && selectedVillage" class="village-popup-overlay" @click="closePopup">
@@ -87,7 +87,6 @@ const loading = ref(false)
 const isFullScreen = ref(false)
 
 // 彈窗狀態
-const showPopup = ref(false)
 const selectedVillage = ref(null)
 
 // Options for SimpleSelectDropdown
@@ -99,7 +98,6 @@ const mapStyleOptions = computed(() =>
 )
 
 // 初始化地圖
-onMounted(() => {
   initMap()
 })
 
@@ -137,7 +135,6 @@ const initMap = () => {
   })
 
   // 點擊村莊點事件
-  map.value.on('click', 'villages-layer', (e) => {
     if (e.features && e.features.length > 0) {
       const feature = e.features[0]
       selectedVillage.value = feature.properties
@@ -167,7 +164,6 @@ const renderHotspot = () => {
   })
 
   // 2. 移除舊圖層
-  if (map.value.getLayer('hotspot-circle')) {
     map.value.removeLayer('hotspot-circle')
   }
   if (map.value.getLayer('villages-layer')) {
@@ -214,7 +210,6 @@ const renderHotspot = () => {
   })
 
   // 4. 添加村莊點
-  if (hotspot.villages && hotspot.villages.length > 0) {
     const villagesGeoJSON = {
       type: 'FeatureCollection',
       features: hotspot.villages.map(village => ({
@@ -254,7 +249,6 @@ const renderHotspot = () => {
 }
 
 // 根據半徑計算合適的縮放級別
-const calculateZoomFromRadius = (radiusKm) => {
   if (radiusKm > 50) return 8
   if (radiusKm > 30) return 9
   if (radiusKm > 20) return 10
@@ -263,7 +257,6 @@ const calculateZoomFromRadius = (radiusKm) => {
 }
 
 // 將米轉換為像素（用於圓圈半徑）
-const metersToPixelsAtMaxZoom = (meters, latitude) => {
   return meters / 0.075 / Math.cos(latitude * Math.PI / 180)
 }
 
@@ -284,7 +277,6 @@ const handleStyleChange = () => {
   map.value.setStyle(newStyle)
 
   // 樣式加載完成後重新渲染
-  map.value.once('style.load', () => {
     if (props.hotspot) {
       renderHotspot()
     }
@@ -454,19 +446,9 @@ const resetView = () => {
   color: #555;
 }
 
-.spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid rgba(74, 144, 226, 0.2);
-  border-top-color: #4a90e2;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
 
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
 
+/* 鏉戣帄瑭虫儏褰堢獥 */
 /* 村莊詳情彈窗 */
 .village-popup-overlay {
   position: fixed;

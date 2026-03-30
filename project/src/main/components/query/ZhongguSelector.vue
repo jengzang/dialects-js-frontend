@@ -314,7 +314,7 @@ defineExpose({ combinations })
   font-size: 14px;
   width: 100%;
 }
-.spinner { display: inline-block; margin-right: 8px; animation: rotate 1s linear infinite; }
+
 
 /* ✅ Grid 布局 (预览列表) */
 .compact-grid {
@@ -439,7 +439,6 @@ defineExpose({ combinations })
 .modal-fade-enter-active .modal-content { transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); }
 .modal-fade-enter-from .modal-content { transform: scale(0.95); }
 
-@keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 .limit-warning {
   padding: 12px;
   background: var(--color-error-bg); /* 浅红色背景 */

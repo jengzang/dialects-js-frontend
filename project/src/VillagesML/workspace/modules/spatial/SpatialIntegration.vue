@@ -36,7 +36,7 @@
       <div v-if="queryMode === 'overview'" class="overview-section">
 
         <div v-if="loadingIntegration" class="loading-state vml-glass-panel">
-          <div class="spinner"></div>
+          <div class="ui-loading--page" aria-hidden="true"></div>
           <p>加載中...</p>
         </div>
 
@@ -145,7 +145,7 @@
         </div>
 
         <div v-if="loadingByChar" class="loading-state vml-glass-panel">
-          <div class="spinner"></div>
+          <div class="ui-loading--page" aria-hidden="true"></div>
           <p>加載中...</p>
         </div>
 
@@ -215,7 +215,7 @@
         </div>
 
         <div v-if="loadingByCluster" class="loading-state vml-glass-panel">
-          <div class="spinner"></div>
+          <div class="ui-loading--page" aria-hidden="true"></div>
           <p>加載中...</p>
         </div>
 

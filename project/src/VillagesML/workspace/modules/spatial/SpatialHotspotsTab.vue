@@ -7,7 +7,7 @@
     </h2>
 
     <div v-if="loadingHotspots" class="loading-state">
-      <div class="spinner"></div>
+      <div class="ui-loading--page" aria-hidden="true"></div>
       <p>加載中...</p>
     </div>
 
@@ -45,7 +45,7 @@
         <h3>熱點詳情 #{{ selectedHotspot.hotspot_id }}</h3>
 
         <div v-if="loadingHotspotDetail" class="loading-state">
-          <div class="spinner"></div>
+          <div class="ui-loading--page" aria-hidden="true"></div>
         </div>
 
         <div v-else-if="hotspotDetail" class="detail-content">
@@ -190,19 +190,7 @@ h2 {
   padding: 40px 20px;
 }
 
-.spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid rgba(74, 144, 226, 0.2);
-  border-top-color: var(--color-primary);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin: 0 auto 15px;
-}
 
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
 
 .hotspots-content {
   display: grid;

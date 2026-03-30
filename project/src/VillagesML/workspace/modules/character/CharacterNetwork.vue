@@ -54,7 +54,7 @@
 
     <!-- Progress -->
     <div v-if="loading" class="progress-panel glass-panel">
-      <div class="spinner"></div>
+      <div class="ui-loading--page" aria-hidden="true"></div>
       <p class="progress-text">{{ progressText }}</p>
       <div class="progress-bar-track">
         <div class="progress-bar-fill" :style="{ width: progressPct + '%' }"></div>
@@ -270,12 +270,6 @@ onBeforeUnmount(() => {
 .glass-input.small { min-width: 56px; width: 80px; flex: 1; }
 
 .progress-panel { display: flex; flex-direction: column; align-items: center; gap: 8px; }
-.spinner {
-  width: 28px; height: 28px; border: 3px solid rgba(0, 122, 255, 0.2);
-  border-top-color: #007aff; border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
 .progress-text { font-size: 13px; color: var(--text-secondary, #666); margin: 0; }
 .progress-bar-track {
   width: 100%; height: 6px; background: rgba(0, 0, 0, 0.08);

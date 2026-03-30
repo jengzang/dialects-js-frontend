@@ -141,7 +141,7 @@
     <!-- 加载状态 -->
     <div v-if="isLoading" class="content-area">
       <div class="loading-state loading-state-base">
-        <div class="spinner spinner-base spinner-md"></div>
+        <div class="ui-loading--page" aria-hidden="true"></div>
         <span>{{ t('words.yuBaoPage.states.loadingData') }}</span>
       </div>
     </div>
@@ -179,7 +179,7 @@
       <div class="card-mode">
 
         <div v-if="isLoadingCards" class="cards-loading">
-          <div class="spinner spinner-base spinner-md"></div>
+          <div class="ui-loading--page" aria-hidden="true"></div>
           <span>{{ t('words.yuBaoPage.states.loadingCards') }}</span>
         </div>
 
@@ -276,7 +276,7 @@
     <!-- 地图模式 -->
     <div v-else-if="viewMode === 'map'" class="map-mode">
       <div v-if="isLoadingCards" class="cards-loading">
-        <div class="spinner spinner-base spinner-md"></div>
+        <div class="ui-loading--page" aria-hidden="true"></div>
         <span>{{ t('words.yuBaoPage.states.loadingData') }}</span>
       </div>
       <template v-else>
@@ -1277,15 +1277,6 @@ watch(viewMode, async (newMode) => {
   gap: 16px;
 }
 
-.spinner {
-  border: 3px solid rgba(0, 113, 227, 0.2);
-  border-top-color: #0071e3;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
 /* 内容区 */
 .content-area {
   background: var(--glass-medium);
@@ -1702,14 +1693,6 @@ watch(viewMode, async (newMode) => {
   font-size: 14px;
 }
 
-.mini-spinner {
-  width: 16px;
-  height: 16px;
-  border: 2px solid rgba(0, 113, 227, 0.2);
-  border-top-color: #0071e3;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
 
 .no-more {
   color: #999;

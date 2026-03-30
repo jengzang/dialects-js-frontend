@@ -26,30 +26,10 @@
   }
 }
 
-@mixin vm-spinner-styles($size: 40px, $border-width: 4px, $duration: 0.8s, $margin: 0 auto 15px) {
-  width: $size;
-  height: $size;
-  border: $border-width solid rgba(74, 144, 226, 0.2);
-  border-top-color: var(--color-primary);
-  border-radius: 50%;
-  animation: vm-panel-spin $duration linear infinite;
-  margin: $margin;
-}
-
 .villagesml-module .loading-state {
   @include vm-loading-state-styles;
 }
 
 .villagesml-module .empty-state {
   @include vm-empty-state-styles;
-}
-
-.villagesml-module .spinner {
-  @include vm-spinner-styles;
-}
-
-@keyframes vm-panel-spin {
-  to {
-    transform: rotate(360deg);
-  }
 }

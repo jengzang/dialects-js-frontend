@@ -105,7 +105,7 @@
       </div>
 
       <div v-if="loadingIndices" class="loading-state">
-        <div class="spinner"></div>
+        <div class="ui-loading--page" aria-hidden="true"></div>
       </div>
 
       <div v-else-if="indices && indices.length > 0" class="indices-table">

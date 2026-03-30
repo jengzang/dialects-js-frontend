@@ -52,7 +52,7 @@
       >
         <!-- Loading State -->
         <div v-if="loading" class="dropdown-loading">
-          <div class="spinner"></div>
+          <div class="ui-loading--page" aria-hidden="true"></div>
           <span>{{ $t('common.components.filterableSelect.loading') }}</span>
         </div>
 
@@ -595,18 +595,7 @@ onUnmounted(() => {
   gap: 10px;
 }
 
-.spinner {
-  width: 24px;
-  height: 24px;
-  border: 3px solid rgba(74, 144, 226, 0.2);
-  border-top-color: var(--color-primary);
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
 
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
 
 .dropdown-options {
   max-height: 300px;

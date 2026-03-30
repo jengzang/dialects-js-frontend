@@ -107,7 +107,7 @@
 
     <!-- 加载状态 -->
     <div v-if="isLoading" class="loading-state">
-      <div class="loading-spinner"></div>
+      <div class="ui-loading--page" aria-hidden="true"></div>
       <p>{{ t('phonology.phonology.evolution.states.loading') }}</p>
     </div>
 
@@ -751,21 +751,6 @@ onUnmounted(() => {
   p {
     font-size: 14px;
     color: #666;
-  }
-}
-
-.loading-spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid rgba(0, 122, 255, 0.2);
-  border-top-color: var(--color-primary, #007aff);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
   }
 }
 

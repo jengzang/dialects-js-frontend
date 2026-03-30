@@ -449,20 +449,9 @@ const handleFeatureStatsClick = async () => {
   cursor: not-allowed;
 }
 
-.btn-spinner {
-  width: 12px;
-  height: 12px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-top: 2px solid white;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
 
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
 
+/* ?????? */
 /* 簡要統計顯示 */
 .brief-stats {
   font-size: 13px;

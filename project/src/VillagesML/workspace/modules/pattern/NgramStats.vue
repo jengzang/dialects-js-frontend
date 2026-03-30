@@ -57,7 +57,7 @@
     </div>
 
     <div v-if="loading" class="loading-state glass-panel">
-      <div class="spinner"></div>
+      <div class="ui-loading--page" aria-hidden="true"></div>
     </div>
 
     <template v-else-if="ngramData.length > 0">
@@ -290,7 +290,7 @@
       </div>
 
       <div v-if="loadingSignificance" class="loading-state">
-        <div class="spinner"></div>
+        <div class="ui-loading--page" aria-hidden="true"></div>
       </div>
 
       <div v-else-if="significanceData.length > 0" class="significance-results">
@@ -361,7 +361,6 @@ const ngramData = ref([])
 const loading = ref(false)
 
 // N-gram 列表状态
-const availableNgrams = ref([])
 const loadingNgramList = ref(false)
 
 // Section-specific State
@@ -733,19 +732,7 @@ watch(
   padding: 40px 20px;
 }
 
-.spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid rgba(74, 144, 226, 0.2);
-  border-top-color: var(--color-primary);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin: 0 auto 15px;
-}
 
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
 
 .position-tabs {
   display: flex;

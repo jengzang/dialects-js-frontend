@@ -293,7 +293,7 @@ const tableData = computed(() => {
 <template>
   <div class="leaderboard-container">
     <div v-if="loading" class="loading-container">
-      <div class="login-spinner"></div>
+      <div class="ui-loading--page" aria-hidden="true"></div>
       <p>{{ t('user.leaderboard.loading') }}</p>
     </div>
 
@@ -544,21 +544,7 @@ const tableData = computed(() => {
   padding: 40px 20px;
 }
 
-.login-spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid rgba(0, 122, 255, 0.2);
-  border-top-color: #007aff;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin: 0 auto 20px;
-}
 
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
 
 .error-container .err {
   color: #ff3b30;

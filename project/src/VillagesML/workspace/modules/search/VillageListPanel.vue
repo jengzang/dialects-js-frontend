@@ -2,7 +2,7 @@
   <div class="vml-glass-panel">
     <!-- Loading State -->
     <div v-if="loading" class="loading-state">
-      <div class="spinner"></div>
+      <div class="ui-loading--page" aria-hidden="true"></div>
       <p>載入中...</p>
     </div>
 

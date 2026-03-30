@@ -105,20 +105,7 @@ defineEmits(['click'])
   box-shadow: 0 6px 16px rgba(90, 200, 250, 0.4);
 }
 
-.loading-spinner {
-  width: 18px;
-  height: 18px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-top-color: white;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
 
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
 
 /* Mobile responsive */
 @media (max-aspect-ratio: 1/1) {

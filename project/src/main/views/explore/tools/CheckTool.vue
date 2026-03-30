@@ -74,7 +74,7 @@
             <p class="hint-text">{{ t('tools.checkTool.welcome.uploadHint') }}</p>
           </template>
           <template v-else>
-            <div class="loading-spinner"></div>
+            <div class="ui-loading--page" aria-hidden="true"></div>
             <h3 class="upload-text">{{ t('tools.checkTool.welcome.uploadingTitle') }}</h3>
             <p class="hint-text">{{ t('tools.checkTool.welcome.uploadingHint') }}</p>
           </template>
@@ -339,7 +339,7 @@
           <!-- 表格 -->
           <div class="main-glass-panel" data-surface="table-container" :data-loading="isLoadingTable || isEditModeLoading ? 'true' : 'false'">
             <div v-if="isLoadingTable || isEditModeLoading " class="table-loading-overlay">
-              <div class="table-loading-spinner"></div>
+              <div class="ui-loading--page" aria-hidden="true"></div>
               <div class="table-loading-text">{{ t('tools.checkTool.table.loading') }}</div>
             </div>
 
@@ -2600,14 +2600,6 @@ justify-content: center;
   z-index: 100;
 }
 
-.table-loading-spinner {
-  width: 48px;
-  height: 48px;
-  border: 4px solid rgba(0, 122, 255, 0.1);
-  border-top-color: #007aff;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
 
 .table-loading-text {
   font-size: 14px;
@@ -2932,20 +2924,7 @@ justify-content: center;
   pointer-events: none;
 }
 
-.loading-spinner {
-  width: 60px;
-  height: 60px;
-  border: 4px solid rgba(0, 122, 255, 0.1);
-  border-top-color: #007aff;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
 
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
 
 .upload-icon-large {
   font-size: 48px;

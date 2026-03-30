@@ -19,7 +19,7 @@
         </div>
 
         <div v-if="loading" class="loading-state">
-          <div class="spinner"></div>
+          <div class="ui-loading--page" aria-hidden="true"></div>
         </div>
 
         <template v-else-if="aggregates.length > 0">
@@ -163,7 +163,7 @@
         </div>
 
         <div v-if="loadingSpatial" class="loading-state">
-          <div class="spinner"></div>
+          <div class="ui-loading--page" aria-hidden="true"></div>
         </div>
 
         <template v-else-if="spatialAggregates.length > 0">
@@ -464,19 +464,7 @@ onBeforeUnmount(() => {
   padding: 60px 20px;
 }
 
-.spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid rgba(74, 144, 226, 0.2);
-  border-top-color: var(--color-primary);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin: 0 auto 15px;
-}
 
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
 
 .aggregates-section {
   padding: 16px;

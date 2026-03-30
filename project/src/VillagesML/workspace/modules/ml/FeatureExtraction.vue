@@ -369,7 +369,7 @@
 
     <!-- Loading Overlay -->
     <div v-if="loading" class="loading-overlay">
-      <div class="spinner"></div>
+      <div class="ui-loading--page" aria-hidden="true"></div>
       <p>{{ loadingMessage }}</p>
     </div>
   </div>
@@ -1500,18 +1500,7 @@ onMounted(() => {
   z-index: 9999;
 }
 
-.spinner {
-  width: 50px;
-  height: 50px;
-  border: 4px solid rgba(255, 255, 255, 0.3);
-  border-top-color: white;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
 
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
 
 .loading-overlay p {
   color: white;

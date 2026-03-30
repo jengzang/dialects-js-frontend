@@ -114,29 +114,11 @@
   font-size: 14px;
 }
 
-.main-modal-spinner {
-  width: 20px;
-  height: 20px;
-  border: 3px solid rgba(0, 122, 255, 0.2);
-  border-top: 3px solid #007aff;
-  border-radius: 50%;
-  animation: main-modal-spin 1s linear infinite;
-}
-
 .main-modal-error-state {
   padding: 40px 20px;
   text-align: center;
   color: #999;
   font-size: 14px;
-}
-
-@keyframes main-modal-spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
 }
 
 .main-crud-modal {

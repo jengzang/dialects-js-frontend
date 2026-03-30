@@ -9,7 +9,7 @@
 
         <div class="modal-body main-glass-modal-body">
           <div v-if="loading" class="loading-state main-modal-loading-state">
-            <div class="spinner main-modal-spinner"></div>
+            <div class="ui-loading--page" aria-hidden="true"></div>
             <span>{{ t('result.locationDetailPopup.loading') }}</span>
           </div>
 
@@ -203,14 +203,6 @@ const getToneData = (data) => {
   font-size: 14px;
 }
 
-.location-detail-spinner-unused {
-  width: 20px;
-  height: 20px;
-  border: 3px solid rgba(0, 122, 255, 0.2);
-  border-top: 3px solid #007aff;
-  border-radius: 50%;
-  animation: location-detail-spin-unused 1s linear infinite;
-}
 
 @keyframes location-detail-spin-unused {
   0% { transform: rotate(0deg); }

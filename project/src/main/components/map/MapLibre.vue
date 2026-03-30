@@ -55,7 +55,7 @@
     </button>
 
     <div v-if="loading" class="loading-overlay">
-      <div class="spinner"></div>
+      <div class="ui-loading--page" aria-hidden="true"></div>
       <span>{{ t('map.mapLibre.loading.rendering') }}</span>
     </div>
 
@@ -75,7 +75,7 @@
           </div>
           <div class="location-popup-body">
             <div v-if="locationPopup.loading" class="popup-loading">
-              <div class="spinner"></div>
+              <div class="ui-loading--page" aria-hidden="true"></div>
               <span>{{ t('map.mapLibre.locationPopup.loading') }}</span>
             </div>
             <div v-else-if="locationPopup.data && locationPopup.data.data && locationPopup.data.data.length > 0" class="data-display">
@@ -1284,20 +1284,7 @@ const resetView = () => {
   color: #333;
 }
 
-.spinner {
-  width: 32px;
-  height: 32px;
-  border: 3px solid #f3f3f3;
-  border-top: 3px solid #007bff;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin-bottom: 10px;
-}
 
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
 
 .location-popup-body {
   padding: 20px;
@@ -1389,4 +1376,3 @@ const resetView = () => {
   font-size: 16px;
 }
 </style>
-

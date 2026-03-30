@@ -51,7 +51,7 @@
 
     <div class="table-scroll-area">
       <div v-if="isLoading" class="loading-overlay">
-        <div class="spinner"></div>
+        <div class="ui-loading--page" aria-hidden="true"></div>
         <span>{{ t('tableTree.universalTable.states.loadingData') }}</span>
       </div>
 
@@ -144,7 +144,7 @@
           <div class="fullscreen-container">
             <div class="table-scroll-area fullscreen-table">
               <div v-if="isLoading" class="loading-overlay">
-                <div class="spinner"></div>
+                <div class="ui-loading--page" aria-hidden="true"></div>
                 <span>{{ t('tableTree.universalTable.states.loadingData') }}</span>
               </div>
 
@@ -2147,20 +2147,7 @@ td.cell-changed::after {
   font-weight: bold;
 }
 
-.spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid var(--border-medium);
-  border-left-color: var(--color-accent-purple);
-  border-radius: var(--radius-full);
-  animation: spin 1s linear infinite;
-}
 
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
 
 .empty-state {
   padding: 40px;
@@ -2376,7 +2363,6 @@ td.cell-changed::after {
 
 /* ==========================================
    批量替换对话框样式
-   ========================================== */
 
 .modal-fade-enter-active,
 .modal-fade-leave-active {

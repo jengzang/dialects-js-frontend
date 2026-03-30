@@ -515,7 +515,7 @@
 
     <!-- Loading Overlay -->
     <div v-if="loading" class="loading-overlay">
-      <div class="spinner"></div>
+      <div class="ui-loading--page" aria-hidden="true"></div>
       <p>{{ loadingMessage }}</p>
     </div>
   </div>
@@ -1757,18 +1757,7 @@ const handleApiError = (error) => {
   z-index: 9999;
 }
 
-.spinner {
-  width: 60px;
-  height: 60px;
-  border: 4px solid rgba(255, 255, 255, 0.2);
-  border-top-color: #4a90e2;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
 
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
 
 .loading-overlay p {
   color: white;

@@ -149,7 +149,7 @@
 
         <div class="tree-body u-scrollbar">
           <div v-if="loading" class="state-block">
-            <div class="loading-spinner"></div>
+            <div class="ui-loading--page" aria-hidden="true"></div>
             <p>{{ t('charClass.states.loading', { name: t(currentTableConfig.labelKey) }) }}</p>
             <p class="state-hint">{{ t('charClass.states.loadingHint') }}</p>
           </div>
@@ -856,24 +856,7 @@ watch(
   margin-top: 4px;
 }
 
-.loading-spinner {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  border: 3px solid rgba(10, 132, 255, 0.16);
-  border-top-color: #0a84ff;
-  animation: spin 0.9s linear infinite;
-}
 
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-
-  to {
-    transform: rotate(360deg);
-  }
-}
 
 
 @media (orientation: portrait) {

@@ -1,7 +1,7 @@
 <template>
   <div style="width:100%;">
     <div v-if="authLoading" class="loading-container">
-      <div class="spinner"></div>
+      <div class="ui-loading--page" aria-hidden="true"></div>
       <p>{{ t('tools.tableManage.loading') }}</p>
     </div>
 
@@ -636,20 +636,6 @@ onMounted(async () => {
   border: 1px solid rgba(255, 255, 255, 0.3);
   box-shadow: 0 8px 32px rgba(0, 122, 255, 0.1),
               inset 0 1px 0 rgba(255, 255, 255, 0.5);
-}
-
-.loading-container .spinner {
-  width: 50px;
-  height: 50px;
-  border: 4px solid rgba(0, 122, 255, 0.2);
-  border-top-color: #007aff;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-  margin: 0 auto 20px;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
 }
 
 .loading-container p {

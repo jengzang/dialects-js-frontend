@@ -1205,19 +1205,7 @@ onBeforeUnmount(() => {
 }
 
 
-.loading-spinner {
-  width: 60px;
-  height: 60px;
-  border: 4px solid rgba(0, 122, 255, 0.2);
-  border-top-color: #007aff;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin-bottom: 2rem;
-}
 
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
 
 .loading-title {
   font-size: 1.5rem;

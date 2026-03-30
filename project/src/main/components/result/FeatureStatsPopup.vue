@@ -11,7 +11,7 @@
 
         <div class="modal-body main-glass-modal-body">
           <div v-if="loading" class="loading-state main-modal-loading-state">
-            <div class="spinner main-modal-spinner"></div>
+            <div class="ui-loading--page" aria-hidden="true"></div>
             <span>{{ t('result.featureStatsPopup.loading') }}</span>
           </div>
 
@@ -149,14 +149,6 @@ const getCharsString = (charIndices) => {
   font-size: 14px;
 }
 
-.feature-stats-spinner-unused {
-  width: 20px;
-  height: 20px;
-  border: 3px solid rgba(0, 122, 255, 0.2);
-  border-top: 3px solid #007aff;
-  border-radius: 50%;
-  animation: feature-stats-spin-unused 1s linear infinite;
-}
 
 @keyframes feature-stats-spin-unused {
   0% { transform: rotate(0deg); }

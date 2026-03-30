@@ -180,23 +180,7 @@ watch(() => props.loginMode, () => {
   cursor: not-allowed;
 }
 
-.login-spinner {
-  width: 18px;
-  height: 18px;
-  border: 2.5px solid rgba(255, 255, 255, 0.3);
-  border-top-color: white;
-  border-radius: 50%;
-  animation: spin 0.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-  display: inline-block;
-  will-change: transform;
-  transform: translateZ(0);
-}
 
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
 
 .err {
   color: red;

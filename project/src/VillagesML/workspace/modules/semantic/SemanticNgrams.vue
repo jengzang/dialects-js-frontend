@@ -52,7 +52,7 @@
         </div>
 
         <div v-if="loadingBigrams" class="loading-state">
-          <div class="spinner"></div>
+          <div class="ui-loading--page" aria-hidden="true"></div>
         </div>
 
         <div v-else-if="bigrams.length > 0" class="bigrams-list">
@@ -97,7 +97,7 @@
         </div>
 
         <div v-if="loadingTrigrams" class="loading-state">
-          <div class="spinner"></div>
+          <div class="ui-loading--page" aria-hidden="true"></div>
         </div>
 
         <div v-else-if="trigrams.length > 0" class="trigrams-list">
@@ -157,7 +157,7 @@
       </div>
 
       <div v-if="loadingPMI" class="loading-state">
-        <div class="spinner"></div>
+        <div class="ui-loading--page" aria-hidden="true"></div>
       </div>
 
       <div v-else-if="pmiData.length > 0" class="pmi-results">

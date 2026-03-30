@@ -52,7 +52,7 @@
         <!-- 主体：树状图 -->
         <div class="modal-body">
           <div v-if="isLoading" class="loading-state loading-state-base">
-            <div class="spinner spinner-base spinner-lg"></div>
+            <div class="ui-loading--page" aria-hidden="true"></div>
             <span>{{ $t('query.components.partitionModal.loading') }}</span>
           </div>
 
@@ -884,14 +884,7 @@ const PartitionTreeNode = defineComponent({
   --overlay-z-index: 20000;
 }
 
-.spinner {
-  border: 4px solid rgba(0, 122, 255, 0.1);
-  border-top-color: #007AFF;
-}
 
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
 
 .error-state {
   color: #d32f2f;

@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div class="phonology-matrix" :class="{ 'is-fullscreen': isFullScreen }">
     <div v-if="location" class="location-header">
       <div class="location-title">📍 {{ location }}</div>
@@ -741,19 +741,7 @@ const getToneData = (data) => {
   justify-content: center;
 }
 
-.mini-spinner {
-  width: 16px;
-  height: 16px;
-  border: 2px solid #f3f3f3;
-  border-top: 2px solid #007bff;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
 
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
 
 .info-section {
   margin-bottom: 16px;

@@ -13,7 +13,7 @@
 
     <div v-if="isLoading" class="glass-loader-container">
       <div class="glass-card">
-        <div class="liquid-spinner"></div>
+        <div class="ui-loading--page" aria-hidden="true"></div>
         <div class="timer-text">{{ timer }}s</div>
         <div class="loading-text">{{ $t('result.loading') }}</div>
         <div v-if="showLongWaitWarning" class="warning-msg" v-html="$t('result.longWaitWarning')"></div>
@@ -349,16 +349,6 @@ const toneTypeOptions = computed(() => [
 }
 
 /* 蘋果風格 Spinner */
-.liquid-spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid rgba(255, 255, 255, 0.3);
-  border-top: 4px solid #007aff; /* Apple Blue */
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin-bottom: 15px;
-  box-shadow: 0 0 15px rgba(0, 122, 255, 0.2);
-}
 
 .timer-text {
   font-size: 2em;
@@ -394,14 +384,6 @@ const toneTypeOptions = computed(() => [
 }
 
 /* 動畫定義 */
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-}
 
 @keyframes float {
   0% {

@@ -43,7 +43,7 @@
 
       <div class="processing-area" v-if="processing">
         <div class="processing-icon">
-          <div class="spinner"></div>
+          <div class="ui-loading--page" aria-hidden="true"></div>
         </div>
         <h3 class="processing-title">{{ t('tools.jyut2ipa.processing.title') }}</h3>
         <p class="processing-text">{{ processingText }}</p>
@@ -806,20 +806,7 @@ loadConfig()
   justify-content: center;
 }
 
-.spinner {
-  width: 60px;
-  height: 60px;
-  border: 4px solid rgba(0, 122, 255, 0.2);
-  border-top-color: rgba(0, 122, 255, 0.8);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
 
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
 
 .processing-title,
 .complete-title {

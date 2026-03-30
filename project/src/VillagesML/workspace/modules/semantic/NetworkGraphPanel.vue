@@ -22,7 +22,7 @@
     </div>
 
     <div v-if="loading" class="loading-state">
-      <div class="spinner"></div>
+      <div class="ui-loading--page" aria-hidden="true"></div>
       <p>生成網絡中...</p>
     </div>
 
@@ -109,7 +109,6 @@ const transformNodes = (nodes, communities) => {
   const nodeCommunityMap = buildNodeCommunityMap(communities)
 
   // 找出最大的 degree 用于归一化节点大小
-  const maxDegree = Math.max(...nodes.map(n => n.degree || 1))
 
   return nodes.map(node => {
     const communityId = nodeCommunityMap[node.id]
@@ -161,7 +160,6 @@ const transformEdges = (edges) => {
       lineStyle: {
         width: normalizedWidth,
         curveness: edge.source === edge.target ? 0.3 : 0.1, // 自环边弯曲
-        opacity: 0.6
       },
       label: {
         show: false,
@@ -311,19 +309,7 @@ onBeforeUnmount(() => {
   color: var(--text-primary);
 }
 
-.spinner {
-  width: 40px;
-  height: 40px;
-  border: 3px solid rgba(74, 144, 226, 0.2);
-  border-top-color: var(--color-primary);
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-  margin-bottom: 12px;
-}
 
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
 
 .communities-legend {
   padding: 16px;

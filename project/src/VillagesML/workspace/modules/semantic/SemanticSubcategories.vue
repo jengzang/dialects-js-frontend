@@ -57,7 +57,7 @@
 
       <!-- Regional Results -->
       <div v-if="loadingRegional" class="loading-state vml-glass-panel">
-        <div class="spinner"></div>
+        <div class="ui-loading--page" aria-hidden="true"></div>
         <p>加載中...</p>
       </div>
 
@@ -155,7 +155,7 @@
 
       <!-- Ranking Results -->
       <div v-if="loadingRanking" class="loading-state vml-glass-panel">
-        <div class="spinner"></div>
+        <div class="ui-loading--page" aria-hidden="true"></div>
         <p>加載中...</p>
       </div>
 

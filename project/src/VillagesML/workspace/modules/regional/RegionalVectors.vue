@@ -211,7 +211,7 @@
 
     <!-- Loading Overlay -->
     <div v-if="loading" class="loading-overlay">
-      <div class="spinner"></div>
+      <div class="ui-loading--page" aria-hidden="true"></div>
       <p>載入中...</p>
     </div>
   </div>
@@ -280,7 +280,6 @@ const compareVectors = async () => {
     }
 
     console.log('发送参数:', params) // 调试用
-
     const response = await compareRegionalVectors(params)
     comparisonData.value = response
 
@@ -407,7 +406,6 @@ const renderComparisonChart = () => {
   }
 
   // 确保容器有尺寸
-  const container = comparisonChart.value
   if (container.offsetWidth === 0 || container.offsetHeight === 0) {
     console.warn('[RegionalVectors] Chart container has no size', {
       width: container.offsetWidth,
@@ -1004,18 +1002,7 @@ onUnmounted(() => {
   z-index: 9999;
 }
 
-.spinner {
-  width: 50px;
-  height: 50px;
-  border: 4px solid rgba(255, 255, 255, 0.3);
-  border-top-color: white;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
 
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
 
 .loading-overlay p {
   color: white;

@@ -98,7 +98,7 @@
         <h3>顯著性分析結果</h3>
 
         <div v-if="loading" class="loading-state">
-          <div class="spinner"></div>
+          <div class="ui-loading--page" aria-hidden="true"></div>
           <p>分析中...</p>
         </div>
 

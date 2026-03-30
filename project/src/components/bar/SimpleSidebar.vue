@@ -61,7 +61,7 @@
           <h3 class="modal-title">📊 {{ t('navigation.stats.historyTitle') }}</h3>
 
           <div v-if="loadingStats" class="loading-state">
-            <div class="loading-spinner"></div>
+            <div class="ui-loading--page" aria-hidden="true"></div>
             <p>{{ t('navigation.stats.loading') }}</p>
           </div>
 
@@ -595,21 +595,7 @@ onBeforeUnmount(() => {
   color: #666;
 }
 
-.loading-spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid rgba(0, 95, 211, 0.1);
-  border-top-color: #005fd3;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin-bottom: 15px;
-}
 
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
 
 .stats-summary-large {
   display: grid;

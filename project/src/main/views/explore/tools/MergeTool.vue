@@ -172,7 +172,7 @@
         <div class="step-content" v-show="currentStep === 3">
           <div class="processing-view" v-if="processing">
             <div class="processing-icon">
-              <div class="spinner"></div>
+              <div class="ui-loading--page" aria-hidden="true"></div>
             </div>
             <h3 class="processing-title">{{ t('tools.merge.processing.title') }}</h3>
             <p class="processing-text">{{ processingText }}</p>
@@ -1046,20 +1046,7 @@ const reset = () => {
   justify-content: center;
 }
 
-.spinner {
-  width: 60px;
-  height: 60px;
-  border: 4px solid rgba(0, 122, 255, 0.2);
-  border-top-color: rgba(0, 122, 255, 0.8);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
 
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
 
 .processing-title,
 .complete-title {
@@ -1492,10 +1479,6 @@ const reset = () => {
     height: 80px;
   }
 
-  .spinner {
-    width: 80px;
-    height: 80px;
-  }
 
   .processing-title {
     font-size: 20px;

@@ -66,7 +66,7 @@
 
 
     <div v-if="loading" class="loading">
-      <div class="spinner"></div>
+      <div class="ui-loading--page" aria-hidden="true"></div>
       <p>{{ $t('phonology.phonology.custom.actions.loading') }}</p>
     </div>
 
@@ -636,14 +636,6 @@ watch(() => route.query, (newQuery) => {
 }
 
 /* 按钮内的小旋转器 */
-.btn-spinner {
-  width: 16px;
-  height: 16px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-top-color: white;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
 
 .loading {
   display: flex;
@@ -654,19 +646,7 @@ watch(() => route.query, (newQuery) => {
   gap: 15px;
 }
 
-.spinner {
-  width: 50px;
-  height: 50px;
-  border: 4px solid var(--glass-light2);
-  border-top: 4px solid var(--color-primary);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
 
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
 
 .loading p {
   color: var(--text-secondary);

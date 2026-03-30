@@ -3,7 +3,7 @@
     <h3 class="panel-title">📋 完整信息</h3>
 
     <div v-if="loading" class="loading-state">
-      <div class="spinner"></div>
+      <div class="ui-loading--page" aria-hidden="true"></div>
       <p>加載中...</p>
     </div>
 

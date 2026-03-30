@@ -88,7 +88,7 @@
       </div>
     </Transition>
 
-    <!-- 遮罩�?-->
+    <!-- 遮罩层 -->
     <Transition name="fade">
       <div class="overlay main-sidebar-overlay" v-if="isSidebarVisible" @click="toggleSidebar"></div>
     </Transition>
@@ -129,7 +129,7 @@
             <h3 class="modal-title">📊 {{ t('navigation.stats.historyTitle') }}</h3>
 
             <div v-if="loadingStats" class="loading-state">
-              <div class="loading-spinner"></div>
+              <div class="ui-loading--page" aria-hidden="true"></div>
               <p>{{ t('navigation.stats.loading') }}</p>
             </div>
 
@@ -173,7 +173,7 @@
     </Teleport>
 
     <div class="navbar-content">
-      <!-- 第一�? Logo、标题和登录按钮 -->
+      <!-- 第一部分：Logo、标题和登录按钮 -->
       <div class="navbar-top">
         <div class="navbar-item logo-and-title" :style="{ zIndex: isSidebarVisible ? '1100' : '999' }">
           <div @click="toggleSidebar" class="logo-container" style="width: 6dvh;min-width: 6dvh" >
@@ -191,7 +191,7 @@
         </div>
       </div>
 
-      <!-- 第二�? 导航按钮 -->
+      <!-- 第二部分：导航按钮 -->
       <div class="navbar-bottom">
         <RouterLink
             v-for="t in tabs"
@@ -249,7 +249,7 @@ const activeSubmenu = ref(null)  // Currently open submenu key
 const submenuPosition = ref({ top: 0, left: 0 })  // Position for submenu panel
 const closeSubmenuTimeout = ref(null)  // Timeout for delayed closing
 
-// ===== sessionStorage 管理：记住每�?tab 的最后访问的 sub =====
+// ===== sessionStorage 管理：记住每个 tab 的最后访问的 sub =====
 const STORAGE_KEY_PREFIX = 'menu_last_sub_'
 
 // 获取某个 tab 的最后访问的 sub
@@ -275,7 +275,7 @@ function saveLastSub(tab, sub) {
   }
 }
 
-// 监听路由变化，记录当前的 tab �?sub
+// 监听路由变化，记录当前的 tab 和 sub
 watch(() => route.query, (query) => {
   if (query.tab && query.sub) {
     saveLastSub(query.tab, query.sub)
@@ -317,15 +317,15 @@ const isStatsExpanded = ref(false)
 const visitHistory = ref([])
 const loadingStats = ref(false)
 
-// 过滤可见�?tabs（label 已在 TabsConfig 中定义）
+// 过滤可见的 tabs（label 已在 TabsConfig 中定义）
 const allMenuTabs = useMenuTabsConfig()
 const visibleTabs = computed(() => {
   return allMenuTabs.value.filter(tab => {
-    // 如果�?visibleWhen 函数，执行它
+    // 如果有 visibleWhen 函数，执行它
     if (typeof tab.visibleWhen === 'function') {
       return tab.visibleWhen()
     }
-    // 没有 visibleWhen 则默认可�?
+    // 没有 visibleWhen 则默认可见
     return true
   })
 })
@@ -370,14 +370,14 @@ const getFlexWeight = (tab, isActive, isMobile) => {
 // 根据当前 query.tab 判断
 const currentTab = () => route.query.tab || route.query.page || 'query'
 
-// 检查路由是否匹�?
+// 检查路由是否匹配
 const isRouteMatch = (targetRoute) => {
   if (!targetRoute) return false
 
-  // 检查路径是否匹�?
+  // 检查路径是否匹配
   if (route.path !== targetRoute.path) return false
 
-  // 检�?query 参数是否匹配
+  // 检查 query 参数是否匹配
   if (targetRoute.query) {
     for (const [key, value] of Object.entries(targetRoute.query)) {
       if (route.query[key] !== value) return false
@@ -388,36 +388,36 @@ const isRouteMatch = (targetRoute) => {
 }
 
 const isActiveComputed = (tabName, isActive) => {
-  // �?tab 永远不显示为激活状�?
+  // tools tab 永远不显示为激活状态
   if (tabName === 'tools') return false
 
-  // 查找对应�?tab 配置
+  // 查找对应的 tab 配置
   const tabConfig = tabs.value.find(t => t.tab === tabName)
   if (!tabConfig || !tabConfig.to) return false
 
-  // 使用路由匹配检�?
+  // 使用路由匹配检查
   return isRouteMatch(tabConfig.to)
 }
 
 // 頂部導航欄的點擊處理
 const onClick = async (tabConfig, navigate) => {
-  // �?tab 处理：打开侧边栏而非导航
+  // 伪 tab 处理：打开侧边栏而非导航
   if (tabConfig.isPseudo) {
     toggleSidebar()
     return
   }
 
-  // 检查是否有记录�?sub
+  // 检查是否有记录的 sub
   const targetTabKey = getTargetTabKey(tabConfig)
   const lastSub = targetTabKey ? getLastSub(targetTabKey) : null
 
   // 构建目标路由
   let targetRoute
   if (tabConfig.to) {
-    // 如果配置�?to，使用配置的路由
+    // 如果配置了 to，使用配置的路由
     targetRoute = tabConfig.to
 
-    // 如果有记录的 sub，添加到 query �?
+    // 如果有记录的 sub，添加到 query 里
     if (lastSub && typeof targetRoute === 'object') {
       targetRoute = {
         ...targetRoute,
@@ -438,15 +438,15 @@ const onClick = async (tabConfig, navigate) => {
     }
   }
 
-  // 防止重复导航到当前路�?
+  // 防止重复导航到当前路径
   if (isRouteMatch(targetRoute)) return
 
-  // 导航到目标路�?
+  // 导航到目标路径
   await router.replace(targetRoute)
 }
 
 const goToAuthPage = () => {
-  // 如果用户已登录，跳转到个人资料页面；否则跳转到登录页�?
+  // 如果用户已登录，跳转到个人资料页面；否则跳转到登录页面
   if (userStore.isAuthenticated) {
     router.push({ path: '/auth', query: { view: 'profile' } })
   } else {
@@ -473,7 +473,7 @@ async function fetchVisitStats() {
 async function toggleStatsPanel() {
   isStatsExpanded.value = !isStatsExpanded.value
 
-  // 首次展开时加载历史数�?
+  // 首次展开时加载历史数据
   if (isStatsExpanded.value && visitHistory.value.length === 0) {
     await fetchVisitHistory()
   }
@@ -499,7 +499,7 @@ async function fetchVisitHistory() {
     const data = await getVisitHistory({ start_date, end_date, limit: 9999 })
 
 
-    // 按日期汇总数�?
+    // 按日期汇总数据
     const dateMap = new Map()
     data?.data?.forEach(item => {
       const date = item.date
@@ -530,7 +530,7 @@ const toggleSidebar = () => {
   }
 }
 
-// 主按鈕點擊處�?- 有子菜單則展開，無子菜單則導�?
+// 主按鈕點擊處理 - 有子菜單則展開，無子菜單則導覽
 const handleMainClick = (item, key, event) => {
   event?.stopPropagation()  // 阻止事件冒泡
   cancelCloseSubmenu()  // 取消任何待處理的關閉
@@ -539,7 +539,7 @@ const handleMainClick = (item, key, event) => {
     // 有子菜單，展開子菜單
     handleArrowClick(item, key, event)
   } else if (item.path) {
-    // 無子菜單且有路徑，導�?
+    // 無子菜單且有路徑，導覽
     if (item.external) {
       window.location.href = WEB_BASE + item.path
     } else {
@@ -548,7 +548,7 @@ const handleMainClick = (item, key, event) => {
       const tab = url.searchParams.get('tab')
 
       if (tab && item.children && item.children.length > 0) {
-        // 如果�?tab 且有子菜單，嘗試�?sessionStorage 獲取最後訪問的 sub
+        // 如果是 tab 且有子菜單，嘗試從 sessionStorage 獲取最後訪問的 sub
         const lastSub = sessionStorage.getItem(`lastVisitedSub_${tab}`)
         if (lastSub) {
           url.searchParams.set('sub', lastSub)
@@ -563,7 +563,7 @@ const handleMainClick = (item, key, event) => {
     }
   } else {
     // 沒有路徑就console
-    console.log('按鈕點擊 - 需要設置導航路�?', key, item)
+    console.log('按鈕點擊 - 需要設置導航路徑？', key, item)
   }
 }
 
@@ -575,7 +575,7 @@ const handleItemMouseEnter = (item, key, event) => {
   }
 }
 
-// 箭頭點擊處理 - 展開子菜�?
+// 箭頭點擊處理 - 展開子菜單
 const handleArrowClick = (item, key, event) => {
   event?.stopPropagation()  // 阻止事件冒泡
   cancelCloseSubmenu()  // 取消任何待處理的關閉
@@ -588,14 +588,14 @@ const handleArrowClick = (item, key, event) => {
 
     const rect = targetElement.getBoundingClientRect()
     const viewportWidth = window.innerWidth
-    const submenuWidth = 250 // 預估子菜單寬�?
+    const submenuWidth = 250 // 預估子菜單寬度
 
     // 計算是否有足夠空間在右側顯示
     const spaceOnRight = viewportWidth - rect.right
     const hasSpaceOnRight = spaceOnRight > submenuWidth + 20
 
     if (hasSpaceOnRight) {
-      // 右側有空間，顯示在右�?
+      // 右側有空間，顯示在右側
       submenuPosition.value = {
         top: rect.top,
         left: rect.right + 10
@@ -604,7 +604,7 @@ const handleArrowClick = (item, key, event) => {
       // 右側空間不足，顯示在按鈕下方
       submenuPosition.value = {
         top: rect.bottom + 5,
-        left: Math.max(10, rect.left) // 確保不會超出左邊�?
+        left: Math.max(10, rect.left) // 確保不會超出左邊
       }
     }
 
@@ -618,7 +618,7 @@ const handleSubmenuClick = (child) => {
   if (child.external) {
     window.open(child.path, '_blank')
   } else {
-    // 保存當前選擇�?sub �?sessionStorage
+    // 保存當前選擇的 sub 到 sessionStorage
     const url = new URL(child.path, window.location.origin)
     const tab = url.searchParams.get('tab')
     const sub = url.searchParams.get('sub')
@@ -633,7 +633,7 @@ const handleSubmenuClick = (child) => {
   isSidebarVisible.value = false
 }
 
-// 延遲關閉子菜�?
+// 延遲關閉子菜單
 const scheduleCloseSubmenu = () => {
   closeSubmenuTimeout.value = setTimeout(() => {
     activeSubmenu.value = null
@@ -667,7 +667,7 @@ onBeforeUnmount(() => {
 
 
 <style scoped>
-/* 父容器，標題欄背�?*/
+/* 父容器，標題欄背景 */
 .navbar {
   position: fixed;
   top: 0;
@@ -754,7 +754,7 @@ onBeforeUnmount(() => {
   gap: 4px;
   cursor: pointer;
   user-select: none;
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1)); /* 柔和透明的漸�?*/
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1)); /* 柔和透明的漸層 */
   color: darkblue;
   font-weight: 1000;
   box-shadow: 0 6px 10px rgba(0, 0, 0, 0.1), 0 1px 4px rgba(0, 0, 0, 0.08); /* 輕微陰影，玻璃感 */
@@ -763,7 +763,7 @@ onBeforeUnmount(() => {
 }
 
 .logo {
-  width: 90%; /* 控制logo图片的大�?*/
+  width: 90%; /* 控制 logo 图片的大小 */
   height: auto;
 }
 
@@ -800,7 +800,7 @@ onBeforeUnmount(() => {
 }
 
 .menu-item.active {
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1)); /* 柔和透明的漸�?*/
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1)); /* 柔和透明的漸層 */
   color: darkblue;
   font-weight: 1000;
   border-radius: 0 0 25px 25px; /* 圓角邊框 */
@@ -810,14 +810,14 @@ onBeforeUnmount(() => {
 }
 
 .menu-item.active:hover {
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.3)); /* 柔和透明的漸�?*/
-  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2); /* 鼠標懸停時增強陰�?*/
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.3)); /* 柔和透明的漸層 */
+  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2); /* 鼠標懸停時增強陰影 */
   margin:0;
 }
 
 .login-text {
   display: block;
-  max-width: 100px;  /* 根据需要调整最大宽�?*/
+  max-width: 100px;  /* ?????????? */
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -835,11 +835,11 @@ onBeforeUnmount(() => {
   align-items: center;
   justify-content: space-between;
   padding: 0 0.5%;
-  position: relative; /* 设置父容器的定位属�?*/
+  position: relative; /* ?????????? */
   gap:0.5dvh;
 }
 
-/* 第一�? Logo、标题和登录按钮 */
+/* ?????Logo???????? */
 .navbar-top {
   display: flex;
   align-items: center;
@@ -847,7 +847,7 @@ onBeforeUnmount(() => {
   padding: 0 10px;
   height: 10dvh;
   width: 100%;
-  position: relative; /* �?.navbar-top 设置定位属�?*/
+  position: relative; /* ? .navbar-top ?????? */
 }
 
 .navbar-top .logo-container {
@@ -865,13 +865,13 @@ onBeforeUnmount(() => {
 
 .navbar-top .login-text {
   display: block;
-  max-width: 100px; /* 根据需要调整最大宽�?*/
+  max-width: 100px; /* ?????????? */
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-/* 第二�? 导航按钮 */
+/* ????????? */
 .navbar-bottom {
   display: flex;
   align-items: center;
@@ -956,19 +956,7 @@ onBeforeUnmount(() => {
   color: #666;
 }
 
-.loading-spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid rgba(0, 95, 211, 0.1);
-  border-top-color: #005fd3;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin-bottom: 15px;
-}
 
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
 
 .stats-summary-large {
   display: grid;
@@ -1128,7 +1116,7 @@ onBeforeUnmount(() => {
 }
 
 
-/* 响应式样式，移动端显示边�?*/
+/* ??????????????? */
 @media (max-aspect-ratio: 1/1)  {
   .navbar-desktop {
     display: none;

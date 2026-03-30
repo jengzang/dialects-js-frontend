@@ -39,7 +39,7 @@
     </div>
 
     <div v-if="loading" class="loading-container loading-state-base">
-      <div class="spinner spinner-base spinner-md"></div>
+      <div class="ui-loading--page" aria-hidden="true"></div>
       <p>{{ t('common.label.loading') }}</p>
     </div>
 
@@ -712,36 +712,9 @@ onMounted(() => {
   color: #666;
 }
 
-.spinner {
-  border: 3px solid rgba(0, 122, 255, 0.2);
-  border-top-color: #007aff;
-}
 
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
 
-.btn-spinner {
-  display: inline-block;
-  width: 16px;
-  height: 16px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-top-color: white;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
 
-.btn-spinner-small {
-  display: inline-block;
-  width: 14px;
-  height: 14px;
-  border: 2px solid rgba(0, 122, 255, 0.3);
-  border-top-color: #007aff;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
 
 .btn-primary:disabled,
 .btn-icon-action:disabled {

@@ -76,7 +76,7 @@
       </div>
 
       <div v-if="loadingFrequency" class="loading-state">
-        <div class="spinner"></div>
+        <div class="ui-loading--page" aria-hidden="true"></div>
         <p>加載中...</p>
       </div>
 
@@ -151,7 +151,7 @@
       </div>
 
       <div v-if="loadingPatterns" class="loading-state">
-        <div class="spinner"></div>
+        <div class="ui-loading--page" aria-hidden="true"></div>
       </div>
 
       <div v-else-if="patternResults.length > 0" class="pattern-results">
@@ -399,19 +399,7 @@ onMounted(async () => {
   padding: 40px 20px;
 }
 
-.spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid rgba(74, 144, 226, 0.2);
-  border-top-color: var(--color-primary);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin: 0 auto 15px;
-}
 
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
 
 .frequency-results-wrapper {
   overflow-x: auto;

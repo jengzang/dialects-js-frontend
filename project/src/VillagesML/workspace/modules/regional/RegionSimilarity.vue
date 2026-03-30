@@ -80,7 +80,7 @@
 
       <!-- Search Results -->
       <div v-if="loadingSearch" class="loading-state vml-glass-panel">
-        <div class="spinner"></div>
+        <div class="ui-loading--page" aria-hidden="true"></div>
         <p>加載中...</p>
       </div>
 
@@ -171,7 +171,7 @@
 
       <!-- Pair Results -->
       <div v-if="loadingPair" class="loading-state vml-glass-panel">
-        <div class="spinner"></div>
+        <div class="ui-loading--page" aria-hidden="true"></div>
         <p>加載中...</p>
       </div>
 
@@ -287,7 +287,7 @@
 
       <!-- Matrix Results -->
       <div v-if="loadingMatrix" class="loading-state vml-glass-panel">
-        <div class="spinner"></div>
+        <div class="ui-loading--page" aria-hidden="true"></div>
         <p>加載中...</p>
       </div>
 

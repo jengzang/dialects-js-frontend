@@ -16,7 +16,7 @@
       <div class="category-list glass-panel">
         <h2>語義類別</h2>
         <div v-if="loadingCategories" class="loading-state">
-          <div class="spinner"></div>
+          <div class="ui-loading--page" aria-hidden="true"></div>
           <p>加載中...</p>
         </div>
         <div v-else class="category-grid">
@@ -50,7 +50,7 @@
             />
           </h3>
           <div v-if="loadingVTFGlobal" class="loading-state">
-            <div class="spinner"></div>
+            <div class="ui-loading--page" aria-hidden="true"></div>
           </div>
           <div v-else class="vtf-chart">
             <div
@@ -97,7 +97,7 @@
             </button>
           </div>
           <div v-if="loadingVTFRegional" class="loading-state">
-            <div class="spinner"></div>
+            <div class="ui-loading--page" aria-hidden="true"></div>
           </div>
           <div v-else-if="vtfRegional.length > 0" class="vtf-chart">
             <div
@@ -158,7 +158,7 @@
             <span class="input-hint">（過濾小樣本區域）</span>
           </div>
           <div v-if="loadingRanking" class="loading-state">
-            <div class="spinner"></div>
+            <div class="ui-loading--page" aria-hidden="true"></div>
           </div>
           <div v-else-if="categoryRanking.length > 0" class="ranking-results">
             <div class="ranking-header">

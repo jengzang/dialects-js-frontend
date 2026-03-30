@@ -49,8 +49,8 @@
 
     <div class="table-container">
       <div v-if="loading" class="loading-overlay">
-        <div class="loading-spinner">
-          <div class="spinner-ring"></div>
+        <div class="loading-content">
+          <div class="ui-loading--page" aria-hidden="true"></div>
           <div class="loading-text">{{ t('common.label.loading') }}</div>
         </div>
       </div>
@@ -925,30 +925,14 @@ onMounted(() => {
   border-radius: 18px;
 }
 
-.loading-spinner {
+.loading-content {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 16px;
 }
 
-.spinner-ring {
-  width: 60px;
-  height: 60px;
-  border: 4px solid rgba(0, 122, 255, 0.1);
-  border-top-color: #007aff;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
 
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-}
 
 .loading-text {
   font-size: 16px;

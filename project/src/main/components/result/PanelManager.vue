@@ -12,7 +12,7 @@
       <div class="result-panel-vue" style="height: 100%; overflow-y: auto; display: flex; flex-direction: column;margin-bottom: 10px">
 
         <div v-if="panel.loading" class="loading-container">
-          <div class="spinner"></div>
+          <div class="ui-loading--page" aria-hidden="true"></div>
           <span class="loading-text">{{ t('result.panelManager.loading') }}</span>
         </div>
 
@@ -405,11 +405,6 @@ onUnmounted(() => {
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   height: 100%; min-height: 150px; color: #666;
 }
-.spinner {
-  width: 32px; height: 32px; border: 3px solid #f3f3f3; border-top: 3px solid #007bff;
-  border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 10px;
-}
-@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 .loading-text { font-size: 14px; color: #888; }
 
 </style>

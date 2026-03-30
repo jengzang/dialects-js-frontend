@@ -30,7 +30,7 @@
       </div>
 
       <div v-if="loadingTendency" class="loading-state">
-        <div class="spinner"></div>
+        <div class="ui-loading--page" aria-hidden="true"></div>
       </div>
 
       <div v-else-if="categoryTendency.length > 0" class="tendency-results">
@@ -98,7 +98,7 @@
     </div>
 
     <div v-if="loadingNgram" class="loading-state">
-      <div class="spinner"></div>
+      <div class="ui-loading--page" aria-hidden="true"></div>
     </div>
 
     <div v-else-if="ngramData.length > 0" class="ngram-results">

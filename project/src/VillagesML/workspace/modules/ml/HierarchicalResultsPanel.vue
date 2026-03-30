@@ -3,7 +3,7 @@
     <h3 class="panel-title">層次聚類結果</h3>
 
     <div v-if="loading" class="empty-state">
-      <span class="loading-spinner">⏳</span> 運行中...
+      <span class="ui-loading--hourglass" aria-hidden="true">⏳</span> 運行中...
     </div>
 
     <div v-else-if="results" class="results-content">

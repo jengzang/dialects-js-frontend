@@ -20,7 +20,7 @@
 
         <!-- 加載狀態 -->
         <div v-if="loading" class="loading-overlay">
-          <div class="spinner"></div>
+          <div class="ui-loading--page" aria-hidden="true"></div>
           <span>地圖加載中...</span>
         </div>
       </div>
@@ -822,16 +822,5 @@ const resetView = () => {
   color: #555;
 }
 
-.spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid rgba(74, 144, 226, 0.2);
-  border-top-color: #4a90e2;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
 
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
 </style>

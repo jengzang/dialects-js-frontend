@@ -14,7 +14,7 @@
 
     <!-- Loading State -->
     <div v-if="status === 'queued' || status === 'running'" class="loading-content">
-      <div class="loading-spinner"></div>
+      <div class="ui-loading--page" aria-hidden="true"></div>
       <h3 class="loading-title">{{ t('praat.jobStatus.loading.title') }}</h3>
       <p class="loading-text">{{ stage || t('praat.jobStatus.loading.defaultText') }}</p>
       <div class="loading-progress">
@@ -134,19 +134,7 @@ onUnmounted(() => {
   padding: 2rem 0;
 }
 
-.loading-spinner {
-  width: 60px;
-  height: 60px;
-  border: 4px solid rgba(0, 122, 255, 0.2);
-  border-top-color: #007aff;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin-bottom: 2rem;
-}
 
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
 
 .loading-title {
   font-size: 1.5rem;
