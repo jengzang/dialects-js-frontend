@@ -657,15 +657,15 @@
     </teleport>
 
     <!-- 帮助对话框 -->
-    <teleport to="body">
-      <div v-if="showHelpModal" class="modal-overlay help-modal-overlay" @click.self="showHelpModal = false">
-        <div class="main-tool-modal">
-          <div class="modal-header">
-            <h3>❓ {{ t('tools.checkTool.help.title') }}</h3>
-            <button class="close-btn close-btn-lg close-btn-inline" @click="showHelpModal = false">×</button>
-          </div>
-
-          <div class="modal-body help-content ui-scrollbar">
+    <AppModal
+      :model-value="showHelpModal"
+      size="lg"
+      :title="t('tools.checkTool.help.title')"
+      :close-label="t('tools.common.close')"
+      :z-index="1000"
+      @update:modelValue="showHelpModal = false"
+    >
+      <div class="help-content ui-scrollbar">
 <!--            <div class="help-section">-->
 <!--              <h4>📋 文件要求</h4>-->
 <!--              <ul>-->
@@ -739,14 +739,12 @@
                 <li>{{ t('tools.checkTool.help.editCommand') }}</li>
               </ul>
             </div>
-          </div>
-
-          <div class="modal-footer">
-            <button class="main-glass-button" data-variant="primary" @click="showHelpModal = false">{{ t('tools.checkTool.help.gotIt') }}</button>
-          </div>
-        </div>
       </div>
-    </teleport>
+
+      <div class="check-tool-simple-modal-footer">
+        <button class="main-glass-button" data-variant="primary" @click="showHelpModal = false">{{ t('tools.checkTool.help.gotIt') }}</button>
+      </div>
+    </AppModal>
 
     <!-- 文件格式说明对话框 -->
     <teleport to="body">
