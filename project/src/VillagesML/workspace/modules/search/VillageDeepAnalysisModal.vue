@@ -1,19 +1,19 @@
 <template>
-  <!-- Modal Overlay -->
-  <Teleport to="body">
-    <Transition name="modal-fade">
-      <div v-if="show && village" class="village-analysis-overlay" @click.self="close">
-        <div class="village-analysis-modal" role="dialog" aria-modal="true">
-          <!-- Modal Header -->
-          <div class="village-modal-header">
-            <div class="village-modal-title">
-              🏘️ {{ village.name }} - 深度分析
-            </div>
-            <button class="close-btn close-btn-lg close-btn-inline" type="button" @click="close">×</button>
-          </div>
+  <AppModal
+    :model-value="show && Boolean(village)"
+    size="lg"
+    :show-close="false"
+    :z-index="20000"
+    @update:modelValue="close"
+  >
+    <template #header>
+      <div class="village-modal-title">
+        🏘️ {{ village.name }} - 深度分析
+      </div>
+      <button class="close-btn close-btn-lg close-btn-inline" type="button" @click="close">×</button>
+    </template>
 
-          <!-- Modal Body -->
-          <div class="village-modal-body">
+    <div class="village-modal-body">
 <!--            &lt;!&ndash; Basic Info Section &ndash;&gt;-->
 <!--            <div class="info-section">-->
 <!--              <div class="info-grid">-->
@@ -72,15 +72,13 @@
                 :loading="loading"
               />
             </div>
-          </div>
-        </div>
-      </div>
-    </Transition>
-  </Teleport>
+    </div>
+  </AppModal>
 </template>
 
 <script setup>
 import { ref, computed, watch } from 'vue'
+import AppModal from '@/components/common/AppModal.vue'
 import VillageInfoPanel from '../village/VillageInfoPanel.vue'
 import FeatureVectorPanel from '../village/FeatureVectorPanel.vue'
 import SpatialFeaturesPanel from '../village/SpatialFeaturesPanel.vue'
@@ -186,58 +184,6 @@ const loadCompleteData = async () => {
 </script>
 
 <style scoped>
-/* Modal Transitions */
-.modal-fade-enter-active,
-.modal-fade-leave-active {
-  transition: opacity 0.3s ease;
-}
-
-.modal-fade-enter-from,
-.modal-fade-leave-to {
-  opacity: 0;
-}
-
-/* Overlay */
-.village-analysis-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 20000;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 10px;
-  background: rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(7px);
-  -webkit-backdrop-filter: blur(6px);
-}
-
-/* Modal */
-.village-analysis-modal {
-  width: min(1200px, 94vw);
-  height: 90dvh;
-  max-height: 90dvh;
-  overflow: hidden;
-  background: rgba(255, 255, 255, 0.95);
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  border-radius: 18px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  backdrop-filter: blur(18px) saturate(160%);
-  -webkit-backdrop-filter: blur(18px) saturate(160%);
-  display: flex;
-  flex-direction: column;
-}
-
-/* Header */
-.village-modal-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px 20px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-  background: rgba(255, 255, 255, 0.5);
-  flex-shrink: 0;
-}
-
 .village-modal-title {
   font-size: 18px;
   font-weight: 650;
@@ -246,9 +192,7 @@ const loadCompleteData = async () => {
 
 /* Body */
 .village-modal-body {
-  flex: 1;
-  overflow-y: auto;
-  padding: 20px;
+  padding: 0;
   min-height: 0;
 }
 
