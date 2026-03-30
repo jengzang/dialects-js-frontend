@@ -1,21 +1,20 @@
 <template>
-  <Teleport to="body">
-    <Transition name="modal-fade">
-      <div
-        v-if="visible"
-        class="modal-overlay"
-        @click.self="handleClose"
-      >
-        <div class="update-modal modal-frame close-btn-host">
+  <AppModal
+    :model-value="visible"
+    size="sm"
+    :show-close="false"
+    @update:modelValue="handleClose"
+  >
+    <div class="update-notice-shell">
           <button class="close-btn close-btn-lg close-btn-corner" @click="handleClose">✕</button>
 
-          <div class="modal-header">
+          <div class="update-notice-header">
             <div class="update-icon">🎉</div>
-            <h2 class="modal-title">{{ title || $t('common.updateNotice.title') }}</h2>
+            <h2 class="update-notice-title">{{ title || $t('common.updateNotice.title') }}</h2>
             <p class="update-version">{{ version }}</p>
           </div>
 
-          <div class="modal-content">
+          <div class="update-notice-content">
             <slot>
               <!-- 默认内容，可以被外部覆盖 -->
               <div class="update-item">
@@ -25,7 +24,7 @@
             </slot>
           </div>
 
-          <div class="modal-footer">
+          <div class="update-notice-footer">
             <label class="no-show-checkbox">
               <input type="checkbox" v-model="dontShowAgain" />
               <span>{{ $t('common.updateNotice.dontShowAgain') }}</span>
@@ -34,14 +33,13 @@
               {{ $t('common.updateNotice.confirm') }}
             </button>
           </div>
-        </div>
-      </div>
-    </Transition>
-  </Teleport>
+    </div>
+  </AppModal>
 </template>
 
 <script setup>
 import { ref } from 'vue'
+import AppModal from '@/components/common/AppModal.vue'
 
 const props = defineProps({
   visible: {
@@ -95,21 +93,19 @@ defineExpose({
 </script>
 
 <style scoped>
-.modal-overlay {
-  --overlay-padding: 0;
+.update-notice-shell {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: calc(100% + var(--modal-content-padding-top) + var(--modal-content-padding-bottom));
+  margin:
+    calc(-1 * var(--modal-content-padding-top))
+    calc(-1 * var(--modal-content-padding-inline))
+    calc(-1 * var(--modal-content-padding-bottom));
+  overflow: hidden;
 }
 
-.update-modal {
-  background: rgba(255, 255, 255, 0.98);
-  border-radius: 24px;
-  max-width: 600px;
-  width: 100%;
-  max-height: 80vh;
-  box-shadow: 0 20px 60px rgba(0, 122, 255, 0.3);
-  border: 1px solid rgba(0, 122, 255, 0.2);
-}
-
-.modal-header {
+.update-notice-header {
   padding: 2.5rem 2rem 1.5rem;
   text-align: center;
   border-bottom: 1px solid rgba(0, 122, 255, 0.1);
@@ -126,7 +122,7 @@ defineExpose({
   50% { transform: translateY(-10px); }
 }
 
-.modal-title {
+.update-notice-title {
   font-size: 1.75rem;
   font-weight: 700;
   color: #007aff;
@@ -140,7 +136,7 @@ defineExpose({
   margin: 0;
 }
 
-.modal-content {
+.update-notice-content {
   flex: 1;
   overflow-y: auto;
   padding: 2rem;
@@ -173,18 +169,18 @@ defineExpose({
   line-height: 1.5;
 }
 
-.update-modal .item-text {
+.update-notice-shell .item-text {
   font-size: 0.9375rem;
   color: #1d1d1f;
   line-height: 1.8 !important;
   font-weight: 500;
 }
 
-.update-modal .item-text * {
+.update-notice-shell .item-text * {
   line-height: 1.8 !important;
 }
 
-.modal-footer {
+.update-notice-footer {
   padding: 1.5rem 2rem;
   border-top: 1px solid rgba(0, 122, 255, 0.1);
   display: flex;
@@ -241,29 +237,10 @@ defineExpose({
 }
 
 /* 动画 */
-.modal-fade-enter-active,
-.modal-fade-leave-active {
-  transition: all 0.3s ease;
-}
-
-.modal-fade-enter-from,
-.modal-fade-leave-to {
-  opacity: 0;
-}
-
-.modal-fade-enter-from .update-modal,
-.modal-fade-leave-to .update-modal {
-  transform: scale(0.9) translateY(-20px);
-}
 
 /* 移动端适配 */
 @media (max-width: 600px) {
-  .update-modal {
-    max-width: 95%;
-    max-height: 85vh;
-  }
-
-  .modal-header {
+  .update-notice-header {
     padding: 2rem 1.5rem 1.25rem;
   }
 
@@ -271,15 +248,15 @@ defineExpose({
     font-size: 3rem;
   }
 
-  .modal-title {
+  .update-notice-title {
     font-size: 1.5rem;
   }
 
-  .modal-content {
+  .update-notice-content {
     padding: 1.5rem;
   }
 
-  .modal-footer {
+  .update-notice-footer {
     padding: 1.25rem 1.5rem;
     flex-direction: column;
     align-items: stretch;
