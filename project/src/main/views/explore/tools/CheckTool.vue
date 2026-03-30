@@ -592,69 +592,67 @@
     </div>
 
     <!-- 批量替换对话框 -->
-    <teleport to="body">
-      <div v-if="showBatchReplaceModal" class="modal-overlay" @click.self="showBatchReplaceModal = false">
-        <div class="main-tool-modal">
-          <div class="modal-header">
-            <h3>🔄 {{ t('tools.checkTool.batchReplace.title') }}</h3>
-            <button class="close-btn close-btn-lg close-btn-inline" @click="showBatchReplaceModal = false">×</button>
-          </div>
+    <AppModal
+      :model-value="showBatchReplaceModal"
+      size="sm"
+      :title="t('tools.checkTool.batchReplace.title')"
+      :close-label="t('tools.common.close')"
+      :z-index="1000"
+      @update:modelValue="showBatchReplaceModal = false"
+    >
+      <div class="check-tool-batch-replace-content">
+        <div class="form-group">
+          <label>{{ t('tools.checkTool.batchReplace.replaceType') }}</label>
+          <SimpleSelectDropdown
+            v-model="replaceType"
+            :options="replaceTypeOptions"
+            class="glass-input"
+          />
+        </div>
 
-          <div class="modal-body">
-            <div class="form-group">
-              <label>{{ t('tools.checkTool.batchReplace.replaceType') }}</label>
-              <SimpleSelectDropdown
-                v-model="replaceType"
-                :options="replaceTypeOptions"
-                class="glass-input"
-              />
-            </div>
+        <div v-if="replaceType === 'p'" class="form-group">
+          <label>{{ t('tools.checkTool.batchReplace.sourceChar') }}</label>
+          <input v-model="replaceFrom" type="text" class="glass-input" :placeholder="t('tools.checkTool.batchReplace.sourceCharPlaceholder')" />
+          <div class="hint">{{ t('tools.checkTool.batchReplace.sourceCharHint') }}</div>
+        </div>
 
-            <div v-if="replaceType === 'p'" class="form-group">
-              <label>{{ t('tools.checkTool.batchReplace.sourceChar') }}</label>
-              <input v-model="replaceFrom" type="text" class="glass-input" :placeholder="t('tools.checkTool.batchReplace.sourceCharPlaceholder')" />
-              <div class="hint">{{ t('tools.checkTool.batchReplace.sourceCharHint') }}</div>
-            </div>
+        <div v-if="replaceType !== 'p'" class="form-group">
+          <label>{{ t('tools.checkTool.batchReplace.sourceTone') }}</label>
+          <input v-model="replaceFrom" type="text" class="glass-input" :placeholder="t('tools.checkTool.batchReplace.sourceTonePlaceholder')" />
+          <div class="hint">{{ t('tools.checkTool.batchReplace.sourceToneHint') }}</div>
+        </div>
 
-            <div v-if="replaceType !== 'p'" class="form-group">
-              <label>{{ t('tools.checkTool.batchReplace.sourceTone') }}</label>
-              <input v-model="replaceFrom" type="text" class="glass-input" :placeholder="t('tools.checkTool.batchReplace.sourceTonePlaceholder')" />
-              <div class="hint">{{ t('tools.checkTool.batchReplace.sourceToneHint') }}</div>
-            </div>
+        <div class="form-group">
+          <label>{{ replaceType === 'p' ? t('tools.checkTool.batchReplace.targetChar') : t('tools.checkTool.batchReplace.targetTone') }}</label>
+          <input
+            v-model="replaceTo"
+            type="text"
+            class="glass-input"
+            :placeholder="replaceType === 'p' ? t('tools.checkTool.batchReplace.targetCharPlaceholder') : t('tools.checkTool.batchReplace.targetTonePlaceholder')"
+          />
+          <div class="hint">{{ replaceType === 'p' ? t('tools.checkTool.batchReplace.targetCharHint') : t('tools.checkTool.batchReplace.targetToneHint') }}</div>
+        </div>
 
-            <div class="form-group">
-              <label>{{ replaceType === 'p' ? t('tools.checkTool.batchReplace.targetChar') : t('tools.checkTool.batchReplace.targetTone') }}</label>
-              <input
-                v-model="replaceTo"
-                type="text"
-                class="glass-input"
-                :placeholder="replaceType === 'p' ? t('tools.checkTool.batchReplace.targetCharPlaceholder') : t('tools.checkTool.batchReplace.targetTonePlaceholder')"
-              />
-              <div class="hint">{{ replaceType === 'p' ? t('tools.checkTool.batchReplace.targetCharHint') : t('tools.checkTool.batchReplace.targetToneHint') }}</div>
-            </div>
+        <div v-if="replaceType !== 'p'" class="hint-box">
+          <strong>{{ replaceType === 'r' ? t('tools.checkTool.batchReplace.ruToneTitle') : t('tools.checkTool.batchReplace.shuToneTitle') }}</strong>
+          {{
+            replaceType === 'r'
+              ? t('tools.checkTool.batchReplace.ruToneHint')
+              : t('tools.checkTool.batchReplace.shuToneHint')
+          }}
+        </div>
 
-            <div v-if="replaceType !== 'p'" class="hint-box">
-              <strong>{{ replaceType === 'r' ? t('tools.checkTool.batchReplace.ruToneTitle') : t('tools.checkTool.batchReplace.shuToneTitle') }}</strong>
-              {{
-                replaceType === 'r'
-                  ? t('tools.checkTool.batchReplace.ruToneHint')
-                  : t('tools.checkTool.batchReplace.shuToneHint')
-              }}
-            </div>
-
-            <div class="form-group">
-              <label>{{ t('tools.checkTool.batchReplace.previewCommand') }}</label>
-              <input :value="commandPreview" type="text" class="glass-input" readonly style="background: rgba(0,0,0,0.1);" />
-            </div>
-          </div>
-
-          <div class="modal-footer">
-            <button class="main-glass-button" data-variant="secondary" @click="showBatchReplaceModal = false">{{ t('tools.checkTool.batchReplace.cancel') }}</button>
-            <button class="main-glass-button" data-variant="primary" @click="executeBatchReplace">🔄 {{ t('tools.checkTool.batchReplace.execute') }}</button>
-          </div>
+        <div class="form-group">
+          <label>{{ t('tools.checkTool.batchReplace.previewCommand') }}</label>
+          <input :value="commandPreview" type="text" class="glass-input" readonly style="background: rgba(0,0,0,0.1);" />
         </div>
       </div>
-    </teleport>
+
+      <div class="check-tool-simple-modal-footer">
+        <button class="main-glass-button" data-variant="secondary" @click="showBatchReplaceModal = false">{{ t('tools.checkTool.batchReplace.cancel') }}</button>
+        <button class="main-glass-button" data-variant="primary" @click="executeBatchReplace">🔄 {{ t('tools.checkTool.batchReplace.execute') }}</button>
+      </div>
+    </AppModal>
 
     <!-- 帮助对话框 -->
     <AppModal
@@ -2938,31 +2936,6 @@ justify-content: center;
   margin: 0;
 }
 
-/* 模态框 */
-.modal-overlay {
-  --overlay-z-index: 1000;
-  --overlay-padding: 0;
-}
-
-.main-tool-modal {
-  --main-tool-modal-width: min(90vw, 600px);
-  --main-tool-modal-header-padding: 20px 24px;
-  --main-tool-modal-body-padding: 20px 24px;
-}
-
-.modal-header h3 {
-  margin: 0;
-  font-size: 18px;
-}
-
-.modal-footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  padding: 16px 24px;
-  border-top: 1px solid rgba(255, 255, 255, 0.5);
-}
-
 .check-tool-simple-modal-footer {
   display: flex;
   justify-content: flex-end;
@@ -2970,6 +2943,10 @@ justify-content: center;
   margin: 20px -18px -20px;
   padding: 16px 18px;
   border-top: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.check-tool-batch-replace-content {
+  min-height: 0;
 }
 
 .form-group {
