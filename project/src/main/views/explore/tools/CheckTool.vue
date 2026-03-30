@@ -829,26 +829,22 @@
     </teleport>
 
     <!-- 调值字符显示对话框 -->
-    <teleport to="body">
-      <div v-if="showToneCharsModal" class="modal-overlay" @click.self="showToneCharsModal = false">
-        <div class="main-tool-modal">
-          <div class="modal-header">
-            <h3>📊 {{ toneCharsModalTitle }}</h3>
-            <button class="close-btn close-btn-lg close-btn-inline" @click="showToneCharsModal = false">×</button>
-          </div>
-
-          <div class="modal-body">
-            <div class="tone-chars-display">
-              {{ toneCharsModalContent }}
-            </div>
-          </div>
-
-          <div class="modal-footer">
-            <button class="main-glass-button" data-variant="primary" @click="showToneCharsModal = false">{{ t('tools.checkTool.toneChars.close') }}</button>
-          </div>
-        </div>
+    <AppModal
+      :model-value="showToneCharsModal"
+      size="sm"
+      :title="toneCharsModalTitle"
+      :close-label="t('tools.common.close')"
+      :z-index="1000"
+      @update:modelValue="showToneCharsModal = false"
+    >
+      <div class="tone-chars-display">
+        {{ toneCharsModalContent }}
       </div>
-    </teleport>
+
+      <div class="check-tool-simple-modal-footer">
+        <button class="main-glass-button" data-variant="primary" @click="showToneCharsModal = false">{{ t('tools.checkTool.toneChars.close') }}</button>
+      </div>
+    </AppModal>
 
     <!-- 列筛选对话框 -->
     <teleport to="body">
@@ -903,6 +899,7 @@ import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { RecycleScroller } from 'vue-virtual-scroller'
+import AppModal from '@/components/common/AppModal.vue'
 import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
 import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
 import {
@@ -2975,6 +2972,15 @@ justify-content: center;
   justify-content: flex-end;
   gap: 12px;
   padding: 16px 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.check-tool-simple-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin: 20px -18px -20px;
+  padding: 16px 18px;
   border-top: 1px solid rgba(255, 255, 255, 0.5);
 }
 
