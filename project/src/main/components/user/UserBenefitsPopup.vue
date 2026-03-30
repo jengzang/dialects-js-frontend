@@ -1,12 +1,12 @@
 <template>
-  <Teleport to="body">
-    <Transition name="popup-fade">
-      <div
-        v-if="visible"
-        class="modal-overlay"
-        @click.self="closePopup"
-      >
-        <div class="benefits-popup modal-frame popup-animated">
+  <AppModal
+    :model-value="visible"
+    size="lg"
+    transition-name="fade-scale"
+    :show-close="false"
+    @update:modelValue="closePopup"
+  >
+    <div class="benefits-popup popup-animated">
           <div class="popup-header">
             <h3>{{ t('user.benefitsPopup.title') }}</h3>
             <button
@@ -73,15 +73,14 @@
               <p class="cta-hint">{{ t('user.benefitsPopup.ctaHint') }}</p>
             </div>
           </div>
-        </div>
-      </div>
-    </Transition>
-  </Teleport>
+    </div>
+  </AppModal>
 </template>
 
 <script setup>
 import { computed, onBeforeUnmount, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
+import AppModal from '@/components/common/AppModal.vue'
 import { ROLE_LIMITS, LOCATION_LIMITS } from '@/main/config/constants.js'
 import { userStore } from '@/main/store/store.js'
 
@@ -335,25 +334,16 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
-.modal-overlay {
-  --overlay-z-index: 999999;
-  --overlay-padding: 0;
-}
-
 .benefits-popup {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(40px) saturate(180%);
-  -webkit-backdrop-filter: blur(40px) saturate(180%);
-  border-radius: 24px;
-  max-width: 700px;
-  width: 90%;
-  max-height: 85vh;
-  box-shadow:
-    0 1px 2px rgba(0, 0, 0, 0.04),
-    0 8px 32px rgba(0, 0, 0, 0.12),
-    0 16px 64px rgba(0, 0, 0, 0.08),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.9);
-  border: 0.5px solid rgba(255, 255, 255, 0.8);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: calc(100% + var(--modal-content-padding-top) + var(--modal-content-padding-bottom));
+  margin:
+    calc(-1 * var(--modal-content-padding-top))
+    calc(-1 * var(--modal-content-padding-inline))
+    calc(-1 * var(--modal-content-padding-bottom));
+  overflow: hidden;
 }
 
 .popup-header {
@@ -599,21 +589,6 @@ onBeforeUnmount(() => {
   font-weight: 500;
 }
 
-.popup-fade-enter-active,
-.popup-fade-leave-active {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.popup-fade-enter-from,
-.popup-fade-leave-to {
-  opacity: 0;
-}
-
-.popup-fade-enter-from .benefits-popup,
-.popup-fade-leave-to .benefits-popup {
-  transform: scale(0.95) translateY(-20px);
-}
-
 .popup-animated {
   animation: popup-bounce-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
@@ -635,11 +610,6 @@ onBeforeUnmount(() => {
 }
 
 @media (max-aspect-ratio: 1/1) {
-  .benefits-popup {
-    width: 95%;
-    max-height: 90vh;
-  }
-
   .popup-header {
     padding: 24px 20px 12px 20px;
   }
