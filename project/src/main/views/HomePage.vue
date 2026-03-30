@@ -545,13 +545,15 @@
     </UpdateNoticeModal>
 
     <!-- Support Modal -->
-    <Teleport to="body">
-      <transition name="modal">
-        <div v-if="showSupport" class="modal-overlay" @click="showSupport = false">
-          <div class="modal-content close-btn-host" @click.stop>
+    <AppModal
+      v-model="showSupport"
+      size="sm"
+      :show-close="false"
+    >
+      <div class="home-support-shell" @click.stop>
             <button class="close-btn close-btn-lg close-btn-corner" @click="showSupport = false">✕</button>
-            <h3 class="modal-title">{{ $t('home.supportModal.title') }}</h3>
-            <p class="modal-subtitle">{{ $t('home.supportModal.subtitle') }}</p>
+            <h3 class="home-support-title">{{ $t('home.supportModal.title') }}</h3>
+            <p class="home-support-subtitle">{{ $t('home.supportModal.subtitle') }}</p>
             <div class="donate-qr-grid">
               <div class="donate-qr-box">
                 <img src="@/assets/picture/weixin.png" :alt="$t('home.supportModal.weixinAlt')" />
@@ -562,10 +564,8 @@
                 <p class="donate-qr-label">{{ $t('home.supportModal.alipayLabel') }}</p>
               </div>
             </div>
-          </div>
-        </div>
-      </transition>
-    </Teleport>
+      </div>
+    </AppModal>
   </div>
 </template>
 
@@ -573,6 +573,7 @@
 import { computed, ref, onMounted, defineAsyncComponent } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import AppModal from '@/components/common/AppModal.vue'
 import { getTodayVisits, getTotalVisits } from '@/api/logs/index.js'
 import { queryCount } from '@/api/sql/index.js'
 
@@ -1536,26 +1537,20 @@ onMounted(() => {
 }
 
 /* Modal */
-.modal-overlay {
-  --overlay-z-index: 9999;
-  --overlay-padding: 1.5rem;
-}
-
-.modal-content {
+.home-support-shell {
   position: relative;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(30px);
-  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  height: calc(100% + var(--modal-content-padding-top) + var(--modal-content-padding-bottom));
+  margin:
+    calc(-1 * var(--modal-content-padding-top))
+    calc(-1 * var(--modal-content-padding-inline))
+    calc(-1 * var(--modal-content-padding-bottom));
+  overflow: auto;
   padding: 2.5rem 2rem;
-  max-width: 450px;
-  width: 100%;
-  max-height: 90vh;
-  overflow-y: auto;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(0, 122, 255, 0.2);
 }
 
-.modal-title {
+.home-support-title {
   font-size: 1.75rem;
   font-weight: 700;
   text-align: center;
@@ -1563,7 +1558,7 @@ onMounted(() => {
   color: #007aff;
 }
 
-.modal-subtitle {
+.home-support-subtitle {
   text-align: center;
   color: rgba(0, 0, 0, 0.6);
   margin-bottom: 2rem;
@@ -1602,18 +1597,6 @@ onMounted(() => {
   font-weight: 600;
   color: #1d1d1f;
   text-align: center;
-}
-
-.modal-enter-active, .modal-leave-active {
-  transition: all 0.3s cubic-bezier(0.32, 0.72, 0, 1);
-}
-
-.modal-enter-from, .modal-leave-to {
-  opacity: 0;
-}
-
-.modal-enter-from .modal-content, .modal-leave-to .modal-content {
-  transform: scale(0.9) translateY(20px);
 }
 
 /* Responsive */
@@ -1665,16 +1648,11 @@ onMounted(() => {
   .footer-divider { display: none; }
 
   /* Modal 移動端優化 */
-  .modal-overlay {
-    --overlay-padding: 0;
-  }
-
-  .modal-content {
+  .home-support-shell {
     padding: 2rem 1.5rem;
-    width: auto;
   }
 
-  .modal-title {
+  .home-support-title {
     font-size: 1.5rem;
   }
 
