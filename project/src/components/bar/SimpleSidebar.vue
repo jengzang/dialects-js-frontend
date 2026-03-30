@@ -53,56 +53,57 @@
   </Transition>
 
   <!-- 访问历史弹窗 -->
-  <Teleport to="body">
-    <Transition name="fade-scale">
-      <div v-if="isStatsExpanded" class="modal-overlay" @click.self="closeStatsPanel">
-        <div class="glass-card stats-modal-card close-btn-host">
-          <button class="close-btn close-btn-lg close-btn-corner" @click="closeStatsPanel">&times;</button>
-          <h3 class="modal-title">📊 {{ t('navigation.stats.historyTitle') }}</h3>
+  <AppModal
+    :model-value="isStatsExpanded"
+    size="sm"
+    :show-close="false"
+    @update:modelValue="closeStatsPanel"
+  >
+    <div class="stats-modal-shell close-btn-host">
+      <button class="close-btn close-btn-lg close-btn-corner" @click="closeStatsPanel">&times;</button>
+      <h3 class="stats-modal-title">📊 {{ t('navigation.stats.historyTitle') }}</h3>
 
-          <div v-if="loadingStats" class="loading-state">
-            <div class="ui-loading--page" aria-hidden="true"></div>
-            <p>{{ t('navigation.stats.loading') }}</p>
-          </div>
+      <div v-if="loadingStats" class="loading-state">
+        <div class="ui-loading--page" aria-hidden="true"></div>
+        <p>{{ t('navigation.stats.loading') }}</p>
+      </div>
 
-          <div v-else class="stats-content">
-            <div class="stats-summary-large">
-              <div class="stat-card">
-                <div class="stat-icon">📅</div>
-                <div class="stat-info">
-                  <span class="stat-label-large">{{ t('navigation.stats.todayVisits') }}</span>
-                  <span class="stat-value-large">{{ todayVisits }}</span>
-                </div>
-              </div>
-              <div class="stat-card">
-                <div class="stat-icon">🌐</div>
-                <div class="stat-info">
-                  <span class="stat-label-large">{{ t('navigation.stats.totalVisits') }}</span>
-                  <span class="stat-value-large">{{ totalVisits }}</span>
-                </div>
-              </div>
+      <div v-else class="stats-content">
+        <div class="stats-summary-large">
+          <div class="stat-card">
+            <div class="stat-icon">📅</div>
+            <div class="stat-info">
+              <span class="stat-label-large">{{ t('navigation.stats.todayVisits') }}</span>
+              <span class="stat-value-large">{{ todayVisits }}</span>
             </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">🌐</div>
+            <div class="stat-info">
+              <span class="stat-label-large">{{ t('navigation.stats.totalVisits') }}</span>
+              <span class="stat-value-large">{{ totalVisits }}</span>
+            </div>
+          </div>
+        </div>
 
-            <div class="history-section">
-              <h4 class="section-title">{{ t('navigation.stats.historyRecords') }}</h4>
-              <div class="history-list ui-scrollbar">
-                <div v-for="item in visitHistory" :key="item.date" class="history-item-modal">
-                  <span class="history-date">{{ item.date }}</span>
-                  <div class="history-bar-container">
-                    <div
-                      class="history-bar"
-                      :style="{ width: (item.count / Math.max(...visitHistory.map(v => v.count)) * 100) + '%' }"
-                    ></div>
-                  </div>
-                  <span class="history-count">{{ item.count }}</span>
-                </div>
+        <div class="history-section">
+          <h4 class="section-title">{{ t('navigation.stats.historyRecords') }}</h4>
+          <div class="history-list ui-scrollbar">
+            <div v-for="item in visitHistory" :key="item.date" class="history-item-modal">
+              <span class="history-date">{{ item.date }}</span>
+              <div class="history-bar-container">
+                <div
+                  class="history-bar"
+                  :style="{ width: (item.count / Math.max(...visitHistory.map(v => v.count)) * 100) + '%' }"
+                ></div>
               </div>
+              <span class="history-count">{{ item.count }}</span>
             </div>
           </div>
         </div>
       </div>
-    </Transition>
-  </Teleport>
+    </div>
+  </AppModal>
 
   <!-- Submenu panel (liquid glass style) -->
   <Teleport to="body">
@@ -136,6 +137,7 @@
 import { ref, onMounted, onBeforeUnmount, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
+import AppModal from '@/components/common/AppModal.vue'
 import { clearToken, getToken } from '@/api/auth/auth.js'
 import { getTodayVisits, getTotalVisits, getVisitHistory } from '@/api/logs/index.js'
 import {userStore} from "@/main/store/store.js";
@@ -572,14 +574,25 @@ onBeforeUnmount(() => {
 }
 
 /* 弹窗样式 (复用 NavBar 的样式) */
-.stats-modal-card {
-  max-width: 700px;
-  width: 90%;
-  max-height: 80dvh;
-  overflow: hidden;
+.stats-modal-shell {
+  position: relative;
   display: flex;
   flex-direction: column;
+  min-height: calc(100% + var(--modal-content-padding-top) + var(--modal-content-padding-bottom));
+  margin:
+    calc(-1 * var(--modal-content-padding-top))
+    calc(-1 * var(--modal-content-padding-inline))
+    calc(-1 * var(--modal-content-padding-bottom));
   padding: 10px;
+  overflow: hidden;
+}
+
+.stats-modal-title {
+  margin: 0 0 20px;
+  font-size: 20px;
+  font-weight: 600;
+  color: #333;
+  text-align: center;
 }
 
 .stats-content {
@@ -710,18 +723,6 @@ onBeforeUnmount(() => {
   color: #005fd3;
   font-weight: 700;
   text-align: right;
-}
-
-/* 过渡动画 */
-.fade-scale-enter-active,
-.fade-scale-leave-active {
-  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-}
-
-.fade-scale-enter-from,
-.fade-scale-leave-to {
-  opacity: 0;
-  transform: scale(0.95);
 }
 
 /* Sidebar 滑动动画 */
@@ -880,8 +881,5 @@ onBeforeUnmount(() => {
     /* 在移動設備上確保不會超出螢幕 */
     max-width: calc(100vw - 20px);
   }
-}
-.modal-overlay {
-  --overlay-padding: 0;
 }
 </style>
