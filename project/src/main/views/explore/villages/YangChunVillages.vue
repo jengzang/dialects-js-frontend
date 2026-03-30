@@ -19,7 +19,7 @@
       </div>
     </div>
 
-    <div class="tree-content u-scrollbar">
+    <div class="tree-content ui-scrollbar">
       <div v-if="displayData.length === 0" class="empty-state">
         {{ t('villages.pages.yangChun.noResults') }}
       </div>

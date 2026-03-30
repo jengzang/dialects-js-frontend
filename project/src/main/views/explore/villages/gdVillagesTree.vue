@@ -21,7 +21,7 @@
     </div>
 
     <!-- Content Area -->
-    <div class="content-area u-scrollbar">
+    <div class="content-area ui-scrollbar">
       <!-- Initial Loading State -->
       <div v-if="isInitialLoading" class="initial-state">
         <div class="ui-loading--page" aria-hidden="true"></div>

@@ -147,7 +147,7 @@
           </div>
         </div>
 
-        <div class="tree-body u-scrollbar">
+        <div class="tree-body ui-scrollbar">
           <div v-if="loading" class="state-block">
             <div class="ui-loading--page" aria-hidden="true"></div>
             <p>{{ t('charClass.states.loading', { name: t(currentTableConfig.labelKey) }) }}</p>

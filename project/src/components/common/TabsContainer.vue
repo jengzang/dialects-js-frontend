@@ -1,6 +1,6 @@
 <template>
   <div class="tabs-wrapper">
-    <div class="tabs u-hidden-scrollbar">
+    <div class="tabs ui-scrollbar--hidden">
       <div
         v-for="tab in tabs"
         :key="tab.name"

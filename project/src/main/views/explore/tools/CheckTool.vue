@@ -96,7 +96,7 @@
           </button>
         </div>
 
-        <div v-if="!sidebarCollapsed" class="sidebar-content u-scrollbar">
+        <div v-if="!sidebarCollapsed" class="sidebar-content ui-scrollbar">
           <!-- 错误统计卡片 -->
           <div class="sidebar-section" :class="{ collapsed: !errorStatsExpanded }">
             <div class="section-header" @click="toggleErrorStats">
@@ -381,7 +381,7 @@
               :buffer="200"
               key-field="row"
               :key="`scroller-${showingAll}-${filterOnset.size}-${filterRime.size}-${filterTone.size}`"
-              class="virtual-table-scroller u-scrollbar"
+              class="virtual-table-scroller ui-scrollbar"
             >
               <div
                 class="virtual-table-row"
@@ -560,7 +560,7 @@
 
             <textarea
               v-model="commandInput"
-              class="command-textarea u-scrollbar"
+              class="command-textarea ui-scrollbar"
               :placeholder="t('tools.checkTool.command.placeholder')"
             ></textarea>
 
@@ -575,7 +575,7 @@
                 <h4>📋 {{ t('tools.checkTool.command.resultTitle') }}</h4>
                 <button class="main-glass-button" data-size="small" @click="clearCommandLog">{{ t('tools.checkTool.command.clearResult') }}</button>
               </div>
-              <div class="result-log u-scrollbar">
+              <div class="result-log ui-scrollbar">
                 <div
                   v-for="(log, index) in commandLog"
                   :key="index"
@@ -665,7 +665,7 @@
             <button class="close-btn close-btn-lg close-btn-inline" @click="showHelpModal = false">×</button>
           </div>
 
-          <div class="modal-body help-content u-scrollbar">
+          <div class="modal-body help-content ui-scrollbar">
 <!--            <div class="help-section">-->
 <!--              <h4>📋 文件要求</h4>-->
 <!--              <ul>-->
@@ -757,7 +757,7 @@
             <button class="close-btn close-btn-lg close-btn-inline" @click="showFormatHelpModal = false">×</button>
           </div>
 
-          <div class="modal-body help-content u-scrollbar">
+          <div class="modal-body help-content ui-scrollbar">
             <!-- 音典格式 -->
             <div class="help-section">
               <h4>{{ t('tools.checkTool.formatHelp.singleTitle') }}</h4>
@@ -871,7 +871,7 @@
               </button>
             </div>
             
-            <div class="filter-values-list u-scrollbar">
+            <div class="filter-values-list ui-scrollbar">
               <div
                 v-for="value in getUniqueValues(filterColumnType)"
                 :key="value"

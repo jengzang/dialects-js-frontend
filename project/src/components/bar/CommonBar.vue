@@ -14,7 +14,7 @@
         </div>
       </div>
 
-      <nav class="commonbar-tabs u-hidden-scrollbar" @mouseleave="handleTabLeave">
+      <nav class="commonbar-tabs ui-scrollbar--hidden" @mouseleave="handleTabLeave">
         <RouterLink
           v-for="t in visibleTabs"
           :key="t.tab"
@@ -56,7 +56,7 @@
         {{ title }}
       </div>
 
-      <nav class="commonbar-tabs u-hidden-scrollbar">
+      <nav class="commonbar-tabs ui-scrollbar--hidden">
         <RouterLink
           v-for="t in visibleTabs"
           :key="t.tab"
