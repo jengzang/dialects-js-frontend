@@ -258,14 +258,15 @@
       </div>
     </div>
 
-    <div v-if="showDefaultRefModal" class="modal-overlay" @click.self="showDefaultRefModal = false">
-      <div class="main-tool-modal">
-        <div class="modal-header">
-          <h3 class="modal-title">📋 {{ t('tools.merge.modal.title') }}</h3>
-          <button class="close-btn close-btn-lg close-btn-inline" :title="t('tools.common.close')" @click="showDefaultRefModal = false">✕</button>
-        </div>
-
-        <div class="modal-tabs">
+    <AppModal
+      :model-value="showDefaultRefModal"
+      size="lg"
+      :title="t('tools.merge.modal.title')"
+      :close-label="t('tools.common.close')"
+      :z-index="1000"
+      @update:modelValue="showDefaultRefModal = false"
+    >
+      <div class="merge-default-ref-tabs">
           <button
             class="tab-btn"
             :class="{ active: currentTab === 'main' }"
@@ -282,8 +283,8 @@
           </button>
         </div>
 
-        <div class="modal-body">
-          <div class="table-container ui-scrollbar">
+      <div class="merge-default-ref-content">
+        <div class="table-container ui-scrollbar">
             <table v-if="currentTab === 'main'" class="data-table">
               <thead>
                 <tr>
@@ -318,11 +319,11 @@
                 })
               }}
             </div>
-          </div>
         </div>
+      </div>
 
-        <div class="modal-footer">
-          <button class="main-glass-button" data-variant="primary" @click="downloadDefaultReference">
+      <div class="merge-default-ref-footer">
+        <button class="main-glass-button" data-variant="primary" @click="downloadDefaultReference">
             <span class="icon">⬇️</span>
             <span>{{ t('tools.merge.modal.downloadDefault') }}</span>
           </button>
@@ -334,10 +335,9 @@
           >
             <span class="icon">✅</span>
             <span>{{ t('tools.merge.modal.useDefault') }}</span>
-          </button>
-        </div>
+        </button>
       </div>
-    </div>
+    </AppModal>
   </div>
 </template>
 
@@ -346,6 +346,7 @@ import { computed, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import * as XLSX from 'xlsx'
+import AppModal from '@/components/common/AppModal.vue'
 import { uploadReference, uploadFiles, executeMerge, getMergeProgress, downloadMerge } from '@/api/tools/index.js'
 import { userStore } from '@/main/store/store.js'
 import { showError, showSuccess, showWarning } from '@/utils/message.js'
@@ -1241,30 +1242,16 @@ const reset = () => {
 }
 
 /* 模态弹窗样式 */
-.modal-overlay {
-  --overlay-z-index: 1000;
-  --overlay-padding: 20px;
-}
-
-.main-tool-modal {
-  --main-tool-modal-width: min(95vw, 1100px);
-  --main-tool-modal-max-height: 80vh;
-  --main-tool-modal-header-padding: 20px 28px;
-  --main-tool-modal-header-border-color: rgba(0, 0, 0, 0.08);
-  --main-tool-modal-body-padding: 0;
-  --main-tool-modal-body-overflow-y: hidden;
-  --main-tool-modal-background: rgba(255, 255, 255, 0.98);
-  --main-tool-modal-border-color: rgba(255, 255, 255, 0.8);
-  --main-tool-modal-radius: 20px;
-  --main-tool-modal-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
-}
-
-.modal-tabs {
+.merge-default-ref-tabs {
   display: flex;
   gap: 8px;
   padding: 12px 28px;
   border-bottom: 1px solid rgba(0, 0, 0, 0.08);
   background: rgba(255, 255, 255, 0.3);
+}
+
+.merge-default-ref-content {
+  min-height: 0;
 }
 
 .tab-btn {
@@ -1292,7 +1279,7 @@ const reset = () => {
 
 .table-container {
   height: 100%;
-  max-height: 60vh;
+  max-height: 60dvh;
   overflow: auto;
   padding: 16px 28px;
 }
@@ -1341,11 +1328,12 @@ const reset = () => {
   margin-top: 8px;
 }
 
-.modal-footer {
+.merge-default-ref-footer {
   display: flex;
   justify-content: flex-end;
   gap: 12px;
-  padding: 16px 28px;
+  margin: 0 -24px -20px;
+  padding: 16px 24px;
   border-top: 1px solid rgba(0, 0, 0, 0.08);
   background: rgba(255, 255, 255, 0.3);
 }
@@ -1549,22 +1537,7 @@ const reset = () => {
   }
 
   /* 默认参考表模态框移动端适配 */
-  .modal-overlay {
-    --overlay-padding: 10px;
-  }
-
-  .main-tool-modal {
-    --main-tool-modal-width: 100%;
-    --main-tool-modal-max-height: 85vh;
-    --main-tool-modal-header-padding: 16px;
-    --main-tool-modal-radius: 16px;
-  }
-
-  .modal-title {
-    font-size: 18px;
-  }
-
-  .modal-tabs {
+  .merge-default-ref-tabs {
     padding: 10px 16px;
     gap: 6px;
     overflow-x: auto;
@@ -1577,7 +1550,7 @@ const reset = () => {
   }
 
   .table-container {
-    max-height: 50vh;
+    max-height: 50dvh;
     padding: 12px 16px;
   }
 
@@ -1595,13 +1568,15 @@ const reset = () => {
     font-size: 11px;
   }
 
-  .modal-footer {
+  .merge-default-ref-footer {
+    margin-inline: -24px;
+    margin-bottom: -20px;
     padding: 12px 16px;
     flex-direction: column;
     gap: 8px;
   }
 
-  .modal-footer .main-glass-button {
+  .merge-default-ref-footer .main-glass-button {
     width: 100%;
   }
 }
