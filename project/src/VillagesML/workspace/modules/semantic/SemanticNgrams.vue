@@ -192,15 +192,13 @@
     </div>
 
     <!-- Lexicon Modal -->
-    <Teleport to="body">
-      <Transition name="modal-fade">
-        <div v-if="showLexiconModal" class="lexicon-overlay" @click.self="showLexiconModal = false">
-          <div class="lexicon-modal">
-            <div class="lexicon-header">
-              <h3>📖 語義詞典</h3>
-              <button class="close-button" @click="showLexiconModal = false">×</button>
-            </div>
-            <div class="lexicon-body">
+    <AppModal
+      :model-value="showLexiconModal"
+      size="lg"
+      title="📖 語義詞典"
+      @update:modelValue="showLexiconModal = false"
+    >
+      <div class="lexicon-body">
               <!-- 9个主类别 -->
               <div class="lexicon-section">
                 <h4>主類別 (v1.0.0)</h4>
@@ -240,16 +238,14 @@
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
-        </div>
-      </Transition>
-    </Teleport>
+      </div>
+    </AppModal>
   </div>
 </template>
 
 <script setup>
 import { ref, computed, watch } from 'vue'
+import AppModal from '@/components/common/AppModal.vue'
 import HelpIcon from '@/components/ToastAndHelp/HelpIcon.vue'
 import {
   getSemanticBigrams,
@@ -706,71 +702,9 @@ watch(detailMode, () => {
 }
 
 /* Lexicon Modal Styles */
-.lexicon-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(4px);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 9999;
-  padding: 20px;
-}
-
-.lexicon-modal {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px);
-  border-radius: 16px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-  max-width: 1200px;
-  width: 100%;
-  max-height: 90vh;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-.lexicon-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20px 24px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-}
-
-.lexicon-header h3 {
-  font-size: 20px;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin: 0;
-}
-
-.close-button {
-  width: 32px;
-  height: 32px;
-  border: none;
-  background: rgba(0, 0, 0, 0.05);
-  border-radius: 8px;
-  font-size: 24px;
-  line-height: 1;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  color: var(--text-secondary);
-}
-
-.close-button:hover {
-  background: rgba(0, 0, 0, 0.1);
-  color: var(--text-primary);
-}
-
 .lexicon-body {
-  flex: 1;
-  overflow-y: auto;
-  padding: 24px;
+  padding: 0;
+  overflow: visible;
 }
 
 .lexicon-section {
@@ -846,24 +780,4 @@ watch(detailMode, () => {
   transform: translateY(-2px);
 }
 
-/* Modal Transition */
-.modal-fade-enter-active,
-.modal-fade-leave-active {
-  transition: opacity 0.3s ease;
-}
-
-.modal-fade-enter-from,
-.modal-fade-leave-to {
-  opacity: 0;
-}
-
-.modal-fade-enter-active .lexicon-modal,
-.modal-fade-leave-active .lexicon-modal {
-  transition: transform 0.3s ease;
-}
-
-.modal-fade-enter-from .lexicon-modal,
-.modal-fade-leave-to .lexicon-modal {
-  transform: scale(0.9);
-}
 </style>
