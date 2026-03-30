@@ -1,88 +1,90 @@
 <template>
-  <Teleport to="body">
-    <div v-if="modelValue" class="modal-overlay" @mousedown.self="closeModal">
-      <div class="main-query-modal" role="dialog" aria-modal="true">
-        <!-- 头部 -->
-        <div class="modal-header">
-<!--          <div class="header-left">-->
-            <div class="modal-title main-query-modal-title">🗂️ {{ $t('query.components.partitionModal.title') }}</div>
-            <!-- 选择模式开关 -->
-            <div class="selection-mode-toggle">
-              <label class="toggle-label">{{ $t('query.components.partitionModal.enableSelection') }}</label>
-              <button
-                  class="toggle-switch toggle-switch-base"
-                  :class="{ active: selectionMode }"
-                  @click="toggleSelectionMode"
-                  type="button"
-              >
-                <span class="toggle-slider toggle-switch-slider-base"></span>
-              </button>
-            </div>
-<!--          </div>-->
-          <button class="close-btn close-btn-sm close-btn-inline" type="button" @click="closeModal">×</button>
+  <AppModal
+    :model-value="modelValue"
+    size="lg"
+    :show-close="false"
+    @update:modelValue="closeModal"
+  >
+    <div class="partition-modal-shell">
+      <!-- 头部 -->
+      <div class="partition-modal-header">
+        <div class="partition-modal-title">🗂️ {{ $t('query.components.partitionModal.title') }}</div>
+        <!-- 选择模式开关 -->
+        <div class="selection-mode-toggle">
+          <label class="toggle-label">{{ $t('query.components.partitionModal.enableSelection') }}</label>
+          <button
+            class="toggle-switch toggle-switch-base"
+            :class="{ active: selectionMode }"
+            @click="toggleSelectionMode"
+            type="button"
+          >
+            <span class="toggle-slider toggle-switch-slider-base"></span>
+          </button>
+        </div>
+        <button class="close-btn close-btn-sm close-btn-inline" type="button" @click="closeModal">×</button>
+      </div>
+
+      <!-- Tab 切换 + 确认按钮 -->
+      <div class="partition-tabs-row">
+        <div class="partition-tabs">
+          <button
+            v-for="tab in tabOptions"
+            :key="tab"
+            class="partition-tab-btn"
+            :class="{ active: activeTab === tab }"
+            @click="activeTab = tab"
+          >
+            {{ getTabLabel(tab) }}
+          </button>
         </div>
 
-        <!-- Tab 切换 + 确认按钮 -->
-        <div class="partition-tabs-row">
-          <div class="partition-tabs">
-            <button
-                v-for="tab in tabOptions"
-                :key="tab"
-                class="partition-tab-btn"
-                :class="{ active: activeTab === tab }"
-                @click="activeTab = tab"
-            >
-              {{ getTabLabel(tab) }}
-            </button>
-          </div>
+        <div v-if="selectionMode" class="selection-actions">
+          <div v-if="selectionWarning" class="selection-warning-inline">{{ selectionWarning }}</div>
+          <button
+            class="confirm-btn"
+            :disabled="!canConfirmSelection"
+            @click="confirmSelection"
+            type="button"
+          >
+            {{ $t('query.components.partitionModal.confirmSelection', { count: selectedLocations.size }) }}
+          </button>
+        </div>
+      </div>
 
-          <div v-if="selectionMode" class="selection-actions">
-            <div v-if="selectionWarning" class="selection-warning-inline">{{ selectionWarning }}</div>
-            <button
-                class="confirm-btn"
-                :disabled="!canConfirmSelection"
-                @click="confirmSelection"
-                type="button"
-            >
-              {{ $t('query.components.partitionModal.confirmSelection', { count: selectedLocations.size }) }}
-            </button>
-          </div>
+      <!-- 主体：树状图 -->
+      <div class="partition-modal-body ui-scrollbar">
+        <div v-if="isLoading" class="loading-state loading-state-base">
+          <div class="ui-loading--page" aria-hidden="true"></div>
+          <span>{{ $t('query.components.partitionModal.loading') }}</span>
         </div>
 
-        <!-- 主体：树状图 -->
-        <div class="modal-body ui-scrollbar">
-          <div v-if="isLoading" class="loading-state loading-state-base">
-            <div class="ui-loading--page" aria-hidden="true"></div>
-            <span>{{ $t('query.components.partitionModal.loading') }}</span>
-          </div>
+        <div v-else-if="errorMessage" class="error-state">
+          <span>❌ {{ errorMessage }}</span>
+        </div>
 
-          <div v-else-if="errorMessage" class="error-state">
-            <span>❌ {{ errorMessage }}</span>
-          </div>
-
-          <div v-else class="partition-tree-container" :class="{ 'selection-mode': selectionMode }">
-            <PartitionTreeNode
-                v-for="(value, key) in currentTree"
-                :key="key"
-                :label="key"
-                :children="value"
-                :level="0"
-                :selection-mode="selectionMode"
-                :selected-locations="selectedLocations"
-                :max-selection="maxSelection"
-                @toggle-location="toggleLocation"
-                @toggle-subtree="toggleSubtreeLocations"
-            />
-          </div>
+        <div v-else class="partition-tree-container" :class="{ 'selection-mode': selectionMode }">
+          <PartitionTreeNode
+            v-for="(value, key) in currentTree"
+            :key="key"
+            :label="key"
+            :children="value"
+            :level="0"
+            :selection-mode="selectionMode"
+            :selected-locations="selectedLocations"
+            :max-selection="maxSelection"
+            @toggle-location="toggleLocation"
+            @toggle-subtree="toggleSubtreeLocations"
+          />
         </div>
       </div>
     </div>
-  </Teleport>
+  </AppModal>
 </template>
 
 <script setup>
 import { ref, computed, watch, defineComponent, h, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
+import AppModal from '@/components/common/AppModal.vue'
 
 const { t } = useI18n()
 
@@ -716,29 +718,29 @@ const PartitionTreeNode = defineComponent({
 </script>
 
 <style scoped>
-/* Modal overlay */
-.main-query-modal {
-  --main-query-modal-width: min(920px, 94vw);
-  --main-query-modal-max-height: 88vh;
-  --main-query-modal-background: var(--glass-lighter3);
+/* Modal shell */
+.partition-modal-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100% + var(--modal-content-padding-top) + var(--modal-content-padding-bottom));
+  margin:
+    calc(-1 * var(--modal-content-padding-top))
+    calc(-1 * var(--modal-content-padding-inline))
+    calc(-1 * var(--modal-content-padding-bottom));
+  overflow: hidden;
 }
 
 /* Modal header */
-.partition-modal-header-unused {
+.partition-modal-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
   padding: 12px 14px;
   border-bottom: 1px solid var(--border-gray-lightest);
 }
 
-.header-left {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-.partition-modal-title-unused {
+.partition-modal-title {
   font-size: 15px;
   font-weight: 650;
   color: var(--text-dark-light);
@@ -865,8 +867,9 @@ const PartitionTreeNode = defineComponent({
 }
 
 /* Modal body */
-.modal-body {
+.partition-modal-body {
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
   padding: 24px;
   background: rgba(255, 255, 255, 0.3);
@@ -879,12 +882,6 @@ const PartitionTreeNode = defineComponent({
   gap: 16px;
   color: #6e6e73;
 }
-
-.modal-overlay {
-  --overlay-z-index: 20000;
-}
-
-
 
 .error-state {
   color: #d32f2f;
@@ -1084,13 +1081,6 @@ const PartitionTreeNode = defineComponent({
 
 /* Responsive */
 @media (max-width: 768px) {
-  .main-query-modal {
-    width: 100%;
-    max-width: 100%;
-    max-height: 100dvh;
-    border-radius: 20px;
-  }
-
   .partition-tabs-row {
     flex-direction: column;
     gap: 12px;
@@ -1102,8 +1092,7 @@ const PartitionTreeNode = defineComponent({
     flex-wrap: wrap;
   }
 
-
-  .modal-body {
+  .partition-modal-body {
     padding: 16px;
   }
 
