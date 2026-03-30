@@ -1,80 +1,77 @@
 <template>
-  <Teleport to="body">
-    <div v-if="visible" class="modal-overlay" @mousedown.self="$emit('close')">
-      <div class="main-glass-modal" role="dialog" aria-modal="true" @click.stop>
-        <div class="modal-header main-glass-modal-header">
-          <div class="modal-title main-glass-modal-title">📍 {{ t('result.locationDetailPopup.title', { name: locationName }) }}</div>
-          <button class="close-btn close-btn-sm close-btn-inline" type="button" :aria-label="t('common.button.close')" @click="$emit('close')">✕</button>
+  <AppModal
+    :model-value="visible"
+    size="sm"
+    :title="modalTitle"
+    :close-label="t('common.button.close')"
+    @update:modelValue="handleClose"
+  >
+    <div v-if="loading" class="loading-state main-modal-loading-state">
+      <div class="ui-loading--page" aria-hidden="true"></div>
+      <span>{{ t('result.locationDetailPopup.loading') }}</span>
+    </div>
+
+    <div v-else-if="data && data.data && data.data.length > 0" class="location-content">
+      <div class="info-section">
+        <div class="info-title">{{ data.data[0]['語言'] || locationName }}</div>
+
+        <div class="info-item">
+          <span class="info-label">{{ t('result.locationDetailPopup.fields.mapPartition') }}</span>
+          <span class="info-value">{{ data.data[0]['地圖集二分區'] || t('result.terms.none') }}</span>
         </div>
 
-        <div class="modal-body main-glass-modal-body ui-scrollbar">
-          <div v-if="loading" class="loading-state main-modal-loading-state">
-            <div class="ui-loading--page" aria-hidden="true"></div>
-            <span>{{ t('result.locationDetailPopup.loading') }}</span>
-          </div>
+        <div class="info-item">
+          <span class="info-label">{{ t('result.locationDetailPopup.fields.yindianPartition') }}</span>
+          <span class="info-value">{{ data.data[0]['音典分區'] || t('result.terms.none') }}</span>
+        </div>
 
-          <div v-else-if="data && data.data && data.data.length > 0" class="location-content">
-            <div class="info-section">
-              <div class="info-title">{{ data.data[0]['語言'] || locationName }}</div>
+        <div class="info-item">
+          <span class="info-label">{{ t('result.locationDetailPopup.fields.source') }}</span>
+          <span class="info-value">{{ data.data[0]['字表來源（母本）'] || t('result.terms.none') }}</span>
+        </div>
 
-              <div class="info-item">
-                <span class="info-label">{{ t('result.locationDetailPopup.fields.mapPartition') }}</span>
-                <span class="info-value">{{ data.data[0]['地圖集二分區'] || t('result.terms.none') }}</span>
-              </div>
+        <div class="info-item">
+          <span class="info-label">{{ t('result.locationDetailPopup.fields.coordinates') }}</span>
+          <span class="info-value">{{ formatCoordinates(data.data[0]['經緯度']) }}</span>
+        </div>
 
-              <div class="info-item">
-                <span class="info-label">{{ t('result.locationDetailPopup.fields.yindianPartition') }}</span>
-                <span class="info-value">{{ data.data[0]['音典分區'] || t('result.terms.none') }}</span>
-              </div>
-
-              <div class="info-item">
-                <span class="info-label">{{ t('result.locationDetailPopup.fields.source') }}</span>
-                <span class="info-value">{{ data.data[0]['字表來源（母本）'] || t('result.terms.none') }}</span>
-              </div>
-
-              <div class="info-item">
-                <span class="info-label">{{ t('result.locationDetailPopup.fields.coordinates') }}</span>
-                <span class="info-value">{{ formatCoordinates(data.data[0]['經緯度']) }}</span>
-              </div>
-
-              <div class="info-item">
-                <span class="info-label">{{ t('result.locationDetailPopup.fields.region') }}</span>
-                <span class="info-value">{{ formatAdministrativeRegion(data.data[0]) }}</span>
-              </div>
-            </div>
-
-            <div class="tone-section" v-if="getToneData(data.data[0]).length > 0">
-              <div class="section-title">{{ t('result.locationDetailPopup.toneSection.title') }}</div>
-              <table class="tone-table">
-                <thead>
-                  <tr>
-                    <th>{{ t('result.locationDetailPopup.toneSection.headers.class') }}</th>
-                    <th>{{ t('result.locationDetailPopup.toneSection.headers.value') }}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="(tone, index) in getToneData(data.data[0])" :key="index">
-                    <td>{{ tone.label }}</td>
-                    <td>{{ tone.value }}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <div v-else class="error-state main-modal-error-state">
-            <span>{{ t('result.locationDetailPopup.noData') }}</span>
-          </div>
+        <div class="info-item">
+          <span class="info-label">{{ t('result.locationDetailPopup.fields.region') }}</span>
+          <span class="info-value">{{ formatAdministrativeRegion(data.data[0]) }}</span>
         </div>
       </div>
+
+      <div class="tone-section" v-if="getToneData(data.data[0]).length > 0">
+        <div class="section-title">{{ t('result.locationDetailPopup.toneSection.title') }}</div>
+        <table class="tone-table">
+          <thead>
+            <tr>
+              <th>{{ t('result.locationDetailPopup.toneSection.headers.class') }}</th>
+              <th>{{ t('result.locationDetailPopup.toneSection.headers.value') }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(tone, index) in getToneData(data.data[0])" :key="index">
+              <td>{{ tone.label }}</td>
+              <td>{{ tone.value }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
-  </Teleport>
+
+    <div v-else class="error-state main-modal-error-state">
+      <span>{{ t('result.locationDetailPopup.noData') }}</span>
+    </div>
+  </AppModal>
 </template>
 
 <script setup>
 import { useI18n } from 'vue-i18n';
+import { computed } from 'vue';
+import AppModal from '@/components/common/AppModal.vue'
 
-defineProps({
+const props = defineProps({
   visible: { type: Boolean, default: false },
   locationName: { type: String, default: '' },
   data: { type: Object, default: null },
@@ -82,8 +79,9 @@ defineProps({
   position: { type: Object, default: () => ({ top: 0, left: 0 }) }
 });
 
-defineEmits(['close']);
+const emit = defineEmits(['close']);
 const { t } = useI18n();
+const modalTitle = computed(() => `📍 ${t('result.locationDetailPopup.title', { name: props.locationName })}`)
 
 const formatAdministrativeRegion = (data) => {
   const parts = [];
@@ -134,64 +132,13 @@ const getToneData = (data) => {
     }))
     .filter(tone => tone.value !== noneText);
 };
+
+const handleClose = () => {
+  emit('close');
+};
 </script>
 
-<style>
-/* 非 scoped 样式 - 全局遮罩和模态框 */
-.location-detail-glass-modal-unused {
-  width: min(720px, 94vw);
-  max-height: min(70vh, 640px);
-  overflow: hidden;
-  background: rgba(255, 255, 255, 0.85);
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  border-radius: 18px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  backdrop-filter: blur(18px) saturate(160%);
-  -webkit-backdrop-filter: blur(18px) saturate(160%);
-}
-
-.modal-overlay {
-  --overlay-z-index: 20000;
-}
-
-.location-detail-modal-header-unused {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 14px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-}
-
-.location-detail-modal-title-unused {
-  font-size: 15px;
-  font-weight: 650;
-  color: #1d1d1f;
-}
-
-.location-detail-modal-body-unused {
-  padding: 12px 14px 16px;
-  overflow: auto;
-  max-height: calc(min(70vh, 640px) - 100px);
-}
-</style>
-
 <style scoped>
-/* 地名详情弹窗 */
-.main-glass-modal {
-  width: min(500px, 94vw);
-  max-height: 80vh;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-.main-glass-modal .modal-body {
-  flex: 1;
-  overflow-y: auto;
-  padding: 20px 24px;
-  background: rgba(255, 255, 255, 0.3);
-}
-
 /* 加载状态 */
 .location-detail-loading-state-unused {
   display: flex;
@@ -325,17 +272,6 @@ const getToneData = (data) => {
 
 /* 响应式设计 */
 @media (max-width: 768px) {
-  .main-glass-modal {
-    width: 100%;
-    max-width: 100%;
-    max-height: 90vh;
-    border-radius: 20px 20px 0 0;
-  }
-
-  .main-glass-modal .modal-body {
-    padding: 16px;
-  }
-
   .info-label {
     min-width: 90px;
     font-size: 13px;
