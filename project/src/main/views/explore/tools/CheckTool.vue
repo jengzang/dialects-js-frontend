@@ -843,50 +843,46 @@
     </AppModal>
 
     <!-- 列筛选对话框 -->
-    <teleport to="body">
-      <div v-if="showFilterModal" class="modal-overlay filter-modal-overlay" @click.self="showFilterModal = false">
-        <div class="main-tool-modal">
-          <div class="modal-header">
-            <h3>
-              🔍 {{ t('tools.checkTool.filter.title', { column: getFilterColumnLabel(filterColumnType) }) }}
-            </h3>
-            <button class="close-btn close-btn-lg close-btn-inline" @click="showFilterModal = false">×</button>
-          </div>
+    <AppModal
+      :model-value="showFilterModal"
+      size="sm"
+      :title="t('tools.checkTool.filter.title', { column: getFilterColumnLabel(filterColumnType) })"
+      :close-label="t('tools.common.close')"
+      :z-index="1000"
+      @update:modelValue="showFilterModal = false"
+    >
+      <div class="filter-modal-body">
+        <div class="filter-actions">
+          <button class="main-glass-button" data-size="small" @click="toggleSelectAll">
+            {{ isAllSelected ? t('tools.checkTool.filter.clearAll') : t('tools.checkTool.filter.selectAll') }}
+          </button>
+          <button class="main-glass-button" data-size="small" data-variant="secondary" @click="invertSelection">
+            {{ t('tools.checkTool.filter.invert') }}
+          </button>
+        </div>
 
-          <div class="modal-body filter-modal-body">
-            <div class="filter-actions">
-              <button class="main-glass-button" data-size="small" @click="toggleSelectAll">
-                {{ isAllSelected ? t('tools.checkTool.filter.clearAll') : t('tools.checkTool.filter.selectAll') }}
-              </button>
-              <button class="main-glass-button" data-size="small" data-variant="secondary" @click="invertSelection">
-                {{ t('tools.checkTool.filter.invert') }}
-              </button>
-            </div>
-            
-            <div class="filter-values-list ui-scrollbar">
-              <div
-                v-for="value in getUniqueValues(filterColumnType)"
-                :key="value"
-                class="filter-value-item"
-                :class="{ 'selected': getCurrentFilterSet().has(value) }"
-                @click="toggleFilterValue(value)"
-              >
-                <span class="checkbox">{{ getCurrentFilterSet().has(value) ? '✓' : '' }}</span>
-                <span class="value-text">{{ value || t('tools.checkTool.filter.emptyValue') }}</span>
-                <span class="value-count">
-                  {{ getValueCount(filterColumnType, value) }}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <div class="modal-footer">
-            <button class="main-glass-button" data-variant="secondary" @click="showFilterModal = false">{{ t('tools.checkTool.filter.close') }}</button>
-            <button class="main-glass-button" data-variant="primary" @click="showFilterModal = false">{{ t('tools.checkTool.filter.confirm') }}</button>
+        <div class="filter-values-list ui-scrollbar">
+          <div
+            v-for="value in getUniqueValues(filterColumnType)"
+            :key="value"
+            class="filter-value-item"
+            :class="{ 'selected': getCurrentFilterSet().has(value) }"
+            @click="toggleFilterValue(value)"
+          >
+            <span class="checkbox">{{ getCurrentFilterSet().has(value) ? '✓' : '' }}</span>
+            <span class="value-text">{{ value || t('tools.checkTool.filter.emptyValue') }}</span>
+            <span class="value-count">
+              {{ getValueCount(filterColumnType, value) }}
+            </span>
           </div>
         </div>
       </div>
-    </teleport>
+
+      <div class="check-tool-simple-modal-footer">
+        <button class="main-glass-button" data-variant="secondary" @click="showFilterModal = false">{{ t('tools.checkTool.filter.close') }}</button>
+        <button class="main-glass-button" data-variant="primary" @click="showFilterModal = false">{{ t('tools.checkTool.filter.confirm') }}</button>
+      </div>
+    </AppModal>
   </div>
 </template>
 
@@ -3101,13 +3097,8 @@ justify-content: center;
   word-break: break-all;
 }
 
-/* 筛选弹窗 */
-.filter-modal-overlay .main-tool-modal {
-  --main-tool-modal-width: min(90vw, 500px);
-}
-
 .filter-modal-body {
-  max-height: 60vh;
+  max-height: 60dvh;
   display: flex;
   flex-direction: column;
   gap: 16px;
