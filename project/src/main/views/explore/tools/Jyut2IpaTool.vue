@@ -132,139 +132,145 @@
       </div>
     </div>
 
-    <transition name="modal">
-      <div class="modal-overlay" v-if="showConfigModal" @click.self="showConfigModal = false">
-        <div class="main-tool-modal">
-          <div class="modal-header">
-            <div class="header-left">
-              <h3 class="modal-title">⚙️ {{ t('tools.jyut2ipa.modal.title') }}</h3>
-              <div class="header-stats">
-                <span class="stat-inline">
-                  {{ t('tools.jyut2ipa.modal.totalRules') }}
-                  <strong>{{ totalRules }}</strong>
-                </span>
-                <span class="stat-inline">
-                  {{ t('tools.jyut2ipa.modal.enabledRules') }}
-                  <strong class="success">{{ enabledRules }}</strong>
-                </span>
-                <span class="stat-inline">
-                  {{ t('tools.jyut2ipa.modal.disabledRules') }}
-                  <strong class="disabled">{{ disabledRules }}</strong>
-                </span>
-              </div>
-            </div>
-            <div class="header-actions">
-              <button
-                class="icon-btn"
-                @click="exportConfig"
-                :title="t('tools.jyut2ipa.modal.exportTitle')"
-              >
-                📤
-              </button>
-              <button
-                class="icon-btn"
-                @click="importConfig"
-                :title="t('tools.jyut2ipa.modal.importTitle')"
-              >
-                📥
-              </button>
-              <button
-                class="close-btn close-btn-lg close-btn-inline"
-                :title="t('tools.common.close')"
-                @click="showConfigModal = false"
-              >
-                ✕
-              </button>
+    <AppModal
+      :model-value="showConfigModal"
+      size="lg"
+      :close-label="t('tools.common.close')"
+      transition-name="modal-fade"
+      :z-index="1000"
+      :show-close="false"
+      @update:modelValue="showConfigModal = false"
+    >
+      <template #header>
+        <div class="jyut2ipa-config-header">
+          <div class="header-left">
+            <h3 class="jyut2ipa-config-title">⚙️ {{ t('tools.jyut2ipa.modal.title') }}</h3>
+            <div class="header-stats">
+              <span class="stat-inline">
+                {{ t('tools.jyut2ipa.modal.totalRules') }}
+                <strong>{{ totalRules }}</strong>
+              </span>
+              <span class="stat-inline">
+                {{ t('tools.jyut2ipa.modal.enabledRules') }}
+                <strong class="success">{{ enabledRules }}</strong>
+              </span>
+              <span class="stat-inline">
+                {{ t('tools.jyut2ipa.modal.disabledRules') }}
+                <strong class="disabled">{{ disabledRules }}</strong>
+              </span>
             </div>
           </div>
-
-          <div class="config-tabs">
+          <div class="header-actions">
             <button
-              v-for="tab in tabs"
-              :key="tab.key"
-              class="config-tab"
-              :class="{ active: currentTab === tab.key }"
-              @click="currentTab = tab.key"
+              class="icon-btn"
+              @click="exportConfig"
+              :title="t('tools.jyut2ipa.modal.exportTitle')"
             >
-              {{ tab.label }}
+              📤
             </button>
-          </div>
-
-          <div class="modal-body ui-scrollbar">
-            <div class="rules-table-container">
-              <table class="rules-table">
-                <thead>
-                  <tr>
-                    <th width="50">{{ t('tools.jyut2ipa.modal.headers.index') }}</th>
-                    <th width="150">{{ t('tools.jyut2ipa.modal.headers.source') }}</th>
-                    <th width="150">{{ t('tools.jyut2ipa.modal.headers.replacement') }}</th>
-                    <th width="100">{{ t('tools.jyut2ipa.modal.headers.category') }}</th>
-                    <th width="80">{{ t('tools.jyut2ipa.modal.headers.enabled') }}</th>
-                    <th width="100">{{ t('tools.jyut2ipa.modal.headers.actions') }}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="(rule, index) in filteredRules" :key="index">
-                    <td>{{ index + 1 }}</td>
-                    <td>
-                      <input
-                        v-model="rule.to_replace"
-                        class="table-input"
-                        @input="updateStats"
-                      />
-                    </td>
-                    <td>
-                      <input
-                        v-model="rule.replacement"
-                        class="table-input"
-                        @input="updateStats"
-                      />
-                    </td>
-                    <td>
-                      <span class="category-badge" :class="'cat-' + rule.category">
-                        {{ getCategoryName(rule.category) }}
-                      </span>
-                    </td>
-                    <td>
-                      <label class="toggle-switch input-switch-base">
-                        <input
-                          type="checkbox"
-                          v-model="rule.enabled"
-                          @change="updateStats"
-                        />
-                        <span class="toggle-slider input-switch-slider-base"></span>
-                      </label>
-                    </td>
-                    <td>
-                      <button
-                        class="btn-delete"
-                        @click="deleteRule(rule)"
-                        :title="t('tools.common.delete')"
-                      >
-                        🗑️
-                      </button>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-
-            <button class="btn-add-rule" @click="addNewRule">
-              ➕ {{ t('tools.jyut2ipa.actions.addRule') }}
+            <button
+              class="icon-btn"
+              @click="importConfig"
+              :title="t('tools.jyut2ipa.modal.importTitle')"
+            >
+              📥
             </button>
-          </div>
-
-          <div class="modal-footer">
-            <button class="main-glass-button" data-variant="secondary" @click="resetConfigConfirm">
-              🔄 {{ t('tools.jyut2ipa.actions.resetDefault') }}
-            </button>
-            <button class="main-glass-button" data-variant="primary" @click="saveConfig">
-              💾 {{ t('tools.jyut2ipa.actions.saveConfig') }}
+            <button
+              class="close-btn close-btn-lg close-btn-inline"
+              :title="t('tools.common.close')"
+              @click="showConfigModal = false"
+            >
+              ✕
             </button>
           </div>
         </div>
+      </template>
+
+      <div class="config-tabs">
+        <button
+          v-for="tab in tabs"
+          :key="tab.key"
+          class="config-tab"
+          :class="{ active: currentTab === tab.key }"
+          @click="currentTab = tab.key"
+        >
+          {{ tab.label }}
+        </button>
       </div>
-    </transition>
+
+      <div class="jyut2ipa-config-content ui-scrollbar">
+        <div class="rules-table-container">
+          <table class="rules-table">
+            <thead>
+              <tr>
+                <th width="50">{{ t('tools.jyut2ipa.modal.headers.index') }}</th>
+                <th width="150">{{ t('tools.jyut2ipa.modal.headers.source') }}</th>
+                <th width="150">{{ t('tools.jyut2ipa.modal.headers.replacement') }}</th>
+                <th width="100">{{ t('tools.jyut2ipa.modal.headers.category') }}</th>
+                <th width="80">{{ t('tools.jyut2ipa.modal.headers.enabled') }}</th>
+                <th width="100">{{ t('tools.jyut2ipa.modal.headers.actions') }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(rule, index) in filteredRules" :key="index">
+                <td>{{ index + 1 }}</td>
+                <td>
+                  <input
+                    v-model="rule.to_replace"
+                    class="table-input"
+                    @input="updateStats"
+                  />
+                </td>
+                <td>
+                  <input
+                    v-model="rule.replacement"
+                    class="table-input"
+                    @input="updateStats"
+                  />
+                </td>
+                <td>
+                  <span class="category-badge" :class="'cat-' + rule.category">
+                    {{ getCategoryName(rule.category) }}
+                  </span>
+                </td>
+                <td>
+                  <label class="toggle-switch input-switch-base">
+                    <input
+                      type="checkbox"
+                      v-model="rule.enabled"
+                      @change="updateStats"
+                    />
+                    <span class="toggle-slider input-switch-slider-base"></span>
+                  </label>
+                </td>
+                <td>
+                  <button
+                    class="btn-delete"
+                    @click="deleteRule(rule)"
+                    :title="t('tools.common.delete')"
+                  >
+                    🗑️
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <button class="btn-add-rule" @click="addNewRule">
+          ➕ {{ t('tools.jyut2ipa.actions.addRule') }}
+        </button>
+      </div>
+
+      <div class="jyut2ipa-config-footer">
+        <button class="main-glass-button" data-variant="secondary" @click="resetConfigConfirm">
+          🔄 {{ t('tools.jyut2ipa.actions.resetDefault') }}
+        </button>
+        <button class="main-glass-button" data-variant="primary" @click="saveConfig">
+          💾 {{ t('tools.jyut2ipa.actions.saveConfig') }}
+        </button>
+      </div>
+    </AppModal>
 
     <input
       type="file"
@@ -280,6 +286,7 @@
 import { computed, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import AppModal from '@/components/common/AppModal.vue'
 import {
   downloadJyut2IpaResult,
   processJyut2Ipa,
@@ -990,17 +997,12 @@ loadConfig()
 }
 
 /* 模态框样式 */
-.main-tool-modal {
-  --main-tool-modal-width: min(95vw, 1200px);
-  --main-tool-modal-max-height: 90vh;
-  --main-tool-modal-header-padding: 20px 32px;
-  --main-tool-modal-header-border-color: rgba(255, 255, 255, 0.5);
-  --main-tool-modal-body-padding: 2px 3px;
-}
-
-.modal-overlay {
-  --overlay-z-index: 1000;
-  --overlay-padding: 0;
+.jyut2ipa-config-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
 }
 
 .header-left {
@@ -1010,7 +1012,7 @@ loadConfig()
   flex: 1;
 }
 
-.modal-title {
+.jyut2ipa-config-title {
   white-space: nowrap;
 }
 
@@ -1079,7 +1081,8 @@ loadConfig()
   font-weight: 600;
 }
 
-.modal-body {
+.jyut2ipa-config-content {
+  min-height: 0;
   justify-items: center;
 }
 
@@ -1255,11 +1258,12 @@ loadConfig()
   box-shadow: 0 4px 16px rgba(52, 199, 89, 0.3);
 }
 
-.modal-footer {
+.jyut2ipa-config-footer {
   display: flex;
   justify-content: flex-end;
   gap: 12px;
-  padding: 20px 32px;
+  margin: 20px -24px -20px;
+  padding: 20px 24px;
   border-top: 1px solid rgba(255, 255, 255, 0.5);
 }
 
@@ -1279,26 +1283,6 @@ loadConfig()
 .icon-btn:hover {
   background: rgba(0, 122, 255, 0.2);
   transform: scale(1.1);
-}
-
-.modal-enter-active,
-.modal-leave-active {
-  transition: opacity 0.3s ease;
-}
-
-.modal-enter-from,
-.modal-leave-to {
-  opacity: 0;
-}
-
-.modal-enter-active .main-tool-modal,
-.modal-leave-active .main-tool-modal {
-  transition: transform 0.3s ease;
-}
-
-.modal-enter-from .main-tool-modal,
-.modal-leave-to .main-tool-modal {
-  transform: scale(0.9);
 }
 
 .info-section {
@@ -1477,19 +1461,7 @@ loadConfig()
   }
 
   /* 配置模态框移动端适配 */
-  .config-modal-overlay {
-    padding: 10px;
-  }
-
-  .main-tool-modal {
-    --main-tool-modal-width: 100%;
-    --main-tool-modal-max-height: 90vh;
-    --main-tool-modal-header-padding: 16px;
-    --main-tool-modal-body-padding: 12px 16px;
-    --main-tool-modal-radius: 16px;
-  }
-
-  .modal-header {
+  .jyut2ipa-config-header {
     flex-wrap: wrap;
     gap: 12px;
   }
@@ -1511,7 +1483,7 @@ loadConfig()
     justify-content: space-between;
   }
 
-  .modal-title {
+  .jyut2ipa-config-title {
     font-size: 18px;
   }
 
@@ -1554,7 +1526,9 @@ loadConfig()
     height: 18px;
   }
 
-  .modal-footer {
+  .jyut2ipa-config-footer {
+    margin-inline: -24px;
+    margin-bottom: -20px;
     padding: 12px 16px;
     flex-wrap: wrap;
   }
