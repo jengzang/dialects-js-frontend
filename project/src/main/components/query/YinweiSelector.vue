@@ -18,13 +18,11 @@
 
   <AppModal
     v-model="isHelpModalOpen"
-    variant="glass"
+    size="sm"
     transition-name="fade-scale"
-    :overlay-style="yinweiModalOverlayStyle"
-    :surface-style="yinweiModalSurfaceStyle"
-    :body-style="yinweiModalBodyStyle"
     :show-close="false"
   >
+    <div class="yinwei-help-shell">
           <button
             class="close-btn close-btn-lg close-btn-corner"
             @click="closeHelpModal"
@@ -90,6 +88,7 @@
                 </li>
               </ul>
             </div>
+    </div>
   </AppModal>
 </template>
 
@@ -101,23 +100,6 @@ import { getFeatureCounts } from '@/api/query/core'
 import { userStore, setTabContentDisabled } from '@/main/store/store.js'
 
 const { t } = useI18n()
-
-const yinweiModalOverlayStyle = {
-  '--overlay-padding': '0'
-}
-
-const yinweiModalSurfaceStyle = {
-  width: '90%',
-  maxWidth: '600px',
-  maxHeight: '80dvh',
-  color: '#1d1d1f',
-  fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif'
-}
-
-const yinweiModalBodyStyle = {
-  padding: '25px',
-  overflow: 'hidden'
-}
 
 // 1. 接收父組件傳入的 locationRef
 const props = defineProps({
@@ -219,6 +201,14 @@ defineExpose({
   text-decoration: underline;
 }
 
+.yinwei-help-shell {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
 
 
 /* ----------- 🍎 苹果液态玻璃弹窗样式 ----------- */
@@ -245,10 +235,12 @@ defineExpose({
 
 /* 列表容器 */
 .location-list-container {
+  flex: 1;
+  min-height: 0;
   margin-top: 10px;
   overflow-y: auto;
   overflow-x: hidden;
-  max-height: 70dvh;
+  max-height: none;
 }
 
 .glass-list {

@@ -173,10 +173,9 @@
       </div>
       <AppModal
         v-model="showLocationsModal"
-        variant="query"
+        size="sm"
         :title="$t('query.components.locationAndRegionInput.selectedLocationsModalTitle', { count: locationsResult.length })"
         :close-label="$t('common.button.close')"
-        :overlay-style="locationRegionOverlayStyle"
       >
         <div class="locations-list">
           <span
@@ -193,10 +192,9 @@
     <!-- 自定義地點彈窗 -->
     <AppModal
       v-model="showCustomModal"
-      variant="query"
+      size="sm"
       :title="$t('query.components.locationAndRegionInput.customLocationsModalTitle', { count: customFeatureLocations.length })"
       :close-label="$t('common.button.close')"
-      :overlay-style="locationRegionOverlayStyle"
     >
       <div class="locations-list">
         <span
@@ -247,10 +245,6 @@ const s2t = OpenCC.Converter({ from: 'cn', to: 'tw' })  // 简 → 繁
 // const YINDIAN_TREE = top_yindian;
 // 接收外部传入的地點和分區
 const { t } = useI18n()
-
-const locationRegionOverlayStyle = {
-  '--overlay-z-index': 20000
-}
 
 const props = defineProps({
   modelValue: {

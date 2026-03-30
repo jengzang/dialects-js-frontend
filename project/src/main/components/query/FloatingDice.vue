@@ -25,26 +25,24 @@
 
   <AppModal
     v-model="isHelpOpen"
-    variant="glass"
+    size="lg"
     transition-name="fade-modal"
-    :overlay-style="floatingDiceModalOverlayStyle"
-    :surface-style="floatingDiceModalSurfaceStyle"
-    :body-style="floatingDiceModalBodyStyle"
     :show-close="false"
   >
-          <button
-            class="close-btn close-btn-lg close-btn-corner"
-            @click="isHelpOpen = false"
-            :title="$t('common.button.close')"
-            :aria-label="$t('common.button.close')"
-          >
-            &times;
-          </button>
+    <div class="floating-dice-help-shell">
+      <button
+        class="close-btn close-btn-lg close-btn-corner"
+        @click="isHelpOpen = false"
+        :title="$t('common.button.close')"
+        :aria-label="$t('common.button.close')"
+      >
+        &times;
+      </button>
 
-          <h2 class="floating-dice-help-title">{{ $t('query.components.floatingDice.modalTitle') }}</h2>
+      <h2 class="floating-dice-help-title">{{ $t('query.components.floatingDice.modalTitle') }}</h2>
 
-          <div class="scroll-content">
-            <div id='display-detail3' class="panel-content">
+      <div class="scroll-content">
+        <div id='display-detail3' class="panel-content">
               <p style="margin: 0">
                 {{ $t('query.components.floatingDice.examples.title') }}<br>
                 <span v-html="formattedExamples[0]"></span>
@@ -82,8 +80,9 @@
               <p v-for="(noteHtml, index) in formattedNotes" :key="`note-${index + 1}`">
                 <span v-html="noteHtml"></span>
               </p>
-            </div>
-          </div>
+        </div>
+      </div>
+    </div>
   </AppModal>
 </template>
 
@@ -93,24 +92,6 @@ import { useI18n } from 'vue-i18n'
 import AppModal from '@/components/common/AppModal.vue'
 
 const { t } = useI18n()
-
-const floatingDiceModalOverlayStyle = {
-  '--overlay-padding': '0'
-}
-
-const floatingDiceModalSurfaceStyle = {
-  width: '90%',
-  maxWidth: '700px',
-  height: '85vh',
-  maxHeight: '85vh'
-}
-
-const floatingDiceModalBodyStyle = {
-  padding: '0',
-  overflow: 'hidden',
-  display: 'flex',
-  flexDirection: 'column'
-}
 
 const props = defineProps({
   currentTab: {
@@ -441,6 +422,18 @@ function handleRoll() {
 
 
 
+.floating-dice-help-shell {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: calc(100% + var(--modal-content-padding-top) + var(--modal-content-padding-bottom));
+  margin:
+    calc(-1 * var(--modal-content-padding-top))
+    calc(-1 * var(--modal-content-padding-inline))
+    calc(-1 * var(--modal-content-padding-bottom));
+  overflow: hidden;
+}
+
 .floating-dice-help-title {
   padding: 20px 20px 10px;
   margin: 0;
@@ -452,8 +445,9 @@ function handleRoll() {
 
 .scroll-content {
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
-  padding: 20px 25px;
+  padding: 20px 25px 24px;
 }
 
 .divider {
