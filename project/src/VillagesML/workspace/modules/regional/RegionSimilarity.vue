@@ -309,7 +309,7 @@ import {
 import { showError, showSuccess } from '@/utils/message.js'
 import * as echarts from 'echarts'
 import FilterableSelect from '@/VillagesML/components/FilterableSelect.vue'
-import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
+import SimpleSelectDropdown from '@/components/selector/SimpleSelectDropdown.vue'
 import HelpIcon from '@/components/ToastAndHelp/HelpIcon.vue'
 
 export default {

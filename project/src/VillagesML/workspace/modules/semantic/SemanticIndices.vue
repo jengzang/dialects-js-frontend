@@ -200,7 +200,7 @@
 import { ref, watch, computed } from 'vue'
 import AppModal from '@/components/common/AppModal.vue'
 import FilterableSelect from '@/VillagesML/components/FilterableSelect.vue'
-import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
+import SimpleSelectDropdown from '@/components/selector/SimpleSelectDropdown.vue'
 import HelpIcon from '@/components/ToastAndHelp/HelpIcon.vue'
 import { getSemanticIndices } from '@/api/index.js'
 import { showError } from '@/utils/message.js'

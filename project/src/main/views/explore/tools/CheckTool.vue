@@ -890,7 +890,7 @@ import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { RecycleScroller } from 'vue-virtual-scroller'
 import AppModal from '@/components/common/AppModal.vue'
-import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
+import SimpleSelectDropdown from '@/components/selector/SimpleSelectDropdown.vue'
 import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
 import {
   uploadCheckFile,

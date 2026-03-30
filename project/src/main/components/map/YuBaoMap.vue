@@ -138,7 +138,7 @@ import { useI18n } from 'vue-i18n'
 import maplibregl from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import {mapStyle, calculateDenseMapCenterAndZoom, mapStyleConfig} from '@/utils/map/MapSource.js'
-import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
+import SimpleSelectDropdown from '@/components/selector/SimpleSelectDropdown.vue'
 
 // --- Props ---
 const props = defineProps({

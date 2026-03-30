@@ -139,7 +139,7 @@ import { showSuccess, showError, showWarning, showConfirm } from '@/utils/messag
 import { getLocationDetail } from '@/api'
 import { deleteCustomForm } from '@/api/user/custom.js'
 import { refreshCurrentCustomLayer } from '@/utils/map/MapData.js';
-import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
+import SimpleSelectDropdown from '@/components/selector/SimpleSelectDropdown.vue'
 import MapLegend from './MapLegend.vue'
 import CompareMapPopup from '../popup/map/CompareMapPopup.vue'
 import FeatureMapPopup from '../popup/map/FeatureMapPopup.vue'

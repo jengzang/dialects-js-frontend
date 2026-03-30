@@ -37,7 +37,7 @@
 import { ref, onMounted, onBeforeUnmount, shallowRef, nextTick, watch, computed } from 'vue'
 import maplibregl from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
-import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
+import SimpleSelectDropdown from '@/components/selector/SimpleSelectDropdown.vue'
 import { mapStyle, mapStyleConfig } from '@/utils/map/MapSource.js'
 
 const props = defineProps({

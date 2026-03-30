@@ -180,7 +180,7 @@
 <script setup>
 import { ref } from 'vue'
 import FilterableSelect from '@/VillagesML/components/FilterableSelect.vue'
-import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
+import SimpleSelectDropdown from '@/components/selector/SimpleSelectDropdown.vue'
 import HelpIcon from '@/components/ToastAndHelp/HelpIcon.vue'
 import {
   getCharSignificanceByChar,

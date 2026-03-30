@@ -108,7 +108,7 @@ import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { showError } from '@/utils/message.js'
 import { getCities, getCounties, getTownships } from '@/utils/region/regionPreload.js'
-import SimpleDropdown from '@/components/common/SimpleDropdown.vue'
+import SimpleDropdown from '@/components/selector/SimpleDropdown.vue'
 
 const { t } = useI18n()
 

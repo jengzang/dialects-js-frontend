@@ -87,7 +87,7 @@ import { reactive, computed, ref, watch } from 'vue'
 import { villagesMLStore } from '@/VillagesML/store/villagesMLStore.js'
 import { userStore } from '@/main/store/store.js'
 import FilterableSelect from '@/VillagesML/components/FilterableSelect.vue'
-import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
+import SimpleSelectDropdown from '@/components/selector/SimpleSelectDropdown.vue'
 
 const props = defineProps({
   loading: { type: Boolean, default: false },

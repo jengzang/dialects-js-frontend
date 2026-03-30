@@ -179,7 +179,7 @@ import { userStore } from '@/main/store/store.js'
 import { getUserRole, ensureAuthenticated } from '@/api/auth/auth.js'
 import { getTableColumns } from '@/api/sql/index.js'
 import UniversalTable from '@/main/components/TableAndTree/UniversalTable.vue'
-import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
+import SimpleSelectDropdown from '@/components/selector/SimpleSelectDropdown.vue'
 import { showError, showSuccess, showWarning } from '@/utils/message.js'
 
 const router = useRouter()

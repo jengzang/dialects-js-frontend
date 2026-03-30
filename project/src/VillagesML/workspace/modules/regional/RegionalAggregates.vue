@@ -189,7 +189,7 @@
 import { ref, computed, watch, nextTick, onBeforeUnmount } from 'vue'
 import AppModal from '@/components/common/AppModal.vue'
 import RegionDisplay from '@/VillagesML/components/RegionDisplay.vue'
-import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
+import SimpleSelectDropdown from '@/components/selector/SimpleSelectDropdown.vue'
 import HelpIcon from '@/components/ToastAndHelp/HelpIcon.vue'
 import * as echarts from 'echarts'
 import {

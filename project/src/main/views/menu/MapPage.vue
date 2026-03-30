@@ -81,7 +81,7 @@ import CustomTab from '@/main/components/map/CustomTab.vue'
 import MapLibre from "@/main/components/map/MapLibre.vue";
 import CustomDataPanel from '@/main/components/map/CustomDataPanel.vue'
 import HelpIcon from '@/components/ToastAndHelp/HelpIcon.vue'
-import SimpleSelectDropdown from "@/components/common/SimpleSelectDropdown.vue";
+import SimpleSelectDropdown from "@/components/selector/SimpleSelectDropdown.vue";
 import { showSuccess, showError } from '@/utils/message.js'
 import { addCustomFeatureData, refreshCurrentCustomLayer } from '@/utils/map/MapData.js'
 

@@ -212,7 +212,7 @@ import YinweiSelector from "@/main/components/query/YinweiSelector.vue";
 import FloatingDice from "@/main/components/query/FloatingDice.vue";
 import KeyButtonGroup from "@/main/components/query/KeyButtonGroup.vue";
 import DropdownValueSelector from "@/main/components/query/DropdownValueSelector.vue";
-import ChoiceSelector from "@/components/common/ChoiceSelector.vue";
+import ChoiceSelector from "@/components/selector/ChoiceSelector.vue";
 import { globalPayload, queryStore, uiStore, isQueryButtonDisabled, setRunning, setTabContentDisabled } from '@/main/store/store.js'
 import { S2T_T2S_MAPPING } from '@/main/config'
 import { useQueryConfig } from '@/utils/useQueryConfig'

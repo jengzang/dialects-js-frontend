@@ -261,7 +261,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { getMetadataOverview, getMetadataTables, getNgramStatistics } from '@/api/index.js'
 import { showError, showSuccess } from '@/utils/message.js'
-import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
+import SimpleSelectDropdown from '@/components/selector/SimpleSelectDropdown.vue'
 import AppModal from '@/components/common/AppModal.vue'
 
 // State

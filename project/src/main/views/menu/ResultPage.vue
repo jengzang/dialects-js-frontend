@@ -53,7 +53,7 @@ import { getCoordinates } from '@/api/query/geo'
 import {globalPayload, mapStore, resultCache, userStore} from '@/main/store/store.js';
 import ResultList from "@/main/components/result/ResultList.vue";
 import CharsAndTones from "@/main/components/result/CharsAndTones.vue";
-import SimpleSelectDropdown from "@/components/common/SimpleSelectDropdown.vue";
+import SimpleSelectDropdown from "@/components/selector/SimpleSelectDropdown.vue";
 import {generateTonesMergedData,generateCharsMergedData,func_mergeData} from "@/utils/map/MapData.js";
 
 const { t } = useI18n();

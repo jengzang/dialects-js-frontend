@@ -257,7 +257,7 @@ import LocationAndRegionInput from "@/main/components/geo/LocationAndRegionInput
 import ZhongguSelector from "@/main/components/query/ZhongguSelector.vue";
 import KeyButtonGroup from "@/main/components/query/KeyButtonGroup.vue";
 import DropdownValueSelector from "@/main/components/query/DropdownValueSelector.vue";
-import ChoiceSelector from "@/components/common/ChoiceSelector.vue";
+import ChoiceSelector from "@/components/selector/ChoiceSelector.vue";
 import { globalPayload, queryStore, uiStore, isCompareButtonDisabled, setRunning, setTabContentDisabled, mapStore, userStore } from '@/main/store/store.js'
 import { S2T_T2S_MAPPING } from '@/main/config'
 import { compareChars, compareZhongGu, compareTones } from '@/api/index.js'

@@ -277,7 +277,7 @@ import { useCustomRegionStore } from '@/main/store/customRegionStore.js'
 import { userStore } from '@/main/store/store.js'
 import { showError, showSuccess, showConfirm } from '@/utils/message.js'
 import AppModal from '@/components/common/AppModal.vue'
-import MultiSelectDropdown from '@/components/common/MultiSelectDropdown.vue'
+import MultiSelectDropdown from '@/components/selector/MultiSelectDropdown.vue'
 import {STATIC_REGION_TREE, top_yindian} from "@/main/config/RegionTree.js";
 
 const { t } = useI18n()

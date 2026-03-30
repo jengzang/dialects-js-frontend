@@ -14,7 +14,7 @@
 
 <script setup>
 import { computed } from 'vue'
-import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
+import SimpleSelectDropdown from '@/components/selector/SimpleSelectDropdown.vue'
 
 const props = defineProps({
   modelValue: {

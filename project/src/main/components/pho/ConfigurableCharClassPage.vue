@@ -189,7 +189,7 @@
 import { computed, nextTick, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
+import SimpleSelectDropdown from '@/components/selector/SimpleSelectDropdown.vue'
 import CharTreeItem from '@/main/components/TableAndTree/CharTreeItem.vue'
 import { loadFullTree } from '@/api/sql/index.js'
 import {

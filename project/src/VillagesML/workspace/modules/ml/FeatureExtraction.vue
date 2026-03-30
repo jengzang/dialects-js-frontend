@@ -379,7 +379,7 @@
 import { ref, computed, onMounted, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import * as echarts from 'echarts'
-import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
+import SimpleSelectDropdown from '@/components/selector/SimpleSelectDropdown.vue'
 import FilterableSelect from '@/VillagesML/components/FilterableSelect.vue'
 import HelpIcon from '@/components/ToastAndHelp/HelpIcon.vue'
 import { extractFeatures as apiExtractFeatures, aggregateFeatures as apiAggregateFeatures, searchVillages } from '@/api/index.js'
