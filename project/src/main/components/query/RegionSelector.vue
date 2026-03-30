@@ -223,15 +223,13 @@
     </Teleport>
 
     <!-- 自定義分區彈窗 -->
-    <Teleport to="body">
-      <div v-if="showCustomRegionPopup" class="custom-region-overlay" @click.self="showCustomRegionPopup = false">
-        <div class="custom-region-popup" @mousedown.stop>
-          <div class="popup-header">
-            <h3>🗂️ {{ $t('query.components.regionSelector.customRegionModal.title') }}</h3>
-            <button class="close-btn close-btn-lg close-btn-inline" @click="showCustomRegionPopup = false">✕</button>
-          </div>
-
-          <div class="popup-content ui-scrollbar">
+    <AppModal
+      :model-value="showCustomRegionPopup"
+      size="sm"
+      :title="`🗂️ ${$t('query.components.regionSelector.customRegionModal.title')}`"
+      @update:modelValue="showCustomRegionPopup = false"
+    >
+      <div class="custom-region-content">
             <div v-if="loadingCustomRegions" class="loading">
               <div class="ui-loading--page" aria-hidden="true"></div>
               <p>{{ $t('query.components.regionSelector.customRegionModal.loading') }}</p>
@@ -260,16 +258,13 @@
                 </div>
               </div>
             </div>
-          </div>
-
-          <div class="popup-footer">
+        <div class="custom-region-footer">
             <button class="btn-manage" @click="goToManagePage">
               {{ $t('query.components.regionSelector.customRegionModal.manageButton') }}
             </button>
-          </div>
         </div>
       </div>
-    </Teleport>
+    </AppModal>
   </div>
 </template>
 
@@ -282,6 +277,7 @@ import { useCustomRegionStore } from '@/main/store/customRegionStore'
 import { STATIC_REGION_TREE, top_yindian } from '@/main/config'
 import { userStore } from '@/main/store/store.js'
 import { showError, showSuccess, showConfirm } from '@/utils/message.js'
+import AppModal from '@/components/common/AppModal.vue'
 import MultiSelectDropdown from '@/components/common/MultiSelectDropdown.vue'
 
 const { t } = useI18n()
@@ -1225,52 +1221,9 @@ defineExpose({ togglePopup, openPopup, closePopup })
 }
 
 /* Custom Region Popup */
-.custom-region-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(4px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 30000;
-  padding: 20px;
-}
-
-.custom-region-popup {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px) saturate(180%);
-  border-radius: 16px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  max-width: 500px;
-  width: 100%;
-  max-height: 80vh;
-  display: flex;
-  flex-direction: column;
-}
-
-.popup-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20px 24px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-}
-
-.popup-header h3 {
-  margin: 0;
-  font-size: 18px;
-  font-weight: 600;
-  color: #2c3e50;
-}
-
-.popup-content {
-  padding: 20px 24px;
-  overflow-y: auto;
-  flex: 1;
+.custom-region-content {
+  padding: 0;
+  overflow: visible;
 }
 
 .loading {
@@ -1349,8 +1302,9 @@ defineExpose({ togglePopup, openPopup, closePopup })
   color: #999;
 }
 
-.popup-footer {
-  padding: 16px 24px;
+.custom-region-footer {
+  margin-top: 16px;
+  padding: 16px 0 0;
   border-top: 1px solid rgba(0, 0, 0, 0.1);
   display: flex;
   justify-content: center;

@@ -195,28 +195,22 @@
     </template>
   </TabsContainer>
 
-  <!-- 二维码弹窗 - 使用 Teleport 传送到 body -->
-  <Teleport to="body">
-    <div v-if="showQRCodes" class="qr-modal">
-      <div class="qr-modal-content close-btn-host">
-        <!-- ❌ 右上角關閉 -->
-        <button class="close-btn close-btn-lg close-btn-corner" @click="showQRCodes = false">✕</button>
-
-        <!-- 標題 -->
-        <h3 class="qr-title">{{ $t('about.like.qrModal.title') }}</h3>
-        <p class="qr-subtitle">{{ $t('about.like.qrModal.subtitle') }}</p>
-        <!-- 二維碼區 -->
-        <div class="qr-image-group">
-          <div class="qr-box">
-            <img :src="weixinQR" :alt="$t('about.like.weixinAlt')" />
-          </div>
-          <div class="qr-box">
-            <img :src="alipayQR" :alt="$t('about.like.alipayAlt')" />
-          </div>
-        </div>
+  <AppModal
+    :model-value="showQRCodes"
+    size="sm"
+    :title="$t('about.like.qrModal.title')"
+    @update:modelValue="showQRCodes = false"
+  >
+    <p class="qr-subtitle">{{ $t('about.like.qrModal.subtitle') }}</p>
+    <div class="qr-image-group">
+      <div class="qr-box">
+        <img :src="weixinQR" :alt="$t('about.like.weixinAlt')" />
+      </div>
+      <div class="qr-box">
+        <img :src="alipayQR" :alt="$t('about.like.alipayAlt')" />
       </div>
     </div>
-  </Teleport>
+  </AppModal>
   </div>
 </template>
 
@@ -228,6 +222,7 @@ import { SUPPORTED_LOCALES } from '@/i18n/localeDetector'
 import { showSuccess } from '@/utils/message'
 import weixinQR from '@/assets/picture/weixin.png'
 import alipayQR from '@/assets/picture/zfb.jpg'
+import AppModal from '@/components/common/AppModal.vue'
 import TabsContainer from '@/components/common/TabsContainer.vue'
 
 const { t, locale } = useI18n()
@@ -559,45 +554,11 @@ p em.emoji {
   }
 }
 
-.qr-modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(0, 0, 0, 0.5);
-  z-index: 9999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-  box-sizing: border-box;
-  overflow: auto;
-}
-
-.qr-modal-content {
-  background: #fff;
-  border-radius: 16px;
-  padding: 2rem 1.5rem;
-  width: 100%;
-  max-width: 460px;
-  max-height: 90vh;
-  overflow-y: auto;
-  position: relative;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
-  text-align: center;
-}
-
-.qr-title {
-  margin: 0;
-  font-size: 1.5rem;
-  color: #ff3b30;
-}
-
 .qr-subtitle {
-  margin: 0.5rem 0 1.5rem;
+  margin: 0 0 1.5rem;
   font-size: 1rem;
   color: #666;
+  text-align: center;
 }
 
 .qr-image-group {
@@ -627,22 +588,7 @@ p em.emoji {
   transform: scale(1.2);
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
 @media (max-width: 500px) {
-  .qr-modal-content {
-    padding: 1.5rem 1rem;
-  }
-
   .qr-box img {
     width: 120px;
   }
