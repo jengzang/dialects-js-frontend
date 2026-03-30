@@ -144,38 +144,41 @@
       <p>運行聚類後查看結果</p>
     </div>
 
-    <!-- Region Modal (Teleported to body) -->
-    <Teleport to="body">
-      <div v-if="showRegionModal" class="modal-overlay" @click="closeRegionModal">
-        <div class="modal-content" @click.stop>
-          <div class="modal-header">
-            <h3>
-              <span class="cluster-badge" :style="{ background: getClusterColor(selectedProfile?.cluster_id) }">
-                聚類 {{ selectedProfile?.cluster_id }}
-              </span>
-              <span class="modal-title">所有區域 ({{ selectedProfile?.region_count }})</span>
-            </h3>
-            <button class="close-btn close-btn-lg close-btn-inline" @click="closeRegionModal">✕</button>
-          </div>
-          <div class="modal-body">
-            <div class="region-grid">
-              <span
-                v-for="region in selectedProfile?.regions"
-                :key="region"
-                class="region-tag"
-              >
-                {{ region }}
-              </span>
-            </div>
-          </div>
+    <!-- Region Modal -->
+    <AppModal
+      :model-value="showRegionModal"
+      size="lg"
+      :show-close="false"
+      @update:modelValue="closeRegionModal"
+    >
+      <template #header>
+        <div class="cluster-region-modal-header">
+          <h3 class="cluster-region-modal-heading">
+            <span class="cluster-badge" :style="{ background: getClusterColor(selectedProfile?.cluster_id) }">
+              聚類 {{ selectedProfile?.cluster_id }}
+            </span>
+            <span class="cluster-region-modal-title">所有區域 ({{ selectedProfile?.region_count }})</span>
+          </h3>
+          <button class="close-btn close-btn-lg close-btn-inline" aria-label="關閉" @click="closeRegionModal">✕</button>
         </div>
+      </template>
+
+      <div class="region-grid">
+        <span
+          v-for="region in selectedProfile?.regions"
+          :key="region"
+          class="region-tag"
+        >
+          {{ region }}
+        </span>
       </div>
-    </Teleport>
+    </AppModal>
   </div>
 </template>
 
 <script setup>
 import { ref, computed } from 'vue'
+import AppModal from '@/components/common/AppModal.vue'
 
 const props = defineProps({
   results: { type: Object, default: null }
@@ -584,61 +587,15 @@ const handleQuickAdjust = (action) => {
   transform: translateY(-1px);
 }
 
-/* Modal Styles */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(4px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  animation: fadeIn 0.2s ease;
-}
-
-.modal-content {
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.85));
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.8);
-  border-radius: 16px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  max-width: 800px;
-  width: 90%;
-  max-height: 80vh;
-  display: flex;
-  flex-direction: column;
-  animation: slideUp 0.3s ease;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.modal-header {
+.cluster-region-modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px 24px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  gap: 16px;
+  width: 100%;
 }
 
-.modal-header h3 {
+.cluster-region-modal-heading {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -648,16 +605,10 @@ const handleQuickAdjust = (action) => {
   color: var(--text-primary);
 }
 
-.modal-title {
+.cluster-region-modal-title {
   font-size: 16px;
   font-weight: 500;
   color: var(--text-secondary);
-}
-
-.modal-body {
-  padding: 24px;
-  overflow-y: auto;
-  flex: 1;
 }
 
 .region-grid {
