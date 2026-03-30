@@ -303,45 +303,35 @@
     </div>
 
     <!-- 查看全部弹窗 -->
-    <Teleport to="body">
-      <div
-        v-if="showAllModal"
-        class="modal-overlay"
-        @click.self="showAllModal = false"
-      >
-        <div class="modal-content">
-          <div class="modal-header modal-header-base">
-            <h3 class="modal-title-base">
-              {{ t('words.yuBaoPage.modal.allItemsTitle', { name: activeTabLabel }) }}
-            </h3>
-            <button class="close-btn close-btn-lg close-btn-inline" @click="showAllModal = false">×</button>
-          </div>
-          <div class="modal-body modal-body-base">
-            <div class="search-in-modal">
-              <input
-                  v-model="modalSearchQuery"
-                  type="text"
-                  :placeholder="t('words.yuBaoPage.search.modalPlaceholder')"
-                  class="modal-search-input"
-              />
-            </div>
-            <div class="items-list">
-              <div
-                  v-for="(item, idx) in filteredAllItems"
-                  :key="idx"
-                  class="item-line"
-                  @click="selectFromModal(item)"
-              >
-                {{ item }}
-              </div>
-            </div>
-            <div class="modal-footer">
-              {{ t('words.yuBaoPage.modal.total', { count: filteredAllItems.length }) }}
-            </div>
-          </div>
+    <AppModal
+      :model-value="showAllModal"
+      size="sm"
+      :title="t('words.yuBaoPage.modal.allItemsTitle', { name: activeTabLabel })"
+      close-label="關閉"
+      @update:modelValue="closeAllModal"
+    >
+      <div class="search-in-modal">
+        <input
+          v-model="modalSearchQuery"
+          type="text"
+          :placeholder="t('words.yuBaoPage.search.modalPlaceholder')"
+          class="modal-search-input"
+        />
+      </div>
+      <div class="items-list">
+        <div
+          v-for="(item, idx) in filteredAllItems"
+          :key="idx"
+          class="item-line"
+          @click="selectFromModal(item)"
+        >
+          {{ item }}
         </div>
       </div>
-    </Teleport>
+      <div class="all-items-modal-footer">
+        {{ t('words.yuBaoPage.modal.total', { count: filteredAllItems.length }) }}
+      </div>
+    </AppModal>
   </div>
 </template>
 
@@ -354,6 +344,7 @@ import * as OpenCC from 'opencc-js'
 import UniversalTable from '@/main/components/TableAndTree/UniversalTable.vue'
 import { watchDebounced } from '@vueuse/core'
 import YuBaoMap from '@/main/components/map/YuBaoMap.vue'
+import AppModal from '@/components/common/AppModal.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -745,6 +736,10 @@ function selectFromModal(item) {
   }
   showAllModal.value = false
   modalSearchQuery.value = ''
+}
+
+function closeAllModal() {
+  showAllModal.value = false
 }
 // 加载卡片数据（一次性加载所有数据）
 async function loadCardsPage() {
@@ -1154,70 +1149,6 @@ watch(viewMode, async (newMode) => {
   }
 }
 
-/* 弹窗遮罩 */
-.modal-overlay {
-  --overlay-z-index: 100000;
-  animation: fadeIn 0.2s ease-out;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-/* 弹窗内容 */
-.modal-content {
-  width: 90%;
-  max-width: 700px;
-  max-height: 80vh;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(40px) saturate(180%);
-  -webkit-backdrop-filter: blur(40px) saturate(180%);
-  border-radius: 20px;
-  border: 0.5px solid rgba(255, 255, 255, 0.9);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15),
-              0 8px 24px rgba(0, 0, 0, 0.1),
-              inset 0 1px 0 rgba(255, 255, 255, 1);
-  display: flex;
-  flex-direction: column;
-  animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px) scale(0.96);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-.modal-header {
-  padding: 24px 24px 16px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-}
-
-.modal-header h3 {
-  margin: 0;
-  font-size: 20px;
-  font-weight: 600;
-  color: #1d1d1f;
-  letter-spacing: -0.02em;
-}
-
-.modal-body {
-  flex: 1;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  padding: 16px 24px 24px;
-}
-
 .search-in-modal {
   margin-bottom: 16px;
 }
@@ -1262,7 +1193,7 @@ watch(viewMode, async (newMode) => {
   color: #0071e3;
 }
 
-.modal-footer {
+.all-items-modal-footer {
   margin-top: 12px;
   padding-top: 12px;
   border-top: 1px solid rgba(0, 0, 0, 0.06);
