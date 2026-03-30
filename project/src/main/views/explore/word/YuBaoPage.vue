@@ -339,7 +339,7 @@
 import { ref, nextTick, onMounted, watch, computed, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
-import { sqlQuery, distinctQuery } from '@/api/sql/index.js'
+import { distinctQuery, sqlQuery } from '@/api'
 import * as OpenCC from 'opencc-js'
 import UniversalTable from '@/main/components/TableAndTree/UniversalTable.vue'
 import { watchDebounced } from '@vueuse/core'

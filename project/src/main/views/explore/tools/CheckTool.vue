@@ -901,7 +901,7 @@ import {
   batchDelete as batchDeleteApi,
   executeBatchOperation,
   downloadCheckResult
-} from '@/api/tools/index.js'
+} from '@/api'
 import { userStore } from '@/main/store/store.js'
 import { showSuccess, showError, showWarning, showConfirm } from '@/utils/message.js'
 

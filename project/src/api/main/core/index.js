@@ -6,20 +6,7 @@ export {
   searchTones,
   getCharList,
   getFeatureCounts
-} from './core.js'
-
-export {
-  getLocations,
-  getLocationDetail,
-  getLocationPartitions,
-  batchMatch,
-  getPartitions,
-  getRegions
-} from './LocationAndRegion.js'
-
-export {
-  getCoordinates
-} from './geo.js'
+} from './query.js'
 
 export {
   getPhonologyMatrix,
@@ -31,3 +18,9 @@ export {
   postPhoPieByValue,
   postPhoPieByStatus
 } from './phoPie.js'
+
+export {
+    compareChars,
+    compareTones,
+    compareZhongGu,
+}from './compare.js'

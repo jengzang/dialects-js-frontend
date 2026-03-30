@@ -106,7 +106,7 @@ import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import VillagesTreeItem from '@/main/components/TableAndTree/VillagesTreeItem.vue';
 import VillageMapPopup from '@/main/components/popup/map/VillageMapPopup.vue';
-import { lazyLoadTree, loadFullTree } from '@/api/sql/index.js';
+import { lazyLoadTree, loadFullTree } from '@/api';
 const { t } = useI18n();
 
 // API Configuration

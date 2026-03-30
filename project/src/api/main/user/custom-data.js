@@ -1,5 +1,5 @@
 // api/user/custom-data.js - 用户自定义数据 API
-import { api } from '../auth/auth.js'
+import { api } from '../../auth/auth.js'
 import { showError } from '@/utils/message.js'
 
 /**

@@ -1,5 +1,5 @@
 // api/query/phonology.js - 音系查询 API
-import { api } from '../auth/auth.js'
+import { api } from '../../auth/auth.js'
 import { showError } from '@/utils/message.js'
 
 /**

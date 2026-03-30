@@ -316,7 +316,7 @@ import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import AppModal from '@/components/common/AppModal.vue'
 import SimpleSelectDropdown from '@/components/selector/SimpleSelectDropdown.vue'
-import { batchCreateCustomData, batchDeleteCustomData, editCustomData, getAllCustomData } from '@/api/user/index.js'
+import { batchCreateCustomData, batchDeleteCustomData, editCustomData, getAllCustomData } from '@/api'
 import { userStore } from '@/main/store/store.js'
 import { showConfirm, showError, showSuccess, showWarning } from '@/utils/message.js'
 

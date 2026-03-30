@@ -261,7 +261,7 @@ import ChoiceSelector from "@/components/selector/ChoiceSelector.vue";
 import { globalPayload, queryStore, uiStore, isCompareButtonDisabled, setRunning, setTabContentDisabled, mapStore, userStore } from '@/main/store/store.js'
 import { S2T_T2S_MAPPING } from '@/main/config'
 import { compareChars, compareZhongGu, compareTones } from '@/api/index.js'
-import { getCoordinates } from '@/api/query/geo'
+import { getCoordinates } from '@/api'
 import { showWarning } from '@/utils/message.js'
 import { useQueryConfig } from '@/utils/useQueryConfig'
 

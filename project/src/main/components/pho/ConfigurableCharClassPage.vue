@@ -191,11 +191,11 @@ import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import SimpleSelectDropdown from '@/components/selector/SimpleSelectDropdown.vue'
 import CharTreeItem from '@/main/components/TableAndTree/CharTreeItem.vue'
-import { loadFullTree } from '@/api/sql/index.js'
+import { loadFullTree } from '@/api'
 import {
   parseCharClassParams,
   updateUrlWithCharClassConfig
-} from '@/api/urlParams.js'
+} from '@/utils/urlParams.js'
 import {
   buildCharClassTreePayload,
   findCharClassPresetKey,

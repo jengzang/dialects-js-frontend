@@ -1,11 +1,11 @@
-// composables/usePraatApi.js - 完整的 Praat 声学分析 API
-import { api } from '../auth/auth.js'
+// composables/Praat.js - 完整的 Praat 声学分析 API
+import { api } from '../../auth/auth.js'
 
 /**
  * Praat 声学分析 API
  * 涵盖所有后端端点：上传管理 + 任务管理 + 能力查询
  */
-export function usePraatApi() {
+export function praat() {
 
   // ========== 1. 能力查询 ==========
 
@@ -423,6 +423,8 @@ export function usePraatApi() {
     analyzeAudio  // 一键式分析
   }
 }
+
+export const usePraatApi = praat
 
 
 // ========== TypeScript 类型定义（可选）==========

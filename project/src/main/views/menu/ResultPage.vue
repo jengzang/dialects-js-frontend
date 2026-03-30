@@ -48,8 +48,7 @@
 import {computed, onUnmounted, ref, watch, onMounted} from 'vue';
 import { useI18n } from 'vue-i18n';
 import {useRoute, useRouter} from 'vue-router';
-import { searchChars, searchZhongGu, searchYinWei, searchTones } from '@/api/query/core'
-import { getCoordinates } from '@/api/query/geo'
+import { getCoordinates, searchChars, searchZhongGu, searchYinWei, searchTones } from '@/api'
 import {globalPayload, mapStore, resultCache, userStore} from '@/main/store/store.js';
 import ResultList from "@/main/components/result/ResultList.vue";
 import CharsAndTones from "@/main/components/result/CharsAndTones.vue";

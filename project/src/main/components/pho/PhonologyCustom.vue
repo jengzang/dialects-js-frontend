@@ -99,14 +99,14 @@
 import { ref, computed, watch, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { getPhonologyClassificationMatrix } from '@/api/query/phonology.js'
+import { getPhonologyClassificationMatrix } from '@/api'
 import PhonologyMatrix from '@/main/components/TableAndTree/PhonologyTable.vue'
 import LocationMultiInput from '@/main/components/geo/LocationMultiInput.vue'
 import SimpleSelectDropdown from '@/components/selector/SimpleSelectDropdown.vue'
 import {
   parsePhonologyCustomParams,
   validatePhonologyParams
-} from '@/api/urlParams.js'
+} from '@/utils/urlParams.js'
 
 const route = useRoute()
 const router = useRouter()

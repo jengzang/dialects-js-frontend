@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { getFeatureCounts } from '@/api/query/core.js'
+import { getFeatureCounts } from '@/api'
 import AppModal from '@/components/common/AppModal.vue'
 import LocationMultiInput from '@/main/components/geo/LocationMultiInput.vue'
 

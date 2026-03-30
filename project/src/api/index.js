@@ -7,8 +7,9 @@ export * from './auth/index.js'
 
 // ==================== Praat 音频分析 ====================
 export {
+  praat,
   usePraatApi
-} from './praat/index.js'
+} from './main/tools/index.js'
 
 // ==================== 工具模块 ====================
 // 字表合并工具
@@ -18,7 +19,7 @@ export {
   executeMerge,
   getMergeProgress,
   downloadMerge
-} from './tools/merge.js'
+} from './main/tools/merge.js'
 
 // 字表检查工具
 export {
@@ -30,7 +31,7 @@ export {
   batchDelete,
   executeBatchOperation,
   downloadCheckResult
-} from './tools/check.js'
+} from './main/tools/check.js'
 
 // 粤拼转IPA工具
 export {
@@ -38,15 +39,16 @@ export {
   processJyut2Ipa,
   getJyut2IpaProgress,
   downloadJyut2IpaResult
-} from './tools/jyut2ipa.js'
+} from './main/tools/jyut2ipa.js'
 
 // ==================== SQL 操作 ====================
 // SQL查询
 export {
   sqlQuery,
   distinctQuery,
-  getTableColumns
-} from './sql/query.js'
+  getTableColumns,
+  queryCount
+} from './main/sql/query.js'
 
 // SQL修改
 export {
@@ -54,13 +56,13 @@ export {
   batchMutate,
   batchReplacePreview,
   batchReplaceExecute
-} from './sql/mutate.js'
+} from './main/sql/mutate.js'
 
 // 树形数据
 export {
   lazyLoadTree,
   loadFullTree
-} from './sql/tree.js'
+} from './main/sql/tree.js'
 
 // ==================== 查询模块 ====================
 // 核心查询
@@ -72,7 +74,7 @@ export {
   getCharList,
   getFeatureCounts,
   getFeatureStats
-} from './query/core.js'
+} from './main/core/query.js'
 
 // 地点查询
 export {
@@ -82,31 +84,31 @@ export {
   batchMatch,
   getPartitions,
   getRegions
-} from './query/LocationAndRegion.js'
+} from './main/geo/LocationAndRegion.js'
 
 // 地理数据查询
 export {
   getCoordinates
-} from './query/geo.js'
+} from './main/geo/geo.js'
 
 // 音系查询
 export {
   getPhonologyMatrix,
   getPhonologyClassificationMatrix,
   queryPhonology
-} from './query/phonology.js'
+} from './main/core/phonology.js'
 
 export {
   postPhoPieByValue,
   postPhoPieByStatus
-} from './query/phoPie.js'
+} from './main/core/phoPie.js'
 
 // ==================== 比较模块 ====================
 export {
   compareChars,
   compareZhongGu,
   compareTones
-} from './compare/index.js'
+} from './main/core/compare.js'
 
 // ==================== 用户数据 ====================
 export {
@@ -114,21 +116,21 @@ export {
   editCustomData,
   batchCreateCustomData,
   batchDeleteCustomData
-} from './user/custom-data.js'
+} from './main/user/custom-data.js'
 
 export {
   getCustomData,
   getCustomFeature,
   submitCustomForm,
   deleteCustomForm
-} from './user/custom.js'
+} from './main/user/custom.js'
 
 // 自定義分區
 export {
   getCustomRegions,
   createOrUpdateCustomRegion,
   deleteCustomRegion
-} from './user/custom-regions.js'
+} from './main/user/custom-regions.js'
 
 // ==================== 日志统计 ====================
 export {
@@ -143,7 +145,7 @@ export {
   buildQueryUrl,
   copyCurrentUrl,
   getUrlSegmentValue
-} from './urlParams.js'
+} from '../utils/urlParams.js'
 
 // ==================== VillagesML 自然村分析 ====================
 export {

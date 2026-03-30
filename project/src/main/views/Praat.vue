@@ -183,7 +183,7 @@ import JobStatusPanel from '../components/praat/JobStatusPanel.vue'
 import AnalysisResultsPanel from '../components/praat/AnalysisResultsPanel.vue'
 import VowelSpacePanel from '../components/praat/VowelSpacePanel.vue'
 import PitchTonePanel from '../components/praat/PitchTonePanel.vue'
-import { usePraatApi } from '@/api/praat/index.js'
+import { usePraatApi } from '@/api'
 import { userStore } from '@/main/store/store.js'
 import { showWarning, showError } from '@/utils/message.js'
 

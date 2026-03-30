@@ -545,12 +545,11 @@
     </UpdateNoticeModal>
 
     <!-- Support Modal -->
-    <AppModal
-      v-model="showSupport"
-      size="sm"
-      :show-close="false"
-    >
-      <div class="home-support-shell" @click.stop>
+    <HomeSupportPopup
+      :visible="showSupport"
+      @close="showSupport = false"
+    />
+    <!--      <div class="home-support-shell" @click.stop>
             <button class="close-btn close-btn-lg close-btn-corner" @click="showSupport = false">✕</button>
             <h3 class="home-support-title">{{ $t('home.supportModal.title') }}</h3>
             <p class="home-support-subtitle">{{ $t('home.supportModal.subtitle') }}</p>
@@ -565,7 +564,7 @@
               </div>
             </div>
       </div>
-    </AppModal>
+    -->
   </div>
 </template>
 
@@ -573,13 +572,15 @@
 import { computed, ref, onMounted, defineAsyncComponent } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import AppModal from '@/components/common/AppModal.vue'
 import { getTodayVisits, getTotalVisits } from '@/api/logs/index.js'
-import { queryCount } from '@/api/sql/index.js'
+import { queryCount } from '@/api'
 
 // ✅ 条件渲染的组件懒加载
 const UserBenefitsPopup = defineAsyncComponent(() =>
   import('@/main/components/popup/user/UserBenefitsPopup.vue')
+)
+const HomeSupportPopup = defineAsyncComponent(() =>
+  import('@/main/components/popup/HomeSupportPopup.vue')
 )
 const UpdateNoticeModal = defineAsyncComponent(() =>
   import('@/components/ToastAndHelp/UpdateNoticeModal.vue')

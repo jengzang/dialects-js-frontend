@@ -24,3 +24,7 @@ export {
   getJyut2IpaProgress,
   downloadJyut2IpaResult
 } from './jyut2ipa.js'
+
+// api/praat/index.js - Praat 模块统一导出
+// 完整的 Praat 声学分析 API（后端确认版本）
+export { praat, usePraatApi } from './Praat.js'

@@ -1,5 +1,5 @@
 // api/tools/check.js - 字表检查工具 API
-import { api } from '../auth/auth.js'
+import { api } from '../../auth/auth.js'
 import { showError } from '@/utils/message.js'
 
 /**

@@ -1,5 +1,5 @@
 // utils/ResultTable.js
-import { queryPhonology } from '../../api/query/phonology.js'
+import { queryPhonology } from '@/api'
 import { API_CONFIG } from '../config/constants.js'
 import { resultCache } from '../store/store.js'
 import {

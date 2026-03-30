@@ -52,7 +52,7 @@ import { useI18n } from 'vue-i18n'
 import LocationAndRegionInput from "@/main/components/geo/LocationAndRegionInput.vue";
 import SimpleSelectDropdown from "@/components/selector/SimpleSelectDropdown.vue";
 import { mapStore, uiStore, userStore, isDivideButtonDisabled, setRunning } from "@/main/store/store.js";
-import { getCoordinates } from '@/api/query/geo'
+import { getCoordinates } from '@/api'
 import { showError, showWarning } from '@/utils/message.js';
 
 const router = useRouter()

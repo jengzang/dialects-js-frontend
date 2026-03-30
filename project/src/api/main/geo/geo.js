@@ -1,5 +1,5 @@
 // api/query/geo.js - 地理数据查询 API
-import { api } from '../auth/auth.js'
+import { api } from '../../auth/auth.js'
 import { showError, showWarning } from '@/utils/message.js'
 
 /**

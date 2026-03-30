@@ -137,7 +137,7 @@ import {get_detail} from "@/main/utils/ResultTable.js";
 import {mapStore, userStore, resultCache} from "@/main/store/store.js";
 import { showSuccess, showError, showWarning, showConfirm } from '@/utils/message.js';
 import { getLocationDetail } from '@/api'
-import { deleteCustomForm } from '@/api/user/custom.js'
+import { deleteCustomForm } from '@/api'
 import { refreshCurrentCustomLayer } from '@/utils/map/MapData.js';
 import SimpleSelectDropdown from '@/components/selector/SimpleSelectDropdown.vue'
 import MapLegend from './MapLegend.vue'

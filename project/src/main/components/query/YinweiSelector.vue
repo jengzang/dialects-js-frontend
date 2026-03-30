@@ -16,12 +16,16 @@
     ></textarea>
   </div>
 
-  <AppModal
-    v-model="isHelpModalOpen"
-    size="sm"
-    transition-name="fade-scale"
-    :show-close="false"
-  >
+  <YinweiHelpPopup
+    :visible="isHelpModalOpen"
+    :has-locations="hasLocations"
+    :location-list="locationList"
+    :loading-states="loadingStates"
+    :api-results="apiResults"
+    @close="closeHelpModal"
+    @query-location="fetchFeatureCount"
+  />
+  <!--
     <div class="yinwei-help-shell">
           <button
             class="close-btn close-btn-lg close-btn-corner"
@@ -89,14 +93,14 @@
               </ul>
             </div>
     </div>
-  </AppModal>
+  -->
 </template>
 
 <script setup>
 import { ref, computed ,watch} from 'vue';
 import { useI18n } from 'vue-i18n'
-import AppModal from '@/components/common/AppModal.vue'
-import { getFeatureCounts } from '@/api/query/core'
+import { getFeatureCounts } from '@/api'
+import YinweiHelpPopup from '@/main/components/popup/query/YinweiHelpPopup.vue'
 import { userStore, setTabContentDisabled } from '@/main/store/store.js'
 
 const { t } = useI18n()

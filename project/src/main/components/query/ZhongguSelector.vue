@@ -44,41 +44,26 @@
     </div>
   </div>
 
-  <AppModal
-    v-model="isModalOpen"
-    size="lg"
-    :show-close="false"
-  >
-    <div class="zhonggu-modal-shell">
-          <div class="zhonggu-modal-header">
-            <h2>{{ $t('query.components.zhongguSelector.detailsTitle') }}</h2>
+  <ZhongguDetailsPopup
+    :visible="isModalOpen"
+    :results="results"
+    :format-title="formatTitle"
+    @close="isModalOpen = false"
+  />
+  <!--
             <button class="close-btn close-btn-lg close-btn-inline" @click="isModalOpen = false">✕</button>
-          </div>
-
-          <div class="zhonggu-modal-body">
-            <div v-for="item in results" :key="item.query" class="full-item">
-              <div class="full-item-header">
-                <span class="combo-name">{{ formatTitle(item.query) }}</span>
-                <span class="count-badge">{{ $t('query.components.zhongguSelector.charCount', { count: item['char_count'] }) }}</span>
-              </div>
-<!--              <div class="full-chars">-->
-<!--                <span v-for="(char, idx) in item['chars']" :key="idx" class="char-tag">{{ char }}</span>-->
-<!--              </div>-->
-              <div class="full-chars">
-                {{ (item['chars'] || []).join('') }}
-              </div>
-            </div>
-          </div>
-    </div>
-  </AppModal>
+  -->
 </template>
 
 <script setup>
 import { ref, computed, watch } from 'vue'
-import AppModal from '@/components/common/AppModal.vue'
-import { getCharList } from '@/api/query/core'
+import { useI18n } from 'vue-i18n'
+import { getCharList } from '@/api'
+import ZhongguDetailsPopup from '@/main/components/popup/query/ZhongguDetailsPopup.vue'
 import { userStore, setTabContentDisabled } from '@/main/store/store.js'
 import { ROLE_LIMITS, QUERY_CONFIG } from '@/main/config/constants.js'
+
+const { t } = useI18n()
 
 // 定义事件，用于通知父组件禁用/启用按钮
 const emit = defineEmits(['update:runDisabled'])
