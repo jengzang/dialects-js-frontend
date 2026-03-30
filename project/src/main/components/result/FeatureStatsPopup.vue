@@ -150,10 +150,6 @@ const getCharsString = (charIndices) => {
 }
 
 
-@keyframes feature-stats-spin-unused {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
 
 .feature-stats-error-state-unused {
   padding: 40px 20px;

@@ -43,7 +43,7 @@
         <PreprocessingSettings v-model="settings.preprocessing" />
 
         <button @click="runClustering" :disabled="loading" class="run-button solid-button">
-          <span v-if="loading" class="loading-spinner">⏳</span>
+          <span v-if="loading" class="ui-loading--hourglass" aria-hidden="true">⏳</span>
           <span v-else>🚀</span>
           {{ loading ? '運行中...' : '運行聚類' }}
         </button>

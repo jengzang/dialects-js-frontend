@@ -16,7 +16,7 @@
         @click="loadData"
         :disabled="matchedLocations.length === 0 || loading || isMatching"
       >
-        <span v-if="isMatching" class="btn-spinner"></span>
+        <span v-if="isMatching" class="ui-loading--inline" aria-hidden="true">↻</span>
         <span v-else-if="loading">{{ $t('phonology.phonology.matrix.actions.loading') }}</span>
         <span v-else>{{ $t('phonology.phonology.matrix.actions.query') }}</span>
       </button>

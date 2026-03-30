@@ -247,7 +247,7 @@
           </div>
           <div ref="loadMoreTrigger" class="load-more-trigger">
             <div v-if="hasMore" class="loading-status">
-              <div class="mini-spinner"></div>
+              <div class="ui-loading--inline" aria-hidden="true">↻</div>
               <span>{{ t('words.yuBaoPage.states.loadingMore') }}</span>
             </div>
             <span v-else-if="filteredCardData.length > 0" class="no-more">{{ t('words.yuBaoPage.states.loadedAll') }}</span>

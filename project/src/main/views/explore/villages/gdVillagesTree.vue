@@ -63,7 +63,7 @@
 
           <!-- City Loading State -->
           <div v-if="loadingStates[city]" class="city-loading">
-            <div class="loading-spinner small"></div>
+            <div class="ui-loading--inline" aria-hidden="true">↻</div>
             <span>{{ t('villages.pages.gdTree.fetching') }}</span>
           </div>
 

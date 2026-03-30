@@ -26,7 +26,7 @@
     </div>
 
     <div v-if="loading" class="status-msg loading">
-      <span class="spinner">↻</span> {{ $t('query.components.zhongguSelector.querying') }}
+      <span class="ui-loading--inline" aria-hidden="true">↻</span> {{ $t('query.components.zhongguSelector.querying') }}
     </div>
 
     <div v-else-if="!results || results.length === 0" class="status-msg empty">

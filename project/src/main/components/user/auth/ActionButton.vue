@@ -5,7 +5,7 @@
     @click="$emit('click')"
     class="action-button"
   >
-    <span v-if="loading" class="loading-spinner"></span>
+    <span v-if="loading" class="ui-loading--inline" aria-hidden="true">↻</span>
     <slot v-else></slot>
   </button>
 </template>

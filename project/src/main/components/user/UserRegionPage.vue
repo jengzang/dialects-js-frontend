@@ -71,7 +71,11 @@
               :disabled="deletingRegions[region.region_name]"
               @click="deleteRegion(region.region_name)"
             >
-              <span v-if="deletingRegions[region.region_name]" class="btn-spinner-small"></span>
+              <span
+                v-if="deletingRegions[region.region_name]"
+                class="ui-loading--inline"
+                aria-hidden="true"
+              >↻</span>
               <span v-else>🗑️</span>
             </button>
           </div>
@@ -209,7 +213,7 @@
               {{ t('common.button.cancel') }}
             </button>
             <button class="btn-primary" :disabled="!canSave || isSaving" @click="saveRegion">
-              <span v-if="isSaving" class="btn-spinner"></span>
+              <span v-if="isSaving" class="ui-loading--inline" aria-hidden="true">↻</span>
               <span v-else>{{ t('common.button.save') }}</span>
             </button>
           </div>

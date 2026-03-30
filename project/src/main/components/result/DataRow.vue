@@ -32,7 +32,7 @@
           :disabled="featureStatsPopup.loading"
           @click.stop="handleFeatureStatsClick"
         >
-          <span v-if="featureStatsPopup.loading" class="btn-spinner"></span>
+          <span v-if="featureStatsPopup.loading" class="ui-loading--inline" aria-hidden="true">↻</span>
           <span v-else>{{ statsButtonText }}</span>
         </button>
 

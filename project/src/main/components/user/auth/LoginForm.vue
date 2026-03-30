@@ -57,7 +57,7 @@
     <!-- Submit Button -->
     <div class="form-row">
       <button class="btn-search" @click="handleSubmit" :disabled="loading">
-        <span v-if="loading" class="login-spinner"></span>
+        <span v-if="loading" class="ui-loading--inline" aria-hidden="true">↻</span>
         <span v-else>{{ $t('auth.login.button') }}</span>
       </button>
     </div>
@@ -238,4 +238,3 @@ watch(() => props.loginMode, () => {
   }
 }
 </style>
-

@@ -215,7 +215,7 @@
 <!--            @update:modelValue="loadLabelsByCategory"-->
 <!--          />-->
 <!--          <div v-if="loadingLabels" class="loading-state">-->
-<!--            <div class="spinner"></div>-->
+<!--            <div class="ui-loading--page" aria-hidden="true"></div>-->
 <!--          </div>-->
 <!--          <div v-else-if="labels.length > 0" class="labels-cloud">-->
 <!--            <span-->
@@ -240,7 +240,7 @@
 <!--              @input="loadLabelsByChar"-->
 <!--          />-->
 <!--          <div v-if="loadingLabels" class="loading-state">-->
-<!--            <div class="spinner"></div>-->
+<!--            <div class="ui-loading--page" aria-hidden="true"></div>-->
 <!--          </div>-->
 <!--          <div v-else-if="labels.length > 0" class="labels-list">-->
 <!--            <div-->
