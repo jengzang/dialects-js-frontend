@@ -44,10 +44,12 @@
     </div>
   </div>
 
-  <Teleport to="body">
-    <Transition name="modal-fade">
-      <div v-if="isModalOpen" class="modal-overlay" @click.self="isModalOpen = false">
-        <div class="modal-content glass-card-high">
+  <AppModal
+    v-model="isModalOpen"
+    size="lg"
+    :show-close="false"
+  >
+    <div class="zhonggu-modal-shell">
           <div class="modal-header">
             <h2>{{ $t('query.components.zhongguSelector.detailsTitle') }}</h2>
             <button class="close-btn close-btn-lg close-btn-inline" @click="isModalOpen = false">✕</button>
@@ -67,14 +69,13 @@
               </div>
             </div>
           </div>
-        </div>
-      </div>
-    </Transition>
-  </Teleport>
+    </div>
+  </AppModal>
 </template>
 
 <script setup>
 import { ref, computed, watch } from 'vue'
+import AppModal from '@/components/common/AppModal.vue'
 import { getCharList } from '@/api/query/core'
 import { userStore, setTabContentDisabled } from '@/main/store/store.js'
 import { ROLE_LIMITS, QUERY_CONFIG } from '@/main/config/constants.js'
@@ -363,23 +364,15 @@ defineExpose({ combinations })
    ========================================= */
 
 /* 弹窗内容卡片：更强的模糊效果 */
-.modal-content.glass-card-high {
-  width: 90%;
-  max-width: 1000px;
-  height: 85vh;
-  background: var(--glass-heavy);
-  backdrop-filter: blur(40px) saturate(180%);
-  -webkit-backdrop-filter: blur(40px) saturate(180%);
-  border-radius: 24px;
-  box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+.zhonggu-modal-shell {
   display: flex;
   flex-direction: column;
+  height: calc(100% + var(--modal-content-padding-top) + var(--modal-content-padding-bottom));
+  margin:
+    calc(-1 * var(--modal-content-padding-top))
+    calc(-1 * var(--modal-content-padding-inline))
+    calc(-1 * var(--modal-content-padding-bottom));
   overflow: hidden;
-  border: 1px solid var(--glass-border-strong);
-}
-
-.modal-overlay {
-  --overlay-padding: 0;
 }
 
 .modal-header {
@@ -434,11 +427,6 @@ defineExpose({ combinations })
 }
 
 /* 弹窗动画 */
-.modal-fade-enter-active, .modal-fade-leave-active { transition: opacity 0.3s ease; }
-.modal-fade-enter-from, .modal-fade-leave-to { opacity: 0; }
-.modal-fade-enter-active .modal-content { transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); }
-.modal-fade-enter-from .modal-content { transform: scale(0.95); }
-
 .limit-warning {
   padding: 12px;
   background: var(--color-error-bg); /* 浅红色背景 */
