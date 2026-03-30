@@ -57,6 +57,7 @@
 }
 
 :where(
+  .ui-scrollbar,
   .u-scrollbar,
   .main-sidebar-list,
   .history-list,
@@ -147,6 +148,7 @@
 }
 
 :where(
+  .ui-scrollbar,
   .u-scrollbar,
   .main-sidebar-list,
   .history-list,
@@ -237,6 +239,7 @@
 }
 
 :where(
+  .ui-scrollbar--hidden,
   .u-hidden-scrollbar,
   .topbar-tags,
   .replace-type-tabs,
@@ -249,6 +252,7 @@
 }
 
 :where(
+  .ui-scrollbar--hidden,
   .u-hidden-scrollbar,
   .topbar-tags,
   .replace-type-tabs,
