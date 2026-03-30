@@ -287,38 +287,32 @@
     </Teleport>
 
     <!-- 新增记录模态框 -->
-    <Teleport to="body">
-      <transition name="fade-scale">
-        <div
-          v-if="showAddModal"
-          class="modal-overlay"
-          style="--overlay-z-index: 9999; --overlay-padding: 0"
-          @click="closeAddModal"
-        >
-          <div class="add-modal glass-card" @click.stop>
-            <button class="close-btn close-btn-lg close-btn-corner" :aria-label="t('common.button.close')" @click="closeAddModal">×</button>
-            <h3 class="modal-title">{{ t('tableTree.universalTable.addModal.title') }}</h3>
-
-            <div class="form-content ui-scrollbar">
-              <div v-for="col in columns" :key="col.key" class="form-field">
-                <label class="field-label">{{ col.label }}</label>
-                <input
-                  v-model="newRecordData[col.key]"
-                  type="text"
-                  class="field-input"
-                  :placeholder="t('tableTree.universalTable.addModal.inputPlaceholder', { label: col.label })"
-                />
-              </div>
-            </div>
-
-            <div class="modal-actions">
-              <button class="modal-btn cancel-btn" @click="closeAddModal">{{ t('common.button.cancel') }}</button>
-              <button class="modal-btn confirm-btn" @click="submitNewRecord">{{ t('tableTree.universalTable.addModal.confirmAdd') }}</button>
-            </div>
-          </div>
+    <AppModal
+      :model-value="showAddModal"
+      size="sm"
+      :title="t('tableTree.universalTable.addModal.title')"
+      :close-label="t('common.button.close')"
+      transition-name="fade-scale"
+      :z-index="9999"
+      @update:modelValue="closeAddModal"
+    >
+      <div class="form-content ui-scrollbar">
+        <div v-for="col in columns" :key="col.key" class="form-field">
+          <label class="field-label">{{ col.label }}</label>
+          <input
+            v-model="newRecordData[col.key]"
+            type="text"
+            class="field-input"
+            :placeholder="t('tableTree.universalTable.addModal.inputPlaceholder', { label: col.label })"
+          />
         </div>
-      </transition>
-    </Teleport>
+      </div>
+
+      <div class="add-record-modal-actions">
+        <button class="modal-btn cancel-btn" @click="closeAddModal">{{ t('common.button.cancel') }}</button>
+        <button class="modal-btn confirm-btn" @click="submitNewRecord">{{ t('tableTree.universalTable.addModal.confirmAdd') }}</button>
+      </div>
+    </AppModal>
 
     <!-- 批量替换对话框 -->
     <Teleport to="body">
@@ -529,6 +523,7 @@ import {
   batchReplacePreview,
   batchReplaceExecute
 } from '@/api/sql'
+import AppModal from '@/components/common/AppModal.vue';
 import { userStore } from '@/main/store/store.js';
 import { useVirtualList } from '@vueuse/core';
 import { TABLE_CONFIG } from '@/main/config/constants.js';
@@ -2164,31 +2159,12 @@ td.cell-changed::after {
    新增记录模态框样式
    ======================================== */
 
-.add-modal {
-  position: relative;
-  width: 90%;
-  max-width: 500px;
-  max-height: 80vh;
-  padding: 30px;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.modal-title {
-  margin: 0;
-  font-size: 20px;
-  font-weight: 600;
-  color: var(--text-primary);
-  text-align: center;
-}
-
 .form-content {
   display: flex;
   flex-direction: column;
   gap: 16px;
   overflow-y: auto;
-  max-height: 50vh;
+  max-height: 50dvh;
   padding: 4px;
 }
 
@@ -2223,7 +2199,7 @@ td.cell-changed::after {
   box-shadow: 0 0 0 3px var(--color-primary-light);
 }
 
-.modal-actions {
+.add-record-modal-actions {
   display: flex;
   justify-content: flex-end;
   gap: 12px;
@@ -2262,18 +2238,11 @@ td.cell-changed::after {
 
 /* 移动端适配 */
 @media (max-width: 768px) {
-  .add-modal {
-    width: 95%;
-    max-width: none;
-    padding: 20px;
-    max-height: 70dvh;
-  }
-
   .form-content {
-    max-height: 60vh;
+    max-height: 60dvh;
   }
 
-  .modal-actions {
+  .add-record-modal-actions {
     flex-direction: column;
   }
 
