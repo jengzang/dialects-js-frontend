@@ -2,37 +2,44 @@
   <AppModal
     :model-value="visible"
     size="sm"
+    :close-label="$t('common.button.close')"
     :show-close="false"
     @update:modelValue="handleClose"
   >
-    <div class="update-notice-shell">
-          <button class="close-btn close-btn-lg close-btn-corner" @click="handleClose">✕</button>
+    <template #header>
+      <div class="update-notice-header">
+        <div class="update-icon">🎀</div>
+        <div class="update-notice-header-main">
+          <h2 class="update-notice-title">{{ title || $t('common.updateNotice.title') }}</h2>
+          <p class="update-version">{{ version }}</p>
+        </div>
+        <button
+          class="close-btn close-btn-lg close-btn-inline"
+          :aria-label="$t('common.button.close')"
+          @click="handleClose"
+        >
+          ×
+        </button>
+      </div>
+    </template>
 
-          <div class="update-notice-header">
-            <div class="update-icon">🎉</div>
-            <h2 class="update-notice-title">{{ title || $t('common.updateNotice.title') }}</h2>
-            <p class="update-version">{{ version }}</p>
-          </div>
+    <div class="update-notice-content">
+      <slot>
+        <div class="update-item">
+          <span class="item-icon">✦</span>
+          <span class="item-text">{{ $t('common.updateNotice.defaultItem') }}</span>
+        </div>
+      </slot>
+    </div>
 
-          <div class="update-notice-content">
-            <slot>
-              <!-- 默认内容，可以被外部覆盖 -->
-              <div class="update-item">
-                <span class="item-icon">✨</span>
-                <span class="item-text">{{ $t('common.updateNotice.defaultItem') }}</span>
-              </div>
-            </slot>
-          </div>
-
-          <div class="update-notice-footer">
-            <label class="no-show-checkbox">
-              <input type="checkbox" v-model="dontShowAgain" />
-              <span>{{ $t('common.updateNotice.dontShowAgain') }}</span>
-            </label>
-            <button class="confirm-btn" @click="handleConfirm">
-              {{ $t('common.updateNotice.confirm') }}
-            </button>
-          </div>
+    <div class="update-notice-footer">
+      <label class="no-show-checkbox">
+        <input v-model="dontShowAgain" type="checkbox" />
+        <span>{{ $t('common.updateNotice.dontShowAgain') }}</span>
+      </label>
+      <button class="confirm-btn" @click="handleConfirm">
+        {{ $t('common.updateNotice.confirm') }}
+      </button>
     </div>
   </AppModal>
 </template>
@@ -52,7 +59,7 @@ const props = defineProps({
   },
   title: {
     type: String,
-    default: '網站更新通知'
+    default: ''
   },
   storageKey: {
     type: String,
@@ -70,7 +77,6 @@ const handleClose = () => {
 
 const handleConfirm = () => {
   if (dontShowAgain.value) {
-    // 将版本号写入localStorage
     const dismissedVersions = JSON.parse(localStorage.getItem(props.storageKey) || '[]')
     if (!dismissedVersions.includes(props.version)) {
       dismissedVersions.push(props.version)
@@ -81,7 +87,6 @@ const handleConfirm = () => {
   emit('close')
 }
 
-// 检查是否应该显示此版本的更新通知
 const shouldShow = () => {
   const dismissedVersions = JSON.parse(localStorage.getItem(props.storageKey) || '[]')
   return !dismissedVersions.includes(props.version)
@@ -93,33 +98,28 @@ defineExpose({
 </script>
 
 <style scoped>
-.update-notice-shell {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  height: calc(100% + var(--modal-content-padding-top) + var(--modal-content-padding-bottom));
-  margin:
-    calc(-1 * var(--modal-content-padding-top))
-    calc(-1 * var(--modal-content-padding-inline))
-    calc(-1 * var(--modal-content-padding-bottom));
-  overflow: hidden;
-}
-
 .update-notice-header {
-  padding: 2.5rem 2rem 1.5rem;
-  text-align: center;
-  border-bottom: 1px solid rgba(0, 122, 255, 0.1);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
 }
 
 .update-icon {
-  font-size: 4rem;
-  margin-bottom: 1rem;
+  font-size: 3rem;
+  line-height: 1;
   animation: bounce 1s ease infinite;
 }
 
 @keyframes bounce {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-10px); }
+}
+
+.update-notice-header-main {
+  flex: 1;
+  min-width: 0;
+  text-align: center;
 }
 
 .update-notice-title {
@@ -137,8 +137,6 @@ defineExpose({
 }
 
 .update-notice-content {
-  flex: 1;
-  overflow-y: auto;
   padding: 2rem;
 }
 
@@ -169,14 +167,14 @@ defineExpose({
   line-height: 1.5;
 }
 
-.update-notice-shell .item-text {
+.item-text {
   font-size: 0.9375rem;
   color: #1d1d1f;
   line-height: 1.8 !important;
   font-weight: 500;
 }
 
-.update-notice-shell .item-text * {
+.item-text * {
   line-height: 1.8 !important;
 }
 
@@ -236,16 +234,13 @@ defineExpose({
   transform: translateY(0);
 }
 
-/* 动画 */
-
-/* 移动端适配 */
 @media (max-width: 600px) {
   .update-notice-header {
-    padding: 2rem 1.5rem 1.25rem;
+    gap: 0.75rem;
   }
 
   .update-icon {
-    font-size: 3rem;
+    font-size: 2.5rem;
   }
 
   .update-notice-title {
@@ -258,18 +253,5 @@ defineExpose({
 
   .update-notice-footer {
     padding: 1.25rem 1.5rem;
-    flex-direction: column;
-    align-items: stretch;
   }
-
-  .confirm-btn {
-    width: 100%;
-  }
-}
-
-/* 强制覆盖 body 的 line-height */
-:deep(.item-text),
-:deep(.item-text *) {
-  line-height: 1.8 !important;
-}
-</style>
+}</style>

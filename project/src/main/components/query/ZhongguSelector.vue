@@ -50,9 +50,6 @@
     :format-title="formatTitle"
     @close="isModalOpen = false"
   />
-  <!--
-            <button class="close-btn close-btn-lg close-btn-inline" @click="isModalOpen = false">✕</button>
-  -->
 </template>
 
 <script setup>
@@ -344,42 +341,6 @@ defineExpose({ combinations })
   flex: 1; /* 占据剩余空间 */
 }
 
-/* =========================================
-   全屏弹窗样式
-   ========================================= */
-
-/* 弹窗内容卡片：更强的模糊效果 */
-.zhonggu-modal-shell {
-  display: flex;
-  flex-direction: column;
-  height: calc(100% + var(--modal-content-padding-top) + var(--modal-content-padding-bottom));
-  margin:
-    calc(-1 * var(--modal-content-padding-top))
-    calc(-1 * var(--modal-content-padding-inline))
-    calc(-1 * var(--modal-content-padding-bottom));
-  overflow: hidden;
-}
-
-.zhonggu-modal-header {
-  padding: 20px 24px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 1px solid var(--border-medium);
-  background: var(--glass-medium);
-}
-.zhonggu-modal-header h2 { margin: 0; font-size: 18px; color: var(--text-dark); }
-
-.zhonggu-modal-body {
-  flex: 1;
-  overflow-y: auto;
-  padding: 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-}
-
-/* 弹窗内的完整列表项 */
 .full-item {
   border-bottom: 1px dashed var(--border-medium);
   padding-bottom: 16px;

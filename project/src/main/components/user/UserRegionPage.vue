@@ -127,113 +127,6 @@
       @update:locationInput="locationInput = $event"
       @location-input="updateLocationsFromTextarea"
     />
-    <!--
-      <div class="user-region-modal-shell">
-          <div class="user-region-modal-header">
-            <h2 class="user-region-modal-title">
-              {{
-                editingRegion.id
-                  ? t('user.regionPage.modal.editTitle')
-                  : t('user.regionPage.modal.createTitle')
-              }}
-            </h2>
-            <button
-              class="close-btn close-btn-lg close-btn-inline"
-              :aria-label="t('common.button.close')"
-              @click="closeEditModal"
-            >
-              ✕
-            </button>
-          </div>
-          <div class="user-region-modal-body">
-            <div class="form-group">
-              <label class="form-label">{{ t('user.regionPage.form.nameLabel') }}</label>
-              <textarea
-                v-model="editingRegion.region_name"
-                class="form-textarea"
-                style="height: 45px"
-                :placeholder="t('user.regionPage.form.namePlaceholder')"
-                :disabled="!!editingRegion.id"
-              />
-              <p v-if="editingRegion.id" class="form-hint">
-                {{ t('user.regionPage.form.nameLockedHint') }}
-              </p>
-            </div>
-
-            <div class="form-group">
-              <label class="form-label">{{ t('user.regionPage.form.descriptionLabel') }}</label>
-              <textarea
-                v-model="editingRegion.description"
-                class="form-textarea"
-                :placeholder="t('user.regionPage.form.descriptionPlaceholder')"
-                rows="3"
-              ></textarea>
-            </div>
-
-            <div class="form-group">
-              <div class="location-header">
-                <label class="form-label">{{ t('user.regionPage.form.locationsLabel') }}</label>
-                <button
-                  type="button"
-                  class="select-location-btn"
-                  :title="t('user.regionPage.form.selectLocationsTitle')"
-                  @click="openLocationSelector"
-                >
-                  {{ t('user.regionPage.form.selectLocationsButton') }}
-                </button>
-              </div>
-
-              <textarea
-                v-model="locationInput"
-                class="form-input location-input"
-                :placeholder="t('user.regionPage.form.locationInputPlaceholder')"
-                rows="6"
-                @input="updateLocationsFromTextarea"
-              ></textarea>
-              <p class="form-hint">
-                {{ t('user.regionPage.form.locationHint') }}
-              </p>
-
-              <div class="location-stats">
-                <div class="stat-badge">
-                  <span class="stat-icon">✍️</span>
-                  <span>
-                    {{ t('user.regionPage.form.manualCount', { count: manualInputCount }) }}
-                  </span>
-                </div>
-                <div class="stat-badge primary">
-                  <span class="stat-icon">🌳</span>
-                  <span>
-                    {{ t('user.regionPage.form.treeCount', { count: treeSelectedCount }) }}
-                  </span>
-                </div>
-              </div>
-
-              <div v-if="editingRegion.locations.length > 0" class="selected-locations-display">
-                <div class="location-tags">
-                  <span
-                    v-for="(loc, idx) in editingRegion.locations"
-                    :key="idx"
-                    class="location-tag"
-                    :class="{ 'from-tree': availableLocations.has(loc) }"
-                  >
-                    {{ loc }}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="user-region-modal-footer">
-            <button class="btn-secondary" @click="closeEditModal">
-              {{ t('common.button.cancel') }}
-            </button>
-            <button class="btn-primary" :disabled="!canSave || isSaving" @click="saveRegion">
-              <span v-if="isSaving" class="ui-loading--inline" aria-hidden="true">↻</span>
-              <span v-else>{{ t('common.button.save') }}</span>
-            </button>
-          </div>
-      </div>
-    -->
 
     <PartitionInfoModal
       v-model="showPartitionModal"
@@ -884,27 +777,6 @@ onMounted(() => {
   font-weight: 500;
 }
 
-.user-region-modal-shell {
-  display: flex;
-  flex-direction: column;
-  height: calc(100% + var(--modal-content-padding-top) + var(--modal-content-padding-bottom));
-  margin:
-    calc(-1 * var(--modal-content-padding-top))
-    calc(-1 * var(--modal-content-padding-inline))
-    calc(-1 * var(--modal-content-padding-bottom));
-  overflow: hidden;
-}
-
-.user-region-modal-header h2 {
-  margin: 0;
-}
-
-.user-region-modal-body {
-  padding: 24px;
-  flex: 1;
-  overflow-y: auto;
-}
-
 .form-group {
   margin-bottom: 20px;
 }
@@ -1038,14 +910,6 @@ onMounted(() => {
 
 .select-location-btn:active {
   transform: translateY(0);
-}
-
-.user-region-modal-footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  padding: 20px 24px;
-  border-top: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 @media (max-width: 768px) {

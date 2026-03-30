@@ -124,13 +124,10 @@
     <AppModal
       :model-value="isStatsExpanded"
       size="sm"
-      :show-close="false"
+      :title="t('navigation.stats.historyTitle')"
+      :close-label="t('common.button.close')"
       @update:modelValue="closeStatsPanel"
     >
-      <div class="stats-modal-shell close-btn-host">
-        <button class="close-btn close-btn-lg close-btn-corner" @click="closeStatsPanel">&times;</button>
-        <h3 class="stats-modal-title">📊 {{ t('navigation.stats.historyTitle') }}</h3>
-
         <div v-if="loadingStats" class="loading-state">
           <div class="ui-loading--page" aria-hidden="true"></div>
           <p>{{ t('navigation.stats.loading') }}</p>
@@ -170,7 +167,6 @@
             </div>
           </div>
         </div>
-      </div>
     </AppModal>
 
     <div class="navbar-content">
@@ -935,29 +931,8 @@ onBeforeUnmount(() => {
 
 
 /* 弹窗样式 */
-.stats-modal-shell {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  min-height: calc(100% + var(--modal-content-padding-top) + var(--modal-content-padding-bottom));
-  margin:
-    calc(-1 * var(--modal-content-padding-top))
-    calc(-1 * var(--modal-content-padding-inline))
-    calc(-1 * var(--modal-content-padding-bottom));
-  padding:10px;
-  overflow: hidden;
-}
-
-.stats-modal-title {
-  margin: 0 0 20px;
-  font-size: 20px;
-  font-weight: 600;
-  color: #333;
-  text-align: center;
-}
-
 .stats-content {
-  padding: 5px;
+  padding-top: 5px;
 }
 
 .loading-state {

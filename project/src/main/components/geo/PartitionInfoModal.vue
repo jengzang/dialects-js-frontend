@@ -2,10 +2,11 @@
   <AppModal
     :model-value="modelValue"
     size="lg"
+    :close-label="$t('common.button.close')"
     :show-close="false"
     @update:modelValue="closeModal"
   >
-    <div class="partition-modal-shell">
+    <template #header>
       <!-- 头部 -->
       <div class="partition-modal-header">
         <div class="partition-modal-title">🗂️ {{ $t('query.components.partitionModal.title') }}</div>
@@ -23,6 +24,7 @@
         </div>
         <button class="close-btn close-btn-sm close-btn-inline" type="button" @click="closeModal">×</button>
       </div>
+    </template>
 
       <!-- Tab 切换 + 确认按钮 -->
       <div class="partition-tabs-row">
@@ -77,7 +79,6 @@
           />
         </div>
       </div>
-    </div>
   </AppModal>
 </template>
 
@@ -718,20 +719,8 @@ const PartitionTreeNode = defineComponent({
 </script>
 
 <style scoped>
-/* Modal shell */
-.partition-modal-shell {
-  display: flex;
-  flex-direction: column;
-  min-height: calc(100% + var(--modal-content-padding-top) + var(--modal-content-padding-bottom));
-  margin:
-    calc(-1 * var(--modal-content-padding-top))
-    calc(-1 * var(--modal-content-padding-inline))
-    calc(-1 * var(--modal-content-padding-bottom));
-  overflow: hidden;
-}
-
-/* Modal header */
 .partition-modal-header {
+  flex: 1;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -868,9 +857,6 @@ const PartitionTreeNode = defineComponent({
 
 /* Modal body */
 .partition-modal-body {
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
   padding: 24px;
   background: rgba(255, 255, 255, 0.3);
 }

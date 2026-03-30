@@ -7,7 +7,7 @@
     :close-label="t('common.button.close')"
     @update:modelValue="closePopup"
   >
-    <div class="popup-content popup-animated">
+    <div class="benefits-content popup-animated">
           <!-- <div class="popup-header">
             <h3>{{ t('user.benefitsPopup.title') }}</h3>
             <button
@@ -19,7 +19,7 @@
             </button>
           </div> -->
 
-          <div class="popup-content">
+          <div class="benefits-content-inner">
             <div class="benefits-section">
               <h4 class="section-title">{{ t('user.benefitsPopup.comparisonTitle') }}</h4>
               <div class="comparison-table-wrapper">
@@ -335,46 +335,9 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
-.benefits-popup {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  height: calc(100% + var(--modal-content-padding-top) + var(--modal-content-padding-bottom));
-  margin:
-    calc(-1 * var(--modal-content-padding-top))
-    calc(-1 * var(--modal-content-padding-inline))
-    calc(-1 * var(--modal-content-padding-bottom));
-  overflow: hidden;
-}
-
-.popup-header {
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 32px 32px 16px 32px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px);
-  z-index: 10;
-}
-
-.popup-header h3 {
-  font-size: 24px;
-  font-weight: 700;
-  color: #1d1d1f;
-  margin: 0;
-  letter-spacing: -0.02em;
-  background: linear-gradient(135deg, #ff9500, #ff8000);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.popup-content {
-  flex: 1;
-  overflow-y: auto;
+.benefits-content,
+.benefits-content-inner {
   overflow-x: hidden;
-  padding: 24px 32px 32px 32px;
 }
 
 .benefits-section {
@@ -611,16 +574,8 @@ onBeforeUnmount(() => {
 }
 
 @media (max-aspect-ratio: 1/1) {
-  .popup-header {
-    padding: 24px 20px 12px 20px;
-  }
-
-  .popup-header h3 {
-    font-size: 20px;
-  }
-
-  .popup-content {
-    padding: 20px 20px 24px 20px;
+  .benefits-content-inner {
+    padding: 0;
   }
 
   .section-title {

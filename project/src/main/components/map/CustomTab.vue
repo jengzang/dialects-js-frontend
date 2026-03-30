@@ -130,20 +130,10 @@
     <AppModal
       :model-value="isHelpModalOpen"
       size="lg"
-      :show-close="false"
+      :title="t('map.customTab.helpModal.title')"
+      :close-label="t('common.button.close')"
       @update:modelValue="closeHelpModal"
     >
-      <div class="custom-tab-help-shell">
-        <button
-          class="close-btn close-btn-lg close-btn-sticky"
-          @click="closeHelpModal"
-          :title="t('common.button.close')"
-          :aria-label="t('common.button.close')"
-        >
-          &times;
-        </button>
-        <h3 class="custom-tab-help-title">{{ t('map.customTab.helpModal.title') }}</h3>
-
         <div class="help-content">
               <div class="help-section">
                 <h4 class="section-title">🌟 {{ t('map.customTab.helpModal.sections.overview.title') }}</h4>
@@ -363,7 +353,6 @@
                 </ul>
               </div>
         </div>
-      </div>
     </AppModal>
   </div>
 </template>
@@ -374,8 +363,7 @@ import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import LocationAndRegionInput from '@/main/components/geo/LocationAndRegionInput.vue'
 import HelpIcon from '@/components/ToastAndHelp/HelpIcon.vue'
-import { getCustomFeature } from '@/api'
-import { getAllCustomData } from '@/api/user'
+import { getAllCustomData, getCustomFeature } from '@/api'
 import { userStore, resultCache, mapStore, uiStore, isCustomButtonDisabled, setRunning } from '@/main/store/store.js'
 import { showSuccess, showError, showWarning, showInfo } from '@/utils/message.js'
 import AppModal from '@/components/common/AppModal.vue'
