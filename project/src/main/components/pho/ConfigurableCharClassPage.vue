@@ -207,7 +207,7 @@ import {
 import {
   filterCharClassTree,
   normalizeCharClassTree
-} from '@/main/config/chars_positions/charClassTreeAdapter.js'
+} from '@/main/utils/charClassTreeAdapter.js'
 
 const props = defineProps({
   pageKey: {

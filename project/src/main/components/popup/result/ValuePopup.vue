@@ -31,9 +31,9 @@
 <script setup>
 import { computed, onMounted, onUnmounted } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { parseFeatureString } from '@/main/config/result/ResultTable.js';
+import { parseFeatureString } from '@/main/utils/ResultTable.js';
 import { resultCache } from '@/main/store/store.js';
-import { getResultModeId, translateResultTerms } from '@/main/config/result/resultI18n.js';
+import { getResultModeId, translateResultTerms } from '@/i18n/utils/resultI18n.js';
 
 const props = defineProps({
   visible: { type: Boolean, default: false },

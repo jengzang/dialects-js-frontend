@@ -1,7 +1,7 @@
 // utils/ResultTable.js
-import { queryPhonology } from '../../../api/query/phonology.js'
-import { API_CONFIG } from '../constants.js'
-import { resultCache } from '../../store/store.js'
+import { queryPhonology } from '../../api/query/phonology.js'
+import { API_CONFIG } from '../config/constants.js'
+import { resultCache } from '../store/store.js'
 import {
     DEFAULT_CHARACTER_TABLE,
     getCharacterTableColumnValues

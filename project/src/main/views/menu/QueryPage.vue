@@ -216,7 +216,7 @@ import ChoiceSelector from "@/components/common/ChoiceSelector.vue";
 import { globalPayload, queryStore, uiStore, isQueryButtonDisabled, setRunning, setTabContentDisabled } from '@/main/store/store.js'
 import { S2T_T2S_MAPPING } from '@/main/config'
 import { useQueryConfig } from '@/utils/useQueryConfig'
-import { translateResultTerm } from '@/main/config/result/resultI18n.js'
+import { translateResultTerm } from '@/i18n/utils/resultI18n.js'
 
 const { t } = useI18n()
 

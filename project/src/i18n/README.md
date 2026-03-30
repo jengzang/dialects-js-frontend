@@ -168,4 +168,4 @@ npm run i18n:extract
 
 ## 示例
 
-查看 `src/views/menu/SettingPage.vue` 了解完整的语言切换实现示例。
+查看 `src/main/menu/chores/SettingPage.vue` 了解完整的语言切换实现示例。

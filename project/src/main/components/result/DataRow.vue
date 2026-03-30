@@ -93,12 +93,12 @@
 <script setup>
 import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { getCorrespondingCharacters } from '@/main/config/result/ResultTable.js';
+import { getCorrespondingCharacters } from '@/main/utils/ResultTable.js';
 import { getFeatureStats, getLocationDetail } from '@/api';
 import { globalPayload } from '@/main/store/store.js';
 import LocationDetailPopup from '../popup/result/LocationDetailPopup.vue';
 import FeatureStatsPopup from '../popup/result/FeatureStatsPopup.vue';
-import { translateResultTerm } from '@/main/config/result/resultI18n.js';
+import { translateResultTerm } from '@/i18n/utils/resultI18n.js';
 
 const props = defineProps({
   item: { type: Object, required: true },
