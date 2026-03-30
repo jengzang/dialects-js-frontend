@@ -35,7 +35,7 @@
             </slot>
           </div>
 
-          <div class="content u-scrollbar">
+          <div class="content ui-scrollbar">
             <slot />
           </div>
         </div>
