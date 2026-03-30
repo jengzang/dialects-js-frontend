@@ -579,7 +579,7 @@ import { queryCount } from '@/api/sql/index.js'
 
 // ✅ 条件渲染的组件懒加载
 const UserBenefitsPopup = defineAsyncComponent(() =>
-  import('@/main/components/user/UserBenefitsPopup.vue')
+  import('@/main/components/popup/user/UserBenefitsPopup.vue')
 )
 const UpdateNoticeModal = defineAsyncComponent(() =>
   import('@/components/ToastAndHelp/UpdateNoticeModal.vue')
