@@ -2,6 +2,7 @@
 import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { getFeatureCounts } from '@/api/query/core.js'
+import AppModal from '@/components/common/AppModal.vue'
 import LocationMultiInput from '@/main/components/query/LocationMultiInput.vue'
 
 const { t } = useI18n()
@@ -263,43 +264,35 @@ const closeLocationModal = () => {
     </div>
 
     <!-- 地点详情弹窗 -->
-    <Teleport to="body">
-      <div v-if="showLocationModal" class="glass-overlay" @mousedown.self="closeLocationModal">
-        <div class="main-glass-modal" role="dialog" aria-modal="true">
-          <!-- 头部 -->
-          <div class="modal-header">
-            <div class="modal-title">
-              {{ $t('phonology.phonology.countphos.modal.title', { featureType: modalData.featureType, syllable: modalData.syllable }) }}
-            </div>
-            <button class="close-btn close-btn-sm close-btn-inline" type="button" @click="closeLocationModal">×</button>
-          </div>
-
-          <!-- 主体 -->
-          <div class="modal-body">
-            <div class="modal-stats">
-              <span class="modal-stat-item">
-                <span class="modal-stat-label">{{ $t('phonology.phonology.countphos.stats.total') }}:</span>
-                <span class="modal-stat-value">{{ modalData.totalCount }}</span>
-              </span>
-              <span class="modal-stat-item">
-                <span class="modal-stat-label">{{ $t('phonology.phonology.countphos.stats.locationCount') }}:</span>
-                <span class="modal-stat-value">{{ modalData.locations.length }}</span>
-              </span>
-            </div>
-
-            <div class="modal-locations-list">
-              <span
-                  v-for="(loc, index) in modalData.locations"
-                  :key="index"
-                  class="modal-location-chip"
-              >
-                {{ loc }}
-              </span>
-            </div>
-          </div>
-        </div>
+    <AppModal
+      :model-value="showLocationModal"
+      size="sm"
+      :title="$t('phonology.phonology.countphos.modal.title', { featureType: modalData.featureType, syllable: modalData.syllable })"
+      :close-label="t('common.button.close')"
+      :z-index="20000"
+      @update:modelValue="closeLocationModal"
+    >
+      <div class="modal-stats">
+        <span class="modal-stat-item">
+          <span class="modal-stat-label">{{ $t('phonology.phonology.countphos.stats.total') }}:</span>
+          <span class="modal-stat-value">{{ modalData.totalCount }}</span>
+        </span>
+        <span class="modal-stat-item">
+          <span class="modal-stat-label">{{ $t('phonology.phonology.countphos.stats.locationCount') }}:</span>
+          <span class="modal-stat-value">{{ modalData.locations.length }}</span>
+        </span>
       </div>
-    </Teleport>
+
+      <div class="modal-locations-list">
+        <span
+            v-for="(loc, index) in modalData.locations"
+            :key="index"
+            class="modal-location-chip"
+        >
+          {{ loc }}
+        </span>
+      </div>
+    </AppModal>
   </div>
 </template>
 
@@ -645,46 +638,6 @@ const closeLocationModal = () => {
 
 .expand-btn:active {
   transform: translateY(0);
-}
-
-/* 弹窗样式 - 参考 LocationAndRegionInput */
-.glass-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 20000;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 18px;
-  background: rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(7px);
-  -webkit-backdrop-filter: blur(6px);
-}
-
-.main-glass-modal {
-  --main-glass-modal-background: rgba(255, 255, 255, 0.95);
-  --main-glass-modal-border: 1px solid rgba(0, 0, 0, 0.1);
-}
-
-.modal-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px 20px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-  background: rgba(255, 255, 255, 0.5);
-}
-
-.modal-title {
-  font-size: 18px;
-  font-weight: 650;
-  color: #333;
-}
-
-.modal-body {
-  padding: 20px;
-  overflow: auto;
-  max-height: calc(min(70vh, 640px) - 80px);
 }
 
 .modal-stats {
