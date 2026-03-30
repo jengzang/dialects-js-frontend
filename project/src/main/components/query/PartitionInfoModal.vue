@@ -50,7 +50,7 @@
         </div>
 
         <!-- 主体：树状图 -->
-        <div class="modal-body">
+        <div class="modal-body ui-scrollbar">
           <div v-if="isLoading" class="loading-state loading-state-base">
             <div class="ui-loading--page" aria-hidden="true"></div>
             <span>{{ $t('query.components.partitionModal.loading') }}</span>

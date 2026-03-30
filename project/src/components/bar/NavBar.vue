@@ -52,7 +52,7 @@
       <div class="sidebar main-sidebar-shell" v-if="isSidebarVisible">
         <div class="sidebar-empty main-sidebar-empty"></div>
         <div class="sidebar-content main-sidebar-content">
-          <ul class="main-sidebar-list">
+          <ul class="main-sidebar-list ui-scrollbar">
             <li
               v-for="(item, key) in filteredMenuConfig"
               :key="key"
@@ -153,7 +153,7 @@
 
               <div class="history-section">
                 <h4 class="section-title">{{ t('navigation.stats.historyRecords') }}</h4>
-                <div class="history-list">
+                <div class="history-list ui-scrollbar">
                   <div v-for="item in visitHistory" :key="item.date" class="history-item-modal">
                     <span class="history-date">{{ item.date }}</span>
                     <div class="history-bar-container">

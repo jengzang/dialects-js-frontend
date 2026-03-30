@@ -35,7 +35,7 @@
         </div>
 
         <!-- Options List -->
-        <div class="options-list">
+        <div class="options-list ui-scrollbar">
           <div
             class="dropdown-item"
             v-for="option in filteredOptions"
@@ -340,4 +340,3 @@ watch(() => props.triggerEl, () => {
 }
 
 </style>
-

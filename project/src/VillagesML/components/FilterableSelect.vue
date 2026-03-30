@@ -62,7 +62,7 @@
         </div>
 
         <!-- Options List -->
-        <div v-else class="dropdown-options">
+        <div v-else class="dropdown-options ui-scrollbar">
           <div
             v-for="(option, index) in filteredOptions"
             :key="getUniqueKey(option)"

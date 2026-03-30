@@ -7,7 +7,7 @@
           <button class="close-btn close-btn-sm close-btn-inline" type="button" :aria-label="t('common.button.close')" @click="$emit('close')">✕</button>
         </div>
 
-        <div class="modal-body main-glass-modal-body">
+        <div class="modal-body main-glass-modal-body ui-scrollbar">
           <div v-if="loading" class="loading-state main-modal-loading-state">
             <div class="ui-loading--page" aria-hidden="true"></div>
             <span>{{ t('result.locationDetailPopup.loading') }}</span>

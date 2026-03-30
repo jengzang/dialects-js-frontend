@@ -127,7 +127,7 @@
           </div>
 
           <!-- lvl1 -->
-          <div ref="lvl1El" class="partition-popup partition-lvl1" @mousedown.stop>
+          <div ref="lvl1El" class="partition-popup partition-lvl1 ui-scrollbar" @mousedown.stop>
             <div
                 v-for="item in lvl1"
                 :key="'l1_' + item.label"
@@ -161,7 +161,7 @@
           <div
               ref="lvl2El"
               v-if="lvl2.length"
-              class="partition-popup partition-lvl2"
+              class="partition-popup partition-lvl2 ui-scrollbar"
               :style="lvl2Pos"
               @mousedown.stop
           >
@@ -197,7 +197,7 @@
           <div
               ref="lvl3El"
               v-if="lvl3.length"
-              class="partition-popup partition-lvl3"
+              class="partition-popup partition-lvl3 ui-scrollbar"
               :style="lvl3Pos"
               @mousedown.stop
           >
@@ -231,7 +231,7 @@
             <button class="close-btn close-btn-lg close-btn-inline" @click="showCustomRegionPopup = false">✕</button>
           </div>
 
-          <div class="popup-content">
+          <div class="popup-content ui-scrollbar">
             <div v-if="loadingCustomRegions" class="loading">
               <div class="ui-loading--page" aria-hidden="true"></div>
               <p>{{ $t('query.components.regionSelector.customRegionModal.loading') }}</p>

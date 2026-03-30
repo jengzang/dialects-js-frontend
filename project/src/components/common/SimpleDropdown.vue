@@ -26,7 +26,7 @@
         </div>
 
         <!-- Options List -->
-        <div class="options-list" ref="optionsList">
+        <div class="options-list ui-scrollbar" ref="optionsList">
           <div
             class="dropdown-item"
             v-for="(option, index) in filteredOptions"

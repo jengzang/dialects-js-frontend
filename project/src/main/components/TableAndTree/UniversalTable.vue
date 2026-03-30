@@ -49,7 +49,7 @@
       </div>
     </div>
 
-    <div class="table-scroll-area">
+    <div class="table-scroll-area ui-scrollbar">
       <div v-if="isLoading" class="loading-overlay">
         <div class="ui-loading--page" aria-hidden="true"></div>
         <span>{{ t('tableTree.universalTable.states.loadingData') }}</span>
@@ -142,7 +142,7 @@
       <transition name="fade-scale">
         <div v-if="isFullscreen" class="table-fullscreen-overlay">
           <div class="fullscreen-container">
-            <div class="table-scroll-area fullscreen-table">
+            <div class="table-scroll-area fullscreen-table ui-scrollbar">
               <div v-if="isLoading" class="loading-overlay">
                 <div class="ui-loading--page" aria-hidden="true"></div>
                 <span>{{ t('tableTree.universalTable.states.loadingData') }}</span>
@@ -248,7 +248,7 @@
               <button class="close-btn close-btn-sm close-btn-inline close-btn-mobile-only" :aria-label="t('common.button.close')" @click="closeFilter">✕</button>
             </div>
 
-            <div v-bind="containerProps" class="filter-list u-scrollbar" style="max-height: 300px">
+            <div v-bind="containerProps" class="filter-list ui-scrollbar" style="max-height: 300px">
 
               <div v-bind="wrapperProps">
 
@@ -299,7 +299,7 @@
             <button class="close-btn close-btn-lg close-btn-corner" :aria-label="t('common.button.close')" @click="closeAddModal">×</button>
             <h3 class="modal-title">{{ t('tableTree.universalTable.addModal.title') }}</h3>
 
-            <div class="form-content u-scrollbar">
+            <div class="form-content ui-scrollbar">
               <div v-for="col in columns" :key="col.key" class="form-field">
                 <label class="field-label">{{ col.label }}</label>
                 <input
@@ -337,7 +337,7 @@
             </div>
 
             <!-- 主体内容 -->
-            <div class="modal-body">
+            <div class="modal-body ui-scrollbar">
               <!-- 列选择器 -->
               <div class="form-group">
                 <label>{{ t('tableTree.universalTable.batchReplace.selectColumns') }}</label>
@@ -459,7 +459,7 @@
                 <!-- 原有的当前页预览列表 -->
                 <div v-else-if="batchReplace.previewResults.length > 0">
                   <h4>{{ t('tableTree.universalTable.batchReplace.previewTitle', { count: batchReplace.previewResults.length }) }}</h4>
-                  <div class="preview-list u-scrollbar">
+                  <div class="preview-list ui-scrollbar">
                     <div
                       v-for="(item, index) in batchReplace.previewResults.slice(0, 50)"
                       :key="index"
