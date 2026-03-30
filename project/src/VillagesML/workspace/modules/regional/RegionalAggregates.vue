@@ -156,7 +156,6 @@
               </div>
             </div>
           </div>
-        </div>
       </AppModal>
 
       <!-- Spatial Aggregates -->
