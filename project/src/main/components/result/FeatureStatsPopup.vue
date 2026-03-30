@@ -1,58 +1,52 @@
 <template>
-  <Teleport to="body">
-    <div v-if="visible" class="modal-overlay" @mousedown.self="$emit('close')">
-      <div class="main-glass-modal" role="dialog" aria-modal="true" @click.stop>
-        <div class="modal-header main-glass-modal-header">
-          <div class="modal-title main-glass-modal-title">
-            📊 {{ t('result.featureStatsPopup.title', { location: locationName, featureKey: translatedFeatureKey, featureVal }) }}
-          </div>
-          <button class="close-btn close-btn-sm close-btn-inline" type="button" :aria-label="t('common.button.close')" @click="$emit('close')">✕</button>
-        </div>
+  <AppModal
+    :model-value="visible"
+    size="sm"
+    :title="modalTitle"
+    :close-label="t('common.button.close')"
+    @update:modelValue="handleClose"
+  >
+    <div v-if="loading" class="loading-state main-modal-loading-state">
+      <div class="ui-loading--page" aria-hidden="true"></div>
+      <span>{{ t('result.featureStatsPopup.loading') }}</span>
+    </div>
 
-        <div class="modal-body main-glass-modal-body ui-scrollbar">
-          <div v-if="loading" class="loading-state main-modal-loading-state">
-            <div class="ui-loading--page" aria-hidden="true"></div>
-            <span>{{ t('result.featureStatsPopup.loading') }}</span>
-          </div>
+    <div v-else-if="statsData" class="stats-content">
+      <div v-for="(featureName, index) in displayFeatures" :key="index" class="feature-group">
+        <div class="feature-title">{{ translateResultTerm(t, featureName) }}</div>
 
-          <div v-else-if="statsData" class="stats-content">
-            <div v-for="(featureName, index) in displayFeatures" :key="index" class="feature-group">
-              <div class="feature-title">{{ translateResultTerm(t, featureName) }}</div>
-
-              <div class="stats-list">
-                <div
-                  v-for="(stat, value) in getFeatureStats(featureName)"
-                  :key="value"
-                  class="stat-item"
-                >
-                  <div class="stat-header">
-                    <span class="stat-label">{{ value }}</span>
-                    <span class="stat-count">
-                      {{ t('result.featureStatsPopup.statCount', { count: stat.count, ratio: (stat.ratio * 100).toFixed(1) }) }}
-                    </span>
-                  </div>
-
-                  <div class="char-list">
-                    {{ getCharsString(stat.char_indices) }}
-                  </div>
-                </div>
-              </div>
+        <div class="stats-list">
+          <div
+            v-for="(stat, value) in getFeatureStats(featureName)"
+            :key="value"
+            class="stat-item"
+          >
+            <div class="stat-header">
+              <span class="stat-label">{{ value }}</span>
+              <span class="stat-count">
+                {{ t('result.featureStatsPopup.statCount', { count: stat.count, ratio: (stat.ratio * 100).toFixed(1) }) }}
+              </span>
             </div>
-          </div>
 
-          <div v-else class="error-state main-modal-error-state">
-            <span>{{ t('result.featureStatsPopup.noData') }}</span>
+            <div class="char-list">
+              {{ getCharsString(stat.char_indices) }}
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </Teleport>
+
+    <div v-else class="error-state main-modal-error-state">
+      <span>{{ t('result.featureStatsPopup.noData') }}</span>
+    </div>
+  </AppModal>
 </template>
 
 <script setup>
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { translateResultTerm } from '@/utils/resultI18n.js';
+import AppModal from '@/components/common/AppModal.vue'
 
 const props = defineProps({
   visible: { type: Boolean, default: false },
@@ -64,10 +58,15 @@ const props = defineProps({
   loading: { type: Boolean, default: false }
 });
 
-defineEmits(['close']);
+const emit = defineEmits(['close']);
 const { t } = useI18n();
 
 const translatedFeatureKey = computed(() => translateResultTerm(t, props.featureKey));
+const modalTitle = computed(() => `📊 ${t('result.featureStatsPopup.title', {
+  location: props.locationName,
+  featureKey: translatedFeatureKey.value,
+  featureVal: props.featureVal
+})}`)
 
 const displayFeatures = computed(() => {
   if (!props.statsData || !props.statsData.data || !props.statsData.data[props.locationName]) {
@@ -92,53 +91,13 @@ const getCharsString = (charIndices) => {
   if (!charIndices || charIndices.length === 0) return '';
   return charIndices.map(idx => props.charsMap[idx]).join(' ');
 };
+
+const handleClose = () => {
+  emit('close');
+};
 </script>
 
-<style>
-/* 非 scoped 樣式 - 全域遮罩和模態框（複用 LocationDetailPopup 的樣式）*/
-.feature-stats-glass-modal-unused {
-  width: min(720px, 94vw);
-  max-height: min(70vh, 640px);
-  overflow: hidden;
-  background: rgba(255, 255, 255, 0.85);
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  border-radius: 18px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  backdrop-filter: blur(18px) saturate(160%);
-  -webkit-backdrop-filter: blur(18px) saturate(160%);
-}
-
-.modal-overlay {
-  --overlay-z-index: 20000;
-}
-
-.feature-stats-modal-header-unused {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 14px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-}
-
-.feature-stats-modal-title-unused {
-  font-size: 15px;
-  font-weight: 650;
-  color: #1d1d1f;
-}
-
-.feature-stats-modal-body-unused {
-  padding: 12px 14px 16px;
-  overflow: auto;
-  /* max-height: calc(min(70vh, 640px) - 100px); */
-}
-</style>
-
 <style scoped>
-/* 特徵統計彈窗特定樣式 */
-.main-glass-modal {
-  width: min(600px, 94vw);
-}
-
 .feature-stats-loading-state-unused {
   display: flex;
   align-items: center;
@@ -228,12 +187,6 @@ const getCharsString = (charIndices) => {
 
 /* 響應式設計 */
 @media (max-width: 768px) {
-  .main-glass-modal {
-    width: 100%;
-    max-width: 100%;
-    max-height: 90vh;
-  }
-
   .stat-header {
     padding: 10px 12px;
   }
