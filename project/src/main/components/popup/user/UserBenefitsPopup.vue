@@ -3,11 +3,12 @@
     :model-value="visible"
     size="lg"
     transition-name="fade-scale"
-    :show-close="false"
+    :title="t('user.benefitsPopup.title')"
+    :close-label="t('common.button.close')"
     @update:modelValue="closePopup"
   >
-    <div class="benefits-popup popup-animated">
-          <div class="popup-header">
+    <div class="popup-content popup-animated">
+          <!-- <div class="popup-header">
             <h3>{{ t('user.benefitsPopup.title') }}</h3>
             <button
               class="close-btn close-btn-lg close-btn-inline"
@@ -16,7 +17,7 @@
             >
               ✕
             </button>
-          </div>
+          </div> -->
 
           <div class="popup-content">
             <div class="benefits-section">

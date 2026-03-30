@@ -111,11 +111,23 @@
       </div>
     </div>
 
-    <AppModal
-      v-model="showEditModal"
-      size="sm"
-      :show-close="false"
-    >
+    <UserRegionEditPopup
+      :visible="showEditModal"
+      :editing-region="editingRegion"
+      :location-input="locationInput"
+      :available-locations="availableLocations"
+      :tree-selected-count="treeSelectedCount"
+      :manual-input-count="manualInputCount"
+      :can-save="canSave"
+      :is-saving="isSaving"
+      @close="closeEditModal"
+      @save="saveRegion"
+      @open-location-selector="openLocationSelector"
+      @update:editingRegion="editingRegion = $event"
+      @update:locationInput="locationInput = $event"
+      @location-input="updateLocationsFromTextarea"
+    />
+    <!--
       <div class="user-region-modal-shell">
           <div class="user-region-modal-header">
             <h2 class="user-region-modal-title">
@@ -221,7 +233,7 @@
             </button>
           </div>
       </div>
-    </AppModal>
+    -->
 
     <PartitionInfoModal
       v-model="showPartitionModal"
@@ -241,8 +253,8 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import { createOrUpdateCustomRegion, deleteCustomRegion, getLocationPartitions } from '@/api'
-import AppModal from '@/components/common/AppModal.vue'
 import PartitionInfoModal from '@/main/components/geo/PartitionInfoModal.vue'
+import UserRegionEditPopup from '@/main/components/popup/user/UserRegionEditPopup.vue'
 import { useCustomRegionStore } from '@/main/store/customRegionStore'
 import { showConfirm, showError, showSuccess, showWarning } from '@/utils/message.js'
 
