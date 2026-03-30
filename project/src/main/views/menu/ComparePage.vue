@@ -253,7 +253,7 @@ import {computed, nextTick, reactive, ref, onMounted, onBeforeUnmount, watch} fr
 import {useRoute, useRouter} from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import TabsContainer from "@/components/common/TabsContainer.vue";
-import LocationAndRegionInput from "@/main/components/query/LocationAndRegionInput.vue";
+import LocationAndRegionInput from "@/main/components/geo/LocationAndRegionInput.vue";
 import ZhongguSelector from "@/main/components/query/ZhongguSelector.vue";
 import KeyButtonGroup from "@/main/components/query/KeyButtonGroup.vue";
 import DropdownValueSelector from "@/main/components/query/DropdownValueSelector.vue";

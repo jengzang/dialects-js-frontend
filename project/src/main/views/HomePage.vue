@@ -582,7 +582,7 @@ const UserBenefitsPopup = defineAsyncComponent(() =>
   import('@/main/components/user/UserBenefitsPopup.vue')
 )
 const UpdateNoticeModal = defineAsyncComponent(() =>
-  import('@/main/components/UpdateNoticeModal.vue')
+  import('@/components/ToastAndHelp/UpdateNoticeModal.vue')
 )
 
 const { t } = useI18n()

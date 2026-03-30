@@ -242,7 +242,7 @@ import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import { createOrUpdateCustomRegion, deleteCustomRegion, getLocationPartitions } from '@/api'
 import AppModal from '@/components/common/AppModal.vue'
-import PartitionInfoModal from '@/main/components/query/PartitionInfoModal.vue'
+import PartitionInfoModal from '@/main/components/geo/PartitionInfoModal.vue'
 import { useCustomRegionStore } from '@/main/store/customRegionStore'
 import { showConfirm, showError, showSuccess, showWarning } from '@/utils/message.js'
 

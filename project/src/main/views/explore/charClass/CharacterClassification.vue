@@ -7,7 +7,7 @@
 <script setup>
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
-import ConfigurableCharClassPage from '@/main/components/charClass/ConfigurableCharClassPage.vue'
+import ConfigurableCharClassPage from '@/main/components/pho/ConfigurableCharClassPage.vue'
 
 const route = useRoute()
 

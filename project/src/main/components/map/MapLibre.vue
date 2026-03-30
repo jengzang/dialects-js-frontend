@@ -133,7 +133,7 @@ import { useI18n } from 'vue-i18n';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { mapStyle, mapStyleConfig, calculateDenseMapCenterAndZoom } from '@/utils/map/MapSource.js';
-import {get_detail} from "@/utils/ResultTable.js";
+import {get_detail} from "@/main/config/result/ResultTable.js";
 import {mapStore, userStore, resultCache} from "@/main/store/store.js";
 import { showSuccess, showError, showWarning, showConfirm } from '@/utils/message.js';
 import { getLocationDetail } from '@/api'
@@ -141,8 +141,8 @@ import { deleteCustomForm } from '@/api/user/custom.js'
 import { refreshCurrentCustomLayer } from '@/utils/map/MapData.js';
 import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
 import MapLegend from './MapLegend.vue'
-import CompareMapPopup from './CompareMapPopup.vue'
-import FeatureMapPopup from './FeatureMapPopup.vue'
+import CompareMapPopup from '../popup/map/CompareMapPopup.vue'
+import FeatureMapPopup from '../popup/map/FeatureMapPopup.vue'
 
 // --- Props: 只接收數據，不負責請求 ---
 const props = defineProps({

@@ -272,13 +272,13 @@
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { getPartitions } from '@/api'
-import { useCustomRegionStore } from '@/main/store/customRegionStore'
-import { STATIC_REGION_TREE, top_yindian } from '@/main/config'
+import { getPartitions } from '@/api/index.js'
+import { useCustomRegionStore } from '@/main/store/customRegionStore.js'
 import { userStore } from '@/main/store/store.js'
 import { showError, showSuccess, showConfirm } from '@/utils/message.js'
 import AppModal from '@/components/common/AppModal.vue'
 import MultiSelectDropdown from '@/components/common/MultiSelectDropdown.vue'
+import {STATIC_REGION_TREE, top_yindian} from "@/main/config/RegionTree.js";
 
 const { t } = useI18n()
 

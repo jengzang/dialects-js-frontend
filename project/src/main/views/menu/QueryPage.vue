@@ -206,7 +206,7 @@ import {computed, nextTick, reactive, ref, onMounted, onBeforeUnmount, watch} fr
 import {useRoute, useRouter} from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import TabsContainer from "@/components/common/TabsContainer.vue";
-import LocationAndRegionInput from "@/main/components/query/LocationAndRegionInput.vue";
+import LocationAndRegionInput from "@/main/components/geo/LocationAndRegionInput.vue";
 import ZhongguSelector from "@/main/components/query/ZhongguSelector.vue";
 import YinweiSelector from "@/main/components/query/YinweiSelector.vue";
 import FloatingDice from "@/main/components/query/FloatingDice.vue";
@@ -216,7 +216,7 @@ import ChoiceSelector from "@/components/common/ChoiceSelector.vue";
 import { globalPayload, queryStore, uiStore, isQueryButtonDisabled, setRunning, setTabContentDisabled } from '@/main/store/store.js'
 import { S2T_T2S_MAPPING } from '@/main/config'
 import { useQueryConfig } from '@/utils/useQueryConfig'
-import { translateResultTerm } from '@/utils/resultI18n.js'
+import { translateResultTerm } from '@/main/config/result/resultI18n.js'
 
 const { t } = useI18n()
 

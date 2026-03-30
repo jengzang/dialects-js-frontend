@@ -56,7 +56,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { getPhonologyMatrix } from '@/api/query/phonology.js'
 import PhonologyMatrix from '@/main/components/TableAndTree/PhonologyTable.vue'
-import LocationMultiInput from '@/main/components/query/LocationMultiInput.vue'
+import LocationMultiInput from '@/main/components/geo/LocationMultiInput.vue'
 import { parseLocationsFromUrl, updateUrlWithLocations } from '@/api/urlParams.js'
 
 const route = useRoute()

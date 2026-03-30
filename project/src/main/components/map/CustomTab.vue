@@ -372,7 +372,7 @@
 import { computed, ref, reactive, nextTick, onMounted, onBeforeUnmount, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import LocationAndRegionInput from '@/main/components/query/LocationAndRegionInput.vue'
+import LocationAndRegionInput from '@/main/components/geo/LocationAndRegionInput.vue'
 import HelpIcon from '@/components/ToastAndHelp/HelpIcon.vue'
 import { getCustomFeature } from '@/api/user/custom.js'
 import { getAllCustomData } from '@/api/user'

@@ -78,7 +78,7 @@
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue';
 import { useI18n } from 'vue-i18n';
-import LocationDetailPopup from '@/main/components/result/LocationDetailPopup.vue';
+import LocationDetailPopup from '@/main/components/popup/result/LocationDetailPopup.vue';
 import PhonologyCellDetailModal from '@/main/components/TableAndTree/PhonologyCellDetailModal.vue';
 import { getLocationDetail } from '@/api';
 

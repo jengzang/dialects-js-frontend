@@ -137,7 +137,7 @@ import { ref, computed, watch, onUnmounted, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 import * as echarts from 'echarts'
 import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
-import LocationMultiInput from '../query/LocationMultiInput.vue'
+import LocationMultiInput from '../geo/LocationMultiInput.vue'
 import { postPhoPieByValue, postPhoPieByStatus } from '@/api/query/phoPie.js'
 import { TABLE_COLUMN_SCHEMAS } from '../../config/chars_positions/characters.js'
 

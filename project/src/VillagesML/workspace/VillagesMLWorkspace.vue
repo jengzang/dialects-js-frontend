@@ -116,7 +116,6 @@ import {
   getSemanticNetwork
 } from '@/api/index.js'
 import { showError, showSuccess, showWarning } from '@/utils/message.js'
-import { VILLAGESML_MODULES, getModuleConfig, getVisibleModules } from '@/VillagesML/config/villagesML.js'
 
 // Import CommonBar and SimpleSidebar
 import CommonBar from '@/components/bar/CommonBar.vue'
@@ -241,6 +240,7 @@ import ClusteringResultsPanel from '@/VillagesML/workspace/modules/ml/Clustering
 import SemanticSettingsPanel from '@/VillagesML/workspace/modules/semantic/SemanticSettingsPanel.vue'
 import NetworkGraphPanel from '@/VillagesML/workspace/modules/semantic/NetworkGraphPanel.vue'
 import HelpIcon from '@/components/ToastAndHelp/HelpIcon.vue'
+import {getModuleConfig, getVisibleModules, VILLAGESML_MODULES} from "@/VillagesML/config/BarConfig.js";
 
 // Module configuration (from villagesML.js)
 const modules = VILLAGESML_MODULES.map(m => ({

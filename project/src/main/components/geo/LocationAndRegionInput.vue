@@ -227,15 +227,15 @@
 <script setup>
 import { ref, nextTick ,onMounted, onActivated, watch, computed,defineProps } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { getLocations, getCustomFeature, getLocationPartitions, batchMatch, getPartitions } from '@/api'
+import { getLocations, getCustomFeature, getLocationPartitions, batchMatch, getPartitions } from '@/api/index.js'
 import AppModal from '@/components/common/AppModal.vue'
-import { useCustomRegionStore } from '@/main/store/customRegionStore'
-import RegionSelector from "@/main/components/query/RegionSelector.vue"
-import PartitionInfoModal from "@/main/components/query/PartitionInfoModal.vue"
+import { useCustomRegionStore } from '@/main/store/customRegionStore.js'
+import RegionSelector from "@/main/components/geo/RegionSelector.vue"
+import PartitionInfoModal from "@/main/components/geo/PartitionInfoModal.vue"
 import { userStore } from '@/main/store/store.js'
 import { LOCATION_LIMITS } from '@/main/config/constants.js'
-import { STATIC_REGION_TREE, top_yindian } from '@/main/config'
 import * as OpenCC from 'opencc-js'
+import {STATIC_REGION_TREE, top_yindian} from "@/main/config/RegionTree.js";
 
 // 创建繁简转换器
 const t2s = OpenCC.Converter({ from: 'tw', to: 'cn' })  // 繁 → 简
