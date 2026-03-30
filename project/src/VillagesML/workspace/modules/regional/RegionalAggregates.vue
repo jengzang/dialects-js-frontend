@@ -105,13 +105,23 @@
     </div>
 
       <!-- Detail Modal -->
-      <div v-if="selectedItem" class="detail-modal" @click.self="selectedItem = null">
-        <div class="modal-content glass-panel">
-          <div class="modal-header">
-            <h3>區域詳情</h3>
-            <button class="close-button" @click="selectedItem = null">✕</button>
-          </div>
-          <div class="modal-body">
+      <AppModal
+        :model-value="Boolean(selectedItem)"
+        size="sm"
+        :show-close="false"
+        @update:modelValue="selectedItem = null"
+      >
+        <template #header>
+          <h3 class="regional-detail-title">&#x5340;&#x57DF;&#x8A73;&#x60C5;</h3>
+          <button
+            type="button"
+            class="close-btn close-btn-lg close-btn-inline"
+            @click="selectedItem = null"
+          >
+            &#x2715;
+          </button>
+        </template>
+        <div>
             <div class="detail-info">
               <div class="info-item">
                 <span class="info-label">區域:</span>
@@ -147,7 +157,7 @@
             </div>
           </div>
         </div>
-      </div>
+      </AppModal>
 
       <!-- Spatial Aggregates -->
       <div class="spatial-section glass-panel">
@@ -178,6 +188,7 @@
 
 <script setup>
 import { ref, computed, watch, nextTick, onBeforeUnmount } from 'vue'
+import AppModal from '@/components/common/AppModal.vue'
 import RegionDisplay from '@/VillagesML/components/RegionDisplay.vue'
 import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
 import HelpIcon from '@/components/ToastAndHelp/HelpIcon.vue'
@@ -609,59 +620,10 @@ onBeforeUnmount(() => {
   cursor: not-allowed;
 }
 
-.detail-modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  padding: 12px;
-}
-
-.modal-content {
-  max-width: 800px;
-  width: 100%;
-  max-height: 90vh;
-  overflow-y: auto;
-  padding: 0;
-}
-
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px 24px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-}
-
-.modal-header h3 {
+.regional-detail-title {
+  margin: 0;
   font-size: 16px;
   color: var(--text-primary);
-}
-
-.close-button {
-  width: 32px;
-  height: 32px;
-  background: rgba(231, 76, 60, 0.1);
-  color: #e74c3c;
-  border: none;
-  border-radius: 50%;
-  font-size: 16px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.close-button:hover {
-  background: rgba(231, 76, 60, 0.2);
-}
-
-.modal-body {
-  padding: 16px;
 }
 
 .detail-info {
@@ -833,9 +795,6 @@ onBeforeUnmount(() => {
     flex-direction: column;
   }
 
-  .modal-content {
-    max-height: 95vh;
-  }
 }
 
 /* 移动端横向滚动条样式 */
