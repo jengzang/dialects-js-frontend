@@ -111,11 +111,14 @@
       </div>
     </div>
 
-    <Teleport to="body">
-      <div v-if="showEditModal" class="modal-overlay" @click.self="closeEditModal">
-        <div class="main-crud-modal">
-          <div class="modal-header modal-header-base">
-            <h2 class="modal-title-base">
+    <AppModal
+      v-model="showEditModal"
+      size="sm"
+      :show-close="false"
+    >
+      <div class="user-region-modal-shell">
+          <div class="user-region-modal-header">
+            <h2 class="user-region-modal-title">
               {{
                 editingRegion.id
                   ? t('user.regionPage.modal.editTitle')
@@ -130,7 +133,7 @@
               ✕
             </button>
           </div>
-          <div class="modal-body modal-body-base">
+          <div class="user-region-modal-body">
             <div class="form-group">
               <label class="form-label">{{ t('user.regionPage.form.nameLabel') }}</label>
               <textarea
@@ -208,7 +211,7 @@
               </div>
             </div>
           </div>
-          <div class="modal-footer">
+          <div class="user-region-modal-footer">
             <button class="btn-secondary" @click="closeEditModal">
               {{ t('common.button.cancel') }}
             </button>
@@ -217,9 +220,8 @@
               <span v-else>{{ t('common.button.save') }}</span>
             </button>
           </div>
-        </div>
       </div>
-    </Teleport>
+    </AppModal>
 
     <PartitionInfoModal
       v-model="showPartitionModal"
@@ -239,6 +241,7 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import { createOrUpdateCustomRegion, deleteCustomRegion, getLocationPartitions } from '@/api'
+import AppModal from '@/components/common/AppModal.vue'
 import PartitionInfoModal from '@/main/components/query/PartitionInfoModal.vue'
 import { useCustomRegionStore } from '@/main/store/customRegionStore'
 import { showConfirm, showError, showSuccess, showWarning } from '@/utils/message.js'
@@ -869,29 +872,25 @@ onMounted(() => {
   font-weight: 500;
 }
 
-.modal-overlay {
-  --overlay-padding: 20px;
+.user-region-modal-shell {
+  display: flex;
+  flex-direction: column;
+  height: calc(100% + var(--modal-content-padding-top) + var(--modal-content-padding-bottom));
+  margin:
+    calc(-1 * var(--modal-content-padding-top))
+    calc(-1 * var(--modal-content-padding-inline))
+    calc(-1 * var(--modal-content-padding-bottom));
+  overflow: hidden;
 }
 
-.main-crud-modal {
-  --main-crud-modal-width: min(600px, 100%);
-  --main-crud-modal-background: rgba(255, 255, 255, 0.95);
-  --main-crud-modal-border: none;
-  --main-crud-modal-radius: 16px;
-  --main-crud-modal-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  --main-crud-modal-backdrop-filter: blur(20px) saturate(180%);
-}
-
-.modal-header {
-}
-
-.modal-header h2 {
+.user-region-modal-header h2 {
   margin: 0;
 }
 
-.modal-body {
+.user-region-modal-body {
   padding: 24px;
   flex: 1;
+  overflow-y: auto;
 }
 
 .form-group {
@@ -1029,7 +1028,7 @@ onMounted(() => {
   transform: translateY(0);
 }
 
-.modal-footer {
+.user-region-modal-footer {
   display: flex;
   justify-content: flex-end;
   gap: 12px;
