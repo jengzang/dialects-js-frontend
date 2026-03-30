@@ -50,12 +50,12 @@
     :show-close="false"
   >
     <div class="zhonggu-modal-shell">
-          <div class="modal-header">
+          <div class="zhonggu-modal-header">
             <h2>{{ $t('query.components.zhongguSelector.detailsTitle') }}</h2>
             <button class="close-btn close-btn-lg close-btn-inline" @click="isModalOpen = false">✕</button>
           </div>
 
-          <div class="modal-body">
+          <div class="zhonggu-modal-body">
             <div v-for="item in results" :key="item.query" class="full-item">
               <div class="full-item-header">
                 <span class="combo-name">{{ formatTitle(item.query) }}</span>
@@ -375,7 +375,7 @@ defineExpose({ combinations })
   overflow: hidden;
 }
 
-.modal-header {
+.zhonggu-modal-header {
   padding: 20px 24px;
   display: flex;
   justify-content: space-between;
@@ -383,9 +383,9 @@ defineExpose({ combinations })
   border-bottom: 1px solid var(--border-medium);
   background: var(--glass-medium);
 }
-.modal-header h2 { margin: 0; font-size: 18px; color: var(--text-dark); }
+.zhonggu-modal-header h2 { margin: 0; font-size: 18px; color: var(--text-dark); }
 
-.modal-body {
+.zhonggu-modal-body {
   flex: 1;
   overflow-y: auto;
   padding: 24px;
