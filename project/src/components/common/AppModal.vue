@@ -4,6 +4,7 @@
       <div
         v-if="modelValue"
         class="app-modal"
+        :class="{ 'is-frameless': frameless }"
         :data-size="resolvedSize"
         :style="rootStyle"
         @mousedown.self="handleBackdropClose"
@@ -91,6 +92,10 @@ const props = defineProps({
   showClose: {
     type: Boolean,
     default: true
+  },
+  frameless: {
+    type: Boolean,
+    default: false
   },
   dialogRole: {
     type: String,
@@ -225,6 +230,27 @@ function handleBackdropClose() {
   --modal-content-padding-top: 20px;
   --modal-content-padding-inline: 24px;
   --modal-content-padding-bottom: 20px;
+}
+
+.app-modal.is-frameless {
+  padding: 0;
+}
+
+.app-modal.is-frameless .panel {
+  width: auto;
+  max-height: none;
+  overflow: visible;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.app-modal.is-frameless .content {
+  padding: 0;
+  overflow: visible;
 }
 
 .modal-fade-enter-active,

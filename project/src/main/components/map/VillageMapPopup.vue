@@ -1,58 +1,63 @@
 <template>
-  <Teleport to="body">
-    <Transition name="modal-fade">
-      <div v-if="visible" class="modal-overlay" @click.self="handleClose">
-        <div class="map-modal-container" :class="{ fullscreen: isFullscreen }">
-          <div v-if="!isFullscreen" class="modal-header modal-header-base">
-            <h3 class="modal-title-base">{{ t('map.villageMapPopup.title') }}</h3>
-            <span class="village-count">{{ t('map.villageMapPopup.count', { count: validVillages.length }) }}</span>
-            <button
-              class="close-btn close-btn-lg close-btn-inline"
-              @click="handleClose"
-              :title="t('common.button.close')"
-              :aria-label="t('common.button.close')"
-            >
-              &times;
-            </button>
+  <AppModal
+    :model-value="visible"
+    size="lg"
+    :z-index="1000"
+    transition-name="modal-fade"
+    :close-label="t('common.button.close')"
+    :show-close="false"
+    frameless
+    @update:modelValue="handleClose"
+  >
+    <div class="map-modal-container" :class="{ fullscreen: isFullscreen }">
+      <div v-if="!isFullscreen" class="map-popup-header">
+        <h3 class="map-popup-title">{{ t('map.villageMapPopup.title') }}</h3>
+        <span class="village-count">{{ t('map.villageMapPopup.count', { count: validVillages.length }) }}</span>
+        <button
+          class="close-btn close-btn-lg close-btn-inline"
+          @click="handleClose"
+          :title="t('common.button.close')"
+          :aria-label="t('common.button.close')"
+        >
+          &times;
+        </button>
+      </div>
+
+      <div ref="mapContainer" class="map-content">
+        <div v-if="!isFullscreen" class="map-controls">
+          <div class="select-wrapper">
+            <SimpleSelectDropdown
+              v-model="currentStyle"
+              :options="mapStyleOptions"
+              @update:modelValue="changeMapStyle"
+            />
           </div>
 
-          <div ref="mapContainer" class="map-content">
-            <div v-if="!isFullscreen" class="map-controls">
-              <div class="select-wrapper">
-                <SimpleSelectDropdown
-                  v-model="currentStyle"
-                  :options="mapStyleOptions"
-                  @update:modelValue="changeMapStyle"
-                />
-              </div>
+          <button
+            v-if="hasDialectData"
+            class="toggle-display-btn"
+            @click="toggleDisplay"
+            :title="displayMode === 'name'
+              ? t('map.villageMapPopup.toggle.toDialectTitle')
+              : t('map.villageMapPopup.toggle.toNameTitle')"
+          >
+            {{ displayMode === 'name'
+              ? '📍 ' + t('map.villageMapPopup.toggle.name')
+              : '🗣️ ' + t('map.villageMapPopup.toggle.dialect') }}
+          </button>
 
-              <button
-                v-if="hasDialectData"
-                class="toggle-display-btn"
-                @click="toggleDisplay"
-                :title="displayMode === 'name'
-                  ? t('map.villageMapPopup.toggle.toDialectTitle')
-                  : t('map.villageMapPopup.toggle.toNameTitle')"
-              >
-                {{ displayMode === 'name'
-                  ? '📍 ' + t('map.villageMapPopup.toggle.name')
-                  : '🗣️ ' + t('map.villageMapPopup.toggle.dialect') }}
-              </button>
-
-              <div class="button-row">
-                <button class="control-btn" @click="resetView">🎯 {{ t('map.villageMapPopup.buttons.reset') }}</button>
-                <button class="control-btn" @click="toggleFullscreen">⛶ {{ t('map.villageMapPopup.buttons.fullscreen') }}</button>
-              </div>
-            </div>
-
-            <button v-if="isFullscreen" class="exit-fullscreen-btn" @click="toggleFullscreen">
-              ✕ {{ t('map.villageMapPopup.buttons.exitFullscreen') }}
-            </button>
+          <div class="button-row">
+            <button class="control-btn" @click="resetView">🎯 {{ t('map.villageMapPopup.buttons.reset') }}</button>
+            <button class="control-btn" @click="toggleFullscreen">⛶ {{ t('map.villageMapPopup.buttons.fullscreen') }}</button>
           </div>
         </div>
+
+        <button v-if="isFullscreen" class="exit-fullscreen-btn" @click="toggleFullscreen">
+          ✕ {{ t('map.villageMapPopup.buttons.exitFullscreen') }}
+        </button>
       </div>
-    </Transition>
-  </Teleport>
+    </div>
+  </AppModal>
 </template>
 
 <script setup>
@@ -61,6 +66,7 @@ import { useI18n } from 'vue-i18n'
 import maplibregl from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import { mapStyle, mapStyleConfig, calculateDenseMapCenterAndZoom } from '@/utils/map/MapSource.js'
+import AppModal from '@/components/common/AppModal.vue'
 import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
 
 const props = defineProps({
@@ -566,17 +572,11 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
-/* 遮罩层 */
-.modal-overlay {
-  --overlay-z-index: 1000;
-  --overlay-padding: 0;
-}
-
 /* 地图容器 */
 .map-modal-container {
   width: 90vw;
   max-width: 1200px;
-  height: 80vh;
+  height: 80dvh;
   background: linear-gradient(
     145deg,
     rgba(255, 255, 255, 0.95),
@@ -596,15 +596,15 @@ onBeforeUnmount(() => {
 }
 
 .map-modal-container.fullscreen {
-  width: 100vw !important;
-  height: 100vh !important;
+  width: 100dvw !important;
+  height: 100dvh !important;
   max-width: none !important;
   border-radius: 0 !important;
   margin: 0 !important;
 }
 
 /* 头部 */
-.modal-header {
+.map-popup-header {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -613,7 +613,7 @@ onBeforeUnmount(() => {
   background: rgba(255, 255, 255, 0.3);
 }
 
-.modal-header h3 {
+.map-popup-title {
   margin: 0;
   font-size: 20px;
   font-weight: 600;
@@ -795,62 +795,21 @@ onBeforeUnmount(() => {
   font-weight: 600;
 }
 
-/* 动画 */
-.modal-fade-enter-active,
-.modal-fade-leave-active {
-  transition: opacity 0.25s ease;
-}
-
-.modal-fade-enter-from,
-.modal-fade-leave-to {
-  opacity: 0;
-}
-
-.modal-fade-enter-active .map-modal-container {
-  animation: modal-scale-in 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-
-.modal-fade-leave-active .map-modal-container {
-  animation: modal-scale-out 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-}
-
-@keyframes modal-scale-in {
-  0% {
-    opacity: 0;
-    transform: scale(0.9) translateY(20px);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-  }
-}
-
-@keyframes modal-scale-out {
-  0% {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-  }
-  100% {
-    opacity: 0;
-    transform: scale(0.95) translateY(10px);
-  }
-}
-
 /* 响应式 */
 @media (max-width: 768px) {
   .map-modal-container {
     width: 95vw;
-    height: 85vh;
+    height: 85dvh;
     border-radius: 16px;
   }
 
-  .modal-header {
+  .map-popup-header {
     padding: 16px;
     flex-wrap: wrap;
     gap: 8px;
   }
 
-  .modal-header h3 {
+  .map-popup-title {
     font-size: 18px;
     width: 100%;
   }
