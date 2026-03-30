@@ -315,23 +315,16 @@
     </AppModal>
 
     <!-- 批量替换对话框 -->
-    <Teleport to="body">
-      <Transition name="modal-fade">
-        <div
-          v-if="showBatchReplaceModal"
-          class="modal-overlay"
-          style="--overlay-z-index: 9999; --overlay-padding: 20px"
-          @click.self="closeBatchReplaceModal"
-        >
-          <div class="main-glass-shell" data-surface="batch-modal">
-            <!-- 标题栏 -->
-            <div class="modal-header">
-              <h3>{{ t('tableTree.universalTable.batchReplace.title') }}</h3>
-              <button class="close-btn close-btn-lg close-btn-inline" :aria-label="t('common.button.close')" @click="closeBatchReplaceModal">✕</button>
-            </div>
-
-            <!-- 主体内容 -->
-            <div class="modal-body ui-scrollbar">
+    <AppModal
+      :model-value="showBatchReplaceModal"
+      size="sm"
+      :title="t('tableTree.universalTable.batchReplace.title')"
+      :close-label="t('common.button.close')"
+      transition-name="modal-fade"
+      :z-index="9999"
+      @update:modelValue="closeBatchReplaceModal"
+    >
+      <div class="batch-replace-modal-body ui-scrollbar">
               <!-- 列选择器 -->
               <div class="form-group">
                 <label>{{ t('tableTree.universalTable.batchReplace.selectColumns') }}</label>
@@ -475,10 +468,9 @@
                   </div>
                 </div>
               </div>
-            </div>
+      </div>
 
-            <!-- 底部按钮 -->
-            <div class="modal-footer">
+      <div class="batch-replace-modal-footer">
               <button
                 class="main-glass-button"
                 data-variant="secondary"
@@ -503,11 +495,8 @@
               >
                 <span>{{ t('common.button.cancel') }}</span>
               </button>
-            </div>
-          </div>
-        </div>
-      </Transition>
-    </Teleport>
+      </div>
+    </AppModal>
   </div>
 </template>
 
@@ -2343,44 +2332,15 @@ td.cell-changed::after {
   opacity: 0;
 }
 
-.main-glass-shell[data-surface='batch-modal'] {
-  --main-glass-shell-radius: 20px;
-  --main-glass-shell-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  width: 90%;
-  max-width: 700px;
-  max-height: 85vh;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
+.batch-replace-modal-body {
+  min-height: 0;
 }
 
-.main-glass-shell[data-surface='batch-modal'] .modal-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 20px 24px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-  background: rgba(255, 255, 255, 0.5);
-}
-
-.main-glass-shell[data-surface='batch-modal'] .modal-header h3 {
-  margin: 0;
-  font-size: 20px;
-  font-weight: 600;
-  color: #1d1d1f;
-}
-
-.main-glass-shell[data-surface='batch-modal'] .modal-body {
-  flex: 1;
-  padding: 24px;
-  overflow-y: auto;
-}
-
-.main-glass-shell[data-surface='batch-modal'] .form-group {
+.batch-replace-modal-body .form-group {
   margin-bottom: 20px;
 }
 
-.main-glass-shell[data-surface='batch-modal'] .form-group label {
+.batch-replace-modal-body .form-group label {
   display: block;
   margin-bottom: 8px;
   font-size: 14px;
@@ -2388,7 +2348,7 @@ td.cell-changed::after {
   color: #333;
 }
 
-.main-glass-shell[data-surface='batch-modal'] .glass-input {
+.batch-replace-modal-body .glass-input {
   width: 80%;
   padding: 10px 14px;
   border: 1px solid rgba(0, 0, 0, 0.1);
@@ -2399,7 +2359,7 @@ td.cell-changed::after {
   transition: all 0.2s;
 }
 
-.main-glass-shell[data-surface='batch-modal'] .glass-input:focus {
+.batch-replace-modal-body .glass-input:focus {
   border-color: #007aff;
   background: rgba(255, 255, 255, 0.9);
   box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
@@ -2703,38 +2663,40 @@ td.cell-changed::after {
 
 
 /* 底部按钮栏 */
-.main-glass-shell[data-surface='batch-modal'] .modal-footer {
+.batch-replace-modal-footer {
   display: flex;
   gap: 12px;
-  padding: 16px 24px;
+  margin: 20px -18px -20px;
+  padding: 16px 18px;
   border-top: 1px solid rgba(0, 0, 0, 0.08);
   background: rgba(255, 255, 255, 0.5);
 }
 
-.main-glass-shell[data-surface='batch-modal'] .modal-footer .main-glass-button {
+.batch-replace-modal-footer .main-glass-button {
   flex: 1;
 }
 
-.main-glass-shell[data-surface='batch-modal'] .main-glass-button:disabled {
+.batch-replace-modal-footer .main-glass-button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
-.main-glass-shell[data-surface='batch-modal'] .main-glass-button[data-variant='secondary'] {
+.batch-replace-modal-footer .main-glass-button[data-variant='secondary'] {
   background: rgba(108, 117, 125, 0.1);
   color: #495057;
   border: 1px solid rgba(108, 117, 125, 0.2);
 }
 
-.main-glass-shell[data-surface='batch-modal'] .main-glass-button[data-variant='secondary']:hover:not(:disabled) {
+.batch-replace-modal-footer .main-glass-button[data-variant='secondary']:hover:not(:disabled) {
   background: rgba(108, 117, 125, 0.2);
 }
 
 /* 响应式 */
 @media (max-width: 768px) {
-  .main-glass-shell[data-surface='batch-modal'] {
-    width: 95%;
-    max-height: 90vh;
+  .batch-replace-modal-footer {
+    margin-inline: -18px;
+    margin-bottom: -20px;
+    flex-direction: column;
   }
 
   .column-selector {
