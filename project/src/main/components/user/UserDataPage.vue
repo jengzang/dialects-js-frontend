@@ -156,183 +156,157 @@
       </div>
     </div>
 
-    <Teleport to="body">
-      <div
-        v-if="showBatchEditModal"
-        class="modal-overlay"
-        @click.self="closeBatchEditModal"
-      >
-        <div class="main-crud-modal" data-size="large">
-          <div class="modal-header modal-header-base">
-            <h3 class="modal-title-base">
-              {{ t('user.dataPage.batchEdit.title', { count: batchEditRows.length }) }}
-            </h3>
-            <button class="close-btn close-btn-lg close-btn-inline" @click="closeBatchEditModal">×</button>
-          </div>
-          <div class="modal-body modal-body-base">
-            <p class="hint">💡 {{ t('user.dataPage.batchEdit.hint') }}</p>
-            <div class="batch-table-wrapper">
-              <table class="batch-table">
-                <thead>
-                  <tr>
-                    <th style="width: 50px">#</th>
-                    <th style="width: 100px">{{ t('user.dataPage.table.shortNameRequired') }}</th>
-                    <th style="width: 120px">{{ t('user.dataPage.table.regionRequired') }}</th>
-                    <th style="width: 120px">{{ t('user.dataPage.table.coordinatesRequired') }}</th>
-                    <th style="width: 100px">{{ t('user.dataPage.table.phonology') }}</th>
-                    <th style="width: 120px">{{ t('user.dataPage.table.featureRequired') }}</th>
-                    <th style="width: 100px">{{ t('user.dataPage.table.valueRequired') }}</th>
-                    <th style="width: 150px">{{ t('user.dataPage.table.note') }}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="(row, index) in batchEditRows" :key="index">
-                    <td>{{ index + 1 }}</td>
-                    <td><input v-model="row.簡稱" :placeholder="t('user.dataPage.form.shortName')" /></td>
-                    <td><input v-model="row.音典分區" :placeholder="t('user.dataPage.form.regionPlaceholder')" /></td>
-                    <td><input v-model="row.經緯度" :placeholder="t('user.dataPage.form.coordinatesPlaceholder')" /></td>
-                    <td><input v-model="row.聲韻調" :placeholder="t('user.dataPage.form.phonologyPlaceholder')" /></td>
-                    <td><input v-model="row.特徵" :placeholder="t('user.dataPage.form.featurePlaceholder')" /></td>
-                    <td><input v-model="row.值" :placeholder="t('user.dataPage.form.valuePlaceholder')" /></td>
-                    <td><input v-model="row.說明" :placeholder="t('user.dataPage.form.notePlaceholder')" /></td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button class="btn-primary" :disabled="validBatchEditRows.length === 0" @click="submitBatchEdit">
-              {{ t('user.dataPage.batchEdit.save', { count: validBatchEditRows.length }) }}
-            </button>
-            <button class="btn-secondary" @click="closeBatchEditModal">
-              {{ t('common.button.cancel') }}
-            </button>
-          </div>
-        </div>
+    <AppModal
+      :model-value="showBatchEditModal"
+      size="lg"
+      :title="t('user.dataPage.batchEdit.title', { count: batchEditRows.length })"
+      close-label="關閉"
+      @update:modelValue="closeBatchEditModal"
+    >
+      <p class="hint">💡 {{ t('user.dataPage.batchEdit.hint') }}</p>
+      <div class="batch-table-wrapper">
+        <table class="batch-table">
+          <thead>
+            <tr>
+              <th style="width: 50px">#</th>
+              <th style="width: 100px">{{ t('user.dataPage.table.shortNameRequired') }}</th>
+              <th style="width: 120px">{{ t('user.dataPage.table.regionRequired') }}</th>
+              <th style="width: 120px">{{ t('user.dataPage.table.coordinatesRequired') }}</th>
+              <th style="width: 100px">{{ t('user.dataPage.table.phonology') }}</th>
+              <th style="width: 120px">{{ t('user.dataPage.table.featureRequired') }}</th>
+              <th style="width: 100px">{{ t('user.dataPage.table.valueRequired') }}</th>
+              <th style="width: 150px">{{ t('user.dataPage.table.note') }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(row, index) in batchEditRows" :key="index">
+              <td>{{ index + 1 }}</td>
+              <td><input v-model="row.簡稱" :placeholder="t('user.dataPage.form.shortName')" /></td>
+              <td><input v-model="row.音典分區" :placeholder="t('user.dataPage.form.regionPlaceholder')" /></td>
+              <td><input v-model="row.經緯度" :placeholder="t('user.dataPage.form.coordinatesPlaceholder')" /></td>
+              <td><input v-model="row.聲韻調" :placeholder="t('user.dataPage.form.phonologyPlaceholder')" /></td>
+              <td><input v-model="row.特徵" :placeholder="t('user.dataPage.form.featurePlaceholder')" /></td>
+              <td><input v-model="row.值" :placeholder="t('user.dataPage.form.valuePlaceholder')" /></td>
+              <td><input v-model="row.說明" :placeholder="t('user.dataPage.form.notePlaceholder')" /></td>
+            </tr>
+          </tbody>
+        </table>
       </div>
-    </Teleport>
+      <div class="user-data-modal-footer">
+        <button class="btn-primary" :disabled="validBatchEditRows.length === 0" @click="submitBatchEdit">
+          {{ t('user.dataPage.batchEdit.save', { count: validBatchEditRows.length }) }}
+        </button>
+        <button class="btn-secondary" @click="closeBatchEditModal">
+          {{ t('common.button.cancel') }}
+        </button>
+      </div>
+    </AppModal>
 
-    <Teleport to="body">
-      <div
-        v-if="showBatchCreateModal"
-        class="modal-overlay"
-        @click.self="closeBatchCreateModal"
-      >
-        <div class="main-crud-modal" data-size="large">
-          <div class="modal-header modal-header-base">
-            <h3 class="modal-title-base">{{ t('user.dataPage.batchCreate.title') }}</h3>
-            <button class="close-btn close-btn-lg close-btn-inline" @click="closeBatchCreateModal">×</button>
-          </div>
-          <div class="modal-body modal-body-base">
-            <p class="hint">💡 {{ t('user.dataPage.batchCreate.hint') }}</p>
-            <div class="batch-table-controls">
-              <button class="btn-add-row" @click="addBatchRow">
-                ➕ {{ t('user.dataPage.batchCreate.addRow') }}
-              </button>
-              <button class="btn-clear" @click="clearBatchRows">
-                🗑️ {{ t('user.dataPage.batchCreate.clear') }}
-              </button>
-              <span class="row-count">
-                {{ t('user.dataPage.batchCreate.currentRows', { count: batchRows.length }) }}
-              </span>
-            </div>
-            <div class="batch-table-wrapper" @paste="handlePaste">
-              <table class="batch-table">
-                <thead>
-                  <tr>
-                    <th style="width: 50px">#</th>
-                    <th style="width: 100px">{{ t('user.dataPage.table.shortNameRequired') }}</th>
-                    <th style="width: 120px">{{ t('user.dataPage.table.regionRequired') }}</th>
-                    <th style="width: 120px">{{ t('user.dataPage.table.coordinatesRequired') }}</th>
-                    <th style="width: 100px">{{ t('user.dataPage.table.phonology') }}</th>
-                    <th style="width: 120px">{{ t('user.dataPage.table.featureRequired') }}</th>
-                    <th style="width: 100px">{{ t('user.dataPage.table.valueRequired') }}</th>
-                    <th style="width: 150px">{{ t('user.dataPage.table.note') }}</th>
-                    <th style="width: 60px">{{ t('user.dataPage.table.actions') }}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="(row, index) in batchRows" :key="index">
-                    <td>{{ index + 1 }}</td>
-                    <td><input v-model="row.簡稱" :placeholder="t('user.dataPage.form.shortName')" /></td>
-                    <td><input v-model="row.音典分區" :placeholder="t('user.dataPage.form.regionPlaceholder')" /></td>
-                    <td><input v-model="row.經緯度" :placeholder="t('user.dataPage.form.coordinatesPlaceholder')" /></td>
-                    <td><input v-model="row.聲韻調" :placeholder="t('user.dataPage.form.phonologyPlaceholder')" /></td>
-                    <td><input v-model="row.特徵" :placeholder="t('user.dataPage.form.featurePlaceholder')" /></td>
-                    <td><input v-model="row.值" :placeholder="t('user.dataPage.form.valuePlaceholder')" /></td>
-                    <td><input v-model="row.說明" :placeholder="t('user.dataPage.form.notePlaceholder')" /></td>
-                    <td>
-                      <button class="btn-remove" @click="removeBatchRow(index)">×</button>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button class="btn-primary" :disabled="validBatchRows.length === 0" @click="submitBatchCreate">
-              {{ t('user.dataPage.batchCreate.submit', { count: validBatchRows.length }) }}
-            </button>
-            <button class="btn-secondary" @click="closeBatchCreateModal">
-              {{ t('common.button.cancel') }}
-            </button>
-          </div>
-        </div>
+    <AppModal
+      :model-value="showBatchCreateModal"
+      size="lg"
+      :title="t('user.dataPage.batchCreate.title')"
+      close-label="關閉"
+      @update:modelValue="closeBatchCreateModal"
+    >
+      <p class="hint">💡 {{ t('user.dataPage.batchCreate.hint') }}</p>
+      <div class="batch-table-controls">
+        <button class="btn-add-row" @click="addBatchRow">
+          ➕ {{ t('user.dataPage.batchCreate.addRow') }}
+        </button>
+        <button class="btn-clear" @click="clearBatchRows">
+          🗑️ {{ t('user.dataPage.batchCreate.clear') }}
+        </button>
+        <span class="row-count">
+          {{ t('user.dataPage.batchCreate.currentRows', { count: batchRows.length }) }}
+        </span>
       </div>
-    </Teleport>
+      <div class="batch-table-wrapper" @paste="handlePaste">
+        <table class="batch-table">
+          <thead>
+            <tr>
+              <th style="width: 50px">#</th>
+              <th style="width: 100px">{{ t('user.dataPage.table.shortNameRequired') }}</th>
+              <th style="width: 120px">{{ t('user.dataPage.table.regionRequired') }}</th>
+              <th style="width: 120px">{{ t('user.dataPage.table.coordinatesRequired') }}</th>
+              <th style="width: 100px">{{ t('user.dataPage.table.phonology') }}</th>
+              <th style="width: 120px">{{ t('user.dataPage.table.featureRequired') }}</th>
+              <th style="width: 100px">{{ t('user.dataPage.table.valueRequired') }}</th>
+              <th style="width: 150px">{{ t('user.dataPage.table.note') }}</th>
+              <th style="width: 60px">{{ t('user.dataPage.table.actions') }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(row, index) in batchRows" :key="index">
+              <td>{{ index + 1 }}</td>
+              <td><input v-model="row.簡稱" :placeholder="t('user.dataPage.form.shortName')" /></td>
+              <td><input v-model="row.音典分區" :placeholder="t('user.dataPage.form.regionPlaceholder')" /></td>
+              <td><input v-model="row.經緯度" :placeholder="t('user.dataPage.form.coordinatesPlaceholder')" /></td>
+              <td><input v-model="row.聲韻調" :placeholder="t('user.dataPage.form.phonologyPlaceholder')" /></td>
+              <td><input v-model="row.特徵" :placeholder="t('user.dataPage.form.featurePlaceholder')" /></td>
+              <td><input v-model="row.值" :placeholder="t('user.dataPage.form.valuePlaceholder')" /></td>
+              <td><input v-model="row.說明" :placeholder="t('user.dataPage.form.notePlaceholder')" /></td>
+              <td>
+                <button class="btn-remove" @click="removeBatchRow(index)">×</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="user-data-modal-footer">
+        <button class="btn-primary" :disabled="validBatchRows.length === 0" @click="submitBatchCreate">
+          {{ t('user.dataPage.batchCreate.submit', { count: validBatchRows.length }) }}
+        </button>
+        <button class="btn-secondary" @click="closeBatchCreateModal">
+          {{ t('common.button.cancel') }}
+        </button>
+      </div>
+    </AppModal>
 
-    <Teleport to="body">
-      <div
-        v-if="showEditModal"
-        class="modal-overlay"
-        @click.self="closeEditModal"
-      >
-        <div class="main-crud-modal">
-          <div class="modal-header modal-header-base">
-            <h3 class="modal-title-base">{{ t('user.dataPage.singleEdit.title') }}</h3>
-            <button class="close-btn close-btn-lg close-btn-inline" @click="closeEditModal">×</button>
-          </div>
-          <div class="modal-body modal-body-base">
-            <div class="form-group">
-              <label>{{ t('user.dataPage.table.shortNameRequired') }}</label>
-              <input v-model="editingRecord.簡稱" />
-            </div>
-            <div class="form-group">
-              <label>{{ t('user.dataPage.table.regionRequired') }}</label>
-              <input v-model="editingRecord.音典分區" />
-            </div>
-            <div class="form-group">
-              <label>{{ t('user.dataPage.table.coordinatesRequired') }}</label>
-              <input v-model="editingRecord.經緯度" :placeholder="t('user.dataPage.form.coordinatesPlaceholder')" />
-            </div>
-            <div class="form-group">
-              <label>{{ t('user.dataPage.table.phonology') }}</label>
-              <input v-model="editingRecord.聲韻調" />
-            </div>
-            <div class="form-group">
-              <label>{{ t('user.dataPage.table.featureRequired') }}</label>
-              <input v-model="editingRecord.特徵" />
-            </div>
-            <div class="form-group">
-              <label>{{ t('user.dataPage.table.valueRequired') }}</label>
-              <input v-model="editingRecord.值" />
-            </div>
-            <div class="form-group">
-              <label>{{ t('user.dataPage.table.note') }}</label>
-              <textarea v-model="editingRecord.說明" rows="3"></textarea>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button class="btn-primary" @click="submitEdit">
-              {{ t('common.button.save') }}
-            </button>
-            <button class="btn-secondary" @click="closeEditModal">
-              {{ t('common.button.cancel') }}
-            </button>
-          </div>
-        </div>
+    <AppModal
+      :model-value="showEditModal"
+      size="sm"
+      :title="t('user.dataPage.singleEdit.title')"
+      close-label="關閉"
+      @update:modelValue="closeEditModal"
+    >
+      <div class="form-group">
+        <label>{{ t('user.dataPage.table.shortNameRequired') }}</label>
+        <input v-model="editingRecord.簡稱" />
       </div>
-    </Teleport>
+      <div class="form-group">
+        <label>{{ t('user.dataPage.table.regionRequired') }}</label>
+        <input v-model="editingRecord.音典分區" />
+      </div>
+      <div class="form-group">
+        <label>{{ t('user.dataPage.table.coordinatesRequired') }}</label>
+        <input v-model="editingRecord.經緯度" :placeholder="t('user.dataPage.form.coordinatesPlaceholder')" />
+      </div>
+      <div class="form-group">
+        <label>{{ t('user.dataPage.table.phonology') }}</label>
+        <input v-model="editingRecord.聲韻調" />
+      </div>
+      <div class="form-group">
+        <label>{{ t('user.dataPage.table.featureRequired') }}</label>
+        <input v-model="editingRecord.特徵" />
+      </div>
+      <div class="form-group">
+        <label>{{ t('user.dataPage.table.valueRequired') }}</label>
+        <input v-model="editingRecord.值" />
+      </div>
+      <div class="form-group">
+        <label>{{ t('user.dataPage.table.note') }}</label>
+        <textarea v-model="editingRecord.說明" rows="3"></textarea>
+      </div>
+      <div class="user-data-modal-footer">
+        <button class="btn-primary" @click="submitEdit">
+          {{ t('common.button.save') }}
+        </button>
+        <button class="btn-secondary" @click="closeEditModal">
+          {{ t('common.button.cancel') }}
+        </button>
+      </div>
+    </AppModal>
   </div>
 </template>
 
@@ -340,6 +314,7 @@
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
+import AppModal from '@/components/common/AppModal.vue'
 import SimpleSelectDropdown from '@/components/common/SimpleSelectDropdown.vue'
 import { batchCreateCustomData, batchDeleteCustomData, editCustomData, getAllCustomData } from '@/api/user/index.js'
 import { userStore } from '@/main/store/store.js'
@@ -852,7 +827,8 @@ onMounted(() => {
   box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
 }
 
-.toolbar button,.modal-footer button {
+.toolbar button,
+.user-data-modal-footer button {
   padding: 10px 20px;
   border: none;
   border-radius: 12px;
@@ -981,32 +957,7 @@ onMounted(() => {
 }
 
 /* Modal styles */
-.modal-overlay {
-  --overlay-padding: 20px;
-}
-
-.main-crud-modal {
-  --main-crud-modal-width: min(800px, 100%);
-  --main-crud-modal-background: rgba(255, 255, 255, 0.95);
-  --main-crud-modal-border: 1px solid rgba(255, 255, 255, 0.3);
-  --main-crud-modal-radius: 18px;
-  --main-crud-modal-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  --main-crud-modal-backdrop-filter: blur(40px) saturate(180%);
-}
-
-.modal-header {
-}
-
-.modal-header h3 {
-  margin: 0;
-}
-
-.modal-body {
-  padding: 20px;
-  flex: 1;
-}
-
-.modal-footer {
+.user-data-modal-footer {
   padding: 20px;
   border-top: 1px solid rgba(0, 0, 0, 0.1);
   display: flex;
@@ -1071,10 +1022,6 @@ onMounted(() => {
 }
 
 /* Batch table styles */
-.main-crud-modal[data-size='large'] {
-  --main-crud-modal-width: min(1200px, 100%);
-}
-
 .batch-table-controls {
   display: flex;
   gap: 12px;
@@ -1399,29 +1346,12 @@ onMounted(() => {
     font-size: 13px;
   }
 
-  .main-crud-modal {
-    --main-crud-modal-width: 95%;
-    margin: 10px;
-  }
-
-  .main-crud-modal[data-size='large'] {
-    --main-crud-modal-width: 95%;
-  }
-
-  .modal-header {
-    padding: 16px;
-  }
-
-  .modal-body {
-    padding: 16px;
-  }
-
-  .modal-footer {
+  .user-data-modal-footer {
     padding: 16px;
     flex-direction: column;
   }
 
-  .modal-footer button {
+  .user-data-modal-footer button {
     width: 100%;
   }
 
@@ -1517,10 +1447,6 @@ onMounted(() => {
 
   .page-numbers {
     gap: 2px;
-  }
-
-  .modal-header h3 {
-    font-size: 16px;
   }
 
   .batch-table {
