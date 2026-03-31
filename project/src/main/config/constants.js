@@ -22,6 +22,8 @@ export const QUERY_CONFIG = {
 // ========================================
 // 用户权限限制
 // ========================================
+export const GLOBAL_LOCATION_LIMIT = 1000
+
 export const ROLE_LIMITS = {
     anonymous: {
         MAX_COMBINATIONS: 5,        // 最大组合数

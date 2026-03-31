@@ -126,7 +126,7 @@
     <PartitionInfoModal
       v-model="showPartitionModal"
       :data-state="{ partitionData, isLoading: isLoadingPartitions, errorMessage: partitionTreeError }"
-      :selection-state="{ initialTab: 'map', autoEnableSelection, initialSelectedLocations: editingRegion.locations }"
+      :selection-state="{ initialTab: 'map', autoEnableSelection, initialSelectedLocations: editingRegion.locations, maxSelection: GLOBAL_LOCATION_LIMIT }"
       @locations-selected="handleLocationsSelected"
     />
   </div>
@@ -139,6 +139,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { createOrUpdateCustomRegion, deleteCustomRegion, getLocationPartitions } from '@/api'
 import PartitionInfoModal from '@/main/components/geo/PartitionInfoModal.vue'
 import UserRegionEditPopup from '@/main/components/popup/user/UserRegionEditPopup.vue'
+import { GLOBAL_LOCATION_LIMIT } from '@/main/config/constants.js'
 import { useCustomRegionStore } from '@/main/store/customRegionStore'
 import { showConfirm, showError, showSuccess, showWarning } from '@/utils/message.js'
 
@@ -161,6 +162,7 @@ const isSaving = ref(false)
 const deletingRegions = ref({})
 const locationInput = ref('')
 const username = computed(() => route.query.username || t('user.regionPage.usernameFallback'))
+const hasShownCustomRegionLimitWarning = ref(false)
 
 const showPartitionModal = ref(false)
 const partitionData = ref([])
@@ -197,8 +199,38 @@ const filteredRegions = computed(() => {
 
 const canSave = computed(() => (
   editingRegion.value.region_name.trim() &&
-  editingRegion.value.locations.length > 0
+  editingRegion.value.locations.length > 0 &&
+  editingRegion.value.locations.length <= GLOBAL_LOCATION_LIMIT
 ))
+
+const customRegionLocationLimitExceeded = computed(
+  () => editingRegion.value.locations.length > GLOBAL_LOCATION_LIMIT
+)
+
+const showCustomRegionLocationLimitWarning = (count) => {
+  if (!hasShownCustomRegionLimitWarning.value) {
+    hasShownCustomRegionLimitWarning.value = true
+    showWarning(`自定义分区最多只能保存 ${GLOBAL_LOCATION_LIMIT} 个地点，当前为 ${count} 个`)
+  }
+}
+
+const resetCustomRegionLocationLimitWarning = () => {
+  hasShownCustomRegionLimitWarning.value = false
+}
+
+const syncCustomRegionLocationLimitWarningState = (count) => {
+  if (count > GLOBAL_LOCATION_LIMIT) {
+    showCustomRegionLocationLimitWarning(count)
+    return
+  }
+
+  resetCustomRegionLocationLimitWarning()
+}
+
+const forceShowCustomRegionLocationLimitWarning = (count) => {
+  resetCustomRegionLocationLimitWarning()
+  showWarning(`自定义分区最多只能保存 ${GLOBAL_LOCATION_LIMIT} 个地点，当前为 ${count} 个`)
+}
 
 const treeSelectedCount = computed(() => {
   const allLocations = locationInput.value
@@ -276,6 +308,7 @@ const updateLocationsFromTextarea = () => {
     .filter((loc) => loc.length > 0)
 
   editingRegion.value.locations = [...new Set(inputLocations)]
+  syncCustomRegionLocationLimitWarningState(editingRegion.value.locations.length)
 }
 
 const syncLocationsToTextarea = () => {
@@ -290,6 +323,7 @@ const openCreateModal = () => {
   }
   locationInput.value = ''
   showEditModal.value = true
+  resetCustomRegionLocationLimitWarning()
 
   if (partitionData.value.length === 0) {
     fetchPartitionData()
@@ -305,6 +339,7 @@ const openEditModal = (region) => {
   }
   locationInput.value = (region.locations || []).join(' ')
   showEditModal.value = true
+  resetCustomRegionLocationLimitWarning()
 
   if (partitionData.value.length === 0) {
     fetchPartitionData()
@@ -314,6 +349,7 @@ const openEditModal = (region) => {
 const closeEditModal = () => {
   showEditModal.value = false
   locationInput.value = ''
+  resetCustomRegionLocationLimitWarning()
   editingRegion.value = {
     region_name: '',
     locations: [],
@@ -322,6 +358,11 @@ const closeEditModal = () => {
 }
 
 const saveRegion = async () => {
+  if (customRegionLocationLimitExceeded.value) {
+    forceShowCustomRegionLocationLimitWarning(editingRegion.value.locations.length)
+    return
+  }
+
   if (!canSave.value) return
 
   isSaving.value = true
@@ -405,8 +446,14 @@ const openLocationSelector = () => {
 }
 
 const handleLocationsSelected = (locations) => {
+  if (locations.length > GLOBAL_LOCATION_LIMIT) {
+    forceShowCustomRegionLocationLimitWarning(locations.length)
+    return
+  }
+
   editingRegion.value.locations = locations
   syncLocationsToTextarea()
+  resetCustomRegionLocationLimitWarning()
   showPartitionModal.value = false
 }
 
