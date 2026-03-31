@@ -10,14 +10,14 @@
       <div class="form-group">
         <label class="form-label">{{ t('user.regionPage.form.nameLabel') }}</label>
         <textarea
-          :value="editingRegion.region_name"
+          :value="formState.editingRegion.region_name"
           class="form-textarea"
           style="height: 45px"
           :placeholder="t('user.regionPage.form.namePlaceholder')"
-          :disabled="Boolean(editingRegion.id)"
+          :disabled="Boolean(formState.editingRegion.id)"
           @input="updateRegionField('region_name', $event.target.value)"
         />
-        <p v-if="editingRegion.id" class="form-hint">
+        <p v-if="formState.editingRegion.id" class="form-hint">
           {{ t('user.regionPage.form.nameLockedHint') }}
         </p>
       </div>
@@ -25,7 +25,7 @@
       <div class="form-group">
         <label class="form-label">{{ t('user.regionPage.form.descriptionLabel') }}</label>
         <textarea
-          :value="editingRegion.description"
+          :value="formState.editingRegion.description"
           class="form-textarea"
           :placeholder="t('user.regionPage.form.descriptionPlaceholder')"
           rows="3"
@@ -47,7 +47,7 @@
         </div>
 
         <textarea
-          :value="locationInput"
+          :value="formState.locationInput"
           class="form-input location-input"
           :placeholder="t('user.regionPage.form.locationInputPlaceholder')"
           rows="6"
@@ -61,24 +61,24 @@
           <div class="stat-badge">
             <span class="stat-icon">M</span>
             <span>
-              {{ t('user.regionPage.form.manualCount', { count: manualInputCount }) }}
+              {{ t('user.regionPage.form.manualCount', { count: stats.manualInputCount }) }}
             </span>
           </div>
           <div class="stat-badge primary">
             <span class="stat-icon">T</span>
             <span>
-              {{ t('user.regionPage.form.treeCount', { count: treeSelectedCount }) }}
+              {{ t('user.regionPage.form.treeCount', { count: stats.treeSelectedCount }) }}
             </span>
           </div>
         </div>
 
-        <div v-if="editingRegion.locations.length > 0" class="selected-locations-display">
+        <div v-if="formState.editingRegion.locations.length > 0" class="selected-locations-display">
           <div class="location-tags">
             <span
-              v-for="(loc, idx) in editingRegion.locations"
+              v-for="(loc, idx) in formState.editingRegion.locations"
               :key="idx"
               class="location-tag"
-              :class="{ 'from-tree': availableLocations.has(loc) }"
+              :class="{ 'from-tree': stats.availableLocations.has(loc) }"
             >
               {{ loc }}
             </span>
@@ -91,8 +91,8 @@
       <button class="btn-secondary" @click="handleClose">
         {{ t('common.button.cancel') }}
       </button>
-      <button class="btn-primary" :disabled="!canSave || isSaving" @click="emit('save')">
-        <span v-if="isSaving" class="ui-loading--inline" aria-hidden="true"></span>
+      <button class="btn-primary" :disabled="!uiState.canSave || uiState.isSaving" @click="emit('save')">
+        <span v-if="uiState.isSaving" class="ui-loading--inline" aria-hidden="true"></span>
         <span v-else>{{ t('common.button.save') }}</span>
       </button>
     </div>
@@ -109,53 +109,69 @@ const props = defineProps({
     type: Boolean,
     default: false
   },
-  editingRegion: {
+  formState: {
     type: Object,
     default: () => ({
-      region_name: '',
-      locations: [],
-      description: ''
+      editingRegion: {
+        region_name: '',
+        locations: [],
+        description: ''
+      },
+      locationInput: ''
     })
   },
-  locationInput: {
-    type: String,
-    default: ''
-  },
-  availableLocations: {
+  stats: {
     type: Object,
-    default: () => new Set()
+    default: () => ({
+      availableLocations: new Set(),
+      treeSelectedCount: 0,
+      manualInputCount: 0
+    })
   },
-  treeSelectedCount: {
-    type: Number,
-    default: 0
-  },
-  manualInputCount: {
-    type: Number,
-    default: 0
-  },
-  canSave: {
-    type: Boolean,
-    default: false
-  },
-  isSaving: {
-    type: Boolean,
-    default: false
+  uiState: {
+    type: Object,
+    default: () => ({
+      canSave: false,
+      isSaving: false
+    })
   }
 })
+
+const formState = computed(() => ({
+  editingRegion: {
+    region_name: '',
+    locations: [],
+    description: ''
+  },
+  locationInput: '',
+  ...props.formState
+}))
+
+const stats = computed(() => ({
+  availableLocations: new Set(),
+  treeSelectedCount: 0,
+  manualInputCount: 0,
+  ...props.stats
+}))
+
+const uiState = computed(() => ({
+  canSave: false,
+  isSaving: false,
+  ...props.uiState
+}))
 
 const emit = defineEmits([
   'close',
   'save',
   'open-location-selector',
-  'update:editingRegion',
-  'update:locationInput',
+  'update:formState',
   'location-input'
 ])
 
 const { t } = useI18n()
 
 const popupTitle = computed(() => (
-  props.editingRegion.id
+  formState.value.editingRegion.id
     ? t('user.regionPage.modal.editTitle')
     : t('user.regionPage.modal.createTitle')
 ))
@@ -165,14 +181,20 @@ function handleClose() {
 }
 
 function updateRegionField(field, value) {
-  emit('update:editingRegion', {
-    ...props.editingRegion,
-    [field]: value
+  emit('update:formState', {
+    ...formState.value,
+    editingRegion: {
+      ...formState.value.editingRegion,
+      [field]: value
+    }
   })
 }
 
 function handleLocationInput(event) {
-  emit('update:locationInput', event.target.value)
+  emit('update:formState', {
+    ...formState.value,
+    locationInput: event.target.value
+  })
   emit('location-input')
 }
 </script>

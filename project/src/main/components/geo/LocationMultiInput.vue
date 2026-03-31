@@ -84,13 +84,8 @@
     <!-- 分区详情弹窗 -->
     <PartitionInfoModal
         v-model="showPartitionInfoModal"
-        initial-tab="map"
-        :partition-data="partitionData"
-        :is-loading="isLoadingPartitions"
-        :error-message="partitionTreeError"
-        :auto-enable-selection="autoEnableSelection"
-        :initial-selected-locations="locationsInTree"
-        :max-selection="props.maxLocations === Infinity ? null : props.maxLocations"
+        :data-state="{ partitionData, isLoading: isLoadingPartitions, errorMessage: partitionTreeError }"
+        :selection-state="{ initialTab: 'map', autoEnableSelection, initialSelectedLocations: locationsInTree, maxSelection: props.maxLocations === Infinity ? null : props.maxLocations }"
         @locations-changed="handleLocationsChanged"
         @locations-selected="handleLocationsSelected"
     />

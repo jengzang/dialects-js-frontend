@@ -862,15 +862,21 @@ function createComparePopupNode(item) {
   const container = document.createElement('div');
   render(h(CompareMapPopup, {
     item,
-    compareType: mapStore.compareType,
-    statusIcon,
-    statusText,
-    featureLabel: t('map.mapLibre.compare.fields.feature'),
-    resultLabel: t('map.mapLibre.compare.fields.result'),
-    similarityLabel: t('map.mapLibre.compare.fields.similarity'),
-    readingComparisonLabel: t('map.mapLibre.compare.fields.readingComparison'),
-    detailLabel: t('map.mapLibre.compare.fields.detail'),
-    toneComparisonLabel: t('map.mapLibre.compare.fields.toneComparison')
+    display: {
+      compareType: mapStore.compareType,
+      labels: {
+        feature: t('map.mapLibre.compare.fields.feature'),
+        result: t('map.mapLibre.compare.fields.result'),
+        similarity: t('map.mapLibre.compare.fields.similarity'),
+        readingComparison: t('map.mapLibre.compare.fields.readingComparison'),
+        detail: t('map.mapLibre.compare.fields.detail'),
+        toneComparison: t('map.mapLibre.compare.fields.toneComparison')
+      }
+    },
+    status: {
+      icon: statusIcon,
+      text: statusText
+    }
   }), container);
   currentPopupMountTargets.push(container);
 

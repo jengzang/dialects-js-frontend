@@ -5,19 +5,19 @@
 
     <ul>
       <li>
-        <span class="map-popup__label">{{ featureLabel }}</span>
+        <span class="map-popup__label">{{ labels.feature }}</span>
         <span class="val">{{ item.feature }}</span>
       </li>
       <li>
-        <span class="map-popup__label">{{ resultLabel }}</span>
-        <span class="val">{{ statusIcon }} {{ statusText }}</span>
+        <span class="map-popup__label">{{ labels.result }}</span>
+        <span class="val">{{ status.icon }} {{ status.text }}</span>
       </li>
       <li v-if="showReadingComparison">
-        <span class="map-popup__label">{{ readingComparisonLabel }}</span>
+        <span class="map-popup__label">{{ labels.readingComparison }}</span>
         <span class="map-popup__detail" v-html="detailHtml"></span>
       </li>
       <li v-if="showSimilarity">
-        <span class="map-popup__label">{{ similarityLabel }}</span>
+        <span class="map-popup__label">{{ labels.similarity }}</span>
         <span class="map-popup__percentage">{{ item.overlap }}%</span>
       </li>
       <li v-if="showDetail">
@@ -42,7 +42,7 @@
         <span v-else class="map-popup__detail" v-html="detailHtml"></span>
       </li>
       <li v-if="showToneComparison">
-        <span class="map-popup__label">{{ toneComparisonLabel }}</span>
+        <span class="map-popup__label">{{ labels.toneComparison }}</span>
         <span class="map-popup__detail" v-html="detailHtml"></span>
       </li>
     </ul>
@@ -57,43 +57,44 @@ const props = defineProps({
     type: Object,
     required: true
   },
-  compareType: {
-    type: String,
-    default: ''
+  display: {
+    type: Object,
+    default: () => ({})
   },
-  statusIcon: {
-    type: String,
-    default: ''
-  },
-  statusText: {
-    type: String,
-    default: ''
-  },
-  featureLabel: {
-    type: String,
-    default: ''
-  },
-  resultLabel: {
-    type: String,
-    default: ''
-  },
-  similarityLabel: {
-    type: String,
-    default: ''
-  },
-  readingComparisonLabel: {
-    type: String,
-    default: ''
-  },
-  detailLabel: {
-    type: String,
-    default: ''
-  },
-  toneComparisonLabel: {
-    type: String,
-    default: ''
+  status: {
+    type: Object,
+    default: () => ({})
   }
 })
+
+const display = computed(() => ({
+  compareType: '',
+  labels: {
+    feature: '',
+    result: '',
+    similarity: '',
+    readingComparison: '',
+    detail: '',
+    toneComparison: ''
+  },
+  ...props.display
+}))
+
+const labels = computed(() => ({
+  feature: '',
+  result: '',
+  similarity: '',
+  readingComparison: '',
+  detail: '',
+  toneComparison: '',
+  ...(display.value.labels || {})
+}))
+
+const status = computed(() => ({
+  icon: '',
+  text: '',
+  ...props.status
+}))
 
 const detailHtml = computed(() => props.item.value || '')
 const detailLines = computed(() => {
@@ -108,7 +109,7 @@ const detailLines = computed(() => {
 })
 
 const structuredDetailRows = computed(() => {
-  if (props.compareType !== 'zhonggu') {
+  if (display.value.compareType !== 'zhonggu') {
     return []
   }
 
@@ -144,8 +145,8 @@ const structuredDetailRows = computed(() => {
 
 const hasValue = computed(() => Boolean(props.item.value))
 
-const showReadingComparison = computed(() => props.compareType === 'chars' && hasValue.value)
-const showSimilarity = computed(() => props.compareType === 'zhonggu' && props.item.overlap !== undefined)
-const showDetail = computed(() => props.compareType === 'zhonggu' && hasValue.value)
-const showToneComparison = computed(() => props.compareType === 'tones' && hasValue.value)
+const showReadingComparison = computed(() => display.value.compareType === 'chars' && hasValue.value)
+const showSimilarity = computed(() => display.value.compareType === 'zhonggu' && props.item.overlap !== undefined)
+const showDetail = computed(() => display.value.compareType === 'zhonggu' && hasValue.value)
+const showToneComparison = computed(() => display.value.compareType === 'tones' && hasValue.value)
 </script>

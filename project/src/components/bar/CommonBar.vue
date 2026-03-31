@@ -128,28 +128,13 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, useAttrs } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import { userStore } from '@/main/store/store.js'
 
 // Props definition
 const props = defineProps({
-  // Title configuration
-  title: {
-    type: String,
-    default: ''
-  },
-  titleImage: {
-    type: String,
-    default: ''
-  },
-  showTitleOnMobile: {
-    type: Boolean,
-    default: false
-  },
-
-  // Tab configuration
   tabs: {
     type: Array,
     required: true,
@@ -157,51 +142,63 @@ const props = defineProps({
       return tabs.every(t => t.tab && t.label && t.icon && t.weight)
     }
   },
-  activeTabGetter: {
-    type: Function,
-    default: null
-  },
-
-  // Submenu configuration
-  submenuConfig: {
+  titleConfig: {
     type: Object,
     default: () => ({})
   },
-  tabToSubmenuMap: {
+  navigationConfig: {
     type: Object,
     default: () => ({})
   },
-
-  // Sidebar configuration
-  sidebarComponent: {
+  sidebarConfig: {
     type: Object,
-    default: null
+    default: () => ({})
   },
-  showSidebarTitle: {
-    type: Boolean,
-    default: false
+  authConfig: {
+    type: Object,
+    default: () => ({})
   },
-
-  // Login button
-  showLoginButton: {
-    type: Boolean,
-    default: true
-  },
-
-  // Layout
-  height: {
-    type: String,
-    default: '7.5dvh'
-  },
-  mobileHeight: {
-    type: String,
-    default: '8dvh'
+  layoutConfig: {
+    type: Object,
+    default: () => ({})
   }
 })
 
 const route = useRoute()
 const router = useRouter()
 const { t } = useI18n()
+const attrs = useAttrs()
+
+const getLegacyAttr = (...keys) => {
+  for (const key of keys) {
+    if (attrs[key] !== undefined) {
+      return attrs[key]
+    }
+  }
+  return undefined
+}
+
+const title = computed(() => props.titleConfig?.title || getLegacyAttr('title') || '')
+const titleImage = computed(() => props.titleConfig?.titleImage || getLegacyAttr('titleImage', 'title-image') || '')
+const showTitleOnMobile = computed(() => {
+  const legacy = getLegacyAttr('showTitleOnMobile', 'show-title-on-mobile')
+  return props.titleConfig?.showTitleOnMobile ?? Boolean(legacy)
+})
+const activeTabGetter = computed(() => props.navigationConfig?.activeTabGetter || getLegacyAttr('activeTabGetter', 'active-tab-getter') || null)
+const submenuConfig = computed(() => props.navigationConfig?.submenuConfig || getLegacyAttr('submenuConfig', 'submenu-config') || {})
+const tabToSubmenuMap = computed(() => props.navigationConfig?.tabToSubmenuMap || getLegacyAttr('tabToSubmenuMap', 'tab-to-submenu-map') || {})
+const sidebarComponent = computed(() => props.sidebarConfig?.component || getLegacyAttr('sidebarComponent', 'sidebar-component') || null)
+const showSidebarTitle = computed(() => {
+  const legacy = getLegacyAttr('showSidebarTitle', 'show-sidebar-title')
+  return props.sidebarConfig?.showTitle ?? Boolean(legacy)
+})
+const showLoginButton = computed(() => {
+  const legacy = getLegacyAttr('showLoginButton', 'show-login-button')
+  if (props.authConfig?.showLoginButton !== undefined) return props.authConfig.showLoginButton
+  return legacy !== false
+})
+const height = computed(() => props.layoutConfig?.height || getLegacyAttr('height') || '7.5dvh')
+const mobileHeight = computed(() => props.layoutConfig?.mobileHeight || getLegacyAttr('mobileHeight', 'mobile-height') || '8dvh')
 
 // Filter visible tabs (support visibleWhen function)
 const visibleTabs = computed(() => {
@@ -228,8 +225,8 @@ const checkMobile = () => {
 
 // Helper function to get children from submenuConfig
 const getTabChildren = (tabKey) => {
-  const menuKey = props.tabToSubmenuMap[tabKey] || tabKey
-  return props.submenuConfig[menuKey]?.children || null
+  const menuKey = tabToSubmenuMap.value[tabKey] || tabKey
+  return submenuConfig.value[menuKey]?.children || null
 }
 
 // Lifecycle hooks
@@ -252,8 +249,8 @@ const closeSubmenu = () => {
 
 // Active state logic
 const isActiveComputed = (tabName) => {
-  if (props.activeTabGetter) {
-    return props.activeTabGetter(tabName)
+  if (activeTabGetter.value) {
+    return activeTabGetter.value(tabName)
   }
   // Default: no active state
   return false

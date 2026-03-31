@@ -113,29 +113,20 @@
 
     <UserRegionEditPopup
       :visible="showEditModal"
-      :editing-region="editingRegion"
-      :location-input="locationInput"
-      :available-locations="availableLocations"
-      :tree-selected-count="treeSelectedCount"
-      :manual-input-count="manualInputCount"
-      :can-save="canSave"
-      :is-saving="isSaving"
+      :form-state="{ editingRegion, locationInput }"
+      :stats="{ availableLocations, treeSelectedCount, manualInputCount }"
+      :ui-state="{ canSave, isSaving }"
       @close="closeEditModal"
       @save="saveRegion"
       @open-location-selector="openLocationSelector"
-      @update:editingRegion="editingRegion = $event"
-      @update:locationInput="locationInput = $event"
+      @update:formState="({ editingRegion: nextRegion, locationInput: nextLocationInput }) => { editingRegion = nextRegion; locationInput = nextLocationInput }"
       @location-input="updateLocationsFromTextarea"
     />
 
     <PartitionInfoModal
       v-model="showPartitionModal"
-      initial-tab="map"
-      :partition-data="partitionData"
-      :is-loading="isLoadingPartitions"
-      :error-message="partitionTreeError"
-      :auto-enable-selection="autoEnableSelection"
-      :initial-selected-locations="editingRegion.locations"
+      :data-state="{ partitionData, isLoading: isLoadingPartitions, errorMessage: partitionTreeError }"
+      :selection-state="{ initialTab: 'map', autoEnableSelection, initialSelectedLocations: editingRegion.locations }"
       @locations-selected="handleLocationsSelected"
     />
   </div>

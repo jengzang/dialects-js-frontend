@@ -210,13 +210,8 @@
     <!-- 分区详情弹窗 -->
     <PartitionInfoModal
         v-model="showPartitionInfoModal"
-        :initial-tab="regionUsing"
-        :partition-data="partitionData"
-        :is-loading="isLoadingPartitions"
-        :error-message="partitionTreeError"
-        :auto-enable-selection="autoEnableSelection"
-        :initial-selected-locations="locationsInTree"
-        :max-selection="maxSelectionForModal"
+        :data-state="{ partitionData, isLoading: isLoadingPartitions, errorMessage: partitionTreeError }"
+        :selection-state="{ initialTab: regionUsing, autoEnableSelection, initialSelectedLocations: locationsInTree, maxSelection: maxSelectionForModal }"
         @locations-changed="handleLocationsChanged"
         @locations-selected="handleLocationsSelected"
     />

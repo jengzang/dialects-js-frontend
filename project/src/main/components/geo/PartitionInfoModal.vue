@@ -116,36 +116,38 @@ const props = defineProps({
     type: Boolean,
     required: true
   },
-  initialTab: {
-    type: String,
-    default: TAB_MAP,
-    validator: (value) => [TAB_MAP, TAB_YINDIAN, TAB_ADMINISTRATIVE_DIVISION].includes(value)
+  dataState: {
+    type: Object,
+    default: () => ({})
   },
-  partitionData: {
-    type: [Array, Object],
-    default: () => []
-  },
-  isLoading: {
-    type: Boolean,
-    default: false
-  },
-  errorMessage: {
-    type: String,
-    default: ''
-  },
-  autoEnableSelection: {
-    type: Boolean,
-    default: false
-  },
-  initialSelectedLocations: {
-    type: Array,
-    default: () => []
-  },
-  maxSelection: {
-    type: Number,
-    default: null
+  selectionState: {
+    type: Object,
+    default: () => ({})
   }
 })
+
+const dataState = computed(() => ({
+  partitionData: [],
+  isLoading: false,
+  errorMessage: '',
+  ...props.dataState
+}))
+
+const selectionState = computed(() => ({
+  initialTab: TAB_MAP,
+  autoEnableSelection: false,
+  initialSelectedLocations: [],
+  maxSelection: null,
+  ...props.selectionState
+}))
+
+const initialTab = computed(() => selectionState.value.initialTab)
+const partitionData = computed(() => dataState.value.partitionData)
+const isLoading = computed(() => dataState.value.isLoading)
+const errorMessage = computed(() => dataState.value.errorMessage)
+const autoEnableSelection = computed(() => selectionState.value.autoEnableSelection)
+const initialSelectedLocations = computed(() => selectionState.value.initialSelectedLocations)
+const maxSelection = computed(() => selectionState.value.maxSelection)
 
 const emit = defineEmits(['update:modelValue', 'locations-selected', 'locations-changed'])
 
@@ -222,28 +224,28 @@ const normalizePartitionRows = (data) => {
   return []
 }
 
-const activeTab = ref(props.initialTab)
+const activeTab = ref(initialTab.value)
 const selectionMode = ref(false)
 const selectedLocations = ref(new Set())
 const rawData = ref([])
 
-watch(() => props.initialTab, (newTab) => {
+watch(initialTab, (newTab) => {
   activeTab.value = [TAB_MAP, TAB_YINDIAN, TAB_ADMINISTRATIVE_DIVISION].includes(newTab) ? newTab : TAB_MAP
 }, { immediate: true })
 
-watch(() => props.autoEnableSelection, (shouldEnable) => {
+watch(autoEnableSelection, (shouldEnable) => {
   if (shouldEnable && props.modelValue) {
     selectionMode.value = true
   }
 }, { immediate: true })
 
 watch(() => props.modelValue, (isVisible) => {
-  if (isVisible && props.autoEnableSelection) {
+  if (isVisible && autoEnableSelection.value) {
     selectionMode.value = true
   }
 })
 
-watch([() => props.partitionData, () => props.modelValue, () => props.initialSelectedLocations],
+watch([partitionData, () => props.modelValue, initialSelectedLocations],
   ([data, isVisible, initialLocs]) => {
     const rows = normalizePartitionRows(data)
     if (isVisible && rows.length > 0) {
@@ -261,7 +263,7 @@ watch([() => props.partitionData, () => props.modelValue, () => props.initialSel
   { immediate: true }
 )
 
-watch(() => props.partitionData, (newData) => {
+watch(partitionData, (newData) => {
   rawData.value = normalizePartitionRows(newData)
 }, { immediate: true })
 
@@ -274,15 +276,15 @@ const filteredData = computed(() => {
 })
 
 const isOverSelectionLimit = computed(() => {
-  return props.maxSelection !== null
-    && Number.isFinite(props.maxSelection)
-    && selectedLocations.value.size > props.maxSelection
+  return maxSelection.value !== null
+    && Number.isFinite(maxSelection.value)
+    && selectedLocations.value.size > maxSelection.value
 })
 
 const isAtSelectionLimit = computed(() => {
-  return props.maxSelection !== null
-    && Number.isFinite(props.maxSelection)
-    && selectedLocations.value.size >= props.maxSelection
+  return maxSelection.value !== null
+    && Number.isFinite(maxSelection.value)
+    && selectedLocations.value.size >= maxSelection.value
 })
 
 const canConfirmSelection = computed(() => {
@@ -296,7 +298,7 @@ const selectionWarning = computed(() => {
   if (!isOverSelectionLimit.value) return ''
   return t('query.components.partitionModal.maxSelectionExceeded', {
     count: selectedLocations.value.size,
-    max: props.maxSelection
+    max: maxSelection.value
   })
 })
 
@@ -483,9 +485,9 @@ const toggleSubtreeLocations = (children) => {
     subtreeLocations.forEach((location) => nextSelected.delete(location))
   } else {
     // 检查全选后是否会超过限制
-    const wouldExceedLimit = props.maxSelection !== null
-      && Number.isFinite(props.maxSelection)
-      && nextSelected.size + subtreeLocations.filter(loc => !nextSelected.has(loc)).length > props.maxSelection
+    const wouldExceedLimit = maxSelection.value !== null
+      && Number.isFinite(maxSelection.value)
+      && nextSelected.size + subtreeLocations.filter(loc => !nextSelected.has(loc)).length > maxSelection.value
 
     if (wouldExceedLimit) {
       return

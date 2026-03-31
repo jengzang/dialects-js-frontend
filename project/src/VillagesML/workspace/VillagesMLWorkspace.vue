@@ -4,7 +4,7 @@
     <CommonBar
       title="地名分析"
       :tabs="moduleTabs"
-      :active-tab-getter="isModuleActive"
+      :navigation-config="{ activeTabGetter: isModuleActive, submenuConfig, tabToSubmenuMap }"
       :show-login-button="false"
       :submenu-config="submenuConfig"
       :tab-to-submenu-map="tabToSubmenuMap"
