@@ -128,16 +128,26 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount, useAttrs } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, useAttrs, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import { userStore } from '@/main/store/store.js'
+import {
+  filterVisibleCommonBarTabs,
+  getCommonBarActiveTab,
+  getCommonBarChildren,
+  getCommonBarTabs,
+  normalizeCommonBarSchema,
+  resolveCommonBarTabTarget,
+  syncCommonBarMemoryFromRoute,
+  writeCommonBarMemory
+} from '@/components/bar/commonBarNavigation.js'
 
 // Props definition
 const props = defineProps({
   tabs: {
     type: Array,
-    required: true,
+    default: () => [],
     validator: (tabs) => {
       return tabs.every(t => t.tab && t.label && t.icon && t.weight)
     }
@@ -161,6 +171,10 @@ const props = defineProps({
   layoutConfig: {
     type: Object,
     default: () => ({})
+  },
+  navigationSchema: {
+    type: Object,
+    default: null
   }
 })
 
@@ -199,9 +213,16 @@ const showLoginButton = computed(() => {
 })
 const height = computed(() => props.layoutConfig?.height || getLegacyAttr('height') || '7.5dvh')
 const mobileHeight = computed(() => props.layoutConfig?.mobileHeight || getLegacyAttr('mobileHeight', 'mobile-height') || '8dvh')
+const normalizedNavigationSchema = computed(() => {
+  if (!props.navigationSchema) return null
+  return normalizeCommonBarSchema(props.navigationSchema)
+})
 
-// Filter visible tabs (support visibleWhen function)
 const visibleTabs = computed(() => {
+  if (normalizedNavigationSchema.value) {
+    return filterVisibleCommonBarTabs(getCommonBarTabs(normalizedNavigationSchema.value))
+  }
+
   return props.tabs.filter(tab => {
     if (typeof tab.visibleWhen === 'function') {
       return tab.visibleWhen()
@@ -225,6 +246,10 @@ const checkMobile = () => {
 
 // Helper function to get children from submenuConfig
 const getTabChildren = (tabKey) => {
+  if (normalizedNavigationSchema.value) {
+    return getCommonBarChildren(normalizedNavigationSchema.value, tabKey)
+  }
+
   const menuKey = tabToSubmenuMap.value[tabKey] || tabKey
   return submenuConfig.value[menuKey]?.children || null
 }
@@ -233,6 +258,9 @@ const getTabChildren = (tabKey) => {
 onMounted(() => {
   checkMobile()
   document.addEventListener('click', closeSubmenu)
+  if (normalizedNavigationSchema.value) {
+    syncCommonBarMemoryFromRoute(normalizedNavigationSchema.value, route, router)
+  }
 })
 
 onBeforeUnmount(() => {
@@ -249,6 +277,10 @@ const closeSubmenu = () => {
 
 // Active state logic
 const isActiveComputed = (tabName) => {
+  if (normalizedNavigationSchema.value) {
+    return getCommonBarActiveTab(normalizedNavigationSchema.value, route, router) === tabName
+  }
+
   if (activeTabGetter.value) {
     return activeTabGetter.value(tabName)
   }
@@ -294,8 +326,12 @@ const onClick = async (tabConfig, navigate, event) => {
   const children = getTabChildren(tabConfig.tab)
 
   if (!isMobile.value) {
-    if (tabConfig.to) {
-      await router.replace(tabConfig.to)
+    const target = normalizedNavigationSchema.value
+      ? resolveCommonBarTabTarget(normalizedNavigationSchema.value, tabConfig)
+      : tabConfig.to
+
+    if (target) {
+      await router.replace(target)
     }
   } else {
     if (children && children.length > 0) {
@@ -398,10 +434,21 @@ const handleSubmenuClick = (child) => {
   if (child.external) {
     window.open(child.path, '_blank')
   } else {
+    if (normalizedNavigationSchema.value && activeSubmenu.value) {
+      writeCommonBarMemory(normalizedNavigationSchema.value, activeSubmenu.value, child.path)
+    }
     router.push(child.path)
   }
   activeSubmenu.value = null
 }
+
+watch(
+  () => route.fullPath,
+  () => {
+    if (!normalizedNavigationSchema.value) return
+    syncCommonBarMemoryFromRoute(normalizedNavigationSchema.value, route, router)
+  }
+)
 
 const toggleSidebar = () => {
   isSidebarVisible.value = !isSidebarVisible.value
