@@ -49,36 +49,18 @@ export const VILLAGESML_MODULES = [
                 label: '頻率傾向',
                 icon: '📊',
                 path: '/villagesML?module=character&subtab=frequency',
-                weight: 1,
-                mobileWeight: 1,
-                fontSize: 0.95,
-                mobileFontSize: 0.9,
-                hideOnMobile: false,
-                hideLabelOnMobile: true
             },
             {
                 id: 'embeddings',
                 label: '嵌入相似',
                 icon: '🧬',
                 path: '/villagesML?module=character&subtab=embeddings',
-                weight: 1,
-                mobileWeight: 1,
-                fontSize: 0.95,
-                mobileFontSize: 0.9,
-                hideOnMobile: false,
-                hideLabelOnMobile: true
             },
             {
                 id: 'network',
                 label: '字符網絡',
                 icon: '🕸️',
                 path: '/villagesML?module=character&subtab=network',
-                weight: 1,
-                mobileWeight: 1,
-                fontSize: 0.95,
-                mobileFontSize: 0.9,
-                hideOnMobile: false,
-                hideLabelOnMobile: true,
                 requireAuth: true
             },
             {
@@ -86,12 +68,6 @@ export const VILLAGESML_MODULES = [
                 label: '顯著性',
                 icon: '⭐',
                 path: '/villagesML?module=character&subtab=significance',
-                weight: 1,
-                mobileWeight: 1,
-                fontSize: 0.95,
-                mobileFontSize: 0.9,
-                hideOnMobile: false,
-                hideLabelOnMobile: true
             },
         ]
     },
@@ -117,72 +93,36 @@ export const VILLAGESML_MODULES = [
                 label: '類別標籤',
                 icon: '🔖',
                 path: '/villagesML?module=semantic&subtab=categories',
-                weight: 1,
-                mobileWeight: 1,
-                fontSize: 0.95,
-                mobileFontSize: 0.9,
-                hideOnMobile: false,
-                hideLabelOnMobile: true
             },
             {
                 id: 'composition',
                 label: '組合模式',
                 icon: '🧩',
                 path: '/villagesML?module=semantic&subtab=composition',
-                weight: 1,
-                mobileWeight: 1,
-                fontSize: 0.95,
-                mobileFontSize: 0.9,
-                hideOnMobile: false,
-                hideLabelOnMobile: true
             },
             {
                 id: 'ngrams',
                 label: 'N-gram分析',
                 icon: '📊',
                 path: '/villagesML?module=semantic&subtab=ngrams',
-                weight: 1,
-                mobileWeight: 1,
-                fontSize: 0.95,
-                mobileFontSize: 0.9,
-                hideOnMobile: false,
-                hideLabelOnMobile: true
             },
             {
                 id: 'indices',
                 label: '語義指數',
                 icon: '📈',
                 path: '/villagesML?module=semantic&subtab=indices',
-                weight: 1,
-                mobileWeight: 1,
-                fontSize: 0.95,
-                mobileFontSize: 0.9,
-                hideOnMobile: false,
-                hideLabelOnMobile: true
             },
             {
                 id: 'network',
                 label: '語義網絡',
                 icon: '🕸️',
                 path: '/villagesML?module=semantic&subtab=network',
-                weight: 1,
-                mobileWeight: 1,
-                fontSize: 0.95,
-                mobileFontSize: 0.9,
-                hideOnMobile: false,
-                hideLabelOnMobile: true
             },
             {
                 id: 'subcategories',
                 label: '子類別分析',
                 icon: '🏷️',
-                path: '/villagesML?module=semantic&subtab=subcategories',
-                weight: 1,
-                mobileWeight: 1,
-                fontSize: 0.95,
-                mobileFontSize: 0.9,
-                hideOnMobile: false,
-                hideLabelOnMobile: true
+                path: '/villagesML?module=semantic&subtab=subcategories'
             }
         ]
     },
@@ -208,48 +148,24 @@ export const VILLAGESML_MODULES = [
                 label: '空間熱點',
                 icon: '🔥',
                 path: '/villagesML?module=spatial&subtab=hotspots',
-                weight: 1,
-                mobileWeight: 1,
-                fontSize: 0.95,
-                mobileFontSize: 0.9,
-                hideOnMobile: false,
-                hideLabelOnMobile: true
             },
             {
                 id: 'clusters',
                 label: '空間聚類',
                 icon: '🎯',
                 path: '/villagesML?module=spatial&subtab=clusters',
-                weight: 1,
-                mobileWeight: 1,
-                fontSize: 0.95,
-                mobileFontSize: 0.9,
-                hideOnMobile: false,
-                hideLabelOnMobile: true
             },
             {
                 id: 'visualization',
                 label: '空間可視化',
                 icon: '📍',
                 path: '/villagesML?module=spatial&subtab=visualization',
-                weight: 1,
-                mobileWeight: 1,
-                fontSize: 0.95,
-                mobileFontSize: 0.9,
-                hideOnMobile: false,
-                hideLabelOnMobile: true
             },
             {
                 id: 'integration',
                 label: '空間整合',
                 icon: '🔗',
-                path: '/villagesML?module=spatial&subtab=integration',
-                weight: 1,
-                mobileWeight: 1,
-                fontSize: 0.95,
-                mobileFontSize: 0.9,
-                hideOnMobile: false,
-                hideLabelOnMobile: true
+                path: '/villagesML?module=spatial&subtab=integration'
             }
         ]
     },
@@ -275,60 +191,30 @@ export const VILLAGESML_MODULES = [
                 label: '頻率分析',
                 icon: '📊',
                 path: '/villagesML?module=pattern&subtab=frequency',
-                weight: 1,
-                mobileWeight: 1,
-                fontSize: 0.95,
-                mobileFontSize: 0.9,
-                hideOnMobile: false,
-                hideLabelOnMobile: true
             },
             {
                 id: 'structural',
                 label: '結構分析',
                 icon: '🏗️',
                 path: '/villagesML?module=pattern&subtab=structural',
-                weight: 1,
-                mobileWeight: 1,
-                fontSize: 0.95,
-                mobileFontSize: 0.9,
-                hideOnMobile: false,
-                hideLabelOnMobile: true
             },
             {
                 id: 'tendency',
                 label: '傾向性分析',
                 icon: '📈',
                 path: '/villagesML?module=pattern&subtab=tendency',
-                weight: 1,
-                mobileWeight: 1,
-                fontSize: 0.95,
-                mobileFontSize: 0.9,
-                hideOnMobile: false,
-                hideLabelOnMobile: true
             },
             {
                 id: 'ngram-explore',
                 label: 'N-gram 探索',
                 icon: '🔍',
                 path: '/villagesML?module=pattern&subtab=ngram-explore',
-                weight: 1,
-                mobileWeight: 1,
-                fontSize: 0.95,
-                mobileFontSize: 0.9,
-                hideOnMobile: false,
-                hideLabelOnMobile: true
             },
             {
                 id: 'ngram-stats',
                 label: 'N-gram 統計',
                 icon: '📊',
-                path: '/villagesML?module=pattern&subtab=ngram-stats',
-                weight: 1,
-                mobileWeight: 1,
-                fontSize: 0.95,
-                mobileFontSize: 0.9,
-                hideOnMobile: false,
-                hideLabelOnMobile: true
+                path: '/villagesML?module=pattern&subtab=ngram-stats'
             }
         ]
     },
@@ -353,49 +239,25 @@ export const VILLAGESML_MODULES = [
                 id: 'aggregates',
                 label: '聚合統計',
                 icon: '📈',
-                path: '/villagesML?module=regional&subtab=aggregates',
-                weight: 1,
-                mobileWeight: 1,
-                fontSize: 0.95,
-                mobileFontSize: 0.9,
-                hideOnMobile: false,
-                hideLabelOnMobile: true
+                path: '/villagesML?module=regional&subtab=aggregates'
             },
             {
                 id: 'vectors',
                 label: '特徵向量',
                 icon: '📐',
-                path: '/villagesML?module=regional&subtab=vectors',
-                weight: 1,
-                mobileWeight: 1,
-                fontSize: 0.95,
-                mobileFontSize: 0.9,
-                hideOnMobile: false,
-                hideLabelOnMobile: true
+                path: '/villagesML?module=regional&subtab=vectors'
             },
             {
                 id: 'tendency',
                 label: '類別傾向性',
                 icon: '📊',
-                path: '/villagesML?module=regional&subtab=tendency',
-                weight: 1,
-                mobileWeight: 1,
-                fontSize: 0.95,
-                mobileFontSize: 0.9,
-                hideOnMobile: false,
-                hideLabelOnMobile: true
+                path: '/villagesML?module=regional&subtab=tendency'
             },
             {
                 id: 'similarity',
                 label: '相似度分析',
                 icon: '🔍',
-                path: '/villagesML?module=regional&subtab=similarity',
-                weight: 1,
-                mobileWeight: 1,
-                fontSize: 0.95,
-                mobileFontSize: 0.9,
-                hideOnMobile: false,
-                hideLabelOnMobile: true
+                path: '/villagesML?module=regional&subtab=similarity'
             }
         ]
     },
@@ -421,87 +283,45 @@ export const VILLAGESML_MODULES = [
                 id: 'clustering',
                 label: '基礎聚類',  // 改名：聚類分析 → 基礎聚類
                 icon: '🎲',
-                path: '/villagesML?module=compute&subtab=clustering',
-                weight: 1,
-                mobileWeight: 1,
-                fontSize: 0.95,
-                mobileFontSize: 0.9,
-                hideOnMobile: false,
-                hideLabelOnMobile: true
+                path: '/villagesML?module=compute&subtab=clustering'
             },
             // ===== 新增子標籤 =====
             {
                 id: 'char-tendency',
                 label: '字符傾向',
                 icon: '🔤',
-                path: '/villagesML?module=compute&subtab=char-tendency',
-                weight: 1,
-                mobileWeight: 1,
-                fontSize: 0.95,
-                mobileFontSize: 0.9,
-                hideOnMobile: false,
-                hideLabelOnMobile: true
+                path: '/villagesML?module=compute&subtab=char-tendency'
             },
             {
                 id: 'sampled-villages',
                 label: '採樣村莊',
                 icon: '🏘️',
-                path: '/villagesML?module=compute&subtab=sampled-villages',
-                weight: 1,
-                mobileWeight: 1,
-                fontSize: 0.95,
-                mobileFontSize: 0.9,
-                hideOnMobile: false,
-                hideLabelOnMobile: true
+                path: '/villagesML?module=compute&subtab=sampled-villages'
             },
             {
                 id: 'spatial-aware',
                 label: '空間感知',
                 icon: '🗺️',
-                path: '/villagesML?module=compute&subtab=spatial-aware',
-                weight: 1,
-                mobileWeight: 1,
-                fontSize: 0.95,
-                mobileFontSize: 0.9,
-                hideOnMobile: false,
-                hideLabelOnMobile: true
+                path: '/villagesML?module=compute&subtab=spatial-aware'
             },
             {
                 id: 'hierarchical',
                 label: '層次聚類',
                 icon: '🌳',
-                path: '/villagesML?module=compute&subtab=hierarchical',
-                weight: 1,
-                mobileWeight: 1,
-                fontSize: 0.95,
-                mobileFontSize: 0.9,
-                hideOnMobile: false,
-                hideLabelOnMobile: true
+                path: '/villagesML?module=compute&subtab=hierarchical'
             },
 
             {
                 id: 'features',
                 label: '特徵提取',
                 icon: '🔬',
-                path: '/villagesML?module=compute&subtab=features',
-                weight: 1,
-                mobileWeight: 1,
-                fontSize: 0.95,
-                mobileFontSize: 0.9,
-                hideOnMobile: false,
-                hideLabelOnMobile: true
+                path: '/villagesML?module=compute&subtab=features'
             },
             {
                 id: 'subset',
                 label: '子集分析',
                 icon: '🧪',
-                path: '/villagesML?module=compute&subtab=subset',
-                weight: 1,
-                mobileWeight: 1,
-                fontSize: 0.95,
-                mobileFontSize: 0.9,
-                hideOnMobile: false,
-                hideLabelOnMobile: true
+                path: '/villagesML?module=compute&subtab=subset'
             },
 
         ]
