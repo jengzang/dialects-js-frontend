@@ -3,11 +3,8 @@
     <!-- 只有一層 CommonBar: Module tabs with submenu support -->
     <CommonBar
       title="地名分析"
-      :tabs="moduleTabs"
-      :navigation-config="{ activeTabGetter: isModuleActive, submenuConfig, tabToSubmenuMap }"
+      :navigation-schema="commonBarSchema"
       :show-login-button="false"
-      :submenu-config="submenuConfig"
-      :tab-to-submenu-map="tabToSubmenuMap"
       :sidebar-component="SimpleSidebar"
       :show-sidebar-title="false"
       height="7dvh"
@@ -138,6 +135,7 @@ const isAuthenticated = computed(() => userStore.isAuthenticated)
 // State
 const activeModule = computed(() => route.query.module || 'search')
 const activeSubtab = computed(() => route.query.subtab || null)
+const commonBarSchema = computed(() => createVillagesMLCommonBarSchema(isAuthenticated.value))
 
 // Module tabs for CommonBar (只有主模組，沒有子標籤)
 const moduleTabs = computed(() => {
@@ -240,7 +238,7 @@ import ClusteringResultsPanel from '@/VillagesML/workspace/modules/ml/Clustering
 import SemanticSettingsPanel from '@/VillagesML/workspace/modules/semantic/SemanticSettingsPanel.vue'
 import NetworkGraphPanel from '@/VillagesML/workspace/modules/semantic/NetworkGraphPanel.vue'
 import HelpIcon from '@/components/ToastAndHelp/HelpIcon.vue'
-import {getModuleConfig, getVisibleModules, VILLAGESML_MODULES} from "@/VillagesML/config/BarConfig.js";
+import { createVillagesMLCommonBarSchema, getModuleConfig, getVisibleModules, VILLAGESML_MODULES } from '@/VillagesML/config/BarConfig.js'
 
 // Module configuration (from villagesML.js)
 const modules = VILLAGESML_MODULES.map(m => ({

@@ -1,3 +1,5 @@
+import { createCommonBarItem, createCommonBarSchema } from '@/components/bar/commonBarNavigation.js'
+
 // ========================================
 // 模組和子標籤配置（用於 CommonBar 導航）
 // ========================================
@@ -550,4 +552,67 @@ export function getSubtabConfig(moduleId, subtabId) {
  */
 export function getVisibleModules(isAuthenticated) {
     return VILLAGESML_MODULES.filter(m => !m.requireAuth || isAuthenticated)
+}
+
+const filterVisibleSubtabs = (subtabs = [], isAuthenticated) => {
+    return subtabs.filter(subtab => !subtab.requireAuth || isAuthenticated)
+}
+
+const createVillagesMLCommonBarItem = (module, isAuthenticated) => {
+    const visibleSubtabs = filterVisibleSubtabs(module.subtabs, isAuthenticated)
+
+    return createCommonBarItem({
+        id: module.id,
+        label: module.label,
+        icon: module.icon,
+        display: {
+            overrides: {
+                weight: module.weight,
+                mobileWeight: module.mobileWeight,
+                weightIconOnly: module.weightIconOnly,
+                mobileWeightIconOnly: module.mobileWeightIconOnly,
+                fontSize: module.fontSize,
+                mobileFontSize: module.mobileFontSize,
+                hideOnMobile: module.hideOnMobile,
+                hideLabelOnMobile: module.hideLabelOnMobile,
+                showLabelOnlyWhenActive: module.showLabelOnlyWhenActive,
+                mobileShowLabelOnlyWhenActive: module.mobileShowLabelOnlyWhenActive
+            }
+        },
+        navigation: {
+            defaultTo: module.path,
+            activeValue: module.id,
+            rememberChild: visibleSubtabs.length > 0,
+            defaultChild: visibleSubtabs[0]?.path || module.path,
+            children: visibleSubtabs.map(subtab => ({
+                id: subtab.id,
+                label: subtab.label,
+                icon: subtab.icon || '',
+                path: subtab.path
+            }))
+        },
+        meta: {
+            requireAuth: module.requireAuth
+        }
+    })
+}
+
+export function createVillagesMLCommonBarSchema(isAuthenticated = false) {
+    return createCommonBarSchema({
+        meta: {
+            id: 'villagesML',
+            storage: {
+                enabled: true,
+                type: 'session',
+                keyPrefix: 'commonbar'
+            }
+        },
+        route: {
+            activeResolver: {
+                type: 'query',
+                tabKey: 'module'
+            }
+        },
+        items: getVisibleModules(isAuthenticated).map(module => createVillagesMLCommonBarItem(module, isAuthenticated))
+    })
 }
