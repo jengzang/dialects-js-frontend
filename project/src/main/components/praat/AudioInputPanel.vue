@@ -60,6 +60,7 @@
 <script setup>
 import { ref, computed, onBeforeUnmount } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { PRAAT_AUDIO_LIMITS } from '@/main/config/constants.js'
 import { showError } from '@/utils/message.js'
 
 const props = defineProps({
@@ -92,13 +93,10 @@ let audioChunks = []
 let recordingTimer = null
 let mediaStream = null
 
-const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
-const MAX_RECORDING_TIME = 60 // 60 seconds
-const MAX_SEGMENT_DURATION = 10 // 10 seconds per segment
 const SUPPORTED_FORMATS = ['audio/wav', 'audio/mpeg', 'audio/mp3', 'audio/ogg', 'audio/webm', 'audio/m4a', 'audio/x-m4a', 'audio/flac', 'audio/aac', 'audio/x-aac']
 
 const validateFile = (file) => {
-  if (file.size > MAX_FILE_SIZE) {
+  if (file.size > PRAAT_AUDIO_LIMITS.MAX_FILE_SIZE) {
     showError(t('praat.audioInput.errors.fileSizeExceeded'))
     return false
   }
@@ -172,7 +170,7 @@ const checkAndSplitAudio = async (file) => {
         const audioBuffer = await audioContext.decodeAudioData(arrayBuffer)
         const duration = audioBuffer.duration
 
-        if (duration <= MAX_SEGMENT_DURATION) {
+        if (duration <= PRAAT_AUDIO_LIMITS.MAX_SEGMENT_DURATION) {
           // No splitting needed
           resolve([{
             file: file,
@@ -209,7 +207,7 @@ const splitAudioBuffer = async (audioBuffer, originalFile) => {
   const duration = audioBuffer.duration
   const sampleRate = audioBuffer.sampleRate
   const numberOfChannels = audioBuffer.numberOfChannels
-  const segmentDuration = MAX_SEGMENT_DURATION
+  const segmentDuration = PRAAT_AUDIO_LIMITS.MAX_SEGMENT_DURATION
   const numSegments = Math.ceil(duration / segmentDuration)
   const segments = []
 
@@ -362,7 +360,7 @@ const startRecording = async () => {
 
     recordingTimer = setInterval(() => {
       recordingTime.value++
-      if (recordingTime.value >= MAX_RECORDING_TIME) {
+      if (recordingTime.value >= PRAAT_AUDIO_LIMITS.MAX_RECORDING_TIME) {
         stopRecording()
       }
     }, 1000)

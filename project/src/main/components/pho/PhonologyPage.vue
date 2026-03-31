@@ -58,7 +58,7 @@ import { useI18n } from 'vue-i18n'
 import { getPhonologyMatrix } from '@/api'
 import PhonologyMatrix from '@/main/components/TableAndTree/PhonologyTable.vue'
 import LocationMultiInput from '@/main/components/geo/LocationMultiInput.vue'
-import { PHONOLOGY_LOCATION_LIMITS } from '@/main/config/phonology.js'
+import { PHONOLOGY_LOCATION_LIMITS } from '@/main/config/constants.js'
 import { parseLocationsFromUrl, updateUrlWithLocations } from '@/utils/urlParams.js'
 
 const route = useRoute()

@@ -24,6 +24,28 @@ export const QUERY_CONFIG = {
 // ========================================
 export const GLOBAL_LOCATION_LIMIT = 1000
 
+// ========================================
+// 音韻功能地點限制
+// ========================================
+export const PHONOLOGY_LOCATION_LIMITS = {
+    matrix: 10,
+    custom: 10,
+    countphos: 100,
+    evolution: 1
+}
+
+// ========================================
+// Praat 音頻限制
+// ========================================
+export const PRAAT_AUDIO_LIMITS = {
+    MAX_FILE_SIZE: 5 * 1024 * 1024,
+    MAX_RECORDING_TIME: 60,
+    MAX_SEGMENT_DURATION: 10
+}
+
+// ========================================
+// 地位組合組件限制
+// ========================================
 export const ROLE_LIMITS = {
     anonymous: {
         MAX_COMBINATIONS: 5,        // 最大组合数
@@ -190,23 +212,6 @@ export const LOCATION_LIMITS = {
 }
 
 // ========================================
-// 面板布局配置
-// ========================================
-export const PANEL_CONFIG = {
-    ROW_GAP_PX: 120,                // 行间距(px)
-    ROW_BOTTOM_START: 10,           // 底部起始位置(px)
-    PANEL_HEIGHT: '50vh',           // 面板高度
-    EXTRA_EMPTY_ROWS: 3,            // 额外空行数
-
-    // 响应式断点
-    BREAKPOINTS: {
-        DESKTOP: 1200,               // ≥1200px: 4列
-        TABLET: 768,                 // ≥768px: 2列
-        MOBILE: 0                    // <768px: 1列
-    }
-}
-
-// ========================================
 // 轮询配置（如果必须使用轮询时的保护参数）
 // ========================================
 export const POLLING_CONFIG = {
@@ -221,6 +226,23 @@ export const POLLING_CONFIG = {
 export const API_CONFIG = {
     DEFAULT_TIMEOUT: 300000,          // 默认超时时间(ms)
     LONG_TIMEOUT: 600000              // 长请求超时时间(ms)
+}
+
+// ========================================
+// 面板布局配置
+// ========================================
+export const PANEL_CONFIG = {
+    ROW_GAP_PX: 120,                // 行间距(px)
+    ROW_BOTTOM_START: 10,           // 底部起始位置(px)
+    PANEL_HEIGHT: '50vh',           // 面板高度
+    EXTRA_EMPTY_ROWS: 3,            // 额外空行数
+
+    // 响应式断点
+    BREAKPOINTS: {
+        DESKTOP: 1200,               // ≥1200px: 4列
+        TABLET: 768,                 // ≥768px: 2列
+        MOBILE: 0                    // <768px: 1列
+    }
 }
 
 // ========================================

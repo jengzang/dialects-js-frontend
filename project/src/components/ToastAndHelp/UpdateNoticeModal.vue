@@ -28,8 +28,14 @@
         <div
           v-for="(item, index) in items"
           :key="index"
-          v-html="item"
-        ></div>
+          class="update-item"
+        >
+          <span class="item-icon">{{ item.icon }}</span>
+          <span class="item-text">
+            <strong>{{ item.strong }}</strong>
+            <template v-if="item.text"> - {{ item.text }}</template>
+          </span>
+        </div>
       </template>
       <slot v-else>
         <div class="update-item">
@@ -297,4 +303,5 @@ onMounted(() => {
   .update-notice-footer {
     padding: 1.25rem 1.5rem;
   }
-}</style>
+}
+</style>

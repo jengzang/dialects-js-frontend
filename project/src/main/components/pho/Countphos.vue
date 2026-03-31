@@ -4,7 +4,7 @@ import { useI18n } from 'vue-i18n'
 import { getFeatureCounts } from '@/api'
 import AppModal from '@/components/common/AppModal.vue'
 import LocationMultiInput from '@/main/components/geo/LocationMultiInput.vue'
-import { PHONOLOGY_LOCATION_LIMITS } from '@/main/config/phonology.js'
+import { PHONOLOGY_LOCATION_LIMITS } from '@/main/config/constants.js'
 
 const { t } = useI18n()
 

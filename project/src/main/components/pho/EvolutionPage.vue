@@ -69,7 +69,7 @@
         <div class="control-input-wrapper">
           <LocationMultiInput
             v-model="selectedLocations"
-            :max-locations="1"
+            :max-locations="PHONOLOGY_LOCATION_LIMITS.evolution"
             class="control-input"
           />
           <div class="input-hint">{{ t('phonology.phonology.evolution.controls.locationHint') }}</div>
@@ -139,6 +139,7 @@ import * as echarts from 'echarts'
 import SimpleSelectDropdown from '@/components/selector/SimpleSelectDropdown.vue'
 import LocationMultiInput from '../geo/LocationMultiInput.vue'
 import { postPhoPieByValue, postPhoPieByStatus } from '@/api'
+import { PHONOLOGY_LOCATION_LIMITS } from '@/main/config/constants.js'
 import { TABLE_COLUMN_SCHEMAS } from '../../config/chars_positions/characters.js'
 
 const { t } = useI18n()
