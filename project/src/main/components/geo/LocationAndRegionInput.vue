@@ -80,6 +80,7 @@
         <RegionSelector
             :mode="regionUsing"
             v-model:selected="selectedValue"
+            :custom-regions="selectedCustomRegions"
             :placeholder="regionUsing === 'map' ? $t('query.components.locationAndRegionInput.selectMapPartition') : $t('query.components.locationAndRegionInput.selectYindianPartition')"
             @selectCustomRegion="handleCustomRegionSelect"
             @update:customRegions="handleCustomRegionUpdate"
@@ -228,7 +229,7 @@ import { useCustomRegionStore } from '@/main/store/customRegionStore.js'
 import RegionSelector from "@/main/components/geo/RegionSelector.vue"
 import PartitionInfoModal from "@/main/components/geo/PartitionInfoModal.vue"
 import { userStore } from '@/main/store/store.js'
-import { LOCATION_LIMITS } from '@/main/config/constants.js'
+import { GLOBAL_LOCATION_LIMIT, LOCATION_LIMITS } from '@/main/config/constants.js'
 import * as OpenCC from 'opencc-js'
 import {STATIC_REGION_TREE, top_yindian} from "@/main/config/RegionTree.js";
 
@@ -318,6 +319,13 @@ const customRegionLocations = ref([])
 const customRegionName = ref('')
 const selectedCustomRegions = ref([])  // Track selected custom region names
 const customRegionsData = ref([])  // Store full custom region data with locations
+const isRestoringRegionSelection = ref(false)
+const regionSelectionChangedSinceLastFetch = ref(false)
+const lastValidRegionSelection = ref({
+  selectedValue: [],
+  selectedCustomRegions: [],
+  regionUsing: props.modelValue.regionUsing || 'map'
+})
 
 // 處理自定義分區選擇 (old single-select method - keep for backward compatibility)
 function handleCustomRegionSelect({ regionName, locations }) {
@@ -340,6 +348,39 @@ function handleCustomRegionUpdate(customRegionNames) {
   if (customRegionNames.length > 0 && customRegionsData.value.length === 0) {
     loadCustomRegionsData()
   }
+}
+
+function cloneSelectionArray(value) {
+  return Array.isArray(value) ? [...value] : []
+}
+
+function snapshotCurrentRegionSelection() {
+  return {
+    selectedValue: cloneSelectionArray(selectedValue.value),
+    selectedCustomRegions: cloneSelectionArray(selectedCustomRegions.value),
+    regionUsing: regionUsing.value
+  }
+}
+
+function commitLastValidRegionSelection() {
+  lastValidRegionSelection.value = snapshotCurrentRegionSelection()
+}
+
+function revertRegionSelectionForLocationLimit(count) {
+  limitHint.value = t('query.components.locationAndRegionInput.tooManyLocations')
+  selectedCount.value = count
+  updateDisabledState(true)
+  isRestoringRegionSelection.value = true
+
+  const lastValid = lastValidRegionSelection.value
+  selectedValue.value = cloneSelectionArray(lastValid.selectedValue)
+  selectedCustomRegions.value = cloneSelectionArray(lastValid.selectedCustomRegions)
+  regionUsing.value = lastValid.regionUsing
+  regionSelectionChangedSinceLastFetch.value = false
+
+  nextTick(() => {
+    isRestoringRegionSelection.value = false
+  })
 }
 
 // New: Handle custom region data update (full region objects with locations)
@@ -409,7 +450,7 @@ async function handleCustomRegionQuery(locations) {
 
 // 檢查地點數量限制
 function checkLocationLimit(count) {
-  if (count > 1000) {
+  if (count > GLOBAL_LOCATION_LIMIT) {
     limitHint.value = t('query.components.locationAndRegionInput.tooManyLocations')
     updateDisabledState(true)
     return
@@ -864,6 +905,7 @@ preloadYindianTree()
 onMounted(() => {
   reset()
   loadCustomRegionsData()
+  commitLastValidRegionSelection()
 })
 
 // onActivated(() => {
@@ -905,8 +947,16 @@ async function fetchLocationsResult() {
   try {
     // 🔥 Merge manual locations + custom region locations
     const mergedLocations = [...new Set([...locations, ...customRegionLocationsArray])]
+    const isRegionSelectionValidation = !props.useInputMode
+      && regionSelectionChangedSinceLastFetch.value
+      && !isRestoringRegionSelection.value
 
-    if (mergedLocations.length > 1000) {
+    if (mergedLocations.length > GLOBAL_LOCATION_LIMIT) {
+      if (isRegionSelectionValidation) {
+        revertRegionSelectionForLocationLimit(mergedLocations.length)
+        return
+      }
+
       limitHint.value = t('query.components.locationAndRegionInput.tooManyLocations')
       selectedCount.value = mergedLocations.length
       updateDisabledState(true)
@@ -925,6 +975,17 @@ async function fetchLocationsResult() {
     const count = data?.locations_result?.length ?? 0
     selectedCount.value = count
 
+    if (count > GLOBAL_LOCATION_LIMIT) {
+      if (isRegionSelectionValidation) {
+        revertRegionSelectionForLocationLimit(count)
+        return
+      }
+
+      limitHint.value = t('query.components.locationAndRegionInput.tooManyLocations')
+      updateDisabledState(true)
+      return
+    }
+
     // 7️⃣ 對齊原來的限制邏輯（showToast 對應 bottom-hint）
     // Get limits for current context and user role
     const contextLimits = LOCATION_LIMITS[props.limitContext] || LOCATION_LIMITS.default
@@ -936,6 +997,11 @@ async function fetchLocationsResult() {
     } else {
       limitHint.value = ''
       updateDisabledState(false)
+    }
+
+    if (isRegionSelectionValidation) {
+      commitLastValidRegionSelection()
+      regionSelectionChangedSinceLastFetch.value = false
     }
 
     // ✅ 若你後面還有「正常處理」，從這裡往下接
@@ -1076,6 +1142,25 @@ watch(
       debounceTimer2 = setTimeout(async () => {
         await fetchLocationsResult()
       }, 300)
+    },
+    { deep: true }
+)
+
+watch(
+    [selectedValue, selectedCustomRegions, regionUsing],
+    () => {
+      if (props.useInputMode || isRestoringRegionSelection.value) {
+        return
+      }
+
+      const currentSnapshot = snapshotCurrentRegionSelection()
+      const lastValid = lastValidRegionSelection.value
+      const selectionChanged =
+        JSON.stringify(currentSnapshot.selectedValue) !== JSON.stringify(lastValid.selectedValue)
+        || JSON.stringify(currentSnapshot.selectedCustomRegions) !== JSON.stringify(lastValid.selectedCustomRegions)
+        || currentSnapshot.regionUsing !== lastValid.regionUsing
+
+      regionSelectionChangedSinceLastFetch.value = selectionChanged
     },
     { deep: true }
 )

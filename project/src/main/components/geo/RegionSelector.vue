@@ -289,6 +289,7 @@ const TOP_YINDIAN = top_yindian ?? []
 const props = defineProps({
   mode: { type: String, required: true },
   selected: { type: Array, default: () => [] },
+  customRegions: { type: Array, default: () => [] },
   placeholder: { type: String, default: '' }
 })
 
@@ -342,6 +343,7 @@ const lvl3Pos = ref({ position: 'fixed', left: '0px', top: '0px' })
    selected
    ========================= */
 const selectedLeafs = computed(() => (Array.isArray(props.selected) ? props.selected : []))
+const externalCustomRegions = computed(() => (Array.isArray(props.customRegions) ? props.customRegions : []))
 const draftSelected = ref([])
 
 /* =========================
@@ -427,6 +429,17 @@ watch(
     async (m) => {
       closePopup()
       await loadTreeFor(m)
+    },
+    { immediate: true }
+)
+
+watch(
+    externalCustomRegions,
+    (nextCustomRegions) => {
+      selectedCustomRegions.value = [...nextCustomRegions]
+      if (!popupOpen.value) {
+        draftCustomRegions.value = [...nextCustomRegions]
+      }
     },
     { immediate: true }
 )

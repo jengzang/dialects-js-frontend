@@ -511,7 +511,7 @@ import {
   batchMutate,
   batchReplacePreview,
   batchReplaceExecute
-} from '@/api/sql'
+} from '@/api'
 import AppModal from '@/components/common/AppModal.vue';
 import { userStore } from '@/main/store/store.js';
 import { useVirtualList } from '@vueuse/core';
