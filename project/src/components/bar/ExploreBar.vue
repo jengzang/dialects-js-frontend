@@ -1,6 +1,5 @@
 <template>
   <div class="explorebar">
-    <!-- 桌面端：单行布局 -->
     <div class="explorebar-desktop">
       <div class="logo-and-title" @click="toggleSidebar" :style="{ zIndex: isSidebarVisible ? '1100' : '999' }">
         <div class="logo-container">
@@ -44,7 +43,6 @@
       </div>
     </div>
 
-    <!-- 移动端：单行布局（无 title.png） -->
     <div class="explorebar-mobile">
       <div class="logo-container" @click="toggleSidebar" :style="{ zIndex: isSidebarVisible ? '1100' : '999' }">
         <img class="logo" src="../../assets/favicon.ico" alt="Logo" />
@@ -83,14 +81,12 @@
       </div>
     </div>
 
-    <!-- 侧边栏 (使用 SimpleSidebar 组件，桌面端不显示 title，移动端显示) -->
     <SimpleSidebar
       :is-open="isSidebarVisible"
       :show-title="isMobile"
       @close="isSidebarVisible = false"
     />
 
-    <!-- Submenu panel (liquid glass style) - Teleported to body -->
     <Teleport to="body">
       <Transition name="submenu-fade">
         <div
@@ -120,64 +116,101 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { useExploreTabsConfig } from '@/main/config/TabsConfig.js'
 import { userStore } from '@/main/store/store.js'
 import SimpleSidebar from '@/components/bar/SimpleSidebar.vue'
-import { useMenuConfig } from '@/main/config/SideBarConfig.js'
+import { useExploreBarConfig } from '@/main/config/ExploreBarConfig.js'
 
 const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
+const STORAGE_KEY_PREFIX = 'explore_last_child_'
 
-// 过滤可见的 tabs（label 已在 TabsConfig 中定义）
-const allExploreTabs = useExploreTabsConfig()
-const visibleTabs = computed(() => {
-  return allExploreTabs.value.filter(tab => {
-    // 如果有 visibleWhen 函数，执行它
-    if (typeof tab.visibleWhen === 'function') {
-      return tab.visibleWhen()
-    }
-    // 没有 visibleWhen 则默认可见
-    return true
-  })
+const exploreBarConfig = useExploreBarConfig()
+const tabs = computed(() => {
+  return Object.values(exploreBarConfig.value)
+    .map((config) => ({
+      tab: config.tab,
+      label: config.label,
+      icon: config.icon,
+      to: config.navigation.defaultTo,
+      navigation: config.navigation,
+      ...config.display
+    }))
+    .filter((tab) => {
+      if (typeof tab.visibleWhen === 'function') {
+        return tab.visibleWhen()
+      }
+      return true
+    })
 })
 
-const tabs = visibleTabs
 const isSidebarVisible = ref(false)
+const activeSubmenu = ref(null)
+const submenuPosition = ref({ top: 0, left: 0 })
+let closeSubmenuTimer = null
 
-// Submenu state management
-const activeSubmenu = ref(null)  // Currently open submenu tab key
-const submenuPosition = ref({ top: 0, left: 0 })  // Position for submenu panel
-let closeSubmenuTimer = null  // Timer for delayed close
-
-// Mobile detection
 const isMobile = ref(false)
 const checkMobile = () => {
   isMobile.value = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
 }
 
-// Map ExploreBar tab keys to menuConfig keys
-const tabToMenuConfigMap = {
-  'pho': 'pho',
-  'charClass': 'charClass',
-  'words': 'words',
-  'villages': 'villages',
-  'tools': 'tools',
-  'query':'query',
-  'about':'about_ontop'
-}
-
-// Helper function to get children from menuConfig
-const menuConfigData = useMenuConfig()
 const getTabChildren = (tabKey) => {
-  const menuKey = tabToMenuConfigMap[tabKey]
-  return menuKey ? menuConfigData.value[menuKey]?.children : null
+  return exploreBarConfig.value[tabKey]?.navigation?.children || []
 }
 
-// Lifecycle hooks
+const getLastChildPath = (tabKey) => {
+  try {
+    return sessionStorage.getItem(STORAGE_KEY_PREFIX + tabKey)
+  } catch (error) {
+    console.warn('Failed to read ExploreBar memory:', error)
+    return null
+  }
+}
+
+const saveLastChildPath = (tabKey, childPath) => {
+  try {
+    if (childPath) {
+      sessionStorage.setItem(STORAGE_KEY_PREFIX + tabKey, childPath)
+    } else {
+      sessionStorage.removeItem(STORAGE_KEY_PREFIX + tabKey)
+    }
+  } catch (error) {
+    console.warn('Failed to write ExploreBar memory:', error)
+  }
+}
+
+const doesChildMatchCurrentRoute = (childPath) => {
+  const resolved = router.resolve(childPath)
+
+  if (resolved.path !== route.path) {
+    return false
+  }
+
+  return Object.entries(resolved.query || {}).every(([key, value]) => {
+    return route.query[key] === value
+  })
+}
+
+watch(
+  () => [route.path, route.fullPath],
+  () => {
+    for (const tabKey of Object.keys(exploreBarConfig.value)) {
+      const matchedChild = getTabChildren(tabKey).find((child) => {
+        return !child.external && doesChildMatchCurrentRoute(child.path)
+      })
+
+      if (matchedChild) {
+        saveLastChildPath(tabKey, matchedChild.path)
+        break
+      }
+    }
+  },
+  { immediate: true }
+)
+
 onMounted(() => {
   checkMobile()
   document.addEventListener('click', closeSubmenu)
@@ -185,7 +218,6 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   document.removeEventListener('click', closeSubmenu)
-  // Clear any pending timer
   if (closeSubmenuTimer) {
     clearTimeout(closeSubmenuTimer)
     closeSubmenuTimer = null
@@ -196,161 +228,63 @@ const closeSubmenu = () => {
   activeSubmenu.value = null
 }
 
-// Page → Tab 映射表
-const pageToTabMap = {
-  // word category
-  'phonologyMatrix': 'pho',
-  'phonologyCustom': 'pho',
-  'Countphos': 'pho',
-
-  // charClass category
-  'CharacterClassification': 'charClass',
-
-  // words category
-  'YuBao': 'words',
-  'ycSpoken': 'words',
-
-  // villages category
-  'gdVillages': 'villages',
-  'gdVillagesTable': 'villages',
-  'ycVillages': 'villages',
-  'VillagesML':'villages',
-
-  // tools category
-  'check': 'tools',
-  'jyut2ipa': 'tools',
-  'merge': 'tools',
-  'praat': 'tools'
-}
-
-// 获取当前页面对应的 tab
 const getCurrentTab = () => {
-  const page = route.query.page
-  return pageToTabMap[page] || null
+  return tabs.value.find((tab) => tab.navigation?.matchPages?.includes(route.query.page))?.tab || null
 }
 
-// 判断 tab 是否激活
 const isActiveComputed = (tabName) => {
   return getCurrentTab() === tabName
 }
 
-/**
- * Calculate dynamic flex weight based on label visibility
- * @param {Object} tab - Tab configuration object
- * @param {boolean} isActive - Whether the tab is currently active
- * @param {boolean} isMobile - Whether in mobile layout
- * @returns {number} - Flex weight value
- */
-const getFlexWeight = (tab, isActive, isMobile) => {
-  // Determine if label is visible based on configuration
+const getFlexWeight = (tab, isActive, isMobileLayout) => {
   let labelVisible
 
-  if (isMobile) {
-    // Mobile: Check hideLabelOnMobile and mobileShowLabelOnlyWhenActive
+  if (isMobileLayout) {
     const showOnlyWhenActive = tab.mobileShowLabelOnlyWhenActive ?? tab.showLabelOnlyWhenActive
     labelVisible = !tab.hideLabelOnMobile && (!showOnlyWhenActive || isActive)
   } else {
-    // Desktop: Check showLabelOnlyWhenActive
     labelVisible = !tab.showLabelOnlyWhenActive || isActive
   }
 
-  // Return appropriate weight based on label visibility
   if (labelVisible) {
-    // Label is visible - use full weight
-    return isMobile ? (tab.mobileWeight || tab.weight) : tab.weight
-  } else {
-    // Label is hidden - use icon-only weight with fallback chain
-    if (isMobile) {
-      return tab.mobileWeightIconOnly || tab.mobileWeight || tab.weightIconOnly || tab.weight
-    } else {
-      return tab.weightIconOnly || tab.weight
-    }
+    return isMobileLayout ? (tab.mobileWeight || tab.weight) : tab.weight
   }
+
+  if (isMobileLayout) {
+    return tab.mobileWeightIconOnly || tab.mobileWeight || tab.weightIconOnly || tab.weight
+  }
+
+  return tab.weightIconOnly || tab.weight
 }
 
-// Tab 点击处理
 const onClick = async (tabConfig, navigate, event) => {
-  // 伪 tab 处理：打开侧边栏而非导航
   if (tabConfig.isPseudo) {
     toggleSidebar()
     return
   }
 
-  const children = getTabChildren(tabConfig.tab)  // Get children from menuConfig
-  console.log('onClick triggered:', tabConfig.tab, 'children:', children, 'isMobile:', isMobile.value)
+  const children = getTabChildren(tabConfig.tab)
 
-  // Desktop: always navigate (hover handles submenu)
-  // Mobile: show submenu if has children, otherwise navigate
   if (!isMobile.value) {
-    // Desktop: click to navigate
-    console.log('Desktop: navigating to:', tabConfig.to)
-    if (tabConfig.to) {
-      await router.replace(tabConfig.to)
+    const rememberedChildPath = tabConfig.navigation?.rememberChild && children.length > 0
+      ? getLastChildPath(tabConfig.tab)
+      : null
+    const target = rememberedChildPath || tabConfig.to
+
+    if (target) {
+      await router.replace(target)
     }
-  } else {
-    // Mobile: click to show submenu if has children
-    if (children && children.length > 0) {
-      console.log('Mobile: has children, calling handleTabClick')
-      handleTabClick(tabConfig, tabConfig.tab, event)
-    } else {
-      console.log('Mobile: no children, navigating to:', tabConfig.to)
-      if (tabConfig.to) {
-        await router.replace(tabConfig.to)
-      }
-    }
+  } else if (children.length > 0) {
+    handleTabClick(tabConfig, tabConfig.tab, event)
+  } else if (tabConfig.to) {
+    await router.replace(tabConfig.to)
   }
 }
 
 const handleTabClick = (tabConfig, tabKey, event) => {
-  const children = getTabChildren(tabKey)  // Get children from menuConfig
-  console.log('handleTabClick:', tabKey, 'children:', children)
+  const children = getTabChildren(tabKey)
   if (!children || children.length === 0) return
 
-  const targetElement = event.currentTarget
-
-  const rect = targetElement.getBoundingClientRect()
-  const viewportWidth = window.innerWidth
-  const viewportHeight = window.innerHeight
-  const submenuWidth = 250
-  const submenuHeight = children.length * 50 + 20  // Use actual children count
-
-  // Position BELOW the tab
-  let top = rect.bottom + 5
-  let left = rect.left
-
-  // Boundary checks
-  if (top + submenuHeight > viewportHeight) {
-    top = rect.top - submenuHeight - 5  // Show above if no space below
-  }
-  if (left + submenuWidth > viewportWidth) {
-    left = viewportWidth - submenuWidth - 10
-  }
-  if (left < 10) {
-    left = 10
-  }
-
-  submenuPosition.value = { top, left }
-  activeSubmenu.value = activeSubmenu.value === tabKey ? null : tabKey  // Toggle
-  console.log('activeSubmenu set to:', activeSubmenu.value, 'position:', submenuPosition.value)
-}
-
-const handleTabHover = (tabConfig, tabKey, event) => {
-  if (isMobile.value) return  // No hover on mobile
-
-  // Clear any pending close timer
-  if (closeSubmenuTimer) {
-    clearTimeout(closeSubmenuTimer)
-    closeSubmenuTimer = null
-  }
-
-  const children = getTabChildren(tabKey)
-  if (!children || children.length === 0) {
-    // No children - close any open submenu
-    activeSubmenu.value = null
-    return
-  }
-
-  // For hover: always open (don't toggle)
   const targetElement = event.currentTarget
   const rect = targetElement.getBoundingClientRect()
   const viewportWidth = window.innerWidth
@@ -358,11 +292,9 @@ const handleTabHover = (tabConfig, tabKey, event) => {
   const submenuWidth = 250
   const submenuHeight = children.length * 50 + 20
 
-  // Position BELOW the tab
   let top = rect.bottom + 5
   let left = rect.left
 
-  // Boundary checks
   if (top + submenuHeight > viewportHeight) {
     top = rect.top - submenuHeight - 5
   }
@@ -374,19 +306,55 @@ const handleTabHover = (tabConfig, tabKey, event) => {
   }
 
   submenuPosition.value = { top, left }
-  activeSubmenu.value = tabKey  // Always open on hover (don't toggle)
+  activeSubmenu.value = activeSubmenu.value === tabKey ? null : tabKey
+}
+
+const handleTabHover = (tabConfig, tabKey, event) => {
+  if (isMobile.value) return
+
+  if (closeSubmenuTimer) {
+    clearTimeout(closeSubmenuTimer)
+    closeSubmenuTimer = null
+  }
+
+  const children = getTabChildren(tabKey)
+  if (!children || children.length === 0) {
+    activeSubmenu.value = null
+    return
+  }
+
+  const targetElement = event.currentTarget
+  const rect = targetElement.getBoundingClientRect()
+  const viewportWidth = window.innerWidth
+  const viewportHeight = window.innerHeight
+  const submenuWidth = 250
+  const submenuHeight = children.length * 50 + 20
+
+  let top = rect.bottom + 5
+  let left = rect.left
+
+  if (top + submenuHeight > viewportHeight) {
+    top = rect.top - submenuHeight - 5
+  }
+  if (left + submenuWidth > viewportWidth) {
+    left = viewportWidth - submenuWidth - 10
+  }
+  if (left < 10) {
+    left = 10
+  }
+
+  submenuPosition.value = { top, left }
+  activeSubmenu.value = tabKey
 }
 
 const handleTabLeave = () => {
   if (isMobile.value) return
-  // Delay closing to allow mouse to move to submenu
   closeSubmenuTimer = setTimeout(() => {
     activeSubmenu.value = null
-  }, 300)  // 300ms delay
+  }, 300)
 }
 
 const handleSubmenuEnter = () => {
-  // Clear close timer when entering submenu
   if (closeSubmenuTimer) {
     clearTimeout(closeSubmenuTimer)
     closeSubmenuTimer = null
@@ -394,10 +362,9 @@ const handleSubmenuEnter = () => {
 }
 
 const handleSubmenuLeave = () => {
-  // Close submenu when leaving
   closeSubmenuTimer = setTimeout(() => {
     activeSubmenu.value = null
-  }, 200)  // Shorter delay when leaving submenu
+  }, 200)
 }
 
 const handleSubmenuClick = (child) => {
@@ -409,12 +376,10 @@ const handleSubmenuClick = (child) => {
   activeSubmenu.value = null
 }
 
-// 切换侧边栏
 const toggleSidebar = () => {
   isSidebarVisible.value = !isSidebarVisible.value
 }
 
-// 登录按钮点击
 const goToAuthPage = () => {
   router.push('/auth')
 }
@@ -434,7 +399,6 @@ const goToAuthPage = () => {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
-/* 桌面端：单行，7dvh 高度 */
 .explorebar-desktop {
   display: flex;
   align-items: center;
@@ -449,7 +413,7 @@ const goToAuthPage = () => {
   align-items: center;
   gap: 10px;
   cursor: pointer;
-  flex-shrink: 0;  /* 防止被压缩 */
+  flex-shrink: 0;
 }
 
 .explorebar-tabs {
@@ -459,14 +423,13 @@ const goToAuthPage = () => {
   gap: 8px;
   flex: 1 1 auto;
   max-width: 1000px;
-  min-width: 0;  /* 允许收缩 */
+  min-width: 0;
   margin: 0 10px;
-  overflow-x: auto;  /* 宽度不够时允许滚动 */
+  overflow-x: auto;
   overflow-y: hidden;
-  height: 7.5dvh;  /* 与 NavBar 的 .navbar-btn 一致，使 hover 时的 90% 能正确计算为 9dvh */
+  height: 7.5dvh;
 }
 
-/* 完全复刻 NavBar 的 .menu-item 样式 */
 .tab-item {
   height: 6.5dvh;
   display: flex;
@@ -512,8 +475,8 @@ const goToAuthPage = () => {
 .logo-container {
   width: 6dvh;
   height: 6dvh;
-  min-width: 5dvh;  /* 防止被压缩 */
-  flex-shrink: 0;  /* 防止被压缩 */
+  min-width: 5dvh;
+  flex-shrink: 0;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -558,7 +521,7 @@ const goToAuthPage = () => {
   color: #005fd3;
   cursor: pointer;
   transition: all 0.3s ease;
-  flex-shrink: 0;  /* 防止被压缩 */
+  flex-shrink: 0;
 }
 
 .login-container:hover {
@@ -574,7 +537,6 @@ const goToAuthPage = () => {
   white-space: nowrap;
 }
 
-/* 移动端：单行，8dvh 高度 */
 .explorebar-mobile {
   display: none;
 }
@@ -588,7 +550,7 @@ const goToAuthPage = () => {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    height: max(8dvh, 44px);  /* 确保最小触摸目标 */
+    height: max(8dvh, 44px);
     padding: 0 1%;
     gap: 3px;
   }
@@ -597,19 +559,18 @@ const goToAuthPage = () => {
     display: flex;
     gap: 4px;
     flex: 1 1 auto;
-    min-width: 0;  /* 允许收缩 */
+    min-width: 0;
     margin: 0 6px;
-    overflow-x: auto;  /* 宽度不够时允许滚动 */
+    overflow-x: auto;
     overflow-y: hidden;
   }
 
-.explorebar-mobile .tab-item {
+  .explorebar-mobile .tab-item {
     height: max(6dvh, 40px);
     border-radius: 30px;
-    flex-shrink: 0;  /* 防止 tab 被压缩 */
+    flex-shrink: 0;
   }
 
-  /* 移动端 active 状态保持圆角，覆盖桌面端的下圆角 */
   .explorebar-mobile .tab-item.active {
     border-radius: 30px;
   }
@@ -628,7 +589,6 @@ const goToAuthPage = () => {
   }
 }
 
-/* Submenu panel - liquid glass style */
 .submenu-panel {
   position: fixed;
   width: auto;
@@ -675,7 +635,6 @@ const goToAuthPage = () => {
   white-space: nowrap;
 }
 
-/* Submenu fade transition */
 .submenu-fade-enter-active,
 .submenu-fade-leave-active {
   transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
@@ -691,7 +650,6 @@ const goToAuthPage = () => {
   transform: translateY(-10px) scale(0.95);
 }
 
-/* Mobile responsive */
 @media (max-aspect-ratio: 1/1) {
   .submenu-panel {
     max-width: calc(100vw - 20px);
