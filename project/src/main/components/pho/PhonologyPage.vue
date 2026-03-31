@@ -8,6 +8,7 @@
     <div class="input-section">
       <LocationMultiInput
         v-model="queryStrings"
+        :max-locations="PHONOLOGY_LOCATION_LIMITS.matrix"
         @update:matchedLocations="handleMatchedLocations"
         @update:isMatching="handleIsMatching"
       />
@@ -57,6 +58,7 @@ import { useI18n } from 'vue-i18n'
 import { getPhonologyMatrix } from '@/api'
 import PhonologyMatrix from '@/main/components/TableAndTree/PhonologyTable.vue'
 import LocationMultiInput from '@/main/components/geo/LocationMultiInput.vue'
+import { PHONOLOGY_LOCATION_LIMITS } from '@/main/config/phonology.js'
 import { parseLocationsFromUrl, updateUrlWithLocations } from '@/utils/urlParams.js'
 
 const route = useRoute()

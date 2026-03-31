@@ -396,7 +396,7 @@ src/api/
 │   └── LocationAndRegion.js    # getLocations, getRegions
 ├── praat/
 │   ├── index.js
-│   └── usePraatApi.js          # Audio analysis APIs
+│   └── Praat.js          # Audio analysis APIs
 ├── sql/
 │   ├── query.js                # sqlQuery, distinctQuery
 │   ├── mutate.js               # mutateSingleRow, batchMutate

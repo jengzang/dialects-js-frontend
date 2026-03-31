@@ -525,24 +525,14 @@
 
     <!-- Update Notice Modal -->
     <UpdateNoticeModal
-      :visible="showUpdateNotice"
-      version="v4.2.0"
-      :title="'🎊 ' + $t('home.updateNotice.title')"
+      v-model:visible="showUpdateNotice"
+      :auto-show="true"
+      :version="homeUpdateNotice.version"
+      :last-update-date="homeUpdateNotice.lastUpdateDate"
+      :title="homeUpdateNotice.title"
+      :items="homeUpdateNotice.items"
       @close="showUpdateNotice = false"
-    >
-      <div class="update-item">
-        <span class="item-icon">🚀</span>
-        <span class="item-text"><strong>後端重構</strong> - 大幅提升 API 響應速度，提供更流暢的操作體驗</span>
-      </div>
-      <div class="update-item">
-        <span class="item-icon">🗂️</span>
-        <span class="item-text"><strong>重整目錄結構</strong> - 優化整體導航，包含將「簡介」與「感悟」合併、獨立「漢字」音韻資料為專屬分頁，並同步更新首頁卡片</span>
-      </div>
-      <div class="update-item">
-        <span class="item-icon">🌐</span>
-        <span class="item-text"><strong>新增多語言支持</strong> - 現已支持繁體中文、簡體中文與英文。用戶可至「關於 - 設置」中自由切換介面顯示語言</span>
-      </div>
-    </UpdateNoticeModal>
+    />
 
     <!-- Support Modal -->
     <HomeSupportPopup
@@ -574,6 +564,7 @@ import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { getTodayVisits, getTotalVisits } from '@/api/logs/index.js'
 import { queryCount } from '@/api'
+import { getHomeUpdateNotice } from '@/main/config/updateNoticeConfig.js'
 
 // ✅ 条件渲染的组件懒加载
 const UserBenefitsPopup = defineAsyncComponent(() =>
@@ -599,11 +590,9 @@ const sourceLocationCount = ref('...')
 const sourceDataCount = ref('...')
 
 // 当前版本号和更新时间
-const CURRENT_VERSION = 'v4.2.0'
-const LAST_UPDATE_DATE = '2026-03-19'
-const UPDATE_NOTICE_DISMISS_STORAGE_KEY = 'update-notice-dismissed'
-const UPDATE_NOTICE_LAST_SHOWN_PREFIX = 'update-notice-last-shown'
-const UPDATE_NOTICE_COOLDOWN_MS = 24 * 60 * 60 * 1000
+const homeUpdateNotice = computed(() => getHomeUpdateNotice(t))
+const CURRENT_VERSION = computed(() => homeUpdateNotice.value.version)
+const LAST_UPDATE_DATE = computed(() => homeUpdateNotice.value.lastUpdateDate)
 
 const projects = [
   {
@@ -690,31 +679,9 @@ async function fetchSourceStats() {
   }
 }
 
-// Check if should show update notice
-function checkUpdateNotice() {
-  const dismissedVersions = JSON.parse(
-    localStorage.getItem(UPDATE_NOTICE_DISMISS_STORAGE_KEY) || '[]'
-  )
-  if (dismissedVersions.includes(CURRENT_VERSION)) {
-    return
-  }
-
-  const lastShownKey = `${UPDATE_NOTICE_LAST_SHOWN_PREFIX}:${CURRENT_VERSION}`
-  const lastShownAt = Number(localStorage.getItem(lastShownKey))
-  const now = Date.now()
-
-  if (Number.isFinite(lastShownAt) && now - lastShownAt < UPDATE_NOTICE_COOLDOWN_MS) {
-    return
-  }
-
-  localStorage.setItem(lastShownKey, String(now))
-  showUpdateNotice.value = true
-}
-
 onMounted(() => {
   fetchVisitStats()
   fetchSourceStats()
-  checkUpdateNotice()
 })
 </script>
 

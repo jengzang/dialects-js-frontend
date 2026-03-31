@@ -11,7 +11,7 @@
         <div class="update-icon">🎀</div>
         <div class="update-notice-header-main">
           <h2 class="update-notice-title">{{ title || $t('common.updateNotice.title') }}</h2>
-          <p class="update-version">{{ version }}</p>
+          <p class="update-version">{{ versionLine }}</p>
         </div>
         <button
           class="close-btn close-btn-lg close-btn-inline"
@@ -24,7 +24,14 @@
     </template>
 
     <div class="update-notice-content">
-      <slot>
+      <template v-if="items.length > 0">
+        <div
+          v-for="(item, index) in items"
+          :key="index"
+          v-html="item"
+        ></div>
+      </template>
+      <slot v-else>
         <div class="update-item">
           <span class="item-icon">✦</span>
           <span class="item-text">{{ $t('common.updateNotice.defaultItem') }}</span>
@@ -45,8 +52,12 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import AppModal from '@/components/common/AppModal.vue'
+
+const UPDATE_NOTICE_DISMISS_STORAGE_KEY = 'update-notice-dismissed'
+const UPDATE_NOTICE_LAST_SHOWN_PREFIX = 'update-notice-last-shown'
+const UPDATE_NOTICE_COOLDOWN_MS = 24 * 60 * 60 * 1000
 
 const props = defineProps({
   visible: {
@@ -61,39 +72,71 @@ const props = defineProps({
     type: String,
     default: ''
   },
-  storageKey: {
+  lastUpdateDate: {
     type: String,
-    default: 'update-notice-dismissed'
+    default: ''
+  },
+  items: {
+    type: Array,
+    default: () => []
+  },
+  autoShow: {
+    type: Boolean,
+    default: false
   }
 })
 
-const emit = defineEmits(['close', 'confirm'])
+const emit = defineEmits(['close', 'confirm', 'update:visible'])
 
 const dontShowAgain = ref(false)
+const versionLine = computed(() => {
+  if (props.lastUpdateDate) {
+    return `${props.version} · ${props.lastUpdateDate}`
+  }
+
+  return props.version
+})
 
 const handleClose = () => {
+  emit('update:visible', false)
   emit('close')
 }
 
 const handleConfirm = () => {
   if (dontShowAgain.value) {
-    const dismissedVersions = JSON.parse(localStorage.getItem(props.storageKey) || '[]')
+    const dismissedVersions = JSON.parse(localStorage.getItem(UPDATE_NOTICE_DISMISS_STORAGE_KEY) || '[]')
     if (!dismissedVersions.includes(props.version)) {
       dismissedVersions.push(props.version)
-      localStorage.setItem(props.storageKey, JSON.stringify(dismissedVersions))
+      localStorage.setItem(UPDATE_NOTICE_DISMISS_STORAGE_KEY, JSON.stringify(dismissedVersions))
     }
   }
   emit('confirm')
+  emit('update:visible', false)
   emit('close')
 }
 
-const shouldShow = () => {
-  const dismissedVersions = JSON.parse(localStorage.getItem(props.storageKey) || '[]')
-  return !dismissedVersions.includes(props.version)
+const shouldAutoShow = () => {
+  const dismissedVersions = JSON.parse(localStorage.getItem(UPDATE_NOTICE_DISMISS_STORAGE_KEY) || '[]')
+  if (dismissedVersions.includes(props.version)) {
+    return false
+  }
+
+  const lastShownKey = `${UPDATE_NOTICE_LAST_SHOWN_PREFIX}:${props.version}`
+  const lastShownAt = Number(localStorage.getItem(lastShownKey))
+  const now = Date.now()
+
+  if (Number.isFinite(lastShownAt) && now - lastShownAt < UPDATE_NOTICE_COOLDOWN_MS) {
+    return false
+  }
+
+  localStorage.setItem(lastShownKey, String(now))
+  return true
 }
 
-defineExpose({
-  shouldShow
+onMounted(() => {
+  if (props.autoShow && shouldAutoShow()) {
+    emit('update:visible', true)
+  }
 })
 </script>
 

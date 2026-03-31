@@ -4,6 +4,7 @@ import { useI18n } from 'vue-i18n'
 import { getFeatureCounts } from '@/api'
 import AppModal from '@/components/common/AppModal.vue'
 import LocationMultiInput from '@/main/components/geo/LocationMultiInput.vue'
+import { PHONOLOGY_LOCATION_LIMITS } from '@/main/config/phonology.js'
 
 const { t } = useI18n()
 
@@ -147,12 +148,12 @@ const closeLocationModal = () => {
 
     <!-- 地点输入组件 -->
     <div class="input-section">
-      <LocationMultiInput
-          v-model="queryStrings"
-          @update:matchedLocations="handleMatchedLocations"
-          @update:isMatching="handleIsMatching"
-          :max-locations="100"
-      />
+        <LocationMultiInput
+            v-model="queryStrings"
+            @update:matchedLocations="handleMatchedLocations"
+            @update:isMatching="handleIsMatching"
+            :max-locations="PHONOLOGY_LOCATION_LIMITS.countphos"
+        />
       <button
           class="load-btn"
           @click="loadData"
