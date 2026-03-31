@@ -29,59 +29,58 @@
     transition-name="fade-modal"
     :show-close="false"
   >
-    <div class="floating-dice-help-shell">
-      <button
-        class="close-btn close-btn-lg close-btn-corner"
-        @click="isHelpOpen = false"
-        :title="$t('common.button.close')"
-        :aria-label="$t('common.button.close')"
-      >
-        &times;
-      </button>
-
-      <h2 class="floating-dice-help-title">{{ $t('query.components.floatingDice.modalTitle') }}</h2>
-
-      <div class="scroll-content">
-        <div id='display-detail3' class="panel-content">
-              <p style="margin: 0">
-                {{ $t('query.components.floatingDice.examples.title') }}<br>
-                <span v-html="formattedExamples[0]"></span>
-              </p>
-              <p
-                v-for="(exampleHtml, index) in formattedExamples.slice(1)"
-                :key="`example-${index + 2}`"
-                style="margin: 0"
-              >
-                <span v-html="exampleHtml"></span>
-              </p>
-
-              <div class="divider"></div>
-              <p style="margin-bottom:8px;font-size: 17px; font-weight: bold;">
-                {{ $t('query.components.floatingDice.tableTitle') }}
-              </p>
-              <div class="table-wrapper">
-                <table class="feature-table">
-                  <thead>
-                    <tr>
-                      <th width="60">{{ $t('query.components.floatingDice.tableHeaders.category') }}</th>
-                      <th>{{ $t('query.components.floatingDice.tableHeaders.values') }}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr v-for="row in supportedInputRows" :key="row.category">
-                      <td>{{ row.category }}</td>
-                      <td>{{ row.values }}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-
-              <div class="divider"></div>
-              <p v-for="(noteHtml, index) in formattedNotes" :key="`note-${index + 1}`">
-                <span v-html="noteHtml"></span>
-              </p>
-        </div>
+    <template #header>
+      <div class="floating-dice-help-header">
+        <h2 class="floating-dice-help-title">{{ $t('query.components.floatingDice.modalTitle') }}</h2>
+        <button
+          class="close-btn close-btn-lg close-btn-inline"
+          @click="isHelpOpen = false"
+          :title="$t('common.button.close')"
+          :aria-label="$t('common.button.close')"
+        >
+          &times;
+        </button>
       </div>
+    </template>
+
+    <div class="panel-content">
+      <p style="margin: 0">
+        {{ $t('query.components.floatingDice.examples.title') }}<br>
+        <span v-html="formattedExamples[0]"></span>
+      </p>
+      <p
+        v-for="(exampleHtml, index) in formattedExamples.slice(1)"
+        :key="`example-${index + 2}`"
+        style="margin: 0"
+      >
+        <span v-html="exampleHtml"></span>
+      </p>
+
+      <div class="divider"></div>
+      <p style="margin-bottom:8px;font-size: 17px; font-weight: bold;">
+        {{ $t('query.components.floatingDice.tableTitle') }}
+      </p>
+      <div class="table-wrapper">
+        <table class="feature-table">
+          <thead>
+            <tr>
+              <th width="60">{{ $t('query.components.floatingDice.tableHeaders.category') }}</th>
+              <th>{{ $t('query.components.floatingDice.tableHeaders.values') }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="row in supportedInputRows" :key="row.category">
+              <td>{{ row.category }}</td>
+              <td>{{ row.values }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="divider"></div>
+      <p v-for="(noteHtml, index) in formattedNotes" :key="`note-${index + 1}`">
+        <span v-html="noteHtml"></span>
+      </p>
     </div>
   </AppModal>
 </template>
@@ -422,32 +421,19 @@ function handleRoll() {
 
 
 
-.floating-dice-help-shell {
-  position: relative;
+.floating-dice-help-header {
   display: flex;
-  flex-direction: column;
-  height: calc(100% + var(--modal-content-padding-top) + var(--modal-content-padding-bottom));
-  margin:
-    calc(-1 * var(--modal-content-padding-top))
-    calc(-1 * var(--modal-content-padding-inline))
-    calc(-1 * var(--modal-content-padding-bottom));
-  overflow: hidden;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
 }
 
 .floating-dice-help-title {
-  padding: 20px 20px 10px;
   margin: 0;
+  flex: 1;
   font-size: 20px;
   text-align: center;
   color: #1d1d1f;
-  border-bottom: 1px solid rgba(0,0,0,0.05);
-}
-
-.scroll-content {
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
-  padding: 20px 25px 24px;
 }
 
 .divider {
