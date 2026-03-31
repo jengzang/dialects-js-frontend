@@ -1,7 +1,7 @@
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-const buildDisplayConfig = (overrides = {}) => ({
+const DISPLAY_DEFAULTS = {
   weight: 1,
   mobileWeight: 1,
   weightIconOnly: 0.6,
@@ -14,25 +14,71 @@ const buildDisplayConfig = (overrides = {}) => ({
   showLabelOnlyWhenActive: false,
   mobileShowLabelOnlyWhenActive: true,
   cssClass: '',
+  visibleWhen: null
+}
+
+const NAVIGATION_DEFAULTS = {
+  defaultTo: null,
+  matchPages: [],
+  rememberChild: false,
+  defaultChild: null,
+  children: []
+}
+
+const DISPLAY_PRESETS = {
+  standard: {},
+  compactDesktop: {
+    weight: 0.8,
+    mobileWeight: 0.8,
+    weightIconOnly: 0.25,
+    mobileWeightIconOnly: 0.25,
+    fontSize: 0.9,
+    mobileFontSize: 0.9
+  },
+  balancedMobile: {
+    mobileWeightIconOnly: 0.6,
+    mobileFontSize: 1.3
+  }
+}
+
+const createDisplayConfig = ({ preset = 'standard', overrides = {} } = {}) => ({
+  ...DISPLAY_DEFAULTS,
+  ...(DISPLAY_PRESETS[preset] || {}),
   ...overrides
+})
+
+const createNavigationConfig = (overrides = {}) => ({
+  ...NAVIGATION_DEFAULTS,
+  ...overrides
+})
+
+const createExploreTab = ({
+  tab,
+  label,
+  icon,
+  display,
+  navigation,
+  meta = {}
+}) => ({
+  tab,
+  label,
+  icon,
+  display: createDisplayConfig(display),
+  navigation: createNavigationConfig(navigation),
+  meta
 })
 
 export function useExploreBarConfig() {
   const { t } = useI18n()
 
   return computed(() => ({
-    tools: {
+    tools: createExploreTab({
       tab: 'tools',
       label: t('navigation.tabs.tools'),
       icon: '🔧',
-      display: buildDisplayConfig({
-        weight: 1,
-        mobileWeight: 1,
-        weightIconOnly: 0.6,
-        mobileWeightIconOnly: 0.6,
-        fontSize: 1.2,
-        mobileFontSize: 1.3
-      }),
+      display: {
+        preset: 'balancedMobile'
+      },
       navigation: {
         defaultTo: { path: '/menu', query: { tab: 'tools' } },
         matchPages: ['check', 'jyut2ipa', 'merge', 'praat'],
@@ -45,32 +91,26 @@ export function useExploreBarConfig() {
           { label: t('navigation.submenu.tools.praat'), icon: '🎘', path: '/explore?page=praat' }
         ]
       }
-    },
-    praat: {
+    }),
+    praat: createExploreTab({
       tab: 'praat',
       label: t('navigation.tabs.praat'),
       icon: '🎙️',
-      display: buildDisplayConfig({
-        weight: 1,
-        mobileWeight: 1,
-        weightIconOnly: 0.6,
-        mobileWeightIconOnly: 0.6,
-        fontSize: 1.2,
-        mobileFontSize: 1.3
-      }),
+      display: {
+        preset: 'balancedMobile',
+        overrides: {
+          mobileWeightIconOnly: 0.6
+        }
+      },
       navigation: {
         defaultTo: { path: '/explore', query: { page: 'praat' } },
-        matchPages: ['praat'],
-        rememberChild: false,
-        defaultChild: null,
-        children: []
+        matchPages: ['praat']
       }
-    },
-    charClass: {
+    }),
+    charClass: createExploreTab({
       tab: 'charClass',
       label: t('navigation.tabs.charClass'),
       icon: '📚',
-      display: buildDisplayConfig(),
       navigation: {
         defaultTo: { path: '/explore', query: { page: 'CharacterClassification' } },
         matchPages: ['CharacterClassification'],
@@ -83,12 +123,11 @@ export function useExploreBarConfig() {
           { label: t('navigation.submenu.charClass.yueyun'), icon: '🎍', path: '/explore?page=CharacterClassification&sub=yueyun' }
         ]
       }
-    },
-    words: {
+    }),
+    words: createExploreTab({
       tab: 'words',
       label: t('navigation.tabs.phrases'),
       icon: '📝',
-      display: buildDisplayConfig(),
       navigation: {
         defaultTo: { path: '/menu', query: { tab: 'words' } },
         matchPages: ['YuBao', 'ycSpoken'],
@@ -100,12 +139,11 @@ export function useExploreBarConfig() {
           { label: t('navigation.submenu.words.ycSpoken'), icon: '🌀', path: '/explore?page=ycSpoken' }
         ]
       }
-    },
-    villages: {
+    }),
+    villages: createExploreTab({
       tab: 'villages',
       label: t('navigation.tabs.villages'),
       icon: '🏘️',
-      display: buildDisplayConfig(),
       navigation: {
         defaultTo: { path: '/menu', query: { tab: 'villages' } },
         matchPages: ['gdVillages', 'gdVillagesTable', 'ycVillages', 'VillagesML'],
@@ -118,27 +156,20 @@ export function useExploreBarConfig() {
           { label: t('navigation.submenu.villages.ycVillages'), icon: '🏠', path: '/explore?page=ycVillages' }
         ]
       }
-    },
-    about: {
+    }),
+    about: createExploreTab({
       tab: 'about',
       label: t('navigation.tabs.aboutWebsite'),
       icon: '🫶',
-      display: buildDisplayConfig({
-        weight: 0.8,
-        mobileWeight: 0.8,
-        weightIconOnly: 0.25,
-        mobileWeightIconOnly: 0.25,
-        fontSize: 0.9,
-        mobileFontSize: 0.9,
-        hideOnMobile: true
-      }),
+      display: {
+        preset: 'compactDesktop',
+        overrides: {
+          hideOnMobile: true
+        }
+      },
       navigation: {
-        defaultTo: { path: '/menu', query: { tab: 'about' } },
-        matchPages: [],
-        rememberChild: false,
-        defaultChild: null,
-        children: []
+        defaultTo: { path: '/menu', query: { tab: 'about' } }
       }
-    }
+    })
   }))
 }
