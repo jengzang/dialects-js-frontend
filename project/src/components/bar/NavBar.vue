@@ -22,19 +22,19 @@
               :href="href"
               class="menu-item"
               :class="[
-                { active: isActiveComputed(t.tab, isActive) },
+                { active: isMenuTabActive(t.tab) },
                 t.cssClass
               ]"
               :style="{
-                flex: getFlexWeight(t, isActiveComputed(t.tab, isActive), false) + ' 1 0',
+                flex: getFlexWeight(t, isMenuTabActive(t.tab), false) + ' 1 0',
                 fontSize: t.fontSize + 'rem'
               }"
-          @click.prevent="onClick(t, navigate)"
+          @click.prevent="onMenuBarClick(t, navigate)"
           >
           <span class="emoji">{{ t.icon }}</span>
           <span
             class="label"
-            v-if="!t.showLabelOnlyWhenActive || isActiveComputed(t.tab, isActive)"
+            v-if="!t.showLabelOnlyWhenActive || isMenuTabActive(t.tab)"
           >{{ t.label }}</span>
           </a>
         </RouterLink>
@@ -202,19 +202,19 @@
               :href="href"
               class="menu-item"
               :class="[
-                { active: isActiveComputed(t.tab, isActive) },
+                { active: isMenuTabActive(t.tab) },
                 t.cssClass
               ]"
               :style="{
-                flex: getFlexWeight(t, isActiveComputed(t.tab, isActive), true) + ' 1 0',
+                flex: getFlexWeight(t, isMenuTabActive(t.tab), true) + ' 1 0',
                 fontSize: (t.mobileFontSize || t.fontSize) + 'rem'
               }"
-              @click.prevent="onClick(t, navigate)"
+              @click.prevent="onMenuBarClick(t, navigate)"
           >
             <span class="emoji">{{ t.icon }}</span>
             <span
               class="label"
-              v-if="!t.hideLabelOnMobile && (!(t.mobileShowLabelOnlyWhenActive ?? t.showLabelOnlyWhenActive) || isActiveComputed(t.tab, isActive))"
+              v-if="!t.hideLabelOnMobile && (!(t.mobileShowLabelOnlyWhenActive ?? t.showLabelOnlyWhenActive) || isMenuTabActive(t.tab))"
             >{{ t.label }}</span>
           </a>
         </RouterLink>
@@ -232,7 +232,14 @@ import AppModal from '@/components/common/AppModal.vue'
 // import { clearToken, getToken, saveToken } from '../../api/auth/auth.js'
 import { getTodayVisits, getTotalVisits, getVisitHistory } from '@/api/logs/index.js'
 import { useMenuConfig } from '@/main/config/SideBarConfig.js'
-import { useMenuTabsConfig } from '@/main/config/TabsConfig.js'
+import {
+  filterVisibleMenuBarTabs,
+  getMenuBarActiveTab,
+  isMenuBarRouteMatch,
+  resolveMenuBarTarget,
+  syncMenuBarMemoryFromRoute,
+  useMenuBarConfig
+} from '@/main/config/MenuBarConfig.js'
 import { WEB_BASE } from '@/env-config.js'
 import { userStore, resultCache } from '@/main/store/store.js'
 
@@ -248,42 +255,12 @@ const submenuPosition = ref({ top: 0, left: 0 })  // Position for submenu panel
 const closeSubmenuTimeout = ref(null)  // Timeout for delayed closing
 
 // ===== sessionStorage 管理：记住每个 tab 的最后访问的 sub =====
-const STORAGE_KEY_PREFIX = 'menu_last_sub_'
-
 // 获取某个 tab 的最后访问的 sub
-function getLastSub(tab) {
-  try {
-    return sessionStorage.getItem(STORAGE_KEY_PREFIX + tab)
-  } catch (e) {
-    console.warn('Failed to read from sessionStorage:', e)
-    return null
-  }
-}
-
 // 保存某个 tab 的最后访问的 sub
-function saveLastSub(tab, sub) {
-  try {
-    if (sub) {
-      sessionStorage.setItem(STORAGE_KEY_PREFIX + tab, sub)
-    } else {
-      sessionStorage.removeItem(STORAGE_KEY_PREFIX + tab)
-    }
-  } catch (e) {
-    console.warn('Failed to write to sessionStorage:', e)
-  }
-}
-
 // 监听路由变化，记录当前的 tab 和 sub
 watch(() => route.query, (query) => {
-  if (query.tab && query.sub) {
-    saveLastSub(query.tab, query.sub)
-  }
+  syncMenuBarMemoryFromRoute(route)
 }, { immediate: true })
-
-function getTargetTabKey(tabConfig) {
-  const routeTab = tabConfig?.to?.query?.tab
-  return routeTab || tabConfig?.tab || null
-}
 // ===== sessionStorage 管理结束 =====
 
 // Mobile detection
@@ -316,7 +293,7 @@ const visitHistory = ref([])
 const loadingStats = ref(false)
 
 // 过滤可见的 tabs（label 已在 TabsConfig 中定义）
-const allMenuTabs = useMenuTabsConfig()
+const allMenuTabs = useMenuBarConfig()
 const visibleTabs = computed(() => {
   return allMenuTabs.value.filter(tab => {
     // 如果有 visibleWhen 函数，执行它
@@ -329,7 +306,7 @@ const visibleTabs = computed(() => {
 })
 
 // 使用过滤后的 tabs
-const tabs = visibleTabs
+const tabs = computed(() => filterVisibleMenuBarTabs(allMenuTabs.value))
 
 /**
  * Calculate dynamic flex weight based on label visibility
@@ -440,6 +417,22 @@ const onClick = async (tabConfig, navigate) => {
   if (isRouteMatch(targetRoute)) return
 
   // 导航到目标路径
+  await router.replace(targetRoute)
+}
+
+const isMenuTabActive = (tabName) => {
+  return getMenuBarActiveTab(tabs.value, route) === tabName
+}
+
+const onMenuBarClick = async (tabConfig, navigate) => {
+  if (tabConfig.isPseudo) {
+    toggleSidebar()
+    return
+  }
+
+  const targetRoute = resolveMenuBarTarget(tabConfig)
+  if (isMenuBarRouteMatch(targetRoute, route)) return
+
   await router.replace(targetRoute)
 }
 
