@@ -121,7 +121,14 @@ import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { userStore } from '@/main/store/store.js'
 import SimpleSidebar from '@/components/bar/SimpleSidebar.vue'
-import { useExploreBarConfig } from '@/main/config/ExploreBarConfig.js'
+import {
+  useExploreBarConfig,
+  getExploreBarTabs,
+  filterVisibleExploreBarTabs,
+  getExploreBarChildren,
+  getExploreBarActiveTab,
+  matchExploreBarChildRoute
+} from '@/main/config/ExploreBarConfig.js'
 
 const { t } = useI18n()
 const route = useRoute()
@@ -130,21 +137,7 @@ const STORAGE_KEY_PREFIX = 'explore_last_child_'
 
 const exploreBarConfig = useExploreBarConfig()
 const tabs = computed(() => {
-  return Object.values(exploreBarConfig.value)
-    .map((config) => ({
-      tab: config.tab,
-      label: config.label,
-      icon: config.icon,
-      to: config.navigation.defaultTo,
-      navigation: config.navigation,
-      ...config.display
-    }))
-    .filter((tab) => {
-      if (typeof tab.visibleWhen === 'function') {
-        return tab.visibleWhen()
-      }
-      return true
-    })
+  return filterVisibleExploreBarTabs(getExploreBarTabs(exploreBarConfig.value))
 })
 
 const isSidebarVisible = ref(false)
@@ -158,7 +151,7 @@ const checkMobile = () => {
 }
 
 const getTabChildren = (tabKey) => {
-  return exploreBarConfig.value[tabKey]?.navigation?.children || []
+  return getExploreBarChildren(exploreBarConfig.value, tabKey)
 }
 
 const getLastChildPath = (tabKey) => {
@@ -183,15 +176,7 @@ const saveLastChildPath = (tabKey, childPath) => {
 }
 
 const doesChildMatchCurrentRoute = (childPath) => {
-  const resolved = router.resolve(childPath)
-
-  if (resolved.path !== route.path) {
-    return false
-  }
-
-  return Object.entries(resolved.query || {}).every(([key, value]) => {
-    return route.query[key] === value
-  })
+  return matchExploreBarChildRoute(childPath, route, router)
 }
 
 watch(
@@ -229,7 +214,7 @@ const closeSubmenu = () => {
 }
 
 const getCurrentTab = () => {
-  return tabs.value.find((tab) => tab.navigation?.matchPages?.includes(route.query.page))?.tab || null
+  return getExploreBarActiveTab(tabs.value, route)
 }
 
 const isActiveComputed = (tabName) => {

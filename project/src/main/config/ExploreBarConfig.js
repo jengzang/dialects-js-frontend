@@ -68,6 +68,46 @@ const createExploreTab = ({
   meta
 })
 
+export function getExploreBarTabs(configMap) {
+  return Object.values(configMap).map((config) => ({
+    tab: config.tab,
+    label: config.label,
+    icon: config.icon,
+    to: config.navigation.defaultTo,
+    navigation: config.navigation,
+    ...config.display
+  }))
+}
+
+export function filterVisibleExploreBarTabs(tabs) {
+  return tabs.filter((tab) => {
+    if (typeof tab.visibleWhen === 'function') {
+      return tab.visibleWhen()
+    }
+    return true
+  })
+}
+
+export function getExploreBarChildren(configMap, tabKey) {
+  return configMap[tabKey]?.navigation?.children || []
+}
+
+export function getExploreBarActiveTab(tabs, route) {
+  return tabs.find((tab) => tab.navigation?.matchPages?.includes(route.query.page))?.tab || null
+}
+
+export function matchExploreBarChildRoute(childPath, route, router) {
+  const resolved = router.resolve(childPath)
+
+  if (resolved.path !== route.path) {
+    return false
+  }
+
+  return Object.entries(resolved.query || {}).every(([key, value]) => {
+    return route.query[key] === value
+  })
+}
+
 export function useExploreBarConfig() {
   const { t } = useI18n()
 
