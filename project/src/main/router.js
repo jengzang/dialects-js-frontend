@@ -129,7 +129,118 @@ const ExploreTitleMap = {
 };
 
 // 全局导航守卫
+const ROUTE_QUERY_ALLOWLIST = {
+    '/menu': {
+        base: ['tab'],
+        variantKey: 'tab',
+        variants: {
+            query: ['sub'],
+            compare: ['sub'],
+            result: [],
+            map: ['sub', 'feature', 'locations', 'regions', 'regionMode', 'openPanel'],
+            pho: ['sub', 'loc', 'feature', 'h', 'v', 'c'],
+            about: ['sub'],
+            source: [],
+            privacy: [],
+            tools: [],
+            words: [],
+            villages: []
+        }
+    },
+    '/explore': {
+        base: ['page'],
+        variantKey: 'page',
+        variants: {
+            CharacterClassification: ['sub', 'table', 'levels'],
+            YuBao: ['sub'],
+            praat: ['tab'],
+            VillagesML: ['module', 'subtab', 'pattern', 'ngram', 'villageId'],
+            ycVillages: [],
+            ycSpoken: [],
+            gdVillages: [],
+            gdVillagesTable: [],
+            check: [],
+            jyut2ipa: [],
+            merge: []
+        }
+    },
+    '/villagesML': {
+        base: ['module', 'subtab', 'pattern', 'ngram', 'villageId']
+    },
+    '/auth': {
+        base: ['view', 'redirect']
+    },
+    '/auth/data': {
+        base: ['username']
+    },
+    '/auth/regions': {
+        base: ['username']
+    }
+}
+
+function sanitizeQueryByRoute(to) {
+    const config = ROUTE_QUERY_ALLOWLIST[to.path]
+    if (!config) {
+        return to.query
+    }
+
+    const allowedKeys = new Set(config.base || [])
+    const variantKey = config.variantKey
+    const variantValue = variantKey ? to.query?.[variantKey] : null
+    const variantAllowedKeys = variantValue && config.variants?.[variantValue]
+        ? config.variants[variantValue]
+        : []
+
+    variantAllowedKeys.forEach((key) => allowedKeys.add(key))
+
+    const sanitizedQuery = {}
+    Object.entries(to.query || {}).forEach(([key, value]) => {
+        if (!allowedKeys.has(key)) {
+            return
+        }
+        if (value === undefined || value === null || value === '') {
+            return
+        }
+        sanitizedQuery[key] = value
+    })
+
+    return sanitizedQuery
+}
+
+function isSameQuery(left, right) {
+    const leftKeys = Object.keys(left || {})
+    const rightKeys = Object.keys(right || {})
+
+    if (leftKeys.length !== rightKeys.length) {
+        return false
+    }
+
+    return leftKeys.every((key) => {
+        const leftValue = left[key]
+        const rightValue = right[key]
+
+        if (Array.isArray(leftValue) || Array.isArray(rightValue)) {
+            const normalizedLeft = Array.isArray(leftValue) ? leftValue : [leftValue]
+            const normalizedRight = Array.isArray(rightValue) ? rightValue : [rightValue]
+            return normalizedLeft.length === normalizedRight.length &&
+                normalizedLeft.every((item, index) => item === normalizedRight[index])
+        }
+
+        return leftValue === rightValue
+    })
+}
+
 router.beforeEach((to, from, next) => {
+    const sanitizedQuery = sanitizeQueryByRoute(to)
+
+    if (!isSameQuery(sanitizedQuery, to.query)) {
+        return next({
+            path: to.path,
+            query: sanitizedQuery,
+            hash: to.hash,
+            replace: true
+        })
+    }
     let title = '方音圖鑑'; // 默认标题
 
   if (to.meta.title) {
