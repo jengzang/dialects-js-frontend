@@ -231,7 +231,7 @@ import { useI18n } from 'vue-i18n'
 import AppModal from '@/components/common/AppModal.vue'
 // import { clearToken, getToken, saveToken } from '../../api/auth/auth.js'
 import { getTodayVisits, getTotalVisits, getVisitHistory } from '@/api/logs/index.js'
-import { useMenuConfig } from '@/main/config/index.js'
+import { useSidebarConfig } from '@/main/config/index.js'
 import {
   filterVisibleMenuBarTabs,
   getMenuBarActiveTab,
@@ -247,7 +247,7 @@ const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
 const isSidebarVisible = ref(false)  // 控制边栏显示
-const menuConfigRef = useMenuConfig()
+const menuConfigRef = useSidebarConfig()
 
 // Submenu state management
 const activeSubmenu = ref(null)  // Currently open submenu key
@@ -294,18 +294,6 @@ const loadingStats = ref(false)
 
 // 过滤可见的 tabs（label 已在 TabsConfig 中定义）
 const allMenuTabs = useMenuBarConfig()
-const visibleTabs = computed(() => {
-  return allMenuTabs.value.filter(tab => {
-    // 如果有 visibleWhen 函数，执行它
-    if (typeof tab.visibleWhen === 'function') {
-      return tab.visibleWhen()
-    }
-    // 没有 visibleWhen 则默认可见
-    return true
-  })
-})
-
-// 使用过滤后的 tabs
 const tabs = computed(() => filterVisibleMenuBarTabs(allMenuTabs.value))
 
 /**
@@ -340,84 +328,6 @@ const getFlexWeight = (tab, isActive, isMobile) => {
       return tab.weightIconOnly || tab.weight
     }
   }
-}
-
-// 根据当前 query.tab 判断
-const currentTab = () => route.query.tab || route.query.page || 'query'
-
-// 检查路由是否匹配
-const isRouteMatch = (targetRoute) => {
-  if (!targetRoute) return false
-
-  // 检查路径是否匹配
-  if (route.path !== targetRoute.path) return false
-
-  // 检查 query 参数是否匹配
-  if (targetRoute.query) {
-    for (const [key, value] of Object.entries(targetRoute.query)) {
-      if (route.query[key] !== value) return false
-    }
-  }
-
-  return true
-}
-
-const isActiveComputed = (tabName, isActive) => {
-  // tools tab 永远不显示为激活状态
-  if (tabName === 'tools') return false
-
-  // 查找对应的 tab 配置
-  const tabConfig = tabs.value.find(t => t.tab === tabName)
-  if (!tabConfig || !tabConfig.to) return false
-
-  // 使用路由匹配检查
-  return isRouteMatch(tabConfig.to)
-}
-
-// 頂部導航欄的點擊處理
-const onClick = async (tabConfig, navigate) => {
-  // 伪 tab 处理：打开侧边栏而非导航
-  if (tabConfig.isPseudo) {
-    toggleSidebar()
-    return
-  }
-
-  // 检查是否有记录的 sub
-  const targetTabKey = getTargetTabKey(tabConfig)
-  const lastSub = targetTabKey ? getLastSub(targetTabKey) : null
-
-  // 构建目标路由
-  let targetRoute
-  if (tabConfig.to) {
-    // 如果配置了 to，使用配置的路由
-    targetRoute = tabConfig.to
-
-    // 如果有记录的 sub，添加到 query 里
-    if (lastSub && typeof targetRoute === 'object') {
-      targetRoute = {
-        ...targetRoute,
-        query: {
-          ...targetRoute.query,
-          sub: lastSub
-        }
-      }
-    }
-  } else {
-    // 如果没有配置 to，使用默认的 /menu?tab=xxx
-    targetRoute = {
-      path: '/menu',
-      query: {
-        tab: targetTabKey || tabConfig.tab,
-        ...(lastSub ? { sub: lastSub } : {})
-      }
-    }
-  }
-
-  // 防止重复导航到当前路径
-  if (isRouteMatch(targetRoute)) return
-
-  // 导航到目标路径
-  await router.replace(targetRoute)
 }
 
 const isMenuTabActive = (tabName) => {
