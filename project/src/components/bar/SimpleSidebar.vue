@@ -137,7 +137,7 @@ import AppModal from '@/components/common/AppModal.vue'
 import { clearToken, getToken } from '@/api/auth/auth.js'
 import { getTodayVisits, getTotalVisits, getVisitHistory } from '@/api/logs/index.js'
 import {userStore} from "@/main/store/store.js";
-import { useMenuConfig } from '@/main/config/BarAndTabs/SideBarConfig.js';
+import { useSidebarConfig } from '@/main/config/index.js';
 import { WEB_BASE } from '@/env-config.js';
 
 const { t } = useI18n();
@@ -165,7 +165,7 @@ const checkMobile = () => {
 }
 
 // Filter menu items for SimpleSidebar (exclude items that should only show in NavBar)
-const menuConfigData = useMenuConfig();
+const menuConfigData = useSidebarConfig();
 const filteredMenuConfig = computed(() => {
   const config = menuConfigData.value;
   const filtered = {}
