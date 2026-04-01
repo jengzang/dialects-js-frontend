@@ -1,18 +1,72 @@
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
+// ========================================
+// ExploreBar Configuration Guide
+// ========================================
+//
+// Final display config merge order:
+// 1. DISPLAY_DEFAULTS
+// 2. DISPLAY_PRESETS[display.preset]
+// 3. display.overrides
+//
+// Recommended per-tab shape:
+//
+// createExploreTab({
+//   tab: 'example',
+//   label: t('...'),
+//   icon: '...',
+//   display: {
+//     preset: 'standard',
+//     overrides: {
+//       weight: 1,
+//       mobileWeight: 1,
+//       weightIconOnly: 0.6,
+//       mobileWeightIconOnly: 0.55,
+//       fontSize: 1.2,
+//       mobileFontSize: 1.2,
+//       hideOnMobile: false,
+//       hideLabelOnMobile: false,
+//       showLabelOnlyWhenActive: false,
+//       mobileShowLabelOnlyWhenActive: true,
+//       cssClass: '',
+//       visibleWhen: null
+//     }
+//   },
+//   navigation: {
+//     defaultTo: null,
+//     matchPages: [],
+//     rememberChild: false,
+//     defaultChild: null,
+//     children: []
+//   },
+//   meta: {}
+// })
+//
+// Preset notes:
+// - standard: baseline desktop/mobile behavior
+// - compactDesktop: smaller desktop footprint
+// - balancedMobile: slightly larger mobile readability
+//
 const DISPLAY_DEFAULTS = {
+  // Flex sizing
   weight: 1,
   mobileWeight: 1,
   weightIconOnly: 0.6,
   mobileWeightIconOnly: 0.55,
+
+  // Typography
   fontSize: 1.2,
   mobileFontSize: 1.2,
+
+  // Visibility / behavior
   isPseudo: false,
   hideOnMobile: false,
   hideLabelOnMobile: false,
   showLabelOnlyWhenActive: false,
   mobileShowLabelOnlyWhenActive: true,
+
+  // Styling / conditional visibility
   cssClass: '',
   visibleWhen: null
 }
@@ -26,7 +80,10 @@ const NAVIGATION_DEFAULTS = {
 }
 
 const DISPLAY_PRESETS = {
+  // Full baseline config from DISPLAY_DEFAULTS.
   standard: {},
+
+  // Smaller desktop footprint. Good for tabs that should take less visual width.
   compactDesktop: {
     weight: 0.8,
     mobileWeight: 0.8,
@@ -35,6 +92,8 @@ const DISPLAY_PRESETS = {
     fontSize: 0.9,
     mobileFontSize: 0.9
   },
+
+  // Keeps desktop standard, but makes mobile labels a bit easier to read.
   balancedMobile: {
     mobileWeightIconOnly: 0.6,
     mobileFontSize: 1.3
@@ -128,7 +187,8 @@ export function useExploreBarConfig() {
       label: t('navigation.tabs.tools'),
       icon: '🔧',
       display: {
-        preset: 'balancedMobile'
+        preset: 'balancedMobile',
+        overrides: {}
       },
       navigation: {
         defaultTo: { path: '/menu', query: { tab: 'tools' } },
@@ -162,6 +222,10 @@ export function useExploreBarConfig() {
       tab: 'charClass',
       label: t('navigation.tabs.charClass'),
       icon: '📚',
+      display: {
+        preset: 'standard',
+        overrides: {}
+      },
       navigation: {
         defaultTo: { path: '/explore', query: { page: 'CharacterClassification' } },
         matchPages: ['CharacterClassification'],
@@ -179,6 +243,10 @@ export function useExploreBarConfig() {
       tab: 'words',
       label: t('navigation.tabs.phrases'),
       icon: '📝',
+      display: {
+        preset: 'standard',
+        overrides: {}
+      },
       navigation: {
         defaultTo: { path: '/menu', query: { tab: 'words' } },
         matchPages: ['YuBao', 'ycSpoken'],
@@ -195,6 +263,10 @@ export function useExploreBarConfig() {
       tab: 'villages',
       label: t('navigation.tabs.villages'),
       icon: '🏘️',
+      display: {
+        preset: 'standard',
+        overrides: {}
+      },
       navigation: {
         defaultTo: { path: '/menu', query: { tab: 'villages' } },
         matchPages: ['gdVillages', 'gdVillagesTable', 'ycVillages', 'VillagesML'],
