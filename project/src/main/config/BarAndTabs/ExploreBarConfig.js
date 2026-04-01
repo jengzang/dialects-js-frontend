@@ -185,7 +185,7 @@ export function useExploreBarConfig() {
     tools: createExploreTab({
       tab: 'tools',
       label: t('navigation.tabs.tools'),
-      icon: '🔧',
+      icon: '\uD83D\uDD27',
       display: {
         preset: 'balancedMobile',
         overrides: {}
@@ -196,17 +196,17 @@ export function useExploreBarConfig() {
         rememberChild: true,
         defaultChild: '/explore/tools/check',
         children: [
-          { label: t('navigation.submenu.tools.check'), icon: '📝', path: '/explore/tools/check' },
-          { label: t('navigation.submenu.tools.jyut2ipa'), icon: '🔜', path: '/explore/tools/jyut2ipa' },
-          { label: t('navigation.submenu.tools.merge'), icon: '🔆', path: '/explore/tools/merge' },
-          { label: t('navigation.submenu.tools.praat'), icon: '🎘', path: '/explore/tools/praat' }
+          { label: t('navigation.submenu.tools.check'), icon: '\uD83D\uDCDD', path: '/explore/tools/check' },
+          { label: t('navigation.submenu.tools.jyut2ipa'), icon: '\uD83D\uDD1C', path: '/explore/tools/jyut2ipa' },
+          { label: t('navigation.submenu.tools.merge'), icon: '\uD83D\uDD06', path: '/explore/tools/merge' },
+          { label: t('navigation.submenu.tools.praat'), icon: '\uD83C\uDF98', path: '/explore/tools/praat' }
         ]
       }
     }),
     praat: createExploreTab({
       tab: 'praat',
       label: t('navigation.tabs.praat'),
-      icon: '🎙️',
+      icon: '\uD83C\uDF99\uFE0F',
       display: {
         preset: 'balancedMobile',
         overrides: {
@@ -221,7 +221,7 @@ export function useExploreBarConfig() {
     charClass: createExploreTab({
       tab: 'charClass',
       label: t('navigation.tabs.charClass'),
-      icon: '📚',
+      icon: '\uD83D\uDCDA',
       display: {
         preset: 'standard',
         overrides: {}
@@ -232,17 +232,17 @@ export function useExploreBarConfig() {
         rememberChild: true,
         defaultChild: '/explore/char-class?tab=zhonggu',
         children: [
-          { label: t('navigation.submenu.charClass.zhonggu'), icon: '📜', path: '/explore/char-class?tab=zhonggu' },
-          { label: t('navigation.submenu.charClass.shanggu'), icon: '🏛️', path: '/explore/char-class?tab=shanggu' },
-          { label: t('navigation.submenu.charClass.jingu'), icon: '📉', path: '/explore/char-class?tab=jingu' },
-          { label: t('navigation.submenu.charClass.yueyun'), icon: '🎍', path: '/explore/char-class?tab=yueyun' }
+          { label: t('navigation.submenu.charClass.zhonggu'), icon: '\uD83D\uDCDC', path: '/explore/char-class?tab=zhonggu' },
+          { label: t('navigation.submenu.charClass.shanggu'), icon: '\uD83C\uDFDB\uFE0F', path: '/explore/char-class?tab=shanggu' },
+          { label: t('navigation.submenu.charClass.jingu'), icon: '\uD83D\uDCC9', path: '/explore/char-class?tab=jingu' },
+          { label: t('navigation.submenu.charClass.yueyun'), icon: '\uD83C\uDF8D', path: '/explore/char-class?tab=yueyun' }
         ]
       }
     }),
     words: createExploreTab({
       tab: 'words',
       label: t('navigation.tabs.phrases'),
-      icon: '馃摑',
+      icon: '\uD83D\uDCDD',
       display: {
         preset: 'standard',
         overrides: {}
@@ -253,16 +253,16 @@ export function useExploreBarConfig() {
         rememberChild: true,
         defaultChild: '/explore/yubao?tab=vocabulary',
         children: [
-          { label: t('navigation.submenu.words.vocabulary'), icon: '📝', path: '/explore/yubao?tab=vocabulary' },
-          { label: t('navigation.submenu.words.grammar'), icon: '🗣️', path: '/explore/yubao?tab=grammar' },
-          { label: t('navigation.submenu.words.ycSpoken'), icon: '🌀', path: '/explore/yc-spoken' }
+          { label: t('navigation.submenu.words.vocabulary'), icon: '\uD83D\uDCDD', path: '/explore/yubao?tab=vocabulary' },
+          { label: t('navigation.submenu.words.grammar'), icon: '\uD83D\uDDE3\uFE0F', path: '/explore/yubao?tab=grammar' },
+          { label: t('navigation.submenu.words.ycSpoken'), icon: '\uD83C\uDF00', path: '/explore/yc-spoken' }
         ]
       }
     }),
     villages: createExploreTab({
       tab: 'villages',
       label: t('navigation.tabs.villages'),
-      icon: '🏘️',
+      icon: '\uD83C\uDFD8\uFE0F',
       display: {
         preset: 'standard',
         overrides: {}
@@ -273,17 +273,17 @@ export function useExploreBarConfig() {
         rememberChild: true,
         defaultChild: '/explore/villages/gd',
         children: [
-          { label: t('navigation.submenu.villages.gdVillages'), icon: '🏘️', path: '/explore/villages/gd'  },
-          { label: t('navigation.submenu.villages.VillagesML'), icon: '🤻', path: '/explore?page=VillagesML' },
-          { label: t('navigation.submenu.villages.gdVillagesTable'), icon: '📈', path: '/explore/villages/table' },
-          { label: t('navigation.submenu.villages.ycVillages'), icon: '🏠', path: '/explore?page=ycVillages' }
+          { label: t('navigation.submenu.villages.gdVillages'), icon: '\uD83C\uDFD8\uFE0F', path: '/explore/villages/gd' },
+          { label: t('navigation.submenu.villages.VillagesML'), icon: '\uD83E\uDD7B', path: '/explore/villages/ml' },
+          { label: t('navigation.submenu.villages.gdVillagesTable'), icon: '\uD83D\uDCC8', path: '/explore/villages/table' },
+          { label: t('navigation.submenu.villages.ycVillages'), icon: '\uD83C\uDFE0', path: '/explore/villages/yc' }
         ]
       }
     }),
     about: createExploreTab({
       tab: 'about',
       label: t('navigation.tabs.aboutWebsite'),
-      icon: '🫶',
+      icon: '\uD83E\uDEF6',
       display: {
         preset: 'compactDesktop',
         overrides: {

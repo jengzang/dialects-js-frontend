@@ -19,7 +19,7 @@ const ExploreEntry = () => import('@/main/views/entry/ExploreEntry.vue')
 const VillagesMLBridge = () => import('@/main/views/entry/ExternalRouteBridge.vue')
 const IntroLayout = () => import('@/layouts/IntroLayout.vue')
 
-const DEFAULT_TITLE = '方音圖鑑'
+const DEFAULT_TITLE = '\u65B9\u97F3\u5716\u9451'
 
 const IntroEntry = {
   setup() {
@@ -249,7 +249,7 @@ router.beforeEach((to, from, next) => {
     }
   }
 
-  document.title = to.meta?.title || getDefaultTitle()
+  document.title = to.meta?.title || DEFAULT_TITLE
   next()
 })
 
