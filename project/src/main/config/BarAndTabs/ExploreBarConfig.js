@@ -227,22 +227,22 @@ export function useExploreBarConfig() {
         overrides: {}
       },
       navigation: {
-        defaultTo: { path: '/explore', query: { page: 'CharacterClassification' } },
+        defaultTo: { path: '/explore/char-class', query: { tab: 'zhonggu' } },
         matchPages: ['CharacterClassification'],
         rememberChild: true,
-        defaultChild: '/explore?page=CharacterClassification&sub=zhonggu',
+        defaultChild: '/explore/char-class?tab=zhonggu',
         children: [
-          { label: t('navigation.submenu.charClass.zhonggu'), icon: '📜', path: '/explore?page=CharacterClassification&sub=zhonggu' },
-          { label: t('navigation.submenu.charClass.shanggu'), icon: '🏛️', path: '/explore?page=CharacterClassification&sub=shanggu' },
-          { label: t('navigation.submenu.charClass.jingu'), icon: '📉', path: '/explore?page=CharacterClassification&sub=jingu' },
-          { label: t('navigation.submenu.charClass.yueyun'), icon: '🎍', path: '/explore?page=CharacterClassification&sub=yueyun' }
+          { label: t('navigation.submenu.charClass.zhonggu'), icon: '📜', path: '/explore/char-class?tab=zhonggu' },
+          { label: t('navigation.submenu.charClass.shanggu'), icon: '🏛️', path: '/explore/char-class?tab=shanggu' },
+          { label: t('navigation.submenu.charClass.jingu'), icon: '📉', path: '/explore/char-class?tab=jingu' },
+          { label: t('navigation.submenu.charClass.yueyun'), icon: '🎍', path: '/explore/char-class?tab=yueyun' }
         ]
       }
     }),
     words: createExploreTab({
       tab: 'words',
       label: t('navigation.tabs.phrases'),
-      icon: '📝',
+      icon: '馃摑',
       display: {
         preset: 'standard',
         overrides: {}
@@ -255,7 +255,7 @@ export function useExploreBarConfig() {
         children: [
           { label: t('navigation.submenu.words.vocabulary'), icon: '📝', path: '/explore/yubao?tab=vocabulary' },
           { label: t('navigation.submenu.words.grammar'), icon: '🗣️', path: '/explore/yubao?tab=grammar' },
-          { label: t('navigation.submenu.words.ycSpoken'), icon: '🌀', path: '/explore?page=ycSpoken' }
+          { label: t('navigation.submenu.words.ycSpoken'), icon: '🌀', path: '/explore/yc-spoken' }
         ]
       }
     }),
@@ -271,11 +271,11 @@ export function useExploreBarConfig() {
         defaultTo: { path: '/menu', query: { tab: 'villages' } },
         matchPages: ['gdVillages', 'gdVillagesTable', 'ycVillages', 'VillagesML'],
         rememberChild: true,
-        defaultChild: '/explore?page=gdVillages',
+        defaultChild: '/explore/villages/gd',
         children: [
-          { label: t('navigation.submenu.villages.gdVillages'), icon: '🏘️', path: '/explore?page=gdVillages' },
+          { label: t('navigation.submenu.villages.gdVillages'), icon: '🏘️', path: '/explore/villages/gd'  },
           { label: t('navigation.submenu.villages.VillagesML'), icon: '🤻', path: '/explore?page=VillagesML' },
-          { label: t('navigation.submenu.villages.gdVillagesTable'), icon: '📈', path: '/explore?page=gdVillagesTable' },
+          { label: t('navigation.submenu.villages.gdVillagesTable'), icon: '📈', path: '/explore/villages/table' },
           { label: t('navigation.submenu.villages.ycVillages'), icon: '🏠', path: '/explore?page=ycVillages' }
         ]
       }
