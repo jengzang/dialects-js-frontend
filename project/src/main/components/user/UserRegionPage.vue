@@ -207,10 +207,16 @@ const customRegionLocationLimitExceeded = computed(
   () => editingRegion.value.locations.length > GLOBAL_LOCATION_LIMIT
 )
 
+const getCustomRegionLocationLimitExceededMessage = (count) => (
+  t('user.regionPage.messages.customRegionLocationLimitExceeded', {
+    limit: GLOBAL_LOCATION_LIMIT,
+    count
+  })
+)
 const showCustomRegionLocationLimitWarning = (count) => {
   if (!hasShownCustomRegionLimitWarning.value) {
     hasShownCustomRegionLimitWarning.value = true
-    showWarning(`自定义分区最多只能保存 ${GLOBAL_LOCATION_LIMIT} 个地点，当前为 ${count} 个`)
+    showWarning(getCustomRegionLocationLimitExceededMessage(count))
   }
 }
 
@@ -229,7 +235,7 @@ const syncCustomRegionLocationLimitWarningState = (count) => {
 
 const forceShowCustomRegionLocationLimitWarning = (count) => {
   resetCustomRegionLocationLimitWarning()
-  showWarning(`自定义分区最多只能保存 ${GLOBAL_LOCATION_LIMIT} 个地点，当前为 ${count} 个`)
+  showWarning(getCustomRegionLocationLimitExceededMessage(count))
 }
 
 const treeSelectedCount = computed(() => {

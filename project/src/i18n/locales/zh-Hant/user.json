@@ -115,7 +115,8 @@
       "deleteConfirmTitle": "刪除確認",
       "deleteConfirmMessage": "確定要刪除分區「{name}」嗎？此操作不可恢復。",
       "deleteSuccess": "刪除成功",
-      "deleteFailed": "刪除失敗：{message}"
+      "deleteFailed": "刪除失敗：{message}",
+      "customRegionLocationLimitExceeded": "自定義分區最多只能保存 {limit} 個地點，當前為 {count} 個"
     }
   },
   "dataPage": {
