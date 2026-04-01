@@ -36,6 +36,7 @@ import { useI18n } from 'vue-i18n'
 //   navigation: {
 //     defaultTo: null,
 //     matchPages: [],
+//     activeMatchPaths: [],
 //     rememberChild: false,
 //     defaultChild: null,
 //     children: []
@@ -74,6 +75,7 @@ const DISPLAY_DEFAULTS = {
 const NAVIGATION_DEFAULTS = {
   defaultTo: null,
   matchPages: [],
+  activeMatchPaths: [],
   rememberChild: false,
   defaultChild: null,
   children: []
@@ -153,6 +155,11 @@ export function getExploreBarChildren(configMap, tabKey) {
 
 export function getExploreBarActiveTab(tabs, route, router) {
   return tabs.find((tab) => {
+    const activeMatchPaths = tab.navigation?.activeMatchPaths || []
+    if (activeMatchPaths.includes(route.path)) {
+      return true
+    }
+
     const targets = [tab.to, ...(tab.navigation?.children || []).map((child) => child.path)]
 
     return targets.some((target) => {
@@ -193,6 +200,7 @@ export function useExploreBarConfig() {
       navigation: {
         defaultTo: { path: '/menu', query: { tab: 'tools' } },
         matchPages: ['check', 'jyut2ipa', 'merge', 'praat'],
+        activeMatchPaths: ['/explore/manage'],
         rememberChild: true,
         defaultChild: '/explore/tools/check',
         children: [
