@@ -46,7 +46,7 @@ const defaultFilter = { '存儲標記': 1 }
 // const defaultFilter = { '省': ['廣東', '廣西'] }
 
 const goToPrivacy = () => {
-  router.push({ path: '/menu', query: { tab: 'privacy' } })
+  router.push('/menu/privacy')
 }
 </script>
 

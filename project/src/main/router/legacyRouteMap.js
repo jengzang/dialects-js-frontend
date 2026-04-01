@@ -17,6 +17,27 @@ export const MENU_LEGACY_ROUTES = {
       like: '/about/like',
       setting: '/about/settings'
     }
+  },
+  result: {
+    defaultPath: '/menu/result'
+  },
+  source: {
+    defaultPath: '/menu/source'
+  },
+  privacy: {
+    defaultPath: '/menu/privacy'
+  },
+  tools: {
+    defaultPath: '/menu/tools'
+  },
+  words: {
+    defaultPath: '/menu/words'
+  },
+  villages: {
+    defaultPath: '/menu/villages'
+  },
+  cluster: {
+    defaultPath: '/menu/cluster'
   }
 }
 

@@ -183,6 +183,27 @@ const ROUTE_QUERY_ALLOWLIST = {
   },
   '/pho/evolution': {
     base: ['loc', 'feature', 'h', 'v', 'c']
+  },
+  '/menu/result': {
+    base: []
+  },
+  '/menu/source': {
+    base: []
+  },
+  '/menu/privacy': {
+    base: []
+  },
+  '/menu/tools': {
+    base: []
+  },
+  '/menu/words': {
+    base: []
+  },
+  '/menu/villages': {
+    base: []
+  },
+  '/menu/cluster': {
+    base: []
   }
 }
 
