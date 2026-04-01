@@ -140,19 +140,19 @@
           </div>
           <transition name="expand">
             <div v-if="expandedCard === 'pho'" class="card-body">
-              <a @click.stop="navigateTo('/menu?tab=pho&sub=phonologyMatrix')" class="feature-link">
+              <a @click.stop="navigateTo('/pho/matrix')" class="feature-link">
                 <span class="link-icon">⚗️</span>
                 <span class="link-text">{{ $t('home.features.phonology.phonologyQuery') }}</span>
               </a>
-              <a @click.stop="navigateTo('/menu?tab=pho&sub=phonologyCustom')" class="feature-link">
+              <a @click.stop="navigateTo('/pho/custom')" class="feature-link">
                 <span class="link-icon">🔬</span>
                 <span class="link-text">{{ $t('home.features.phonology.phonemeClassify') }}</span>
               </a>
-              <a @click.stop="navigateTo('/menu?tab=pho&sub=Countphos')" class="feature-link">
+              <a @click.stop="navigateTo('/pho/count')" class="feature-link">
                 <span class="link-icon">📊</span>
                 <span class="link-text">{{ $t('home.features.phonology.syllableCount') }}</span>
               </a>
-              <a @click.stop="navigateTo('/menu?tab=pho&sub=evolution')" class="feature-link">
+              <a @click.stop="navigateTo('/pho/evolution')" class="feature-link">
                 <span class="link-icon">🥧</span>
                 <span class="link-text">{{ $t('home.features.phonology.evolution') }}</span>
               </a>
@@ -208,11 +208,11 @@
           </div>
           <transition name="expand">
             <div v-if="expandedCard === 'words'" class="card-body">
-              <a @click.stop="navigateTo('/explore?page=YuBao&sub=vocabulary')" class="feature-link">
+              <a @click.stop="navigateTo('/explore/yubao?tab=vocabulary')" class="feature-link">
                 <span class="link-icon">📚</span>
                 <span class="link-text">{{ $t('home.features.words.yubaoVocab') }}</span>
               </a>
-              <a @click.stop="navigateTo('/explore?page=YuBao&sub=grammar')" class="feature-link">
+              <a @click.stop="navigateTo('/explore/yubao?tab=grammar')" class="feature-link">
                 <span class="link-icon">🗣️</span>
                 <span class="link-text">{{ $t('home.features.words.yubaoGrammar') }}</span>
               </a>
@@ -272,15 +272,15 @@
           </div>
           <transition name="expand">
             <div v-if="expandedCard === 'tools'" class="card-body">
-              <a @click.stop="navigateTo('/explore?page=check')" class="feature-link">
+              <a @click.stop="navigateTo('/explore/tools/check')" class="feature-link">
                 <span class="link-icon">📋</span>
                 <span class="link-text">{{ $t('home.features.tools.tableProcess') }}</span>
               </a>
-              <a @click.stop="navigateTo('/explore?page=jyut2ipa')" class="feature-link">
+              <a @click.stop="navigateTo('/explore/tools/jyut2ipa')" class="feature-link">
                 <span class="link-icon">🔤</span>
                 <span class="link-text">{{ $t('home.features.tools.jyut2ipa') }}</span>
               </a>
-              <a @click.stop="navigateTo('/explore?page=merge')" class="feature-link">
+              <a @click.stop="navigateTo('/explore/tools/merge')" class="feature-link">
                 <span class="link-icon">🔗</span>
                 <span class="link-text">{{ $t('home.features.tools.tableMerge') }}</span>
               </a>
@@ -293,7 +293,7 @@
         </div>
 
         <!-- Praat 聲學分析 -->
-        <div class="feature-card clickable" @click="navigateTo('/explore?page=praat')">
+        <div class="feature-card clickable" @click="navigateTo('/explore/tools/praat')">
           <div class="card-header">
             <div class="card-icon">🎙️</div>
             <div class="card-info">
@@ -330,19 +330,19 @@
           </div>
           <transition name="expand">
             <div v-if="expandedCard === 'about'" class="card-body">
-              <a @click.stop="navigateTo('/menu?tab=about&sub=intro')" class="feature-link">
+              <a @click.stop="navigateTo('/about/intro')" class="feature-link">
                 <span class="link-icon">ℹ️</span>
                 <span class="link-text">{{ $t('home.features.about.intro') }}</span>
               </a>
-              <a @click.stop="navigateTo('/menu?tab=about&sub=suggestion')" class="feature-link">
+              <a @click.stop="navigateTo('/about/suggestion')" class="feature-link">
                 <span class="link-icon">💬</span>
                 <span class="link-text">{{ $t('home.features.about.suggestion') }}</span>
               </a>
-              <a @click.stop="navigateTo('/menu?tab=about&sub=like')" class="feature-link">
+              <a @click.stop="navigateTo('/about/like')" class="feature-link">
                 <span class="link-icon">❤️</span>
                 <span class="link-text">{{ $t('home.features.about.likeAuthor') }}</span>
               </a>
-              <a @click.stop="navigateTo('/menu?tab=about&sub=setting')" class="feature-link">
+              <a @click.stop="navigateTo('/about/settings')" class="feature-link">
                 <span class="link-icon">⚙️</span>
                 <span class="link-text">{{ $t('home.features.about.setting') }}</span>
               </a>
@@ -486,13 +486,13 @@
     <footer class="footer">
       <div class="footer-content">
         <div class="footer-links">
-          <a @click="navigateTo('/menu?tab=about')" class="footer-link">{{ $t('home.footer.links.about') }}</a>
+          <a @click="navigateTo('/about/intro')" class="footer-link">{{ $t('home.footer.links.about') }}</a>
           <span class="footer-divider">·</span>
           <a @click="navigateTo('/menu?tab=source')" class="footer-link">{{ $t('home.footer.links.source') }}</a>
           <span class="footer-divider">·</span>
           <a @click="navigateTo('/menu?tab=privacy')" class="footer-link">{{ $t('home.footer.links.privacy') }}</a>
           <span class="footer-divider">·</span>
-          <a @click="navigateTo('/menu?tab=about&sub=setting')" class="footer-link">{{ $t('home.footer.links.setting') }}</a>
+          <a @click="navigateTo('/about/settings')" class="footer-link">{{ $t('home.footer.links.setting') }}</a>
           <span class="footer-divider">·</span>
           <a href="https://dialects.yzup.top/detail/" target="_blank" class="footer-link">{{ $t('home.footer.links.oldSite') }}</a>
           <span class="footer-divider">·</span>
