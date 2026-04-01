@@ -40,6 +40,31 @@ export const EXPLORE_LEGACY_ROUTES = {
       vocabulary: 'vocabulary',
       grammar: 'grammar'
     }
+  },
+  CharacterClassification: {
+    path: '/explore/char-class',
+    defaultTab: 'zhonggu',
+    tabMap: {
+      zhonggu: 'zhonggu',
+      shanggu: 'shanggu',
+      jingu: 'jingu',
+      yueyun: 'yueyun'
+    }
+  },
+  ycSpoken: {
+    path: '/explore/yc-spoken'
+  },
+  gdVillages: {
+    path: '/explore/villages/gd'
+  },
+  gdVillagesTable: {
+    path: '/explore/villages/table'
+  },
+  ycVillages: {
+    path: '/explore/villages/yc'
+  },
+  VillagesML: {
+    path: '/explore/villages/ml'
   }
 }
 
@@ -65,7 +90,21 @@ export function resolveLegacyExploreRoute(query = {}) {
     return null
   }
 
-  if (page === 'YuBao') {
+  if (page === 'VillagesML') {
+    if (restQuery.module && restQuery.module !== 'dashboard') {
+      return {
+        path: '/villagesML',
+        query: restQuery
+      }
+    }
+
+    return {
+      path: config.path,
+      query: restQuery
+    }
+  }
+
+  if (page === 'YuBao' || page === 'CharacterClassification') {
     return {
       path: config.path,
       query: {

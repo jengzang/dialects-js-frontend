@@ -31,7 +31,7 @@ import { useRouter } from 'vue-router'
 const router = useRouter()
 
 const handleYcSpoken = () => {
-  router.push('/explore?page=ycSpoken')
+  router.push('/explore/yc-spoken')
 };
 
 const handleYuBaoVocabulary = () => {

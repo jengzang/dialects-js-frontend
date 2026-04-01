@@ -37,19 +37,19 @@ import { useRouter } from 'vue-router'
 const router = useRouter()
 
 const handleGdVillagesTable = () => {
-  router.push('/explore?page=gdVillagesTable')
+  router.push('/explore/villages/table')
 };
 
 const handleGdVillages = () => {
-  router.push('/explore?page=gdVillages')
+  router.push('/explore/villages/gd')
 };
 
 const handleYcVillages = () => {
-  router.push('/explore?page=ycVillages')
+  router.push('/explore/villages/yc')
 };
 
 const handleVillagesML = () => {
-  router.push('/explore?page=VillagesML')
+  router.push('/explore/villages/ml')
 };
 </script>
 

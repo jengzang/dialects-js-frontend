@@ -8,7 +8,7 @@ import { useI18n } from 'vue-i18n'
  * 使用响应式菜单配置（支持 i18n）：
  * @returns {ComputedRef} 响应式菜单配置对象
  */
-export function useMenuConfig() {
+export function useSidebarConfig() {
     const { t } = useI18n()
 
     return computed(() => ({

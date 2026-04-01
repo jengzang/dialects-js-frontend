@@ -38,7 +38,7 @@ const spokenColumns = computed(() => [
 ]);
 
 const goToYCVillages = () => {
-  router.push({ path: '/explore', query: { page: 'ycVillages' } });
+  router.push('/explore/villages/yc');
 };
 </script>
 

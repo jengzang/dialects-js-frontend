@@ -174,19 +174,19 @@
           </div>
           <transition name="expand">
             <div v-if="expandedCard === 'charClass'" class="card-body">
-              <a @click.stop="navigateTo('/explore?page=CharacterClassification&sub=zhonggu')" class="feature-link">
+              <a @click.stop="navigateTo('/explore/char-class?tab=zhonggu')" class="feature-link">
                 <span class="link-icon">🏛️</span>
                 <span class="link-text">{{ $t('home.features.charClass.zhonggu') }}</span>
               </a>
-              <a @click.stop="navigateTo('/explore?page=CharacterClassification&sub=shanggu')" class="feature-link">
+              <a @click.stop="navigateTo('/explore/char-class?tab=shanggu')" class="feature-link">
                 <span class="link-icon">📿</span>
                 <span class="link-text">{{ $t('home.features.charClass.shanggu') }}</span>
               </a>
-              <a @click.stop="navigateTo('/explore?page=CharacterClassification&sub=jingu')" class="feature-link">
+              <a @click.stop="navigateTo('/explore/char-class?tab=jingu')" class="feature-link">
                 <span class="link-icon">📖</span>
                 <span class="link-text">{{ $t('home.features.charClass.jingu') }}</span>
               </a>
-              <a @click.stop="navigateTo('/explore?page=CharacterClassification&sub=yueyun')" class="feature-link">
+              <a @click.stop="navigateTo('/explore/char-class?tab=yueyun')" class="feature-link">
                 <span class="link-icon">🎵</span>
                 <span class="link-text">{{ $t('home.features.charClass.yueyun') }}</span>
               </a>
@@ -216,7 +216,7 @@
                 <span class="link-icon">🗣️</span>
                 <span class="link-text">{{ $t('home.features.words.yubaoGrammar') }}</span>
               </a>
-              <a @click.stop="navigateTo('/explore?page=ycSpoken')" class="feature-link">
+              <a @click.stop="navigateTo('/explore/yc-spoken')" class="feature-link">
                 <span class="link-icon">💬</span>
                 <span class="link-text">{{ $t('home.features.words.ycSpoken') }}</span>
               </a>
@@ -238,19 +238,19 @@
           </div>
           <transition name="expand">
             <div v-if="expandedCard === 'villages'" class="card-body">
-              <a @click.stop="navigateTo('/explore?page=gdVillages')" class="feature-link">
+              <a @click.stop="navigateTo('/explore/villages/gd')" class="feature-link">
                 <span class="link-icon">🏘️</span>
                 <span class="link-text">{{ $t('home.features.villages.gdVillages') }}</span>
               </a>
-              <a @click.stop="navigateTo('/explore?page=VillagesML')" class="feature-link">
+              <a @click.stop="navigateTo('/explore/villages/ml')" class="feature-link">
                 <span class="link-icon">🤖</span>
                 <span class="link-text">{{ $t('home.features.villages.villagesML') }}</span>
               </a>
-              <a @click.stop="navigateTo('/explore?page=gdVillagesTable')" class="feature-link">
+              <a @click.stop="navigateTo('/explore/villages/table')" class="feature-link">
                 <span class="link-icon">📊</span>
                 <span class="link-text">{{ $t('home.features.villages.gdVillagesTable') }}</span>
               </a>
-              <a @click.stop="navigateTo('/explore?page=ycVillages')" class="feature-link">
+              <a @click.stop="navigateTo('/explore/villages/yc')" class="feature-link">
                 <span class="link-icon">🌾</span>
                 <span class="link-text">{{ $t('home.features.villages.ycVillages') }}</span>
               </a>

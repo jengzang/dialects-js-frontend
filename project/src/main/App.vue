@@ -66,7 +66,22 @@ export default {
         return SimpleLayout
       }
 
-      // /explore 路由：根据 page 参数选择 Layout
+      // New canonical explore routes
+      if (route.path === '/explore/tools/praat') {
+        return SimpleLayout
+      }
+
+      if (
+        route.path.startsWith('/explore/tools/') ||
+        route.path === '/explore/yubao' ||
+        route.path === '/explore/char-class' ||
+        route.path === '/explore/yc-spoken' ||
+        route.path.startsWith('/explore/villages/')
+      ) {
+        return ExploreLayout
+      }
+
+      // Legacy /explore entry: choose layout by query.page
       if (route.path === '/explore') {
         const page = route.query.page
 

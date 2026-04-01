@@ -260,8 +260,10 @@ export function parseCharClassParams(route) {
 export function updateUrlWithCharClassConfig(router, route, params) {
   const query = {
     ...route.query,
-    sub: params.pageKey
+    tab: params.pageKey
   }
+
+  delete query.sub
 
   if (params.includeTable && params.tableKey) {
     query.table = params.tableKey

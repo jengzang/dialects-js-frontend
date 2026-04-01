@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { computed, h } from 'vue'
 import { useRoute } from 'vue-router'
+import i18n from '@/i18n/index.js'
 import { userStore } from '@/main/store/store.js'
 import { showWarning } from '@/utils/message.js'
 import { menuRoutes } from '@/main/router/menuRoutes.js'
@@ -13,12 +14,12 @@ const Thanks = () => import('./views/intro/Thanks.vue')
 const Auth = () => import('./views/auth.vue')
 const UserDataPage = () => import('./components/user/UserDataPage.vue')
 const UserRegionPage = () => import('./components/user/UserRegionPage.vue')
-const MenuEntry = () => import('@/main/views/MenuEntry.vue')
-const ExploreEntry = () => import('@/main/views/ExploreEntry.vue')
-const VillagesMLBridge = () => import('@/main/views/ExternalRouteBridge.vue')
+const MenuEntry = () => import('@/main/views/entry/MenuEntry.vue')
+const ExploreEntry = () => import('@/main/views/entry/ExploreEntry.vue')
+const VillagesMLBridge = () => import('@/main/views/entry/ExternalRouteBridge.vue')
 const IntroLayout = () => import('@/layouts/IntroLayout.vue')
 
-const DEFAULT_TITLE = '棱栭爜'
+const DEFAULT_TITLE = '方音圖鑑'
 
 const IntroEntry = {
   setup() {
@@ -149,6 +150,24 @@ const ROUTE_QUERY_ALLOWLIST = {
   '/explore/yubao': {
     base: ['tab']
   },
+  '/explore/char-class': {
+    base: ['tab', 'table', 'levels']
+  },
+  '/explore/yc-spoken': {
+    base: []
+  },
+  '/explore/villages/gd': {
+    base: []
+  },
+  '/explore/villages/table': {
+    base: []
+  },
+  '/explore/villages/yc': {
+    base: []
+  },
+  '/explore/villages/ml': {
+    base: []
+  },
   '/pho/matrix': {
     base: ['loc', 'feature', 'h', 'v', 'c']
   },
@@ -225,12 +244,12 @@ router.beforeEach((to, from, next) => {
 
   if (to.path === '/auth/data' || to.path === '/auth/regions') {
     if (!userStore.isAuthenticated) {
-      showWarning('请先登录')
+      showWarning(i18n.global.t('user.dataPage.messages.authRequired'))
       return next({ path: '/auth', replace: true })
     }
   }
 
-  document.title = to.meta?.title || DEFAULT_TITLE
+  document.title = to.meta?.title || getDefaultTitle()
   next()
 })
 

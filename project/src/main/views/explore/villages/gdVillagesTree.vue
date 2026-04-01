@@ -339,7 +339,7 @@ const getFilteredCityData = (cityName) => {
   return filterTree(cityData, query);
 };
 const goToYCVillages = () => {
-  router.push({ path: '/explore', query: { page: 'ycVillages' } });
+  router.push('/explore/villages/yc');
 };
 
 /**

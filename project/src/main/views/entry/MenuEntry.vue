@@ -17,10 +17,10 @@ const createAsyncPage = (loader) => defineAsyncComponent({
   delay: 120
 })
 
-const QueryPage = createAsyncPage(() => import('./menu/QueryPage.vue'))
-const ComparePage = createAsyncPage(() => import('./menu/ComparePage.vue'))
-const MapPage = createAsyncPage(() => import('./menu/MapPage.vue'))
-const ResultPage = createAsyncPage(() => import('./menu/ResultPage.vue'))
+const QueryPage = createAsyncPage(() => import('../menu/QueryPage.vue'))
+const ComparePage = createAsyncPage(() => import('../menu/ComparePage.vue'))
+const MapPage = createAsyncPage(() => import('../menu/MapPage.vue'))
+const ResultPage = createAsyncPage(() => import('../menu/ResultPage.vue'))
 const SourcePage = createAsyncPage(() => import('@/main/views/menu/support/SourcePage.vue'))
 const PrivacyPage = createAsyncPage(() => import('@/main/views/menu/support/PrivacyPage.vue'))
 const ToolsPage = createAsyncPage(() => import('@/main/views/menu/portals/ToolsPage.vue'))

@@ -215,7 +215,7 @@ const { t } = useI18n()
 
 const validSubs = ['zhonggu', 'shanggu', 'jingu', 'yueyun']
 const activeTab = computed(() =>
-  validSubs.includes(route.query.sub) ? route.query.sub : 'zhonggu'
+  validSubs.includes(route.query.tab) ? route.query.tab : 'zhonggu'
 )
 
 const selectedTableKey = ref('')
@@ -273,7 +273,7 @@ const normalizeState = (tableKey, levelKeys) => {
 const syncUrlToState = (state) => {
   const parsedParams = parseCharClassParams(route)
   const hasExtraTableParam = !hasMultipleTables.value && Boolean(route.query.table)
-  const subMatches = route.query.sub === activeTab.value
+  const subMatches = route.query.tab === activeTab.value
   const tableMatches = hasMultipleTables.value
     ? parsedParams.table === state.tableKey
     : !hasExtraTableParam
@@ -489,7 +489,7 @@ watch(
 )
 
 watch(
-  () => [activeTab.value, route.query.table, route.query.levels],
+  () => [activeTab.value, route.query.tab, route.query.table, route.query.levels],
   () => {
     applyRouteState()
   },
