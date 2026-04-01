@@ -33,6 +33,9 @@ export const EXPLORE_LEGACY_ROUTES = {
   praat: {
     path: '/explore/tools/praat'
   },
+  manage: {
+    path: '/explore/manage'
+  },
   YuBao: {
     path: '/explore/yubao',
     defaultTab: 'vocabulary',

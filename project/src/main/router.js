@@ -125,6 +125,7 @@ const ROUTE_QUERY_ALLOWLIST = {
       VillagesML: ['module', 'subtab', 'pattern', 'ngram', 'villageId'],
       ycVillages: [],
       ycSpoken: [],
+      manage: [],
       gdVillages: [],
       gdVillagesTable: [],
       check: [],
@@ -146,6 +147,9 @@ const ROUTE_QUERY_ALLOWLIST = {
   },
   '/explore/tools/praat': {
     base: ['tab']
+  },
+  '/explore/manage': {
+    base: []
   },
   '/explore/yubao': {
     base: ['tab']

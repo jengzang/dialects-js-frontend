@@ -436,7 +436,7 @@ const goToAdminPanel = () => {
 }
 
 const goToTableManager = () => {
-  router.push({ path: '/explore', query: { page: 'manage' } })
+  router.push('/explore/manage')
 }
 
 const goToUserData = () => {
@@ -491,4 +491,3 @@ watch(mode, () => {
 
 
 </style>
-

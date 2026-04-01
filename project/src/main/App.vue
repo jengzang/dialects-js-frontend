@@ -73,6 +73,7 @@ export default {
 
       if (
         route.path.startsWith('/explore/tools/') ||
+        route.path === '/explore/manage' ||
         route.path === '/explore/yubao' ||
         route.path === '/explore/char-class' ||
         route.path === '/explore/yc-spoken' ||
