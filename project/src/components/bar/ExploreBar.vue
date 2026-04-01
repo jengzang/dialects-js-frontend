@@ -179,6 +179,25 @@ const doesChildMatchCurrentRoute = (childPath) => {
   return matchExploreBarChildRoute(childPath, route, router)
 }
 
+const resolveExploreBarTarget = (tabConfig, children) => {
+  if (!tabConfig?.navigation?.rememberChild || children.length === 0) {
+    return tabConfig.to
+  }
+
+  const rememberedChildPath = getLastChildPath(tabConfig.tab)
+  const childPaths = children.map((child) => child.path)
+
+  if (rememberedChildPath && childPaths.includes(rememberedChildPath)) {
+    return rememberedChildPath
+  }
+
+  if (tabConfig.navigation?.defaultChild) {
+    return tabConfig.navigation.defaultChild
+  }
+
+  return tabConfig.to
+}
+
 watch(
   () => [route.path, route.fullPath],
   () => {
@@ -251,10 +270,7 @@ const onClick = async (tabConfig, navigate, event) => {
   const children = getTabChildren(tabConfig.tab)
 
   if (!isMobile.value) {
-    const rememberedChildPath = tabConfig.navigation?.rememberChild && children.length > 0
-      ? getLastChildPath(tabConfig.tab)
-      : null
-    const target = rememberedChildPath || tabConfig.to
+    const target = resolveExploreBarTarget(tabConfig, children)
 
     if (target) {
       await router.replace(target)
