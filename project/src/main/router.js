@@ -1,9 +1,10 @@
-// src/router.js
 import { createRouter, createWebHistory } from 'vue-router'
-import { h, computed } from 'vue'
+import { computed, h } from 'vue'
 import { useRoute } from 'vue-router'
 import { userStore } from '@/main/store/store.js'
 import { showWarning } from '@/utils/message.js'
+import { menuRoutes } from '@/main/router/menuRoutes.js'
+import { exploreRoutes } from '@/main/router/exploreRoutes.js'
 
 const HomePage = () => import('@/main/views/HomePage.vue')
 const LikeAuthor = () => import('./views/intro/LikeAuthor.vue')
@@ -17,6 +18,8 @@ const ExploreEntry = () => import('@/main/views/ExploreEntry.vue')
 const VillagesMLBridge = () => import('@/main/views/ExternalRouteBridge.vue')
 const IntroLayout = () => import('@/layouts/IntroLayout.vue')
 
+const DEFAULT_TITLE = '棱栭爜'
+
 const IntroEntry = {
   setup() {
     const route = useRoute()
@@ -25,31 +28,36 @@ const IntroEntry = {
       const tabMap = {
         like: LikeAuthor,
         suggestions: Suggestions,
-        thanks: Thanks,
+        thanks: Thanks
       }
       return tabMap[tab] || LikeAuthor
     })
     return () => h(activeComponent.value)
-  },
+  }
 }
 
 const routes = [
   {
     path: '/',
-    component: HomePage,
-    meta: { title: '方音圖鑑 - 首頁' }
+    component: HomePage
   },
   {
     path: '/menu',
-    component: MenuEntry,
+    component: MenuEntry
   },
+  ...menuRoutes,
   {
     path: '/explore',
-    component: ExploreEntry,
+    component: ExploreEntry
+  },
+  ...exploreRoutes,
+  {
+    path: '/praat',
+    redirect: '/explore/tools/praat'
   },
   {
     path: '/villagesML/:pathMatch(.*)*',
-    component: VillagesMLBridge,
+    component: VillagesMLBridge
   },
   {
     path: '/intro',
@@ -57,34 +65,26 @@ const routes = [
     children: [
       {
         path: '',
-        component: IntroEntry,
-      },
-    ],
+        component: IntroEntry
+      }
+    ]
   },
-{
-        path: '/auth',
-        component: Auth,
-        meta: { title: '方音圖鑑 - 登錄' }
-    },
-
-    {
-        path: '/auth/data',
-        component: UserDataPage,
-        meta: { title: '方音圖鑑 - 個人數據管理' },
-
-    },
-
-    {
-        path: '/auth/regions',
-        component: UserRegionPage,
-        meta: { title: '方音圖鑑 - 個人分區管理' }
-    },
-
-    // 可選：兜底導回首頁（避免 404）
-    {
-        path: '/:pathMatch(.*)*',
-        redirect: '/'
-    }
+  {
+    path: '/auth',
+    component: Auth
+  },
+  {
+    path: '/auth/data',
+    component: UserDataPage
+  },
+  {
+    path: '/auth/regions',
+    component: UserRegionPage
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    redirect: '/'
+  }
 ]
 
 const router = createRouter({
@@ -93,183 +93,145 @@ const router = createRouter({
   routes,
   scrollBehavior() {
     return { top: 0 }
-  },
+  }
 })
 
-const MenuTitleMap = {
-    query: '方音圖鑑 - 查詢',
-    compare: '方音圖鑑 - 比較',
-    result: '方音圖鑑 - 結果',
-    map: '方音圖鑑 - 地圖',
-    about:'方音圖鑑 - 關於網站',
-    tools:'方音圖鑑 - 工具',
-    pho:'方音圖鑑 - 音系',
-    cluster:'方音圖鑑 - 聚類',
-    words:'方音圖鑑 - 詞彙',
-    villages:'方音圖鑑 - 自然村',
-    source:'方音圖鑑 - 資料來源',
-    privacy:'方音圖鑑 - 隱私',
-};
-const ExploreTitleMap = {
-    ycVillages: '方音圖鑑 - 陽春自然村',
-    check: '方音圖鑑 - 字表檢查',
-    jyut2ipa: '方音圖鑑 - 粵拼轉ipa',
-    merge:'方音圖鑑 - 字表合併',
-    gdVillages:'方音圖鑑 - 廣東自然村樹狀圖',
-    manage: '方音圖鑑 - 表格管理',
-    ycSpoken: '方音圖鑑 - 陽春口語詞',
-    YuBao:'方音圖鑑 - 語保資料',
-    gdVillagesTable: '方音圖鑑 - 廣東自然村表格',
-    phonologyMatrix: '方音圖鑑 - 音系表',
-    phonologyCustom: '方音圖鑑 - 自定義音素表',
-    Countphos: '方音圖鑑 - 音節統計',
-    praat: '方音圖鑑 - 實驗語音學',
-    VillagesML: '方音圖鑑 - 自然村機器學習',
-    CharacterClassification: '方音圖鑑 - 漢字類別'
-};
-
-// 全局导航守卫
 const ROUTE_QUERY_ALLOWLIST = {
-    '/menu': {
-        base: ['tab'],
-        variantKey: 'tab',
-        variants: {
-            query: ['sub'],
-            compare: ['sub'],
-            result: [],
-            map: ['sub', 'feature', 'locations', 'regions', 'regionMode', 'openPanel'],
-            pho: ['sub', 'loc', 'feature', 'h', 'v', 'c'],
-            about: ['sub'],
-            source: [],
-            privacy: [],
-            tools: [],
-            words: [],
-            villages: []
-        }
-    },
-    '/explore': {
-        base: ['page'],
-        variantKey: 'page',
-        variants: {
-            CharacterClassification: ['sub', 'table', 'levels'],
-            YuBao: ['sub'],
-            praat: ['tab'],
-            VillagesML: ['module', 'subtab', 'pattern', 'ngram', 'villageId'],
-            ycVillages: [],
-            ycSpoken: [],
-            gdVillages: [],
-            gdVillagesTable: [],
-            check: [],
-            jyut2ipa: [],
-            merge: []
-        }
-    },
-    '/villagesML': {
-        base: ['module', 'subtab', 'pattern', 'ngram', 'villageId']
-    },
-    '/auth': {
-        base: ['view', 'redirect']
-    },
-    '/auth/data': {
-        base: ['username']
-    },
-    '/auth/regions': {
-        base: ['username']
+  '/menu': {
+    base: ['tab'],
+    variantKey: 'tab',
+    variants: {
+      query: ['sub'],
+      compare: ['sub'],
+      result: [],
+      map: ['sub', 'feature', 'locations', 'regions', 'regionMode', 'openPanel'],
+      pho: ['sub', 'loc', 'feature', 'h', 'v', 'c'],
+      about: ['sub'],
+      source: [],
+      privacy: [],
+      tools: [],
+      words: [],
+      villages: []
     }
+  },
+  '/explore': {
+    base: ['page'],
+    variantKey: 'page',
+    variants: {
+      CharacterClassification: ['sub', 'table', 'levels'],
+      YuBao: ['sub'],
+      praat: ['tab'],
+      VillagesML: ['module', 'subtab', 'pattern', 'ngram', 'villageId'],
+      ycVillages: [],
+      ycSpoken: [],
+      gdVillages: [],
+      gdVillagesTable: [],
+      check: [],
+      jyut2ipa: [],
+      merge: []
+    }
+  },
+  '/villagesML': {
+    base: ['module', 'subtab', 'pattern', 'ngram', 'villageId']
+  },
+  '/auth': {
+    base: ['view', 'redirect']
+  },
+  '/auth/data': {
+    base: ['username']
+  },
+  '/auth/regions': {
+    base: ['username']
+  },
+  '/explore/tools/praat': {
+    base: ['tab']
+  },
+  '/explore/yubao': {
+    base: ['tab']
+  },
+  '/pho/matrix': {
+    base: ['loc', 'feature', 'h', 'v', 'c']
+  },
+  '/pho/custom': {
+    base: ['loc', 'feature', 'h', 'v', 'c']
+  },
+  '/pho/count': {
+    base: ['loc', 'feature', 'h', 'v', 'c']
+  },
+  '/pho/evolution': {
+    base: ['loc', 'feature', 'h', 'v', 'c']
+  }
 }
 
 function sanitizeQueryByRoute(to) {
-    const config = ROUTE_QUERY_ALLOWLIST[to.path]
-    if (!config) {
-        return to.query
-    }
+  const config = ROUTE_QUERY_ALLOWLIST[to.path]
+  if (!config) {
+    return to.query
+  }
 
-    const allowedKeys = new Set(config.base || [])
-    const variantKey = config.variantKey
-    const variantValue = variantKey ? to.query?.[variantKey] : null
-    const variantAllowedKeys = variantValue && config.variants?.[variantValue]
-        ? config.variants[variantValue]
-        : []
+  const allowedKeys = new Set(config.base || [])
+  const variantKey = config.variantKey
+  const variantValue = variantKey ? to.query?.[variantKey] : null
+  const variantAllowedKeys = variantValue && config.variants?.[variantValue]
+    ? config.variants[variantValue]
+    : []
 
-    variantAllowedKeys.forEach((key) => allowedKeys.add(key))
+  variantAllowedKeys.forEach((key) => allowedKeys.add(key))
 
-    const sanitizedQuery = {}
-    Object.entries(to.query || {}).forEach(([key, value]) => {
-        if (!allowedKeys.has(key)) {
-            return
-        }
-        if (value === undefined || value === null || value === '') {
-            return
-        }
-        sanitizedQuery[key] = value
-    })
+  const sanitizedQuery = {}
+  Object.entries(to.query || {}).forEach(([key, value]) => {
+    if (!allowedKeys.has(key)) return
+    if (value === undefined || value === null || value === '') return
+    sanitizedQuery[key] = value
+  })
 
-    return sanitizedQuery
+  return sanitizedQuery
 }
 
 function isSameQuery(left, right) {
-    const leftKeys = Object.keys(left || {})
-    const rightKeys = Object.keys(right || {})
+  const leftKeys = Object.keys(left || {})
+  const rightKeys = Object.keys(right || {})
 
-    if (leftKeys.length !== rightKeys.length) {
-        return false
+  if (leftKeys.length !== rightKeys.length) {
+    return false
+  }
+
+  return leftKeys.every((key) => {
+    const leftValue = left[key]
+    const rightValue = right[key]
+
+    if (Array.isArray(leftValue) || Array.isArray(rightValue)) {
+      const normalizedLeft = Array.isArray(leftValue) ? leftValue : [leftValue]
+      const normalizedRight = Array.isArray(rightValue) ? rightValue : [rightValue]
+      return normalizedLeft.length === normalizedRight.length &&
+        normalizedLeft.every((item, index) => item === normalizedRight[index])
     }
 
-    return leftKeys.every((key) => {
-        const leftValue = left[key]
-        const rightValue = right[key]
-
-        if (Array.isArray(leftValue) || Array.isArray(rightValue)) {
-            const normalizedLeft = Array.isArray(leftValue) ? leftValue : [leftValue]
-            const normalizedRight = Array.isArray(rightValue) ? rightValue : [rightValue]
-            return normalizedLeft.length === normalizedRight.length &&
-                normalizedLeft.every((item, index) => item === normalizedRight[index])
-        }
-
-        return leftValue === rightValue
-    })
+    return leftValue === rightValue
+  })
 }
 
 router.beforeEach((to, from, next) => {
-    const sanitizedQuery = sanitizeQueryByRoute(to)
+  const sanitizedQuery = sanitizeQueryByRoute(to)
 
-    if (!isSameQuery(sanitizedQuery, to.query)) {
-        return next({
-            path: to.path,
-            query: sanitizedQuery,
-            hash: to.hash,
-            replace: true
-        })
-    }
-    let title = '方音圖鑑'; // 默认标题
-
-  if (to.meta.title) {
-    title = to.meta.title
+  if (!isSameQuery(sanitizedQuery, to.query)) {
+    return next({
+      path: to.path,
+      query: sanitizedQuery,
+      hash: to.hash,
+      replace: true
+    })
   }
- // 如果是 /menu 页面，检查查询参数
-    if (to.path === '/menu') {
-        const tab = to.query.tab; // 获取 `tab` 参数
-        title = MenuTitleMap[tab] || '方音圖鑑'; // 根据 `tab` 获取对应的标题，如果没有匹配到则使用默认标题
-    }
-    if (to.path === '/explore') {
-        const tab = to.query.page; // 获取 `tab` 参数
-        title = ExploreTitleMap[tab] || '方音圖鑑'; // 根据 `tab` 获取对应的标题，如果没有匹配到则使用默认标题
-    }
 
-    // 1. 登錄守衛邏輯
-    if (to.path === '/auth/data' || to.path === '/auth/regions') {
-        // 如果未登錄，直接攔截並跳轉到登錄頁
-        if (!userStore.isAuthenticated) {
-            showWarning('未授權訪問，跳回登錄頁');
-            return next({ path: '/auth', replace: true });
-        }
+  if (to.path === '/auth/data' || to.path === '/auth/regions') {
+    if (!userStore.isAuthenticated) {
+      showWarning('请先登录')
+      return next({ path: '/auth', replace: true })
     }
+  }
 
-    // 设置页面标题
-    document.title = title;
-
-    // 继续导航
-    next();
-});
+  document.title = to.meta?.title || DEFAULT_TITLE
+  next()
+})
 
 export default router

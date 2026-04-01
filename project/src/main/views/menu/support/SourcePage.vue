@@ -3,7 +3,7 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import UniversalTable from "@/main/components/TableAndTree/UniversalTable.vue";
-import { queryCount } from '@/api'
+import { queryCount } from '@/api/index.js'
 
 const { t } = useI18n()
 const router = useRouter()

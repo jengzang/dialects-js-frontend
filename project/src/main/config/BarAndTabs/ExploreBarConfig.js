@@ -92,8 +92,19 @@ export function getExploreBarChildren(configMap, tabKey) {
   return configMap[tabKey]?.navigation?.children || []
 }
 
-export function getExploreBarActiveTab(tabs, route) {
-  return tabs.find((tab) => tab.navigation?.matchPages?.includes(route.query.page))?.tab || null
+export function getExploreBarActiveTab(tabs, route, router) {
+  return tabs.find((tab) => {
+    const targets = [tab.to, ...(tab.navigation?.children || []).map((child) => child.path)]
+
+    return targets.some((target) => {
+      if (!target) return false
+
+      const resolved = router.resolve(target)
+      if (resolved.path !== route.path) return false
+
+      return Object.entries(resolved.query || {}).every(([key, value]) => route.query[key] === value)
+    })
+  })?.tab || null
 }
 
 export function matchExploreBarChildRoute(childPath, route, router) {
@@ -123,12 +134,12 @@ export function useExploreBarConfig() {
         defaultTo: { path: '/menu', query: { tab: 'tools' } },
         matchPages: ['check', 'jyut2ipa', 'merge', 'praat'],
         rememberChild: true,
-        defaultChild: '/explore?page=check',
+        defaultChild: '/explore/tools/check',
         children: [
-          { label: t('navigation.submenu.tools.check'), icon: '📝', path: '/explore?page=check' },
-          { label: t('navigation.submenu.tools.jyut2ipa'), icon: '🔜', path: '/explore?page=jyut2ipa' },
-          { label: t('navigation.submenu.tools.merge'), icon: '🔆', path: '/explore?page=merge' },
-          { label: t('navigation.submenu.tools.praat'), icon: '🎘', path: '/explore?page=praat' }
+          { label: t('navigation.submenu.tools.check'), icon: '📝', path: '/explore/tools/check' },
+          { label: t('navigation.submenu.tools.jyut2ipa'), icon: '🔜', path: '/explore/tools/jyut2ipa' },
+          { label: t('navigation.submenu.tools.merge'), icon: '🔆', path: '/explore/tools/merge' },
+          { label: t('navigation.submenu.tools.praat'), icon: '🎘', path: '/explore/tools/praat' }
         ]
       }
     }),
@@ -143,7 +154,7 @@ export function useExploreBarConfig() {
         }
       },
       navigation: {
-        defaultTo: { path: '/explore', query: { page: 'praat' } },
+        defaultTo: { path: '/explore/tools/praat' },
         matchPages: ['praat']
       }
     }),
@@ -172,10 +183,10 @@ export function useExploreBarConfig() {
         defaultTo: { path: '/menu', query: { tab: 'words' } },
         matchPages: ['YuBao', 'ycSpoken'],
         rememberChild: true,
-        defaultChild: '/explore?page=YuBao&sub=vocabulary',
+        defaultChild: '/explore/yubao?tab=vocabulary',
         children: [
-          { label: t('navigation.submenu.words.vocabulary'), icon: '📝', path: '/explore?page=YuBao&sub=vocabulary' },
-          { label: t('navigation.submenu.words.grammar'), icon: '🗣️', path: '/explore?page=YuBao&sub=grammar' },
+          { label: t('navigation.submenu.words.vocabulary'), icon: '📝', path: '/explore/yubao?tab=vocabulary' },
+          { label: t('navigation.submenu.words.grammar'), icon: '🗣️', path: '/explore/yubao?tab=grammar' },
           { label: t('navigation.submenu.words.ycSpoken'), icon: '🌀', path: '/explore?page=ycSpoken' }
         ]
       }

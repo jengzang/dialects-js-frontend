@@ -38,19 +38,19 @@ const router = useRouter()
 
 // 跳转到对应的工具页面
 const handleDataCheck = () => {
-  router.push('/explore?page=check')
+  router.push('/explore/tools/check')
 };
 
 const handleJyutpingToIpa = () => {
-  router.push('/explore?page=jyut2ipa')
+  router.push('/explore/tools/jyut2ipa')
 };
 
 const handleMergeTables = () => {
-  router.push('/explore?page=merge')
+  router.push('/explore/tools/merge')
 };
 
 const handlePraatTables = () => {
-  router.push('/praat')
+  router.push('/explore/tools/praat')
 };
 </script>
 

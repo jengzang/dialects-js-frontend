@@ -137,7 +137,7 @@ import AppModal from '@/components/common/AppModal.vue'
 import { clearToken, getToken } from '@/api/auth/auth.js'
 import { getTodayVisits, getTotalVisits, getVisitHistory } from '@/api/logs/index.js'
 import {userStore} from "@/main/store/store.js";
-import { useMenuConfig } from '@/main/config/SideBarConfig.js';
+import { useMenuConfig } from '@/main/config/BarAndTabs/SideBarConfig.js';
 import { WEB_BASE } from '@/env-config.js';
 
 const { t } = useI18n();

@@ -128,7 +128,7 @@ import {
   getExploreBarChildren,
   getExploreBarActiveTab,
   matchExploreBarChildRoute
-} from '@/main/config/ExploreBarConfig.js'
+} from '@/main/config/BarAndTabs/ExploreBarConfig.js'
 
 const { t } = useI18n()
 const route = useRoute()
@@ -214,7 +214,7 @@ const closeSubmenu = () => {
 }
 
 const getCurrentTab = () => {
-  return getExploreBarActiveTab(tabs.value, route)
+  return getExploreBarActiveTab(tabs.value, route, router)
 }
 
 const isActiveComputed = (tabName) => {

@@ -35,11 +35,11 @@ const handleYcSpoken = () => {
 };
 
 const handleYuBaoVocabulary = () => {
-  router.push('/explore?page=YuBao&sub=vocabulary')
+  router.push('/explore/yubao?tab=vocabulary')
 };
 
 const handleYuBaoGrammar = () => {
-  router.push('/explore?page=YuBao&sub=grammar')
+  router.push('/explore/yubao?tab=grammar')
 };
 </script>
 

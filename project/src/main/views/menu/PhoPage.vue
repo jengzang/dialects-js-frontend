@@ -1,6 +1,11 @@
 <template>
   <div class="pho-page">
-    <TabsContainer :tabs="tabs" :default-tab="defaultTab">
+    <TabsContainer
+      :tabs="tabs"
+      :model-value="currentTab"
+      :use-router="false"
+      @tab-change="handleTabChange"
+    >
       <template #default="{ currentTab }">
         <div class="pho-content">
           <KeepAlive>
@@ -13,7 +18,7 @@
 </template>
 
 <script setup>
-import { KeepAlive, computed, watchEffect } from 'vue'
+import { KeepAlive, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import TabsContainer from '@/components/common/TabsContainer.vue'
@@ -26,13 +31,28 @@ const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
 
-watchEffect(() => {
-  if (route.query.sub === 'pieVector') {
-    router.replace({ query: { ...route.query, sub: 'evolution' } })
-  }
-})
+const pathSectionToTab = {
+  matrix: 'phonologyMatrix',
+  custom: 'phonologyCustom',
+  count: 'Countphos',
+  evolution: 'evolution'
+}
 
-const defaultTab = route.query.sub === 'pieVector' ? 'evolution' : (route.query.sub || 'phonologyMatrix')
+const tabToPathSection = {
+  phonologyMatrix: 'matrix',
+  phonologyCustom: 'custom',
+  Countphos: 'count',
+  evolution: 'evolution'
+}
+
+const currentTab = computed(() => {
+  const routeSection = route.params.section
+  if (typeof routeSection === 'string' && pathSectionToTab[routeSection]) {
+    return pathSectionToTab[routeSection]
+  }
+
+  return 'phonologyMatrix'
+})
 
 const tabs = computed(() => [
   { name: 'phonologyMatrix', label: t('phonology.tabs.matrix') },
@@ -49,6 +69,14 @@ const tabComponentMap = {
 }
 
 const getTabComponent = (tabName) => tabComponentMap[tabName] || PhonologyMatrixPage
+
+const handleTabChange = (tabName) => {
+  const section = tabToPathSection[tabName] || 'matrix'
+  router.replace({
+    path: `/pho/${section}`,
+    query: route.query
+  })
+}
 </script>
 
 <style scoped>

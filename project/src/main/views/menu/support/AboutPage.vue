@@ -2,7 +2,9 @@
   <div class="about-page-wrapper">
     <TabsContainer
       :tabs="tabs"
-      default-tab="intro"
+      :model-value="currentTab"
+      :use-router="false"
+      @tab-change="handleTabChange"
     >
     <template #default="{ currentTab }">
       <!-- 新的"簡介"页面 -->
@@ -217,6 +219,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useRoute, useRouter } from 'vue-router'
 import { setLocale } from '@/i18n/index.js'
 import { SUPPORTED_LOCALES } from '@/i18n/localeDetector.js'
 import { showSuccess } from '@/utils/message.js'
@@ -226,7 +229,32 @@ import AppModal from '@/components/common/AppModal.vue'
 import TabsContainer from '@/components/common/TabsContainer.vue'
 
 const { t, locale } = useI18n()
+const route = useRoute()
+const router = useRouter()
 const showQRCodes = ref(false)
+
+const pathSectionToTab = {
+  intro: 'intro',
+  suggestion: 'suggestion',
+  like: 'like',
+  settings: 'setting'
+}
+
+const tabToPathSection = {
+  intro: 'intro',
+  suggestion: 'suggestion',
+  like: 'like',
+  setting: 'settings'
+}
+
+const currentTab = computed(() => {
+  const section = route.params.section
+  if (typeof section === 'string' && pathSectionToTab[section]) {
+    return pathSectionToTab[section]
+  }
+
+  return 'intro'
+})
 
 const tabs = computed(() => [
   { name: 'intro', label: t('about.tabs.intro') },
@@ -273,6 +301,14 @@ function changeLanguage(newLocale) {
   setLocale(newLocale)
   showSuccess(t('messages.success.languageChanged'))
   setTimeout(() => window.location.reload(), 500)
+}
+
+function handleTabChange(tabName) {
+  const section = tabToPathSection[tabName] || 'intro'
+  router.replace({
+    path: `/about/${section}`,
+    query: route.query
+  })
 }
 </script>
 

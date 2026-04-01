@@ -352,7 +352,7 @@ const { t } = useI18n()
 const converter = OpenCC.Converter({ from: 'tw', to: 'cn' })
 
 // --- 基础状态 ---
-const activeTab = ref(route.query.sub || 'vocabulary')
+const activeTab = ref(route.query.tab || 'vocabulary')
 const vocabularyInput = ref('')
 const grammarInput = ref('')
 const vocabularyInputEl = ref(null)
@@ -503,15 +503,15 @@ const filteredAllItems = computed(() => {
 function switchTab(tabKey) {
   activeTab.value = tabKey
   router.push({
-    path: '/explore',
-    query: { page: 'YuBao', sub: tabKey }
+    path: '/explore/yubao',
+    query: { ...route.query, tab: tabKey }
   })
 }
 
 // 监听路由变化
-watch(() => route.query.sub, (newSub) => {
-  if (newSub && tabs.value.some(tab => tab.key === newSub)) {
-    activeTab.value = newSub
+watch(() => route.query.tab, (newTab) => {
+  if (newTab && tabs.value.some(tab => tab.key === newTab)) {
+    activeTab.value = newTab
   }
 })
 
@@ -839,10 +839,10 @@ watchDebounced(
 
 onMounted(async () => {
   // 如果 URL 中没有 sub 参数，默认跳转到 vocabulary
-  if (!route.query.sub) {
+  if (!route.query.tab) {
     await router.replace({
-      path: '/explore',
-      query: {page: 'YuBao', sub: 'vocabulary'}
+      path: '/explore/yubao',
+      query: { ...route.query, tab: 'vocabulary' }
     })
   }
 

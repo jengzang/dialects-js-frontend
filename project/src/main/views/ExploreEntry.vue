@@ -1,7 +1,7 @@
 <template>
-  <component :is="currentLayout">
+  <component :is="currentLayout" v-if="activeComponent">
     <keep-alive>
-      <component :is="activeComponent" :key="route.query.page" />
+      <component :is="activeComponent" :key="route.fullPath" />
     </keep-alive>
   </component>
 </template>
@@ -9,13 +9,14 @@
 <script setup>
 import { computed, defineAsyncComponent, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { resolveLegacyExploreRoute } from '@/main/router/legacyRouteMap.js'
 
 const route = useRoute()
 const router = useRouter()
 
 const createAsyncPage = (loader) => defineAsyncComponent({
   loader,
-  delay: 120,
+  delay: 120
 })
 
 const YangChunVillages = createAsyncPage(() => import('./explore/villages/YangChunVillages.vue'))
@@ -25,7 +26,6 @@ const MergeTool = createAsyncPage(() => import('./explore/tools/MergeTool.vue'))
 const gdVillages = createAsyncPage(() => import('./explore/villages/gdVillagesTree.vue'))
 const SimpleLayout = createAsyncPage(() => import('./explore/tools/TableManage.vue'))
 const YangChunSpoken = createAsyncPage(() => import('./explore/word/YangChunSpoken.vue'))
-const YuBaoPage = createAsyncPage(() => import('./explore/word/YuBaoPage.vue'))
 const gdVillagesTable = createAsyncPage(() => import('./explore/villages/gdVillagesTable.vue'))
 const Praat = createAsyncPage(() => import('@/main/views/Praat.vue'))
 const VillagesML = createAsyncPage(() => import('@/main/views/explore/villages/VillagesML.vue'))
@@ -39,24 +39,44 @@ const pageMap = {
   gdVillages,
   manage: SimpleLayout,
   ycSpoken: YangChunSpoken,
-  YuBao: YuBaoPage,
   gdVillagesTable,
   praat: Praat,
-  CharacterClassification,
+  CharacterClassification
 }
 
-watch(() => route.query, (query) => {
-  if (query.page === 'VillagesML' && query.module && query.module !== 'dashboard') {
-    const { page, ...newQuery } = query
-    router.replace({ path: '/villagesML', query: newQuery })
-  }
-}, { immediate: true })
+watch(
+  () => route.query,
+  (query) => {
+    if (query.page === 'VillagesML' && query.module && query.module !== 'dashboard') {
+      const { page, ...newQuery } = query
+      router.replace({ path: '/villagesML', query: newQuery })
+    }
+  },
+  { immediate: true }
+)
 
-const currentLayout = computed(() => {
-  return 'div'
-})
+watch(
+  () => route.fullPath,
+  async () => {
+    const legacyTarget = resolveLegacyExploreRoute(route.query)
+    if (!legacyTarget) return
+
+    await router.replace({
+      path: legacyTarget.path,
+      query: legacyTarget.query,
+      hash: route.hash
+    })
+  },
+  { immediate: true }
+)
+
+const currentLayout = computed(() => 'div')
 
 const activeComponent = computed(() => {
+  if (resolveLegacyExploreRoute(route.query)) {
+    return null
+  }
+
   const page = route.query.page
   const module = route.query.module
 

@@ -231,7 +231,7 @@ import { useI18n } from 'vue-i18n'
 import AppModal from '@/components/common/AppModal.vue'
 // import { clearToken, getToken, saveToken } from '../../api/auth/auth.js'
 import { getTodayVisits, getTotalVisits, getVisitHistory } from '@/api/logs/index.js'
-import { useMenuConfig } from '@/main/config/SideBarConfig.js'
+import { useMenuConfig } from '@/main/config/index.js'
 import {
   filterVisibleMenuBarTabs,
   getMenuBarActiveTab,

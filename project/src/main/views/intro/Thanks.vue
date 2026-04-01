@@ -157,5 +157,3 @@ p em.emoji {
   color: #000000; /* 橙色文字強調 */
 }
 </style>
-<script setup lang="ts">
-</script>
