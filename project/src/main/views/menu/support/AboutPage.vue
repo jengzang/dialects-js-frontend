@@ -217,9 +217,9 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { setLocale } from '@/i18n'
-import { SUPPORTED_LOCALES } from '@/i18n/localeDetector'
-import { showSuccess } from '@/utils/message'
+import { setLocale } from '@/i18n/index.js'
+import { SUPPORTED_LOCALES } from '@/i18n/localeDetector.js'
+import { showSuccess } from '@/utils/message.js'
 import weixinQR from '@/assets/picture/weixin.png'
 import alipayQR from '@/assets/picture/zfb.jpg'
 import AppModal from '@/components/common/AppModal.vue'

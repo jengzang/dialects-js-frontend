@@ -69,7 +69,7 @@ export function useMenuTabsConfig() {
     mobileWeightIconOnly: 0.5,            // 移动端仅显示图标时的 flex 权重（可选，回退链：mobileWeight → weightIconOnly → weight）
     fontSize: 1.4,
     mobileFontSize: 1.5,                  // 移动端使用更大的字体
-    to: { path: '/menu', query: { tab: 'pho' } },
+    to: { path: '/pho/matrix' },
     isPseudo: false,
     hideOnMobile: false,
     hideLabelOnMobile: false,             // 移动端不隐藏标签
@@ -195,7 +195,7 @@ export function useMenuTabsConfig() {
     weight: 0.8,                          // 桌面端标签显示时的 flex 权重
     weightIconOnly: 0.25,                  // 桌面端仅显示图标时的 flex 权重（可选，默认使用 weight）
     fontSize: 1.2,
-    to: { path: '/menu', query: { tab: 'about' } },
+    to: { path: '/about/intro' },
     hideOnMobile: false,
     hideLabelOnMobile: false,             // 移动端不隐藏标签
     showLabelOnlyWhenActive: false,        // 桌面端：只有选中时显示文字，未选中只显示图标
