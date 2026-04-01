@@ -5,233 +5,233 @@ import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 /**
- * 使用响应式菜单配置（支持 i18n）
+ * 使用响应式菜单配置（支持 i18n）：
  * @returns {ComputedRef} 响应式菜单配置对象
  */
 export function useMenuConfig() {
-  const { t } = useI18n()
+    const { t } = useI18n()
 
-  return computed(() => ({
-    home: {
-      label: t('navigation.menu.home'),
-      icon: '🏠',
-      path: '/',
-      external: true,
-      children: null
-    },
-    query: {
-      label: t('navigation.menu.query'),
-      icon: '🔍️',
-      path: '/menu?tab=query',
-      children: [
-        { label: t('navigation.submenu.query.tab1'), icon: '🔣', path: '/menu?tab=query&sub=tab1' },
-        { label: t('navigation.submenu.query.tab2'), icon: '📜', path: '/menu?tab=query&sub=tab2' },
-        { label: t('navigation.submenu.query.tab3'), icon: '🗣️', path: '/menu?tab=query&sub=tab3' },
-        { label: t('navigation.submenu.query.tab4'), icon: '🎼', path: '/menu?tab=query&sub=tab4' }
-      ]
-    },
-    compare: {
-      label: t('navigation.menu.compare'),
-      icon: '↔️',
-      path: '/menu?tab=compare',
-      children: [
-        { label: t('navigation.submenu.compare.tab1'), icon: '🔠', path: '/menu?tab=compare&sub=tab1' },
-        { label: t('navigation.submenu.compare.tab2'), icon: '📜', path: '/menu?tab=compare&sub=tab2' },
-        { label: t('navigation.submenu.compare.tab4'), icon: '📈', path: '/menu?tab=compare&sub=tab4' }
-      ]
-    },
-    pho: {
-      label: t('navigation.menu.pho'),
-      icon: '🧬',
-      path: '/pho/matrix',
-      children: [
-        { label: t('navigation.submenu.pho.phonologyMatrix'), icon: '⚛️', path: '/pho/matrix' },
-        { label: t('navigation.submenu.pho.phonologyCustom'), icon: '📐', path: '/pho/custom' },
-        { label: t('navigation.submenu.pho.Countphos'), icon: '🧮', path: '/pho/count' },
-        { label: t('navigation.submenu.pho.evolution'), icon: '🥧', path: '/pho/evolution' }
-      ]
-    },
-    // cluster intentionally remains disabled in the i18n sidebar config.
-    charClass: {
-      label: t('navigation.menu.charClass'),
-      icon: '📚',
-      path: '/explore?page=CharacterClassification',
-      children: [
-        { label: t('navigation.submenu.charClass.zhonggu'), icon: '📜', path: '/explore?page=CharacterClassification&sub=zhonggu' },
-        { label: t('navigation.submenu.charClass.shanggu'), icon: '🏛️', path: '/explore?page=CharacterClassification&sub=shanggu' },
-        { label: t('navigation.submenu.charClass.jingu'), icon: '📖', path: '/explore?page=CharacterClassification&sub=jingu' },
-        { label: t('navigation.submenu.charClass.yueyun'), icon: '🎵', path: '/explore?page=CharacterClassification&sub=yueyun' }
-      ]
-    },
-    words: {
-      label: t('navigation.menu.words'),
-      icon: '📖',
-      path: '/menu?tab=words',
-      children: [
-        { label: t('navigation.submenu.words.vocabulary'), icon: '📖', path: '/explore/yubao?tab=vocabulary' },
-        { label: t('navigation.submenu.words.grammar'), icon: '🗣️', path: '/explore/yubao?tab=grammar' },
-        { label: t('navigation.submenu.words.ycSpoken'), icon: '💬', path: '/explore?page=ycSpoken' }
-      ]
-    },
-    villages: {
-      label: t('navigation.menu.villages'),
-      icon: '🏘️',
-      path: '/menu?tab=villages',
-      children: [
-        { label: t('navigation.submenu.villages.gdVillages'), icon: '🏘️', path: '/explore?page=gdVillages' },
-        { label: t('navigation.submenu.villages.VillagesML'), icon: '🤖', path: '/explore?page=VillagesML' },
-        { label: t('navigation.submenu.villages.gdVillagesTable'), icon: '📈', path: '/explore?page=gdVillagesTable' },
-        { label: t('navigation.submenu.villages.ycVillages'), icon: '🏠', path: '/explore?page=ycVillages' }
-      ]
-    },
-    tools: {
-      label: t('navigation.menu.tools'),
-      icon: '🧰',
-      path: '/menu?tab=tools',
-      children: [
-        { label: t('navigation.submenu.tools.check'), icon: '📝', path: '/explore/tools/check' },
-        { label: t('navigation.submenu.tools.jyut2ipa'), icon: '🔤', path: '/explore/tools/jyut2ipa' },
-        { label: t('navigation.submenu.tools.merge'), icon: '🔗', path: '/explore/tools/merge' },
-        { label: t('navigation.submenu.tools.praat'), icon: '👂️', path: '/explore/tools/praat' }
-      ]
-    },
-    source: {
-      label: t('navigation.menu.source'),
-      icon: '📚',
-      path: '/menu?tab=source',
-      children: [
-        { label: t('navigation.submenu.source.source'), icon: '📝', path: '/menu?tab=source' },
-        { label: t('navigation.submenu.source.privacy'), icon: '🔒', path: '/menu?tab=privacy' },
-        { label: t('navigation.submenu.source.suggestion'), icon: '💬', path: '/about/suggestion' },
-        { label: t('navigation.submenu.source.like'), icon: '❤️', path: '/about/like' }
-      ]
-    },
-    about_ontop: {
-      label: t('navigation.menu.about_ontop'),
-      icon: '🌐️',
-      path: '/about/intro',
-      children: [
-        { label: t('navigation.submenu.about.intro'), icon: 'ℹ️', path: '/about/intro' },
-        { label: t('navigation.submenu.about.suggestion'), icon: '💬', path: '/about/suggestion' },
-        { label: t('navigation.submenu.about.like'), icon: '❤️', path: '/about/like' },
-        { label: t('navigation.submenu.about.setting'), icon: '⚙️', path: '/about/settings' }
-      ],
-      showIn: ['none']
-    }
-  }))
+    return computed(() => ({
+        home: {
+            label: t('navigation.menu.home'),
+            icon: '🏠',
+            path: '/',
+            external: true,
+            children: null
+        },
+        query: {
+            label: t('navigation.menu.query'),
+            icon: '🔍',
+            path: '/menu?tab=query',
+            children: [
+                { label: t('navigation.submenu.query.tab1'), icon: '🔤', path: '/menu?tab=query&sub=tab1' },
+                { label: t('navigation.submenu.query.tab2'), icon: '📜', path: '/menu?tab=query&sub=tab2' },
+                { label: t('navigation.submenu.query.tab3'), icon: '🗂️', path: '/menu?tab=query&sub=tab3' },
+                { label: t('navigation.submenu.query.tab4'), icon: '🎙️', path: '/menu?tab=query&sub=tab4' }
+            ]
+        },
+        compare: {
+            label: t('navigation.menu.compare'),
+            icon: '↔️',
+            path: '/menu?tab=compare',
+            children: [
+                { label: t('navigation.submenu.compare.tab1'), icon: '🆚', path: '/menu?tab=compare&sub=tab1' },
+                { label: t('navigation.submenu.compare.tab2'), icon: '📜', path: '/menu?tab=compare&sub=tab2' },
+                { label: t('navigation.submenu.compare.tab4'), icon: '📊', path: '/menu?tab=compare&sub=tab4' }
+            ]
+        },
+        pho: {
+            label: t('navigation.menu.pho'),
+            icon: '🗣️',
+            path: '/pho/matrix',
+            children: [
+                { label: t('navigation.submenu.pho.phonologyMatrix'), icon: '⚙️', path: '/pho/matrix' },
+                { label: t('navigation.submenu.pho.phonologyCustom'), icon: '🧩', path: '/pho/custom' },
+                { label: t('navigation.submenu.pho.Countphos'), icon: '🧮', path: '/pho/count' },
+                { label: t('navigation.submenu.pho.evolution'), icon: '🧬', path: '/pho/evolution' }
+            ]
+        },
+        // cluster intentionally remains disabled in the i18n sidebar config.
+        charClass: {
+            label: t('navigation.menu.charClass'),
+            icon: '📚',
+            path: '/explore/char-class?tab=zhonggu',
+            children: [
+                { label: t('navigation.submenu.charClass.zhonggu'), icon: '📜', path: '/explore/char-class?tab=zhonggu' },
+                { label: t('navigation.submenu.charClass.shanggu'), icon: '🏺', path: '/explore/char-class?tab=shanggu' },
+                { label: t('navigation.submenu.charClass.jingu'), icon: '📖', path: '/explore/char-class?tab=jingu' },
+                { label: t('navigation.submenu.charClass.yueyun'), icon: '📗', path: '/explore/char-class?tab=yueyun' }
+            ]
+        },
+        words: {
+            label: t('navigation.menu.words'),
+            icon: '💬',
+            path: '/menu?tab=words',
+            children: [
+                { label: t('navigation.submenu.words.vocabulary'), icon: '📝', path: '/explore/yubao?tab=vocabulary' },
+                { label: t('navigation.submenu.words.grammar'), icon: '🗂️', path: '/explore/yubao?tab=grammar' },
+                { label: t('navigation.submenu.words.ycSpoken'), icon: '🗣️', path: '/explore/yc-spoken' }
+            ]
+        },
+        villages: {
+            label: t('navigation.menu.villages'),
+            icon: '🏕️',
+            path: '/menu?tab=villages',
+            children: [
+                { label: t('navigation.submenu.villages.gdVillages'), icon: '🏕️', path: '/explore/villages/gd' },
+                { label: t('navigation.submenu.villages.VillagesML'), icon: '🤖', path: '/explore/villages/ml' },
+                { label: t('navigation.submenu.villages.gdVillagesTable'), icon: '📊', path: '/explore/villages/table' },
+                { label: t('navigation.submenu.villages.ycVillages'), icon: '🏠', path: '/explore/villages/yc' }
+            ]
+        },
+        tools: {
+            label: t('navigation.menu.tools'),
+            icon: '🛠️',
+            path: '/menu?tab=tools',
+            children: [
+                { label: t('navigation.submenu.tools.check'), icon: '📋', path: '/explore/tools/check' },
+                { label: t('navigation.submenu.tools.jyut2ipa'), icon: '🔄', path: '/explore/tools/jyut2ipa' },
+                { label: t('navigation.submenu.tools.merge'), icon: '🔗', path: '/explore/tools/merge' },
+                { label: t('navigation.submenu.tools.praat'), icon: '🌊', path: '/explore/tools/praat' }
+            ]
+        },
+        source: {
+            label: t('navigation.menu.source'),
+            icon: '📂',
+            path: '/menu?tab=source',
+            children: [
+                { label: t('navigation.submenu.source.source'), icon: '📋', path: '/menu?tab=source' },
+                { label: t('navigation.submenu.source.privacy'), icon: '🛡️', path: '/menu?tab=privacy' },
+                { label: t('navigation.submenu.source.suggestion'), icon: '💡', path: '/about/suggestion' },
+                { label: t('navigation.submenu.source.like'), icon: '❤️', path: '/about/like' }
+            ]
+        },
+        about_ontop: {
+            label: t('navigation.menu.about_ontop'),
+            icon: '🌐',
+            path: '/about/intro',
+            children: [
+                { label: t('navigation.submenu.about.intro'), icon: 'ℹ️', path: '/about/intro' },
+                { label: t('navigation.submenu.about.suggestion'), icon: '💡', path: '/about/suggestion' },
+                { label: t('navigation.submenu.about.like'), icon: '❤️', path: '/about/like' },
+                { label: t('navigation.submenu.about.setting'), icon: '⚙️', path: '/about/settings' }
+            ],
+            showIn: ['none']
+        }
+    }))
 }
 
-// 向后兼容：导出静态版本（使用繁体中文，用于不支持 i18n 的旧代码）
+// 向后兼容：导出静态版本（使用繁体中文，用于不支持 i18n 的旧代码）：
 export const menuConfig = {
-  home: {
-    label: '首頁',
-    icon: '🏠',
-    path: '/',
-    external: true,
-    children: null
-  },
-  query: {
-    label: '查詢',
-    icon: '🔍️',
-    path: '/menu?tab=query',
-    children: [
-      { label: '查字', icon: '🔣', path: '/menu?tab=query&sub=tab1' },
-      { label: '查中古', icon: '📜', path: '/menu?tab=query&sub=tab2' },
-      { label: '查音位', icon: '🗣️', path: '/menu?tab=query&sub=tab3' },
-      { label: '查調', icon: '🎼', path: '/menu?tab=query&sub=tab4' }
-    ]
-  },
-  compare: {
-    label: '比較',
-    icon: '↔️',
-    path: '/menu?tab=compare',
-    children: [
-      { label: '漢字對比', icon: '🔠', path: '/menu?tab=compare&sub=tab1' },
-      { label: '中古對比', icon: '📜', path: '/menu?tab=compare&sub=tab2' },
-      { label: '調類對比', icon: '📈', path: '/menu?tab=compare&sub=tab4' }
-    ]
-  },
-  pho: {
-    label: '音系',
-    icon: '🧬',
-    path: '/pho/matrix',
-    children: [
-      { label: '音系查詢', icon: '⚛️', path: '/pho/matrix' },
-      { label: '音素分類', icon: '📐', path: '/pho/custom' },
-      { label: '音節統計', icon: '🧮', path: '/pho/count' },
-      { label: '演變', icon: '🥧', path: '/pho/evolution' }
-    ]
-  },
-  cluster: {
-    label: '聚類',
-    icon: '🧩',
-    path: '/menu?tab=cluster',
-    children: null
-  },
-  charClass: {
-    label: '漢字',
-    icon: '📚',
-    path: '/explore?page=CharacterClassification',
-    children: [
-      { label: '中古漢語', icon: '📜', path: '/explore?page=CharacterClassification&sub=zhonggu' },
-      { label: '上古漢語', icon: '🏛️', path: '/explore?page=CharacterClassification&sub=shanggu' },
-      { label: '近古漢語', icon: '📖', path: '/explore?page=CharacterClassification&sub=jingu' },
-      { label: '粵語韻書', icon: '🎵', path: '/explore?page=CharacterClassification&sub=yueyun' }
-    ]
-  },
-  words: {
-    label: '詞句',
-    icon: '📖',
-    path: '/menu?tab=words',
-    children: [
-      { label: '語保詞彙', icon: '📖', path: '/explore/yubao?tab=vocabulary' },
-      { label: '語保語法', icon: '🗣️', path: '/explore/yubao?tab=grammar' },
-      { label: '陽春口語詞', icon: '💬', path: '/explore?page=ycSpoken' }
-    ]
-  },
-  villages: {
-    label: '自然村',
-    icon: '🏘️',
-    path: '/menu?tab=villages',
-    children: [
-      { label: '廣東自然村', icon: '🏘️', path: '/explore?page=gdVillages' },
-      { label: '機器學習', icon: '🤖', path: '/explore?page=VillagesML' },
-      { label: '全粵村情表格', icon: '📈', path: '/explore?page=gdVillagesTable' },
-      { label: '陽春自然村', icon: '🏠', path: '/explore?page=ycVillages' }
-    ]
-  },
-  tools: {
-    label: '工具',
-    icon: '🧰',
-    path: '/menu?tab=tools',
-    children: [
-      { label: '字表工具', icon: '📝', path: '/explore/tools/check' },
-      { label: '粵拼轉IPA', icon: '🔤', path: '/explore/tools/jyut2ipa' },
-      { label: '字表合併', icon: '🔗', path: '/explore/tools/merge' },
-      { label: '聲學分析', icon: '👂️', path: '/explore/tools/praat' }
-    ]
-  },
-  source: {
-    label: '資料源',
-    icon: '📚',
-    path: '/menu?tab=source',
-    children: [
-      { label: '字表來源', icon: '📝', path: '/menu?tab=source' },
-      { label: '隱私政策', icon: '🔒', path: '/menu?tab=privacy' },
-      { label: '提出建議', icon: '💬', path: '/about/suggestion' },
-      { label: '喜歡作者', icon: '❤️', path: '/about/like' }
-    ]
-  },
-  about_ontop: {
-    label: '關於網站',
-    icon: '🌐️',
-    path: '/about/intro',
-    children: [
-      { label: '簡介', icon: 'ℹ️', path: '/about/intro' },
-      { label: '提出建議', icon: '💬', path: '/about/suggestion' },
-      { label: '喜歡作者', icon: '❤️', path: '/about/like' },
-      { label: '設置', icon: '⚙️', path: '/about/settings' }
-    ],
-    showIn: ['none']
-  }
+    home: {
+        label: '首頁',
+        icon: '🏠',
+        path: '/',
+        external: true,
+        children: null
+    },
+    query: {
+        label: '查詢',
+        icon: '🔍',
+        path: '/menu?tab=query',
+        children: [
+            { label: '查字', icon: '🔤', path: '/menu?tab=query&sub=tab1' },
+            { label: '查中古', icon: '📜', path: '/menu?tab=query&sub=tab2' },
+            { label: '查音系', icon: '🗂️', path: '/menu?tab=query&sub=tab3' },
+            { label: '查調', icon: '🎙️', path: '/menu?tab=query&sub=tab4' }
+        ]
+    },
+    compare: {
+        label: '比較',
+        icon: '↔️',
+        path: '/menu?tab=compare',
+        children: [
+            { label: '漢字對比', icon: '🆚', path: '/menu?tab=compare&sub=tab1' },
+            { label: '中古對比', icon: '📜', path: '/menu?tab=compare&sub=tab2' },
+            { label: '調類對比', icon: '📊', path: '/menu?tab=compare&sub=tab4' }
+        ]
+    },
+    pho: {
+        label: '音系',
+        icon: '🗣️',
+        path: '/pho/matrix',
+        children: [
+            { label: '音系查詢', icon: '⚙️', path: '/pho/matrix' },
+            { label: '音素分類', icon: '🧩', path: '/pho/custom' },
+            { label: '音節統計', icon: '🧮', path: '/pho/count' },
+            { label: '演變', icon: '🧬', path: '/pho/evolution' }
+        ]
+    },
+    cluster: {
+        label: '聚類',
+        icon: '🕸️',
+        path: '/menu?tab=cluster',
+        children: null
+    },
+    charClass: {
+        label: '漢字',
+        icon: '📚',
+        path: '/explore/char-class?tab=zhonggu',
+        children: [
+            { label: '中古漢語', icon: '📜', path: '/explore/char-class?tab=zhonggu' },
+            { label: '上古漢語', icon: '🏺', path: '/explore/char-class?tab=shanggu' },
+            { label: '近代漢語', icon: '📖', path: '/explore/char-class?tab=jingu' },
+            { label: '粵語韻書', icon: '📗', path: '/explore/char-class?tab=yueyun' }
+        ]
+    },
+    words: {
+        label: '詞句',
+        icon: '💬',
+        path: '/menu?tab=words',
+        children: [
+            { label: '語保詞彙', icon: '📝', path: '/explore/yubao?tab=vocabulary' },
+            { label: '語保語法', icon: '🗂️', path: '/explore/yubao?tab=grammar' },
+            { label: '陽春口語詞', icon: '🗣️', path: '/explore/yc-spoken' }
+        ]
+    },
+    villages: {
+        label: '自然村',
+        icon: '🏕️',
+        path: '/menu?tab=villages',
+        children: [
+            { label: '廣東自然村', icon: '🏕️', path: '/explore/villages/gd' },
+            { label: '機器學習', icon: '🤖', path: '/explore/villages/ml' },
+            { label: '全粵村情表格', icon: '📊', path: '/explore/villages/table' },
+            { label: '陽春自然村', icon: '🏠', path: '/explore/villages/yc' }
+        ]
+    },
+    tools: {
+        label: '工具',
+        icon: '🛠️',
+        path: '/menu?tab=tools',
+        children: [
+            { label: '字表工具', icon: '📋', path: '/explore/tools/check' },
+            { label: '粵拼轉IPA', icon: '🔄', path: '/explore/tools/jyut2ipa' },
+            { label: '字表合併', icon: '🔗', path: '/explore/tools/merge' },
+            { label: '聲學分析', icon: '🌊', path: '/explore/tools/praat' }
+        ]
+    },
+    source: {
+        label: '資料源',
+        icon: '📂',
+        path: '/menu?tab=source',
+        children: [
+            { label: '字表來源', icon: '📋', path: '/menu?tab=source' },
+            { label: '隱私政策', icon: '🛡️', path: '/menu?tab=privacy' },
+            { label: '提出建議', icon: '💡', path: '/about/suggestion' },
+            { label: '喜歡作者', icon: '❤️', path: '/about/like' }
+        ]
+    },
+    about_ontop: {
+        label: '關於網站',
+        icon: '🌐',
+        path: '/about/intro',
+        children: [
+            { label: '簡介', icon: 'ℹ️', path: '/about/intro' },
+            { label: '提出建議', icon: '💡', path: '/about/suggestion' },
+            { label: '喜歡作者', icon: '❤️', path: '/about/like' },
+            { label: '設置', icon: '⚙️', path: '/about/settings' }
+        ],
+        showIn: ['none']
+    }
 }
