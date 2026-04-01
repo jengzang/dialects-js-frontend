@@ -1,25 +1,113 @@
-import {computed} from 'vue'
-import {useI18n} from "vue-i18n";
-import {resultCache} from "@/main/store/store.js";
+import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { resultCache } from '@/main/store/store.js'
 
 // ========================================
 // MenuBar Configuration Guide
 // ========================================
 //
-// This file keeps MenuBar-compatible output, but the source config now follows
-// the same high-level grouping convention as ExploreBar:
-// - display: visual behavior and layout
-// - navigation: route target and navigation memory settings
-// - meta: reserved non-UI metadata
+// Final display config merge order:
+// 1. DISPLAY_DEFAULTS
+// 2. DISPLAY_PRESETS[display.preset]
+// 3. display.overrides
+//
+// Recommended per-tab shape:
+//
+// createMenuTab({
+//   tab: 'example',
+//   label: t('...'),
+//   icon: '...',
+//   display: {
+//     preset: 'standard',
+//     overrides: {
+//       weight: 0.9,
+//       mobileWeight: 0.9,
+//       weightIconOnly: 0.6,
+//       mobileWeightIconOnly: 0.5,
+//       fontSize: 1.4,
+//       mobileFontSize: 1.5,
+//       isPseudo: false,
+//       hideOnMobile: false,
+//       hideLabelOnMobile: false,
+//       showLabelOnlyWhenActive: false,
+//       mobileShowLabelOnlyWhenActive: true,
+//       cssClass: '',
+//       visibleWhen: null
+//     }
+//   },
+//   navigation: {
+//     defaultTo: null
+//   },
+//   meta: {}
+// })
 //
 // useMenuTabsConfig() returns grouped config objects.
 // useMenuBarConfig() flattens them back into the legacy tab shape consumed by NavBar.
 //
+const DISPLAY_DEFAULTS = {
+  weight: 0.9,
+  mobileWeight: 0.9,
+  weightIconOnly: 0.6,
+  mobileWeightIconOnly: 0.5,
+  fontSize: 1.4,
+  mobileFontSize: 1.5,
+  isPseudo: false,
+  hideOnMobile: false,
+  hideLabelOnMobile: false,
+  showLabelOnlyWhenActive: false,
+  mobileShowLabelOnlyWhenActive: true,
+  cssClass: '',
+  visibleWhen: null
+}
+
+const DISPLAY_PRESETS = {
+  standard: {},
+  compactDesktop: {
+    weight: 0.8,
+    weightIconOnly: 0.25,
+    fontSize: 1.2
+  },
+  resultTab: {
+    mobileWeightIconOnly: 0.4
+  }
+}
+
+const NAVIGATION_DEFAULTS = {
+  defaultTo: null
+}
+
 const STORAGE_KEY_PREFIX = 'menu_last_sub_'
 const MENU_CHILD_PATHS = {
   pho: ['/pho/matrix', '/pho/custom', '/pho/count', '/pho/evolution'],
   about: ['/about/intro', '/about/suggestion', '/about/like', '/about/settings']
 }
+
+const createDisplayConfig = ({ preset = 'standard', overrides = {} } = {}) => ({
+  ...DISPLAY_DEFAULTS,
+  ...(DISPLAY_PRESETS[preset] || {}),
+  ...overrides
+})
+
+const createNavigationConfig = (overrides = {}) => ({
+  ...NAVIGATION_DEFAULTS,
+  ...overrides
+})
+
+const createMenuTab = ({
+  tab,
+  label,
+  icon,
+  display,
+  navigation,
+  meta = {}
+}) => ({
+  tab,
+  label,
+  icon,
+  display: createDisplayConfig(display),
+  navigation: createNavigationConfig(navigation),
+  meta
+})
 
 function getMenuTabKeyFromRoute(route) {
   if (typeof route?.path !== 'string') return null
@@ -31,144 +119,84 @@ function getMenuTabKeyFromRoute(route) {
 }
 
 export function useMenuTabsConfig() {
-    const {t} = useI18n()
-    return computed(() => [
-        {
-            tab: 'pho',
-            label: t('navigation.tabs.phonology'),
-            icon: '🧬',
-            display: {
-                weight: 0.9,
-                mobileWeight: 0.9,
-                weightIconOnly: 0.6,
-                mobileWeightIconOnly: 0.5,
-                fontSize: 1.4,
-                mobileFontSize: 1.5,
-                isPseudo: false,
-                hideOnMobile: false,
-                hideLabelOnMobile: false,
-                showLabelOnlyWhenActive: false,
-                mobileShowLabelOnlyWhenActive: true,
-                cssClass: ''
-            },
-            navigation: {
-                defaultTo: {path: '/pho/matrix'}
-            },
-            meta: {}
-        },
-        {
-            tab: 'query',
-            label: t('navigation.tabs.query'),
-            icon: '🔍️',
-            display: {
-                weight: 0.9,
-                mobileWeight: 0.9,
-                weightIconOnly: 0.6,
-                mobileWeightIconOnly: 0.5,
-                fontSize: 1.4,
-                mobileFontSize: 1.5,
-                isPseudo: false,
-                hideOnMobile: false,
-                hideLabelOnMobile: false,
-                showLabelOnlyWhenActive: false,
-                mobileShowLabelOnlyWhenActive: true,
-                cssClass: ''
-            },
-            navigation: {
-                defaultTo: {path: '/menu', query: {tab: 'query'}}
-            },
-            meta: {}
-        },
-        {
-            tab: 'result',
-            label: t('navigation.tabs.results'),
-            icon: '📉',
-            display: {
-                weight: 0.9,
-                mobileWeight: 0.9,
-                weightIconOnly: 0.6,
-                mobileWeightIconOnly: 0.4,
-                fontSize: 1.4,
-                mobileFontSize: 1.5,
-                isPseudo: false,
-                hideOnMobile: false,
-                hideLabelOnMobile: false,
-                showLabelOnlyWhenActive: false,
-                mobileShowLabelOnlyWhenActive: true,
-                cssClass: '',
-                visibleWhen: () => resultCache.latestResults.length > 0
-            },
-            navigation: {
-                defaultTo: {path: '/menu', query: {tab: 'result'}}
-            },
-            meta: {}
-        },
-        {
-            tab: 'map',
-            label: t('navigation.tabs.map'),
-            icon: '🗺️',
-            display: {
-                weight: 0.9,
-                mobileWeight: 0.9,
-                weightIconOnly: 0.6,
-                mobileWeightIconOnly: 0.5,
-                fontSize: 1.4,
-                mobileFontSize: 1.5,
-                isPseudo: false,
-                hideOnMobile: false,
-                hideLabelOnMobile: false,
-                showLabelOnlyWhenActive: false,
-                mobileShowLabelOnlyWhenActive: true,
-                cssClass: ''
-            },
-            navigation: {
-                defaultTo: {path: '/menu', query: {tab: 'map'}}
-            },
-            meta: {}
-        },
-        {
-            tab: 'compare',
-            label: t('navigation.tabs.compare'),
-            icon: '↔️',
-            display: {
-                weight: 0.9,
-                mobileWeight: 0.9,
-                weightIconOnly: 0.6,
-                mobileWeightIconOnly: 0.5,
-                fontSize: 1.4,
-                mobileFontSize: 1.5,
-                isPseudo: false,
-                hideOnMobile: false,
-                hideLabelOnMobile: false,
-                showLabelOnlyWhenActive: false,
-                mobileShowLabelOnlyWhenActive: true,
-                cssClass: ''
-            },
-            navigation: {
-                defaultTo: {path: '/menu', query: {tab: 'compare'}}
-            },
-            meta: {}
-        },
-        {
-            tab: 'about',
-            label: t('navigation.tabs.about'),
-            icon: '🌐️',
-            display: {
-                weight: 0.8,
-                weightIconOnly: 0.25,
-                fontSize: 1.2,
-                hideOnMobile: false,
-                hideLabelOnMobile: false,
-                showLabelOnlyWhenActive: false,
-                mobileShowLabelOnlyWhenActive: true,
-                cssClass: ''
-            },
-            navigation: {
-                defaultTo: {path: '/about/intro'}
-            },
-            meta: {}
-        },
-    ])
+  const { t } = useI18n()
+
+  return computed(() => [
+    createMenuTab({
+      tab: 'pho',
+      label: t('navigation.tabs.phonology'),
+      icon: '\uD83E\uDDEC',
+      display: {
+        preset: 'standard',
+        overrides: {}
+      },
+      navigation: {
+        defaultTo: { path: '/pho/matrix' }
+      }
+    }),
+    createMenuTab({
+      tab: 'query',
+      label: t('navigation.tabs.query'),
+      icon: '\uD83D\uDD0D\uFE0F',
+      display: {
+        preset: 'standard',
+        overrides: {}
+      },
+      navigation: {
+        defaultTo: { path: '/menu', query: { tab: 'query' } }
+      }
+    }),
+    createMenuTab({
+      tab: 'result',
+      label: t('navigation.tabs.results'),
+      icon: '\uD83D\uDCC9',
+      display: {
+        preset: 'resultTab',
+        overrides: {
+          visibleWhen: () => resultCache.latestResults.length > 0
+        }
+      },
+      navigation: {
+        defaultTo: { path: '/menu', query: { tab: 'result' } }
+      }
+    }),
+    createMenuTab({
+      tab: 'map',
+      label: t('navigation.tabs.map'),
+      icon: '\uD83D\uDDFA\uFE0F',
+      display: {
+        preset: 'standard',
+        overrides: {}
+      },
+      navigation: {
+        defaultTo: { path: '/menu', query: { tab: 'map' } }
+      }
+    }),
+    createMenuTab({
+      tab: 'compare',
+      label: t('navigation.tabs.compare'),
+      icon: '\u2194\uFE0F',
+      display: {
+        preset: 'standard',
+        overrides: {}
+      },
+      navigation: {
+        defaultTo: { path: '/menu', query: { tab: 'compare' } }
+      }
+    }),
+    createMenuTab({
+      tab: 'about',
+      label: t('navigation.tabs.about'),
+      icon: '\uD83C\uDF10\uFE0F',
+      display: {
+        preset: 'compactDesktop',
+        overrides: {}
+      },
+      navigation: {
+        defaultTo: { path: '/about/intro' }
+      }
+    })
+  ])
 }
 
 export function useMenuBarConfig() {
