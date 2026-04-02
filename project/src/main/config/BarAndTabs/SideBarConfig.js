@@ -117,7 +117,7 @@ export function useSidebarConfig() {
     }))
 }
 
-export const menuConfig = {
+export const SideConfig = {
     home: {
         label: '首頁',
         icon: '🏠',
