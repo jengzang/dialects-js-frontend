@@ -271,6 +271,10 @@ const normalizeState = (tableKey, levelKeys) => {
 }
 
 const syncUrlToState = (state) => {
+  if (route.path !== '/explore/char-class') {
+    return
+  }
+
   const parsedParams = parseCharClassParams(route)
   const hasExtraTableParam = !hasMultipleTables.value && Boolean(route.query.table)
   const subMatches = route.query.tab === activeTab.value
@@ -471,6 +475,10 @@ const resetPageState = () => {
 }
 
 const applyRouteState = () => {
+  if (route.path !== '/explore/char-class') {
+    return
+  }
+
   const parsedParams = parseCharClassParams(route)
   const normalizedState = normalizeState(parsedParams.table, parsedParams.levels)
   commitState(normalizedState.tableKey, normalizedState.levels, {
