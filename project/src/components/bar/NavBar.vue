@@ -14,7 +14,7 @@
         <RouterLink
             v-for="t in tabs"
             :key="t.tab"
-            :to="t.to || { path: '/menu', query: { tab: t.tab } }"
+            :to="resolveMenuBarTarget(t)"
             custom
             v-slot="{ href, navigate, isActive }"
         >
@@ -193,7 +193,7 @@
         <RouterLink
             v-for="t in tabs"
             :key="t.tab"
-            :to="t.to || { path: '/menu', query: { tab: t.tab } }"
+            :to="resolveMenuBarTarget(t)"
             custom
             v-slot="{ href, navigate, isActive }"
         >

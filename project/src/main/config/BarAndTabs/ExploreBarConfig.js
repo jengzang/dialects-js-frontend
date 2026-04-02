@@ -198,7 +198,7 @@ export function useExploreBarConfig() {
         overrides: {}
       },
       navigation: {
-        defaultTo: { path: '/menu', query: { tab: 'tools' } },
+        defaultTo: { path: '/menu/tools' },
         matchPages: ['check', 'jyut2ipa', 'merge', 'praat'],
         activeMatchPaths: ['/explore/manage'],
         rememberChild: true,
@@ -256,7 +256,7 @@ export function useExploreBarConfig() {
         overrides: {}
       },
       navigation: {
-        defaultTo: { path: '/menu', query: { tab: 'words' } },
+        defaultTo: { path: '/menu/words' },
         matchPages: ['YuBao', 'ycSpoken'],
         rememberChild: true,
         defaultChild: '/explore/yubao?tab=vocabulary',
@@ -276,7 +276,7 @@ export function useExploreBarConfig() {
         overrides: {}
       },
       navigation: {
-        defaultTo: { path: '/menu', query: { tab: 'villages' } },
+        defaultTo: { path: '/menu/villages' },
         matchPages: ['gdVillages', 'gdVillagesTable', 'ycVillages', 'VillagesML'],
         rememberChild: true,
         defaultChild: '/explore/villages/gd',
@@ -299,7 +299,7 @@ export function useExploreBarConfig() {
         }
       },
       navigation: {
-        defaultTo: { path: '/menu', query: { tab: 'about' } }
+        defaultTo: { path: '/about/intro' }
       }
     })
   }))
