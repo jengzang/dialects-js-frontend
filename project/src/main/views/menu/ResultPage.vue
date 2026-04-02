@@ -312,6 +312,12 @@ const toneTypeOptions = computed(() => [
 
 </script>
 
+<script>
+export default {
+  name: 'ResultPage'
+}
+</script>
+
 
 <style scoped>
 .result-page-container {

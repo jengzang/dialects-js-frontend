@@ -119,7 +119,7 @@ const locationInputRef = ref(null);
 const isFilterOpen = ref(false);
 const filterWrapperRef = ref(null);
 const selectedValues = ref([]);
-const panelHeight = ref('auto');
+const panelHeight = ref('100%');
 
 // === 🌟 修改点：弹窗状态拆分 ===
 // 不再使用单一的 popupState，而是分开管理
@@ -361,9 +361,6 @@ const handleGlobalClickForFilter = (e) => {
 onMounted(() => {
   document.addEventListener('click', handleGlobalClickForFilter);
   initScrollObserver();
-  nextTick(() => {
-    if(tableData.value.length > 0) panelHeight.value = `${tableData.value.length * 30}px`;
-  });
 });
 
 onUnmounted(() => {
@@ -380,7 +377,7 @@ onUnmounted(() => {
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
-  transition: all 0.3s ease;
+  transition: box-shadow 0.3s ease, border-color 0.3s ease;
   z-index: 1;
   bottom: 1dvh;
   left: 2dvw;

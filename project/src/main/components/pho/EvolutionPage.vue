@@ -135,14 +135,18 @@
 <script setup>
 import { ref, computed, watch, onUnmounted, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useRouter } from 'vue-router'
 import * as echarts from 'echarts'
 import SimpleSelectDropdown from '@/components/selector/SimpleSelectDropdown.vue'
 import LocationMultiInput from '../geo/LocationMultiInput.vue'
 import { postPhoPieByValue, postPhoPieByStatus } from '@/api'
 import { PHONOLOGY_LOCATION_LIMITS } from '@/main/config/constants.js'
 import { TABLE_COLUMN_SCHEMAS } from '../../config/chars_positions/characters.js'
+import { userStore } from '@/main/store/store.js'
+import { showWarning } from '@/utils/message.js'
 
 const { t } = useI18n()
+const router = useRouter()
 
 // ========== 响应式数据 ==========
 // 查询参数
@@ -234,10 +238,9 @@ const pieSize = computed(() => {
 })
 
 const gridStyle = computed(() => {
-  const { cols } = gridLayout.value
   return {
     display: 'grid',
-    gridTemplateColumns: `repeat(${cols}, ${pieSize.value}px)`,
+    gridTemplateColumns: `repeat(auto-fit, minmax(${pieSize.value}px, 1fr))`,
     gap: '20px',
     padding: '20px',
     justifyContent: 'center'
@@ -246,6 +249,12 @@ const gridStyle = computed(() => {
 
 // ========== 查询方法 ==========
 const handleQuery = async () => {
+  if (!userStore.isAuthenticated) {
+    showWarning(t('user.dataPage.messages.authRequired'))
+    router.push('/auth')
+    return
+  }
+
   if (!selectedLocations.value.length) {
     errorMessage.value = t('phonology.phonology.evolution.errors.minLocation')
     return
@@ -516,7 +525,10 @@ onUnmounted(() => {
 
 <style scoped lang="scss">
 .evolution-page {
-  width: 100%;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  width: 98%;
   padding: 20px;
 }
 
@@ -530,6 +542,7 @@ onUnmounted(() => {
   --main-glass-panel-hover-shadow: 0 4px 16px rgba(0, 0, 0, 0.08), inset 0 0 0 1px rgba(255, 255, 255, 0.3);
   padding: 20px;
   margin-bottom: 20px;
+  max-width: 600px;
 }
 
 .control-row {
@@ -762,6 +775,7 @@ onUnmounted(() => {
 }
 
 .pie-grid {
+  width: 90dvw;
   position: relative;
   transform: translateZ(0);
   backface-visibility: hidden;
@@ -802,7 +816,6 @@ onUnmounted(() => {
   }
 
   .control-row {
-    flex-direction: column;
     align-items: stretch;
     gap: 8px;
   }
@@ -816,7 +829,6 @@ onUnmounted(() => {
   }
 
   .mode-selector {
-    flex-direction: column;
     gap: 12px;
   }
 
@@ -829,9 +841,4 @@ onUnmounted(() => {
   }
 }
 
-@media (max-width: 768px) and (orientation: portrait) {
-  .dimension-grid {
-    grid-template-columns: 1fr;
-  }
-}
 </style>

@@ -390,7 +390,7 @@ const loadData = async () => {
     const result = await getPhonologyClassificationMatrix(requestBody)
 
     // 調試：查看返回的數據結構
-    console.log('API result:', result)
+    // console.log('API result:', result)
 
     // 轉換數據格式
     matrixData.value = transformMatrixData(result.data || result)

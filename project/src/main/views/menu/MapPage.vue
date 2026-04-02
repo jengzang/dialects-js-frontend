@@ -106,7 +106,9 @@ const tabToRouteSub = {
   divide: 'divide',
   custom: 'custom'
 }
+const isMapRoute = computed(() => route.path.startsWith('/menu/map/'))
 const currentTab = computed(() => {
+  if (!isMapRoute.value) return null
   return routeSubToTab[route.params.sub] || 'map'
 })
 
@@ -206,6 +208,7 @@ watch(
   async (newFeature, oldFeature) => {
     // 防止重复触发
     if (!newFeature || newFeature === oldFeature) return
+    if (!isMapRoute.value) return
 
     // 只在 map tab 中触发
     if (currentTab.value !== 'map') return

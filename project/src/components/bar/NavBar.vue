@@ -239,7 +239,7 @@ import {
   resolveMenuBarTarget,
   syncMenuBarMemoryFromRoute,
   useMenuBarConfig
-} from '@/main/config/MenuBarConfig.js'
+} from '@/main/config/index.js'
 import { WEB_BASE } from '@/env-config.js'
 import { userStore, resultCache } from '@/main/store/store.js'
 

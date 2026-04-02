@@ -20,10 +20,10 @@ export function useSidebarConfig() {
             icon: '🔍',
             path: '/menu/query/zhonggu',
             children: [
-                { label: t('navigation.submenu.query.tab1'), icon: '🔤', path: '/menu/query/char' },
+                { label: t('navigation.submenu.query.tab1'), icon: '🔣', path: '/menu/query/char' },
                 { label: t('navigation.submenu.query.tab2'), icon: '📜', path: '/menu/query/zhonggu' },
-                { label: t('navigation.submenu.query.tab3'), icon: '🗂️', path: '/menu/query/yinwei' },
-                { label: t('navigation.submenu.query.tab4'), icon: '🎙️', path: '/menu/query/tone' }
+                { label: t('navigation.submenu.query.tab3'), icon: '🗣️', path: '/menu/query/yinwei' },
+                { label: t('navigation.submenu.query.tab4'), icon: '🎼', path: '/menu/query/tone' }
             ]
         },
         compare: {
@@ -31,9 +31,9 @@ export function useSidebarConfig() {
             icon: '↔️',
             path: '/menu/compare/zhonggu',
             children: [
-                { label: t('navigation.submenu.compare.tab1'), icon: '🆚', path: '/menu/compare/char' },
+                { label: t('navigation.submenu.compare.tab1'), icon: '↔️', path: '/menu/compare/char' },
                 { label: t('navigation.submenu.compare.tab2'), icon: '📜', path: '/menu/compare/zhonggu' },
-                { label: t('navigation.submenu.compare.tab4'), icon: '📊', path: '/menu/compare/tone' }
+                { label: t('navigation.submenu.compare.tab4'), icon: '📈', path: '/menu/compare/tone' }
             ]
         },
         pho: {
@@ -61,44 +61,44 @@ export function useSidebarConfig() {
         },
         words: {
             label: t('navigation.menu.words'),
-            icon: '💬',
+            icon: '📖',
             path: '/menu/words',
             children: [
-                { label: t('navigation.submenu.words.vocabulary'), icon: '📝', path: '/explore/yubao?tab=vocabulary' },
-                { label: t('navigation.submenu.words.grammar'), icon: '🗂️', path: '/explore/yubao?tab=grammar' },
-                { label: t('navigation.submenu.words.ycSpoken'), icon: '🗣️', path: '/explore/yc-spoken' }
+                { label: t('navigation.submenu.words.vocabulary'), icon: '📖', path: '/explore/yubao?tab=vocabulary' },
+                { label: t('navigation.submenu.words.grammar'), icon: '🗣️', path: '/explore/yubao?tab=grammar' },
+                { label: t('navigation.submenu.words.ycSpoken'), icon: '💬', path: '/explore/yc-spoken' }
             ]
         },
         villages: {
             label: t('navigation.menu.villages'),
-            icon: '🏕️',
+            icon: '🏘️',
             path: '/menu/villages',
             children: [
-                { label: t('navigation.submenu.villages.gdVillages'), icon: '🏕️', path: '/explore/villages/gd' },
+                { label: t('navigation.submenu.villages.gdVillages'), icon: '🏘️', path: '/explore/villages/gd' },
                 { label: t('navigation.submenu.villages.VillagesML'), icon: '🤖', path: '/explore/villages/ml' },
                 { label: t('navigation.submenu.villages.gdVillagesTable'), icon: '📊', path: '/explore/villages/table' },
-                { label: t('navigation.submenu.villages.ycVillages'), icon: '🏠', path: '/explore/villages/yc' }
+                { label: t('navigation.submenu.villages.ycVillages'), icon: '🏕️', path: '/explore/villages/yc' }
             ]
         },
         tools: {
             label: t('navigation.menu.tools'),
-            icon: '🛠️',
+            icon: '🧰',
             path: '/menu/tools',
             children: [
-                { label: t('navigation.submenu.tools.check'), icon: '📋', path: '/explore/tools/check' },
-                { label: t('navigation.submenu.tools.jyut2ipa'), icon: '🔄', path: '/explore/tools/jyut2ipa' },
+                { label: t('navigation.submenu.tools.check'), icon: '📝', path: '/explore/tools/check' },
+                { label: t('navigation.submenu.tools.jyut2ipa'), icon: '🔤', path: '/explore/tools/jyut2ipa' },
                 { label: t('navigation.submenu.tools.merge'), icon: '🔗', path: '/explore/tools/merge' },
-                { label: t('navigation.submenu.tools.praat'), icon: '🌊', path: '/explore/tools/praat' }
+                { label: t('navigation.submenu.tools.praat'), icon: '👂️', path: '/explore/tools/praat' }
             ]
         },
         source: {
             label: t('navigation.menu.source'),
-            icon: '📨',
+            icon: '📚',
             path: '/menu/source',
             children: [
                 { label: t('navigation.submenu.source.source'), icon: '📋', path: '/menu/source' },
-                { label: t('navigation.submenu.source.privacy'), icon: '🛡️', path: '/menu/privacy' },
-                { label: t('navigation.submenu.source.suggestion'), icon: '💡', path: '/menu/about/suggestion' },
+                { label: t('navigation.submenu.source.privacy'), icon: '🔒', path: '/menu/privacy' },
+                { label: t('navigation.submenu.source.suggestion'), icon: '💬', path: '/menu/about/suggestion' },
                 { label: t('navigation.submenu.source.like'), icon: '❤️', path: '/menu/about/like' }
             ]
         },
@@ -108,7 +108,7 @@ export function useSidebarConfig() {
             path: '/menu/about/intro',
             children: [
                 { label: t('navigation.submenu.about.intro'), icon: 'ℹ️', path: '/menu/about/intro' },
-                { label: t('navigation.submenu.about.suggestion'), icon: '💡', path: '/menu/about/suggestion' },
+                { label: t('navigation.submenu.about.suggestion'), icon: '💬', path: '/menu/about/suggestion' },
                 { label: t('navigation.submenu.about.like'), icon: '❤️', path: '/menu/about/like' },
                 { label: t('navigation.submenu.about.setting'), icon: '⚙️', path: '/menu/about/settings' }
             ],

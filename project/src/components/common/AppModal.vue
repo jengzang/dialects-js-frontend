@@ -152,7 +152,7 @@ function handleBackdropClose() {
 
   --modal-width: min(720px, 94dvw);
   --modal-max-height: min(70dvh, 640px);
-  --modal-background: rgba(255, 255, 255, 0.92);
+  --modal-background: rgba(255, 255, 255, 0.8);
   --modal-border: 1px solid rgba(255, 255, 255, 0.55);
   --modal-radius: 18px;
   --modal-shadow: 0 20px 60px rgba(0, 0, 0, 0.28);
@@ -202,6 +202,7 @@ function handleBackdropClose() {
 .content {
   flex: 1;
   min-height: 0;
+  border-radius: 20px;
   padding:
     var(--modal-content-padding-top)
     var(--modal-content-padding-inline)

@@ -114,8 +114,8 @@
       "title": "演变",
       "queryMode": {
         "label": "统计模式",
-        "byValue": "按值统计",
-        "byStatus": "按状态统计"
+        "byValue": "按今音统计",
+        "byStatus": "按地位统计"
       },
       "controls": {
         "table": "字符表",

@@ -8,7 +8,7 @@
   >
     <template #header>
       <!-- 头部 -->
-      <div class="partition-modal-header">
+<!--      <div class="partition-modal-header">-->
         <div class="partition-modal-title">🗂️ {{ $t('query.components.partitionModal.title') }}</div>
         <!-- 选择模式开关 -->
         <div class="selection-mode-toggle">
@@ -23,7 +23,7 @@
           </button>
         </div>
         <button class="close-btn close-btn-sm close-btn-inline" type="button" @click="closeModal">×</button>
-      </div>
+<!--      </div>-->
     </template>
 
       <!-- Tab 切换 + 确认按钮 -->

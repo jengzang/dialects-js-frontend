@@ -7,4 +7,5 @@ export const DEFAULT_API_BASE = DEFAULT_WEB_BASE + '/api';
 
 export * from './chars_positions/characters.js'
 export * from './BarAndTabs/SideBarConfig.js'
+export * from './BarAndTabs/MenuBarConfig.js'
 
