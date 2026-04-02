@@ -25,22 +25,22 @@ export const MENU_LEGACY_ROUTES = {
     }
   },
   pho: {
-    defaultPath: '/pho/matrix',
+    defaultPath: '/menu/pho/matrix',
     subMap: {
-      phonologyMatrix: '/pho/matrix',
-      phonologyCustom: '/pho/custom',
-      Countphos: '/pho/count',
-      evolution: '/pho/evolution',
-      pieVector: '/pho/evolution'
+      phonologyMatrix: '/menu/pho/matrix',
+      phonologyCustom: '/menu/pho/custom',
+      Countphos: '/menu/pho/count',
+      evolution: '/menu/pho/evolution',
+      pieVector: '/menu/pho/evolution'
     }
   },
   about: {
-    defaultPath: '/about/intro',
+    defaultPath: '/menu/about/intro',
     subMap: {
-      intro: '/about/intro',
-      suggestion: '/about/suggestion',
-      like: '/about/like',
-      setting: '/about/settings'
+      intro: '/menu/about/intro',
+      suggestion: '/menu/about/suggestion',
+      like: '/menu/about/like',
+      setting: '/menu/about/settings'
     }
   },
   result: {

@@ -140,19 +140,19 @@
           </div>
           <transition name="expand">
             <div v-if="expandedCard === 'pho'" class="card-body">
-              <a @click.stop="navigateTo('/pho/matrix')" class="feature-link">
+              <a @click.stop="navigateTo('/menu/pho/matrix')" class="feature-link">
                 <span class="link-icon">⚗️</span>
                 <span class="link-text">{{ $t('home.features.phonology.phonologyQuery') }}</span>
               </a>
-              <a @click.stop="navigateTo('/pho/custom')" class="feature-link">
+              <a @click.stop="navigateTo('/menu/pho/custom')" class="feature-link">
                 <span class="link-icon">🔬</span>
                 <span class="link-text">{{ $t('home.features.phonology.phonemeClassify') }}</span>
               </a>
-              <a @click.stop="navigateTo('/pho/count')" class="feature-link">
+              <a @click.stop="navigateTo('/menu/pho/count')" class="feature-link">
                 <span class="link-icon">📊</span>
                 <span class="link-text">{{ $t('home.features.phonology.syllableCount') }}</span>
               </a>
-              <a @click.stop="navigateTo('/pho/evolution')" class="feature-link">
+              <a @click.stop="navigateTo('/menu/pho/evolution')" class="feature-link">
                 <span class="link-icon">🥧</span>
                 <span class="link-text">{{ $t('home.features.phonology.evolution') }}</span>
               </a>
@@ -330,19 +330,19 @@
           </div>
           <transition name="expand">
             <div v-if="expandedCard === 'about'" class="card-body">
-              <a @click.stop="navigateTo('/about/intro')" class="feature-link">
+              <a @click.stop="navigateTo('/menu/about/intro')" class="feature-link">
                 <span class="link-icon">ℹ️</span>
                 <span class="link-text">{{ $t('home.features.about.intro') }}</span>
               </a>
-              <a @click.stop="navigateTo('/about/suggestion')" class="feature-link">
+              <a @click.stop="navigateTo('/menu/about/suggestion')" class="feature-link">
                 <span class="link-icon">💬</span>
                 <span class="link-text">{{ $t('home.features.about.suggestion') }}</span>
               </a>
-              <a @click.stop="navigateTo('/about/like')" class="feature-link">
+              <a @click.stop="navigateTo('/menu/about/like')" class="feature-link">
                 <span class="link-icon">❤️</span>
                 <span class="link-text">{{ $t('home.features.about.likeAuthor') }}</span>
               </a>
-              <a @click.stop="navigateTo('/about/settings')" class="feature-link">
+              <a @click.stop="navigateTo('/menu/about/settings')" class="feature-link">
                 <span class="link-icon">⚙️</span>
                 <span class="link-text">{{ $t('home.features.about.setting') }}</span>
               </a>
@@ -486,13 +486,13 @@
     <footer class="footer">
       <div class="footer-content">
         <div class="footer-links">
-          <a @click="navigateTo('/about/intro')" class="footer-link">{{ $t('home.footer.links.about') }}</a>
+          <a @click="navigateTo('/menu/about/intro')" class="footer-link">{{ $t('home.footer.links.about') }}</a>
           <span class="footer-divider">·</span>
           <a @click="navigateTo('/menu/source')" class="footer-link">{{ $t('home.footer.links.source') }}</a>
           <span class="footer-divider">·</span>
           <a @click="navigateTo('/menu/privacy')" class="footer-link">{{ $t('home.footer.links.privacy') }}</a>
           <span class="footer-divider">·</span>
-          <a @click="navigateTo('/about/settings')" class="footer-link">{{ $t('home.footer.links.setting') }}</a>
+          <a @click="navigateTo('/menu/about/settings')" class="footer-link">{{ $t('home.footer.links.setting') }}</a>
           <span class="footer-divider">·</span>
           <a href="https://dialects.yzup.top/detail/" target="_blank" class="footer-link">{{ $t('home.footer.links.oldSite') }}</a>
           <span class="footer-divider">·</span>

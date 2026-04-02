@@ -73,7 +73,7 @@ const getTabComponent = (tabName) => tabComponentMap[tabName] || PhonologyMatrix
 const resolveTabRoute = (tabName) => {
   const section = tabToPathSection[tabName] || 'matrix'
   return {
-    path: `/pho/${section}`,
+    path: `/menu/pho/${section}`,
     query: route.query
   }
 }

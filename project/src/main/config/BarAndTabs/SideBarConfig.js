@@ -39,12 +39,12 @@ export function useSidebarConfig() {
         pho: {
             label: t('navigation.menu.pho'),
             icon: '🧬',
-            path: '/pho/matrix',
+            path: '/menu/pho/matrix',
             children: [
-                { label: t('navigation.submenu.pho.phonologyMatrix'), icon: '⚛️', path: '/pho/matrix' },
-                { label: t('navigation.submenu.pho.phonologyCustom'), icon: '📐', path: '/pho/custom' },
-                { label: t('navigation.submenu.pho.Countphos'), icon: '🧮', path: '/pho/count' },
-                { label: t('navigation.submenu.pho.evolution'), icon: '🥧', path: '/pho/evolution' }
+                { label: t('navigation.submenu.pho.phonologyMatrix'), icon: '⚛️', path: '/menu/pho/matrix' },
+                { label: t('navigation.submenu.pho.phonologyCustom'), icon: '📐', path: '/menu/pho/custom' },
+                { label: t('navigation.submenu.pho.Countphos'), icon: '🧮', path: '/menu/pho/count' },
+                { label: t('navigation.submenu.pho.evolution'), icon: '🥧', path: '/menu/pho/evolution' }
             ]
         },
         // cluster intentionally remains disabled in the i18n sidebar config.
@@ -98,19 +98,19 @@ export function useSidebarConfig() {
             children: [
                 { label: t('navigation.submenu.source.source'), icon: '📋', path: '/menu/source' },
                 { label: t('navigation.submenu.source.privacy'), icon: '🛡️', path: '/menu/privacy' },
-                { label: t('navigation.submenu.source.suggestion'), icon: '💡', path: '/about/suggestion' },
-                { label: t('navigation.submenu.source.like'), icon: '❤️', path: '/about/like' }
+                { label: t('navigation.submenu.source.suggestion'), icon: '💡', path: '/menu/about/suggestion' },
+                { label: t('navigation.submenu.source.like'), icon: '❤️', path: '/menu/about/like' }
             ]
         },
         about_ontop: {
             label: t('navigation.menu.about_ontop'),
             icon: '🌐',
-            path: '/about/intro',
+            path: '/menu/about/intro',
             children: [
-                { label: t('navigation.submenu.about.intro'), icon: 'ℹ️', path: '/about/intro' },
-                { label: t('navigation.submenu.about.suggestion'), icon: '💡', path: '/about/suggestion' },
-                { label: t('navigation.submenu.about.like'), icon: '❤️', path: '/about/like' },
-                { label: t('navigation.submenu.about.setting'), icon: '⚙️', path: '/about/settings' }
+                { label: t('navigation.submenu.about.intro'), icon: 'ℹ️', path: '/menu/about/intro' },
+                { label: t('navigation.submenu.about.suggestion'), icon: '💡', path: '/menu/about/suggestion' },
+                { label: t('navigation.submenu.about.like'), icon: '❤️', path: '/menu/about/like' },
+                { label: t('navigation.submenu.about.setting'), icon: '⚙️', path: '/menu/about/settings' }
             ],
             showIn: ['none']
         }
@@ -149,12 +149,12 @@ export const menuConfig = {
     pho: {
         label: '音系',
         icon: '🗣️',
-        path: '/pho/matrix',
+        path: '/menu/pho/matrix',
         children: [
-            { label: '音系查詢', icon: '⚙️', path: '/pho/matrix' },
-            { label: '音素分類', icon: '🧩', path: '/pho/custom' },
-            { label: '音節統計', icon: '🧮', path: '/pho/count' },
-            { label: '演變', icon: '🧬', path: '/pho/evolution' }
+            { label: '音系查詢', icon: '⚙️', path: '/menu/pho/matrix' },
+            { label: '音素分類', icon: '🧩', path: '/menu/pho/custom' },
+            { label: '音節統計', icon: '🧮', path: '/menu/pho/count' },
+            { label: '演變', icon: '🧬', path: '/menu/pho/evolution' }
         ]
     },
     cluster: {
@@ -213,19 +213,19 @@ export const menuConfig = {
         children: [
             { label: '字表來源', icon: '📋', path: '/menu/source' },
             { label: '隱私政策', icon: '🛡️', path: '/menu/privacy' },
-            { label: '提出建議', icon: '💡', path: '/about/suggestion' },
-            { label: '喜歡作者', icon: '❤️', path: '/about/like' }
+            { label: '提出建議', icon: '💡', path: '/menu/about/suggestion' },
+            { label: '喜歡作者', icon: '❤️', path: '/menu/about/like' }
         ]
     },
     about_ontop: {
         label: '關於網站',
         icon: '🌐',
-        path: '/about/intro',
+        path: '/menu/about/intro',
         children: [
-            { label: '簡介', icon: 'ℹ️', path: '/about/intro' },
-            { label: '提出建議', icon: '💡', path: '/about/suggestion' },
-            { label: '喜歡作者', icon: '❤️', path: '/about/like' },
-            { label: '設置', icon: '⚙️', path: '/about/settings' }
+            { label: '簡介', icon: 'ℹ️', path: '/menu/about/intro' },
+            { label: '提出建議', icon: '💡', path: '/menu/about/suggestion' },
+            { label: '喜歡作者', icon: '❤️', path: '/menu/about/like' },
+            { label: '設置', icon: '⚙️', path: '/menu/about/settings' }
         ],
         showIn: ['none']
     }

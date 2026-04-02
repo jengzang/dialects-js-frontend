@@ -13,11 +13,11 @@ const DialectClusteringPage = () => import('@/main/views/menu/DialectClustering.
 
 export const menuRoutes = [
   {
-    path: '/pho/:section(matrix|custom|count|evolution)',
+    path: '/menu/pho/:section(matrix|custom|count|evolution)',
     component: PhoPage
   },
   {
-    path: '/about/:section(intro|suggestion|like|settings)',
+    path: '/menu/about/:section(intro|suggestion|like|settings)',
     component: AboutPage
   },
   {

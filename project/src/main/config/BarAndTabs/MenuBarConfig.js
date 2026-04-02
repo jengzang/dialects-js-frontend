@@ -81,8 +81,8 @@ const MENU_CHILD_PATHS = {
   query: ['/menu/query/char', '/menu/query/zhonggu', '/menu/query/yinwei', '/menu/query/tone'],
   compare: ['/menu/compare/char', '/menu/compare/zhonggu', '/menu/compare/tone'],
   map: ['/menu/map/view', '/menu/map/divide', '/menu/map/custom'],
-  pho: ['/pho/matrix', '/pho/custom', '/pho/count', '/pho/evolution'],
-  about: ['/about/intro', '/about/suggestion', '/about/like', '/about/settings']
+  pho: ['/menu/pho/matrix', '/menu/pho/custom', '/menu/pho/count', '/menu/pho/evolution'],
+  about: ['/menu/about/intro', '/menu/about/suggestion', '/menu/about/like', '/menu/about/settings']
 }
 
 const createDisplayConfig = ({ preset = 'standard', overrides = {} } = {}) => ({
@@ -125,8 +125,8 @@ function getMenuTabKeyFromRoute(route) {
   if (route.path === '/menu/words') return 'words'
   if (route.path === '/menu/villages') return 'villages'
   if (route.path === '/menu/cluster') return 'cluster'
-  if (route.path.startsWith('/pho/')) return 'pho'
-  if (route.path.startsWith('/about/')) return 'about'
+  if (route.path.startsWith('/menu/pho/')) return 'pho'
+  if (route.path.startsWith('/menu/about/')) return 'about'
 
   return route?.query?.tab || null
 }
@@ -144,7 +144,7 @@ export function useMenuTabsConfig() {
         overrides: {}
       },
       navigation: {
-        defaultTo: { path: '/pho/matrix' }
+        defaultTo: { path: '/menu/pho/matrix' }
       }
     }),
     createMenuTab({
@@ -206,7 +206,7 @@ export function useMenuTabsConfig() {
         overrides: {}
       },
       navigation: {
-        defaultTo: { path: '/about/intro' }
+        defaultTo: { path: '/menu/about/intro' }
       }
     })
   ])

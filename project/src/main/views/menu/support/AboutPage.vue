@@ -306,7 +306,7 @@ function changeLanguage(newLocale) {
 function resolveTabRoute(tabName) {
   const section = tabToPathSection[tabName] || 'intro'
   return {
-    path: `/about/${section}`,
+    path: `/menu/about/${section}`,
     query: route.query
   }
 }

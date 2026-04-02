@@ -172,17 +172,29 @@ const ROUTE_QUERY_ALLOWLIST = {
   '/explore/villages/ml': {
     base: []
   },
-  '/pho/matrix': {
+  '/menu/pho/matrix': {
     base: ['loc', 'feature', 'h', 'v', 'c']
   },
-  '/pho/custom': {
+  '/menu/pho/custom': {
     base: ['loc', 'feature', 'h', 'v', 'c']
   },
-  '/pho/count': {
+  '/menu/pho/count': {
     base: ['loc', 'feature', 'h', 'v', 'c']
   },
-  '/pho/evolution': {
+  '/menu/pho/evolution': {
     base: ['loc', 'feature', 'h', 'v', 'c']
+  },
+  '/menu/about/intro': {
+    base: []
+  },
+  '/menu/about/suggestion': {
+    base: []
+  },
+  '/menu/about/like': {
+    base: []
+  },
+  '/menu/about/settings': {
+    base: []
   },
   '/menu/result': {
     base: []
