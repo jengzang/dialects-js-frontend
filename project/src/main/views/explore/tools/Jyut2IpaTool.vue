@@ -262,14 +262,14 @@
         </button>
       </div>
 
-      <div class="jyut2ipa-config-footer">
-        <button class="main-glass-button" data-variant="secondary" @click="resetConfigConfirm">
-          🔄 {{ t('tools.jyut2ipa.actions.resetDefault') }}
-        </button>
-        <button class="main-glass-button" data-variant="primary" @click="saveConfig">
-          💾 {{ t('tools.jyut2ipa.actions.saveConfig') }}
-        </button>
-      </div>
+      <template #footer>
+          <button class="main-glass-button" data-variant="secondary" @click="resetConfigConfirm">
+            🔄 {{ t('tools.jyut2ipa.actions.resetDefault') }}
+          </button>
+          <button class="main-glass-button" data-variant="primary" @click="saveConfig">
+            💾 {{ t('tools.jyut2ipa.actions.saveConfig') }}
+          </button>
+      </template>
     </AppModal>
 
     <input
@@ -1013,6 +1013,7 @@ loadConfig()
 }
 
 .jyut2ipa-config-title {
+  margin:3px;
   white-space: nowrap;
 }
 

@@ -49,7 +49,7 @@
     },
     "complete": {
       "title": "转换已完成",
-      "text": "已生成可下载结果与前 10 行预览。",
+      "text": "已生成可下载结果",
       "previewTitle": "结果预览（前 10 行）"
     },
     "preview": {

@@ -1,6 +1,6 @@
 <template>
   <div class="merge-tool-container">
-    <div class="glass-container glass-container-shell">
+    <div class="glass-container glass-container-shell" style="max-height: 80dvh;overflow: auto;">
       <div class="header-section">
         <h2 class="title">{{ t('tools.merge.page.title') }}</h2>
         <p class="subtitle">{{ t('tools.merge.page.subtitle') }}</p>
@@ -322,7 +322,8 @@
         </div>
       </div>
 
-      <div class="merge-default-ref-footer">
+      <template #footer>
+<!--        <div class="merge-default-ref-footer">-->
         <button class="main-glass-button" data-variant="primary" @click="downloadDefaultReference">
             <span class="icon">⬇️</span>
             <span>{{ t('tools.merge.modal.downloadDefault') }}</span>
@@ -336,7 +337,8 @@
             <span class="icon">✅</span>
             <span>{{ t('tools.merge.modal.useDefault') }}</span>
         </button>
-      </div>
+<!--        </div>-->
+      </template>
     </AppModal>
   </div>
 </template>
@@ -854,7 +856,7 @@ const reset = () => {
 }
 
 .upload-zone {
-  padding: 30px 40px;
+  padding: 10px 40px;
   background: rgba(255, 255, 255, 0.4);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
@@ -866,7 +868,7 @@ const reset = () => {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 12px;
+  gap: 5px;
 }
 
 .upload-zone:hover {
@@ -882,7 +884,7 @@ const reset = () => {
 }
 
 .upload-icon {
-  font-size: 56px;
+  font-size: 40px;
   animation: float 3s ease-in-out infinite;
 }
 
