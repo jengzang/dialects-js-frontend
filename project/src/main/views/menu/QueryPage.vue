@@ -1,5 +1,5 @@
 <template>
-  <TabsContainer :tabs="tabs" :default-tab="route.query.sub || 'tab2'" v-slot="{ currentTab }">
+  <TabsContainer :tabs="tabs" :model-value="currentTab" :use-router="false" @tab-change="handleTabChange" v-slot="{ currentTab }">
     <div class="tab-content-inner query-page-root">
       <div v-show="currentTab === 'tab1'" class="page">
         <div class="page-content-stack">
@@ -226,7 +226,19 @@ const { keyValueMap, availableKeys, exclusiveRules, singleSelectKeys } = useQuer
 const locationRef = ref(null)
 const router = useRouter()
 const route = useRoute()
-const currentTab = computed(() => route.query.sub || 'tab2')
+const routeSubToTab = {
+  char: 'tab1',
+  zhonggu: 'tab2',
+  yinwei: 'tab3',
+  tone: 'tab4'
+}
+const tabToRouteSub = {
+  tab1: 'char',
+  tab2: 'zhonggu',
+  tab3: 'yinwei',
+  tab4: 'tone'
+}
+const currentTab = computed(() => routeSubToTab[route.params.sub] || 'tab2')
 const tabs = [
   { name: 'tab1', label: t('query.tab1.title') },
   { name: 'tab2', label: t('query.tab2.title') },
@@ -508,8 +520,7 @@ const runAction = async () => {
   }
   // 3. 纯净跳转
   await router.replace({
-    path: '/menu',
-    query: { tab: 'result' }
+    path: '/menu/result'
   });
   setRunning('query', false); // 請求結束，關閉 loading 狀態
 }
@@ -558,6 +569,14 @@ function handleApplyConfig(data) {
     // Tab2: 更新下拉菜單映射
     tabStates.tab2.valueMap = data.valuesMap
   }
+}
+
+function handleTabChange(tabName) {
+  const sub = tabToRouteSub[tabName] || 'zhonggu'
+  router.replace({
+    path: `/menu/query/${sub}`,
+    query: route.query
+  })
 }
 
 onMounted(() => {

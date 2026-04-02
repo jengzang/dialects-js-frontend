@@ -298,7 +298,7 @@ watch(
 );
 
 const goToQuery = () => {
-  router.push({ query: { tab: 'query' } });
+  router.push('/menu/query/zhonggu');
 };
 
 // ================= ✨ Tab1 Dropdown 邏輯 (使用 SimpleSelectDropdown) =================

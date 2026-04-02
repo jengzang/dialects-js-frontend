@@ -1,4 +1,29 @@
 export const MENU_LEGACY_ROUTES = {
+  query: {
+    defaultPath: '/menu/query/zhonggu',
+    subMap: {
+      tab1: '/menu/query/char',
+      tab2: '/menu/query/zhonggu',
+      tab3: '/menu/query/yinwei',
+      tab4: '/menu/query/tone'
+    }
+  },
+  compare: {
+    defaultPath: '/menu/compare/zhonggu',
+    subMap: {
+      tab1: '/menu/compare/char',
+      tab2: '/menu/compare/zhonggu',
+      tab4: '/menu/compare/tone'
+    }
+  },
+  map: {
+    defaultPath: '/menu/map/view',
+    subMap: {
+      map: '/menu/map/view',
+      divide: '/menu/map/divide',
+      custom: '/menu/map/custom'
+    }
+  },
   pho: {
     defaultPath: '/pho/matrix',
     subMap: {

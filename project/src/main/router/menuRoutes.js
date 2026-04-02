@@ -1,5 +1,8 @@
 const PhoPage = () => import('@/main/views/menu/PhoPage.vue')
 const AboutPage = () => import('@/main/views/menu/support/AboutPage.vue')
+const QueryPage = () => import('@/main/views/menu/QueryPage.vue')
+const ComparePage = () => import('@/main/views/menu/ComparePage.vue')
+const MapPage = () => import('@/main/views/menu/MapPage.vue')
 const ResultPage = () => import('@/main/views/menu/ResultPage.vue')
 const SourcePage = () => import('@/main/views/menu/support/SourcePage.vue')
 const PrivacyPage = () => import('@/main/views/menu/support/PrivacyPage.vue')
@@ -16,6 +19,30 @@ export const menuRoutes = [
   {
     path: '/about/:section(intro|suggestion|like|settings)',
     component: AboutPage
+  },
+  {
+    path: '/menu/query',
+    redirect: '/menu/query/zhonggu'
+  },
+  {
+    path: '/menu/query/:sub(char|zhonggu|yinwei|tone)',
+    component: QueryPage
+  },
+  {
+    path: '/menu/compare',
+    redirect: '/menu/compare/zhonggu'
+  },
+  {
+    path: '/menu/compare/:sub(char|zhonggu|tone)',
+    component: ComparePage
+  },
+  {
+    path: '/menu/map',
+    redirect: '/menu/map/view'
+  },
+  {
+    path: '/menu/map/:sub(view|divide|custom)',
+    component: MapPage
   },
   {
     path: '/menu/result',

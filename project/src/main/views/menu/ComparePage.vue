@@ -1,5 +1,5 @@
 <template>
-  <TabsContainer :tabs="tabs" :default-tab="route.query.sub || 'tab2'" v-slot="{ currentTab }">
+  <TabsContainer :tabs="tabs" :model-value="currentTab" :use-router="false" @tab-change="handleTabChange" v-slot="{ currentTab }">
     <div class="tab-content-inner compare-page-root">
       <!-- Tab1: 比較漢字 -->
       <div v-show="currentTab === 'tab1'" class="page">
@@ -272,7 +272,17 @@ const { keyValueMap, availableKeys, exclusiveRules, singleSelectKeys } = useQuer
 const locationRef = ref(null)
 const router = useRouter()
 const route = useRoute()
-const currentTab = computed(() => route.query.sub || 'tab2')
+const routeSubToTab = {
+  char: 'tab1',
+  zhonggu: 'tab2',
+  tone: 'tab4'
+}
+const tabToRouteSub = {
+  tab1: 'char',
+  tab2: 'zhonggu',
+  tab4: 'tone'
+}
+const currentTab = computed(() => routeSubToTab[route.params.sub] || 'tab2')
 const tabs = computed(() => [
   { name: 'tab1', label: t('compare.tabs.tab1') },
   { name: 'tab2', label: t('compare.tabs.tab2') },
@@ -974,8 +984,7 @@ const runAction = async () => {
 
       // 8. 跳转到地图页面
       await router.replace({
-        path: '/menu',
-        query: { tab: 'map' }
+        path: '/menu/map/view'
       });
     } else {
       // console.error('❌ Compare API 响应无效:', compareResponse)
@@ -1154,6 +1163,14 @@ function createComparisonItem(location, coordinate, feature, status, data, pair)
     status: status,
     pair: pair.join(' vs ')
   }
+}
+
+function handleTabChange(tabName) {
+  const sub = tabToRouteSub[tabName] || 'zhonggu'
+  router.replace({
+    path: `/menu/compare/${sub}`,
+    query: route.query
+  })
 }
 
 function createZhongGuComparisonItem(location, coordinate, feature, featureData) {

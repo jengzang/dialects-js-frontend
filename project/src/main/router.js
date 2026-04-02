@@ -204,6 +204,36 @@ const ROUTE_QUERY_ALLOWLIST = {
   },
   '/menu/cluster': {
     base: []
+  },
+  '/menu/query/char': {
+    base: []
+  },
+  '/menu/query/zhonggu': {
+    base: []
+  },
+  '/menu/query/yinwei': {
+    base: []
+  },
+  '/menu/query/tone': {
+    base: []
+  },
+  '/menu/compare/char': {
+    base: []
+  },
+  '/menu/compare/zhonggu': {
+    base: []
+  },
+  '/menu/compare/tone': {
+    base: []
+  },
+  '/menu/map/view': {
+    base: ['feature', 'locations', 'regions', 'regionMode', 'openPanel']
+  },
+  '/menu/map/divide': {
+    base: []
+  },
+  '/menu/map/custom': {
+    base: []
   }
 }
 

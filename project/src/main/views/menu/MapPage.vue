@@ -1,7 +1,9 @@
 <template>
   <TabsContainer
     :tabs="tabs"
-    default-tab="map"
+    :model-value="currentTab"
+    :use-router="false"
+    @tab-change="handleTabChange"
   >
     <!-- Tab 右侧额外内容 -->
     <template #tab-extra>
@@ -94,8 +96,18 @@ const route = useRoute()
 const mapClickCoordinates = ref(null)
 
 // Tab 邏輯 (需要保留，因为 tab-extra 插槽中要用)
+const routeSubToTab = {
+  view: 'map',
+  divide: 'divide',
+  custom: 'custom'
+}
+const tabToRouteSub = {
+  map: 'view',
+  divide: 'divide',
+  custom: 'custom'
+}
 const currentTab = computed(() => {
-  return route.query.sub || 'map'
+  return routeSubToTab[route.params.sub] || 'map'
 })
 
 const tabs = computed(() => [
@@ -196,7 +208,7 @@ watch(
     if (!newFeature || newFeature === oldFeature) return
 
     // 只在 map tab 中触发
-    if (route.query.sub !== 'map') return
+    if (currentTab.value !== 'map') return
 
     try {
       // 提取路由参数
@@ -236,6 +248,14 @@ watch(
   },
   { immediate: true } // 立即执行一次，检查初始路由参数
 )
+
+const handleTabChange = (tabName) => {
+  const sub = tabToRouteSub[tabName] || 'view'
+  router.replace({
+    path: `/menu/map/${sub}`,
+    query: route.query
+  })
+}
 
 </script>
 
