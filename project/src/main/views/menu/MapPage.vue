@@ -2,6 +2,7 @@
   <TabsContainer
     :tabs="tabs"
     :model-value="currentTab"
+    :use-router="false"
     @tab-change="handleTabChange"
   >
     <!-- Tab 右侧额外内容 -->

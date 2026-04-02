@@ -1,5 +1,5 @@
 <template>
-  <TabsContainer :tabs="tabs" :model-value="currentTab" @tab-change="handleTabChange" v-slot="{ currentTab }">
+  <TabsContainer :tabs="tabs" :model-value="currentTab" :use-router="false" @tab-change="handleTabChange" v-slot="{ currentTab }">
     <div class="tab-content-inner query-page-root">
       <div v-show="currentTab === 'tab1'" class="page">
         <div class="page-content-stack">
