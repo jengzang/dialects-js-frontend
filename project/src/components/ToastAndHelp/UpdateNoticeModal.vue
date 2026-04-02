@@ -2,6 +2,9 @@
   <AppModal
     :model-value="visible"
     size="sm"
+    width="100%"
+    max-width="600px"
+    max-height="80vh"
     :close-label="$t('common.button.close')"
     :show-close="false"
     @update:modelValue="handleClose"

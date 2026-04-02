@@ -2,6 +2,8 @@
   <AppModal
     :model-value="confirmState.show"
     size="sm"
+    width="90%"
+    max-width="400px"
     :show-close="false"
     :z-index="100000"
     @update:modelValue="handleCancel"

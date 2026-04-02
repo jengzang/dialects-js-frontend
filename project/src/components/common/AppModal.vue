@@ -11,6 +11,7 @@
       >
         <div
           class="panel"
+          :style="panelStyle"
           :role="dialogRole"
           :aria-modal="dialogRole === 'dialog' ? 'true' : undefined"
           @click.stop
@@ -81,6 +82,22 @@ const props = defineProps({
     type: [Number, String],
     default: 20000
   },
+  width: {
+    type: [Number, String],
+    default: ''
+  },
+  height: {
+    type: [Number, String],
+    default: ''
+  },
+  maxWidth: {
+    type: [Number, String],
+    default: ''
+  },
+  maxHeight: {
+    type: [Number, String],
+    default: ''
+  },
   closeLabel: {
     type: String,
     default: 'Close'
@@ -122,6 +139,21 @@ const resolvedSize = computed(() => (props.size === 'lg' ? 'lg' : 'sm'))
 
 const rootStyle = computed(() => ({
   '--app-modal-z-index': String(props.zIndex)
+}))
+
+function normalizeSize(value) {
+  if (value === '' || value === null || value === undefined) {
+    return undefined
+  }
+
+  return typeof value === 'number' ? `${value}px` : value
+}
+
+const panelStyle = computed(() => ({
+  width: normalizeSize(props.width),
+  height: normalizeSize(props.height),
+  maxWidth: normalizeSize(props.maxWidth),
+  maxHeight: normalizeSize(props.maxHeight)
 }))
 
 const resolvedCloseButtonClass = computed(() => defaultCloseButtonClassMap[resolvedSize.value])
