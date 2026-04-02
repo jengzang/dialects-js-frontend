@@ -120,8 +120,7 @@ const runAction = async () => {
 
     // 切換回地圖 Tab
     await router.replace({
-      path: '/menu/map/view',
-      query: route.query
+      path: '/menu/map/view'
     });
 
   } catch (error) {
