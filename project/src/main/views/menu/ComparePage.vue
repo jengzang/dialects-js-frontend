@@ -1,5 +1,11 @@
 <template>
-  <TabsContainer :tabs="tabs" :model-value="currentTab" :use-router="false" @tab-change="handleTabChange" v-slot="{ currentTab }">
+  <TabsContainer
+    :tabs="tabs"
+    :model-value="currentTab"
+    :route-value="currentTab"
+    :resolve-route="resolveTabRoute"
+    v-slot="{ currentTab }"
+  >
     <div class="tab-content-inner compare-page-root">
       <!-- Tab1: 比較漢字 -->
       <div v-show="currentTab === 'tab1'" class="page">
@@ -1165,12 +1171,12 @@ function createComparisonItem(location, coordinate, feature, status, data, pair)
   }
 }
 
-function handleTabChange(tabName) {
+function resolveTabRoute(tabName) {
   const sub = tabToRouteSub[tabName] || 'zhonggu'
-  router.replace({
+  return {
     path: `/menu/compare/${sub}`,
     query: route.query
-  })
+  }
 }
 
 function createZhongGuComparisonItem(location, coordinate, feature, featureData) {

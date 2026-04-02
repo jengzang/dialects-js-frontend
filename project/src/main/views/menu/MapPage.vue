@@ -2,8 +2,8 @@
   <TabsContainer
     :tabs="tabs"
     :model-value="currentTab"
-    :use-router="false"
-    @tab-change="handleTabChange"
+    :route-value="currentTab"
+    :resolve-route="resolveTabRoute"
   >
     <!-- Tab 右侧额外内容 -->
     <template #tab-extra>
@@ -249,12 +249,12 @@ watch(
   { immediate: true } // 立即执行一次，检查初始路由参数
 )
 
-const handleTabChange = (tabName) => {
+const resolveTabRoute = (tabName) => {
   const sub = tabToRouteSub[tabName] || 'view'
-  router.replace({
+  return {
     path: `/menu/map/${sub}`,
     query: route.query
-  })
+  }
 }
 
 </script>

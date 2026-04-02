@@ -3,8 +3,8 @@
     <TabsContainer
       :tabs="tabs"
       :model-value="currentTab"
-      :use-router="false"
-      @tab-change="handleTabChange"
+      :route-value="currentTab"
+      :resolve-route="resolveTabRoute"
     >
       <template #default="{ currentTab }">
         <div class="pho-content">
@@ -70,12 +70,12 @@ const tabComponentMap = {
 
 const getTabComponent = (tabName) => tabComponentMap[tabName] || PhonologyMatrixPage
 
-const handleTabChange = (tabName) => {
+const resolveTabRoute = (tabName) => {
   const section = tabToPathSection[tabName] || 'matrix'
-  router.replace({
+  return {
     path: `/pho/${section}`,
     query: route.query
-  })
+  }
 }
 </script>
 

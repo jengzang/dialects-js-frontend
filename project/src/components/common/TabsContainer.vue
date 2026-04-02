@@ -50,7 +50,19 @@ const props = defineProps({
     default: true
   },
 
-  // 默认选中的 tab (当 modelValue 和 route.query.sub 都为空时使用)
+  // 路由模式下当前对应的 tab 值，由外层根据 params/query 映射后传入
+  routeValue: {
+    type: String,
+    default: ''
+  },
+
+  // 路由模式下点击 tab 后的跳转解析函数，返回 router.replace 的 location
+  resolveRoute: {
+    type: Function,
+    default: null
+  },
+
+  // 默认选中的 tab
   defaultTab: {
     type: String,
     default: ''
@@ -65,10 +77,8 @@ const router = useRouter()
 // 计算当前选中的 tab
 const currentTab = computed(() => {
   if (props.useRouter) {
-    // 路由模式：优先使用 route.query.sub，其次 modelValue，最后 defaultTab
-    return route.query.sub || props.modelValue || props.defaultTab || (props.tabs[0]?.name || '')
+    return props.routeValue || props.modelValue || props.defaultTab || (props.tabs[0]?.name || '')
   } else {
-    // 非路由模式：使用 modelValue 或 defaultTab
     return props.modelValue || props.defaultTab || (props.tabs[0]?.name || '')
   }
 })
@@ -76,11 +86,13 @@ const currentTab = computed(() => {
 // 处理 tab 点击
 const handleTabClick = (tabName) => {
   if (props.useRouter) {
-    // 路由模式：更新 route.query.sub
-    router.replace({ query: { ...route.query, sub: tabName } })
+    const location = typeof props.resolveRoute === 'function'
+      ? props.resolveRoute(tabName, route)
+      : { query: { ...route.query, sub: tabName } }
+
+    router.replace(location)
   }
 
-  // 触发事件
   emit('update:modelValue', tabName)
   emit('tab-change', tabName)
 }

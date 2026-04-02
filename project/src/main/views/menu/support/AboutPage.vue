@@ -3,8 +3,8 @@
     <TabsContainer
       :tabs="tabs"
       :model-value="currentTab"
-      :use-router="false"
-      @tab-change="handleTabChange"
+      :route-value="currentTab"
+      :resolve-route="resolveTabRoute"
     >
     <template #default="{ currentTab }">
       <!-- 新的"簡介"页面 -->
@@ -303,12 +303,12 @@ function changeLanguage(newLocale) {
   setTimeout(() => window.location.reload(), 500)
 }
 
-function handleTabChange(tabName) {
+function resolveTabRoute(tabName) {
   const section = tabToPathSection[tabName] || 'intro'
-  router.replace({
+  return {
     path: `/about/${section}`,
     query: route.query
-  })
+  }
 }
 </script>
 

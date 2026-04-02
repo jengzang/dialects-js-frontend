@@ -1,5 +1,11 @@
 <template>
-  <TabsContainer :tabs="tabs" :model-value="currentTab" :use-router="false" @tab-change="handleTabChange" v-slot="{ currentTab }">
+  <TabsContainer
+    :tabs="tabs"
+    :model-value="currentTab"
+    :route-value="currentTab"
+    :resolve-route="resolveTabRoute"
+    v-slot="{ currentTab }"
+  >
     <div class="tab-content-inner query-page-root">
       <div v-show="currentTab === 'tab1'" class="page">
         <div class="page-content-stack">
@@ -571,12 +577,12 @@ function handleApplyConfig(data) {
   }
 }
 
-function handleTabChange(tabName) {
+function resolveTabRoute(tabName) {
   const sub = tabToRouteSub[tabName] || 'zhonggu'
-  router.replace({
+  return {
     path: `/menu/query/${sub}`,
     query: route.query
-  })
+  }
 }
 
 onMounted(() => {
