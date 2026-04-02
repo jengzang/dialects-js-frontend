@@ -26,21 +26,18 @@
             <span class="glass-indicator"></span>
             {{ t('phonology.phonology.evolution.queryMode.byStatus') }}
           </label>
+          <label class="mode-radio-label sankey-toggle">
+            <input
+                v-model="showSankey"
+                type="checkbox"
+                class="hidden-radio"
+            />
+            <span class="glass-indicator"></span>
+            {{ t('phonology.phonology.evolution.controls.sankey') }}
+          </label>
         </div>
       </div>
 
-      <!-- 字符表和维度选择 -->
-      <div class="control-row control-row--sankey">
-        <label class="mode-radio-label sankey-toggle">
-          <input
-            v-model="showSankey"
-            type="checkbox"
-            class="hidden-radio"
-          />
-          <span class="glass-indicator"></span>
-          {{ t('phonology.phonology.evolution.controls.sankey') }}
-        </label>
-      </div>
 
       <div class="dimension-grid">
         <div class="dimension-field">
@@ -808,6 +805,33 @@ onUnmounted(() => {
 
 .sankey-toggle {
   gap: 10px;
+
+  .glass-indicator {
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+  }
+
+  .glass-indicator::after {
+    width: 5px;
+    height: 9px;
+    background: transparent;
+    border-right: 2px solid #fff;
+    border-bottom: 2px solid #fff;
+    border-radius: 0;
+    box-shadow: none;
+    transform: translate(-50%, -58%) rotate(45deg) scale(0);
+    transform-origin: center;
+  }
+
+  .hidden-radio:checked + .glass-indicator {
+    border-color: var(--color-primary, #007aff);
+    background: var(--color-primary, #007aff);
+  }
+
+  .hidden-radio:checked + .glass-indicator::after {
+    transform: translate(-50%, -58%) rotate(45deg) scale(1);
+  }
 }
 
 .dimension-grid {
