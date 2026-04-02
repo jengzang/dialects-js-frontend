@@ -24,7 +24,6 @@
 <script setup>
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useRoute, useRouter } from 'vue-router'
 
 const { t } = useI18n()
 
@@ -44,13 +43,7 @@ const props = defineProps({
     default: ''
   },
 
-  // 是否使用路由模式 (true: 同步到 route.query.sub, false: 仅 emit)
-  useRouter: {
-    type: Boolean,
-    default: true
-  },
-
-  // 默认选中的 tab (当 modelValue 和 route.query.sub 都为空时使用)
+  // 默认选中的 tab
   defaultTab: {
     type: String,
     default: ''
@@ -59,28 +52,13 @@ const props = defineProps({
 
 const emit = defineEmits(['update:modelValue', 'tab-change'])
 
-const route = useRoute()
-const router = useRouter()
-
 // 计算当前选中的 tab
 const currentTab = computed(() => {
-  if (props.useRouter) {
-    // 路由模式：优先使用 route.query.sub，其次 modelValue，最后 defaultTab
-    return route.query.sub || props.modelValue || props.defaultTab || (props.tabs[0]?.name || '')
-  } else {
-    // 非路由模式：使用 modelValue 或 defaultTab
-    return props.modelValue || props.defaultTab || (props.tabs[0]?.name || '')
-  }
+  return props.modelValue || props.defaultTab || (props.tabs[0]?.name || '')
 })
 
 // 处理 tab 点击
 const handleTabClick = (tabName) => {
-  if (props.useRouter) {
-    // 路由模式：更新 route.query.sub
-    router.replace({ query: { ...route.query, sub: tabName } })
-  }
-
-  // 触发事件
   emit('update:modelValue', tabName)
   emit('tab-change', tabName)
 }

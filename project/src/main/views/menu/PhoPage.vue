@@ -3,7 +3,6 @@
     <TabsContainer
       :tabs="tabs"
       :model-value="currentTab"
-      :use-router="false"
       @tab-change="handleTabChange"
     >
       <template #default="{ currentTab }">
