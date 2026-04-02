@@ -133,7 +133,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onUnmounted, nextTick } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import * as echarts from 'echarts'
@@ -144,6 +144,8 @@ import { PHONOLOGY_LOCATION_LIMITS } from '@/main/config/constants.js'
 import { TABLE_COLUMN_SCHEMAS } from '../../config/chars_positions/characters.js'
 import { userStore } from '@/main/store/store.js'
 import { showWarning } from '@/utils/message.js'
+import evolutionDemoByStatus from '@/assets/data/evolution_demo_status.json'
+import evolutionDemoByValue from '@/assets/data/evolution_demo_value.json'
 
 const { t } = useI18n()
 const router = useRouter()
@@ -160,6 +162,7 @@ const selectedLocations = ref([])
 const isLoading = ref(false)
 const errorMessage = ref('')
 const rawData = ref(null)
+const hasQueriedRealData = ref(false)
 
 // 当前展示
 const features = ['聲母', '韻母', '聲調']
@@ -247,7 +250,32 @@ const gridStyle = computed(() => {
   }
 })
 
-// ========== 查询方法 ==========
+const getDemoData = () => (queryMode.value === 'by_value' ? evolutionDemoByValue : evolutionDemoByStatus)
+
+const syncControlsFromData = (data) => {
+  selectedLocations.value = Array.isArray(data.locations) ? [...data.locations] : []
+  selectedTable.value = data.table_name || 'characters'
+  level1Column.value = data.level1_column || ''
+  level2Column.value = data.level2_column || ''
+}
+
+const getInitialFeature = (data) => {
+  const featureKeys = Object.keys(data?.data || {})
+  return features.find(feature => featureKeys.includes(feature) && (data.data[feature]?.length || 0) > 0) || features[0]
+}
+
+const applyDemoData = async () => {
+  const demoData = getDemoData()
+  syncControlsFromData(demoData)
+  currentFeature.value = getInitialFeature(demoData)
+  rawData.value = demoData
+  errorMessage.value = ''
+
+  await nextTick()
+  updateContainerSize()
+  renderAllPies()
+}
+
 const handleQuery = async () => {
   if (!userStore.isAuthenticated) {
     showWarning(t('user.dataPage.messages.authRequired'))
@@ -289,6 +317,8 @@ const handleQuery = async () => {
 
     const response = await apiCall(params)
     rawData.value = response
+    hasQueriedRealData.value = true
+    currentFeature.value = getInitialFeature(response)
 
     await nextTick()
     updateContainerSize()
@@ -518,6 +548,18 @@ watch(currentFeature, async () => {
 })
 
 // ========== 生命周期 ==========
+watch(queryMode, async () => {
+  if (hasQueriedRealData.value) {
+    return
+  }
+
+  await applyDemoData()
+})
+
+onMounted(async () => {
+  await applyDemoData()
+})
+
 onUnmounted(() => {
   chartInstances.value.forEach(chart => chart?.dispose())
 })
