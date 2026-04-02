@@ -44,7 +44,7 @@ const props = defineProps({
     default: ''
   },
 
-  // 是否使用路由模式 (true: 同步到 route.query.sub, false: 仅 emit)
+  // 是否使用路由模式 (true: 同步到 route, false: 仅 emit)
   useRouter: {
     type: Boolean,
     default: true

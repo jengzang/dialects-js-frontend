@@ -2,7 +2,10 @@
   <div v-if="isVisible" class="floating-tools">
 
     <button v-if="currentTab === 'tab2' || currentTab === 'tab3'"
-            class="close-btn close-btn-sm close-btn-corner" @click="isVisible = false" :title="$t('query.components.floatingDice.closeButton')">
+            class="close-btn close-btn-sm close-btn-corner"
+            style="top:0;right: 0;"
+            @click="isVisible = false"
+            :title="$t('query.components.floatingDice.closeButton')">
       ✕
     </button>
 

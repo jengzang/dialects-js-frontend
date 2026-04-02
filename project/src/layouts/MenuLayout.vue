@@ -7,7 +7,9 @@
       <div class="glass-content">
         <router-view v-slot="{ Component }">
           <transition name="fade" mode="out-in">
-            <component :is="Component" />
+            <KeepAlive :include="keepAliveViewNames">
+              <component :is="Component" />
+            </KeepAlive>
           </transition>
         </router-view>
       </div>
@@ -17,12 +19,28 @@
 </template>
 
 <script setup>
+import { KeepAlive } from 'vue'
 // import MenuTabs from '@/components/MenuTabs.vue'
 // import TabControls from "@/components/TabControls.vue";
 // import FloatingHeader from '@/components/FloatingHeader.vue'
 // import { useRoute } from 'vue-router'
 // import { computed } from 'vue'
 import NavBar from "@/components/bar/NavBar.vue";
+
+const keepAliveViewNames = [
+  'AboutPage',
+  'ComparePage',
+  'DialectClustering',
+  'MapPage',
+  'PhoPage',
+  'PrivacyPage',
+  'QueryPage',
+  'ResultPage',
+  'SourcePage',
+  'ToolsPage',
+  'VillagesPage',
+  'WordsPage'
+]
 
 // const route = useRoute()
 // const shouldShowHeader = computed(() => {
