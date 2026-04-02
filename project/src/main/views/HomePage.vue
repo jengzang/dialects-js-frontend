@@ -305,7 +305,7 @@
         </div>
 
         <!-- 方言聚类 -->
-<!--        <div class="feature-card clickable" @click="navigateTo('/menu?tab=cluster')">-->
+<!--        <div class="feature-card clickable" @click="navigateTo('/menu/luster')">-->
 <!--          <div class="card-header">-->
 <!--            <div class="card-icon">🧩</div>-->
 <!--            <div class="card-info">-->

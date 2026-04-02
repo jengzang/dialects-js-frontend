@@ -4,10 +4,6 @@
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-/**
- * 使用响应式菜单配置（支持 i18n）：
- * @returns {ComputedRef} 响应式菜单配置对象
- */
 export function useSidebarConfig() {
     const { t } = useI18n()
 
@@ -22,45 +18,45 @@ export function useSidebarConfig() {
         query: {
             label: t('navigation.menu.query'),
             icon: '🔍',
-            path: '/menu/query',
+            path: '/menu/query/zhonggu',
             children: [
-                { label: t('navigation.submenu.query.tab1'), icon: '🔤', path: '/menu/query/chars' },
-                { label: t('navigation.submenu.query.tab2'), icon: '📜', path: '/menu/query&sub=tab2' },
-                { label: t('navigation.submenu.query.tab3'), icon: '🗂️', path: '/menu/query&sub=tab3' },
-                { label: t('navigation.submenu.query.tab4'), icon: '🎙️', path: '/menu/query&sub=tab4' }
+                { label: t('navigation.submenu.query.tab1'), icon: '🔤', path: '/menu/query/char' },
+                { label: t('navigation.submenu.query.tab2'), icon: '📜', path: '/menu/query/zhonggu' },
+                { label: t('navigation.submenu.query.tab3'), icon: '🗂️', path: '/menu/query/yinwei' },
+                { label: t('navigation.submenu.query.tab4'), icon: '🎙️', path: '/menu/query/tone' }
             ]
         },
         compare: {
             label: t('navigation.menu.compare'),
             icon: '↔️',
-            path: '/menu/compare',
+            path: '/menu/compare/zhonggu',
             children: [
-                { label: t('navigation.submenu.compare.tab1'), icon: '🆚', path: '/menu/compare&sub=tab1' },
-                { label: t('navigation.submenu.compare.tab2'), icon: '📜', path: '/menu/compare&sub=tab2' },
-                { label: t('navigation.submenu.compare.tab4'), icon: '📊', path: '/menu/compare&sub=tab4' }
+                { label: t('navigation.submenu.compare.tab1'), icon: '🆚', path: '/menu/compare/char' },
+                { label: t('navigation.submenu.compare.tab2'), icon: '📜', path: '/menu/compare/zhonggu' },
+                { label: t('navigation.submenu.compare.tab4'), icon: '📊', path: '/menu/compare/tone' }
             ]
         },
         pho: {
             label: t('navigation.menu.pho'),
-            icon: '🗣️',
+            icon: '🧬',
             path: '/pho/matrix',
             children: [
-                { label: t('navigation.submenu.pho.phonologyMatrix'), icon: '⚙️', path: '/pho/matrix' },
-                { label: t('navigation.submenu.pho.phonologyCustom'), icon: '🧩', path: '/pho/custom' },
+                { label: t('navigation.submenu.pho.phonologyMatrix'), icon: '⚛️', path: '/pho/matrix' },
+                { label: t('navigation.submenu.pho.phonologyCustom'), icon: '📐', path: '/pho/custom' },
                 { label: t('navigation.submenu.pho.Countphos'), icon: '🧮', path: '/pho/count' },
-                { label: t('navigation.submenu.pho.evolution'), icon: '🧬', path: '/pho/evolution' }
+                { label: t('navigation.submenu.pho.evolution'), icon: '🥧', path: '/pho/evolution' }
             ]
         },
         // cluster intentionally remains disabled in the i18n sidebar config.
         charClass: {
             label: t('navigation.menu.charClass'),
             icon: '📚',
-            path: '/explore/char-class/zhonggu',
+            path: '/explore/char-class?tab=zhonggu',
             children: [
-                { label: t('navigation.submenu.charClass.zhonggu'), icon: '📜', path: '/explore/char-class/zhonggu' },
-                { label: t('navigation.submenu.charClass.shanggu'), icon: '🏺', path: '/explore/char-class/shanggu' },
-                { label: t('navigation.submenu.charClass.jingu'), icon: '📖', path: '/explore/char-class/jingu' },
-                { label: t('navigation.submenu.charClass.yueyun'), icon: '📗', path: '/explore/char-class/yueyun' }
+                { label: t('navigation.submenu.charClass.zhonggu'), icon: '📜', path: '/explore/char-class?tab=zhonggu' },
+                { label: t('navigation.submenu.charClass.shanggu'), icon: '🏛️', path: '/explore/char-class?tab=shanggu' },
+                { label: t('navigation.submenu.charClass.jingu'), icon: '📖', path: '/explore/char-class?tab=jingu' },
+                { label: t('navigation.submenu.charClass.yueyun'), icon: '🎵', path: '/explore/char-class?tab=yueyun' }
             ]
         },
         words: {
@@ -68,8 +64,8 @@ export function useSidebarConfig() {
             icon: '💬',
             path: '/menu/words',
             children: [
-                { label: t('navigation.submenu.words.vocabulary'), icon: '📝', path: '/explore/yubao/vocabulary' },
-                { label: t('navigation.submenu.words.grammar'), icon: '🗂️', path: '/explore/yubao/grammar' },
+                { label: t('navigation.submenu.words.vocabulary'), icon: '📝', path: '/explore/yubao?tab=vocabulary' },
+                { label: t('navigation.submenu.words.grammar'), icon: '🗂️', path: '/explore/yubao?tab=grammar' },
                 { label: t('navigation.submenu.words.ycSpoken'), icon: '🗣️', path: '/explore/yc-spoken' }
             ]
         },
@@ -97,7 +93,7 @@ export function useSidebarConfig() {
         },
         source: {
             label: t('navigation.menu.source'),
-            icon: '📂',
+            icon: '📨',
             path: '/menu/source',
             children: [
                 { label: t('navigation.submenu.source.source'), icon: '📋', path: '/menu/source' },
@@ -121,7 +117,6 @@ export function useSidebarConfig() {
     }))
 }
 
-// 向后兼容：导出静态版本（使用繁体中文，用于不支持 i18n 的旧代码）：
 export const menuConfig = {
     home: {
         label: '首頁',
@@ -133,22 +128,22 @@ export const menuConfig = {
     query: {
         label: '查詢',
         icon: '🔍',
-        path: '/menu/query',
+        path: '/menu/query/zhonggu',
         children: [
-            { label: '查字', icon: '🔤', path: '/menu/query&sub=tab1' },
-            { label: '查中古', icon: '📜', path: '/menu/query&sub=tab2' },
-            { label: '查音系', icon: '🗂️', path: '/menu/query&sub=tab3' },
-            { label: '查調', icon: '🎙️', path: '/menu/query&sub=tab4' }
+            { label: '查字', icon: '🔤', path: '/menu/query/char' },
+            { label: '查中古', icon: '📜', path: '/menu/query/zhonggu' },
+            { label: '查音系', icon: '🗂️', path: '/menu/query/yinwei' },
+            { label: '查調', icon: '🎙️', path: '/menu/query/tone' }
         ]
     },
     compare: {
         label: '比較',
         icon: '↔️',
-        path: '/menu/compare',
+        path: '/menu/compare/zhonggu',
         children: [
-            { label: '漢字對比', icon: '🆚', path: '/menu/compare&sub=tab1' },
-            { label: '中古對比', icon: '📜', path: '/menu/compare&sub=tab2' },
-            { label: '調類對比', icon: '📊', path: '/menu/compare&sub=tab4' }
+            { label: '漢字對比', icon: '🆚', path: '/menu/compare/char' },
+            { label: '中古對比', icon: '📜', path: '/menu/compare/zhonggu' },
+            { label: '調類對比', icon: '📊', path: '/menu/compare/tone' }
         ]
     },
     pho: {
@@ -164,7 +159,7 @@ export const menuConfig = {
     },
     cluster: {
         label: '聚類',
-        icon: '🕸️',
+        icon: '🧩',
         path: '/menu/cluster',
         children: null
     },
@@ -182,7 +177,7 @@ export const menuConfig = {
     words: {
         label: '詞句',
         icon: '💬',
-        path: '/menu?tab=words',
+        path: '/menu/words',
         children: [
             { label: '語保詞彙', icon: '📝', path: '/explore/yubao?tab=vocabulary' },
             { label: '語保語法', icon: '🗂️', path: '/explore/yubao?tab=grammar' },
@@ -192,7 +187,7 @@ export const menuConfig = {
     villages: {
         label: '自然村',
         icon: '🏕️',
-        path: '/menu?tab=villages',
+        path: '/menu/villages',
         children: [
             { label: '廣東自然村', icon: '🏕️', path: '/explore/villages/gd' },
             { label: '機器學習', icon: '🤖', path: '/explore/villages/ml' },
@@ -203,7 +198,7 @@ export const menuConfig = {
     tools: {
         label: '工具',
         icon: '🛠️',
-        path: '/menu?tab=tools',
+        path: '/menu/tools',
         children: [
             { label: '字表工具', icon: '📋', path: '/explore/tools/check' },
             { label: '粵拼轉IPA', icon: '🔄', path: '/explore/tools/jyut2ipa' },
