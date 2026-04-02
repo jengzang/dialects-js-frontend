@@ -1,29 +1,93 @@
 {
-    "zhonggu":  {
-                    "title":  "Middle Chinese Phonology Data",
-                    "toggleAnnotations":  {
-                                              "show":  "Show Annotations",
-                                              "hide":  "Hide Annotations"
-                                          },
-                    "classifications":  {
-                                            "rhyme":  "Rhyme Classification",
-                                            "initial":  "Initial Classification",
-                                            "voicing":  "Voicing Classification"
-                                        },
-                    "search":  {
-                                   "placeholder":  "Search loaded data...",
-                                   "noResults":  "No matching results found"
-                               },
-                    "states":  {
-                                   "selectClassification":  "Please select a classification type",
-                                   "selectHint":  "Click on a classification tab above to view data",
-                                   "loading":  "Loading {name} data...",
-                                   "loadingHint":  "Large dataset, please wait...",
-                                   "dataFormatError":  "Data format error",
-                                   "loadFailed":  "Load failed, please retry"
-                               },
-                    "actions":  {
-                                    "retry":  "Retry"
-                                }
-                }
+  "common": {
+    "subtitle": "Apply a recommended template or build your own tree hierarchy.",
+    "table": "Source",
+    "recommended": "Recommended",
+    "levels": "Hierarchy Levels",
+    "levelsHint": "Each level must have a value and cannot repeat; order defines the tree hierarchy.",
+    "level": "Level {index}",
+    "resultsTitle": "Classification Result",
+    "custom": "Custom Configuration"
+  },
+  "search": {
+    "placeholder": "Search loaded data...",
+    "noResults": "No matching results found"
+  },
+  "states": {
+    "loading": "Loading {name} data...",
+    "loadingHint": "Large dataset, please wait...",
+    "dataFormatError": "Data format error",
+    "loadFailed": "Load failed, please retry",
+    "emptyTree": "No results are available for the current configuration",
+    "emptyTreeHint": "Try another recommended template or adjust the hierarchy levels.",
+    "noMoreLevels": "All available fields are already used in the hierarchy."
+  },
+  "actions": {
+    "retry": "Retry",
+    "addLevel": "Add Level",
+    "removeLevel": "Remove Level",
+    "moveUp": "Move Up",
+    "moveDown": "Move Down",
+    "showAnnotations": "Show Annotations",
+    "hideAnnotations": "Hide Annotations"
+  },
+  "tables": {
+    "characters": "Qieyun System",
+    "old_chinese": "Old Chinese",
+    "zhongyuan": "Zhongyuan Yinyun",
+    "hongwu": "Hongwu Zhengyun",
+    "menggu": "Menggu Ziyun",
+    "fenyun": "Fenyun Cuoyao"
+  },
+  "pages": {
+    "zhonggu": {
+      "title": "Middle Chinese Phonology Data",
+      "presets": {
+        "rhyme": "Rhyme",
+        "initial": "Initial",
+        "voicing": "Voicing"
+      }
+    },
+    "shanggu": {
+      "title": "Old Chinese Data",
+      "presets": {
+        "rhyme": "Rhyme Group",
+        "initialGroup": "Initial Group",
+        "xiesheng": "Xiesheng"
+      }
+    },
+    "jingu": {
+      "title": "Early Modern Phonology Data",
+      "tables": {
+        "zhongyuan": {
+          "presets": {
+            "rhyme": "Rhyme Final",
+            "initial": "Initial",
+            "transcription": "Transcription"
+          }
+        },
+        "hongwu": {
+          "presets": {
+            "rhyme": "Rhyme Group",
+            "initial": "Initial",
+            "fanqie": "Fanqie"
+          }
+        },
+        "menggu": {
+          "presets": {
+            "rhyme": "Rhyme Group",
+            "transcription": "Transcription",
+            "position": "Mapped Position"
+          }
+        }
+      }
+    },
+    "yueyun": {
+      "title": "Cantonese Rime Book Data",
+      "presets": {
+        "native": "Final",
+        "syllable": "Initial"
+      }
+    }
+  }
 }

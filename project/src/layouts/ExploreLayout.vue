@@ -7,7 +7,9 @@
     <div class="content-area">
       <router-view v-slot="{ Component }">
         <transition name="fade" mode="out-in">
-          <component :is="Component" />
+          <KeepAlive :include="keepAliveViewNames">
+            <component :is="Component" />
+          </KeepAlive>
         </transition>
       </router-view>
     </div>
@@ -15,7 +17,22 @@
 </template>
 
 <script setup>
+import { KeepAlive } from 'vue'
 import ExploreBar from '@/components/bar/ExploreBar.vue'
+
+const keepAliveViewNames = [
+  'CharacterClassification',
+  'CheckTool',
+  'gdVillagesTable',
+  'gdVillagesTree',
+  'Jyut2IpaTool',
+  'MergeTool',
+  'TableManage',
+  'VillagesML',
+  'YangChunSpoken',
+  'YangChunVillages',
+  'YuBaoPage'
+]
 </script>
 
 <style scoped>

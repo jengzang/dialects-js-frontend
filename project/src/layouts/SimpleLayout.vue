@@ -36,7 +36,7 @@ const authButtonPosition = ref('top-right');
 
 // 根据路由自动设置 auth-button 位置
 watch(() => route.path, (newPath) => {
-  if (newPath === '/villagesML') {
+  if (newPath === '/villagesML' || newPath.startsWith('/villagesML/')) {
     authButtonPosition.value = 'bottom-left';
   } else {
     authButtonPosition.value = 'top-right';

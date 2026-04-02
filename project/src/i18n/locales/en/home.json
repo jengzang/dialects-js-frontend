@@ -5,8 +5,8 @@
     "startExploring": "Start Exploring",
     "expandTools": "Extended Tools",
     "featuresIntro": "Features Overview",
-    "logoAlt": "Dialects Atlas logo",
-    "decorationAlt": "Blue circle decoration"
+    "logoAlt": "Dialects Atlas",
+    "decorationAlt": "Blue circle"
   },
   "features": {
     "sectionTitle": "Core Features",
@@ -38,7 +38,7 @@
       "phonologyQuery": "Phonology Query - View dialect phonology tables",
       "phonemeClassify": "Phoneme Classification - Custom phoneme classification",
       "syllableCount": "Syllable Statistics - Count syllable quantities",
-      "pieVector": "Pie Vectors - Placeholder entry for pie chart vector analysis",
+      "evolution": "Evolution - Placeholder entry for evolution analysis",
       "middlePosition": "Middle Chinese Position - Query Middle Chinese position of characters"
     },
     "words": {
@@ -76,7 +76,7 @@
       "desc": "Experimental phonetics tools and data analysis"
     },
     "dialectClustering": {
-      "title": "Clustering",
+      "title": "Dialect Clustering",
       "desc": "Placeholder page for dialect clustering workflows"
     },
     "about": {
@@ -98,7 +98,7 @@
       "desc": "Batch acoustic parameter estimation, multi-algorithm pitch detection, EGG signal analysis, glottal parameter extraction"
     },
     "dialectClustering": {
-      "title": "Clustering",
+      "title": "Dialect Clustering",
       "desc": "Custom phonetic value and phoneme weights, adjust clustering algorithm parameters, multi-dimensional similarity calculation based on phoneme vectors"
     },
     "evolutionTree": {

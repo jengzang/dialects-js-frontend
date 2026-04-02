@@ -1,29 +1,93 @@
 {
-  "zhonggu": {
-    "title": "中古音韻數據",
-    "toggleAnnotations": {
-      "show": "顯示釋義",
-      "hide": "隱藏釋義"
+  "common": {
+    "subtitle": "可套用建議模板，亦可自行配置樹的分層欄位。",
+    "table": "資料來源",
+    "recommended": "建議模板",
+    "levels": "分層欄位",
+    "levelsHint": "每一層都必須有值，且不能重複；順序即樹的層級順序。",
+    "level": "第 {index} 層",
+    "resultsTitle": "分類結果",
+    "custom": "自訂配置"
+  },
+  "search": {
+    "placeholder": "搜尋已載入的數據...",
+    "noResults": "沒有找到匹配結果"
+  },
+  "states": {
+    "loading": "正在載入 {name} 數據...",
+    "loadingHint": "數據量較大，請稍候...",
+    "dataFormatError": "數據格式錯誤",
+    "loadFailed": "載入失敗，請重試",
+    "emptyTree": "當前配置沒有可顯示的結果",
+    "emptyTreeHint": "可以切換建議模板，或自行調整分層欄位。",
+    "noMoreLevels": "目前可用欄位已全部加入分層。"
+  },
+  "actions": {
+    "retry": "重試",
+    "addLevel": "新增一層",
+    "removeLevel": "刪除本層",
+    "moveUp": "上移",
+    "moveDown": "下移",
+    "showAnnotations": "顯示釋義",
+    "hideAnnotations": "隱藏釋義"
+  },
+  "tables": {
+    "characters": "切韻系統",
+    "old_chinese": "上古音",
+    "zhongyuan": "中原音韻",
+    "hongwu": "洪武正韻",
+    "menggu": "蒙古字韻",
+    "fenyun": "分韻撮要"
+  },
+  "pages": {
+    "zhonggu": {
+      "title": "中古音韻數據",
+      "presets": {
+        "rhyme": "韻攝",
+        "initial": "聲鈕",
+        "voicing": "清濁"
+      }
     },
-    "classifications": {
-      "rhyme": "韻攝分類",
-      "initial": "聲紐分類",
-      "voicing": "清濁分類"
+    "shanggu": {
+      "title": "上古音數據",
+      "presets": {
+        "rhyme": "韻部",
+        "initialGroup": "聲母組",
+        "xiesheng": "諧聲"
+      }
     },
-    "search": {
-      "placeholder": "搜尋已載入的數據...",
-      "noResults": "沒有找到匹配結果"
+    "jingu": {
+      "title": "近古音數據",
+      "tables": {
+        "zhongyuan": {
+          "presets": {
+            "rhyme": "韻母",
+            "initial": "聲母",
+            "transcription": "擬音"
+          }
+        },
+        "hongwu": {
+          "presets": {
+            "rhyme": "韻部",
+            "initial": "聲母",
+            "fanqie": "反切"
+          }
+        },
+        "menggu": {
+          "presets": {
+            "rhyme": "韻部",
+            "transcription": "擬音",
+            "position": "對應地位"
+          }
+        }
+      }
     },
-    "states": {
-      "selectClassification": "請選擇一種分類方式",
-      "selectHint": "點擊上方的分類選項卡以查看數據",
-      "loading": "正在載入 {name} 數據...",
-      "loadingHint": "數據量較大，請稍候...",
-      "dataFormatError": "數據格式錯誤",
-      "loadFailed": "載入失敗，請重試"
-    },
-    "actions": {
-      "retry": "重試"
+    "yueyun": {
+      "title": "粵語韻書數據",
+      "presets": {
+        "native": "韻母",
+        "syllable": "聲母"
+      }
     }
   }
 }

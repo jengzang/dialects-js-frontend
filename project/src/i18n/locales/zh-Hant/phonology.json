@@ -109,12 +109,76 @@
         "minLocationError": "請至少輸入一個地點",
         "loadError": "加載數據時發生錯誤"
       }
+    },
+    "evolution": {
+      "title": "演變",
+      "queryMode": {
+        "label": "統計模式",
+        "byValue": "按今音統計",
+        "byStatus": "按地位統計"
+      },
+      "controls": {
+        "table": "字符表",
+        "level1": "第一維度",
+        "level2": "第二維度",
+        "sankey": "桑基圖",
+        "location": "地點",
+        "locationHint": "僅支持單個地點分析",
+        "query": "查詢",
+        "loading": "查詢中..."
+      },
+      "sankey": {
+        "layer": "層級",
+        "unit": "條",
+        "layers": {
+          "value": "音值"
+        },
+        "titles": {
+          "byValue": "{feature} · 音值 -> 地位 -> 二級維度",
+          "byStatus": "{feature} · 地位 -> 音值 -> 二級維度"
+        }
+      },
+      "similarity": {
+        "algorithm": "相似度算法",
+        "threshold": "顯示閾值",
+        "showConnections": "顯示連線",
+        "showCategoryLinks": "顯示類別對應",
+        "algorithms": {
+          "cosine": "餘弦相似度",
+          "overlap": "加權重疊度",
+          "topK": "Top-3匹配度",
+          "kl": "KL散度",
+          "jaccard": "字符集相似度",
+          "charWeighted": "字符加權相似度",
+          "structural": "結構相似度",
+          "cooccurrence": "共現類別數",
+          "entropy": "分佈均勻度相似",
+          "hierarchical": "層次相似度"
+        }
+      },
+      "features": {
+        "initial": "聲母",
+        "final": "韻母",
+        "tone": "聲調"
+      },
+      "errors": {
+        "minLocation": "請至少選擇一個地點",
+        "maxLocation": "演變分析只支持單個地點，請刪除多餘的地點",
+        "autoLimitLocation": "演變分析只支持單個地點，已自動保留第一個地點",
+        "selectDimensions": "請選擇兩個維度",
+        "sameDimensions": "兩個維度不能相同",
+        "queryFailed": "查詢失敗"
+      },
+      "states": {
+        "loading": "加載中...",
+        "empty": "當前特徵沒有數據"
+      }
     }
   },
   "tabs": {
     "matrix": "音系",
     "custom": "音素分類",
     "count": "音節統計",
-    "pieVector": "餅圖向量"
+    "evolution": "演變"
   }
 }

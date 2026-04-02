@@ -1,0 +1,113 @@
+/* Phase 1 note:
+   Base element styles continue to come from ../_legacy.scss.
+   This file reserves the global base layer for later migration. */
+
+.toggle-switch-base {
+  position: relative;
+  width: 50px;
+  height: 30px;
+  border-radius: 15px;
+  border: none;
+  background: rgba(142, 142, 147, 0.3);
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.toggle-switch-base.active {
+  background: #007aff;
+}
+
+.toggle-switch-slider-base {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease;
+}
+
+.toggle-switch-base.active .toggle-switch-slider-base {
+  transform: translateX(20px);
+}
+
+.input-switch-base {
+  position: relative;
+  width: 44px;
+  height: 22px;
+  display: inline-block;
+}
+
+.input-switch-base input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.input-switch-slider-base {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background-color: #ccc;
+  transition: 0.3s;
+  border-radius: 22px;
+}
+
+.input-switch-slider-base::before {
+  position: absolute;
+  content: '';
+  height: 16px;
+  width: 16px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: 0.3s;
+  border-radius: 50%;
+}
+
+.input-switch-base input:checked + .input-switch-slider-base {
+  background-color: #007aff;
+}
+
+.input-switch-base input:checked + .input-switch-slider-base::before {
+  transform: translateX(22px);
+}
+
+.custom-switch-base {
+  position: relative;
+  width: 50px;
+  height: 30px;
+  background-color: #ccc;
+  border-radius: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.3s ease;
+}
+
+.custom-switch-slider-base {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.custom-switch-slider-base::before {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 26px;
+  height: 26px;
+  background-color: white;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.custom-switch-base.open .custom-switch-slider-base::before {
+  transform: translateX(20px);
+}

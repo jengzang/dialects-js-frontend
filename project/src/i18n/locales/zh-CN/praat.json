@@ -376,10 +376,10 @@
       "export": {
         "success": "已导出 Excel 文件",
         "noData": "没有可导出的分析结果",
-        "fileName": "方音图鉴_T值法定调_{timestamp}.xlsx",
+        "fileName": "方音圖鑑_T值法定調_{timestamp}.xlsx",
         "sheetName": "石峰T值分析",
         "columns": {
-          "time": "时间 (ms)"
+          "time": "時間 (ms)"
         }
       }
     },

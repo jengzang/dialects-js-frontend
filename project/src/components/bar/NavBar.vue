@@ -14,7 +14,7 @@
         <RouterLink
             v-for="t in tabs"
             :key="t.tab"
-            :to="t.to || { path: '/menu', query: { tab: t.tab } }"
+            :to="resolveMenuBarTarget(t)"
             custom
             v-slot="{ href, navigate, isActive }"
         >
@@ -22,19 +22,19 @@
               :href="href"
               class="menu-item"
               :class="[
-                { active: isActiveComputed(t.tab, isActive) },
+                { active: isMenuTabActive(t.tab) },
                 t.cssClass
               ]"
               :style="{
-                flex: getFlexWeight(t, isActiveComputed(t.tab, isActive), false) + ' 1 0',
+                flex: getFlexWeight(t, isMenuTabActive(t.tab), false) + ' 1 0',
                 fontSize: t.fontSize + 'rem'
               }"
-          @click.prevent="onClick(t, navigate)"
+          @click.prevent="onMenuBarClick(t, navigate)"
           >
           <span class="emoji">{{ t.icon }}</span>
           <span
             class="label"
-            v-if="!t.showLabelOnlyWhenActive || isActiveComputed(t.tab, isActive)"
+            v-if="!t.showLabelOnlyWhenActive || isMenuTabActive(t.tab)"
           >{{ t.label }}</span>
           </a>
         </RouterLink>
@@ -49,13 +49,14 @@
 
     <!-- 左侧边栏 -->
     <Transition name="slide-fade">
-      <div class="sidebar" v-if="isSidebarVisible">
-        <div class="sidebar-empty"></div>
-        <div class="sidebar-content">
-          <ul>
+      <div class="sidebar main-sidebar-shell" v-if="isSidebarVisible">
+        <div class="sidebar-empty main-sidebar-empty"></div>
+        <div class="sidebar-content main-sidebar-content">
+          <ul class="main-sidebar-list ui-scrollbar">
             <li
               v-for="(item, key) in filteredMenuConfig"
               :key="key"
+              class="main-sidebar-item"
               @click="handleMainClick(item, key, $event)"
               @mouseenter="handleItemMouseEnter(item, key, $event)"
               @mouseleave="item.children && !isMobile ? scheduleCloseSubmenu() : null"
@@ -66,8 +67,8 @@
           </ul>
 
           <!-- 访问统计区域 -->
-          <div class="visit-stats">
-            <div class="stats-summary">
+          <div class="visit-stats main-sidebar-stats">
+            <div class="stats-summary main-sidebar-stats-summary">
               <div class="stat-item">
                 <span class="stat-label">{{ t('navigation.stats.today') }}</span>
                 <span class="stat-value">{{ todayVisits }}</span>
@@ -76,7 +77,7 @@
                 <span class="stat-label">{{ t('navigation.stats.totalVisits') }}</span>
                 <span class="stat-value">{{ totalVisits }}</span>
               </div>
-              <button class="expand-btn" @click="toggleStatsPanel">
+              <button class="expand-btn main-sidebar-expand-btn" @click="toggleStatsPanel">
                 📊
               </button>
             </div>
@@ -89,7 +90,7 @@
 
     <!-- 遮罩层 -->
     <Transition name="fade">
-      <div class="overlay" v-if="isSidebarVisible" @click="toggleSidebar"></div>
+      <div class="overlay main-sidebar-overlay" v-if="isSidebarVisible" @click="toggleSidebar"></div>
     </Transition>
 
     <!-- Submenu panel (liquid glass style) -->
@@ -97,7 +98,7 @@
       <Transition name="submenu-fade">
         <div
           v-if="activeSubmenu"
-          class="submenu-panel"
+          class="submenu-panel main-sidebar-submenu-panel"
           :style="{
             top: submenuPosition.top + 'px',
             left: submenuPosition.left + 'px'
@@ -109,7 +110,7 @@
           <div
             v-for="(child, index) in menuConfigData[activeSubmenu]?.children"
             :key="index"
-            class="submenu-item"
+            class="submenu-item main-sidebar-submenu-item"
             @click="handleSubmenuClick(child)"
           >
             <span class="submenu-icon">{{ child.icon }}</span>
@@ -120,59 +121,56 @@
     </Teleport>
 
     <!-- 访问历史弹窗 -->
-    <Teleport to="body">
-      <Transition name="fade-scale">
-        <div v-if="isStatsExpanded" class="glass-modal-overlay" @click.self="closeStatsPanel">
-          <div class="glass-card stats-modal-card">
-            <button class="close-btn" @click="closeStatsPanel">&times;</button>
-            <h3 class="modal-title">📊 {{ t('navigation.stats.historyTitle') }}</h3>
+    <AppModal
+      :model-value="isStatsExpanded"
+      size="sm"
+      :title="t('navigation.stats.historyTitle')"
+      :close-label="t('common.button.close')"
+      @update:modelValue="closeStatsPanel"
+    >
+        <div v-if="loadingStats" class="loading-state">
+          <div class="ui-loading--page" aria-hidden="true"></div>
+          <p>{{ t('navigation.stats.loading') }}</p>
+        </div>
 
-            <div v-if="loadingStats" class="loading-state">
-              <div class="loading-spinner"></div>
-              <p>{{ t('navigation.stats.loading') }}</p>
-            </div>
-
-            <div v-else class="stats-content">
-              <div class="stats-summary-large">
-                <div class="stat-card">
-                  <div class="stat-icon">📅</div>
-                  <div class="stat-info">
-                    <span class="stat-label-large">{{ t('navigation.stats.todayVisits') }}</span>
-                    <span class="stat-value-large">{{ todayVisits }}</span>
-                  </div>
-                </div>
-                <div class="stat-card">
-                  <div class="stat-icon">🌐</div>
-                  <div class="stat-info">
-                    <span class="stat-label-large">{{ t('navigation.stats.totalVisits') }}</span>
-                    <span class="stat-value-large">{{ totalVisits }}</span>
-                  </div>
-                </div>
+        <div v-else class="stats-content">
+          <div class="stats-summary-large">
+            <div class="stat-card">
+              <div class="stat-icon">📅</div>
+              <div class="stat-info">
+                <span class="stat-label-large">{{ t('navigation.stats.todayVisits') }}</span>
+                <span class="stat-value-large">{{ todayVisits }}</span>
               </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon">🌐</div>
+              <div class="stat-info">
+                <span class="stat-label-large">{{ t('navigation.stats.totalVisits') }}</span>
+                <span class="stat-value-large">{{ totalVisits }}</span>
+              </div>
+            </div>
+          </div>
 
-              <div class="history-section">
-                <h4 class="section-title">{{ t('navigation.stats.historyRecords') }}</h4>
-                <div class="history-list">
-                  <div v-for="item in visitHistory" :key="item.date" class="history-item-modal">
-                    <span class="history-date">{{ item.date }}</span>
-                    <div class="history-bar-container">
-                      <div
-                        class="history-bar"
-                        :style="{ width: (item.count / Math.max(...visitHistory.map(v => v.count)) * 100) + '%' }"
-                      ></div>
-                    </div>
-                    <span class="history-count">{{ item.count }}</span>
-                  </div>
+          <div class="history-section">
+            <h4 class="section-title">{{ t('navigation.stats.historyRecords') }}</h4>
+            <div class="history-list ui-scrollbar">
+              <div v-for="item in visitHistory" :key="item.date" class="history-item-modal">
+                <span class="history-date">{{ item.date }}</span>
+                <div class="history-bar-container">
+                  <div
+                    class="history-bar"
+                    :style="{ width: (item.count / Math.max(...visitHistory.map(v => v.count)) * 100) + '%' }"
+                  ></div>
                 </div>
+                <span class="history-count">{{ item.count }}</span>
               </div>
             </div>
           </div>
         </div>
-      </Transition>
-    </Teleport>
+    </AppModal>
 
     <div class="navbar-content">
-      <!-- 第一行: Logo、标题和登录按钮 -->
+      <!-- 第一部分：Logo、标题和登录按钮 -->
       <div class="navbar-top">
         <div class="navbar-item logo-and-title" :style="{ zIndex: isSidebarVisible ? '1100' : '999' }">
           <div @click="toggleSidebar" class="logo-container" style="width: 6dvh;min-width: 6dvh" >
@@ -190,12 +188,12 @@
         </div>
       </div>
 
-      <!-- 第二行: 导航按钮 -->
+      <!-- 第二部分：导航按钮 -->
       <div class="navbar-bottom">
         <RouterLink
             v-for="t in tabs"
             :key="t.tab"
-            :to="t.to || { path: '/menu', query: { tab: t.tab } }"
+            :to="resolveMenuBarTarget(t)"
             custom
             v-slot="{ href, navigate, isActive }"
         >
@@ -204,19 +202,19 @@
               :href="href"
               class="menu-item"
               :class="[
-                { active: isActiveComputed(t.tab, isActive) },
+                { active: isMenuTabActive(t.tab) },
                 t.cssClass
               ]"
               :style="{
-                flex: getFlexWeight(t, isActiveComputed(t.tab, isActive), true) + ' 1 0',
+                flex: getFlexWeight(t, isMenuTabActive(t.tab), true) + ' 1 0',
                 fontSize: (t.mobileFontSize || t.fontSize) + 'rem'
               }"
-              @click.prevent="onClick(t, navigate)"
+              @click.prevent="onMenuBarClick(t, navigate)"
           >
             <span class="emoji">{{ t.icon }}</span>
             <span
               class="label"
-              v-if="!t.hideLabelOnMobile && (!(t.mobileShowLabelOnlyWhenActive ?? t.showLabelOnlyWhenActive) || isActiveComputed(t.tab, isActive))"
+              v-if="!t.hideLabelOnMobile && (!(t.mobileShowLabelOnlyWhenActive ?? t.showLabelOnlyWhenActive) || isMenuTabActive(t.tab))"
             >{{ t.label }}</span>
           </a>
         </RouterLink>
@@ -230,18 +228,26 @@
 import { ref , onMounted, onBeforeUnmount, computed, watch} from 'vue'
 import {useRoute, useRouter} from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import AppModal from '@/components/common/AppModal.vue'
 // import { clearToken, getToken, saveToken } from '../../api/auth/auth.js'
 import { getTodayVisits, getTotalVisits, getVisitHistory } from '@/api/logs/index.js'
-import { useMenuConfig } from '@/config/SideBarConfig.js'
-import { useMenuTabsConfig } from '@/config/TabsConfig.js'
+import { useSidebarConfig } from '@/main/config/index.js'
+import {
+  filterVisibleMenuBarTabs,
+  getMenuBarActiveTab,
+  isMenuBarRouteMatch,
+  resolveMenuBarTarget,
+  syncMenuBarMemoryFromRoute,
+  useMenuBarConfig
+} from '@/main/config/index.js'
 import { WEB_BASE } from '@/env-config.js'
-import { userStore, resultCache } from '@/store/store.js'
+import { userStore, resultCache } from '@/main/store/store.js'
 
 const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
 const isSidebarVisible = ref(false)  // 控制边栏显示
-const menuConfigRef = useMenuConfig()
+const menuConfigRef = useSidebarConfig()
 
 // Submenu state management
 const activeSubmenu = ref(null)  // Currently open submenu key
@@ -249,36 +255,10 @@ const submenuPosition = ref({ top: 0, left: 0 })  // Position for submenu panel
 const closeSubmenuTimeout = ref(null)  // Timeout for delayed closing
 
 // ===== sessionStorage 管理：记住每个 tab 的最后访问的 sub =====
-const STORAGE_KEY_PREFIX = 'menu_last_sub_'
-
-// 获取某个 tab 的最后访问的 sub
-function getLastSub(tab) {
-  try {
-    return sessionStorage.getItem(STORAGE_KEY_PREFIX + tab)
-  } catch (e) {
-    console.warn('Failed to read from sessionStorage:', e)
-    return null
-  }
-}
-
-// 保存某个 tab 的最后访问的 sub
-function saveLastSub(tab, sub) {
-  try {
-    if (sub) {
-      sessionStorage.setItem(STORAGE_KEY_PREFIX + tab, sub)
-    } else {
-      sessionStorage.removeItem(STORAGE_KEY_PREFIX + tab)
-    }
-  } catch (e) {
-    console.warn('Failed to write to sessionStorage:', e)
-  }
-}
-
+// 記憶邏輯已移動到MenuBarConfig.js
 // 监听路由变化，记录当前的 tab 和 sub
-watch(() => route.query, (query) => {
-  if (query.tab && query.sub) {
-    saveLastSub(query.tab, query.sub)
-  }
+watch(() => route.path, () => {
+  syncMenuBarMemoryFromRoute(route)
 }, { immediate: true })
 // ===== sessionStorage 管理结束 =====
 
@@ -312,20 +292,8 @@ const visitHistory = ref([])
 const loadingStats = ref(false)
 
 // 过滤可见的 tabs（label 已在 TabsConfig 中定义）
-const allMenuTabs = useMenuTabsConfig()
-const visibleTabs = computed(() => {
-  return allMenuTabs.value.filter(tab => {
-    // 如果有 visibleWhen 函数，执行它
-    if (typeof tab.visibleWhen === 'function') {
-      return tab.visibleWhen()
-    }
-    // 没有 visibleWhen 则默认可见
-    return true
-  })
-})
-
-// 使用过滤后的 tabs
-const tabs = visibleTabs
+const allMenuTabs = useMenuBarConfig()
+const tabs = computed(() => filterVisibleMenuBarTabs(allMenuTabs.value))
 
 /**
  * Calculate dynamic flex weight based on label visibility
@@ -361,80 +329,19 @@ const getFlexWeight = (tab, isActive, isMobile) => {
   }
 }
 
-// 根据当前 query.tab 判断
-const currentTab = () => route.query.tab || route.query.page || 'query'
-
-// 检查路由是否匹配
-const isRouteMatch = (targetRoute) => {
-  if (!targetRoute) return false
-
-  // 检查路径是否匹配
-  if (route.path !== targetRoute.path) return false
-
-  // 检查 query 参数是否匹配
-  if (targetRoute.query) {
-    for (const [key, value] of Object.entries(targetRoute.query)) {
-      if (route.query[key] !== value) return false
-    }
-  }
-
-  return true
+const isMenuTabActive = (tabName) => {
+  return getMenuBarActiveTab(tabs.value, route) === tabName
 }
 
-const isActiveComputed = (tabName, isActive) => {
-  // 伪 tab 永远不显示为激活状态
-  if (tabName === 'tools') return false
-
-  // 查找对应的 tab 配置
-  const tabConfig = tabs.value.find(t => t.tab === tabName)
-  if (!tabConfig || !tabConfig.to) return false
-
-  // 使用路由匹配检查
-  return isRouteMatch(tabConfig.to)
-}
-
-// 頂部導航欄的點擊處理
-const onClick = async (tabConfig, navigate) => {
-  // 伪 tab 处理：打开侧边栏而非导航
+const onMenuBarClick = async (tabConfig, navigate) => {
   if (tabConfig.isPseudo) {
     toggleSidebar()
     return
   }
 
-  // 检查是否有记录的 sub
-  const lastSub = getLastSub(tabConfig.tab)
+  const targetRoute = resolveMenuBarTarget(tabConfig)
+  if (isMenuBarRouteMatch(targetRoute, route)) return
 
-  // 构建目标路由
-  let targetRoute
-  if (tabConfig.to) {
-    // 如果配置了 to，使用配置的路由
-    targetRoute = tabConfig.to
-
-    // 如果有记录的 sub，添加到 query 中
-    if (lastSub && typeof targetRoute === 'object') {
-      targetRoute = {
-        ...targetRoute,
-        query: {
-          ...targetRoute.query,
-          sub: lastSub
-        }
-      }
-    }
-  } else {
-    // 如果没有配置 to，使用默认的 /menu?tab=xxx
-    targetRoute = {
-      path: '/menu',
-      query: {
-        tab: tabConfig.tab,
-        ...(lastSub ? { sub: lastSub } : {})
-      }
-    }
-  }
-
-  // 防止重复导航到当前路由
-  if (isRouteMatch(targetRoute)) return
-
-  // 导航到目标路由
   await router.replace(targetRoute)
 }
 
@@ -523,7 +430,7 @@ const toggleSidebar = () => {
   }
 }
 
-// 主按鈕點擊處理 - 有子菜單則展開，無子菜單則導航
+// 主按鈕點擊處理 - 有子菜單則展開，無子菜單則導覽
 const handleMainClick = (item, key, event) => {
   event?.stopPropagation()  // 阻止事件冒泡
   cancelCloseSubmenu()  // 取消任何待處理的關閉
@@ -532,31 +439,16 @@ const handleMainClick = (item, key, event) => {
     // 有子菜單，展開子菜單
     handleArrowClick(item, key, event)
   } else if (item.path) {
-    // 無子菜單且有路徑，導航
+    // 無子菜單且有路徑，導覽
     if (item.external) {
       window.location.href = WEB_BASE + item.path
     } else {
-      // 檢查是否有保存的 sub 參數
-      const url = new URL(item.path, window.location.origin)
-      const tab = url.searchParams.get('tab')
-
-      if (tab && item.children && item.children.length > 0) {
-        // 如果有 tab 且有子菜單，嘗試從 sessionStorage 獲取最後訪問的 sub
-        const lastSub = sessionStorage.getItem(`lastVisitedSub_${tab}`)
-        if (lastSub) {
-          url.searchParams.set('sub', lastSub)
-          router.push(url.pathname + url.search)
-        } else {
-          router.push(item.path)
-        }
-      } else {
-        router.push(item.path)
-      }
+      router.push(item.path)
       isSidebarVisible.value = false
     }
   } else {
     // 沒有路徑就console
-    console.log('按鈕點擊 - 需要設置導航路徑:', key, item)
+    console.log('按鈕點擊 - 需要設置導航路徑？', key, item)
   }
 }
 
@@ -597,7 +489,7 @@ const handleArrowClick = (item, key, event) => {
       // 右側空間不足，顯示在按鈕下方
       submenuPosition.value = {
         top: rect.bottom + 5,
-        left: Math.max(10, rect.left) // 確保不會超出左邊界
+        left: Math.max(10, rect.left) // 確保不會超出左邊
       }
     }
 
@@ -611,15 +503,6 @@ const handleSubmenuClick = (child) => {
   if (child.external) {
     window.open(child.path, '_blank')
   } else {
-    // 保存當前選擇的 sub 到 sessionStorage
-    const url = new URL(child.path, window.location.origin)
-    const tab = url.searchParams.get('tab')
-    const sub = url.searchParams.get('sub')
-
-    if (tab && sub) {
-      sessionStorage.setItem(`lastVisitedSub_${tab}`, sub)
-    }
-
     router.push(child.path)
   }
   activeSubmenu.value = null
@@ -747,7 +630,7 @@ onBeforeUnmount(() => {
   gap: 4px;
   cursor: pointer;
   user-select: none;
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1)); /* 柔和透明的漸變 */
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1)); /* 柔和透明的漸層 */
   color: darkblue;
   font-weight: 1000;
   box-shadow: 0 6px 10px rgba(0, 0, 0, 0.1), 0 1px 4px rgba(0, 0, 0, 0.08); /* 輕微陰影，玻璃感 */
@@ -756,7 +639,7 @@ onBeforeUnmount(() => {
 }
 
 .logo {
-  width: 90%; /* 控制logo图片的大小 */
+  width: 90%; /* 控制 logo 图片的大小 */
   height: auto;
 }
 
@@ -793,7 +676,7 @@ onBeforeUnmount(() => {
 }
 
 .menu-item.active {
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1)); /* 柔和透明的漸變 */
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1)); /* 柔和透明的漸層 */
   color: darkblue;
   font-weight: 1000;
   border-radius: 0 0 25px 25px; /* 圓角邊框 */
@@ -803,14 +686,14 @@ onBeforeUnmount(() => {
 }
 
 .menu-item.active:hover {
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.3)); /* 柔和透明的漸變 */
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.3)); /* 柔和透明的漸層 */
   box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2); /* 鼠標懸停時增強陰影 */
   margin:0;
 }
 
 .login-text {
   display: block;
-  max-width: 100px;  /* 根据需要调整最大宽度 */
+  max-width: 100px;  /* ?????????? */
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -828,11 +711,11 @@ onBeforeUnmount(() => {
   align-items: center;
   justify-content: space-between;
   padding: 0 0.5%;
-  position: relative; /* 设置父容器的定位属性 */
+  position: relative; /* ?????????? */
   gap:0.5dvh;
 }
 
-/* 第一行: Logo、标题和登录按钮 */
+/* ?????Logo???????? */
 .navbar-top {
   display: flex;
   align-items: center;
@@ -840,7 +723,7 @@ onBeforeUnmount(() => {
   padding: 0 10px;
   height: 10dvh;
   width: 100%;
-  position: relative; /* 为 .navbar-top 设置定位属性 */
+  position: relative; /* ? .navbar-top ?????? */
 }
 
 .navbar-top .logo-container {
@@ -858,13 +741,13 @@ onBeforeUnmount(() => {
 
 .navbar-top .login-text {
   display: block;
-  max-width: 100px; /* 根据需要调整最大宽度 */
+  max-width: 100px; /* ?????????? */
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-/* 第二行: 导航按钮 */
+/* ????????? */
 .navbar-bottom {
   display: flex;
   align-items: center;
@@ -895,110 +778,6 @@ onBeforeUnmount(() => {
   }
 }
 
-/* 左侧边栏样式 */
-.sidebar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 40dvw;
-  max-width: 300px;
-  height: 100dvh;
-  box-shadow: inset 0 0 0.5px rgba(255, 255, 255, 0.3), 0 8px 32px rgba(0, 0, 0, 0.25), 0 0 0 0.5px rgba(255, 255, 255, 0.1);
-
-  background:
-      radial-gradient(1200px 800px at 10% -10%, rgba(223, 241, 255, 0.5) 0%, rgba(223, 241, 255, 0) 60%), /* 半透明 */
-      radial-gradient(1000px 700px at 110% 10%, rgba(207, 231, 255, 0.5) 0%, rgba(207, 231, 255, 0) 60%), /* 半透明 */
-      linear-gradient(180deg, rgba(234, 245, 255, 0.7), rgba(215, 236, 255, 0.9)); /* 半透明 */
-
-  border: 1px solid rgba(255, 255, 255, 0.35);
-  backdrop-filter: blur(8px) saturate(180%);
-  -webkit-backdrop-filter: blur(12px) saturate(160%);
-  z-index: 1001;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end; /* 保证内容和底部对齐 */
-  gap: 20px;
-  /* 给底部留出空间 */
-  padding: 0px 20px 0px;
-
-}
-.sidebar-empty{
-  height: 8dvh;
-}
-@media (max-aspect-ratio: 1/1){
-  .sidebar-empty{
-    height: 8dvh;
-  }
-}
-
-/* 内容部分居中显示 */
-.sidebar-content {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center; /* 水平居中 */
-  justify-items: center;
-  gap: 20px;
-  max-height: 90dvh;
-  overflow: auto;
-  flex-grow: 1;
-  margin-bottom: 20px;
-}
-
-.sidebar-content ul {
-  list-style-type: none;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: center;
-  gap: 15px;
-  width: 100%;
-  overflow-y: auto;
-  overflow-x: hidden;
-  padding: 0 0 10px;
-}
-@media (max-aspect-ratio: 1/1) {
-  .sidebar-content{
-    gap:18px;
-  }
-  .sidebar-content ul{
-    gap: 12px;
-  }
-}
-
-.sidebar-content li {
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1)); /* 柔和透明的漸變 */
-  color:  #005fd3;
-  font-weight: 1000;
-  border-radius: 25px; /* 圓角邊框 */
-  padding: 6px 15px;
-  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.1), 0 1px 4px rgba(0, 0, 0, 0.08); /* 輕微陰影，玻璃感 */
-  border: 3px solid rgba(255, 255, 255, 0.4); /* 半透明邊框 */
-  transition: all 0.3s ease;
-  height: 10dvh;
-  display: flex;
-  align-items: center;
-  white-space: nowrap;
-  justify-content: center;
-  font-size: 1.3rem;
-  flex: 1 1 0;
-  min-width: 0;
-  text-align: center;
-  text-decoration: none;
-  gap: 8px;
-  cursor: pointer;
-  user-select: none;
-  background: rgba(255, 255, 255, 0.7);
-  position: relative;
-}
-
-.sidebar-content li:hover {
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.3)); /* 柔和透明的漸變 */
-  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2); /* 鼠標懸停時增強陰影 */
-  margin:0;
-  transform: scale(1.1);
-}
 
 .icp-number {
   text-align: center;
@@ -1006,24 +785,6 @@ onBeforeUnmount(() => {
   color: #575757;
 }
 
-/* 访问统计样式 */
-.visit-stats {
-  width: 100%;
-  margin-top: 10px;
-  margin-bottom: 15px;
-}
-
-.stats-summary {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 2px 10px;
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.15));
-  border-radius: 15px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  border: 2px solid rgba(255, 255, 255, 0.4);
-  gap: 9px;
-}
 
 .stat-item {
   display: flex;
@@ -1046,41 +807,10 @@ onBeforeUnmount(() => {
   font-weight: 900;
 }
 
-.expand-btn {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0.2));
-  border: 2px solid rgba(255, 255, 255, 0.5);
-  color: #005fd3;
-  font-size: 18px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.expand-btn:hover {
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.4));
-  transform: scale(1.15);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
 
 /* 弹窗样式 */
-.stats-modal-card {
-  max-width: 700px;
-  width: 90%;
-  max-height: 80dvh;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  padding:10px;
-}
-
 .stats-content {
-  padding: 5px;
+  padding-top: 5px;
 }
 
 .loading-state {
@@ -1092,19 +822,7 @@ onBeforeUnmount(() => {
   color: #666;
 }
 
-.loading-spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid rgba(0, 95, 211, 0.1);
-  border-top-color: #005fd3;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin-bottom: 15px;
-}
 
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
 
 .stats-summary-large {
   display: grid;
@@ -1221,74 +939,6 @@ onBeforeUnmount(() => {
   text-align: right;
 }
 
-/* 自定义滚动条 */
-.history-list::-webkit-scrollbar {
-  width: 8px;
-}
-
-.history-list::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.05);
-  border-radius: 4px;
-}
-
-.history-list::-webkit-scrollbar-thumb {
-  background: rgba(0, 95, 211, 0.3);
-  border-radius: 4px;
-}
-
-.history-list::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 95, 211, 0.5);
-}
-
-.stats-content::-webkit-scrollbar {
-  width: 8px;
-}
-
-.stats-content::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.05);
-  border-radius: 4px;
-}
-
-.stats-content::-webkit-scrollbar-thumb {
-  background: rgba(0, 95, 211, 0.3);
-  border-radius: 4px;
-}
-
-.stats-content::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 95, 211, 0.5);
-}
-
-/* 侧边栏按钮列表滚动条 */
-.sidebar-content ul::-webkit-scrollbar {
-  width: 6px;
-}
-
-.sidebar-content ul::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.05);
-  border-radius: 3px;
-}
-
-.sidebar-content ul::-webkit-scrollbar-thumb {
-  background: rgba(0, 95, 211, 0.3);
-  border-radius: 3px;
-}
-
-.sidebar-content ul::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 95, 211, 0.5);
-}
-
-/* 过渡动画 */
-.fade-scale-enter-active,
-.fade-scale-leave-active {
-  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-}
-
-.fade-scale-enter-from,
-.fade-scale-leave-to {
-  opacity: 0;
-  transform: scale(0.95);
-}
-
 /* Sidebar 滑动动画 */
 .slide-fade-enter-active {
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
@@ -1319,28 +969,14 @@ onBeforeUnmount(() => {
   opacity: 0;
 }
 
-/* 遮罩层样式 */
-.overlay {
-  position: fixed;
-  top: 0;
-  left: min(40dvw + 40px,340px);
-  width: calc(100dvw - min(40dvw + 40px,340px));
-  height: 100dvh;
-  background: rgba(0, 0, 0, 0.5);
-  z-index: 1000;
-}
 
-/* 响应式样式，移动端显示边栏 */
+/* ??????????????? */
 @media (max-aspect-ratio: 1/1)  {
   .navbar-desktop {
     display: none;
   }
   .navbar-content {
     display: flex;
-  }
-  .sidebar-content li{
-    font-size: 1.1rem;
-    padding: 6px 15px;
   }
 }
 
@@ -1372,63 +1008,6 @@ onBeforeUnmount(() => {
   transform: scale(1.05);
 }
 
-/* Submenu panel - liquid glass style */
-.submenu-panel {
-  position: fixed;
-  width: auto; /* 讓內容自然撐開 */
-  max-width: min(300px, calc(100vw - 20px)); /* 確保不會超出螢幕 */
-  z-index: 10001;
-
-  /* Liquid glass effect */
-  background: linear-gradient(
-    145deg,
-    rgba(255, 255, 255, 0.95),
-    rgba(255, 255, 255, 0.85)
-  );
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-
-  /* Border and shadow */
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  border-radius: 16px;
-  box-shadow:
-    inset 0 0 0.5px rgba(255, 255, 255, 0.3),
-    0 12px 40px rgba(0, 0, 0, 0.2),
-    0 0 0 0.5px rgba(255, 255, 255, 0.1);
-
-  /* Padding and overflow */
-  padding: 8px;
-  overflow: hidden;
-}
-
-.submenu-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
-
-  /* Text styling */
-  font-size: 15px;
-  font-weight: 500;
-  color: #333;
-}
-
-.submenu-item:hover {
-  background: linear-gradient(
-    145deg,
-    rgba(0, 122, 255, 0.15),
-    rgba(0, 122, 255, 0.08)
-  );
-  transform: translateX(4px);
-}
-@media (max-aspect-ratio: 1/1) {
-  .submenu-item{
-    padding:8px 12px;
-  }
-}
 .submenu-icon {
   font-size: 18px;
   flex-shrink: 0;
@@ -1462,5 +1041,5 @@ onBeforeUnmount(() => {
     max-width: calc(100vw - 20px);
   }
 }
-
 </style>
+

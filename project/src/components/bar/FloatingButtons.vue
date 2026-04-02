@@ -39,7 +39,7 @@
 import { computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
-import { userStore } from '@/store/store.js';
+import { userStore } from '@/main/store/store.js';
 
 const props = defineProps({
   // 认证按钮位置: 'top-right' | 'bottom-left'
@@ -161,7 +161,9 @@ const goToAuth = () => {
   background: linear-gradient(145deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.15));
   backdrop-filter: blur(15px) saturate(150%);
   -webkit-backdrop-filter: blur(15px) saturate(150%);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15), 0 2px 6px rgba(0, 0, 0, 0.1);
+  box-shadow:
+    0 8px 16px rgba(0, 0, 0, 0.15),
+    0 2px 6px rgba(0, 0, 0, 0.1);
   cursor: pointer;
   font-size: 24px;
   display: flex;
@@ -173,9 +175,11 @@ const goToAuth = () => {
 }
 
 .float-btn:hover {
-  transform: scale(1.1) translateY(-2px);
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2), 0 4px 8px rgba(0, 0, 0, 0.15);
   background: linear-gradient(145deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.3));
+  transform: scale(1.1) translateY(-2px);
+  box-shadow:
+    0 12px 24px rgba(0, 0, 0, 0.2),
+    0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 .float-btn:active {

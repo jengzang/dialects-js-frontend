@@ -29,7 +29,7 @@
       "phonologyMatrix": "音系查询",
       "phonologyCustom": "音素分类",
       "Countphos": "音节统计",
-      "pieVector": "饼图向量"
+      "evolution": "演变"
     },
     "charClass": {
       "zhonggu": "中古汉语",

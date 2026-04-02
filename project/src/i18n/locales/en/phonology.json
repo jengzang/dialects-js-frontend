@@ -109,12 +109,66 @@
                                                        "minLocationError":  "Please enter at least one location",
                                                        "loadError":  "Error loading data"
                                                    }
-                                    }
+                                    },
+                      "evolution":  {
+                                         "title":  "Evolution",
+                                         "queryMode":  {
+                                                           "label":  "Statistics Mode",
+                                                           "byValue":  "By Value",
+                                                           "byStatus":  "By Status"
+                                                       },
+                                         "controls":  {
+                                                          "table":  "Character Table",
+                                                          "level1":  "First Dimension",
+                                                          "level2":  "Second Dimension",
+                                           "sankey": "Sankey",
+                                                          "location":  "Location",
+                                                          "locationHint":  "Only single-location analysis is supported",
+                                                          "query":  "Query",
+                                                          "loading":  "Querying..."
+                                                      },
+                                         "sankey": {                                            "layer": "Layer",                                            "unit": "items",                                            "layers": {                                              "value": "Value"                                            },                                            "titles": {                                              "byValue": "{feature} ? Value ? Status ? Secondary Dimension",                                              "byStatus": "{feature} ? Status ? Value ? Secondary Dimension"                                            }                                          },
+                                         "similarity":  {
+                                                            "algorithm":  "Similarity Algorithm",
+                                                            "threshold":  "Display Threshold",
+                                                            "showConnections":  "Show Connections",
+                                                            "showCategoryLinks":  "Show Category Links",
+                                                            "algorithms":  {
+                                                                               "cosine":  "Cosine Similarity",
+                                                                               "overlap":  "Weighted Overlap",
+                                                                               "topK":  "Top-3 Match",
+                                                                               "kl":  "KL Divergence",
+                                                                               "jaccard":  "Jaccard Similarity",
+                                                                               "charWeighted":  "Char-Weighted Similarity",
+                                                                               "structural":  "Structural Similarity",
+                                                                               "cooccurrence":  "Co-occurrence",
+                                                                               "entropy":  "Entropy Similarity",
+                                                                               "hierarchical":  "Hierarchical Similarity"
+                                                                           }
+                                                        },
+                                         "features":  {
+                                                          "initial":  "Initial",
+                                                          "final":  "Final",
+                                                          "tone":  "Tone"
+                                                      },
+                                         "errors":  {
+                                                        "minLocation":  "Please select at least one location",
+                                                        "maxLocation":  "Evolution analysis only supports a single location. Please remove extra locations.",
+                                                        "autoLimitLocation":  "Evolution analysis only supports a single location. The first location has been kept automatically.",
+                                                        "selectDimensions":  "Please select two dimensions",
+                                                        "sameDimensions":  "Two dimensions cannot be the same",
+                                                        "queryFailed":  "Query failed"
+                                                    },
+                                         "states":  {
+                                                       "loading":  "Loading...",
+                                                       "empty":  "No data for the current feature"
+                                                   }
+                                     }
                   },
     "tabs":  {
                  "matrix":  "Phonology",
                  "custom":  "Phoneme Classification",
                  "count":  "Syllable Count",
-                 "pieVector":  "Pie Vectors"
+                 "evolution":  "Evolution"
              }
 }

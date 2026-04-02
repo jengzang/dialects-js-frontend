@@ -3,7 +3,7 @@
     <!-- 触发图标 -->
     <div
       ref="iconRef"
-      class="help-icon"
+      class="help-icon global-help-icon-shell"
       :class="[sizeClass, { 'is-visible': isVisible }]"
       :style="iconStyle"
       @mouseenter="handleHover('enter')"
@@ -19,7 +19,7 @@
       <Transition name="tooltip-fade">
         <div
           v-if="isVisible"
-          class="help-tooltip"
+          class="help-tooltip global-tooltip-surface"
           :style="[tooltipPosition, { maxWidth: tooltipMaxWidth }]"
         >
           <slot name="content">{{ content }}</slot>
@@ -31,6 +31,8 @@
 
 <script setup>
 import { ref, reactive, computed, nextTick, onMounted, onBeforeUnmount } from 'vue'
+
+const HELP_ICON_OPEN_EVENT = 'help-icon-open'
 
 // Props 定义
 const props = defineProps({
@@ -101,6 +103,7 @@ const tooltipPosition = reactive({
 
 // 自动隐藏定时器
 let autoHideTimer = null
+const instanceId = `help-icon-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`
 
 // 计算属性 - 尺寸 class
 const sizeClass = computed(() => {
@@ -197,6 +200,7 @@ const updatePosition = async () => {
 
 // 显示 Tooltip
 const showTooltip = () => {
+  window.dispatchEvent(new CustomEvent(HELP_ICON_OPEN_EVENT, { detail: instanceId }))
   isVisible.value = true
   updatePosition()
   emit('show')
@@ -274,14 +278,22 @@ const handleClickOutside = (event) => {
   }
 }
 
+const handleOtherHelpIconOpen = (event) => {
+  if (event.detail !== instanceId) {
+    hideTooltip()
+  }
+}
+
 // 生命周期
 onMounted(() => {
   checkMobile()
   document.addEventListener('click', handleClickOutside)
+  window.addEventListener(HELP_ICON_OPEN_EVENT, handleOtherHelpIconOpen)
 })
 
 onBeforeUnmount(() => {
   document.removeEventListener('click', handleClickOutside)
+  window.removeEventListener(HELP_ICON_OPEN_EVENT, handleOtherHelpIconOpen)
   clearTimeout(autoHideTimer)
 })
 </script>
@@ -294,31 +306,11 @@ onBeforeUnmount(() => {
 
 /* 帮助图标 - Apple 玻璃态风格 */
 .help-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
   border-radius: 50%;
-  font-weight: 700;
-  cursor: pointer;
-  user-select: none;
 
   /* 液态玻璃效果 */
-  background: linear-gradient(
-    145deg,
-    rgba(255, 255, 255, 0.9),
-    rgba(255, 255, 255, 0.7)
-  );
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
 
   /* 边框和阴影 */
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  box-shadow:
-    inset 0 0 0.5px rgba(255, 255, 255, 0.3),
-    0 4px 12px rgba(0, 122, 255, 0.15),
-    0 0 0 0.5px rgba(255, 255, 255, 0.1);
-
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* 尺寸变体 */
@@ -410,21 +402,8 @@ onBeforeUnmount(() => {
   word-wrap: break-word;
 
   /* 液态玻璃效果 */
-  background: linear-gradient(
-    145deg,
-    rgba(255, 255, 255, 0.95),
-    rgba(255, 255, 255, 0.85)
-  );
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
 
   /* 边框和阴影 */
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  border-radius: 12px;
-  box-shadow:
-    inset 0 0 0.5px rgba(255, 255, 255, 0.3),
-    0 8px 24px rgba(0, 0, 0, 0.15),
-    0 0 0 0.5px rgba(255, 255, 255, 0.1);
 }
 
 /* Tooltip 过渡动画 */

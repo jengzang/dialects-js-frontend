@@ -24,6 +24,22 @@ src/i18n/
         └── (同上结构)
 ```
 
+## 当前项目补充（2026-03）
+
+以下内容用于补充当前代码结构，原有 i18n 使用说明保持不变：
+
+- 当前前端运行时已经拆分为两个入口：
+  - `src/main`：主站应用
+  - `src/VillagesML`：VillagesML 子应用
+- 这两个入口共用同一套 `src/i18n/` 资源，不分别维护独立 locale 目录
+- 新增界面文案时，仍应同时更新三套语言：
+  - `src/i18n/locales/zh-Hant/`
+  - `src/i18n/locales/zh-CN/`
+  - `src/i18n/locales/en/`
+- 如果新增的是 `main` 或 `VillagesML` 专属页面，也优先复用现有模块化 json 文件；只有在现有文件明显不合适时，再新增新的 locale 文件
+- 当前设置页示例路径已在主站目录下：
+  - `src/main/views/menu/SettingPage.vue`
+
 ## 在组件中使用
 
 ### 在 Template 中使用
@@ -152,4 +168,4 @@ npm run i18n:extract
 
 ## 示例
 
-查看 `src/views/menu/SettingPage.vue` 了解完整的语言切换实现示例。
+查看 `src/main/menu/chores/SettingPage.vue` 了解完整的语言切换实现示例。

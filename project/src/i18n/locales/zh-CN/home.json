@@ -5,8 +5,8 @@
                  "startExploring":  "开始探索",
                  "expandTools":  "拓展工具",
                  "featuresIntro":  "功能简介",
-                 "logoAlt":  "方音图鉴标志",
-                 "decorationAlt":  "蓝色圆环装饰"
+                 "logoAlt":  "方音图鉴",
+                 "decorationAlt":  "蓝色圆环"
              },
     "features":  {
                      "sectionTitle":  "核心功能",
@@ -39,7 +39,7 @@
                                        "phonemeClassify":  "音素分类 - 自定义音素分类",
                                        "syllableCount":  "音节统计 - 统计音节数量",
                                        "middlePosition":  "中古地位 - 查询汉字中古地位",
-                                       "pieVector":  "饼图向量 - 饼图向量分析占位入口"
+                                       "evolution":  "演变 - 演变分析占位入口"
                                    },
                      "words":  {
                                    "title":  "词句资料",
@@ -86,7 +86,7 @@
                                    "setting":  "设置 - 语言与音韵资料选择"
                                },
                      "dialectClustering":  {
-                                               "title":  "聚类",
+                                               "title":  "方言聚类",
                                                "desc":  "方言聚类流程页面占位"
                                            }
                  },
@@ -98,7 +98,7 @@
                                              "desc":  "声学参数批量估计、多算法基频检测、EGG信号分析、声门参数提取"
                                          },
                     "dialectClustering":  {
-                                              "title":  "聚类",
+                                              "title":  "方言聚类",
                                               "desc":  "自定义音值音位权重、调整聚类算法参数、基于音位向量的多维度相似度计算"
                                           },
                     "evolutionTree":  {

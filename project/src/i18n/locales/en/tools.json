@@ -28,17 +28,17 @@
   },
   "jyut2ipa": {
     "page": {
-      "title": "Jyutping to IPA Tool",
-      "subtitle": "Upload an Excel file with a Jyutping column and convert it to IPA in bulk"
+      "title": "Jyutping-to-IPA Tool",
+      "subtitle": "The sheet must contain a \"Jyutping\" column"
     },
     "upload": {
-      "title": "Click or drag an Excel file here to upload",
-      "hint": "Supports .xlsx and .xls files",
-      "info": "Upload an Excel file that includes a jyut6ping3 column. The system will convert it to IPA automatically in batch."
+      "title": "Click to upload or drag files here",
+      "hint": "Supports .xlsx and .xls formats",
+      "info": "Supports Jyutping format (for example: jyut6ping3) and can convert initials, finals, tones, and full IPA."
     },
     "configCard": {
       "title": "Custom Conversion Rules",
-      "desc": "Adjust replacement rules for finals, initials, tones, and codas."
+      "desc": "Configure mapping rules for initials, finals, codas, and tones."
     },
     "processing": {
       "title": "Converting...",
@@ -111,7 +111,7 @@
     },
     "export": {
       "configFileName": "jyut2ipa-rules.json",
-      "resultPrefix": "phonicon_"
+      "resultPrefix": "方音圖鑒_"
     }
   },
   "merge": {
@@ -192,11 +192,11 @@
       "useDefaultFailed": "Failed to use the reference sheet: {message}"
     },
     "export": {
-      "resultFileName": "phonicon_merged_tables.xlsx",
-      "defaultReferencePath": "/reference.xlsx",
-      "defaultReferenceFileName": "reference.xlsx",
-      "mainSheetName": "Main Sheet",
-      "supplementSheetName": "Supplement Sheet"
+      "resultFileName": "方音圖鑑_合併字表.xlsx",
+      "defaultReferencePath": "/参考表.xlsx",
+      "defaultReferenceFileName": "参考表.xlsx",
+      "mainSheetName": "主表",
+      "supplementSheetName": "補充表"
     }
   },
   "checkTool": {
@@ -339,20 +339,20 @@
       "multiSubtitle": "\"One pronunciation for multiple characters\"",
       "layout": "Layout:",
       "multiRule1": "Column A: the syllable (for example, ka1).",
-      "multiRule2": "Column B: a group of characters with optional notes (for example, 家{住所} 加[增加] 佳).",
+      "multiRule2": "Column B: a group of characters with optional notes (for example, 家｛住所｝ 加[增加] 佳).",
       "multiFeature": "The system automatically splits each character in column B and pairs it with the syllable in column A.",
       "gazetteerTitle": "3. Gazetteer",
       "excelTitle": "Excel Format:",
       "contentRules": "Content rules:",
       "gazetteerExcelRule1": "Beginning of the line: onset + rime (for example, pan).",
-      "gazetteerExcelRule2": "Following content must include a bracketed tone number in the form [tone]character{note}.",
-      "gazetteerExcelRule3": "Example: pan [1]班{班級} [2]板 [3]拌.",
+      "gazetteerExcelRule2": "Following content must include a bracketed tone number in the form [tone]character｛note｝.",
+      "gazetteerExcelRule3": "Example: pan [1]班｛班級｝ [2]板 [3]拌.",
       "gazetteerExcelFeature": "The system recognizes tone numbers inside [ ] or ［ ］ and combines them with the line-initial syllable.",
       "wordTitle": "Word Format:",
       "wordRequirement": "Word (.docx)",
       "hierarchyRules": "Hierarchy rules:",
       "gazetteerWordRule1": "Rime level: starts with # (for example, #ang).",
-      "gazetteerWordRule2": "Content line: onset [tone]character{note}.",
+      "gazetteerWordRule2": "Content line: onset [tone]character｛note｝.",
       "gazetteerWordFeature": "Supports complex matching. If an entry contains multiple characters or multiple readings separated by ; or /, the system automatically performs Cartesian-product matching.",
       "gotIt": "Got It"
     },

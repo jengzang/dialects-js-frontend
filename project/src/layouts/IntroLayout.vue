@@ -1,4 +1,5 @@
 <!-- layouts/IntroLayout.vue -->
+<!--已經廢棄了的layout，最早期的時候介紹頁面在使用，現在已經移到menulayout了-->
 <template>
   <div class="container">
     <TabBar />

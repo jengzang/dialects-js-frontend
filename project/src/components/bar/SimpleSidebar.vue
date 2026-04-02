@@ -2,24 +2,25 @@
 <template>
   <!-- 遮罩层 -->
   <Transition name="fade">
-    <div v-if="isOpen" class="overlay" @click="$emit('close')" @wheel.prevent @touchmove.prevent></div>
+    <div v-if="isOpen" class="overlay main-sidebar-overlay" @click="$emit('close')" @wheel.prevent @touchmove.prevent></div>
   </Transition>
 
   <!-- 侧边栏 -->
   <Transition name="slide-fade">
-    <div v-if="isOpen" class="sidebar" @touchmove.stop>
+    <div v-if="isOpen" class="sidebar main-sidebar-shell" @touchmove.stop>
       <!-- 标题图片 (可选) -->
       <div v-if="showTitle" class="sidebar-header">
         <img src="../../assets/picture/title.png" alt="Title" class="title-img" />
       </div>
-      <div v-else class="sidebar-empty"></div>
+      <div v-else class="sidebar-empty main-sidebar-empty"></div>
 
-      <div class="sidebar-content">
-        <ul>
+      <div class="sidebar-content main-sidebar-content">
+        <ul class="main-sidebar-list ui-scrollbar">
           <!-- Dynamic menu items from config (includes 返回查詢 for SimpleSidebar) -->
           <li
             v-for="(item, key) in filteredMenuConfig"
             :key="key"
+            class="main-sidebar-item"
             @click="handleMainClick(item, key, $event)"
             @mouseenter="handleItemMouseEnter(item, key, $event)"
             @mouseleave="item.children && !isMobile ? scheduleCloseSubmenu() : null"
@@ -30,8 +31,8 @@
         </ul>
 
         <!-- 访问统计区域 -->
-        <div class="visit-stats">
-          <div class="stats-summary">
+        <div class="visit-stats main-sidebar-stats">
+          <div class="stats-summary main-sidebar-stats-summary">
             <div class="stat-item">
               <span class="stat-label">{{ t('common.label.today') }}</span>
               <span class="stat-value">{{ todayVisits }}</span>
@@ -40,7 +41,7 @@
               <span class="stat-label">{{ t('common.label.totalVisits') }}</span>
               <span class="stat-value">{{ totalVisits }}</span>
             </div>
-            <button class="expand-btn" @click="toggleStatsPanel">
+            <button class="expand-btn main-sidebar-expand-btn" @click="toggleStatsPanel">
               📊
             </button>
           </div>
@@ -52,63 +53,60 @@
   </Transition>
 
   <!-- 访问历史弹窗 -->
-  <Teleport to="body">
-    <Transition name="fade-scale">
-      <div v-if="isStatsExpanded" class="glass-modal-overlay" @click.self="closeStatsPanel">
-        <div class="glass-card stats-modal-card">
-          <button class="close-btn" @click="closeStatsPanel">&times;</button>
-          <h3 class="modal-title">📊 {{ t('navigation.stats.historyTitle') }}</h3>
+  <AppModal
+    :model-value="isStatsExpanded"
+    size="sm"
+    :title="t('navigation.stats.historyTitle')"
+    :close-label="t('common.button.close')"
+    @update:modelValue="closeStatsPanel"
+  >
+      <div v-if="loadingStats" class="loading-state">
+        <div class="ui-loading--page" aria-hidden="true"></div>
+        <p>{{ t('navigation.stats.loading') }}</p>
+      </div>
 
-          <div v-if="loadingStats" class="loading-state">
-            <div class="loading-spinner"></div>
-            <p>{{ t('navigation.stats.loading') }}</p>
-          </div>
-
-          <div v-else class="stats-content">
-            <div class="stats-summary-large">
-              <div class="stat-card">
-                <div class="stat-icon">📅</div>
-                <div class="stat-info">
-                  <span class="stat-label-large">{{ t('navigation.stats.todayVisits') }}</span>
-                  <span class="stat-value-large">{{ todayVisits }}</span>
-                </div>
-              </div>
-              <div class="stat-card">
-                <div class="stat-icon">🌐</div>
-                <div class="stat-info">
-                  <span class="stat-label-large">{{ t('navigation.stats.totalVisits') }}</span>
-                  <span class="stat-value-large">{{ totalVisits }}</span>
-                </div>
-              </div>
+      <div v-else class="stats-content">
+        <div class="stats-summary-large">
+          <div class="stat-card">
+            <div class="stat-icon">📅</div>
+            <div class="stat-info">
+              <span class="stat-label-large">{{ t('navigation.stats.todayVisits') }}</span>
+              <span class="stat-value-large">{{ todayVisits }}</span>
             </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">🌐</div>
+            <div class="stat-info">
+              <span class="stat-label-large">{{ t('navigation.stats.totalVisits') }}</span>
+              <span class="stat-value-large">{{ totalVisits }}</span>
+            </div>
+          </div>
+        </div>
 
-            <div class="history-section">
-              <h4 class="section-title">{{ t('navigation.stats.historyRecords') }}</h4>
-              <div class="history-list">
-                <div v-for="item in visitHistory" :key="item.date" class="history-item-modal">
-                  <span class="history-date">{{ item.date }}</span>
-                  <div class="history-bar-container">
-                    <div
-                      class="history-bar"
-                      :style="{ width: (item.count / Math.max(...visitHistory.map(v => v.count)) * 100) + '%' }"
-                    ></div>
-                  </div>
-                  <span class="history-count">{{ item.count }}</span>
-                </div>
+        <div class="history-section">
+          <h4 class="section-title">{{ t('navigation.stats.historyRecords') }}</h4>
+          <div class="history-list ui-scrollbar">
+            <div v-for="item in visitHistory" :key="item.date" class="history-item-modal">
+              <span class="history-date">{{ item.date }}</span>
+              <div class="history-bar-container">
+                <div
+                  class="history-bar"
+                  :style="{ width: (item.count / Math.max(...visitHistory.map(v => v.count)) * 100) + '%' }"
+                ></div>
               </div>
+              <span class="history-count">{{ item.count }}</span>
             </div>
           </div>
         </div>
       </div>
-    </Transition>
-  </Teleport>
+  </AppModal>
 
   <!-- Submenu panel (liquid glass style) -->
   <Teleport to="body">
     <Transition name="submenu-fade">
       <div
         v-if="activeSubmenu"
-        class="submenu-panel"
+        class="submenu-panel main-sidebar-submenu-panel"
         :style="{
           top: submenuPosition.top + 'px',
           left: submenuPosition.left + 'px'
@@ -120,7 +118,7 @@
         <div
           v-for="(child, index) in menuConfigData[activeSubmenu]?.children"
           :key="index"
-          class="submenu-item"
+          class="submenu-item main-sidebar-submenu-item"
           @click="handleSubmenuClick(child)"
         >
           <span class="submenu-icon">{{ child.icon }}</span>
@@ -135,10 +133,11 @@
 import { ref, onMounted, onBeforeUnmount, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
+import AppModal from '@/components/common/AppModal.vue'
 import { clearToken, getToken } from '@/api/auth/auth.js'
 import { getTodayVisits, getTotalVisits, getVisitHistory } from '@/api/logs/index.js'
-import {userStore} from "@/store/store.js";
-import { useMenuConfig } from '@/config/SideBarConfig.js';
+import {userStore} from "@/main/store/store.js";
+import { useSidebarConfig } from '@/main/config/index.js';
 import { WEB_BASE } from '@/env-config.js';
 
 const { t } = useI18n();
@@ -166,7 +165,7 @@ const checkMobile = () => {
 }
 
 // Filter menu items for SimpleSidebar (exclude items that should only show in NavBar)
-const menuConfigData = useMenuConfig();
+const menuConfigData = useSidebarConfig();
 const filteredMenuConfig = computed(() => {
   const config = menuConfigData.value;
   const filtered = {}
@@ -571,18 +570,8 @@ onBeforeUnmount(() => {
 }
 
 /* 弹窗样式 (复用 NavBar 的样式) */
-.stats-modal-card {
-  max-width: 700px;
-  width: 90%;
-  max-height: 80dvh;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  padding: 10px;
-}
-
 .stats-content {
-  padding: 5px;
+  padding-top: 5px;
 }
 
 .loading-state {
@@ -594,21 +583,7 @@ onBeforeUnmount(() => {
   color: #666;
 }
 
-.loading-spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid rgba(0, 95, 211, 0.1);
-  border-top-color: #005fd3;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin-bottom: 15px;
-}
 
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
 
 .stats-summary-large {
   display: grid;
@@ -723,56 +698,6 @@ onBeforeUnmount(() => {
   color: #005fd3;
   font-weight: 700;
   text-align: right;
-}
-
-/* 自定义滚动条 */
-.history-list::-webkit-scrollbar {
-  width: 8px;
-}
-
-.history-list::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.05);
-  border-radius: 4px;
-}
-
-.history-list::-webkit-scrollbar-thumb {
-  background: rgba(0, 95, 211, 0.3);
-  border-radius: 4px;
-}
-
-.history-list::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 95, 211, 0.5);
-}
-
-/* 侧边栏按钮列表滚动条 */
-.sidebar-content ul::-webkit-scrollbar {
-  width: 6px;
-}
-
-.sidebar-content ul::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.05);
-  border-radius: 3px;
-}
-
-.sidebar-content ul::-webkit-scrollbar-thumb {
-  background: rgba(0, 95, 211, 0.3);
-  border-radius: 3px;
-}
-
-.sidebar-content ul::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 95, 211, 0.5);
-}
-
-/* 过渡动画 */
-.fade-scale-enter-active,
-.fade-scale-leave-active {
-  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-}
-
-.fade-scale-enter-from,
-.fade-scale-leave-to {
-  opacity: 0;
-  transform: scale(0.95);
 }
 
 /* Sidebar 滑动动画 */

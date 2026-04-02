@@ -1,0 +1,113 @@
+.choice-dropdown-panel {
+  position: absolute;
+  min-width: 80px;
+  max-height: 40dvh;
+  overflow: auto;
+  z-index: 1000;
+  padding: 6px 0;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.choice-dropdown-item {
+  padding: 8px 16px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.choice-dropdown-item.active {
+  background-color: #e6f0ff;
+  color: #02469e;
+  font-weight: bold;
+}
+
+.choice-dropdown-item:hover {
+  background-color: #e6f0ff;
+}
+
+.main-glow-switch:hover {
+  background-color: dimgray;
+  box-shadow: 0 0 10px 4px rgba(0, 123, 255, 0.7);
+}
+
+.main-glow-switch:hover .custom-switch-slider-base::before {
+  background-color: white;
+  box-shadow: 0 0 8px rgba(0, 123, 255, 0.5);
+}
+
+.main-glow-switch.open {
+  background-color: #007aff;
+  animation: main-glow-switch-pulse 2s infinite ease-in-out;
+}
+
+.main-glow-switch.open:hover {
+  background: linear-gradient(135deg, #00bfff, #66ccff);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+}
+
+.main-glow-switch.open:hover .custom-switch-slider-base::before {
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+.main-glow-switch-text {
+  color: black;
+  font-size: 12px;
+  font-weight: bold;
+  text-transform: uppercase;
+  position: absolute;
+  z-index: 1;
+  transition: transform 0.3s ease, color 0.3s ease;
+  pointer-events: none;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.main-glow-switch.open .main-glow-switch-text {
+  color: black;
+  transform: translateX(-25px) translateY(-50%);
+  top: 50%;
+  position: absolute;
+  z-index: 1;
+  pointer-events: none;
+  transition: transform 0.3s ease, color 0.3s ease, text-shadow 0.3s ease;
+  animation: main-switch-text-glow 2s infinite linear;
+  white-space: nowrap;
+}
+
+@keyframes main-glow-switch-pulse {
+  0% {
+    box-shadow: 0 0 5px rgba(0, 122, 255, 0.4),
+    0 0 10px rgba(0, 122, 255, 0.6),
+    0 0 20px rgba(0, 122, 255, 0.8),
+    0 0 30px rgba(0, 122, 255, 0.9);
+  }
+  50% {
+    box-shadow: 0 0 10px rgba(102, 204, 255, 0.6),
+    0 0 20px rgba(102, 204, 255, 0.8),
+    0 0 30px rgba(102, 204, 255, 1),
+    0 0 40px rgba(102, 204, 255, 1);
+  }
+  100% {
+    box-shadow: 0 0 5px rgba(0, 122, 255, 0.4),
+    0 0 10px rgba(0, 122, 255, 0.6),
+    0 0 20px rgba(0, 122, 255, 0.8),
+    0 0 30px rgba(0, 122, 255, 0.9);
+  }
+}
+
+@keyframes main-switch-text-glow {
+  0%,
+  100% {
+    text-shadow: 0 0 2px rgba(255, 255, 255, 0.5);
+  }
+  50% {
+    text-shadow: 0 0 4px rgba(255, 255, 255, 0.8);
+  }
+}

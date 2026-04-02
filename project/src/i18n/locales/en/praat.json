@@ -376,10 +376,10 @@
       "export": {
         "success": "Excel file exported",
         "noData": "No analysis results available for export",
-        "fileName": "dialect_atlas_t_value_tone_{timestamp}.xlsx",
-        "sheetName": "Shi Feng T-Value Analysis",
+        "fileName": "方音圖鑑_T值法定調_{timestamp}.xlsx",
+        "sheetName": "石峰T值分析",
         "columns": {
-          "time": "Time (ms)"
+          "time": "時間 (ms)"
         }
       }
     },

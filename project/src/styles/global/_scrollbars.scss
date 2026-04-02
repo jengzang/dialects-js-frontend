@@ -1,0 +1,225 @@
+:root {
+  --app-scrollbar-size: 8px;
+  --app-scrollbar-track: rgba(15, 23, 42, 0.06);
+  --app-scrollbar-thumb: rgba(0, 95, 211, 0.26);
+  --app-scrollbar-thumb-hover: rgba(0, 95, 211, 0.42);
+  --app-scrollbar-radius: 999px;
+}
+
+@media (max-width: 768px) {
+  :root {
+    --app-scrollbar-size: 4px;
+    --app-scrollbar-track: rgba(15, 23, 42, 0.03);
+    --app-scrollbar-thumb: rgba(0, 95, 211, 0.18);
+    --app-scrollbar-thumb-hover: rgba(0, 95, 211, 0.28);
+  }
+}
+
+@mixin visible-scrollbar {
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: var(--app-scrollbar-thumb) var(--app-scrollbar-track);
+}
+
+@mixin visible-scrollbar-webkit {
+  &::-webkit-scrollbar {
+    width: var(--app-scrollbar-size);
+    height: var(--app-scrollbar-size);
+  }
+
+  &::-webkit-scrollbar-track {
+    background: var(--app-scrollbar-track);
+    border-radius: var(--app-scrollbar-radius);
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: var(--app-scrollbar-thumb);
+    border-radius: var(--app-scrollbar-radius);
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background: var(--app-scrollbar-thumb-hover);
+  }
+}
+
+@mixin hidden-scrollbar {
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+@mixin hidden-scrollbar-webkit {
+  &::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+  }
+}
+
+:where(
+  .ui-scrollbar,
+  .stats-content,
+  .sidebar-content,
+  .sidebar-content ul,
+  .dropdown-panel,
+  .modal-content,
+  .modal-body,
+  .location-popup-body,
+  .popup-body,
+  .village-modal-body,
+  .scroll-content,
+  .table-container,
+  .table-wrapper,
+  .table-scroll-wrapper,
+  .page-content,
+  .content-area,
+  .panel-content,
+  .Panel,
+  .help-modal,
+  .suggestions-box,
+  .suggestions-dropdown,
+  .region-select-box,
+  .partition-overlay,
+  .location-list-container,
+  .stickybar-filter-dropdown,
+  .matrix-wrapper,
+  .popup-content,
+  .qr-modal,
+  .qr-modal-content,
+  .benefits-popup,
+  .comparison-table-wrapper,
+  .feature-checkboxes,
+  .section-content,
+  .selected-items-list,
+  .file-items,
+  .inline-suggestion,
+  .segments-container,
+  .panelContent,
+  .chartonepage,
+  .content-search,
+  .column-selector,
+  .batch-table-wrapper,
+  .location-tags,
+  .tone-stats-content,
+  .onset-rime-stats-content,
+  .error-list,
+  .command-view,
+  .regions-list,
+  .tags-wrapper,
+  .items-list,
+  .city-card,
+  .villages-ml-page,
+  .vector-viz,
+  .village-list,
+  .frequency-results-wrapper,
+  .lexicon-body,
+  .trigrams-list,
+  .hotspots-list,
+  .characters-table,
+  .control-panel,
+  .search-results,
+  .results-section,
+  .feature-table-wrapper,
+  .villages-table-wrapper,
+  .feature-diff-table,
+  .patterns-table,
+  .indices-table,
+  .pmi-results,
+  .main-glass-panel[data-surface='table-container']
+) {
+  @include visible-scrollbar;
+}
+
+:where(
+  .ui-scrollbar,
+  .stats-content,
+  .sidebar-content,
+  .sidebar-content ul,
+  .dropdown-panel,
+  .modal-content,
+  .modal-body,
+  .location-popup-body,
+  .popup-body,
+  .village-modal-body,
+  .scroll-content,
+  .table-container,
+  .table-wrapper,
+  .table-scroll-wrapper,
+  .page-content,
+  .content-area,
+  .panel-content,
+  .Panel,
+  .help-modal,
+  .suggestions-box,
+  .suggestions-dropdown,
+  .region-select-box,
+  .partition-overlay,
+  .location-list-container,
+  .stickybar-filter-dropdown,
+  .matrix-wrapper,
+  .popup-content,
+  .qr-modal,
+  .qr-modal-content,
+  .benefits-popup,
+  .comparison-table-wrapper,
+  .feature-checkboxes,
+  .section-content,
+  .selected-items-list,
+  .file-items,
+  .inline-suggestion,
+  .segments-container,
+  .panelContent,
+  .chartonepage,
+  .content-search,
+  .column-selector,
+  .batch-table-wrapper,
+  .location-tags,
+  .tone-stats-content,
+  .onset-rime-stats-content,
+  .error-list,
+  .command-view,
+  .regions-list,
+  .tags-wrapper,
+  .items-list,
+  .city-card,
+  .villages-ml-page,
+  .vector-viz,
+  .village-list,
+  .frequency-results-wrapper,
+  .lexicon-body,
+  .trigrams-list,
+  .hotspots-list,
+  .characters-table,
+  .control-panel,
+  .search-results,
+  .results-section,
+  .feature-table-wrapper,
+  .villages-table-wrapper,
+  .feature-diff-table,
+  .patterns-table,
+  .indices-table,
+  .pmi-results,
+  .main-glass-panel[data-surface='table-container']
+) {
+  @include visible-scrollbar-webkit;
+}
+
+:where(
+  .ui-scrollbar--hidden,
+  .topbar-tags,
+  .steps-indicator,
+  .modal-tabs,
+  .cluster-badges
+) {
+  @include hidden-scrollbar;
+}
+
+:where(
+  .ui-scrollbar--hidden,
+  .topbar-tags,
+  .steps-indicator,
+  .modal-tabs,
+  .cluster-badges
+) {
+  @include hidden-scrollbar-webkit;
+}
