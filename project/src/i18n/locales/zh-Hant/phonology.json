@@ -121,10 +121,22 @@
         "table": "字符表",
         "level1": "第一維度",
         "level2": "第二維度",
+        "sankey": "桑基圖",
         "location": "地點",
         "locationHint": "僅支持單個地點分析",
         "query": "查詢",
         "loading": "查詢中..."
+      },
+      "sankey": {
+        "layer": "層級",
+        "unit": "條",
+        "layers": {
+          "value": "音值"
+        },
+        "titles": {
+          "byValue": "{feature} · 音值 -> 地位 -> 二級維度",
+          "byStatus": "{feature} · 地位 -> 音值 -> 二級維度"
+        }
       },
       "similarity": {
         "algorithm": "相似度算法",

@@ -30,6 +30,18 @@
       </div>
 
       <!-- 字符表和维度选择 -->
+      <div class="control-row control-row--sankey">
+        <label class="mode-radio-label sankey-toggle">
+          <input
+            v-model="showSankey"
+            type="checkbox"
+            class="hidden-radio"
+          />
+          <span class="glass-indicator"></span>
+          {{ t('phonology.phonology.evolution.controls.sankey') }}
+        </label>
+      </div>
+
       <div class="dimension-grid">
         <div class="dimension-field">
           <label class="control-label dimension-label">{{ t('phonology.phonology.evolution.controls.table') }}：</label>
@@ -113,7 +125,8 @@
 
     <!-- 饼图展示区域 -->
     <div v-else-if="rawData && currentPieData.length > 0" class="pie-container">
-      <div class="pie-grid" :style="gridStyle" ref="pieGridRef">
+      <div v-if="showSankey" ref="sankeyContainerRef" class="sankey-chart"></div>
+      <div v-else class="pie-grid" :style="gridStyle" ref="pieGridRef">
         <div
           v-for="(pie, index) in currentPieData"
           :key="index"
@@ -157,6 +170,7 @@ const selectedTable = ref('characters')
 const level1Column = ref('')
 const level2Column = ref('')
 const selectedLocations = ref([])
+const showSankey = ref(false)
 
 // 查询状态
 const isLoading = ref(false)
@@ -170,7 +184,9 @@ const currentFeature = ref('聲母')
 
 // 饼图容器
 const pieGridRef = ref(null)
+const sankeyContainerRef = ref(null)
 const chartInstances = ref([])
+const sankeyChartInstance = ref(null)
 const containerWidth = ref(1200)
 
 // ========== 配置数据 ==========
@@ -273,7 +289,7 @@ const applyDemoData = async () => {
 
   await nextTick()
   updateContainerSize()
-  renderAllPies()
+  await renderCurrentVisualization()
 }
 
 const handleQuery = async () => {
@@ -322,7 +338,7 @@ const handleQuery = async () => {
 
     await nextTick()
     updateContainerSize()
-    renderAllPies()
+    await renderCurrentVisualization()
   } catch (error) {
     errorMessage.value = error.message || t('phonology.phonology.evolution.errors.queryFailed')
     console.error('Query error:', error)
@@ -333,10 +349,26 @@ const handleQuery = async () => {
 
 // ========== 容器尺寸更新 ==========
 const updateContainerSize = () => {
+  if (showSankey.value && sankeyContainerRef.value) {
+    const rect = sankeyContainerRef.value.getBoundingClientRect()
+    containerWidth.value = rect.width || 1200
+    return
+  }
+
   if (pieGridRef.value) {
     const rect = pieGridRef.value.getBoundingClientRect()
     containerWidth.value = rect.width || 1200
   }
+}
+
+const clearPieCharts = () => {
+  chartInstances.value.forEach(chart => chart?.dispose())
+  chartInstances.value = []
+}
+
+const clearSankeyChart = () => {
+  sankeyChartInstance.value?.dispose()
+  sankeyChartInstance.value = null
 }
 
 // ========== 饼图渲染 ==========
@@ -483,8 +515,7 @@ const renderAllPies = async () => {
   console.log(`[Evolution] Starting to render ${currentPieData.value.length} pies...`)
 
   await nextTick()
-  chartInstances.value.forEach(chart => chart?.dispose())
-  chartInstances.value = []
+  clearPieCharts()
 
   // 强制重新渲染：等待DOM更新后再次触发
   await nextTick()
@@ -516,8 +547,168 @@ const renderAllPies = async () => {
   console.log(`[Evolution] Total rendering took ${(endTime - startTime).toFixed(2)}ms`)
 }
 
+const buildSankeyData = () => {
+  const isByValue = queryMode.value === 'by_value'
+  const nodeMap = new Map()
+  const linkMap = new Map()
+
+  const ensureNode = (id, rawLabel, layer) => {
+    if (!nodeMap.has(id)) {
+      nodeMap.set(id, { name: id, rawLabel, layer })
+    }
+  }
+
+  const addLink = (source, target, value) => {
+    if (!value) return
+    const key = `${source}__${target}`
+    linkMap.set(key, (linkMap.get(key) || 0) + value)
+  }
+
+  currentPieData.value.forEach((pie) => {
+    const rootLabel = isByValue ? pie.value : pie.level1_value
+    const rootLayer = isByValue ? t('phonology.phonology.evolution.sankey.layers.value') : level1Column.value
+    const rootId = `${isByValue ? 'value' : 'level1'}:${rootLabel}`
+    const items = isByValue ? pie.level1 : pie.phonetic_values
+
+    ensureNode(rootId, rootLabel, rootLayer)
+
+    items?.forEach((item) => {
+      const middleLabel = isByValue ? item.label : item.value
+      const middleLayer = isByValue ? level1Column.value : t('phonology.phonology.evolution.sankey.layers.value')
+      const middleId = `${isByValue ? 'level1' : 'value'}:${middleLabel}`
+
+      ensureNode(middleId, middleLabel, middleLayer)
+      addLink(rootId, middleId, item.count)
+
+      item.level2?.forEach((level2Item) => {
+        const level2Id = `level2:${level2Item.label}`
+        ensureNode(level2Id, level2Item.label, level2Column.value)
+        addLink(middleId, level2Id, level2Item.count)
+      })
+    })
+  })
+
+  return {
+    nodes: Array.from(nodeMap.values()),
+    links: Array.from(linkMap.entries()).map(([key, value]) => {
+      const [source, target] = key.split('__')
+      return { source, target, value }
+    })
+  }
+}
+
+const generateSankeyOption = () => {
+  const sankeyData = buildSankeyData()
+  const title = queryMode.value === 'by_value'
+    ? t('phonology.phonology.evolution.sankey.titles.byValue', { feature: currentFeature.value })
+    : t('phonology.phonology.evolution.sankey.titles.byStatus', { feature: currentFeature.value })
+
+  return {
+    animation: false,
+    title: {
+      text: title,
+      left: 'center',
+      top: 12,
+      textStyle: {
+        fontSize: 15,
+        fontWeight: 'bold',
+        color: '#333'
+      }
+    },
+    tooltip: {
+      trigger: 'item',
+      triggerOn: 'mousemove',
+      confine: true,
+      formatter: (params) => {
+        if (params.dataType === 'edge') {
+          const sourceNode = sankeyData.nodes.find(node => node.name === params.data.source)
+          const targetNode = sankeyData.nodes.find(node => node.name === params.data.target)
+          return `${sourceNode?.rawLabel || params.data.source} -> ${targetNode?.rawLabel || params.data.target}<br/>${params.data.value} ${t('phonology.phonology.evolution.sankey.unit')}`
+        }
+
+        return `${params.data.rawLabel}<br/>${t('phonology.phonology.evolution.sankey.layer')}: ${params.data.layer}`
+      }
+    },
+    series: [{
+      type: 'sankey',
+      data: sankeyData.nodes,
+      links: sankeyData.links,
+      nodeAlign: 'justify',
+      draggable: false,
+      emphasis: {
+        focus: 'adjacency'
+      },
+      lineStyle: {
+        color: 'gradient',
+        curveness: 0.5,
+        opacity: 0.35
+      },
+      label: {
+        color: '#333',
+        fontSize: 12,
+        formatter: ({ data }) => data.rawLabel
+      },
+      itemStyle: {
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.8)'
+      },
+      levels: [
+        { depth: 0, itemStyle: { color: '#4f7cff' }, lineStyle: { opacity: 0.35 } },
+        { depth: 1, itemStyle: { color: '#34a853' }, lineStyle: { opacity: 0.35 } },
+        { depth: 2, itemStyle: { color: '#f2994a' }, lineStyle: { opacity: 0.35 } }
+      ]
+    }]
+  }
+}
+
+const renderSankey = async () => {
+  await nextTick()
+  clearPieCharts()
+  clearSankeyChart()
+
+  if (!sankeyContainerRef.value || currentPieData.value.length === 0) {
+    return
+  }
+
+  sankeyChartInstance.value = echarts.init(sankeyContainerRef.value, null, {
+    renderer: 'canvas',
+    useDirtyRect: true
+  })
+
+  sankeyChartInstance.value.setOption(generateSankeyOption(), {
+    notMerge: true,
+    lazyUpdate: false
+  })
+}
+
+const renderCurrentVisualization = async () => {
+  if (showSankey.value) {
+    await renderSankey()
+    return
+  }
+
+  clearSankeyChart()
+  await renderAllPies()
+}
+
+const handleWindowResize = () => {
+  updateContainerSize()
+
+  if (showSankey.value) {
+    sankeyChartInstance.value?.resize()
+    return
+  }
+
+  chartInstances.value.forEach(chart => chart?.resize())
+}
+
 // 当切换feature时，重新渲染饼图
 watch(currentFeature, async () => {
+  if (showSankey.value) {
+    await renderCurrentVisualization()
+    return
+  }
+
   await nextTick()
 
   // 清空旧的图表实例
@@ -548,6 +739,12 @@ watch(currentFeature, async () => {
 })
 
 // ========== 生命周期 ==========
+watch(showSankey, async () => {
+  await nextTick()
+  updateContainerSize()
+  await renderCurrentVisualization()
+})
+
 watch(queryMode, async () => {
   if (hasQueriedRealData.value) {
     return
@@ -558,10 +755,13 @@ watch(queryMode, async () => {
 
 onMounted(async () => {
   await applyDemoData()
+  window.addEventListener('resize', handleWindowResize)
 })
 
 onUnmounted(() => {
-  chartInstances.value.forEach(chart => chart?.dispose())
+  clearPieCharts()
+  clearSankeyChart()
+  window.removeEventListener('resize', handleWindowResize)
 })
 </script>
 
@@ -600,6 +800,14 @@ onUnmounted(() => {
   &--query {
     justify-content: center;
   }
+}
+
+.control-row--sankey {
+  justify-content: flex-end;
+}
+
+.sankey-toggle {
+  gap: 10px;
 }
 
 .dimension-grid {
@@ -837,6 +1045,12 @@ onUnmounted(() => {
   background: transparent;
 }
 
+.sankey-chart {
+  width: min(92dvw, 1400px);
+  height: 680px;
+  margin: 0 auto;
+}
+
 /* 空状态 */
 .empty-state {
   display: flex;
@@ -880,6 +1094,11 @@ onUnmounted(() => {
 
   .pie-chart {
     height: 180px;
+  }
+
+  .sankey-chart {
+    width: 100%;
+    height: 520px;
   }
 }
 

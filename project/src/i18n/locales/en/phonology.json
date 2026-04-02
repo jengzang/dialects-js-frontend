@@ -121,11 +121,13 @@
                                                           "table":  "Character Table",
                                                           "level1":  "First Dimension",
                                                           "level2":  "Second Dimension",
+                                           "sankey": "Sankey",
                                                           "location":  "Location",
                                                           "locationHint":  "Only single-location analysis is supported",
                                                           "query":  "Query",
                                                           "loading":  "Querying..."
                                                       },
+                                         "sankey": {                                            "layer": "Layer",                                            "unit": "items",                                            "layers": {                                              "value": "Value"                                            },                                            "titles": {                                              "byValue": "{feature} ? Value ? Status ? Secondary Dimension",                                              "byStatus": "{feature} ? Status ? Value ? Secondary Dimension"                                            }                                          },
                                          "similarity":  {
                                                             "algorithm":  "Similarity Algorithm",
                                                             "threshold":  "Display Threshold",
