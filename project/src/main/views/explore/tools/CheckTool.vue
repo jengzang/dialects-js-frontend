@@ -652,10 +652,12 @@
         </div>
       </div>
 
-      <div class="check-tool-simple-modal-footer">
-        <button class="main-glass-button" data-variant="secondary" @click="showBatchReplaceModal = false">{{ t('tools.checkTool.batchReplace.cancel') }}</button>
-        <button class="main-glass-button" data-variant="primary" @click="executeBatchReplace">🔄 {{ t('tools.checkTool.batchReplace.execute') }}</button>
-      </div>
+      <template #footer>
+<!--        <div class="check-tool-simple-modal-footer">-->
+          <button class="main-glass-button" data-variant="secondary" @click="showBatchReplaceModal = false">{{ t('tools.checkTool.batchReplace.cancel') }}</button>
+          <button class="main-glass-button" data-variant="primary" @click="executeBatchReplace">🔄 {{ t('tools.checkTool.batchReplace.execute') }}</button>
+<!--        </div>-->
+      </template>
     </AppModal>
 
     <!-- 帮助对话框 -->
@@ -842,9 +844,11 @@
         {{ toneCharsModalContent }}
       </div>
 
-      <div class="check-tool-simple-modal-footer">
-        <button class="main-glass-button" data-variant="primary" @click="showToneCharsModal = false">{{ t('tools.checkTool.toneChars.close') }}</button>
-      </div>
+      <template #footer>
+<!--        <div class="check-tool-simple-modal-footer">-->
+          <button class="main-glass-button" data-variant="primary" @click="showToneCharsModal = false">{{ t('tools.checkTool.toneChars.close') }}</button>
+<!--        </div>-->
+      </template>
     </AppModal>
 
     <!-- 列筛选对话框 -->
@@ -883,10 +887,12 @@
         </div>
       </div>
 
-      <div class="check-tool-simple-modal-footer">
-        <button class="main-glass-button" data-variant="secondary" @click="showFilterModal = false">{{ t('tools.checkTool.filter.close') }}</button>
-        <button class="main-glass-button" data-variant="primary" @click="showFilterModal = false">{{ t('tools.checkTool.filter.confirm') }}</button>
-      </div>
+      <template #footer>
+<!--        <div class="check-tool-simple-modal-footer">-->
+          <button class="main-glass-button" data-variant="secondary" @click="showFilterModal = false">{{ t('tools.checkTool.filter.close') }}</button>
+          <button class="main-glass-button" data-variant="primary" @click="showFilterModal = false">{{ t('tools.checkTool.filter.confirm') }}</button>
+<!--        </div>-->
+      </template>
     </AppModal>
   </div>
 </template>

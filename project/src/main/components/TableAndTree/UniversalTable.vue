@@ -308,10 +308,12 @@
         </div>
       </div>
 
-      <div class="add-record-modal-actions">
+      <template #footer>
+        <div class="add-record-modal-actions">
         <button class="modal-btn cancel-btn" @click="closeAddModal">{{ t('common.button.cancel') }}</button>
         <button class="modal-btn confirm-btn" @click="submitNewRecord">{{ t('tableTree.universalTable.addModal.confirmAdd') }}</button>
-      </div>
+        </div>
+      </template>
     </AppModal>
 
     <!-- 批量替换对话框 -->
@@ -470,7 +472,8 @@
               </div>
       </div>
 
-      <div class="batch-replace-modal-footer">
+      <template #footer>
+        <div class="batch-replace-modal-footer">
               <button
                 class="main-glass-button"
                 data-variant="secondary"
@@ -495,7 +498,8 @@
               >
                 <span>{{ t('common.button.cancel') }}</span>
               </button>
-      </div>
+        </div>
+      </template>
     </AppModal>
   </div>
 </template>

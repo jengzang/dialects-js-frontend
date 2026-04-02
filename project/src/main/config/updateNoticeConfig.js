@@ -18,8 +18,8 @@ export function getHomeUpdateNotice(t) {
   ]
 
   return {
-    version: 'v4.2.0',
-    lastUpdateDate: '2026-03-19',
+    version: 'v4.3.0',
+    lastUpdateDate: '2026-04-03',
     title: '🎊 ' + t('home.updateNotice.title'),
     items
   }

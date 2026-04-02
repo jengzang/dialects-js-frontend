@@ -48,15 +48,17 @@
       </slot>
     </div>
 
-    <div class="update-notice-footer">
-      <label class="no-show-checkbox">
-        <input v-model="dontShowAgain" type="checkbox" />
-        <span>{{ $t('common.updateNotice.dontShowAgain') }}</span>
-      </label>
-      <button class="confirm-btn" @click="handleConfirm">
-        {{ $t('common.updateNotice.confirm') }}
-      </button>
-    </div>
+    <template #footer>
+<!--      <div class="update-notice-footer">-->
+        <label class="no-show-checkbox">
+          <input v-model="dontShowAgain" type="checkbox" />
+          <span>{{ $t('common.updateNotice.dontShowAgain') }}</span>
+        </label>
+        <button class="confirm-btn" @click="handleConfirm">
+          {{ $t('common.updateNotice.confirm') }}
+        </button>
+<!--      </div>-->
+    </template>
   </AppModal>
 </template>
 

@@ -192,14 +192,16 @@
           </tbody>
         </table>
       </div>
-      <div class="user-data-modal-footer">
-        <button class="btn-primary" :disabled="validBatchEditRows.length === 0" @click="submitBatchEdit">
-          {{ t('user.dataPage.batchEdit.save', { count: validBatchEditRows.length }) }}
-        </button>
-        <button class="btn-secondary" @click="closeBatchEditModal">
-          {{ t('common.button.cancel') }}
-        </button>
-      </div>
+      <template #footer>
+<!--        <div class="user-data-modal-footer">-->
+          <button class="btn-primary" :disabled="validBatchEditRows.length === 0" @click="submitBatchEdit">
+            {{ t('user.dataPage.batchEdit.save', { count: validBatchEditRows.length }) }}
+          </button>
+          <button class="btn-secondary" @click="closeBatchEditModal">
+            {{ t('common.button.cancel') }}
+          </button>
+<!--        </div>-->
+      </template>
     </AppModal>
 
     <AppModal
@@ -253,14 +255,16 @@
           </tbody>
         </table>
       </div>
-      <div class="user-data-modal-footer">
-        <button class="btn-primary" :disabled="validBatchRows.length === 0" @click="submitBatchCreate">
-          {{ t('user.dataPage.batchCreate.submit', { count: validBatchRows.length }) }}
-        </button>
-        <button class="btn-secondary" @click="closeBatchCreateModal">
-          {{ t('common.button.cancel') }}
-        </button>
-      </div>
+      <template #footer>
+<!--        <div class="user-data-modal-footer">-->
+          <button class="btn-primary" :disabled="validBatchRows.length === 0" @click="submitBatchCreate">
+            {{ t('user.dataPage.batchCreate.submit', { count: validBatchRows.length }) }}
+          </button>
+          <button class="btn-secondary" @click="closeBatchCreateModal">
+            {{ t('common.button.cancel') }}
+          </button>
+<!--        </div>-->
+      </template>
     </AppModal>
 
     <AppModal
@@ -298,14 +302,16 @@
         <label>{{ t('user.dataPage.table.note') }}</label>
         <textarea v-model="editingRecord.說明" rows="3"></textarea>
       </div>
-      <div class="user-data-modal-footer">
-        <button class="btn-primary" @click="submitEdit">
-          {{ t('common.button.save') }}
-        </button>
-        <button class="btn-secondary" @click="closeEditModal">
-          {{ t('common.button.cancel') }}
-        </button>
-      </div>
+      <template #footer>
+<!--        <div class="user-data-modal-footer">-->
+          <button class="btn-primary" @click="submitEdit">
+            {{ t('common.button.save') }}
+          </button>
+          <button class="btn-secondary" @click="closeEditModal">
+            {{ t('common.button.cancel') }}
+          </button>
+<!--        </div>-->
+      </template>
     </AppModal>
   </div>
 </template>

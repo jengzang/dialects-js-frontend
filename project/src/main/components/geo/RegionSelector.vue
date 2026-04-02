@@ -258,12 +258,14 @@
                 </div>
               </div>
             </div>
-        <div class="custom-region-footer">
+      </div>
+      <template #footer>
+<!--        <div class="custom-region-footer">-->
             <button class="btn-manage" @click="goToManagePage">
               {{ $t('query.components.regionSelector.customRegionModal.manageButton') }}
             </button>
-        </div>
-      </div>
+<!--        </div>-->
+      </template>
     </AppModal>
   </div>
 </template>

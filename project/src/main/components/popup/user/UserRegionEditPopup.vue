@@ -87,15 +87,17 @@
       </div>
     </div>
 
-    <div class="popup-footer">
-      <button class="btn-secondary" @click="handleClose">
-        {{ t('common.button.cancel') }}
-      </button>
-      <button class="btn-primary" :disabled="!uiState.canSave || uiState.isSaving" @click="emit('save')">
-        <span v-if="uiState.isSaving" class="ui-loading--inline" aria-hidden="true"></span>
-        <span v-else>{{ t('common.button.save') }}</span>
-      </button>
-    </div>
+    <template #footer>
+<!--      <div class="popup-footer">-->
+        <button class="btn-secondary" @click="handleClose">
+          {{ t('common.button.cancel') }}
+        </button>
+        <button class="btn-primary" :disabled="!uiState.canSave || uiState.isSaving" @click="emit('save')">
+          <span v-if="uiState.isSaving" class="ui-loading--inline" aria-hidden="true"></span>
+          <span v-else>{{ t('common.button.save') }}</span>
+        </button>
+<!--      </div>-->
+    </template>
   </AppModal>
 </template>
 
