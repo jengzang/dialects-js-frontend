@@ -29,7 +29,6 @@
             :key="child.id"
             :node="child"
             :search-query="searchQuery"
-            :force-expand="forceExpand"
         />
       </div>
     </transition>

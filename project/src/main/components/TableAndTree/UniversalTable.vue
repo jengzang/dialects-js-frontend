@@ -1,5 +1,5 @@
 <template>
-  <div class="main-glass-shell" data-surface="table">
+  <div class="universal-table glass-container">
     <div class="toolbar">
       <div class="search-wrapper">
         <span class="search-icon">🔍</span>
@@ -1503,10 +1503,14 @@ onUnmounted(() => {
    使用全局 CSS 变量和工具类
    ======================================== */
 
-.main-glass-shell[data-surface='table'] {
+.universal-table.glass-container {
   /* 使用全局变量替代局部变量 */
-  --main-glass-shell-radius: var(--radius-xl);
-  --main-glass-shell-shadow: var(--shadow-md);
+  background: var(--glass-light);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-md);
   padding: 12px 4px;
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   color: var(--text-primary);
@@ -1922,11 +1926,11 @@ td.cell-changed::after {
 
 /* Mobile Responsiveness */
 @media (max-width: 768px) {
-  .main-glass-shell[data-surface='table'] {
+  .universal-table.glass-container {
     padding: 8px 2px;
-    --main-glass-shell-radius: 20px;
+    border-radius: 20px;
     height: 85dvh;
-    --main-glass-shell-border: none;
+    border: none;
   }
 
   th, td {

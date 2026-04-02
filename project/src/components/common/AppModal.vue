@@ -39,6 +39,10 @@
           <div class="content ui-scrollbar">
             <slot />
           </div>
+
+          <div v-if="hasFooter" class="footer">
+            <slot name="footer" />
+          </div>
         </div>
       </div>
     </Transition>
@@ -112,6 +116,7 @@ const defaultCloseButtonClassMap = {
 }
 
 const hasHeader = computed(() => Boolean(slots.header) || Boolean(props.title) || props.showClose)
+const hasFooter = computed(() => Boolean(slots.footer))
 
 const resolvedSize = computed(() => (props.size === 'lg' ? 'lg' : 'sm'))
 
@@ -213,6 +218,15 @@ function handleBackdropClose() {
   @include scrollbars.visible-scrollbar-webkit;
 }
 
+.footer {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 16px 18px;
+  border-top: 1px solid rgba(255, 255, 255, 0.5);
+}
+
 .app-modal[data-size='sm'] {
   --modal-width: min(720px, 94dvw);
   --modal-max-height: min(70dvh, 640px);
@@ -252,6 +266,11 @@ function handleBackdropClose() {
 .app-modal.is-frameless .content {
   padding: 0;
   overflow: visible;
+}
+
+.app-modal.is-frameless .footer {
+  padding: 0;
+  border-top: none;
 }
 
 .modal-fade-enter-active,
