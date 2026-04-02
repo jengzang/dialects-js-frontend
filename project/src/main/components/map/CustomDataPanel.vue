@@ -151,7 +151,7 @@ const emit = defineEmits(['submit-success', 'panel-toggle'])
 const isPanelOpen = ref(false)
 
 const shouldShowPanel = computed(() => {
-  const isMapTab = route.query.tab === 'map' && (route.query.sub === 'map' || !route.query.sub)
+  const isMapTab = route.params.sub === 'view'
   if (!isMapTab) return false
 
   const queryMode = resultCache.mode || ''

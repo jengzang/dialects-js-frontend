@@ -486,7 +486,7 @@ watch(selectedFeature, (newVal) => {
 
 // Watch for custom tab visibility - only fetch data when tab is active
 watch(
-  () => route.query.sub,
+  () => route.params.sub,
   (newSub) => {
     if (newSub === 'custom' && userStore.isAuthenticated) {
       fetchUserTotalCount()
@@ -670,8 +670,6 @@ const handleRunQuery = () => {
 
     // 构建查询参数
     const query = {
-      tab: 'map',
-      sub: 'map',
       feature: selectedFeature.value
     }
 
@@ -689,7 +687,10 @@ const handleRunQuery = () => {
     query.regionMode = locationData.value.regionUsing || 'map'
 
     // 跳转到地图页面
-    router.replace({ query })
+    router.replace({
+      path: '/menu/map/view',
+      query
+    })
 
     showSuccess(t('map.customTab.messages.loading'))
 
@@ -722,7 +723,10 @@ const handleAddSingle = () => {
 
   // 设置查询模式为"查中古"，确保面板能够显示
   resultCache.mode = '查中古'
-  router.replace({ query: { tab: 'map', sub: 'map', openPanel: 'true' } })
+  router.replace({
+    path: '/menu/map/view',
+    query: { openPanel: 'true' }
+  })
 }
 
 // 批量添加：跳转到个人数据管理页面

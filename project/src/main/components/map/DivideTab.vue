@@ -119,7 +119,10 @@ const runAction = async () => {
     mapStore.mode = 'dot';
 
     // 切換回地圖 Tab
-    await router.replace({query: {...route.query, sub: 'map'}});
+    await router.replace({
+      path: '/menu/map/view',
+      query: route.query
+    });
 
   } catch (error) {
     console.error(error);
