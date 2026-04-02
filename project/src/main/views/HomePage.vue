@@ -10,7 +10,7 @@
         <h1 class="hero-title">{{ $t('home.hero.title') }}</h1>
         <p class="hero-subtitle">{{ $t('home.hero.subtitle') }}</p>
         <div class="hero-actions">
-          <button class="btn-primary" @click="navigateTo('/menu?tab=query')">
+          <button class="btn-primary" @click="navigateTo('/menu/query/zhonggu')">
             <span class="btn-icon">🚀</span>
             <span class="btn-text">{{ $t('home.hero.startExploring') }}</span>
           </button>
@@ -46,19 +46,19 @@
           </div>
           <transition name="expand">
             <div v-if="expandedCard === 'query'" class="card-body">
-              <a @click.stop="navigateTo('/menu?tab=query&sub=tab1')" class="feature-link">
+              <a @click.stop="navigateTo('/menu/query/char')" class="feature-link">
                 <span class="link-icon">📝</span>
                 <span class="link-text">{{ $t('home.features.query.searchChar') }}</span>
               </a>
-              <a @click.stop="navigateTo('/menu?tab=query&sub=tab2')" class="feature-link">
+              <a @click.stop="navigateTo('/menu/query/zhonggu')" class="feature-link">
                 <span class="link-icon">📜</span>
                 <span class="link-text">{{ $t('home.features.query.searchMiddle') }}</span>
               </a>
-              <a @click.stop="navigateTo('/menu?tab=query&sub=tab3')" class="feature-link">
+              <a @click.stop="navigateTo('/menu/query/yinwei')" class="feature-link">
                 <span class="link-icon">🗣️</span>
                 <span class="link-text">{{ $t('home.features.query.searchPhoneme') }}</span>
               </a>
-              <a @click.stop="navigateTo('/menu?tab=query&sub=tab4')" class="feature-link">
+              <a @click.stop="navigateTo('/menu/query/tone')" class="feature-link">
                 <span class="link-icon">🎶</span>
                 <span class="link-text">{{ $t('home.features.query.searchTone') }}</span>
               </a>
@@ -80,15 +80,15 @@
           </div>
           <transition name="expand">
             <div v-if="expandedCard === 'compare'" class="card-body">
-              <a @click.stop="navigateTo('/menu?tab=compare&sub=tab1')" class="feature-link">
+              <a @click.stop="navigateTo('/menu/compare/char')" class="feature-link">
                 <span class="link-icon">📊</span>
                 <span class="link-text">{{ $t('home.features.compare.compareChar') }}</span>
               </a>
-              <a @click.stop="navigateTo('/menu?tab=compare&sub=tab2')" class="feature-link">
+              <a @click.stop="navigateTo('/menu/compare/zhonggu')" class="feature-link">
                 <span class="link-icon">🎯</span>
                 <span class="link-text">{{ $t('home.features.compare.compareMiddle') }}</span>
               </a>
-              <a @click.stop="navigateTo('/menu?tab=compare&sub=tab4')" class="feature-link">
+              <a @click.stop="navigateTo('/menu/compare/tone')" class="feature-link">
                 <span class="link-icon">🎹</span>
                 <span class="link-text">{{ $t('home.features.compare.compareTone') }}</span>
               </a>
@@ -110,15 +110,15 @@
           </div>
           <transition name="expand">
             <div v-if="expandedCard === 'map'" class="card-body">
-              <a @click.stop="navigateTo('/menu?tab=map')" class="feature-link">
+              <a @click.stop="navigateTo('/menu/map/view')" class="feature-link">
                 <span class="link-icon">📍</span>
                 <span class="link-text">{{ $t('home.features.map.dialectMap') }}</span>
               </a>
-              <a @click.stop="navigateTo('/menu?tab=map&sub=divide')" class="feature-link">
+              <a @click.stop="navigateTo('/menu/map/divide')" class="feature-link">
                 <span class="link-icon">🎨</span>
                 <span class="link-text">{{ $t('home.features.map.regionMap') }}</span>
               </a>
-              <a @click.stop="navigateTo('/menu?tab=map&sub=custom')" class="feature-link">
+              <a @click.stop="navigateTo('/menu/map/custom')" class="feature-link">
                 <span class="link-icon">✏️</span>
                 <span class="link-text">{{ $t('home.features.map.customMap') }}</span>
               </a>
@@ -346,7 +346,7 @@
                 <span class="link-icon">⚙️</span>
                 <span class="link-text">{{ $t('home.features.about.setting') }}</span>
               </a>
-              <a @click.stop="navigateTo('/menu?tab=source')" class="feature-link">
+              <a @click.stop="navigateTo('/menu/source')" class="feature-link">
                 <span class="link-icon">📚</span>
                 <span class="link-text">{{ $t('home.features.about.source') }}</span>
               </a>
@@ -488,9 +488,9 @@
         <div class="footer-links">
           <a @click="navigateTo('/about/intro')" class="footer-link">{{ $t('home.footer.links.about') }}</a>
           <span class="footer-divider">·</span>
-          <a @click="navigateTo('/menu?tab=source')" class="footer-link">{{ $t('home.footer.links.source') }}</a>
+          <a @click="navigateTo('/menu/source')" class="footer-link">{{ $t('home.footer.links.source') }}</a>
           <span class="footer-divider">·</span>
-          <a @click="navigateTo('/menu?tab=privacy')" class="footer-link">{{ $t('home.footer.links.privacy') }}</a>
+          <a @click="navigateTo('/menu/privacy')" class="footer-link">{{ $t('home.footer.links.privacy') }}</a>
           <span class="footer-divider">·</span>
           <a @click="navigateTo('/about/settings')" class="footer-link">{{ $t('home.footer.links.setting') }}</a>
           <span class="footer-divider">·</span>

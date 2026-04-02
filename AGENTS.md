@@ -58,6 +58,9 @@ This repository has strict collaboration and change-control rules. Read this bef
 - On Windows/PowerShell, avoid risky bulk rewrites for files containing Chinese or emoji.
 - For files containing Chinese or emoji, avoid shell-based full-file rewrites unless absolutely necessary.
 - Prefer the smallest possible edit surface for such files.
+- Do not assume terminal-rendered mojibake means the file content is actually corrupted.
+- Before declaring a Chinese/emoji-heavy file "garbled" or attempting recovery, first verify the real file bytes and decoding with UTF-8-safe inspection methods such as byte checks, escaped/unicode-safe reads, or equivalent non-lossy validation.
+- Do not use terminal display alone as evidence that the source file text is broken.
 - Before rewriting an entire Chinese/emoji-heavy file, first verify that this is truly necessary.
 - After editing a Chinese/emoji-heavy file, immediately verify the file content again instead of assuming the write was safe.
 - If text corruption appears, recover by diffing against previous version/history and restore the original literal characters.

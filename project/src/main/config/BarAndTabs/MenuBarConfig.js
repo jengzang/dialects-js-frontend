@@ -78,6 +78,9 @@ const NAVIGATION_DEFAULTS = {
 
 const STORAGE_KEY_PREFIX = 'menu_last_sub_'
 const MENU_CHILD_PATHS = {
+  query: ['/menu/query/char', '/menu/query/zhonggu', '/menu/query/yinwei', '/menu/query/tone'],
+  compare: ['/menu/compare/char', '/menu/compare/zhonggu', '/menu/compare/tone'],
+  map: ['/menu/map/view', '/menu/map/divide', '/menu/map/custom'],
   pho: ['/pho/matrix', '/pho/custom', '/pho/count', '/pho/evolution'],
   about: ['/about/intro', '/about/suggestion', '/about/like', '/about/settings']
 }
@@ -112,6 +115,16 @@ const createMenuTab = ({
 function getMenuTabKeyFromRoute(route) {
   if (typeof route?.path !== 'string') return null
 
+  if (route.path.startsWith('/menu/query/')) return 'query'
+  if (route.path.startsWith('/menu/compare/')) return 'compare'
+  if (route.path.startsWith('/menu/map/')) return 'map'
+  if (route.path === '/menu/result') return 'result'
+  if (route.path === '/menu/source') return 'source'
+  if (route.path === '/menu/privacy') return 'privacy'
+  if (route.path === '/menu/tools') return 'tools'
+  if (route.path === '/menu/words') return 'words'
+  if (route.path === '/menu/villages') return 'villages'
+  if (route.path === '/menu/cluster') return 'cluster'
   if (route.path.startsWith('/pho/')) return 'pho'
   if (route.path.startsWith('/about/')) return 'about'
 
@@ -143,7 +156,7 @@ export function useMenuTabsConfig() {
         overrides: {}
       },
       navigation: {
-        defaultTo: { path: '/menu', query: { tab: 'query' } }
+        defaultTo: { path: '/menu/query/zhonggu' }
       }
     }),
     createMenuTab({
@@ -157,7 +170,7 @@ export function useMenuTabsConfig() {
         }
       },
       navigation: {
-        defaultTo: { path: '/menu', query: { tab: 'result' } }
+        defaultTo: { path: '/menu/result' }
       }
     }),
     createMenuTab({
@@ -169,7 +182,7 @@ export function useMenuTabsConfig() {
         overrides: {}
       },
       navigation: {
-        defaultTo: { path: '/menu', query: { tab: 'map' } }
+        defaultTo: { path: '/menu/map/view' }
       }
     }),
     createMenuTab({
@@ -181,7 +194,7 @@ export function useMenuTabsConfig() {
         overrides: {}
       },
       navigation: {
-        defaultTo: { path: '/menu', query: { tab: 'compare' } }
+        defaultTo: { path: '/menu/compare/zhonggu' }
       }
     }),
     createMenuTab({
@@ -293,12 +306,8 @@ export function getMenuBarActiveTab(tabs, route) {
 
 export function resolveMenuBarTarget(tabConfig) {
   if (!tabConfig?.to) {
-    return {
-      path: '/menu',
-      query: {
-        tab: tabConfig?.navigation?.tabKey || tabConfig?.tab
-      }
-    }
+    const tabKey = tabConfig?.navigation?.tabKey || tabConfig?.tab
+    return MENU_CHILD_PATHS[tabKey]?.[0] || '/menu/query/zhonggu'
   }
 
   if (!tabConfig.navigation?.rememberChild) {

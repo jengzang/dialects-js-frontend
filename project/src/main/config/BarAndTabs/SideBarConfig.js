@@ -22,22 +22,22 @@ export function useSidebarConfig() {
         query: {
             label: t('navigation.menu.query'),
             icon: '🔍',
-            path: '/menu?tab=query',
+            path: '/menu/query',
             children: [
-                { label: t('navigation.submenu.query.tab1'), icon: '🔤', path: '/menu?tab=query&sub=tab1' },
-                { label: t('navigation.submenu.query.tab2'), icon: '📜', path: '/menu?tab=query&sub=tab2' },
-                { label: t('navigation.submenu.query.tab3'), icon: '🗂️', path: '/menu?tab=query&sub=tab3' },
-                { label: t('navigation.submenu.query.tab4'), icon: '🎙️', path: '/menu?tab=query&sub=tab4' }
+                { label: t('navigation.submenu.query.tab1'), icon: '🔤', path: '/menu/query/chars' },
+                { label: t('navigation.submenu.query.tab2'), icon: '📜', path: '/menu/query&sub=tab2' },
+                { label: t('navigation.submenu.query.tab3'), icon: '🗂️', path: '/menu/query&sub=tab3' },
+                { label: t('navigation.submenu.query.tab4'), icon: '🎙️', path: '/menu/query&sub=tab4' }
             ]
         },
         compare: {
             label: t('navigation.menu.compare'),
             icon: '↔️',
-            path: '/menu?tab=compare',
+            path: '/menu/compare',
             children: [
-                { label: t('navigation.submenu.compare.tab1'), icon: '🆚', path: '/menu?tab=compare&sub=tab1' },
-                { label: t('navigation.submenu.compare.tab2'), icon: '📜', path: '/menu?tab=compare&sub=tab2' },
-                { label: t('navigation.submenu.compare.tab4'), icon: '📊', path: '/menu?tab=compare&sub=tab4' }
+                { label: t('navigation.submenu.compare.tab1'), icon: '🆚', path: '/menu/compare&sub=tab1' },
+                { label: t('navigation.submenu.compare.tab2'), icon: '📜', path: '/menu/compare&sub=tab2' },
+                { label: t('navigation.submenu.compare.tab4'), icon: '📊', path: '/menu/compare&sub=tab4' }
             ]
         },
         pho: {
@@ -55,28 +55,28 @@ export function useSidebarConfig() {
         charClass: {
             label: t('navigation.menu.charClass'),
             icon: '📚',
-            path: '/explore/char-class?tab=zhonggu',
+            path: '/explore/char-class/zhonggu',
             children: [
-                { label: t('navigation.submenu.charClass.zhonggu'), icon: '📜', path: '/explore/char-class?tab=zhonggu' },
-                { label: t('navigation.submenu.charClass.shanggu'), icon: '🏺', path: '/explore/char-class?tab=shanggu' },
-                { label: t('navigation.submenu.charClass.jingu'), icon: '📖', path: '/explore/char-class?tab=jingu' },
-                { label: t('navigation.submenu.charClass.yueyun'), icon: '📗', path: '/explore/char-class?tab=yueyun' }
+                { label: t('navigation.submenu.charClass.zhonggu'), icon: '📜', path: '/explore/char-class/zhonggu' },
+                { label: t('navigation.submenu.charClass.shanggu'), icon: '🏺', path: '/explore/char-class/shanggu' },
+                { label: t('navigation.submenu.charClass.jingu'), icon: '📖', path: '/explore/char-class/jingu' },
+                { label: t('navigation.submenu.charClass.yueyun'), icon: '📗', path: '/explore/char-class/yueyun' }
             ]
         },
         words: {
             label: t('navigation.menu.words'),
             icon: '💬',
-            path: '/menu?tab=words',
+            path: '/menu/words',
             children: [
-                { label: t('navigation.submenu.words.vocabulary'), icon: '📝', path: '/explore/yubao?tab=vocabulary' },
-                { label: t('navigation.submenu.words.grammar'), icon: '🗂️', path: '/explore/yubao?tab=grammar' },
+                { label: t('navigation.submenu.words.vocabulary'), icon: '📝', path: '/explore/yubao/vocabulary' },
+                { label: t('navigation.submenu.words.grammar'), icon: '🗂️', path: '/explore/yubao/grammar' },
                 { label: t('navigation.submenu.words.ycSpoken'), icon: '🗣️', path: '/explore/yc-spoken' }
             ]
         },
         villages: {
             label: t('navigation.menu.villages'),
             icon: '🏕️',
-            path: '/menu?tab=villages',
+            path: '/menu/villages',
             children: [
                 { label: t('navigation.submenu.villages.gdVillages'), icon: '🏕️', path: '/explore/villages/gd' },
                 { label: t('navigation.submenu.villages.VillagesML'), icon: '🤖', path: '/explore/villages/ml' },
@@ -87,7 +87,7 @@ export function useSidebarConfig() {
         tools: {
             label: t('navigation.menu.tools'),
             icon: '🛠️',
-            path: '/menu?tab=tools',
+            path: '/menu/tools',
             children: [
                 { label: t('navigation.submenu.tools.check'), icon: '📋', path: '/explore/tools/check' },
                 { label: t('navigation.submenu.tools.jyut2ipa'), icon: '🔄', path: '/explore/tools/jyut2ipa' },
@@ -98,10 +98,10 @@ export function useSidebarConfig() {
         source: {
             label: t('navigation.menu.source'),
             icon: '📂',
-            path: '/menu?tab=source',
+            path: '/menu/source',
             children: [
-                { label: t('navigation.submenu.source.source'), icon: '📋', path: '/menu?tab=source' },
-                { label: t('navigation.submenu.source.privacy'), icon: '🛡️', path: '/menu?tab=privacy' },
+                { label: t('navigation.submenu.source.source'), icon: '📋', path: '/menu/source' },
+                { label: t('navigation.submenu.source.privacy'), icon: '🛡️', path: '/menu/privacy' },
                 { label: t('navigation.submenu.source.suggestion'), icon: '💡', path: '/about/suggestion' },
                 { label: t('navigation.submenu.source.like'), icon: '❤️', path: '/about/like' }
             ]
@@ -133,22 +133,22 @@ export const menuConfig = {
     query: {
         label: '查詢',
         icon: '🔍',
-        path: '/menu?tab=query',
+        path: '/menu/query',
         children: [
-            { label: '查字', icon: '🔤', path: '/menu?tab=query&sub=tab1' },
-            { label: '查中古', icon: '📜', path: '/menu?tab=query&sub=tab2' },
-            { label: '查音系', icon: '🗂️', path: '/menu?tab=query&sub=tab3' },
-            { label: '查調', icon: '🎙️', path: '/menu?tab=query&sub=tab4' }
+            { label: '查字', icon: '🔤', path: '/menu/query&sub=tab1' },
+            { label: '查中古', icon: '📜', path: '/menu/query&sub=tab2' },
+            { label: '查音系', icon: '🗂️', path: '/menu/query&sub=tab3' },
+            { label: '查調', icon: '🎙️', path: '/menu/query&sub=tab4' }
         ]
     },
     compare: {
         label: '比較',
         icon: '↔️',
-        path: '/menu?tab=compare',
+        path: '/menu/compare',
         children: [
-            { label: '漢字對比', icon: '🆚', path: '/menu?tab=compare&sub=tab1' },
-            { label: '中古對比', icon: '📜', path: '/menu?tab=compare&sub=tab2' },
-            { label: '調類對比', icon: '📊', path: '/menu?tab=compare&sub=tab4' }
+            { label: '漢字對比', icon: '🆚', path: '/menu/compare&sub=tab1' },
+            { label: '中古對比', icon: '📜', path: '/menu/compare&sub=tab2' },
+            { label: '調類對比', icon: '📊', path: '/menu/compare&sub=tab4' }
         ]
     },
     pho: {
@@ -165,7 +165,7 @@ export const menuConfig = {
     cluster: {
         label: '聚類',
         icon: '🕸️',
-        path: '/menu?tab=cluster',
+        path: '/menu/cluster',
         children: null
     },
     charClass: {
@@ -214,10 +214,10 @@ export const menuConfig = {
     source: {
         label: '資料源',
         icon: '📂',
-        path: '/menu?tab=source',
+        path: '/menu/source',
         children: [
-            { label: '字表來源', icon: '📋', path: '/menu?tab=source' },
-            { label: '隱私政策', icon: '🛡️', path: '/menu?tab=privacy' },
+            { label: '字表來源', icon: '📋', path: '/menu/source' },
+            { label: '隱私政策', icon: '🛡️', path: '/menu/privacy' },
             { label: '提出建議', icon: '💡', path: '/about/suggestion' },
             { label: '喜歡作者', icon: '❤️', path: '/about/like' }
         ]

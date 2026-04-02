@@ -255,10 +255,9 @@ const submenuPosition = ref({ top: 0, left: 0 })  // Position for submenu panel
 const closeSubmenuTimeout = ref(null)  // Timeout for delayed closing
 
 // ===== sessionStorage 管理：记住每个 tab 的最后访问的 sub =====
-// 获取某个 tab 的最后访问的 sub
-// 保存某个 tab 的最后访问的 sub
+// 記憶邏輯已移動到MenuBarConfig.js
 // 监听路由变化，记录当前的 tab 和 sub
-watch(() => route.query, (query) => {
+watch(() => route.path, () => {
   syncMenuBarMemoryFromRoute(route)
 }, { immediate: true })
 // ===== sessionStorage 管理结束 =====
@@ -431,7 +430,7 @@ const toggleSidebar = () => {
   }
 }
 
-// 主按鈕點擊處理 - 有子菜單則展開，無子菜單則導覽
+// 主按鈕點擊處�?- 有子菜單則展開，無子菜單則導�?
 const handleMainClick = (item, key, event) => {
   event?.stopPropagation()  // 阻止事件冒泡
   cancelCloseSubmenu()  // 取消任何待處理的關閉
@@ -1067,3 +1066,4 @@ onBeforeUnmount(() => {
   }
 }
 </style>
+
