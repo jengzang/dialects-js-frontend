@@ -17,6 +17,7 @@
                 style="height: 5dvh"
                 :placeholder="$t('query.tab1.placeholder')"
                 v-model="hanziInput"
+                @input="handleHanziInput"
                 autocomplete="off"
             ></textarea>
           </div>
@@ -223,6 +224,8 @@ import { globalPayload, queryStore, uiStore, isQueryButtonDisabled, setRunning, 
 import { S2T_T2S_MAPPING } from '@/main/config'
 import { useQueryConfig } from '@/utils/useQueryConfig'
 import { translateResultTerm } from '@/i18n/utils/resultI18n.js'
+import { showWarning } from '@/utils/message.js'
+import { limitEffectiveChars } from '@/main/utils/queryInputLimits.js'
 
 const { t } = useI18n()
 
@@ -258,6 +261,7 @@ const locationLimitContext = computed(() => {
 })
 
 const hanziInput = ref('')
+const hasShownCharLimitWarning = ref(false)
 
 // ✨ 過濾器相關狀態
 const excludeOptions = [
@@ -313,6 +317,28 @@ watch(hanziInput, (newVal) => {
   // 如果为空或只有空白，则禁用
   setTabContentDisabled('query', 'tab1', !newVal || newVal.trim() === '')
 }, { immediate: true })
+
+function handleHanziInput(event) {
+  const rawValue = event?.target?.value ?? ''
+  const limited = limitEffectiveChars(rawValue, 10)
+
+  if (rawValue !== limited.value) {
+    hanziInput.value = limited.value
+    if (event?.target) {
+      event.target.value = limited.value
+    }
+  }
+
+  if (limited.hasExtraEffectiveChars) {
+    if (!hasShownCharLimitWarning.value) {
+      showWarning(t('query.tab1.maxCharsWarning', { max: 10 }))
+      hasShownCharLimitWarning.value = true
+    }
+    return
+  }
+
+  hasShownCharLimitWarning.value = false
+}
 
 // 3️⃣ 同步当前 Tab 到 store
 watch(currentTab, (newTab) => {

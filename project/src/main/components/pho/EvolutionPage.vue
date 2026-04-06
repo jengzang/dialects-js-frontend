@@ -121,7 +121,11 @@
     </div>
 
     <!-- 饼图展示区域 -->
-    <div v-else-if="rawData && currentPieData.length > 0" class="pie-container">
+    <div
+      v-else-if="rawData && currentPieData.length > 0"
+      class="pie-container"
+      :class="{ 'has-mobile-detail-card': showMobilePieDetailCard }"
+    >
       <div v-if="showSankey" ref="sankeyContainerRef" class="sankey-chart"></div>
       <div v-else class="pie-grid" :style="gridStyle" ref="pieGridRef">
         <div
@@ -139,6 +143,81 @@
     <div v-else-if="rawData && currentPieData.length === 0" class="empty-state">
       <p>{{ t('phonology.phonology.evolution.states.empty') }}</p>
     </div>
+
+    <Transition name="mobile-detail-card-fade">
+      <div v-if="showMobilePieDetailCard" class="mobile-detail-card">
+        <div class="mobile-detail-card__header">
+          <div class="mobile-detail-card__meta">
+            <div class="mobile-detail-card__title">{{ selectedPieDetail.title }}</div>
+            <div class="mobile-detail-card__subtitle">
+              {{ selectedPieDetail.pieTitle }} ·
+              {{ t('phonology.phonology.evolution.mobileDetail.countAndRatio', {
+                count: selectedPieDetail.count,
+                unit: t('phonology.phonology.evolution.sankey.unit'),
+                percent: selectedPieDetail.percent
+              }) }}
+            </div>
+          </div>
+          <button
+            type="button"
+            class="mobile-detail-card__close"
+            :aria-label="t('common.button.close')"
+            @click="closeMobilePieDetail"
+          >
+            ×
+          </button>
+        </div>
+
+        <div class="mobile-detail-card__body ui-scrollbar">
+          <div
+            v-if="selectedPieDetail.level2Items.length > 0"
+            class="mobile-detail-card__section"
+          >
+            <div class="mobile-detail-card__section-title">
+              {{ t('phonology.phonology.evolution.mobileDetail.breakdownBy', { dimension: level2Column }) }}
+            </div>
+            <div
+              v-for="level2Item in selectedPieDetail.level2Items"
+              :key="`${selectedPieDetail.key}-${level2Item.label}`"
+              class="mobile-detail-card__item"
+            >
+              <div class="mobile-detail-card__item-row">
+                <span class="mobile-detail-card__item-label">{{ level2Item.label }}</span>
+                <span class="mobile-detail-card__item-value">
+                  {{ t('phonology.phonology.evolution.mobileDetail.countAndRatio', {
+                    count: level2Item.count,
+                    unit: t('phonology.phonology.evolution.sankey.unit'),
+                    percent: level2Item.percent
+                  }) }}
+                </span>
+              </div>
+              <div v-if="level2Item.displayChars.length > 0" class="mobile-detail-card__chars">
+                {{ t('phonology.phonology.evolution.mobileDetail.characters') }}：
+                {{ level2Item.displayChars.join('、') }}
+                <template v-if="level2Item.remainingChars > 0">
+                  {{ t('phonology.phonology.evolution.mobileDetail.moreChars', { count: level2Item.remainingChars }) }}
+                </template>
+              </div>
+            </div>
+          </div>
+
+          <div
+            v-else-if="selectedPieDetail.displayChars.length > 0"
+            class="mobile-detail-card__section"
+          >
+            <div class="mobile-detail-card__section-title">
+              {{ t('phonology.phonology.evolution.mobileDetail.characters') }}
+            </div>
+            <div class="mobile-detail-card__chars mobile-detail-card__chars--standalone">
+              {{ selectedPieDetail.displayChars.join('、') }}
+              <template v-if="selectedPieDetail.remainingChars > 0">
+                {{ t('phonology.phonology.evolution.mobileDetail.moreChars', { count: selectedPieDetail.remainingChars }) }}
+              </template>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Transition>
   </div>
 </template>
 
@@ -156,9 +235,11 @@ import { userStore } from '@/main/store/store.js'
 import { showWarning } from '@/utils/message.js'
 import evolutionDemoByStatus from '@/assets/data/evolution_demo_status.json'
 import evolutionDemoByValue from '@/assets/data/evolution_demo_value.json'
+import { buildEvolutionMobileDetail, isSameEvolutionMobileDetail } from '@/main/utils/evolutionMobileDetail.js'
 
 const { t } = useI18n()
 const router = useRouter()
+const MOBILE_LAYOUT_MEDIA_QUERY = '(max-aspect-ratio: 1/1)'
 
 // ========== 响应式数据 ==========
 // 查询参数
@@ -185,6 +266,8 @@ const sankeyContainerRef = ref(null)
 const chartInstances = ref([])
 const sankeyChartInstance = ref(null)
 const containerWidth = ref(1200)
+const isMobileLayout = ref(false)
+const selectedPieDetail = ref(null)
 
 // ========== 配置数据 ==========
 const tableOptions = [
@@ -220,6 +303,10 @@ const pieCountByFeature = computed(() => {
     韻母: rawData.value.data.韻母?.length || 0,
     聲調: rawData.value.data.聲調?.length || 0
   }
+})
+
+const showMobilePieDetailCard = computed(() => {
+  return isMobileLayout.value && !showSankey.value && Boolean(selectedPieDetail.value)
 })
 
 const canQuery = computed(() => {
@@ -279,6 +366,7 @@ const getInitialFeature = (data) => {
 
 const applyDemoData = async () => {
   const demoData = getDemoData()
+  closeMobilePieDetail()
   syncControlsFromData(demoData)
   currentFeature.value = getInitialFeature(demoData)
   rawData.value = demoData
@@ -331,6 +419,7 @@ const handleQuery = async () => {
     const response = await apiCall(params)
     rawData.value = response
     hasQueriedRealData.value = true
+    closeMobilePieDetail()
     currentFeature.value = getInitialFeature(response)
 
     await nextTick()
@@ -368,8 +457,43 @@ const clearSankeyChart = () => {
   sankeyChartInstance.value = null
 }
 
+const closeMobilePieDetail = () => {
+  selectedPieDetail.value = null
+}
+
+const updateMobileLayout = () => {
+  if (typeof window === 'undefined') {
+    return
+  }
+
+  isMobileLayout.value = window.matchMedia(MOBILE_LAYOUT_MEDIA_QUERY).matches
+}
+
+const handlePieSliceClick = (pieIndex, params) => {
+  if (!isMobileLayout.value || showSankey.value || params?.dataIndex == null) {
+    return
+  }
+
+  const detail = buildEvolutionMobileDetail({
+    pie: currentPieData.value[pieIndex],
+    pieIndex,
+    itemIndex: params.dataIndex,
+  })
+
+  if (!detail) {
+    return
+  }
+
+  if (isSameEvolutionMobileDetail(selectedPieDetail.value, detail)) {
+    closeMobilePieDetail()
+    return
+  }
+
+  selectedPieDetail.value = detail
+}
+
 // ========== 饼图渲染 ==========
-const generatePieChartOption = (pieData, index) => {
+const generatePieChartOption = (pieData) => {
   const isByValue = queryMode.value === 'by_value'
   const title = isByValue ? pieData.value : pieData.level1_value
   const total = pieData.total
@@ -395,7 +519,9 @@ const generatePieChartOption = (pieData, index) => {
       }
     },
     tooltip: {
+      show: !isMobileLayout.value,
       trigger: 'item',
+      triggerOn: isMobileLayout.value ? 'none' : 'mousemove|click',
       confine: true,
       formatter: (params) => {
         const item = items[params.dataIndex]
@@ -481,7 +607,7 @@ const initPieChart = (container, pieData, index) => {
     renderer: 'canvas',
     useDirtyRect: true // 启用脏矩形优化
   })
-  const option = generatePieChartOption(pieData, index)
+  const option = generatePieChartOption(pieData)
 
   if (option) {
     chart.setOption(option, {
@@ -489,6 +615,10 @@ const initPieChart = (container, pieData, index) => {
       lazyUpdate: false
     })
   }
+
+  chart.on('click', (params) => {
+    handlePieSliceClick(index, params)
+  })
 
   return chart
 }
@@ -688,7 +818,18 @@ const renderCurrentVisualization = async () => {
   await renderAllPies()
 }
 
-const handleWindowResize = () => {
+const handleWindowResize = async () => {
+  const previousMobileLayout = isMobileLayout.value
+  updateMobileLayout()
+
+  if (previousMobileLayout !== isMobileLayout.value) {
+    if (!isMobileLayout.value) {
+      closeMobilePieDetail()
+    }
+    await renderCurrentVisualization()
+    return
+  }
+
   updateContainerSize()
 
   if (showSankey.value) {
@@ -701,6 +842,7 @@ const handleWindowResize = () => {
 
 // 当切换feature时，重新渲染饼图
 watch(currentFeature, async () => {
+  closeMobilePieDetail()
   if (showSankey.value) {
     await renderCurrentVisualization()
     return
@@ -737,6 +879,9 @@ watch(currentFeature, async () => {
 
 // ========== 生命周期 ==========
 watch(showSankey, async () => {
+  if (showSankey.value) {
+    closeMobilePieDetail()
+  }
   await nextTick()
   updateContainerSize()
   await renderCurrentVisualization()
@@ -751,6 +896,7 @@ watch(queryMode, async () => {
 })
 
 onMounted(async () => {
+  updateMobileLayout()
   await applyDemoData()
   window.addEventListener('resize', handleWindowResize)
 })
@@ -1075,6 +1221,126 @@ onUnmounted(() => {
   margin: 0 auto;
 }
 
+.mobile-detail-card {
+  position: fixed;
+  left: 12px;
+  right: 12px;
+  bottom: calc(12px + env(safe-area-inset-bottom));
+  z-index: 1200;
+  border: 1px solid var(--glass-border-weak);
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 16px 44px rgba(0, 0, 0, 0.18);
+  backdrop-filter: blur(18px) saturate(160%);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+}
+
+.mobile-detail-card__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 14px 10px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.mobile-detail-card__meta {
+  min-width: 0;
+}
+
+.mobile-detail-card__title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-dark, #333);
+  line-height: 1.3;
+}
+
+.mobile-detail-card__subtitle {
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--text-secondary, #666);
+  line-height: 1.4;
+}
+
+.mobile-detail-card__close {
+  border: none;
+  background: rgba(255, 255, 255, 0.55);
+  color: var(--text-dark, #333);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.mobile-detail-card__body {
+  max-height: min(38dvh, 300px);
+  overflow-y: auto;
+  padding: 12px 14px 14px;
+}
+
+.mobile-detail-card__section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.mobile-detail-card__section-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-dark, #333);
+}
+
+.mobile-detail-card__item {
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.45);
+}
+
+.mobile-detail-card__item-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.mobile-detail-card__item-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-dark, #333);
+}
+
+.mobile-detail-card__item-value {
+  font-size: 12px;
+  color: var(--text-secondary, #666);
+  white-space: nowrap;
+}
+
+.mobile-detail-card__chars {
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--text-secondary, #666);
+  line-height: 1.6;
+}
+
+.mobile-detail-card__chars--standalone {
+  margin-top: 0;
+}
+
+.mobile-detail-card-fade-enter-active,
+.mobile-detail-card-fade-leave-active {
+  transition: opacity 0.24s ease, transform 0.24s ease;
+}
+
+.mobile-detail-card-fade-enter-from,
+.mobile-detail-card-fade-leave-to {
+  opacity: 0;
+  transform: translateY(12px);
+}
+
 /* 空状态 */
 .empty-state {
   display: flex;
@@ -1118,6 +1384,10 @@ onUnmounted(() => {
 
   .pie-chart {
     height: 180px;
+  }
+
+  .pie-container.has-mobile-detail-card {
+    padding-bottom: calc(260px + env(safe-area-inset-bottom));
   }
 
   .sankey-chart {

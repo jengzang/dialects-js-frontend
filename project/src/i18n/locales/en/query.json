@@ -4,6 +4,7 @@
     "title": "Characters",
     "label": "Please enter Chinese characters",
     "placeholder": "Enter one or more characters",
+    "maxCharsWarning": "You can enter up to {max} characters. Extra characters were trimmed automatically.",
     "button": "Query",
     "description": "Query pronunciation, position and notes of characters"
   },
