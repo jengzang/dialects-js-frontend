@@ -1,7 +1,7 @@
 // api/villagesML/semanticLabels.js
 // 語義標籤相關 API
 
-import { api } from '../auth/auth.js'
+import { api } from '../auth/httpClient.js'
 
 /**
  * 獲取標籤類別

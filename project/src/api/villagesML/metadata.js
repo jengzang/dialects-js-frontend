@@ -1,7 +1,7 @@
 // api/villagesML/metadata.js
 // 系統元數據相關 API
 
-import { api } from '../auth/auth.js'
+import { api } from '../auth/httpClient.js'
 
 /**
  * 獲取數據庫概覽統計

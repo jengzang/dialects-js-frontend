@@ -1,5 +1,6 @@
-import { api, saveToken, clearToken, update_userdatas_bytoken, ensureAuthenticated } from './auth.js'
-import { userStore } from '@/main/store/store.js'
+import { api } from './httpClient.js'
+import { saveToken } from './tokenStorage.js'
+import { clearSession, ensureAuthenticated, update_userdatas_bytoken } from './session.js'
 
 const AUTH_API_BASE = '/api/auth'
 
@@ -105,12 +106,10 @@ export async function logoutUser(refreshToken) {
       headers: { 'Content-Type': 'application/json' },
       body: { refresh_token: refreshToken }
     })
-  } catch (error) {
+  } catch {
     // Ignore logout errors
   } finally {
-    clearToken()
-    userStore.role = 'anonymous'
-    userStore.isAuthenticated = false
+    clearSession()
   }
 }
 

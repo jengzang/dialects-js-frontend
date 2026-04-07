@@ -1,7 +1,7 @@
 // api/villagesML/semanticComposition.js
 // 語義組合分析相關 API
 
-import { api } from '../auth/auth.js'
+import { api } from '../auth/httpClient.js'
 
 /**
  * 獲取語義三元組合

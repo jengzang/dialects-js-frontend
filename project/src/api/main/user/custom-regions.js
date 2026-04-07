@@ -1,4 +1,4 @@
-import { api } from '../../auth/auth.js'
+import { api } from '../../auth/httpClient.js'
 
 /**
  * 獲取用戶的所有自定義分區

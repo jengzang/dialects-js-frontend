@@ -1,5 +1,5 @@
 // api/sql/query.js - SQL查询操作 API
-import { api } from '../../auth/auth.js'
+import { api } from '../../auth/httpClient.js'
 import { showError } from '@/utils/message.js'
 
 /**

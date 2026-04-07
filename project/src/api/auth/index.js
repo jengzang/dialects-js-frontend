@@ -1,6 +1,8 @@
 // Re-export everything from auth.js (existing functionality)
 export {
   api,
+  bootstrapAuthSession,
+  clearSession,
   getToken,
   getRefreshToken,
   saveToken,
@@ -10,7 +12,8 @@ export {
   ensureAuthenticated,
   update_userdatas_bytoken,
   getUserRole,
-  reportOnlineTime
+  reportOnlineTime,
+  waitForAuthReady
 } from './auth.js'
 
 // Export validation functions

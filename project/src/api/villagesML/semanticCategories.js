@@ -1,7 +1,7 @@
 // api/villagesML/semanticCategories.js
 // 語義類別相關 API
 
-import { api } from '../auth/auth.js'
+import { api } from '../auth/httpClient.js'
 
 /**
  * 獲取語義類別列表

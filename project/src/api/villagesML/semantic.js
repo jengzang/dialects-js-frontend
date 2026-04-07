@@ -1,7 +1,7 @@
 // api/villagesML/semantic.js
 // 語義網絡分析相關 API
 
-import { api } from '../auth/auth.js'
+import { api } from '../auth/httpClient.js'
 
 /**
  * 獲取字共現矩陣

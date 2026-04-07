@@ -1,5 +1,5 @@
 // api/user/custom.js - 自定义特征查询 API
-import { api } from '../../auth/auth.js'
+import { api } from '../../auth/httpClient.js'
 import { showError } from '@/utils/message.js'
 
 /**

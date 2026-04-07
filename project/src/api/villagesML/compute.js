@@ -1,7 +1,7 @@
 // api/villagesML/compute.js
 // 計算模塊相關 API（需要登錄）
 
-import { api } from '../auth/auth.js'
+import { api } from '../auth/httpClient.js'
 
 /**
  * 特徵提取

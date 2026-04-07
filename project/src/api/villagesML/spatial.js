@@ -1,7 +1,7 @@
 // api/villagesML/spatial.js
 // 空間分析相關 API
 
-import { api } from '../auth/auth.js'
+import { api } from '../auth/httpClient.js'
 
 /**
  * 獲取空間熱點列表
@@ -160,4 +160,3 @@ export async function getSpatialIntegrationByCluster(clusterId) {
 export async function getSpatialIntegrationSummary() {
   return api('/api/villages/spatial/integration/summary')
 }
-

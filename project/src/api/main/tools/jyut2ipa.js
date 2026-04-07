@@ -1,5 +1,5 @@
 // api/tools/jyut2ipa.js - 粤拼转IPA工具 API
-import { api } from '../../auth/auth.js'
+import { api } from '../../auth/httpClient.js'
 import { showError } from '@/utils/message.js'
 
 /**

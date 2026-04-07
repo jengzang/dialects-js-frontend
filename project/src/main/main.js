@@ -12,9 +12,12 @@ import '../utils/message.js'
 
 // 🌐 导入 i18n 国际化
 import i18n from '../i18n'
+import { bootstrapAuthSession } from '../api/auth/auth.js'
 
 // 1. 導入你的組件
 import PanelManager from './components/result/PanelManager.vue'
+
+bootstrapAuthSession()
 
 // 2. 建立 App 實例
 const app = createApp(App)

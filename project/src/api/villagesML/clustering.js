@@ -1,7 +1,7 @@
 // api/villagesML/clustering.js
 // 聚類分析相關 API
 
-import { api } from '../auth/auth.js'
+import { api } from '../auth/httpClient.js'
 
 /**
  * 運行聚類分析
@@ -65,4 +65,3 @@ export async function clearClusteringCache() {
     method: 'DELETE'
   })
 }
-

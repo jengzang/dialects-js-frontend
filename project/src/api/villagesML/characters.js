@@ -1,7 +1,7 @@
 // api/villagesML/characters.js
 // 字頻統計相關 API
 
-import { api } from '../auth/auth.js'
+import { api } from '../auth/httpClient.js'
 
 /**
  * 獲取全局字頻統計
@@ -184,4 +184,3 @@ export async function getCharSignificanceSummary(params) {
 
   return api(`/api/villages/character/significance/summary?${queryParams.toString()}`)
 }
-

@@ -1,7 +1,7 @@
 // api/villagesML/patterns.js
 // 結構模式分析相關 API
 
-import { api } from '../auth/auth.js'
+import { api } from '../auth/httpClient.js'
 
 /**
  * 獲取全局模式頻率
