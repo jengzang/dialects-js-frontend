@@ -235,7 +235,7 @@ import { userStore } from '@/main/store/store.js'
 import { showWarning } from '@/utils/message.js'
 import evolutionDemoByStatus from '@/assets/data/evolution_demo_status.json'
 import evolutionDemoByValue from '@/assets/data/evolution_demo_value.json'
-import { buildEvolutionMobileDetail, isSameEvolutionMobileDetail } from '@/main/utils/evolutionMobileDetail.js'
+import { buildEvolutionMobileDetail, isSameEvolutionMobileDetail } from './evolutionDetail.js'
 
 const { t } = useI18n()
 const router = useRouter()

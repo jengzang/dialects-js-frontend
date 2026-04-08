@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { limitEffectiveChars } from '../src/main/utils/queryInputLimits.js';
+import { limitEffectiveChars } from '../src/main/utils/queryLimits.js';
 
 describe('limitEffectiveChars', () => {
   it('keeps input unchanged when effective characters are within the limit', () => {

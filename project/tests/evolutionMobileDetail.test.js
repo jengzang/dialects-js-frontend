@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import {
   buildEvolutionMobileDetail,
   isSameEvolutionMobileDetail,
-} from '../src/main/utils/evolutionMobileDetail.js';
+} from '../src/main/components/pho/evolutionDetail.js';
 
 describe('buildEvolutionMobileDetail', () => {
   it('builds level2 detail data and truncates nested character lists to 10 items', () => {

@@ -1,3 +1,5 @@
+import { GET_LOCS_EXPLICIT_LOCATIONS_LIMIT } from '../config/constants.js';
+
 const WHITESPACE_RE = /\s/u;
 
 export function limitEffectiveChars(input, limit = 10) {
@@ -35,4 +37,18 @@ export function limitEffectiveChars(input, limit = 10) {
     hasExtraEffectiveChars: remainingChars.some((char) => !WHITESPACE_RE.test(char)),
     wasTrimmedAfterLimit: remainingChars.length > 0,
   };
+}
+
+export function buildExplicitLocationsForGetLocs({
+  locations = [],
+  customRegionLocations = [],
+} = {}) {
+  return [...new Set([...(locations || []), ...(customRegionLocations || [])].filter(Boolean))];
+}
+
+export function isExplicitLocationsLimitExceeded(
+  explicitLocations,
+  limit = GET_LOCS_EXPLICIT_LOCATIONS_LIMIT,
+) {
+  return (explicitLocations || []).length > limit;
 }

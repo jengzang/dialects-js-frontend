@@ -225,7 +225,7 @@ import { S2T_T2S_MAPPING } from '@/main/config'
 import { useQueryConfig } from '@/utils/useQueryConfig'
 import { translateResultTerm } from '@/i18n/utils/resultI18n.js'
 import { showWarning } from '@/utils/message.js'
-import { limitEffectiveChars } from '@/main/utils/queryInputLimits.js'
+import { limitEffectiveChars } from '@/main/utils/queryLimits.js'
 
 const { t } = useI18n()
 
