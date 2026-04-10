@@ -388,11 +388,6 @@ const logout = async () => {
     const refreshToken = getRefreshToken()
     await logoutUser(refreshToken)
 
-    // Clear user state
-    userStore.isAuthenticated = false
-    userStore.role = 'anonymous'
-    userStore.id = null
-    userStore.username = null
     user.value = null
 
     // console.log('✅ [登出] 登出完成')
@@ -409,23 +404,26 @@ const logout = async () => {
 const fetchUser = async () => {
   isInitLoading.value = true
   try {
-    const { user: userData, role } = await initUserByToken({ forceRefresh: true })
+    const { user: userData } = await initUserByToken({ forceRefresh: true })
+    const fallbackUser = userStore.isAuthenticated
+      ? {
+          id: userStore.id,
+          username: userStore.username,
+          role: userStore.role
+        }
+      : null
 
-    if (userData) {
-      userStore.id = userData.id
-      userStore.username = userData.username
-      userStore.role = role
-      userStore.isAuthenticated = true
-      user.value = userData
+    if (userStore.isAuthenticated) {
+      user.value = userData || fallbackUser
     } else {
-      userStore.isAuthenticated = false
-      userStore.role = 'anonymous'
+      user.value = null
       setMode('login')
     }
-  } catch (e) {
-    userStore.isAuthenticated = false
-    userStore.role = 'anonymous'
-    setMode('login')
+  } catch {
+    if (!userStore.isAuthenticated) {
+      user.value = null
+      setMode('login')
+    }
   } finally {
     isInitLoading.value = false
   }
@@ -470,7 +468,7 @@ const handleRegisterFromBenefits = () => {
 onMounted(async () => {
   if (getToken()) {
     await fetchUser()
-    if (user.value) {
+    if (userStore.isAuthenticated) {
       setMode('profile')
     }
   }

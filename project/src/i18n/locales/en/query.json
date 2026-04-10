@@ -4,6 +4,7 @@
     "title": "Characters",
     "label": "Please enter Chinese characters",
     "placeholder": "Enter one or more characters",
+    "maxCharsWarning": "You can enter up to {max} characters. Extra characters were trimmed automatically.",
     "button": "Query",
     "description": "Query pronunciation, position and notes of characters"
   },
@@ -267,7 +268,7 @@
       "selectedLocationsModalTitle": "Selected Locations ({count})",
       "customLocationsModalTitle": "Custom Locations ({count})",
       "requireInput": "Please enter a location or partition",
-      "tooManyLocations": "Too many locations entered. Please use partition selection to query multiple locations."
+      "tooManyLocations": "Too many explicit locations were provided. Reduce manual locations or custom-region locations and try again."
     }
   },
   "result": {

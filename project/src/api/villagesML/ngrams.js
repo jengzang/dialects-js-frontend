@@ -1,7 +1,7 @@
 // api/villagesML/ngrams.js
 // N-gram 分析相關 API
 
-import { api } from '../auth/auth.js'
+import { api } from '../auth/httpClient.js'
 
 /**
  * 獲取N-gram頻率
@@ -116,4 +116,3 @@ export async function getNgramSignificance(params) {
 
   return api(`/api/villages/ngrams/significance?${queryParams.toString()}`)
 }
-

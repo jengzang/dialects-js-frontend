@@ -169,6 +169,12 @@
         "sameDimensions": "两个维度不能相同",
         "queryFailed": "查询失败"
       },
+      "mobileDetail": {
+        "countAndRatio": "{count}{unit} ({percent}%)",
+        "breakdownBy": "按 {dimension} 细分",
+        "characters": "字",
+        "moreChars": "+{count}个"
+      },
       "states": {
         "loading": "加载中...",
         "empty": "当前特征没有数据"

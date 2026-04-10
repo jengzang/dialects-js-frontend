@@ -4,6 +4,7 @@
     "title": "查字",
     "label": "請輸入待查漢字",
     "placeholder": "可輸入一個或多個漢字",
+    "maxCharsWarning": "最多輸入{max}個字，已自動截斷",
     "button": "查詢",
     "description": "查詢漢字的讀音、地位及注釋"
   },
@@ -267,7 +268,7 @@
       "selectedLocationsModalTitle": "已選擇地點（{count}）",
       "customLocationsModalTitle": "自定義地點（{count}）",
       "requireInput": "請輸入地點或分區",
-      "tooManyLocations": "地點輸入框輸入過長，請使用選擇分區以支持多地點"
+      "tooManyLocations": "顯式地點過多，請減少手動輸入或自定義分區中的地點數量"
     }
   },
   "result": {

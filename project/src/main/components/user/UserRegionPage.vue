@@ -126,7 +126,7 @@
     <PartitionInfoModal
       v-model="showPartitionModal"
       :data-state="{ partitionData, isLoading: isLoadingPartitions, errorMessage: partitionTreeError }"
-      :selection-state="{ initialTab: 'map', autoEnableSelection, initialSelectedLocations: editingRegion.locations, maxSelection: GLOBAL_LOCATION_LIMIT }"
+      :selection-state="{ initialTab: 'map', autoEnableSelection, initialSelectedLocations: editingRegion.locations, maxSelection: CUSTOM_REGION_MAX_LOCATIONS }"
       @locations-selected="handleLocationsSelected"
     />
   </div>
@@ -139,7 +139,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { createOrUpdateCustomRegion, deleteCustomRegion, getLocationPartitions } from '@/api'
 import PartitionInfoModal from '@/main/components/geo/PartitionInfoModal.vue'
 import UserRegionEditPopup from '@/main/components/popup/user/UserRegionEditPopup.vue'
-import { GLOBAL_LOCATION_LIMIT } from '@/main/config/constants.js'
+import { CUSTOM_REGION_MAX_LOCATIONS } from '@/main/config/constants.js'
 import { useCustomRegionStore } from '@/main/store/customRegionStore'
 import { showConfirm, showError, showSuccess, showWarning } from '@/utils/message.js'
 
@@ -200,16 +200,16 @@ const filteredRegions = computed(() => {
 const canSave = computed(() => (
   editingRegion.value.region_name.trim() &&
   editingRegion.value.locations.length > 0 &&
-  editingRegion.value.locations.length <= GLOBAL_LOCATION_LIMIT
+  editingRegion.value.locations.length <= CUSTOM_REGION_MAX_LOCATIONS
 ))
 
 const customRegionLocationLimitExceeded = computed(
-  () => editingRegion.value.locations.length > GLOBAL_LOCATION_LIMIT
+  () => editingRegion.value.locations.length > CUSTOM_REGION_MAX_LOCATIONS
 )
 
 const getCustomRegionLocationLimitExceededMessage = (count) => (
   t('user.regionPage.messages.customRegionLocationLimitExceeded', {
-    limit: GLOBAL_LOCATION_LIMIT,
+    limit: CUSTOM_REGION_MAX_LOCATIONS,
     count
   })
 )
@@ -225,7 +225,7 @@ const resetCustomRegionLocationLimitWarning = () => {
 }
 
 const syncCustomRegionLocationLimitWarningState = (count) => {
-  if (count > GLOBAL_LOCATION_LIMIT) {
+  if (count > CUSTOM_REGION_MAX_LOCATIONS) {
     showCustomRegionLocationLimitWarning(count)
     return
   }
@@ -452,7 +452,7 @@ const openLocationSelector = () => {
 }
 
 const handleLocationsSelected = (locations) => {
-  if (locations.length > GLOBAL_LOCATION_LIMIT) {
+  if (locations.length > CUSTOM_REGION_MAX_LOCATIONS) {
     forceShowCustomRegionLocationLimitWarning(locations.length)
     return
   }

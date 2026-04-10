@@ -1,7 +1,7 @@
 // api/villagesML/regional.js
 // 區域聚合統計相關 API
 
-import { api } from '../auth/auth.js'
+import { api } from '../auth/httpClient.js'
 
 /**
  * 獲取城市級聚合統計

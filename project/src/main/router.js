@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { computed, h } from 'vue'
 import { useRoute } from 'vue-router'
 import i18n from '@/i18n/index.js'
+import { waitForAuthReady } from '@/api/auth/auth.js'
 import { userStore } from '@/main/store/store.js'
 import { showWarning } from '@/utils/message.js'
 import { menuRoutes } from '@/main/router/menuRoutes.js'
@@ -297,7 +298,7 @@ function isSameQuery(left, right) {
   })
 }
 
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
   const sanitizedQuery = sanitizeQueryByRoute(to)
 
   if (!isSameQuery(sanitizedQuery, to.query)) {
@@ -310,6 +311,10 @@ router.beforeEach((to, from, next) => {
   }
 
   if (to.path === '/auth/data' || to.path === '/auth/regions') {
+    if (!userStore.authReady) {
+      await waitForAuthReady()
+    }
+
     if (!userStore.isAuthenticated) {
       showWarning(i18n.global.t('user.dataPage.messages.authRequired'))
       return next({ path: '/auth', replace: true })

@@ -1,7 +1,7 @@
 // api/villagesML/villages.js
 // 村名搜尋相關 API
 
-import { api } from '../auth/auth.js'
+import { api } from '../auth/httpClient.js'
 
 /**
  * 搜尋村名
@@ -117,4 +117,3 @@ export async function getVillageSemanticStructure(villageId) {
 export async function getVillageNgrams(villageId) {
   return api(`/api/villages/village/ngrams/${villageId}`)
 }
-

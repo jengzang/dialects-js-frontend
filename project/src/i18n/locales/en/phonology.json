@@ -159,6 +159,12 @@
                                                         "sameDimensions":  "Two dimensions cannot be the same",
                                                         "queryFailed":  "Query failed"
                                                     },
+                                         "mobileDetail":  {
+                                                              "countAndRatio":  "{count} {unit} ({percent}%)",
+                                                              "breakdownBy":  "Break down by {dimension}",
+                                                              "characters":  "Characters",
+                                                              "moreChars":  "+{count} more"
+                                                          },
                                          "states":  {
                                                        "loading":  "Loading...",
                                                        "empty":  "No data for the current feature"

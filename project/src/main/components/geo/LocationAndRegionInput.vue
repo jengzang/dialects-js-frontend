@@ -229,7 +229,8 @@ import { useCustomRegionStore } from '@/main/store/customRegionStore.js'
 import RegionSelector from "@/main/components/geo/RegionSelector.vue"
 import PartitionInfoModal from "@/main/components/geo/PartitionInfoModal.vue"
 import { userStore } from '@/main/store/store.js'
-import { GLOBAL_LOCATION_LIMIT, LOCATION_LIMITS } from '@/main/config/constants.js'
+import { LOCATION_LIMITS } from '@/main/config/constants.js'
+import { buildExplicitLocationsForGetLocs, isExplicitLocationsLimitExceeded } from '@/main/utils/queryLimits.js'
 import * as OpenCC from 'opencc-js'
 import {STATIC_REGION_TREE, top_yindian} from "@/main/config/RegionTree.js";
 
@@ -423,9 +424,18 @@ async function handleCustomRegionQuery(locations) {
     return
   }
 
+  const explicitLocations = buildExplicitLocationsForGetLocs({ locations })
+
+  if (isExplicitLocationsLimitExceeded(explicitLocations)) {
+    limitHint.value = t('query.components.locationAndRegionInput.tooManyLocations')
+    selectedCount.value = explicitLocations.length
+    updateDisabledState(true)
+    return
+  }
+
   try {
     const data = await getLocations({
-      locations,
+      locations: explicitLocations,
       regions: [],  // 不使用系統分區
       region_mode: regionUsing.value
     })
@@ -450,12 +460,6 @@ async function handleCustomRegionQuery(locations) {
 
 // 檢查地點數量限制
 function checkLocationLimit(count) {
-  if (count > GLOBAL_LOCATION_LIMIT) {
-    limitHint.value = t('query.components.locationAndRegionInput.tooManyLocations')
-    updateDisabledState(true)
-    return
-  }
-
   const contextLimits = LOCATION_LIMITS[props.limitContext] || LOCATION_LIMITS.default
   const limits = contextLimits[userStore.role] || contextLimits.anonymous
 
@@ -945,26 +949,28 @@ async function fetchLocationsResult() {
   }
 
   try {
-    // 🔥 Merge manual locations + custom region locations
-    const mergedLocations = [...new Set([...locations, ...customRegionLocationsArray])]
+    const explicitLocations = buildExplicitLocationsForGetLocs({
+      locations,
+      customRegionLocations: customRegionLocationsArray
+    })
     const isRegionSelectionValidation = !props.useInputMode
       && regionSelectionChangedSinceLastFetch.value
       && !isRestoringRegionSelection.value
 
-    if (mergedLocations.length > GLOBAL_LOCATION_LIMIT) {
+    if (isExplicitLocationsLimitExceeded(explicitLocations)) {
       if (isRegionSelectionValidation) {
-        revertRegionSelectionForLocationLimit(mergedLocations.length)
+        revertRegionSelectionForLocationLimit(explicitLocations.length)
         return
       }
 
       limitHint.value = t('query.components.locationAndRegionInput.tooManyLocations')
-      selectedCount.value = mergedLocations.length
+      selectedCount.value = explicitLocations.length
       updateDisabledState(true)
       return
     }
 
     const data = await getLocations({
-      locations: mergedLocations,
+      locations: explicitLocations,
       regions,
       region_mode: regionUsing.value
     })
@@ -974,17 +980,6 @@ async function fetchLocationsResult() {
     // 6️⃣ 核心結果：locations_result
     const count = data?.locations_result?.length ?? 0
     selectedCount.value = count
-
-    if (count > GLOBAL_LOCATION_LIMIT) {
-      if (isRegionSelectionValidation) {
-        revertRegionSelectionForLocationLimit(count)
-        return
-      }
-
-      limitHint.value = t('query.components.locationAndRegionInput.tooManyLocations')
-      updateDisabledState(true)
-      return
-    }
 
     // 7️⃣ 對齊原來的限制邏輯（showToast 對應 bottom-hint）
     // Get limits for current context and user role
@@ -1008,7 +1003,7 @@ async function fetchLocationsResult() {
 
     // 🔥 如果是輸入模式，額外調用 get_custom_feature
     if (props.useInputMode) {
-      await fetchCustomFeatureLocations(mergedLocations, regions)
+      await fetchCustomFeatureLocations(explicitLocations, regions)
     }
 
     return data
@@ -1090,8 +1085,10 @@ const allLocationsString = computed(() => {
   // Get custom region locations
   const customRegionLocations = getCustomRegionLocations(selectedCustomRegions.value)
 
-  // Merge both sources (deduplicate)
-  const mergedLocations = [...new Set([...textareaLocations, ...customRegionLocations])]
+  const mergedLocations = buildExplicitLocationsForGetLocs({
+    locations: textareaLocations,
+    customRegionLocations
+  })
 
   // Return as space-separated string
   return mergedLocations.join(' ')
@@ -1106,8 +1103,10 @@ const allLocationsArray = computed(() => {
   // Get custom region locations
   const customRegionLocations = getCustomRegionLocations(selectedCustomRegions.value)
 
-  // Merge both sources (deduplicate)
-  return [...new Set([...textareaLocations, ...customRegionLocations])]
+  return buildExplicitLocationsForGetLocs({
+    locations: textareaLocations,
+    customRegionLocations
+  })
 })
 
 watch(

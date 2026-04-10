@@ -169,6 +169,12 @@
         "sameDimensions": "兩個維度不能相同",
         "queryFailed": "查詢失敗"
       },
+      "mobileDetail": {
+        "countAndRatio": "{count}{unit} ({percent}%)",
+        "breakdownBy": "按 {dimension} 細分",
+        "characters": "字",
+        "moreChars": "+{count}個"
+      },
       "states": {
         "loading": "加載中...",
         "empty": "當前特徵沒有數據"

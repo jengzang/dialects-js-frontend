@@ -1,5 +1,5 @@
 // composables/Praat.js - 完整的 Praat 声学分析 API
-import { api } from '../../auth/auth.js'
+import { api } from '../../auth/httpClient.js'
 
 /**
  * Praat 声学分析 API

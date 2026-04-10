@@ -13,7 +13,9 @@ export const userStore = reactive({
     role: 'anonymous',        // 用户角色: 'anonymous' | 'user' | 'admin'
     isAuthenticated: false,   // 是否已认证
     username: null,           // 用户名
-    id: null                  // 用户ID
+    id: null,                 // 用户ID
+    authReady: false,         // 是否完成首次会话恢复
+    sessionStatus: 'initializing' // 'anonymous' | 'authenticated' | 'degraded' | 'initializing'
 })
 
 // ========================================

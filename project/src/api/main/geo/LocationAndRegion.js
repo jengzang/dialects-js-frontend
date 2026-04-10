@@ -1,5 +1,5 @@
 // api/query/LocationAndRegion.js - 地点查询 API
-import { api } from '../../auth/auth.js'
+import { api } from '../../auth/httpClient.js'
 import { showError } from '@/utils/message.js'
 
 /**

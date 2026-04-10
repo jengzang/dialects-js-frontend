@@ -1,5 +1,5 @@
 // api/tools/merge.js - 字表合并工具 API
-import { api } from '../../auth/auth.js'
+import { api } from '../../auth/httpClient.js'
 import { showError } from '@/utils/message.js'
 
 /**

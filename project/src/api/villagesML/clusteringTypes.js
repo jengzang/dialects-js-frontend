@@ -1,7 +1,7 @@
 // api/villagesML/clusteringTypes.js
 // VillagesML 聚類類型 API
 
-import { api } from '../auth/auth.js'
+import { api } from '../auth/httpClient.js'
 
 /**
  * 字符傾向性聚類

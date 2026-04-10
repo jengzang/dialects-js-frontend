@@ -68,7 +68,7 @@
   },
   "divideTab": {
     "title": "Regional Mapping",
-    "hint": "Draw dialect distribution maps by different regional levels.<br>Colors are assigned automatically.",
+    "hint": "Draw dialect distribution maps by yindian or map atlas regional levels.<br>Colors are assigned automatically.",
     "labels": {
       "regionLevel": "Regional Level"
     },

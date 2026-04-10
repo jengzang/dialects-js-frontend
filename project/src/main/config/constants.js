@@ -20,9 +20,14 @@ export const QUERY_CONFIG = {
 }
 
 // ========================================
-// 用户权限限制
+// /get_locs/ 显式地点参数保护
 // ========================================
-export const GLOBAL_LOCATION_LIMIT = 1000
+export const GET_LOCS_EXPLICIT_LOCATIONS_LIMIT = 1000
+
+// ========================================
+// 自定义分区地点数量限制
+// ========================================
+export const CUSTOM_REGION_MAX_LOCATIONS = 1000
 
 // ========================================
 // 音韻功能地點限制

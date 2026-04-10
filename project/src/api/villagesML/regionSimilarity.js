@@ -1,7 +1,7 @@
 // api/villagesML/regionSimilarity.js
 // 區域相似度分析相關 API (Phase 15)
 
-import { api } from '../auth/auth.js'
+import { api } from '../auth/httpClient.js'
 
 const BASE_URL = '/api/villages/regions'
 

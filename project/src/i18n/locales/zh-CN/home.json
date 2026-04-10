@@ -39,7 +39,7 @@
                                        "phonemeClassify":  "音素分类 - 自定义音素分类",
                                        "syllableCount":  "音节统计 - 统计音节数量",
                                        "middlePosition":  "中古地位 - 查询汉字中古地位",
-                                       "evolution":  "演变 - 演变分析占位入口"
+                                       "evolution":  "演变 - 饼图桑基图展示方言演变"
                                    },
                      "words":  {
                                    "title":  "词句资料",
