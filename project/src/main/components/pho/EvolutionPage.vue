@@ -345,7 +345,7 @@ const gridStyle = computed(() => {
     display: 'grid',
     gridTemplateColumns: `repeat(auto-fit, minmax(${pieSize.value}px, 1fr))`,
     gap: '20px',
-    padding: '20px',
+    padding: '5px',
     justifyContent: 'center'
   }
 })
@@ -914,7 +914,7 @@ onUnmounted(() => {
   align-items: center;
   flex-direction: column;
   width: 98%;
-  padding: 20px;
+  padding: 10px;
 }
 
 /* 控制面板 */
@@ -1354,7 +1354,7 @@ onUnmounted(() => {
 /* 响应式 */
 @media (max-aspect-ratio: 1/1) {
   .evolution-page {
-    padding: 12px;
+    padding: 3px;
   }
 
   .main-glass-panel {

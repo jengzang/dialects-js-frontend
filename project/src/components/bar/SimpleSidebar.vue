@@ -85,7 +85,7 @@
 
         <div class="history-section">
           <h4 class="section-title">{{ t('navigation.stats.historyRecords') }}</h4>
-          <div class="history-list ui-scrollbar">
+          <div class="history-list">
             <div v-for="item in visitHistory" :key="item.date" class="history-item-modal">
               <span class="history-date">{{ item.date }}</span>
               <div class="history-bar-container">
@@ -621,6 +621,7 @@ onBeforeUnmount(() => {
 }
 
 .stat-label-large {
+  white-space: nowrap;
   font-size: 13px;
   color: #666;
   font-weight: 600;
@@ -650,8 +651,6 @@ onBeforeUnmount(() => {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  max-height: 50dvh;
-  overflow-y: auto;
 }
 
 .history-item-modal {
