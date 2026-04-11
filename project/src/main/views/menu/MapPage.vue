@@ -75,6 +75,7 @@
 import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import { useRouteQueryState } from '@/composables/router/useRouteQueryState.js'
 import { mapStore } from '@/main/store/store.js'
 
 import TabsContainer from '@/components/common/TabsContainer.vue'
@@ -91,6 +92,9 @@ const { t } = useI18n()
 const selectedLevel = ref(3)
 const router = useRouter()
 const route = useRoute()
+const { state: routeFeature } = useRouteQueryState('feature', {
+  defaultValue: '',
+})
 
 // 地圖點擊坐標
 const mapClickCoordinates = ref(null)
@@ -204,7 +208,7 @@ const selectFeature = (val) => {
 
 // 监听路由参数，自动加载自定义特征
 watch(
-  () => route.query.feature,
+  () => routeFeature.value,
   async (newFeature, oldFeature) => {
     // 防止重复触发
     if (!newFeature || newFeature === oldFeature) return
