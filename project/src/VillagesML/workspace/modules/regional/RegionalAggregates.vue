@@ -193,12 +193,13 @@ import SimpleSelectDropdown from '@/components/selector/SimpleSelectDropdown.vue
 import HelpIcon from '@/components/ToastAndHelp/HelpIcon.vue'
 import * as echarts from 'echarts'
 import {
-  getRegionalAggregatesCity,
-  getRegionalAggregatesCounty,
+    getRegionalAggregatesCity,
+    getRegionalAggregatesCounty,
   getRegionalAggregatesTown,
   getRegionalSpatialAggregates
 } from '@/api/index.js'
 import { showError } from '@/utils/message.js'
+import { useAsyncData } from '@/composables/core/useAsyncData.js'
 
 // State
 const currentLevel = ref('city')
@@ -208,8 +209,14 @@ const aggregates = ref([])
 const selectedItem = ref(null)
 const spatialAggregates = ref([])
 
-const loading = ref(false)
-const loadingSpatial = ref(false)
+const aggregatesQuery = useAsyncData({
+  initialValue: [],
+})
+const spatialAggregatesQuery = useAsyncData({
+  initialValue: [],
+})
+const loading = aggregatesQuery.loading
+const loadingSpatial = spatialAggregatesQuery.loading
 const spatialChart = ref(null)
 let spatialChartInstance = null
 
@@ -275,23 +282,27 @@ const maxCategoryValue = computed(() => {
 
 // Methods
 const loadAggregates = async () => {
-  loading.value = true
   aggregates.value = []
   currentPage.value = 1
-  try {
+  await aggregatesQuery.load(async () => {
     if (currentLevel.value === 'city') {
-      aggregates.value = await getRegionalAggregatesCity()
-    } else if (currentLevel.value === 'county') {
-      aggregates.value = await getRegionalAggregatesCounty()
-    } else {
-      const raw = await getRegionalAggregatesTown()
-      aggregates.value = raw.map(item => ({ ...item, township: item.town }))
+      return await getRegionalAggregatesCity()
     }
-  } catch (error) {
-    showError('加載聚合數據失敗')
-  } finally {
-    loading.value = false
-  }
+    if (currentLevel.value === 'county') {
+      return await getRegionalAggregatesCounty()
+    }
+
+    const raw = await getRegionalAggregatesTown()
+    return raw.map(item => ({ ...item, township: item.town }))
+  }, {
+    resetOnLoad: true,
+    onSuccess: (result) => {
+      aggregates.value = result
+    },
+    onError: () => {
+      showError('加載聚合數據失敗')
+    }
+  })
 }
 
 const showDetail = (item) => {
@@ -299,15 +310,19 @@ const showDetail = (item) => {
 }
 
 const loadSpatialAggregates = async () => {
-  loadingSpatial.value = true
   spatialAggregates.value = []
-  try {
-    spatialAggregates.value = await getRegionalSpatialAggregates({ region_level: spatialLevel.value })
-  } catch (error) {
-    showError('加載空間數據失敗')
-  } finally {
-    loadingSpatial.value = false
-  }
+  await spatialAggregatesQuery.load(
+    () => getRegionalSpatialAggregates({ region_level: spatialLevel.value }),
+    {
+      resetOnLoad: true,
+      onSuccess: (result) => {
+        spatialAggregates.value = result
+      },
+      onError: () => {
+        showError('加載空間數據失敗')
+      }
+    }
+  )
 }
 
 function renderSpatialChart() {
