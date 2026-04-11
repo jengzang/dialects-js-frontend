@@ -1,15 +1,19 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { getLeaderboard } from '@/api'
+import { useAsyncData } from '@/composables/core/useAsyncData.js'
 import HelpIcon from '@/components/ToastAndHelp/HelpIcon.vue'
 import { showError } from '@/utils/message.js'
 
 const { t, locale } = useI18n()
 
-const loading = ref(false)
-const error = ref(null)
-const rankingsData = ref(null)
+const {
+  data: rankingsData,
+  loading,
+  error,
+  load,
+} = useAsyncData()
 
 onMounted(async () => {
   await fetchLeaderboard()
@@ -142,20 +146,15 @@ const categoryConfigs = computed(() => [
   }
 ])
 
-const fetchLeaderboard = async () => {
-  loading.value = true
-  error.value = null
-
-  try {
-    const data = await getLeaderboard()
-    rankingsData.value = data
-  } catch (e) {
-    error.value = e.message || ''
-    showError(t('user.leaderboard.loadFailedToast', { message: error.value }))
-  } finally {
-    loading.value = false
+const fetchLeaderboard = async () => load(
+  () => getLeaderboard(),
+  {
+    onError: (e) => {
+      const message = e?.message || ''
+      showError(t('user.leaderboard.loadFailedToast', { message }))
+    }
   }
-}
+)
 
 const formatNumber = (value) => Number(value || 0).toLocaleString(locale.value)
 
