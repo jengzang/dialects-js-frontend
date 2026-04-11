@@ -155,6 +155,19 @@ describe('composables', () => {
     expect(route.query.tab).toBe('upload')
   })
 
+  it('useRouteQueryState falls back to default when parse returns empty value', async () => {
+    route.query = { tab: 'invalid' }
+    const { state } = useRouteQueryState('tab', {
+      defaultValue: 'upload',
+      parse: (value) => ['upload', 'results'].includes(value) ? value : '',
+      serialize: (value) => value,
+    })
+
+    await nextTick()
+
+    expect(state.value).toBe('upload')
+  })
+
   it('usePartitionCache returns cached partition data before loading', async () => {
     window.sessionStorage.setItem('partition_data_cache', JSON.stringify([{ id: 1 }]))
     const { getPartitionData } = usePartitionCache()

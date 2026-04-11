@@ -18,7 +18,12 @@ export function useRouteQueryState(key, options = {}) {
       return defaultValue
     }
 
-    return parse(value)
+    const parsedValue = parse(value)
+    if (parsedValue === undefined || parsedValue === null || parsedValue === '') {
+      return defaultValue
+    }
+
+    return parsedValue
   }
 
   const state = ref(normalizeFromRoute(route.query[key]))

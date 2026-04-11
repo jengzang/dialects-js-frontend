@@ -191,6 +191,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import SimpleSelectDropdown from '@/components/selector/SimpleSelectDropdown.vue'
 import CharTreeItem from '@/main/components/TableAndTree/CharTreeItem.vue'
+import { useRouteQueryState } from '@/composables/router/useRouteQueryState.js'
 import { loadFullTree } from '@/api'
 import {
   parseCharClassParams,
@@ -214,9 +215,11 @@ const router = useRouter()
 const { t } = useI18n()
 
 const validSubs = ['zhonggu', 'shanggu', 'jingu', 'yueyun']
-const activeTab = computed(() =>
-  validSubs.includes(route.query.tab) ? route.query.tab : 'zhonggu'
-)
+const { state: activeTab } = useRouteQueryState('tab', {
+  defaultValue: 'zhonggu',
+  parse: (value) => validSubs.includes(value) ? value : '',
+  serialize: (value) => value,
+})
 
 const selectedTableKey = ref('')
 const levels = ref([])
