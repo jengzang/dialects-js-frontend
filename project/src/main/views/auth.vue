@@ -98,6 +98,7 @@ import { computeQueryStats } from '@/main/store/userStats.js'
 import { initOnlineTimeTracker, manualReport, stopOnlineTimeTracker } from '@/utils/onlineTimeTracker.js'
 import { WEB_BASE } from '@/env-config.js'
 import { showConfirm, showSuccess } from '@/utils/message.js'
+import { useRouteQueryState } from '@/composables/router/useRouteQueryState.js'
 
 // Component imports
 import LoginForm from '@/main/components/user/auth/LoginForm.vue'
@@ -124,7 +125,11 @@ const statsExpanded = ref(false)
 const showBenefits = ref(false)
 
 // Computed - Use single 'view' parameter for all navigation
-const view = computed(() => route.query.view || 'login')
+const { state: view, set: setAuthView } = useRouteQueryState('view', {
+  defaultValue: 'login',
+  parse: (value) => value || 'login',
+  serialize: (value) => value,
+})
 
 // Derived states from view
 const mode = computed(() => {
@@ -145,7 +150,7 @@ const queryStats = computed(() => computeQueryStats(user.value))
 
 // Helper function to change view via router
 const setView = (newView) => {
-  router.push({ query: { ...route.query, view: newView } })
+  return setAuthView(newView)
 }
 
 // Convenience methods

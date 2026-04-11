@@ -281,12 +281,14 @@ import { showError, showSuccess, showConfirm } from '@/utils/message.js'
 import AppModal from '@/components/common/AppModal.vue'
 import MultiSelectDropdown from '@/components/selector/MultiSelectDropdown.vue'
 import {STATIC_REGION_TREE, top_yindian} from "@/main/config/RegionTree.js";
+import { usePartitionCache } from '@/composables/domain/geo/usePartitionCache.js'
 
 const { t } = useI18n()
 
 // 全局已有（你原来 Cascader 就这么用的）
 const STATIC_TREE = STATIC_REGION_TREE ?? {}
 const TOP_YINDIAN = top_yindian ?? []
+const { getYindianTree } = usePartitionCache()
 
 const props = defineProps({
   mode: { type: String, required: true },
@@ -403,26 +405,9 @@ async function loadTreeFor(mode) {
   }
 
   if (mode === 'yindian') {
-    const CACHE_KEY = '__YINDIAN_TREE_CACHE__'
-
-    // ✅ 先读缓存
-    const cached = sessionStorage.getItem(CACHE_KEY)
-    if (cached) {
-      try {
-        const tree = JSON.parse(cached)
-        loadedTree.value = filterTopLevelKeys(tree)
-        return
-      } catch {
-        sessionStorage.removeItem(CACHE_KEY)
-      }
-    }
-
-    // ✅ 再请求后端
-    const tree = await getPartitions()
-    const filteredTree = filterTopLevelKeys(tree)
-
-    sessionStorage.setItem(CACHE_KEY, JSON.stringify(filteredTree))
-    loadedTree.value = filteredTree
+    loadedTree.value = await getYindianTree(() => getPartitions(), {
+      transform: filterTopLevelKeys,
+    })
   }
 }
 

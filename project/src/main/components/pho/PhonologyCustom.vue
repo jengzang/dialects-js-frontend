@@ -109,12 +109,14 @@ import {
   parsePhonologyCustomParams,
   validatePhonologyParams
 } from '@/utils/urlParams.js'
+import { useAsyncTask } from '@/composables/core/useAsyncTask.js'
 
 const route = useRoute()
 const router = useRouter()
 const { t } = useI18n()
 
-const loading = ref(false)
+const loadMatrixTask = useAsyncTask()
+const loading = loadMatrixTask.loading
 const error = ref(null)
 const matrixData = ref(null)
 const isMatching = ref(false)
@@ -375,10 +377,9 @@ const loadData = async () => {
     return
   }
 
-  loading.value = true
   error.value = null
 
-  try {
+  await loadMatrixTask.run(async () => {
     const requestBody = {
       locations: matchedLocations.value,
       feature: selectedFeatureChinese.value,  // Use Chinese value for API
@@ -400,13 +401,12 @@ const loadData = async () => {
 
     // 更新 URL
     updatePhonologyCustomUrl()
-
-  } catch (err) {
-    console.error('加載音韻矩陣失敗:', err)
-    error.value = err.message || t('phonology.phonology.custom.states.loadError')
-  } finally {
-    loading.value = false
-  }
+  }, {
+    onError: (err) => {
+      console.error('加載音韻矩陣失敗:', err)
+      error.value = err.message || t('phonology.phonology.custom.states.loadError')
+    }
+  })
 }
 
 // 页面加载时自动查询

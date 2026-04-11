@@ -233,6 +233,23 @@ import { LOCATION_LIMITS } from '@/main/config/constants.js'
 import { buildExplicitLocationsForGetLocs, isExplicitLocationsLimitExceeded } from '@/main/utils/queryLimits.js'
 import * as OpenCC from 'opencc-js'
 import {STATIC_REGION_TREE, top_yindian} from "@/main/config/RegionTree.js";
+import { usePartitionCache } from '@/composables/domain/geo/usePartitionCache.js'
+
+const { getPartitionData, getCachedYindianTree, getYindianTree } = usePartitionCache()
+
+const filterYindianTopLevelKeys = (obj) => {
+  if (typeof obj !== 'object' || Array.isArray(obj) || obj === null) {
+    return {}
+  }
+
+  const filtered = {}
+  for (const key of top_yindian) {
+    if (Object.prototype.hasOwnProperty.call(obj, key)) {
+      filtered[key] = obj[key]
+    }
+  }
+  return filtered
+}
 
 // 创建繁简转换器
 const t2s = OpenCC.Converter({ from: 'tw', to: 'cn' })  // 繁 → 简
@@ -640,10 +657,10 @@ const getFlattenedRegions = () => {
   }
 
   // Add yindian tree regions
-  const cachedTree = sessionStorage.getItem('__YINDIAN_TREE_CACHE__')
+  const cachedTree = getCachedYindianTree()
   if (cachedTree) {
     try {
-      const tree = JSON.parse(cachedTree)
+      const tree = cachedTree
       const yindianRegions = flattenRegionTree(tree)
       yindianRegions.forEach(region => {
         results.push({ ...region, source: 'yindian' })
@@ -803,33 +820,11 @@ function loadTreeFor(mode) {
     options.value = convertToCascaderOptions(STATIC_REGION_TREE)
     // console.log(options)
   } else if (mode === 'yindian') {
-    const CACHE_KEY = '__YINDIAN_TREE_CACHE__'
-// ✅ 真正的 filter，不轉格式，只刪除 key
-    const filterTopLevelKeys = (obj) => {
-      if (typeof obj !== 'object' || Array.isArray(obj) || obj === null) {
-        console.warn('[Yindian Tree] Expected tree to be object, got:', typeof obj)
-        return {}
-      }
-      const filtered = {}
-      for (const key of top_yindian) {
-        if (obj.hasOwnProperty(key)) {
-          filtered[key] = obj[key]
-        }
-      }
-      return filtered
-    }
-    if (!sessionStorage.getItem(CACHE_KEY)) {
-      getPartitions()
-          .then(tree => {
-            const filteredTree = filterTopLevelKeys(tree)
-            sessionStorage.setItem(CACHE_KEY, JSON.stringify(filteredTree))
-            options.value = convertToCascaderOptions(filteredTree)
-          })
-    } else {
-      const cachedTree = JSON.parse(sessionStorage.getItem(CACHE_KEY))
-      const filteredTree = filterTopLevelKeys(cachedTree)
+    getYindianTree(() => getPartitions(), {
+      transform: filterYindianTopLevelKeys,
+    }).then((filteredTree) => {
       options.value = convertToCascaderOptions(filteredTree)
-    }
+    })
 
   }
 }
@@ -838,27 +833,11 @@ loadTreeFor(regionUsing.value)
 
 // ✅ 新增：预加载音典分区数据到缓存，确保输入模式可以匹配所有分区
 const preloadYindianTree = async () => {
-  const CACHE_KEY = '__YINDIAN_TREE_CACHE__'
-  if (!sessionStorage.getItem(CACHE_KEY)) {
+  if (!getCachedYindianTree()) {
     try {
-      const tree = await getPartitions()
-
-      // 过滤顶级分区
-      const filterTopLevelKeys = (obj) => {
-        if (typeof obj !== 'object' || Array.isArray(obj) || obj === null) {
-          return {}
-        }
-        const filtered = {}
-        for (const key of top_yindian) {
-          if (obj.hasOwnProperty(key)) {
-            filtered[key] = obj[key]
-          }
-        }
-        return filtered
-      }
-
-      const filteredTree = filterTopLevelKeys(tree)
-      sessionStorage.setItem(CACHE_KEY, JSON.stringify(filteredTree))
+      await getYindianTree(() => getPartitions(), {
+        transform: filterYindianTopLevelKeys,
+      })
       console.log('✅ 音典分区数据已预加载到缓存')
     } catch (error) {
       console.warn('⚠️ 预加载音典分区失败:', error)
@@ -1301,21 +1280,7 @@ const fetchPartitionData = async () => {
   partitionTreeError.value = ''
 
   try {
-    // 尝试从 sessionStorage 读取缓存
-    const cachedData = sessionStorage.getItem('partition_data_cache')
-    if (cachedData) {
-      partitionData.value = JSON.parse(cachedData)
-      isLoadingPartitions.value = false
-      return
-    }
-
-    // 缓存不存在，从 API 获取
-    const response = await getLocationPartitions()
-
-    partitionData.value = response.data || []
-
-    // 保存到 sessionStorage
-    sessionStorage.setItem('partition_data_cache', JSON.stringify(partitionData.value))
+    partitionData.value = await getPartitionData(() => getLocationPartitions())
   } catch (error) {
     console.error('获取分区数据失败:', error)
     partitionTreeError.value = t('query.components.locationMultiInput.errorPartitionMessage')

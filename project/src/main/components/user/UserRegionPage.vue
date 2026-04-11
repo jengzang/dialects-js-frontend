@@ -142,8 +142,10 @@ import UserRegionEditPopup from '@/main/components/popup/user/UserRegionEditPopu
 import { CUSTOM_REGION_MAX_LOCATIONS } from '@/main/config/constants.js'
 import { useCustomRegionStore } from '@/main/store/customRegionStore'
 import { showConfirm, showError, showSuccess, showWarning } from '@/utils/message.js'
+import { usePartitionCache } from '@/composables/domain/geo/usePartitionCache.js'
 
 const { t, locale } = useI18n()
+const { getPartitionData } = usePartitionCache()
 const router = useRouter()
 const route = useRoute()
 
@@ -288,17 +290,7 @@ const fetchPartitionData = async () => {
   partitionTreeError.value = ''
 
   try {
-    const cachedData = sessionStorage.getItem('partition_data_cache')
-    if (cachedData) {
-      partitionData.value = JSON.parse(cachedData)
-      isLoadingPartitions.value = false
-      return
-    }
-
-    const response = await getLocationPartitions()
-
-    partitionData.value = response.data || []
-    sessionStorage.setItem('partition_data_cache', JSON.stringify(partitionData.value))
+    partitionData.value = await getPartitionData(() => getLocationPartitions())
   } catch (error) {
     console.error('Failed to fetch partition data:', error)
     partitionTreeError.value = t('user.regionPage.messages.partitionDataFailed')

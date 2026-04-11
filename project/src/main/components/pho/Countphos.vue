@@ -5,10 +5,12 @@ import { getFeatureCounts } from '@/api'
 import AppModal from '@/components/common/AppModal.vue'
 import LocationMultiInput from '@/main/components/geo/LocationMultiInput.vue'
 import { PHONOLOGY_LOCATION_LIMITS } from '@/main/config/constants.js'
+import { useAsyncTask } from '@/composables/core/useAsyncTask.js'
 
 const { t } = useI18n()
 
-const loading = ref(false)
+const loadCountsTask = useAsyncTask()
+const loading = loadCountsTask.loading
 const error = ref(null)
 const matrixData = ref(null)
 const queryStrings = ref([])
@@ -49,12 +51,11 @@ const loadData = async () => {
     return
   }
 
-  loading.value = true
   error.value = null
   featureData.value = {}
   aggregatedData.value = {}
 
-  try {
+  await loadCountsTask.run(async () => {
     // 調用 API
     const result = await getFeatureCounts({ locations: matchedLocations.value })
 
@@ -63,13 +64,12 @@ const loadData = async () => {
 
     // 計算匯總數據
     aggregatedData.value = calculateAggregatedData(result)
-
-  } catch (err) {
-    console.error('加載失敗:', err)
-    error.value = err.message || t('phonology.phonology.countphos.states.loadError')
-  } finally {
-    loading.value = false
-  }
+  }, {
+    onError: (err) => {
+      console.error('加載失敗:', err)
+      error.value = err.message || t('phonology.phonology.countphos.states.loadError')
+    }
+  })
 }
 
 // 計算匯總統計數據

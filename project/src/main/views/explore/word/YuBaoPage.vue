@@ -345,6 +345,7 @@ import UniversalTable from '@/main/components/TableAndTree/UniversalTable.vue'
 import { watchDebounced } from '@vueuse/core'
 import YuBaoMap from '@/main/components/map/YuBaoMap.vue'
 import AppModal from '@/components/common/AppModal.vue'
+import { useRouteQueryState } from '@/composables/router/useRouteQueryState.js'
 
 const route = useRoute()
 const router = useRouter()
@@ -352,7 +353,11 @@ const { t } = useI18n()
 const converter = OpenCC.Converter({ from: 'tw', to: 'cn' })
 
 // --- 基础状态 ---
-const activeTab = ref(route.query.tab || 'vocabulary')
+const { state: activeTab, set: setActiveTab } = useRouteQueryState('tab', {
+  defaultValue: 'vocabulary',
+  parse: (value) => ['vocabulary', 'grammar'].includes(value) ? value : 'vocabulary',
+  serialize: (value) => value,
+})
 const vocabularyInput = ref('')
 const grammarInput = ref('')
 const vocabularyInputEl = ref(null)
@@ -501,19 +506,8 @@ const filteredAllItems = computed(() => {
 
 // 切换 Tab
 function switchTab(tabKey) {
-  activeTab.value = tabKey
-  router.push({
-    path: '/explore/yubao',
-    query: { ...route.query, tab: tabKey }
-  })
+  setActiveTab(tabKey)
 }
-
-// 监听路由变化
-watch(() => route.query.tab, (newTab) => {
-  if (newTab && tabs.value.some(tab => tab.key === newTab)) {
-    activeTab.value = newTab
-  }
-})
 
 // 加载所有词汇数据
 async function loadAllVocabulary() {
