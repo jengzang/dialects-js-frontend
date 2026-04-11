@@ -101,6 +101,7 @@ import { ref, computed, watch, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { getPhonologyClassificationMatrix } from '@/api'
+import { useRouteQueryState } from '@/composables/router/useRouteQueryState.js'
 import PhonologyMatrix from '@/main/components/TableAndTree/PhonologyTable.vue'
 import LocationMultiInput from '@/main/components/geo/LocationMultiInput.vue'
 import { PHONOLOGY_LOCATION_LIMITS } from '@/main/config/constants.js'
@@ -172,6 +173,12 @@ const columnOptionsArray = computed(() => columnOptions.value.map(col => ({
 
 // 解析 URL 参数
 const urlParams = parsePhonologyCustomParams(route)
+const { set: setFeatureQuery } = useRouteQueryState('feature', {
+  defaultValue: urlParams.feature || '',
+  parse: (value) => decodeURIComponent(value),
+  serialize: (value) => encodeURIComponent(value),
+  replace: true,
+})
 
 // 验证参数
 const validation = validatePhonologyParams(
@@ -288,12 +295,8 @@ function updatePhonologyCustomUrl() {
 }
 
 // 監聽特徵選擇變化
-watch(selectedFeatureChinese, (newFeature) => {
-  const query = {
-    ...route.query,
-    feature: encodeURIComponent(newFeature)
-  }
-  router.replace({ query })
+watch(selectedFeatureChinese, async (newFeature) => {
+  await setFeatureQuery(newFeature)
 
   // 清空表格和錯誤信息
   matrixData.value = null
