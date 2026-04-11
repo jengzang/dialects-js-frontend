@@ -275,6 +275,7 @@ import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { getPartitions } from '@/api/index.js'
+import { useAuthGuard } from '@/composables/router/useAuthGuard.js'
 import { useCustomRegionStore } from '@/main/store/customRegionStore.js'
 import { userStore } from '@/main/store/store.js'
 import { showError, showSuccess, showConfirm } from '@/utils/message.js'
@@ -305,6 +306,7 @@ const emit = defineEmits([
 ])
 
 const router = useRouter()
+const { requireAuth } = useAuthGuard()
 
 /* =========================
    Custom Region State
@@ -616,7 +618,7 @@ async function openCustomRegionPopup() {
   // 檢查是否登錄
   if (!userStore.isAuthenticated) {
     showError('query.components.regionSelector.messages.loginRequired')
-    await router.push('/auth?view=login')
+    await requireAuth()
     return
   }
 
@@ -683,7 +685,7 @@ const handleCustomRegionButtonClick = async () => {
   // Red state: Not logged in → redirect to auth
   if (!userStore.isAuthenticated) {
     showError('query.components.regionSelector.messages.loginRequired')
-    await router.push('/auth?view=login')
+    await requireAuth()
     return
   }
 
