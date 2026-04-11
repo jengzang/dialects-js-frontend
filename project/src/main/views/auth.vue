@@ -98,6 +98,7 @@ import { computeQueryStats } from '@/main/store/userStats.js'
 import { initOnlineTimeTracker, manualReport, stopOnlineTimeTracker } from '@/utils/onlineTimeTracker.js'
 import { WEB_BASE } from '@/env-config.js'
 import { showConfirm, showSuccess } from '@/utils/message.js'
+import { useAsyncTask } from '@/composables/core/useAsyncTask.js'
 import { useRouteQueryState } from '@/composables/router/useRouteQueryState.js'
 
 // Component imports
@@ -113,10 +114,11 @@ const { t } = useI18n()
 
 // State
 const isInitLoading = ref(false)
-const loading = ref(false)
 const error = ref('')
 const success = ref('')
 const user = ref(null)
+const authTask = useAsyncTask()
+const loading = authTask.loading
 
 // Login/Register state
 const loginMode = ref('email') // 'email' | 'username'
@@ -205,9 +207,7 @@ const handleLogin = async (credentials) => {
     return
   }
 
-  loading.value = true
-
-  try {
+  await authTask.run(async () => {
     await loginUser(credentials)
     await fetchUser()
     await getUserRole()
@@ -227,16 +227,16 @@ const handleLogin = async (credentials) => {
         window.location.reload()
       }
     }, 1000)
-  } catch (e) {
+  }, {
+    rethrow: true
+  }).catch((e) => {
     const msg = extractErrorMessage(e)
     if (msg.includes('Invalid credentials')) {
       error.value = t('auth.validation.loginFailed')
     } else {
       error.value = msg
     }
-  } finally {
-    loading.value = false
-  }
+  })
 }
 
 const handleRegister = async ({ username, email, password, confirmPassword }) => {
@@ -264,9 +264,7 @@ const handleRegister = async ({ username, email, password, confirmPassword }) =>
     return
   }
 
-  loading.value = true
-
-  try {
+  await authTask.run(async () => {
     await registerUser({ username, email, password })
     showSuccess(t('auth.messages.registerSuccess'))
     success.value = t('auth.messages.registerSuccessDetail')
@@ -276,7 +274,9 @@ const handleRegister = async ({ username, email, password, confirmPassword }) =>
       error.value = ''
       success.value = ''
     }, 1000)
-  } catch (e) {
+  }, {
+    rethrow: true
+  }).catch((e) => {
     const msg = extractErrorMessage(e, '')
     if (msg.includes('Username already exists')) {
       error.value = t('auth.validation.usernameExists')
@@ -285,9 +285,7 @@ const handleRegister = async ({ username, email, password, confirmPassword }) =>
     } else {
       error.value = msg
     }
-  } finally {
-    loading.value = false
-  }
+  })
 }
 
 const handleSaveUsername = async ({ newUsername }) => {
@@ -307,9 +305,7 @@ const handleSaveUsername = async ({ newUsername }) => {
 
   if (!confirmed) return
 
-  loading.value = true
-
-  try {
+  await authTask.run(async () => {
     await updateUsername(newUsername, user.value.email)
     success.value = t('auth.messages.usernameUpdateSuccess')
 
@@ -319,12 +315,12 @@ const handleSaveUsername = async ({ newUsername }) => {
       error.value = ''
       success.value = ''
     }, 2000)
-  } catch (e) {
+  }, {
+    rethrow: true
+  }).catch((e) => {
     const message = extractErrorMessage(e)
     error.value = t('auth.messages.errorDetail', { detail: message })
-  } finally {
-    loading.value = false
-  }
+  })
 }
 
 const handleSavePassword = async ({ currentPassword, newPassword }) => {
@@ -349,9 +345,7 @@ const handleSavePassword = async ({ currentPassword, newPassword }) => {
 
   if (!confirmed) return
 
-  loading.value = true
-
-  try {
+  await authTask.run(async () => {
     await updatePassword({
       currentPassword,
       newPassword,
@@ -365,12 +359,12 @@ const handleSavePassword = async ({ currentPassword, newPassword }) => {
       error.value = ''
       success.value = ''
     }, 2000)
-  } catch (e) {
+  }, {
+    rethrow: true
+  }).catch((e) => {
     const message = extractErrorMessage(e)
     error.value = t('auth.messages.errorDetail', { detail: message })
-  } finally {
-    loading.value = false
-  }
+  })
 }
 
 const logout = async () => {
@@ -382,10 +376,7 @@ const logout = async () => {
 
   if (!confirmed) return
 
-  // Show loading state
-  loading.value = true
-
-  try {
+  await authTask.run(async () => {
     // console.log('🚪 [登出] 用户登出，先上报在线时长')
     await manualReport()
     stopOnlineTimeTracker({ clearPending: true })
@@ -399,11 +390,11 @@ const logout = async () => {
 
     // Redirect to login page instead of reloading
     setView('login')
-  } catch (error) {
+  }, {
+    rethrow: true
+  }).catch((error) => {
     console.error(t('auth.messages.logoutFailed'), error)
-  } finally {
-    loading.value = false
-  }
+  })
 }
 
 const fetchUser = async () => {

@@ -81,6 +81,20 @@ describe('composables', () => {
     expect(task.error.value).toBe(error)
   })
 
+  it('useAsyncTask rethrows when requested and still resets loading', async () => {
+    const task = useAsyncTask()
+    const error = new Error('boom')
+
+    await expect(task.run(async () => {
+      throw error
+    }, {
+      rethrow: true,
+    })).rejects.toThrow('boom')
+
+    expect(task.loading.value).toBe(false)
+    expect(task.error.value).toBe(error)
+  })
+
   it('useAsyncData loads data and supports resetOnLoad', async () => {
     const asyncData = useAsyncData({
       initialValue: ['old'],
