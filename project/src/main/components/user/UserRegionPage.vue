@@ -141,6 +141,7 @@ import PartitionInfoModal from '@/main/components/geo/PartitionInfoModal.vue'
 import UserRegionEditPopup from '@/main/components/popup/user/UserRegionEditPopup.vue'
 import { CUSTOM_REGION_MAX_LOCATIONS } from '@/main/config/constants.js'
 import { useCustomRegionStore } from '@/main/store/customRegionStore'
+import { useAsyncData } from '@/composables/core/useAsyncData.js'
 import { showConfirm, showError, showSuccess, showWarning } from '@/utils/message.js'
 import { usePartitionCache } from '@/composables/domain/geo/usePartitionCache.js'
 
@@ -152,7 +153,6 @@ const route = useRoute()
 const { invalidateCache, refresh } = useCustomRegionStore()
 
 const regions = ref([])
-const loading = ref(false)
 const searchQuery = ref('')
 const showEditModal = ref(false)
 const editingRegion = ref({
@@ -168,9 +168,16 @@ const hasShownCustomRegionLimitWarning = ref(false)
 
 const showPartitionModal = ref(false)
 const partitionData = ref([])
-const isLoadingPartitions = ref(false)
 const partitionTreeError = ref('')
 const autoEnableSelection = ref(false)
+const regionsQuery = useAsyncData({
+  initialValue: []
+})
+const partitionQuery = useAsyncData({
+  initialValue: []
+})
+const loading = regionsQuery.loading
+const isLoadingPartitions = partitionQuery.loading
 
 const availableLocations = computed(() => {
   if (!partitionData.value || partitionData.value.length === 0) {
@@ -265,38 +272,35 @@ const goBack = () => {
 }
 
 const loadRegions = async () => {
-  loading.value = true
+  await regionsQuery.load(() => refresh(), {
+    onSuccess: (data) => {
+      regions.value = data.regions || []
 
-  try {
-    const data = await refresh()
-    regions.value = data.regions || []
-
-    if (regions.value.length > 0) {
-      showSuccess(
-        t('user.regionPage.messages.loadSuccessCount', { count: regions.value.length })
-      )
-    } else {
-      showWarning(t('user.regionPage.messages.noRegionsWarning'))
+      if (regions.value.length > 0) {
+        showSuccess(
+          t('user.regionPage.messages.loadSuccessCount', { count: regions.value.length })
+        )
+      } else {
+        showWarning(t('user.regionPage.messages.noRegionsWarning'))
+      }
+    },
+    onError: (error) => {
+      showError(t('user.regionPage.messages.loadFailed', { message: error.message }))
     }
-  } catch (error) {
-    showError(t('user.regionPage.messages.loadFailed', { message: error.message }))
-  } finally {
-    loading.value = false
-  }
+  })
 }
 
 const fetchPartitionData = async () => {
-  isLoadingPartitions.value = true
   partitionTreeError.value = ''
-
-  try {
-    partitionData.value = await getPartitionData(() => getLocationPartitions())
-  } catch (error) {
-    console.error('Failed to fetch partition data:', error)
-    partitionTreeError.value = t('user.regionPage.messages.partitionDataFailed')
-  } finally {
-    isLoadingPartitions.value = false
-  }
+  await partitionQuery.load(() => getPartitionData(() => getLocationPartitions()), {
+    onSuccess: (data) => {
+      partitionData.value = data
+    },
+    onError: (error) => {
+      console.error('Failed to fetch partition data:', error)
+      partitionTreeError.value = t('user.regionPage.messages.partitionDataFailed')
+    }
+  })
 }
 
 const updateLocationsFromTextarea = () => {
