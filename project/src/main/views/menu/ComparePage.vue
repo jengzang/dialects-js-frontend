@@ -1174,8 +1174,7 @@ function createComparisonItem(location, coordinate, feature, status, data, pair)
 function resolveTabRoute(tabName) {
   const sub = tabToRouteSub[tabName] || 'zhonggu'
   return {
-    path: `/menu/compare/${sub}`,
-    query: route.query
+    path: `/menu/compare/${sub}`
   }
 }
 
