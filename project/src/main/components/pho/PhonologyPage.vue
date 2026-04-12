@@ -53,17 +53,14 @@
 
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { getPhonologyMatrix } from '@/api'
 import PhonologyMatrix from '@/main/components/TableAndTree/PhonologyTable.vue'
 import LocationMultiInput from '@/main/components/geo/LocationMultiInput.vue'
 import { PHONOLOGY_LOCATION_LIMITS } from '@/main/config/constants.js'
-import { parseLocationsFromUrl, updateUrlWithLocations } from '@/utils/urlParams.js'
 import { useAsyncTask } from '@/composables/core/useAsyncTask.js'
+import { useRouteQueryState } from '@/composables/router/useRouteQueryState.js'
 
-const route = useRoute()
-const router = useRouter()
 const { t } = useI18n()
 
 const loadMatrixTask = useAsyncTask()
@@ -72,8 +69,26 @@ const error = ref(null)
 const matrixData = ref(null)
 
 // 从 URL 初始化地点
-const initialLocations = parseLocationsFromUrl(route)
-const queryStrings = ref(initialLocations)
+function parseLocationQuery(value) {
+  const locations = Array.isArray(value) ? value : [value]
+  return locations.filter(Boolean).map((location) => {
+    try {
+      return decodeURIComponent(location)
+    } catch {
+      return location
+    }
+  })
+}
+
+const { state: locationQuery, set: setLocationQuery } = useRouteQueryState('loc', {
+  defaultValue: [],
+  parse: parseLocationQuery,
+  serialize: (locations) => locations.map((location) => encodeURIComponent(location)),
+  replace: true,
+  removeIf: (locations) => !Array.isArray(locations) || locations.length === 0,
+})
+
+const queryStrings = ref([...locationQuery.value])
 
 const matchedLocations = ref([])
 const isMatching = ref(false) // 添加匹配状态
@@ -115,7 +130,7 @@ const loadData = async () => {
     shouldSyncUrl.value = true
 
     // 更新 URL
-    updateUrlWithLocations(router, matchedLocations.value)
+    await setLocationQuery(matchedLocations.value)
   }, {
     onError: (err) => {
       console.error('加載音韻矩陣失敗:', err)
@@ -126,7 +141,7 @@ const loadData = async () => {
 
 // 页面加载时自动查询
 onMounted(() => {
-  if (initialLocations.length > 0) {
+  if (locationQuery.value.length > 0) {
     // 等待 LocationMultiInput 完成地点匹配
     const unwatch = watch(matchedLocations, (locations) => {
       if (locations.length > 0) {
@@ -138,13 +153,12 @@ onMounted(() => {
 })
 
 // 处理浏览器前进/后退
-watch(() => route.query.loc, () => {
-  const urlLocations = parseLocationsFromUrl(route)
+watch(locationQuery, (urlLocations) => {
 
   // 只有当 URL 的地点和当前匹配的地点不同时，才需要清空数据
   // 这样可以避免在查询成功更新 URL 后误清空数据
   if (JSON.stringify(urlLocations) !== JSON.stringify(matchedLocations.value)) {
-    queryStrings.value = urlLocations
+    queryStrings.value = [...urlLocations]
     matrixData.value = null
     error.value = null
   }

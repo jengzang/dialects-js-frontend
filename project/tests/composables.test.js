@@ -168,6 +168,30 @@ describe('composables', () => {
     expect(state.value).toBe('upload')
   })
 
+  it('useRouteQueryState supports array query values with replace', async () => {
+    route.query = { loc: ['%E5%B9%BF%E5%B7%9E', '%E9%A6%99%E6%B8%AF'] }
+    const { state, set } = useRouteQueryState('loc', {
+      defaultValue: [],
+      parse: (value) => {
+        const locations = Array.isArray(value) ? value : [value]
+        return locations.map((location) => decodeURIComponent(location))
+      },
+      serialize: (locations) => locations.map((location) => encodeURIComponent(location)),
+      replace: true,
+      removeIf: (locations) => !Array.isArray(locations) || locations.length === 0,
+    })
+
+    await nextTick()
+    expect(state.value).toEqual(['广州', '香港'])
+
+    await set(['深圳'])
+
+    expect(replaceMock).toHaveBeenCalledWith({
+      query: { loc: ['%E6%B7%B1%E5%9C%B3'] },
+    })
+    expect(route.query.loc).toEqual(['%E6%B7%B1%E5%9C%B3'])
+  })
+
   it('usePartitionCache returns cached partition data before loading', async () => {
     window.sessionStorage.setItem('partition_data_cache', JSON.stringify([{ id: 1 }]))
     const { getPartitionData } = usePartitionCache()
