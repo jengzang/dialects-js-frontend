@@ -606,8 +606,7 @@ function handleApplyConfig(data) {
 function resolveTabRoute(tabName) {
   const sub = tabToRouteSub[tabName] || 'zhonggu'
   return {
-    path: `/menu/query/${sub}`,
-    query: route.query
+    path: `/menu/query/${sub}`
   }
 }
 
