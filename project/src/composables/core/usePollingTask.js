@@ -16,6 +16,7 @@ export function usePollingTask(options = {}) {
   const isRunning = computed(() => status.value === 'running')
 
   function stop() {
+    // 始终只保留一个活动定时器，避免重复 start 后出现并发轮询。
     if (timer) {
       clearInterval(timer)
       timer = null
@@ -38,6 +39,7 @@ export function usePollingTask(options = {}) {
       const result = await task()
       lastResult.value = result
       lastError.value = null
+      // 只要成功拿到一次结果，就把连续失败计数清零。
       failureCount.value = 0
 
       if (onTick) {
@@ -59,6 +61,7 @@ export function usePollingTask(options = {}) {
       if (failureCount.value >= maxFailures) {
         stop()
         status.value = 'error'
+        // 达到上限后不再继续轮询，由页面决定如何提示和收尾。
         if (onMaxFailures) {
           await onMaxFailures(error, failureCount.value)
         }
@@ -67,6 +70,7 @@ export function usePollingTask(options = {}) {
   }
 
   async function start(task, handlers = {}) {
+    // 新一轮 start 会先停掉旧轮询，确保状态与当前任务一一对应。
     stop()
 
     status.value = 'running'
@@ -87,6 +91,7 @@ export function usePollingTask(options = {}) {
 
   if (getCurrentScope()) {
     onScopeDispose(() => {
+      // composable 所在作用域销毁时自动停表，避免页面离开后定时器泄漏。
       stop()
     })
   }

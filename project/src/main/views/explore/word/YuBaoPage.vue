@@ -515,6 +515,7 @@ function switchTab(tabKey) {
 // 加载所有词汇数据
 async function loadAllVocabulary() {
   try {
+    // 先走本地缓存，弹窗联想只需要全集数据，不必每次打开都重新打接口。
     const cached = vocabularyCache.read()
     if (cached && cached.values && Array.isArray(cached.values)) {
       allVocabulary.value = cached.values.filter(item => item && typeof item === 'string' && item.trim())
@@ -533,6 +534,7 @@ async function loadAllVocabulary() {
 
     if (response && response.values && Array.isArray(response.values)) {
       allVocabulary.value = response.values.filter(item => item && typeof item === 'string' && item.trim())
+      // 只缓存后端原始返回，后面仍然沿用现有过滤逻辑生成可用列表。
       vocabularyCache.write(response)
       console.log('Loaded vocabulary API data:', allVocabulary.value.length)
     } else {
@@ -545,6 +547,7 @@ async function loadAllVocabulary() {
 
 async function loadAllGrammar() {
   try {
+    // 语法数据和词汇数据保持同一套缓存策略，避免两个 tab 行为不一致。
     const cached = grammarCache.read()
     if (cached && cached.values && Array.isArray(cached.values)) {
       allGrammar.value = cached.values.filter(item => item && typeof item === 'string' && item.trim())
@@ -573,10 +576,10 @@ async function loadAllGrammar() {
 function localMatch(query, dataArray) {
   if (!query) return []
 
-  // 繁体转简体
+  // 用简体归一化做匹配，保留现有“繁简都能搜到”的行为。
   const simplifiedQuery = converter(query).toLowerCase()
 
-  // 模糊匹配
+  // 这里只做本地 includes，不引入额外排序，保证联想结果仍然稳定可预期。
   const matches = dataArray.filter(item => {
     const simplifiedItem = converter(item).toLowerCase()
     return simplifiedItem.includes(simplifiedQuery)

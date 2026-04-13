@@ -20,6 +20,7 @@ onMounted(async () => {
 })
 
 const categoryConfigs = computed(() => [
+  // categoryKey / endpoint key 必须和后端 leaderboard 返回结构保持一致；这里主要负责映射展示文案。
   {
     id: 'phonology',
     icon: '🔍',
@@ -149,6 +150,7 @@ const categoryConfigs = computed(() => [
 const fetchLeaderboard = async () => load(
   () => getLeaderboard(),
   {
+    // 排行榜页只展示 toast，不在这里额外改写 error 文案，保持 useAsyncData 的原始错误状态可读。
     onError: (e) => {
       const message = e?.message || ''
       showError(t('user.leaderboard.loadFailedToast', { message }))
@@ -213,6 +215,7 @@ const createRow = (label, data) => ({
 const topMetrics = computed(() => {
   if (!rankingsData.value) return []
 
+  // 顶部摘要卡单独挑出最常看的指标，下面的分类表格仍然展示完整明细。
   const rankings = rankingsData.value.rankings
   return [
     {

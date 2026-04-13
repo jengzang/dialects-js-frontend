@@ -237,6 +237,7 @@ import { usePartitionCache } from '@/composables/domain/geo/usePartitionCache.js
 
 const { getPartitionData, getCachedYindianTree, getYindianTree } = usePartitionCache()
 
+// 只保留音典允许暴露的顶级分区；不改结构，只裁掉不需要的 key。
 const filterYindianTopLevelKeys = (obj) => {
   if (typeof obj !== 'object' || Array.isArray(obj) || obj === null) {
     return {}
@@ -820,6 +821,7 @@ function loadTreeFor(mode) {
     options.value = convertToCascaderOptions(STATIC_REGION_TREE)
     // console.log(options)
   } else if (mode === 'yindian') {
+    // 统一走缓存 helper：优先复用 sessionStorage，没有命中时再请求并写回。
     getYindianTree(() => getPartitions(), {
       transform: filterYindianTopLevelKeys,
     }).then((filteredTree) => {
@@ -1280,6 +1282,7 @@ const fetchPartitionData = async () => {
   partitionTreeError.value = ''
 
   try {
+    // 这里和自定义分区页共用同一套缓存 key / 数据格式，避免重复请求与重复解析。
     partitionData.value = await getPartitionData(() => getLocationPartitions())
   } catch (error) {
     console.error('获取分区数据失败:', error)

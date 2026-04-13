@@ -117,6 +117,7 @@ const isInitLoading = ref(false)
 const error = ref('')
 const success = ref('')
 const user = ref(null)
+// 登录、注册、改名、改密码共用一套异步状态，避免页面上出现多个彼此打架的 loading 标记。
 const authTask = useAsyncTask()
 const loading = authTask.loading
 
@@ -126,7 +127,7 @@ const modeType = ref('username') // 'username' | 'password'
 const statsExpanded = ref(false)
 const showBenefits = ref(false)
 
-// Computed - Use single 'view' parameter for all navigation
+// Auth 页内部视图统一由 query.view 驱动，这样刷新、回退和外部直达都能保持一致。
 const { state: view, set: setAuthView } = useRouteQueryState('view', {
   defaultValue: 'login',
   parse: (value) => value || 'login',
@@ -191,6 +192,7 @@ function getSafeRedirectPath(path) {
     return ''
   }
 
+  // 只允许站内相对路径，避免登录后按 redirect 跳去外站或再次跳回 auth 自己。
   if (!path.startsWith('/') || path.startsWith('//') || path.startsWith('/auth')) {
     return ''
   }

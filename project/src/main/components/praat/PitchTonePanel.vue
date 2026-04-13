@@ -163,10 +163,11 @@ onMounted(() => {
   console.log('[PitchTone] hasPitchData:', hasPitchData.value)
   console.log('[PitchTone] props.results:', props.results)
 
-  // 1. Restore saved tones from local storage and migrate the old shape when needed.
+  // 1. 从 localStorage 恢复历史调类；如果还是旧格式 { values }，这里顺手迁移成 { segments }。
   const stored = pitchToneStorage.read()
   if (Array.isArray(stored) && stored.length > 0) {
     const normalizedTones = stored.map(tone => {
+      // 兼容旧缓存：旧结构只有一组 values，新结构统一存成 segments 数组。
       if (tone.values && !tone.segments) {
         return {
           name: tone.name,
@@ -182,6 +183,7 @@ onMounted(() => {
 
     savedTones.value = normalizedTones
 
+    // 只有真的发生迁移时才回写，避免每次挂载都无意义覆盖缓存。
     if (JSON.stringify(normalizedTones) !== JSON.stringify(stored)) {
       pitchToneStorage.write(normalizedTones)
     }
@@ -223,6 +225,7 @@ onBeforeUnmount(() => {
 
 // 監聽數據變化自動保存
 watch(savedTones, (newVal) => {
+  // 所有保存动作统一走 composable，便于后续继续复用序列化/清理策略。
   pitchToneStorage.write(newVal)
 }, { deep: true })
 

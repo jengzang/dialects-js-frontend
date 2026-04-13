@@ -21,6 +21,7 @@ export function useStorageState(key, options = {}) {
   const state = ref(defaultValue)
 
   function cloneDefault() {
+    // 默认值如果是对象/数组，要拷贝一份，避免多个调用方共享同一引用。
     if (defaultValue === null || defaultValue === undefined) {
       return defaultValue
     }
@@ -48,6 +49,7 @@ export function useStorageState(key, options = {}) {
       const payload = serializer.parse(raw)
 
       if (ttl && payload?.expiresAt && payload.expiresAt < Date.now()) {
+        // 过期数据直接清掉，调用方读到的始终是“可继续使用”的值。
         storageApi.removeItem(key)
         state.value = cloneDefault()
         return state.value
@@ -84,6 +86,7 @@ export function useStorageState(key, options = {}) {
     state.value = cloneDefault()
   }
 
+  // 初始化时先做一次同步读取，这样页面创建后即可拿到缓存值。
   read()
 
   watch(state, (value) => {

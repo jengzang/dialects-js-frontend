@@ -8,6 +8,7 @@ export function useAsyncData(options = {}) {
   } = options
 
   const data = ref(initialValue)
+  // 复用统一的 loading / error 生命周期，避免每个页面手写同样的 try/catch/finally。
   const task = useAsyncTask()
 
   async function load(loader, loadOptions = {}) {
@@ -18,6 +19,7 @@ export function useAsyncData(options = {}) {
     } = loadOptions
 
     if (resetOnLoad) {
+      // 某些页面在重新请求前需要立即清空旧数据，避免展示过期结果。
       data.value = initialValue
     }
 
@@ -34,6 +36,7 @@ export function useAsyncData(options = {}) {
   }
 
   function reset() {
+    // reset 同时清数据与异步状态，供页面在切换模式/离开场景时整体复位。
     data.value = initialValue
     task.reset()
   }

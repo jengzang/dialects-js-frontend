@@ -14,6 +14,7 @@ export function useRouteQueryState(key, options = {}) {
   const router = useRouter()
 
   function normalizeFromRoute(value) {
+    // 统一把 undefined / 空串 / parse 后无效值折叠回默认值，减少页面分支判断。
     if (value === undefined || value === null || value === '') {
       return defaultValue
     }
@@ -30,6 +31,7 @@ export function useRouteQueryState(key, options = {}) {
 
   watch(() => route.query[key], (value) => {
     const nextValue = normalizeFromRoute(value)
+    // 只在 query 真正变化时同步本地状态，避免路由更新引起的无效回写。
     if (state.value !== nextValue) {
       state.value = nextValue
     }
@@ -39,6 +41,7 @@ export function useRouteQueryState(key, options = {}) {
     const nextQuery = { ...route.query }
     const serialized = serialize(value)
 
+    // 允许调用方把“空值该不该删 query”这个策略外置，兼容数组/对象等场景。
     if (removeIf(serialized)) {
       delete nextQuery[key]
     } else {
@@ -51,6 +54,7 @@ export function useRouteQueryState(key, options = {}) {
 
     state.value = value
     if (replace) {
+      // replace 常用于 tab/filter 同步，避免把每次内部切换都塞进浏览器历史。
       await router.replace(navigation)
       return
     }

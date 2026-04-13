@@ -341,6 +341,7 @@ watch(settings, () => {
 
 // Polling
 const MAX_POLLING_FAILURES = 5
+// 统一轮询状态与清理逻辑，避免页面切换、重复分析时残留旧定时器。
 const pollingTask = usePollingTask({
   intervalMs: 2000,
   maxFailures: MAX_POLLING_FAILURES,
@@ -468,7 +469,7 @@ const handleSegmentSelected = (segment) => {
 const startAnalysis = async () => {
   if (!audioFile.value) return
 
-  // Check if user is logged in
+  // 进入分析前统一走鉴权封装，保留原来的 toast + 登录跳转 + redirect 回跳行为。
   const authed = await requireAuth({
     message: t('praat.main.errors.loginRequired'),
     redirect: route.fullPath || '/explore/tools/praat',
@@ -556,6 +557,7 @@ const startAnalysis = async () => {
 }
 
 const startPolling = async () => {
+  // 每轮新分析都从 0 开始记失败次数，避免继承上一次任务状态。
   pollingFailCount.value = 0
 
   await pollingTask.start(
@@ -568,12 +570,14 @@ const startPolling = async () => {
         jobStage.value = status.stage
         jobError.value = status.error
 
+        // 一旦完成就立即拉结果，并清掉“分析中”标记，结果页继续保留给用户查看。
         if (status.status === 'completed' || status.status === 'done') {
           await fetchResults()
           isAnalyzing.value = false
           return
         }
 
+        // 失败/取消由轮询层停表，页面层这里只负责提示和状态收尾。
         if (status.status === 'failed' || status.status === 'error' || status.status === 'canceled') {
           showError(status.error || t('praat.main.errors.analysisFailed'))
           isAnalyzing.value = false
@@ -601,6 +605,7 @@ const startPolling = async () => {
 }
 
 const stopPolling = () => {
+  // 取消分析、离开页面、或开始新任务时都复用同一个 stop 入口。
   pollingTask.stop()
 }
 

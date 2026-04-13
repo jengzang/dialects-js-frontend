@@ -13,6 +13,7 @@ export function useAuthGuard(options = {}) {
   const route = useRoute()
   const router = useRouter()
 
+  // 直接绑定全局用户态，让页面只关心“能不能进”，不用重复写跳转细节。
   const isAuthenticated = computed(() => userStore.isAuthenticated)
 
   async function requireAuth(guardOptions = {}) {
@@ -27,6 +28,7 @@ export function useAuthGuard(options = {}) {
       showWarning(message)
     }
 
+    // 把当前 fullPath 带去登录页，登录完成后可回跳到原页面。
     await router.push({
       path: loginPath,
       query: { redirect },
