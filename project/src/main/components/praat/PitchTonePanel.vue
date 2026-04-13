@@ -111,6 +111,7 @@ import * as echarts from 'echarts'
 import * as XLSX from 'xlsx'
 import { useI18n } from 'vue-i18n'
 import { showSuccess, showWarning } from '@/utils/message.js'
+import { useStorageState } from '@/composables/core/useStorageState.js'
 
 const props = defineProps({
   results: { type: Object, default: null }
@@ -135,6 +136,9 @@ const globalStats = ref({ max: 0, min: 0 })
 
 // 本地存儲 Key
 const STORAGE_KEY = 'shifeng_analysis_data'
+const pitchToneStorage = useStorageState(STORAGE_KEY, {
+  defaultValue: [],
+})
 
 const hasPitchData = computed(() => {
   return props.results && props.results.timeseries && props.results.timeseries.pitch_hz && props.results.timeseries.pitch_hz.length > 0
@@ -159,34 +163,27 @@ onMounted(() => {
   console.log('[PitchTone] hasPitchData:', hasPitchData.value)
   console.log('[PitchTone] props.results:', props.results)
 
-  // 1. 從 LocalStorage 恢復數據 (支持舊格式遷移)
-  const stored = localStorage.getItem(STORAGE_KEY)
-  if (stored) {
-    try {
-      const data = JSON.parse(stored)
-
-      // Migration: Convert old format to new format
-      if (Array.isArray(data) && data.length > 0) {
-        savedTones.value = data.map(tone => {
-          // Check if it's old format (has 'values' property)
-          if (tone.values && !tone.segments) {
-            return {
-              name: tone.name,
-              segments: [tone.values]  // Wrap in array
-            }
-          }
-          // Already new format or ensure segments exists
-          return {
-            name: tone.name,
-            segments: tone.segments || []
-          }
-        })
+  // 1. Restore saved tones from local storage and migrate the old shape when needed.
+  const stored = pitchToneStorage.read()
+  if (Array.isArray(stored) && stored.length > 0) {
+    const normalizedTones = stored.map(tone => {
+      if (tone.values && !tone.segments) {
+        return {
+          name: tone.name,
+          segments: [tone.values]
+        }
       }
-    } catch (e) {
-      console.error('Failed to load tones', e)
-      // Clear corrupted data
-      localStorage.removeItem(STORAGE_KEY)
-      savedTones.value = []
+
+      return {
+        name: tone.name,
+        segments: tone.segments || []
+      }
+    })
+
+    savedTones.value = normalizedTones
+
+    if (JSON.stringify(normalizedTones) !== JSON.stringify(stored)) {
+      pitchToneStorage.write(normalizedTones)
     }
   }
 
@@ -226,7 +223,7 @@ onBeforeUnmount(() => {
 
 // 監聽數據變化自動保存
 watch(savedTones, (newVal) => {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(newVal))
+  pitchToneStorage.write(newVal)
 }, { deep: true })
 
 // 監聽 props.results 變化，重新初始化圖表
@@ -442,7 +439,7 @@ const removeTone = (index) => {
 const clearAll = () => {
   if (confirm(t('praat.pitchTone.step1.savedList.confirmClear'))) {
     savedTones.value = []
-    localStorage.removeItem(STORAGE_KEY)
+    pitchToneStorage.remove()
     // Do NOT clear tValueResults - keep analysis results visible
   }
 }

@@ -346,11 +346,14 @@ import { watchDebounced } from '@vueuse/core'
 import YuBaoMap from '@/main/components/map/YuBaoMap.vue'
 import AppModal from '@/components/common/AppModal.vue'
 import { useRouteQueryState } from '@/composables/router/useRouteQueryState.js'
+import { useStorageState } from '@/composables/core/useStorageState.js'
 
 const route = useRoute()
 const router = useRouter()
 const { t } = useI18n()
 const converter = OpenCC.Converter({ from: 'tw', to: 'cn' })
+const vocabularyCache = useStorageState('yubao_vocabulary_all', { defaultValue: null })
+const grammarCache = useStorageState('yubao_grammar_all', { defaultValue: null })
 
 // --- 基础状态 ---
 const { state: activeTab, set: setActiveTab } = useRouteQueryState('tab', {
@@ -512,63 +515,43 @@ function switchTab(tabKey) {
 // 加载所有词汇数据
 async function loadAllVocabulary() {
   try {
-    // 优先读取缓存
-    const cached = localStorage.getItem('yubao_vocabulary_all')
-    if (cached) {
-      try {
-        const response = JSON.parse(cached)
-        if (response && response.values && Array.isArray(response.values)) {
-          allVocabulary.value = response.values.filter(item => item && typeof item === 'string' && item.trim())
-          console.log(`✅ 从缓存加载 ${allVocabulary.value.length} 条词汇数据`)
-          return
-        }
-      } catch (e) {
-        console.warn('⚠️ 缓存数据解析失败，将重新请求', e)
-      }
+    const cached = vocabularyCache.read()
+    if (cached && cached.values && Array.isArray(cached.values)) {
+      allVocabulary.value = cached.values.filter(item => item && typeof item === 'string' && item.trim())
+      console.log('Loaded vocabulary cache:', allVocabulary.value.length)
+      return
     }
 
-    // 缓存不存在或无效，请求 API
     const response = await distinctQuery({
       db_key: 'yubao',
       table_name: 'vocabulary',
       target_column: 'word',
-      search_text: '',  // 空字符串获取所有数据
+      search_text: '',
       search_columns: [],
       current_filters: {}
     })
 
     if (response && response.values && Array.isArray(response.values)) {
       allVocabulary.value = response.values.filter(item => item && typeof item === 'string' && item.trim())
-      // 存储到 localStorage
-      localStorage.setItem('yubao_vocabulary_all', JSON.stringify(response))
-      console.log(`✅ 从 API 加载 ${allVocabulary.value.length} 条词汇数据`)
+      vocabularyCache.write(response)
+      console.log('Loaded vocabulary API data:', allVocabulary.value.length)
     } else {
-      console.error('❌ 词汇数据格式错误:', response)
+      console.error('Vocabulary data format error:', response)
     }
   } catch (error) {
-    console.error('加载词汇数据失败:', error)
+    console.error('Failed to load vocabulary data:', error)
   }
 }
 
-// 加载所有语法数据
 async function loadAllGrammar() {
   try {
-    // 优先读取缓存
-    const cached = localStorage.getItem('yubao_grammar_all')
-    if (cached) {
-      try {
-        const response = JSON.parse(cached)
-        if (response && response.values && Array.isArray(response.values)) {
-          allGrammar.value = response.values.filter(item => item && typeof item === 'string' && item.trim())
-          console.log(`✅ 从缓存加载 ${allGrammar.value.length} 条语法数据`)
-          return
-        }
-      } catch (e) {
-        console.warn('⚠️ 缓存数据解析失败，将重新请求', e)
-      }
+    const cached = grammarCache.read()
+    if (cached && cached.values && Array.isArray(cached.values)) {
+      allGrammar.value = cached.values.filter(item => item && typeof item === 'string' && item.trim())
+      console.log('Loaded grammar cache:', allGrammar.value.length)
+      return
     }
 
-    // 缓存不存在或无效，请求 API
     const response = await distinctQuery({
       db_key: 'yubao',
       table_name: 'grammar',
@@ -577,18 +560,16 @@ async function loadAllGrammar() {
 
     if (response && response.values && Array.isArray(response.values)) {
       allGrammar.value = response.values.filter(item => item && typeof item === 'string' && item.trim())
-      // 存储到 localStorage
-      localStorage.setItem('yubao_grammar_all', JSON.stringify(response))
-      console.log(`✅ 从 API 加载 ${allGrammar.value.length} 条语法数据`)
+      grammarCache.write(response)
+      console.log('Loaded grammar API data:', allGrammar.value.length)
     } else {
-      console.error('❌ 语法数据格式错误:', response)
+      console.error('Grammar data format error:', response)
     }
   } catch (error) {
-    console.error('加载语法数据失败:', error)
+    console.error('Failed to load grammar data:', error)
   }
 }
 
-// 本地模糊匹配（支持繁简）
 function localMatch(query, dataArray) {
   if (!query) return []
 

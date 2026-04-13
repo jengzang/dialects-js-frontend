@@ -287,6 +287,7 @@ import { computed, reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import AppModal from '@/components/common/AppModal.vue'
 import { usePollingTask } from '@/composables/core/usePollingTask.js'
+import { useStorageState } from '@/composables/core/useStorageState.js'
 import { useAuthGuard } from '@/composables/router/useAuthGuard.js'
 import {
   downloadJyut2IpaResult,
@@ -312,6 +313,9 @@ const progress = ref(0)
 const processingText = ref(t('tools.jyut2ipa.processing.preparingUpload'))
 const showConfigModal = ref(false)
 const currentTab = ref('wf')
+const rulesStorage = useStorageState('jyut2ipa_custom_rules', {
+  defaultValue: null,
+})
 
 const stats = reactive({
   total: 0,
@@ -446,13 +450,13 @@ const resetConfigConfirm = async () => {
   }
 
   rules.value = [...DEFAULT_RULES]
-  localStorage.removeItem('jyut2ipa_custom_rules')
+  rulesStorage.remove()
   showSuccess(t('tools.jyut2ipa.messages.resetSuccess'))
 }
 
 const saveConfig = () => {
   try {
-    localStorage.setItem('jyut2ipa_custom_rules', JSON.stringify(rules.value))
+    rulesStorage.write(rules.value)
     showConfigModal.value = false
     showSuccess(t('tools.jyut2ipa.messages.saveSuccess'))
   } catch (error) {
@@ -637,14 +641,11 @@ const reset = () => {
 
 // 加载配置
 const loadConfig = () => {
-  const saved = localStorage.getItem('jyut2ipa_custom_rules')
-  if (saved) {
-    try {
-      rules.value = JSON.parse(saved)
-    } catch (error) {
-      console.error('Failed to parse jyut2ipa config:', error)
-      rules.value = [...DEFAULT_RULES]
-    }
+  const saved = rulesStorage.read()
+  if (Array.isArray(saved)) {
+    rules.value = saved
+  } else {
+    rules.value = [...DEFAULT_RULES]
   }
 }
 loadConfig()
