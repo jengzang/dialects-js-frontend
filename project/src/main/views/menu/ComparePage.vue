@@ -269,7 +269,7 @@ import { S2T_T2S_MAPPING } from '@/main/config'
 import { compareChars, compareZhongGu, compareTones } from '@/api/index.js'
 import { getCoordinates } from '@/api'
 import { showWarning } from '@/utils/message.js'
-import { useQueryConfig } from '@/utils/useQueryConfig'
+import { useQueryConfig } from '@/composables/domain/useQueryConfig.js'
 
 const { t } = useI18n()
 

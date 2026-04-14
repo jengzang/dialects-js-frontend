@@ -222,7 +222,7 @@ import DropdownValueSelector from "@/main/components/query/DropdownValueSelector
 import ChoiceSelector from "@/components/selector/ChoiceSelector.vue";
 import { globalPayload, queryStore, uiStore, isQueryButtonDisabled, setRunning, setTabContentDisabled } from '@/main/store/store.js'
 import { S2T_T2S_MAPPING } from '@/main/config'
-import { useQueryConfig } from '@/utils/useQueryConfig'
+import { useQueryConfig } from '@/composables/domain/useQueryConfig.js'
 import { translateResultTerm } from '@/i18n/utils/resultI18n.js'
 import { showWarning } from '@/utils/message.js'
 import { limitEffectiveChars } from '@/main/utils/queryLimits.js'

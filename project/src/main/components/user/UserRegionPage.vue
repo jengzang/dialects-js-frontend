@@ -143,7 +143,7 @@ import { CUSTOM_REGION_MAX_LOCATIONS } from '@/main/config/constants.js'
 import { useCustomRegionStore } from '@/main/store/customRegionStore'
 import { useAsyncData } from '@/composables/core/useAsyncData.js'
 import { showConfirm, showError, showSuccess, showWarning } from '@/utils/message.js'
-import { usePartitionCache } from '@/composables/domain/geo/usePartitionCache.js'
+import { usePartitionCache } from '@/composables/domain/usePartitionCache.js'
 
 const { t, locale } = useI18n()
 const { getPartitionData } = usePartitionCache()

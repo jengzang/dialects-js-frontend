@@ -233,7 +233,7 @@ import { LOCATION_LIMITS } from '@/main/config/constants.js'
 import { buildExplicitLocationsForGetLocs, isExplicitLocationsLimitExceeded } from '@/main/utils/queryLimits.js'
 import * as OpenCC from 'opencc-js'
 import {STATIC_REGION_TREE, top_yindian} from "@/main/config/RegionTree.js";
-import { usePartitionCache } from '@/composables/domain/geo/usePartitionCache.js'
+import { usePartitionCache } from '@/composables/domain/usePartitionCache.js'
 
 const { getPartitionData, getCachedYindianTree, getYindianTree } = usePartitionCache()
 
