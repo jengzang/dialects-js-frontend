@@ -376,7 +376,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, nextTick } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import * as echarts from 'echarts'
 import SimpleSelectDropdown from '@/components/selector/SimpleSelectDropdown.vue'
@@ -423,6 +423,7 @@ const resultsPageSize = 20
 
 // Chart ref
 const aggregationChart = ref(null)
+let aggregationChartInstance = null
 
 let searchTimeout = null
 
@@ -881,11 +882,12 @@ const aggregateFeatures = async () => {
 const renderAggregationChart = () => {
   if (!aggregationChart.value || !aggregationResults.value) return
 
-  const chart = echarts.init(aggregationChart.value)
+  if (aggregationChartInstance) aggregationChartInstance.dispose()
+  aggregationChartInstance = echarts.init(aggregationChart.value)
   const types = Object.keys(aggregationResults.value.aggregates)
   const values = types.map(t => aggregationResults.value.aggregates[t].value)
 
-  chart.setOption({
+  aggregationChartInstance.setOption({
     title: { text: '聚合特徵分布', left: 'center' },
     tooltip: { trigger: 'axis' },
     xAxis: {
@@ -1047,6 +1049,13 @@ const handleApiError = (error) => {
 // Lifecycle
 onMounted(() => {
   // FilterableSelect 会自动加载区域列表，无需手动加载
+})
+
+onBeforeUnmount(() => {
+  if (aggregationChartInstance) {
+    aggregationChartInstance.dispose()
+    aggregationChartInstance = null
+  }
 })
 </script>
 

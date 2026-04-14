@@ -164,6 +164,39 @@ let pitchChart = null
 let intensityChart = null
 let formantChart = null
 let spectrogramChart = null
+const chartResizeObservers = []
+
+const clearChartResizeObservers = () => {
+  while (chartResizeObservers.length > 0) {
+    chartResizeObservers.pop().disconnect()
+  }
+}
+
+const observeChartResize = (container, chart) => {
+  if (!container || !chart) return
+
+  const resizeObserver = new ResizeObserver(() => {
+    chart.resize()
+  })
+
+  resizeObserver.observe(container)
+  chartResizeObservers.push(resizeObserver)
+}
+
+const disposeTimeSeriesCharts = () => {
+  if (pitchChart) {
+    pitchChart.dispose()
+    pitchChart = null
+  }
+  if (intensityChart) {
+    intensityChart.dispose()
+    intensityChart = null
+  }
+  if (formantChart) {
+    formantChart.dispose()
+    formantChart = null
+  }
+}
 
 const hasTimeSeriesData = computed(() => {
   const ts = props.results?.timeseries
@@ -273,11 +306,7 @@ const initPitchChart = () => {
   }
 
   pitchChart.setOption(option)
-
-  const resizeObserver = new ResizeObserver(() => {
-    pitchChart?.resize()
-  })
-  resizeObserver.observe(pitchChartContainer.value)
+  observeChartResize(pitchChartContainer.value, pitchChart)
 }
 
 // Initialize Intensity Chart
@@ -328,11 +357,7 @@ const initIntensityChart = () => {
   }
 
   intensityChart.setOption(option)
-
-  const resizeObserver = new ResizeObserver(() => {
-    intensityChart?.resize()
-  })
-  resizeObserver.observe(intensityChartContainer.value)
+  observeChartResize(intensityChartContainer.value, intensityChart)
 }
 
 // Initialize Formant Chart (F1-F5)
@@ -404,11 +429,7 @@ const initFormantChart = () => {
   }
 
   formantChart.setOption(option)
-
-  const resizeObserver = new ResizeObserver(() => {
-    formantChart?.resize()
-  })
-  resizeObserver.observe(formantChartContainer.value)
+  observeChartResize(formantChartContainer.value, formantChart)
 }
 
 // Initialize Spectrogram Chart
@@ -633,6 +654,17 @@ const addSpectrogramOverlays = (option) => {
   }
 }
 
+const renderTimeSeriesCharts = () => {
+  clearChartResizeObservers()
+  disposeTimeSeriesCharts()
+
+  if (!props.results || !hasTimeSeriesData.value) return
+
+  if (hasPitchData.value) initPitchChart()
+  if (hasIntensityData.value) initIntensityChart()
+  if (hasFormantData.value) initFormantChart()
+}
+
 // Voice Quality Helper Functions
 const getHnrClass = (hnr) => hnr >= 15 ? 'quality-good' : hnr >= 10 ? 'quality-fair' : 'quality-poor'
 const getHnrBarStyle = (hnr) => ({
@@ -667,29 +699,23 @@ const getShimmerStatus = (s) => s < 0.03
     ? t('praat.results.voiceQuality.shimmer.status.fair')
     : t('praat.results.voiceQuality.shimmer.status.poor')
 
-watch(() => props.results, (newResults) => {
-  if (newResults && hasTimeSeriesData.value) {
-    setTimeout(() => {
-      if (hasPitchData.value) initPitchChart()
-      if (hasIntensityData.value) initIntensityChart()
-      if (hasFormantData.value) initFormantChart()
-      // if (hasSpectrogramData.value) initSpectrogramChart()
-    }, 100)
-  }
+watch(() => props.results, () => {
+  setTimeout(() => {
+    renderTimeSeriesCharts()
+    // if (showSpectrogram.value && hasSpectrogramData.value) initSpectrogramChart()
+  }, 100)
 }, { deep: true })
 
 onMounted(() => {
-  if (props.results && hasTimeSeriesData.value) {
-    if (hasPitchData.value) initPitchChart()
-    if (hasIntensityData.value) initIntensityChart()
-    if (hasFormantData.value) initFormantChart()
-  }
+  renderTimeSeriesCharts()
   if (props.results && hasSpectrogramData.value) {
     initSpectrogramChart()
   }
 })
 
 onBeforeUnmount(() => {
+  clearChartResizeObservers()
+  disposeTimeSeriesCharts()
   if (pitchChart) pitchChart.dispose()
   if (intensityChart) intensityChart.dispose()
   if (formantChart) formantChart.dispose()
