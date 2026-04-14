@@ -406,6 +406,7 @@ const renderComparisonChart = () => {
   }
 
   // 确保容器有尺寸
+  const container = comparisonChart.value
   if (container.offsetWidth === 0 || container.offsetHeight === 0) {
     console.warn('[RegionalVectors] Chart container has no size', {
       width: container.offsetWidth,

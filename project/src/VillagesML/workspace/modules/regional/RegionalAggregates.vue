@@ -176,7 +176,7 @@
         </div>
 
         <template v-else-if="spatialAggregates.length > 0">
-          <p class="spatial-desc">X軸：村莊密度　Y軸：隔離指數　氣泡大小：村莊總數　顏色：空間分散度</p>
+          <p class="spatial-desc">X軸：村莊密度 Y軸：隔離指數 氣泡大小：村莊總數 顏色：空間分散度</p>
           <div ref="spatialChart" class="spatial-chart"></div>
         </template>
       </div>

@@ -235,7 +235,7 @@
               <p>{{ $t('query.components.regionSelector.customRegionModal.loading') }}</p>
             </div>
 
-            <div v-else-if="customRegions.length === 0" class="empty-custom-regions">
+            <div v-else-if="storedCustomRegions.length === 0" class="empty-custom-regions">
               <p>{{ $t('query.components.regionSelector.customRegionModal.empty') }}</p>
               <button class="btn-create" @click="goToManagePage">
                 {{ $t('query.components.regionSelector.customRegionModal.createButton') }}
@@ -244,7 +244,7 @@
 
             <div v-else class="region-list">
               <div
-                v-for="region in customRegions"
+                v-for="region in storedCustomRegions"
                 :key="region.id"
                 class="region-item"
                 @click="selectCustomRegion(region)"
@@ -314,7 +314,7 @@ const { requireAuth } = useAuthGuard()
 const showCustomRegionPopup = ref(false)
 // Use custom region store
 const {
-  customRegions,
+  customRegions: storedCustomRegions,
   loading: loadingCustomRegions,
   fetchCustomRegions
 } = useCustomRegionStore()
@@ -557,7 +557,7 @@ function togglePopup() {
     document.addEventListener('mousedown', onDocMouseDown, true)
 
     // Load custom regions if authenticated
-    if (userStore.isAuthenticated && customRegions.value.length === 0) {
+    if (userStore.isAuthenticated && storedCustomRegions.value.length === 0) {
       loadCustomRegions()
     }
   }
@@ -577,7 +577,7 @@ const customRegionButtonState = computed(() => {
     }
   }
 
-  if (customRegions.value.length === 0) {
+  if (storedCustomRegions.value.length === 0) {
     return {
       color: 'blue',
       text: t('query.components.regionSelector.customRegionButton.noRegions'),
@@ -594,7 +594,7 @@ const customRegionButtonState = computed(() => {
 
 // Custom region options for dropdown
 const customRegionOptions = computed(() => {
-  return customRegions.value.map(region => ({
+  return storedCustomRegions.value.map(region => ({
     label: region.region_name,
     value: region.region_name,
     locations: region.locations  // Store locations for later use
@@ -626,7 +626,7 @@ async function openCustomRegionPopup() {
   try {
     await fetchCustomRegions()
 
-    if (customRegions.value.length === 0) {
+    if (storedCustomRegions.value.length === 0) {
       // 沒有分區，詢問是否前往創建
       const confirmed = await showConfirm(
         t('query.components.regionSelector.messages.noCustomRegionsConfirm'),
@@ -690,7 +690,7 @@ const handleCustomRegionButtonClick = async () => {
   }
 
   // Blue state: No custom regions → redirect to UserRegionPage
-  if (customRegions.value.length === 0) {
+  if (storedCustomRegions.value.length === 0) {
     await router.push(`/auth/regions?username=${userStore.username}`)
     return
   }
@@ -699,7 +699,7 @@ const handleCustomRegionButtonClick = async () => {
   customRegionDropdownOpen.value = !customRegionDropdownOpen.value
 
   // Load custom regions if not loaded
-  if (customRegions.value.length === 0) {
+  if (storedCustomRegions.value.length === 0) {
     await loadCustomRegions()
   }
 }
@@ -825,7 +825,7 @@ function confirmAndClose() {
 
   // Also emit full custom region data for location extraction
   const selectedRegionObjects = draftCustomRegions.value.map(name =>
-    customRegions.value.find(r => r.region_name === name)
+    storedCustomRegions.value.find(r => r.region_name === name)
   ).filter(Boolean)
   emit('update:customRegionData', selectedRegionObjects)
 

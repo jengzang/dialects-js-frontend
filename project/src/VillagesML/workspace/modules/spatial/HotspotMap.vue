@@ -29,8 +29,8 @@
       <!-- 全屏退出按鈕 -->
       <button v-if="isFullScreen" class="exit-fullscreen-btn" @click="toggleFullScreen">
         ✕ 退出全屏
+      </button>
 
-      <!-- 鏉戣帄瑭虫儏褰堢獥 -->
       <!-- 村莊詳情彈窗 -->
       <Teleport to="body">
         <div v-if="showPopup && selectedVillage" class="village-popup-overlay" @click="closePopup">
@@ -87,6 +87,7 @@ const loading = ref(false)
 const isFullScreen = ref(false)
 
 // 彈窗狀態
+const showPopup = ref(false)
 const selectedVillage = ref(null)
 
 // Options for SimpleSelectDropdown
@@ -98,6 +99,7 @@ const mapStyleOptions = computed(() =>
 )
 
 // 初始化地圖
+onMounted(() => {
   initMap()
 })
 
@@ -135,6 +137,7 @@ const initMap = () => {
   })
 
   // 點擊村莊點事件
+  map.value.on('click', 'villages-layer', (e) => {
     if (e.features && e.features.length > 0) {
       const feature = e.features[0]
       selectedVillage.value = feature.properties
@@ -164,6 +167,7 @@ const renderHotspot = () => {
   })
 
   // 2. 移除舊圖層
+  if (map.value.getLayer('hotspot-circle')) {
     map.value.removeLayer('hotspot-circle')
   }
   if (map.value.getLayer('villages-layer')) {
@@ -246,9 +250,9 @@ const renderHotspot = () => {
       }
     })
   }
-}
 
 // 根據半徑計算合適的縮放級別
+const calculateZoomFromRadius = (radiusKm) => {
   if (radiusKm > 50) return 8
   if (radiusKm > 30) return 9
   if (radiusKm > 20) return 10
@@ -257,6 +261,7 @@ const renderHotspot = () => {
 }
 
 // 將米轉換為像素（用於圓圈半徑）
+const metersToPixelsAtMaxZoom = (meters, latitude) => {
   return meters / 0.075 / Math.cos(latitude * Math.PI / 180)
 }
 
@@ -277,6 +282,7 @@ const handleStyleChange = () => {
   map.value.setStyle(newStyle)
 
   // 樣式加載完成後重新渲染
+  map.value.once('styledata', () => {
     if (props.hotspot) {
       renderHotspot()
     }
@@ -445,10 +451,6 @@ const resetView = () => {
   font-weight: 500;
   color: #555;
 }
-
-
-
-/* 鏉戣帄瑭虫儏褰堢獥 */
 /* 村莊詳情彈窗 */
 .village-popup-overlay {
   position: fixed;

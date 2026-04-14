@@ -96,8 +96,6 @@ export const useCustomRegionStore = () => {
       console.log('💾 已保存到 localStorage')
 
       return data
-    } catch (error) {
-      throw error
     } finally {
       loading.value = false
     }

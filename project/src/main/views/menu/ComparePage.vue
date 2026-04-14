@@ -698,6 +698,7 @@ function selectValue(value, key, group = 'group1') {
 function toggleSelectAll(key, group = 'group1') {
   const targetState = group === 'current' ? tabStates.tab2.current : tabStates.tab2[group]
   const allOptions = keyValueMap.value[key] || []
+  const currentSelected = targetState.valueMap[key] || []
 
   // 如果当前已经全选了，则清空；否则全选
   if (currentSelected.length === allOptions.length) {
@@ -753,7 +754,7 @@ function getExcludeDisplayText(tab, group = 'group1') {
 
   // ✨ 新增：将 value 转换为 label
   const labels = list.map(value => {
-    const option = excludeOptions.find(opt => opt.value === value)
+    const option = excludeOptions.value.find(opt => opt.value === value)
     return option ? option.label : value  // 找不到就用原值
   })
 

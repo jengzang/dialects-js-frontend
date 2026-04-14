@@ -235,7 +235,7 @@ import ClusteringResultsPanel from '@/VillagesML/workspace/modules/ml/Clustering
 import SemanticSettingsPanel from '@/VillagesML/workspace/modules/semantic/SemanticSettingsPanel.vue'
 import NetworkGraphPanel from '@/VillagesML/workspace/modules/semantic/NetworkGraphPanel.vue'
 import HelpIcon from '@/components/ToastAndHelp/HelpIcon.vue'
-import { createVillagesMLCommonBarSchema, getModuleConfig, VILLAGESML_MODULES } from '@/VillagesML/config/BarConfig.js'
+import { createVillagesMLCommonBarSchema, getModuleConfig, getVisibleModules, VILLAGESML_MODULES } from '@/VillagesML/config/BarConfig.js'
 
 // Module configuration (from villagesML.js)
 const modules = VILLAGESML_MODULES.map(m => ({

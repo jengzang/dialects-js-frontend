@@ -103,11 +103,13 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import VillagesTreeItem from '@/main/components/TableAndTree/VillagesTreeItem.vue';
 import VillageMapPopup from '@/main/components/popup/map/VillageMapPopup.vue';
 import { lazyLoadTree, loadFullTree } from '@/api';
 const { t } = useI18n();
+const router = useRouter();
 
 // API Configuration
 const API_CONFIG = {
@@ -232,7 +234,7 @@ const normalizeTreeData = (rawData, cityName) => {
     // Process branch node
     const children = [];
     for (const key in data) {
-      if (data.hasOwnProperty(key)) {
+      if (Object.prototype.hasOwnProperty.call(data, key)) {
         const childNode = processNode(data[key], key, level + 1);
         if (childNode) {
           children.push(childNode);
@@ -256,7 +258,7 @@ const normalizeTreeData = (rawData, cityName) => {
   // Process all districts under the city
   const cityChildren = [];
   for (const districtName in rawData) {
-    if (rawData.hasOwnProperty(districtName)) {
+    if (Object.prototype.hasOwnProperty.call(rawData, districtName)) {
       const districtNode = processNode(rawData[districtName], districtName, 1);
       if (districtNode) {
         cityChildren.push(districtNode);

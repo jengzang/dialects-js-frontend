@@ -361,6 +361,7 @@ const ngramData = ref([])
 const loading = ref(false)
 
 // N-gram 列表状态
+const availableNgrams = ref([])
 const loadingNgramList = ref(false)
 
 // Section-specific State
