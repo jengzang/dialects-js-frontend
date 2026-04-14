@@ -361,6 +361,7 @@
 import { computed, ref, reactive, nextTick, onMounted, onBeforeUnmount, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import { useAuthGuard } from '@/composables/router/useAuthGuard.js'
 import LocationAndRegionInput from '@/main/components/geo/LocationAndRegionInput.vue'
 import HelpIcon from '@/components/ToastAndHelp/HelpIcon.vue'
 import { getAllCustomData, getCustomFeature } from '@/api'
@@ -371,6 +372,7 @@ import AppModal from '@/components/common/AppModal.vue'
 const router = useRouter()
 const route = useRoute()
 const { t } = useI18n()
+const { requireAuth } = useAuthGuard()
 const helpOverviewItems = computed(() => [
   {
     key: 'privateSpace',
@@ -521,7 +523,7 @@ const closeHelpModal = () => {
 
 // 登录
 const handleLogin = () => {
-  router.push('/auth')
+  requireAuth()
 }
 
 // 处理输入事件（防抖搜索）
@@ -734,7 +736,7 @@ const handleAddBatch = () => {
   // 检查是否已登录
   if (!userStore.isAuthenticated) {
     showWarning(t('map.customTab.validation.loginFirst'))
-    router.push('/auth')
+    requireAuth()
     return
   }
 

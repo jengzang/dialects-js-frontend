@@ -263,14 +263,17 @@ import { getMetadataOverview, getMetadataTables, getNgramStatistics } from '@/ap
 import { showError, showSuccess } from '@/utils/message.js'
 import SimpleSelectDropdown from '@/components/selector/SimpleSelectDropdown.vue'
 import AppModal from '@/components/common/AppModal.vue'
+import { useAsyncData } from '@/composables/core/useAsyncData.js'
 
 // State
 const overview = ref(null)
 const tables = ref([])
-const loading = ref(false)
+const overviewQuery = useAsyncData()
+const ngramStatsQuery = useAsyncData()
+const loading = overviewQuery.loading
 const selectedTable = ref(null)
 const ngramStats = ref(null)
-const loadingNgram = ref(false)
+const loadingNgram = ngramStatsQuery.loading
 
 // Table filters
 const tableSearch = ref('')
@@ -323,40 +326,40 @@ const selectedTableTitle = computed(() => selectedTable.value ? `表詳情: ${se
 
 // Methods
 const refreshOverview = async () => {
-  loading.value = true
-
-  try {
-    const [overviewRes, tablesRes] = await Promise.all([
+  await overviewQuery.load(
+    () => Promise.all([
       getMetadataOverview(),
       getMetadataTables()
-    ])
+    ]),
+    {
+      onSuccess: ([overviewRes, tablesRes]) => {
+        // Map API response to component data structure
+        overview.value = {
+          database_size: (overviewRes.database_size_mb || 0) * 1024 * 1024, // Convert MB to bytes
+          total_tables: tablesRes?.length || 0,
+          total_records: overviewRes.total_villages || 0, // Use villages as main record count
+          village_count: overviewRes.total_villages || 0,
+          character_count: overviewRes.unique_characters || overviewRes.total_characters || 0,
+          region_count: (overviewRes.total_cities || 0) + (overviewRes.total_counties || 0) + (overviewRes.total_townships || 0)
+        }
 
-    // Map API response to component data structure
-    overview.value = {
-      database_size: (overviewRes.database_size_mb || 0) * 1024 * 1024, // Convert MB to bytes
-      total_tables: tablesRes?.length || 0,
-      total_records: overviewRes.total_villages || 0, // Use villages as main record count
-      village_count: overviewRes.total_villages || 0,
-      character_count: overviewRes.unique_characters || overviewRes.total_characters || 0,
-      region_count: (overviewRes.total_cities || 0) + (overviewRes.total_counties || 0) + (overviewRes.total_townships || 0)
+        // Map table data from API response (use real field names)
+        tables.value = (tablesRes || []).map(table => ({
+          name: table.table_name || 'unknown',
+          records: table.row_count || 0,
+          size: (table.size_mb || 0) * 1024 * 1024, // Convert MB to bytes for display
+          indexes: table.index_count || 0,
+          last_updated: table.last_modified || new Date().toISOString(),
+          columns: table.columns || []
+        }))
+
+        showSuccess('系統信息刷新成功')
+      },
+      onError: (error) => {
+        showError(error.message || '刷新系統信息失敗')
+      }
     }
-
-    // Map table data from API response (use real field names)
-    tables.value = (tablesRes || []).map(table => ({
-      name: table.table_name || 'unknown',
-      records: table.row_count || 0,
-      size: (table.size_mb || 0) * 1024 * 1024, // Convert MB to bytes for display
-      indexes: table.index_count || 0,
-      last_updated: table.last_modified || new Date().toISOString(),
-      columns: table.columns || []
-    }))
-
-    showSuccess('系統信息刷新成功')
-  } catch (error) {
-    showError(error.message || '刷新系統信息失敗')
-  } finally {
-    loading.value = false
-  }
+  )
 }
 
 const sortBy = (field) => {
@@ -415,14 +418,14 @@ const calculateSignificanceRate = (data) => {
 const levelLabel = (level) => ({ city: '城市', county: '區縣', township: '鄉鎮' }[level] || level)
 
 const refreshNgramStats = async () => {
-  loadingNgram.value = true
-  try {
-    ngramStats.value = await getNgramStatistics()
-  } catch (error) {
-    showError('加載 N-gram 統計失敗')
-  } finally {
-    loadingNgram.value = false
-  }
+  await ngramStatsQuery.load(() => getNgramStatistics(), {
+    onSuccess: (result) => {
+      ngramStats.value = result
+    },
+    onError: () => {
+      showError('加載 N-gram 統計失敗')
+    }
+  })
 }
 
 // Lifecycle

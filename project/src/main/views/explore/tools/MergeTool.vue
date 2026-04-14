@@ -345,17 +345,20 @@
 
 <script setup>
 import { computed, reactive, ref } from 'vue'
-import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import * as XLSX from 'xlsx'
 import AppModal from '@/components/common/AppModal.vue'
 import { downloadMerge, executeMerge, getMergeProgress, uploadFiles, uploadReference } from '@/api'
-import { userStore } from '@/main/store/store.js'
-import { showError, showSuccess, showWarning } from '@/utils/message.js'
+import { showError, showSuccess } from '@/utils/message.js'
+import { useAsyncTask } from '@/composables/core/useAsyncTask.js'
+import { usePollingTask } from '@/composables/core/usePollingTask.js'
+import { useAuthGuard } from '@/composables/router/useAuthGuard.js'
 import defaultReferenceWorkbookUrl from '@/assets/data/参考表.xlsx?url'
 
-const router = useRouter()
 const { t } = useI18n()
+const { requireAuth } = useAuthGuard({
+  defaultRedirect: '/explore/tools/merge',
+})
 
 const DEFAULT_REFERENCE_PATH = defaultReferenceWorkbookUrl
 const DEFAULT_REFERENCE_FILE_NAME = '参考表.xlsx'
@@ -391,6 +394,11 @@ const mergeStats = reactive({
 })
 
 const mergedFilesList = ref([])
+const loadDefaultReferenceTask = useAsyncTask()
+const mergePollingTask = usePollingTask({
+  intervalMs: 1000,
+  maxFailures: 3,
+})
 
 // 默认参考表相关
 const showDefaultRefModal = ref(false)
@@ -401,7 +409,7 @@ const supplementTableHeaders = ref([])
 const supplementTableData = ref([])
 const defaultRefWorkbook = ref(null)
 const maxDisplayRows = 500 // 限制显示行数，提升性能
-const isLoadingRef = ref(false)
+const isLoadingRef = loadDefaultReferenceTask.loading
 
 // 计算属性：限制显示的数据量
 const displayedMainData = computed(() => mainTableData.value.slice(0, maxDisplayRows))
@@ -439,9 +447,11 @@ const resetMergeStats = () => {
 }
 
 const setReferenceFile = async (file) => {
-  if (!userStore.isAuthenticated) {
-    showWarning(t('tools.merge.validation.loginRequired'))
-    router.push('/auth')
+  const authed = await requireAuth({
+    message: t('tools.merge.validation.loginRequired'),
+    redirect: '/explore/tools/merge',
+  })
+  if (!authed) {
     return
   }
 
@@ -551,39 +561,51 @@ const startMerge = async () => {
 
     progress.value = 10
 
-    const pollInterval = setInterval(async () => {
-      try {
-        const progressData = await getMergeProgress(taskId.value)
+    await mergePollingTask.start(
+      () => getMergeProgress(taskId.value),
+      {
+        onTick: (progressData) => {
+          progress.value = progressData.progress || 0
+          processingText.value = t('tools.merge.processing.running')
 
-        progress.value = progressData.progress || 0
-        processingText.value = t('tools.merge.processing.running')
+          if (progressData.processed !== undefined) {
+            mergeStats.processed = progressData.processed
+            mergeStats.success = progressData.processed
+          }
 
-        if (progressData.processed !== undefined) {
-          mergeStats.processed = progressData.processed
-          mergeStats.success = progressData.processed
+          if (progressData.status === 'failed') {
+            processing.value = false
+            showError(t('tools.merge.messages.progressFailed', {
+              message: progressData.message || t('tools.merge.processing.running')
+            }))
+            reset()
+            return
+          }
+
+          if (progressData.status === 'completed') {
+            progress.value = 100
+            processingText.value = t('tools.common.completed')
+            mergeStats.totalRows = progressData.total_rows || 0
+            mergeStats.totalFiles = mergeStats.total
+            mergeStats.totalColumns = progressData.total_columns || 0
+            mergedFilesList.value = mergeFiles.value.map((file) => ({ name: file.name }))
+            processing.value = false
+          }
+        },
+        shouldStop: (progressData) => (
+          progressData.status === 'completed' ||
+          progressData.status === 'failed'
+        ),
+        onError: (error) => {
+          showError(t('tools.merge.messages.progressFailed', { message: error.message }))
+          reset()
+        },
+        onMaxFailures: (error) => {
+          showError(t('tools.merge.messages.progressFailed', { message: error.message }))
+          reset()
         }
-
-        if (progressData.status === 'completed') {
-          clearInterval(pollInterval)
-          progress.value = 100
-          processingText.value = t('tools.common.completed')
-
-          mergeStats.totalRows = progressData.total_rows || 0
-          mergeStats.totalFiles = mergeStats.total
-          mergeStats.totalColumns = progressData.total_columns || 0
-          mergedFilesList.value = mergeFiles.value.map((file) => ({ name: file.name }))
-
-          processing.value = false
-        } else if (progressData.status === 'failed') {
-          clearInterval(pollInterval)
-          throw new Error(progressData.message || t('tools.merge.processing.running'))
-        }
-      } catch (error) {
-        clearInterval(pollInterval)
-        showError(t('tools.merge.messages.progressFailed', { message: error.message }))
-        reset()
       }
-    }, 1000)
+    )
   } catch (error) {
     showError(t('tools.merge.messages.mergeFailed', { message: error.message }))
     reset()
@@ -615,9 +637,7 @@ const downloadMerged = async () => {
 const showDefaultReference = async () => {
   if (isLoadingRef.value) return
 
-  isLoadingRef.value = true
-
-  try {
+  await loadDefaultReferenceTask.run(async () => {
     const response = await fetch(DEFAULT_REFERENCE_PATH)
     const arrayBuffer = await response.arrayBuffer()
     const workbook = XLSX.read(arrayBuffer, { type: 'array' })
@@ -644,11 +664,11 @@ const showDefaultReference = async () => {
 
     showDefaultRefModal.value = true
     currentTab.value = 'main'
-  } catch (error) {
-    showError(t('tools.merge.messages.readDefaultFailed', { message: error.message }))
-  } finally {
-    isLoadingRef.value = false
-  }
+  }, {
+    onError: (error) => {
+      showError(t('tools.merge.messages.readDefaultFailed', { message: error.message }))
+    }
+  })
 }
 
 const downloadDefaultReference = async () => {
@@ -690,6 +710,7 @@ const useDefaultReference = async () => {
 }
 
 const reset = () => {
+  mergePollingTask.stop()
   currentStep.value = 1
   referenceFile.value = null
   mergeFiles.value = []

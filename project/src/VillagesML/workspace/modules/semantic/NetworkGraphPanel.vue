@@ -109,6 +109,7 @@ const transformNodes = (nodes, communities) => {
   const nodeCommunityMap = buildNodeCommunityMap(communities)
 
   // 找出最大的 degree 用于归一化节点大小
+  const maxDegree = Math.max(...nodes.map(node => node.degree || 1), 1)
 
   return nodes.map(node => {
     const communityId = nodeCommunityMap[node.id]

@@ -345,14 +345,22 @@ import UniversalTable from '@/main/components/TableAndTree/UniversalTable.vue'
 import { watchDebounced } from '@vueuse/core'
 import YuBaoMap from '@/main/components/map/YuBaoMap.vue'
 import AppModal from '@/components/common/AppModal.vue'
+import { useRouteQueryState } from '@/composables/router/useRouteQueryState.js'
+import { useStorageState } from '@/composables/core/useStorageState.js'
 
 const route = useRoute()
 const router = useRouter()
 const { t } = useI18n()
 const converter = OpenCC.Converter({ from: 'tw', to: 'cn' })
+const vocabularyCache = useStorageState('yubao_vocabulary_all', { defaultValue: null })
+const grammarCache = useStorageState('yubao_grammar_all', { defaultValue: null })
 
 // --- 基础状态 ---
-const activeTab = ref(route.query.tab || 'vocabulary')
+const { state: activeTab, set: setActiveTab } = useRouteQueryState('tab', {
+  defaultValue: 'vocabulary',
+  parse: (value) => ['vocabulary', 'grammar'].includes(value) ? value : 'vocabulary',
+  serialize: (value) => value,
+})
 const vocabularyInput = ref('')
 const grammarInput = ref('')
 const vocabularyInputEl = ref(null)
@@ -501,80 +509,52 @@ const filteredAllItems = computed(() => {
 
 // 切换 Tab
 function switchTab(tabKey) {
-  activeTab.value = tabKey
-  router.push({
-    path: '/explore/yubao',
-    query: { ...route.query, tab: tabKey }
-  })
+  setActiveTab(tabKey)
 }
-
-// 监听路由变化
-watch(() => route.query.tab, (newTab) => {
-  if (newTab && tabs.value.some(tab => tab.key === newTab)) {
-    activeTab.value = newTab
-  }
-})
 
 // 加载所有词汇数据
 async function loadAllVocabulary() {
   try {
-    // 优先读取缓存
-    const cached = localStorage.getItem('yubao_vocabulary_all')
-    if (cached) {
-      try {
-        const response = JSON.parse(cached)
-        if (response && response.values && Array.isArray(response.values)) {
-          allVocabulary.value = response.values.filter(item => item && typeof item === 'string' && item.trim())
-          console.log(`✅ 从缓存加载 ${allVocabulary.value.length} 条词汇数据`)
-          return
-        }
-      } catch (e) {
-        console.warn('⚠️ 缓存数据解析失败，将重新请求', e)
-      }
+    // 先走本地缓存，弹窗联想只需要全集数据，不必每次打开都重新打接口。
+    const cached = vocabularyCache.read()
+    if (cached && cached.values && Array.isArray(cached.values)) {
+      allVocabulary.value = cached.values.filter(item => item && typeof item === 'string' && item.trim())
+      console.log('Loaded vocabulary cache:', allVocabulary.value.length)
+      return
     }
 
-    // 缓存不存在或无效，请求 API
     const response = await distinctQuery({
       db_key: 'yubao',
       table_name: 'vocabulary',
       target_column: 'word',
-      search_text: '',  // 空字符串获取所有数据
+      search_text: '',
       search_columns: [],
       current_filters: {}
     })
 
     if (response && response.values && Array.isArray(response.values)) {
       allVocabulary.value = response.values.filter(item => item && typeof item === 'string' && item.trim())
-      // 存储到 localStorage
-      localStorage.setItem('yubao_vocabulary_all', JSON.stringify(response))
-      console.log(`✅ 从 API 加载 ${allVocabulary.value.length} 条词汇数据`)
+      // 只缓存后端原始返回，后面仍然沿用现有过滤逻辑生成可用列表。
+      vocabularyCache.write(response)
+      console.log('Loaded vocabulary API data:', allVocabulary.value.length)
     } else {
-      console.error('❌ 词汇数据格式错误:', response)
+      console.error('Vocabulary data format error:', response)
     }
   } catch (error) {
-    console.error('加载词汇数据失败:', error)
+    console.error('Failed to load vocabulary data:', error)
   }
 }
 
-// 加载所有语法数据
 async function loadAllGrammar() {
   try {
-    // 优先读取缓存
-    const cached = localStorage.getItem('yubao_grammar_all')
-    if (cached) {
-      try {
-        const response = JSON.parse(cached)
-        if (response && response.values && Array.isArray(response.values)) {
-          allGrammar.value = response.values.filter(item => item && typeof item === 'string' && item.trim())
-          console.log(`✅ 从缓存加载 ${allGrammar.value.length} 条语法数据`)
-          return
-        }
-      } catch (e) {
-        console.warn('⚠️ 缓存数据解析失败，将重新请求', e)
-      }
+    // 语法数据和词汇数据保持同一套缓存策略，避免两个 tab 行为不一致。
+    const cached = grammarCache.read()
+    if (cached && cached.values && Array.isArray(cached.values)) {
+      allGrammar.value = cached.values.filter(item => item && typeof item === 'string' && item.trim())
+      console.log('Loaded grammar cache:', allGrammar.value.length)
+      return
     }
 
-    // 缓存不存在或无效，请求 API
     const response = await distinctQuery({
       db_key: 'yubao',
       table_name: 'grammar',
@@ -583,25 +563,23 @@ async function loadAllGrammar() {
 
     if (response && response.values && Array.isArray(response.values)) {
       allGrammar.value = response.values.filter(item => item && typeof item === 'string' && item.trim())
-      // 存储到 localStorage
-      localStorage.setItem('yubao_grammar_all', JSON.stringify(response))
-      console.log(`✅ 从 API 加载 ${allGrammar.value.length} 条语法数据`)
+      grammarCache.write(response)
+      console.log('Loaded grammar API data:', allGrammar.value.length)
     } else {
-      console.error('❌ 语法数据格式错误:', response)
+      console.error('Grammar data format error:', response)
     }
   } catch (error) {
-    console.error('加载语法数据失败:', error)
+    console.error('Failed to load grammar data:', error)
   }
 }
 
-// 本地模糊匹配（支持繁简）
 function localMatch(query, dataArray) {
   if (!query) return []
 
-  // 繁体转简体
+  // 用简体归一化做匹配，保留现有“繁简都能搜到”的行为。
   const simplifiedQuery = converter(query).toLowerCase()
 
-  // 模糊匹配
+  // 这里只做本地 includes，不引入额外排序，保证联想结果仍然稳定可预期。
   const matches = dataArray.filter(item => {
     const simplifiedItem = converter(item).toLowerCase()
     return simplifiedItem.includes(simplifiedQuery)

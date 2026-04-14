@@ -49,7 +49,7 @@
           </div>
           <div class="legend-item">
             <span class="legend-dot weak"></span>
-            <span>Z < 1.0：弱傾向性</span>
+            <span>Z &lt; 1.0：弱傾向性</span>
           </div>
         </div>
 

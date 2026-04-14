@@ -146,7 +146,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, nextTick } from 'vue'
+import { ref, computed, onBeforeUnmount, onMounted, nextTick } from 'vue'
 import HelpIcon from '@/components/ToastAndHelp/HelpIcon.vue'
 import * as echarts from 'echarts'
 import {
@@ -314,6 +314,13 @@ const changePage = (page) => {
 
 onMounted(() => {
   loadEmbeddingsList()
+})
+
+onBeforeUnmount(() => {
+  if (vizChartInstance) {
+    vizChartInstance.dispose()
+    vizChartInstance = null
+  }
 })
 </script>
 

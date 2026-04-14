@@ -16,7 +16,7 @@
             :key="t.tab"
             :to="resolveMenuBarTarget(t)"
             custom
-            v-slot="{ href, navigate, isActive }"
+            v-slot="{ href, navigate }"
         >
           <a
               :href="href"
@@ -195,7 +195,7 @@
             :key="t.tab"
             :to="resolveMenuBarTarget(t)"
             custom
-            v-slot="{ href, navigate, isActive }"
+            v-slot="{ href, navigate }"
         >
           <a
               v-if="!t.hideOnMobile"
@@ -1041,4 +1041,3 @@ white-space: nowrap;
   }
 }
 </style>
-

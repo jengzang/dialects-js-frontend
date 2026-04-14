@@ -300,7 +300,7 @@
 </template>
 
 <script>
-import { ref, computed, onMounted, watch, nextTick } from 'vue'
+import { ref, computed, onBeforeUnmount, onMounted, watch, nextTick } from 'vue'
 import {
   getRegionSimilaritySearch,
   getRegionSimilarityPair,
@@ -593,6 +593,13 @@ export default {
       searchResults.value = null
       pairData.value = null
       matrixData.value = null
+    })
+
+    onBeforeUnmount(() => {
+      if (chartInstance) {
+        chartInstance.dispose()
+        chartInstance = null
+      }
     })
 
     return {

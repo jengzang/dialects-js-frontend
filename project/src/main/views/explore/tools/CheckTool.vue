@@ -900,11 +900,12 @@
 <script setup>
 import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useRouter } from 'vue-router'
 import { RecycleScroller } from 'vue-virtual-scroller'
 import AppModal from '@/components/common/AppModal.vue'
 import SimpleSelectDropdown from '@/components/selector/SimpleSelectDropdown.vue'
 import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
+import { useAsyncTask } from '@/composables/core/useAsyncTask.js'
+import { useAuthGuard } from '@/composables/router/useAuthGuard.js'
 import {
   uploadCheckFile,
   analyzeFile as analyzeFileApi,
@@ -915,11 +916,11 @@ import {
   executeBatchOperation,
   downloadCheckResult
 } from '@/api'
-import { userStore } from '@/main/store/store.js'
 import { showSuccess, showError, showWarning, showConfirm } from '@/utils/message.js'
 
 const { t } = useI18n()
-const router = useRouter()
+const { requireAuth } = useAuthGuard()
+const uploadTask = useAsyncTask()
 
 // 基本状态
 const fileInput = ref(null)
@@ -1188,9 +1189,10 @@ const handleFileUpload = (event) => {
 
 const uploadFile = async (file) => {
   // 检查登录状态
-  if (!userStore.isAuthenticated) {
-    showWarning(t('tools.checkTool.messages.loginRequired'))
-    router.push('/auth')
+  const isAllowed = await requireAuth({
+    message: t('tools.checkTool.messages.loginRequired'),
+  })
+  if (!isAllowed) {
     return
   }
 
@@ -1207,22 +1209,28 @@ const uploadFile = async (file) => {
     return
   }
 
-  try {
-    isUploading.value = true
-    fileName.value = file.name
+  fileName.value = file.name
 
-    const data = await uploadCheckFile(file, selectedFormat.value || 'excel', isSimplified.value)
+  await uploadTask.run(
+    async () => {
+      isUploading.value = true
+      const data = await uploadCheckFile(file, selectedFormat.value || 'excel', isSimplified.value)
 
-    taskId.value = data.task_id
-    totalRows.value = data.total_rows || 0
-    fileUploaded.value = true
+      taskId.value = data.task_id
+      totalRows.value = data.total_rows || 0
+      fileUploaded.value = true
 
-    await analyzeFile()
-  } catch (error) {
-    showError(t('tools.checkTool.messages.uploadFailed', { message: error.message }))
-  } finally {
-    isUploading.value = false
-  }
+      await analyzeFile()
+    },
+    {
+      onError: (error) => {
+        showError(t('tools.checkTool.messages.uploadFailed', { message: error.message }))
+      },
+      onFinally: () => {
+        isUploading.value = false
+      }
+    }
+  )
 }
 
 const analyzeFile = async () => {

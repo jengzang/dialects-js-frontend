@@ -101,6 +101,7 @@ import { ref, computed, watch, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { getPhonologyClassificationMatrix } from '@/api'
+import { useRouteQueryState } from '@/composables/router/useRouteQueryState.js'
 import PhonologyMatrix from '@/main/components/TableAndTree/PhonologyTable.vue'
 import LocationMultiInput from '@/main/components/geo/LocationMultiInput.vue'
 import { PHONOLOGY_LOCATION_LIMITS } from '@/main/config/constants.js'
@@ -109,12 +110,14 @@ import {
   parsePhonologyCustomParams,
   validatePhonologyParams
 } from '@/utils/urlParams.js'
+import { useAsyncTask } from '@/composables/core/useAsyncTask.js'
 
 const route = useRoute()
 const router = useRouter()
 const { t } = useI18n()
 
-const loading = ref(false)
+const loadMatrixTask = useAsyncTask()
+const loading = loadMatrixTask.loading
 const error = ref(null)
 const matrixData = ref(null)
 const isMatching = ref(false)
@@ -170,6 +173,12 @@ const columnOptionsArray = computed(() => columnOptions.value.map(col => ({
 
 // 解析 URL 参数
 const urlParams = parsePhonologyCustomParams(route)
+const { set: setFeatureQuery } = useRouteQueryState('feature', {
+  defaultValue: urlParams.feature || '',
+  parse: (value) => decodeURIComponent(value),
+  serialize: (value) => encodeURIComponent(value),
+  replace: true,
+})
 
 // 验证参数
 const validation = validatePhonologyParams(
@@ -286,12 +295,8 @@ function updatePhonologyCustomUrl() {
 }
 
 // 監聽特徵選擇變化
-watch(selectedFeatureChinese, (newFeature) => {
-  const query = {
-    ...route.query,
-    feature: encodeURIComponent(newFeature)
-  }
-  router.replace({ query })
+watch(selectedFeatureChinese, async (newFeature) => {
+  await setFeatureQuery(newFeature)
 
   // 清空表格和錯誤信息
   matrixData.value = null
@@ -375,10 +380,9 @@ const loadData = async () => {
     return
   }
 
-  loading.value = true
   error.value = null
 
-  try {
+  await loadMatrixTask.run(async () => {
     const requestBody = {
       locations: matchedLocations.value,
       feature: selectedFeatureChinese.value,  // Use Chinese value for API
@@ -400,13 +404,12 @@ const loadData = async () => {
 
     // 更新 URL
     updatePhonologyCustomUrl()
-
-  } catch (err) {
-    console.error('加載音韻矩陣失敗:', err)
-    error.value = err.message || t('phonology.phonology.custom.states.loadError')
-  } finally {
-    loading.value = false
-  }
+  }, {
+    onError: (err) => {
+      console.error('加載音韻矩陣失敗:', err)
+      error.value = err.message || t('phonology.phonology.custom.states.loadError')
+    }
+  })
 }
 
 // 页面加载时自动查询

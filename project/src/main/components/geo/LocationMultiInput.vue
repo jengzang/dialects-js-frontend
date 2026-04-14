@@ -98,8 +98,10 @@ import { useI18n } from 'vue-i18n'
 import { getLocations, batchMatch, getLocationPartitions } from '@/api/index.js'
 import AppModal from '@/components/common/AppModal.vue'
 import PartitionInfoModal from '@/main/components/geo/PartitionInfoModal.vue'
+import { usePartitionCache } from '@/composables/domain/geo/usePartitionCache.js'
 
 const { t } = useI18n()
+const { getPartitionData } = usePartitionCache()
 
 const props = defineProps({
   modelValue: {
@@ -377,21 +379,7 @@ const fetchPartitionData = async () => {
   partitionTreeError.value = ''
 
   try {
-    // 尝试从 sessionStorage 读取缓存
-    const cachedData = sessionStorage.getItem('partition_data_cache')
-    if (cachedData) {
-      partitionData.value = JSON.parse(cachedData)
-      isLoadingPartitions.value = false
-      return
-    }
-
-    // 缓存不存在，从 API 获取
-    const response = await getLocationPartitions()
-
-    partitionData.value = response.data || []
-
-    // 保存到 sessionStorage
-    sessionStorage.setItem('partition_data_cache', JSON.stringify(partitionData.value))
+    partitionData.value = await getPartitionData(() => getLocationPartitions())
   } catch (error) {
     console.error(t('query.components.locationMultiInput.errorFetchPartitions'), error)
     partitionTreeError.value = t('query.components.locationMultiInput.errorPartitionMessage')

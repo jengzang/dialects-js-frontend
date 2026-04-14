@@ -323,6 +323,7 @@ import { useRoute, useRouter } from 'vue-router'
 import AppModal from '@/components/common/AppModal.vue'
 import SimpleSelectDropdown from '@/components/selector/SimpleSelectDropdown.vue'
 import { batchCreateCustomData, batchDeleteCustomData, editCustomData, getAllCustomData } from '@/api'
+import { useAsyncData } from '@/composables/core/useAsyncData.js'
 import { userStore } from '@/main/store/store.js'
 import { showConfirm, showError, showSuccess, showWarning } from '@/utils/message.js'
 
@@ -342,7 +343,10 @@ const batchCreateText = ref('')
 const batchRows = ref([])
 const batchEditRows = ref([])
 const editingRecord = ref({})
-const loading = ref(false)
+const dataQuery = useAsyncData({
+  initialValue: []
+})
+const loading = dataQuery.loading
 
 const searchQuery = ref('')
 const currentPage = ref(1)
@@ -428,9 +432,8 @@ const validBatchEditRows = computed(() => batchEditRows.value.filter((row) => (
 )))
 
 const fetchData = async () => {
-  loading.value = true
-  try {
-    const response = await getAllCustomData()
+  await dataQuery.load(() => getAllCustomData(), {
+    onSuccess: (response) => {
     dataList.value = response.data || []
     totalCount.value = response.total || 0
 
@@ -439,7 +442,8 @@ const fetchData = async () => {
     } else {
       showWarning(t('user.dataPage.messages.noDataWarning'))
     }
-  } catch (error) {
+    },
+    onError: (error) => {
     dataList.value = []
     totalCount.value = 0
     showError(t('user.dataPage.messages.fetchFailed', { message: error.message }))
@@ -447,9 +451,8 @@ const fetchData = async () => {
     if (error.message.includes('401') || error.message.includes('登錄') || error.message.includes('登录')) {
       setTimeout(() => router.replace('/auth'), 1500)
     }
-  } finally {
-    loading.value = false
-  }
+    }
+  })
 }
 
 const toggleSelectAll = (event) => {

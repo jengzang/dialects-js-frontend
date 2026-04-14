@@ -173,8 +173,8 @@
 </template>
 
 <script setup>
-import { ref, reactive, onBeforeUnmount, watch, onMounted, computed } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
+import { ref, reactive, onBeforeUnmount, watch, computed } from 'vue'
+import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import AudioInputPanel from '../components/praat/AudioInputPanel.vue'
 import AudioPreviewPanel from '../components/praat/AudioPreviewPanel.vue'
@@ -185,25 +185,29 @@ import VowelSpacePanel from '../components/praat/VowelSpacePanel.vue'
 import PitchTonePanel from '../components/praat/PitchTonePanel.vue'
 import { usePraatApi } from '@/api'
 import { userStore } from '@/main/store/store.js'
-import { showWarning, showError } from '@/utils/message.js'
+import { showError, showWarning } from '@/utils/message.js'
+import { usePollingTask } from '@/composables/core/usePollingTask.js'
+import { useStorageState } from '@/composables/core/useStorageState.js'
+import { useAuthGuard } from '@/composables/router/useAuthGuard.js'
+import { useRouteQueryState } from '@/composables/router/useRouteQueryState.js'
 
-const router = useRouter()
 const route = useRoute()
 const { t } = useI18n()
 const { uploadAudio, createJob, getJobStatus, getJobResult, cancelJob } = usePraatApi()
+const { requireAuth } = useAuthGuard({
+  defaultRedirect: '/explore/tools/praat',
+})
 
 const STORAGE_KEY = 'praat_analysis_settings'
+const VALID_TABS = ['upload', 'results', 'vowelspace', 'pitchtone']
 
 // Tab state - sync with router
-const activeTab = ref(route.query.tab || 'upload')
-const resultsTabEnabled = ref(false)
-
-// Watch router changes
-watch(() => route.query.tab, (newTab) => {
-  if (newTab && ['upload', 'results', 'vowelspace', 'pitchtone'].includes(newTab)) {
-    activeTab.value = newTab
-  }
+const { state: activeTab, set: setActiveTab } = useRouteQueryState('tab', {
+  defaultValue: 'upload',
+  parse: (value) => VALID_TABS.includes(value) ? value : 'upload',
+  serialize: (value) => value,
 })
+const resultsTabEnabled = ref(false)
 
 // Vowel space tab enabled state
 const vowelspaceTabEnabled = computed(() => {
@@ -223,23 +227,13 @@ const pitchtoneTabEnabled = computed(() => {
 const showSettings = ref(false)
 const showPreview = ref(true)
 
-// Login function
-const goToLogin = () => {
-  router.push('/auth')
-}
-
 // Tab switching function
-const switchTab = (tab) => {
+const switchTab = async (tab) => {
   if (tab === 'results' && !resultsTabEnabled.value) return
   if (tab === 'vowelspace' && !vowelspaceTabEnabled.value) return
   if (tab === 'pitchtone' && !pitchtoneTabEnabled.value) return
 
-  // Update router query param
-  router.push({
-    query: { ...route.query, tab }
-  })
-
-  activeTab.value = tab
+  await setActiveTab(tab)
 
   // Auto-show preview when returning to Tab 1 if there's audio data
   if (tab === 'upload' && (audioBlob.value || audioSegments.value.length > 0)) {
@@ -273,7 +267,6 @@ const jobProgress = ref(0)
 const jobStage = ref(null)
 const jobError = ref(null)
 const pollingFailCount = ref(0)  // ✅ 添加失败计数器
-const MAX_POLLING_FAILURES = 5   // ✅ 最大失败次数
 const isAnalyzing = ref(false)   // ✅ 分析进行中标志（包括上传阶段）
 
 // Results
@@ -309,25 +302,30 @@ const defaultSettings = {
   }
 }
 
+const cloneSettings = (value) => JSON.parse(JSON.stringify(value))
+const hydrateSettings = (value) => ({
+  ...cloneSettings(defaultSettings),
+  ...(value || {}),
+})
+
+const settingsStorage = useStorageState(STORAGE_KEY, {
+  defaultValue: cloneSettings(defaultSettings),
+})
+
 // Load settings from localStorage
 const loadSettings = () => {
   try {
-    const saved = localStorage.getItem(STORAGE_KEY)
-    if (saved) {
-      const parsed = JSON.parse(saved)
-
-      return JSON.parse(JSON.stringify({ ...defaultSettings, ...parsed }))
-    }
+    return hydrateSettings(settingsStorage.state.value)
   } catch (error) {
     console.error('Failed to load settings:', error)
   }
-  return JSON.parse(JSON.stringify(defaultSettings))
+  return cloneSettings(defaultSettings)
 }
 
 // Save settings to localStorage
 const saveSettings = () => {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(settings))
+    settingsStorage.write(cloneSettings(settings))
   } catch (error) {
     console.error('Failed to save settings:', error)
   }
@@ -342,7 +340,12 @@ watch(settings, () => {
 }, { deep: true })
 
 // Polling
-let pollingInterval = null
+const MAX_POLLING_FAILURES = 5
+// 统一轮询状态与清理逻辑，避免页面切换、重复分析时残留旧定时器。
+const pollingTask = usePollingTask({
+  intervalMs: 2000,
+  maxFailures: MAX_POLLING_FAILURES,
+})
 
 const handleFileSelected = (file, blob) => {
   // console.log('🔴 父组件收到了文件:', file); // <--- 加上这一行！
@@ -374,7 +377,7 @@ const handleFileSelected = (file, blob) => {
 
   // Reset tab state
   resultsTabEnabled.value = false
-  activeTab.value = 'upload'
+  setActiveTab('upload')
 }
 
 const handleSegmentsReady = (segments) => {
@@ -397,7 +400,7 @@ const handleSegmentsReady = (segments) => {
 
   // Reset tab state
   resultsTabEnabled.value = false
-  activeTab.value = 'upload'
+  setActiveTab('upload')
 }
 
 const handleManualSegmentsReady = (segments) => {
@@ -448,7 +451,7 @@ const handleManualSegmentsReady = (segments) => {
 
   // Reset tab state
   resultsTabEnabled.value = false
-  activeTab.value = 'upload'
+  setActiveTab('upload')
 }
 
 const handleSegmentSelected = (segment) => {
@@ -466,10 +469,12 @@ const handleSegmentSelected = (segment) => {
 const startAnalysis = async () => {
   if (!audioFile.value) return
 
-  // Check if user is logged in
-  if (!userStore.isAuthenticated) {
-    showWarning(t('praat.main.errors.loginRequired'))
-    router.push('/auth')
+  // 进入分析前统一走鉴权封装，保留原来的 toast + 登录跳转 + redirect 回跳行为。
+  const authed = await requireAuth({
+    message: t('praat.main.errors.loginRequired'),
+    redirect: route.fullPath || '/explore/tools/praat',
+  })
+  if (!authed) {
     return
   }
 
@@ -516,7 +521,7 @@ const startAnalysis = async () => {
       // 重置状态
       jobStatus.value = 'idle'
       jobStage.value = ''
-      activeTab.value = 'upload'
+      await setActiveTab('upload')
       isAnalyzing.value = false  // ✅ 清除分析中标志
       isUploading.value = false  // ✅ 取消 loading 状态
 
@@ -534,16 +539,16 @@ const startAnalysis = async () => {
     const jobResponse = await createJob(uploadId.value, settings)
     jobId.value = jobResponse.job_id
 
-    activeTab.value = 'results'
+    await setActiveTab('results')
     isUploading.value = false  // ✅ 跳转到结果页面时取消 loading 状态
 
     // Start polling
     jobStage.value = t('praat.main.status.startingAnalysis')
-    startPolling()
+    await startPolling()
   } catch (error) {
     console.error('Start analysis error:', error)
     showError(error.message || t('praat.main.errors.analysisStartFailed'))
-    activeTab.value = 'results'
+    await setActiveTab('results')
     isUploading.value = false
     jobStatus.value = 'error'
     jobError.value = error.message
@@ -551,58 +556,57 @@ const startAnalysis = async () => {
   }
 }
 
-const startPolling = () => {
-  if (pollingInterval) {
-    clearInterval(pollingInterval)
-  }
-
-  // ✅ 重置失败计数
+const startPolling = async () => {
+  // 每轮新分析都从 0 开始记失败次数，避免继承上一次任务状态。
   pollingFailCount.value = 0
 
-  pollingInterval = setInterval(async () => {
-    try {
-      const status = await getJobStatus(jobId.value)
+  await pollingTask.start(
+    () => getJobStatus(jobId.value),
+    {
+      onTick: async (status) => {
+        pollingFailCount.value = 0
+        jobStatus.value = status.status
+        jobProgress.value = status.progress || 0
+        jobStage.value = status.stage
+        jobError.value = status.error
 
-      // ✅ 请求成功，重置失败计数
-      pollingFailCount.value = 0
+        // 一旦完成就立即拉结果，并清掉“分析中”标记，结果页继续保留给用户查看。
+        if (status.status === 'completed' || status.status === 'done') {
+          await fetchResults()
+          isAnalyzing.value = false
+          return
+        }
 
-      jobStatus.value = status.status
-      jobProgress.value = status.progress || 0
-      jobStage.value = status.stage
-      jobError.value = status.error
-
-      if (status.status === 'completed' || status.status === 'done') {
-        stopPolling()
-        await fetchResults()
-        isAnalyzing.value = false  // ✅ 分析完成，清除标志
-      } else if (status.status === 'failed' || status.status === 'error' || status.status === 'canceled') {
-        stopPolling()
-        showError(status.error || t('praat.main.errors.analysisFailed'))
-        isAnalyzing.value = false  // ✅ 分析失败，清除标志
-      }
-    } catch (error) {
-      console.error('Polling error:', error)
-
-      // ✅ 增加失败计数
-      pollingFailCount.value++
-
-      // ✅ 连续失败5次后停止轮询
-      if (pollingFailCount.value >= MAX_POLLING_FAILURES) {
-        stopPolling()
+        // 失败/取消由轮询层停表，页面层这里只负责提示和状态收尾。
+        if (status.status === 'failed' || status.status === 'error' || status.status === 'canceled') {
+          showError(status.error || t('praat.main.errors.analysisFailed'))
+          isAnalyzing.value = false
+        }
+      },
+      shouldStop: (status) => (
+        status.status === 'completed' ||
+        status.status === 'done' ||
+        status.status === 'failed' ||
+        status.status === 'error' ||
+        status.status === 'canceled'
+      ),
+      onError: (error, count) => {
+        console.error('Polling error:', error)
+        pollingFailCount.value = count
+      },
+      onMaxFailures: () => {
         jobStatus.value = 'error'
         jobError.value = t('praat.main.status.pollingFailed')
         showError(t('praat.main.status.pollingFailedCount', { count: MAX_POLLING_FAILURES }))
-        isAnalyzing.value = false  // ✅ 轮询失败，清除标志
-      }
+        isAnalyzing.value = false
+      },
     }
-  }, 2000)
+  )
 }
 
 const stopPolling = () => {
-  if (pollingInterval) {
-    clearInterval(pollingInterval)
-    pollingInterval = null
-  }
+  // 取消分析、离开页面、或开始新任务时都复用同一个 stop 入口。
+  pollingTask.stop()
 }
 
 const fetchResults = async () => {

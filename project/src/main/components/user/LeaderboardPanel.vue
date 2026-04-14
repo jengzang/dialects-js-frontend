@@ -1,21 +1,26 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { getLeaderboard } from '@/api'
+import { useAsyncData } from '@/composables/core/useAsyncData.js'
 import HelpIcon from '@/components/ToastAndHelp/HelpIcon.vue'
 import { showError } from '@/utils/message.js'
 
 const { t, locale } = useI18n()
 
-const loading = ref(false)
-const error = ref(null)
-const rankingsData = ref(null)
+const {
+  data: rankingsData,
+  loading,
+  error,
+  load,
+} = useAsyncData()
 
 onMounted(async () => {
   await fetchLeaderboard()
 })
 
 const categoryConfigs = computed(() => [
+  // categoryKey / endpoint key 必须和后端 leaderboard 返回结构保持一致；这里主要负责映射展示文案。
   {
     id: 'phonology',
     icon: '🔍',
@@ -142,20 +147,16 @@ const categoryConfigs = computed(() => [
   }
 ])
 
-const fetchLeaderboard = async () => {
-  loading.value = true
-  error.value = null
-
-  try {
-    const data = await getLeaderboard()
-    rankingsData.value = data
-  } catch (e) {
-    error.value = e.message || ''
-    showError(t('user.leaderboard.loadFailedToast', { message: error.value }))
-  } finally {
-    loading.value = false
+const fetchLeaderboard = async () => load(
+  () => getLeaderboard(),
+  {
+    // 排行榜页只展示 toast，不在这里额外改写 error 文案，保持 useAsyncData 的原始错误状态可读。
+    onError: (e) => {
+      const message = e?.message || ''
+      showError(t('user.leaderboard.loadFailedToast', { message }))
+    }
   }
-}
+)
 
 const formatNumber = (value) => Number(value || 0).toLocaleString(locale.value)
 
@@ -214,6 +215,7 @@ const createRow = (label, data) => ({
 const topMetrics = computed(() => {
   if (!rankingsData.value) return []
 
+  // 顶部摘要卡单独挑出最常看的指标，下面的分类表格仍然展示完整明细。
   const rankings = rankingsData.value.rankings
   return [
     {

@@ -165,7 +165,7 @@ const filteredData = computed(() => {
   });
 });
 const sortedData = computed(() => {
-  return filteredData.value.sort((a, b) => {
+  return [...filteredData.value].sort((a, b) => {
     if (a.地點 !== b.地點) return a.地點.localeCompare(b.地點);
     return b.佔比 - a.佔比;
   });

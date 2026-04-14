@@ -126,13 +126,16 @@ import HelpIcon from '@/components/ToastAndHelp/HelpIcon.vue'
 import { getMetadataOverview, getNgramStatistics } from '@/api/index.js'
 import { showError } from '@/utils/message.js'
 import { userStore } from '@/main/store/store.js'
+import { useAsyncData } from '@/composables/core/useAsyncData.js'
 
 const router = useRouter()
 const searchKeyword = ref('')
 const metadata = ref(null)
 const ngramStats = ref(null)
-const loading = ref(false)
-const loadingNgram = ref(false)
+const metadataQuery = useAsyncData()
+const ngramStatsQuery = useAsyncData()
+const loading = metadataQuery.loading
+const loadingNgram = ngramStatsQuery.loading
 
 // Maintenance notice: show until 2026-03-02
 const showMaintenanceNotice = computed(() => new Date() < new Date('2026-03-02'))
@@ -283,25 +286,25 @@ const navigateTo = (route) => {
 }
 
 const loadMetadata = async () => {
-  loading.value = true
-  try {
-    metadata.value = await getMetadataOverview()
-  } catch (error) {
-    showError('加載統計數據失敗')
-  } finally {
-    loading.value = false
-  }
+  await metadataQuery.load(() => getMetadataOverview(), {
+    onSuccess: (result) => {
+      metadata.value = result
+    },
+    onError: () => {
+      showError('加載統計數據失敗')
+    }
+  })
 }
 
 const loadNgramStats = async () => {
-  loadingNgram.value = true
-  try {
-    ngramStats.value = await getNgramStatistics()
-  } catch {
-    // Non-critical, silently ignore
-  } finally {
-    loadingNgram.value = false
-  }
+  await ngramStatsQuery.load(() => getNgramStatistics(), {
+    onSuccess: (result) => {
+      ngramStats.value = result
+    },
+    onError: () => {
+      // Non-critical, silently ignore
+    }
+  })
 }
 
 onMounted(() => {

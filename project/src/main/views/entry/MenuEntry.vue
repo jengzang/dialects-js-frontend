@@ -1,4 +1,6 @@
-<template></template>
+<template>
+  <div aria-hidden="true" style="display: none"></div>
+</template>
 
 <script setup>
 import { watch } from 'vue'

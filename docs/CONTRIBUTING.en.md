@@ -1,21 +1,24 @@
-# Contributing Guide
+# Contributing and Collaboration Guide
 
 > Guidelines for contributing to the 方音圖鑑 (Chinese Dialect Atlas) project
+
+> If the Chinese and English documents diverge, follow the Chinese version and the maintainer's latest instructions.
 
 ---
 
 ## Table of Contents
 
 1. [Getting Started](#getting-started)
-2. [Development Workflow](#development-workflow)
-3. [Code Standards](#code-standards)
-4. [Component Guidelines](#component-guidelines)
-5. [API Guidelines](#api-guidelines)
-6. [Testing](#testing)
-7. [Documentation](#documentation)
-8. [Pull Request Process](#pull-request-process)
-9. [Issue Guidelines](#issue-guidelines)
-10. [Community](#community)
+2. [Repository-Specific Structure Notes](#repository-specific-structure-notes)
+3. [Development Workflow](#development-workflow)
+4. [Code Standards](#code-standards)
+5. [Component Guidelines](#component-guidelines)
+6. [API Guidelines](#api-guidelines)
+7. [Testing](#testing)
+8. [Documentation](#documentation)
+9. [Pull Request Process](#pull-request-process)
+10. [Issue Guidelines](#issue-guidelines)
+11. [Community](#community)
 
 ---
 
@@ -62,6 +65,53 @@ Before contributing, ensure you have:
 6. **Verify setup**
    - Open `http://localhost:5173` in browser
    - Check that the application loads correctly
+
+---
+
+## Repository-Specific Structure Notes
+
+This repository is not a single pure SPA. The actual frontend project lives in `project/`, while the repository root also contains documentation and project-level guidance.
+
+At a minimum, the current runtime is split into:
+
+- `project/src/main` - the main site application
+- `project/src/VillagesML` - the VillagesML sub-application
+
+`VillagesML` currently uses multiple layers at once:
+
+- a standalone entry in `project/villagesML/index.html`
+- its own sub-app router in `project/src/VillagesML/app/router.js`
+- Explore entry pages inside the main app
+- some main-app bridge / compatibility logic
+
+Important distinction:
+
+- A standalone path such as `/villagesML` is the module's canonical path.
+- A main-app bridge is only one possible implementation for navigating from the main SPA into that standalone app.
+- The bridge is not what makes the standalone route valid.
+
+For future standalone modules, prefer this mental model:
+
+- the module owns its own canonical path
+- the module owns its own app shell and router
+- the main site may expose an Explore entry for discovery
+- main-app bridge logic is optional compatibility infrastructure, not a default requirement
+
+### Naming consistency for new standalone modules
+
+If the owner gives a new module a PascalCase name such as `PhoneticToolbox`, keep that casing consistent across the module's major entry points:
+
+- `project/PhoneticToolbox/index.html`
+- `project/src/PhoneticToolbox/`
+- `project/src/api/PhoneticToolbox/`
+- `/PhoneticToolbox`
+
+The existing `VillagesML` module keeps a historical mixed-case split:
+
+- `project/villagesML/index.html`
+- `project/src/VillagesML/`
+
+Treat that as an existing module-specific convention, not a license to mix naming styles casually in new work.
 
 ---
 
@@ -234,8 +284,8 @@ function handleClick() {
 - Template literals for interpolation: `` `Hello ${name}` ``
 
 **Semicolons:**
-- Optional but be consistent
-- Project uses semicolons
+- Optional, but be consistent inside the file you are editing
+- Follow surrounding file style instead of mass-normalizing punctuation
 
 **Spacing:**
 ```javascript
@@ -260,28 +310,29 @@ import { useRoute, useRouter } from 'vue-router'
 // 2. External libraries
 import { useDebounceFn } from '@vueuse/core'
 
-// 3. Internal APIs (always from @/api)
-import { searchChars, showSuccess, showError } from '@/api'
+// 3. Internal APIs
+import { searchChars, getLocations } from '@/api'
 
 // 4. Internal utilities
-import { globalPayload, userStore } from '@/utils/store.js'
+import { useAuthGuard } from '@/composables/router/useAuthGuard.js'
+import { showError } from '@/utils/message.js'
 
 // 5. Components
-import NavBar from '@/components/NavBar.vue'
-import ResultList from '@/components/result/ResultList.vue'
+import CommonBar from '@/components/bar/CommonBar.vue'
+import AppModal from '@/components/common/AppModal.vue'
 ```
 
 ### API Import Convention
 
-**CRITICAL:** Always import from `@/api`, never from subdirectories.
+In page, component, and composable code, prefer importing from `@/api`. Direct subdirectory imports are mainly for API-layer organization work.
 
 ```javascript
 // ✅ CORRECT
 import { searchChars, getLocations, sqlQuery } from '@/api'
 
-// ❌ WRONG
-import { searchChars } from '@/api/query/core.js'
-import { getLocations } from '@/api/query/LocationAndRegion.js'
+// Usually avoid this in page/component code
+import { searchChars } from '@/api/main/core/query.js'
+import { getLocations } from '@/api/main/geo/LocationAndRegion.js'
 ```
 
 ---
@@ -392,11 +443,12 @@ emit('itemSelected', item)
 
 ### Creating New API Functions
 
-**Location:** `src/api/<category>/<file>.js`
+**Location:** `project/src/api/<ModuleName>/<file>.js` for standalone modules, or the appropriate `project/src/api/main/*` area for shared main-site work.
 
 **Pattern:**
 ```javascript
-import { api } from '../auth/auth.js'
+// Example for a module-local API file under project/src/api/PhoneticToolbox/
+import { api } from '../auth/httpClient.js'
 
 /**
  * Search characters across dialects
@@ -413,10 +465,10 @@ export async function searchChars(payload) {
 }
 ```
 
-**Export from central hub:**
+**Export from central hub when cross-module reuse is intentional:**
 ```javascript
-// src/api/index.js
-export * from './query/core.js'
+// project/src/api/index.js
+export * from './PhoneticToolbox/index.js'
 ```
 
 ### Error Handling

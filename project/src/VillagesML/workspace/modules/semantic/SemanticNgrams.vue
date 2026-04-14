@@ -121,7 +121,7 @@
     <div class="pmi-section glass-panel">
       <h2>點互信息 (PMI) 分析</h2>
       <p class="section-description">
-        PMI 衡量兩個類別共現的關聯強度。PMI > 0 表示正相關（傾向共現），PMI < 0 表示負相關（傾向不共現）。
+        PMI 衡量兩個類別共現的關聯強度。PMI > 0 表示正相關（傾向共現），PMI &lt; 0 表示負相關（傾向不共現）。
       </p>
       <div class="controls">
         <div class="input-group">

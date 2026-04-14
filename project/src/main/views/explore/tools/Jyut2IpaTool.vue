@@ -284,20 +284,22 @@
 
 <script setup>
 import { computed, reactive, ref } from 'vue'
-import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import AppModal from '@/components/common/AppModal.vue'
+import { usePollingTask } from '@/composables/core/usePollingTask.js'
+import { useStorageState } from '@/composables/core/useStorageState.js'
+import { useAuthGuard } from '@/composables/router/useAuthGuard.js'
 import {
   downloadJyut2IpaResult,
   processJyut2Ipa,
   getJyut2IpaProgress,
   uploadJyutFile
 } from '@/api'
-import { userStore } from '@/main/store/store.js'
-import { showConfirm, showError, showSuccess, showWarning } from '@/utils/message.js'
+import { showConfirm, showError, showSuccess } from '@/utils/message.js'
 
-const router = useRouter()
 const { t } = useI18n()
+const { requireAuth } = useAuthGuard()
+const progressPolling = usePollingTask({ intervalMs: 1000, maxFailures: 1 })
 const JYUT2IPA_CONFIG_FILE_NAME = 'jyut2ipa-rules.json'
 const JYUT2IPA_RESULT_FILE_PREFIX = '方音圖鑒_'
 const fileName = ref('')
@@ -311,6 +313,9 @@ const progress = ref(0)
 const processingText = ref(t('tools.jyut2ipa.processing.preparingUpload'))
 const showConfigModal = ref(false)
 const currentTab = ref('wf')
+const rulesStorage = useStorageState('jyut2ipa_custom_rules', {
+  defaultValue: null,
+})
 
 const stats = reactive({
   total: 0,
@@ -445,13 +450,13 @@ const resetConfigConfirm = async () => {
   }
 
   rules.value = [...DEFAULT_RULES]
-  localStorage.removeItem('jyut2ipa_custom_rules')
+  rulesStorage.remove()
   showSuccess(t('tools.jyut2ipa.messages.resetSuccess'))
 }
 
 const saveConfig = () => {
   try {
-    localStorage.setItem('jyut2ipa_custom_rules', JSON.stringify(rules.value))
+    rulesStorage.write(rules.value)
     showConfigModal.value = false
     showSuccess(t('tools.jyut2ipa.messages.saveSuccess'))
   } catch (error) {
@@ -515,10 +520,33 @@ const resetStats = () => {
   stats.failed = 0
 }
 
+const applyProgressData = (progressData) => {
+  progress.value = progressData.progress || 0
+  processingText.value = t('tools.jyut2ipa.processing.running')
+
+  if (progressData.status !== 'completed') {
+    return
+  }
+
+  stats.total = progressData.total_rows || 0
+  stats.processed = progressData.total_rows || 0
+  stats.success = progressData.total_rows || 0
+  progress.value = 100
+  processingText.value = t('tools.common.completed')
+
+  if (progressData.preview) {
+    previewData.value = progressData.preview.slice(0, 10)
+  }
+
+  processing.value = false
+  completed.value = true
+}
+
 const processFile = async (file) => {
-  if (!userStore.isAuthenticated) {
-    showWarning(t('tools.jyut2ipa.validation.loginRequired'))
-    router.push('/auth')
+  const isAllowed = await requireAuth({
+    message: t('tools.jyut2ipa.validation.loginRequired'),
+  })
+  if (!isAllowed) {
     return
   }
 
@@ -551,37 +579,23 @@ const processFile = async (file) => {
 
     progress.value = 20
 
-    const pollInterval = setInterval(async () => {
-      try {
+    await progressPolling.start(
+      async () => {
         const progressData = await getJyut2IpaProgress(taskId.value)
-
-        progress.value = progressData.progress || 0
-        processingText.value = t('tools.jyut2ipa.processing.running')
-
-        if (progressData.status === 'completed') {
-          clearInterval(pollInterval)
-          stats.total = progressData.total_rows || 0
-          stats.processed = progressData.total_rows || 0
-          stats.success = progressData.total_rows || 0
-          progress.value = 100
-          processingText.value = t('tools.common.completed')
-
-          if (progressData.preview) {
-            previewData.value = progressData.preview.slice(0, 10)
-          }
-
-          processing.value = false
-          completed.value = true
-        } else if (progressData.status === 'failed') {
-          clearInterval(pollInterval)
+        if (progressData.status === 'failed') {
           throw new Error(progressData.message || t('tools.jyut2ipa.processing.running'))
         }
-      } catch (error) {
-        clearInterval(pollInterval)
-        showError(t('tools.jyut2ipa.messages.progressFailed', { message: error.message }))
-        reset()
+        return progressData
+      },
+      {
+        onTick: applyProgressData,
+        shouldStop: (progressData) => progressData.status === 'completed',
+        onMaxFailures: (error) => {
+          showError(t('tools.jyut2ipa.messages.progressFailed', { message: error.message }))
+          reset()
+        }
       }
-    }, 1000)
+    )
   } catch (error) {
     showError(t('tools.jyut2ipa.messages.processFailed', { message: error.message }))
     reset()
@@ -611,6 +625,7 @@ const downloadResult = async () => {
 }
 
 const reset = () => {
+  progressPolling.stop()
   completed.value = false
   processing.value = false
   progress.value = 0
@@ -626,14 +641,11 @@ const reset = () => {
 
 // 加载配置
 const loadConfig = () => {
-  const saved = localStorage.getItem('jyut2ipa_custom_rules')
-  if (saved) {
-    try {
-      rules.value = JSON.parse(saved)
-    } catch (error) {
-      console.error('Failed to parse jyut2ipa config:', error)
-      rules.value = [...DEFAULT_RULES]
-    }
+  const saved = rulesStorage.read()
+  if (Array.isArray(saved)) {
+    rules.value = saved
+  } else {
+    rules.value = [...DEFAULT_RULES]
   }
 }
 loadConfig()

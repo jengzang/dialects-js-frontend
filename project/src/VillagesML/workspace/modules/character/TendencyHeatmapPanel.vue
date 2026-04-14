@@ -55,7 +55,7 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted, nextTick } from 'vue'
+import { ref, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import * as echarts from 'echarts'
 import HelpIcon from '@/components/ToastAndHelp/HelpIcon.vue'
 
@@ -67,6 +67,10 @@ const props = defineProps({
 const chartRef = ref(null)
 const selectedMetric = ref('z_score')
 let chartInstance = null
+
+const handleResize = () => {
+  chartInstance?.resize()
+}
 
 const getMetricLabel = () => {
   return selectedMetric.value === 'z_score' ? 'Z-Score' : 'Log Odds'
@@ -132,7 +136,16 @@ watch(() => selectedMetric.value, () => {
 })
 
 onMounted(() => {
-  window.addEventListener('resize', () => chartInstance?.resize())
+  window.addEventListener('resize', handleResize)
+  nextTick(renderChart)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', handleResize)
+  if (chartInstance) {
+    chartInstance.dispose()
+    chartInstance = null
+  }
 })
 </script>
 

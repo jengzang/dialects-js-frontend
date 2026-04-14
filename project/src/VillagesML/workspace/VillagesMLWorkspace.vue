@@ -102,8 +102,8 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted, defineAsyncComponent } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
+import { ref, computed, defineAsyncComponent } from 'vue'
+import { useRoute } from 'vue-router'
 import { villagesMLStore } from '@/VillagesML/store/villagesMLStore.js'
 import { userStore } from '@/main/store/store.js'
 import {
@@ -112,18 +112,18 @@ import {
   runClustering,
   getSemanticNetwork
 } from '@/api/index.js'
-import { showError, showSuccess, showWarning } from '@/utils/message.js'
+import { showError, showSuccess } from '@/utils/message.js'
+import { useAsyncTask } from '@/composables/core/useAsyncTask.js'
+import { useAuthGuard } from '@/composables/router/useAuthGuard.js'
 
 // Import CommonBar and SimpleSidebar
 import CommonBar from '@/components/bar/CommonBar.vue'
 import SimpleSidebar from '@/components/bar/SimpleSidebar.vue'
 
-const router = useRouter()
 const route = useRoute()
-const goToAuth = (fallbackPath = '/villagesML') => {
-  const redirect = route.fullPath || fallbackPath
-  return router.push({ path: '/auth', query: { redirect } })
-}
+const { requireAuth } = useAuthGuard({
+  defaultRedirect: '/villagesML',
+})
 
 // Authentication
 const isAuthenticated = computed(() => userStore.isAuthenticated)
@@ -235,7 +235,7 @@ import ClusteringResultsPanel from '@/VillagesML/workspace/modules/ml/Clustering
 import SemanticSettingsPanel from '@/VillagesML/workspace/modules/semantic/SemanticSettingsPanel.vue'
 import NetworkGraphPanel from '@/VillagesML/workspace/modules/semantic/NetworkGraphPanel.vue'
 import HelpIcon from '@/components/ToastAndHelp/HelpIcon.vue'
-import { createVillagesMLCommonBarSchema, getModuleConfig, VILLAGESML_MODULES } from '@/VillagesML/config/BarConfig.js'
+import { createVillagesMLCommonBarSchema, getModuleConfig, getVisibleModules, VILLAGESML_MODULES } from '@/VillagesML/config/BarConfig.js'
 
 // Module configuration (from villagesML.js)
 const modules = VILLAGESML_MODULES.map(m => ({
@@ -313,10 +313,14 @@ const currentComponentProps = computed(() => {
 })
 
 // Legacy handlers (for old tab components)
-const searchLoading = ref(false)
-const regionalLoading = ref(false)
-const clusteringLoading = ref(false)
-const semanticLoading = ref(false)
+const searchTask = useAsyncTask()
+const regionalTask = useAsyncTask()
+const clusteringTask = useAsyncTask()
+const semanticTask = useAsyncTask()
+const searchLoading = searchTask.loading
+const regionalLoading = regionalTask.loading
+const clusteringLoading = clusteringTask.loading
+const semanticLoading = semanticTask.loading
 const semanticDetailMode = ref(false)  // 添加 detailMode 状态
 
 // Refs for component access
@@ -342,8 +346,7 @@ const estimatedRegionCount = computed(() => {
 })
 
 const handleSearch = async () => {
-  searchLoading.value = true
-  try {
+  await searchTask.run(async () => {
     const result = await searchVillages({
       keyword: villagesMLStore.searchKeyword,
       ...villagesMLStore.searchFilters,
@@ -379,11 +382,11 @@ const handleSearch = async () => {
 
     villagesMLStore.searchResults = deduplicatedVillages
     villagesMLStore.searchTotal = result.total || 0
-  } catch (error) {
-    showError('搜尋失敗')
-  } finally {
-    searchLoading.value = false
-  }
+  }, {
+    onError: () => {
+      showError('搜尋失敗')
+    }
+  })
 }
 
 const handlePageChange = (page) => {
@@ -392,8 +395,7 @@ const handlePageChange = (page) => {
 }
 
 const handleRegionalAnalysis = async ({ level, name, hierarchy }) => {
-  regionalLoading.value = true
-  try {
+  await regionalTask.run(async () => {
     const result = await getCharTendency({
       region_level: level,
       ...hierarchy,
@@ -402,22 +404,23 @@ const handleRegionalAnalysis = async ({ level, name, hierarchy }) => {
 
     villagesMLStore.tendencyData = result
     showSuccess('分析完成')
-  } catch (error) {
-    showError('分析失敗')
-  } finally {
-    regionalLoading.value = false
-  }
+  }, {
+    onError: () => {
+      showError('分析失敗')
+    }
+  })
 }
 
 const handleRunClustering = async (settings) => {
-  if (!userStore.isAuthenticated) {
-    showWarning('此功能需要登錄，請先登錄')
-    goToAuth('/villagesML?module=compute')
+  const authed = await requireAuth({
+    message: '此功能需要登錄，請先登錄',
+    redirect: route.fullPath || '/villagesML?module=compute',
+  })
+  if (!authed) {
     return
   }
 
-  clusteringLoading.value = true
-  try {
+  await clusteringTask.run(async () => {
     // 清理参数：DBSCAN 不需要 k 参数
     const params = { ...settings }
     if (params.algorithm === 'dbscan' && params.k !== undefined) {
@@ -427,33 +430,34 @@ const handleRunClustering = async (settings) => {
     const result = await runClustering(params)
     villagesMLStore.clusteringResults = result
     showSuccess('聚類完成')
-  } catch (error) {
-    showError('聚類失敗')
-  } finally {
-    clusteringLoading.value = false
-  }
+  }, {
+    onError: () => {
+      showError('聚類失敗')
+    }
+  })
 }
 
 const handleRunSemantic = async (settings) => {
-  if (!userStore.isAuthenticated) {
-    showWarning('此功能需要登錄，請先登錄')
-    goToAuth('/villagesML?module=compute')
+  const authed = await requireAuth({
+    message: '此功能需要登錄，請先登錄',
+    redirect: route.fullPath || '/villagesML?module=compute',
+  })
+  if (!authed) {
     return
   }
 
   // 保存 detailMode 状态
   semanticDetailMode.value = settings.detail || false
 
-  semanticLoading.value = true
-  try {
+  await semanticTask.run(async () => {
     const result = await getSemanticNetwork(settings)
     villagesMLStore.semanticNetwork = result
     showSuccess('網絡生成完成')
-  } catch (error) {
-    showError('網絡生成失敗')
-  } finally {
-    semanticLoading.value = false
-  }
+  }, {
+    onError: () => {
+      showError('網絡生成失敗')
+    }
+  })
 }
 
 // Deep Analysis Modal

@@ -1,10 +1,38 @@
 import { ref, computed } from 'vue'
 import { getCustomRegions } from '@/api'
+import { useStorageState } from '@/composables/core/useStorageState.js'
 
 // 自定义分区缓存 Store
 const customRegions = ref([])
 const loading = ref(false)
 const CACHE_DURATION = 7 * 24 * 60 * 60 * 1000 // localStorage 缓存 7 天
+const CUSTOM_REGIONS_STORAGE_KEY = 'customRegions'
+const customRegionsStorage = useStorageState(CUSTOM_REGIONS_STORAGE_KEY, {
+  defaultValue: [],
+  ttl: CACHE_DURATION,
+  serializer: {
+    parse(raw) {
+      const parsed = JSON.parse(raw)
+
+      if (
+        parsed &&
+        !Object.prototype.hasOwnProperty.call(parsed, 'value') &&
+        Array.isArray(parsed.data) &&
+        typeof parsed.timestamp === 'number'
+      ) {
+        return {
+          value: parsed.data,
+          expiresAt: parsed.timestamp + CACHE_DURATION
+        }
+      }
+
+      return parsed
+    },
+    stringify(value) {
+      return JSON.stringify(value)
+    }
+  }
+})
 
 export const useCustomRegionStore = () => {
   // 获取自定义分区（带缓存）
@@ -63,16 +91,11 @@ export const useCustomRegionStore = () => {
       console.log('✅ API 请求成功，数量:', customRegions.value.length)
 
       // 存入 localStorage（7天有效）
-      localStorage.setItem('customRegions', JSON.stringify({
-        data: customRegions.value,
-        timestamp: Date.now()
-      }))
+      customRegionsStorage.write(customRegions.value)
 
       console.log('💾 已保存到 localStorage')
 
       return data
-    } catch (error) {
-      throw error
     } finally {
       loading.value = false
     }
@@ -81,31 +104,30 @@ export const useCustomRegionStore = () => {
   // 从 localStorage 恢复缓存
   const restoreFromLocalStorage = () => {
     try {
-      const cached = localStorage.getItem('customRegions')
+      const cached = localStorage.getItem(CUSTOM_REGIONS_STORAGE_KEY)
       console.log('📂 localStorage 内容:', cached ? '有数据' : '无数据')
 
       if (cached) {
-        const { data, timestamp } = JSON.parse(cached)
+        const restoredRegions = customRegionsStorage.read()
+        const parsed = JSON.parse(cached)
+        const timestamp = typeof parsed?.timestamp === 'number'
+          ? parsed.timestamp
+          : (typeof parsed?.expiresAt === 'number' ? parsed.expiresAt - CACHE_DURATION : Date.now())
         const age = Date.now() - timestamp
         const ageInMinutes = Math.floor(age / 1000 / 60)
 
-        console.log('⏰ 缓存年龄:', ageInMinutes, '分钟')
-        console.log('📊 缓存数据量:', data?.length || 0)
+        console.log('⏳ 缓存年龄:', ageInMinutes, '分钟')
+        console.log('📳 缓存数据量:', restoredRegions?.length || 0)
 
-        // 检查是否过期（7天）
-        if (Date.now() - timestamp < CACHE_DURATION) {
-          customRegions.value = data
+        if (Array.isArray(restoredRegions)) {
+          customRegions.value = restoredRegions
           console.log('✅ 缓存有效，已恢复')
           return true
-        } else {
-          // 过期了，清除
-          console.log('⚠️ 缓存已过期，清除')
-          localStorage.removeItem('customRegions')
         }
       }
     } catch (error) {
       console.error('❌ 恢复自定义分区缓存失败:', error)
-      localStorage.removeItem('customRegions')
+      customRegionsStorage.remove()
     }
     return false
   }
@@ -114,7 +136,7 @@ export const useCustomRegionStore = () => {
   const invalidateCache = () => {
     console.log('🗑️ 清除缓存')
     customRegions.value = []
-    localStorage.removeItem('customRegions')
+    customRegionsStorage.remove()
   }
 
   // 手动刷新（用户点击刷新按钮）
