@@ -193,13 +193,13 @@ const isAdmin = computed(() => userStore.role === 'admin')
 const DB_TABLE_MAPPING = {
   spoken: ['口语字'],
   village: ['广东省自然村'],
-  chars: ['characters'],
+  chars: ['characters', 'old_chinese', 'zhongyuan', 'menggu', 'hongwu', 'fenyun'],
   query: ['dialects'],
   query_admin: ['dialects'],
   dialects: ['dialects'],
   dialects_admin: ['dialects'],
   yubao: ['grammar', 'vocabulary'],
-  logs: ['api_keyword_log', 'api_statistics', 'api_visit_log'],
+  logs: ['api_keyword_log', 'api_statistics', 'api_visit_log', 'api_usage_daily', 'api_usage_hourly', 'api_diagnostic_events'],
   // auth: ['api_usage_logs', 'api_usage_summary', 'users', 'refresh_tokens', 'user_db_permissions']
 }
 

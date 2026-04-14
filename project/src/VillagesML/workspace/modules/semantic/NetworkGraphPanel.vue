@@ -107,19 +107,17 @@ const transformNodes = (nodes, communities) => {
   if (!nodes || nodes.length === 0) return []
 
   const nodeCommunityMap = buildNodeCommunityMap(communities)
-
-  // 找出最大的 degree 用于归一化节点大小
   const maxDegree = Math.max(...nodes.map(node => node.degree || 1), 1)
 
   return nodes.map(node => {
     const communityId = nodeCommunityMap[node.id]
-    const normalizedSize = ((node.degree || 1) / maxDegree) * 40 + 20 // 20-60 范围
+    const normalizedSize = ((node.degree || 1) / maxDegree) * 40 + 20
     const chineseName = getCategoryName(node.id)
     const icon = getCategoryIcon(node.id)
 
     return {
       id: node.id,
-      name: `${icon}${chineseName}`,
+      name: node.id, // ⚠️ 必须保持和 edges 的 source/target 一致
       symbolSize: normalizedSize,
       value: node.degree,
       itemStyle: {
@@ -127,10 +125,11 @@ const transformNodes = (nodes, communities) => {
       },
       label: {
         show: true,
+        // ⚠️ 使用 formatter 来展示带图标的中文名
+        formatter: () => `${icon}${chineseName}`,
         fontSize: 12,
         fontWeight: 'bold'
       },
-      // 保存原始数据用于 tooltip
       rawData: {
         englishName: node.id,
         chineseName: chineseName,
@@ -229,9 +228,18 @@ const renderChart = () => {
   chartInstance.setOption(option)
 }
 
-watch(() => props.network, () => {
-  nextTick(renderChart)
-}, { deep: true })
+watch(
+    [() => props.network, () => props.loading],
+    ([newNetwork, newLoading]) => {
+      // 只有在有数据，且不在 loading 状态下（此时 chartRef 的 DOM 才真正渲染出来）才绘制
+      if (newNetwork && !newLoading) {
+        nextTick(() => {
+          renderChart()
+        })
+      }
+    },
+    { deep: true, immediate: true } // ⚠️ immediate 确保初始就包含数据的场景也能渲染
+)
 
 const handleResize = () => {
   chartInstance?.resize()

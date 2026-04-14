@@ -145,27 +145,35 @@
     </div>
 
     <Transition name="mobile-detail-card-fade">
-      <div v-if="showMobilePieDetailCard" class="mobile-detail-card">
+      <div
+          v-if="selectedPieDetail && !showSankey"
+          class="mobile-detail-card"
+          :class="{ 'is-desktop-card': !isMobileLayout }"
+          :style="!isMobileLayout ? desktopCardPosition : {}"
+      >
         <div class="mobile-detail-card__header">
           <div class="mobile-detail-card__meta">
-            <div class="mobile-detail-card__title">{{ selectedPieDetail.title }}</div>
+            <div class="mobile-detail-card__title-row">
+              <div class="mobile-detail-card__title">{{ selectedPieDetail.title }}</div>
+              <div class="mobile-detail-card__section-title">
+                {{ t('phonology.phonology.evolution.mobileDetail.breakdownBy', { dimension: level2Column }) }}
+              </div>
+            </div>
             <div class="mobile-detail-card__subtitle">
               {{ selectedPieDetail.pieTitle }} ·
               {{ t('phonology.phonology.evolution.mobileDetail.countAndRatio', {
-                count: selectedPieDetail.count,
-                unit: t('phonology.phonology.evolution.sankey.unit'),
-                percent: selectedPieDetail.percent
-              }) }}
+              count: selectedPieDetail.count,
+              unit: t('phonology.phonology.evolution.sankey.unit'),
+              percent: selectedPieDetail.percent
+            }) }}
             </div>
           </div>
           <button
-            type="button"
-            class="mobile-detail-card__close"
-            :aria-label="t('common.button.close')"
-            @click="closeMobilePieDetail"
-          >
-            ×
-          </button>
+              v-show="isMobileLayout || isCardPinned"
+              type="button"
+              class="mobile-detail-card__close"
+              @click="closeMobilePieDetail"
+          >×</button>
         </div>
 
         <div class="mobile-detail-card__body ui-scrollbar">
@@ -173,9 +181,6 @@
             v-if="selectedPieDetail.level2Items.length > 0"
             class="mobile-detail-card__section"
           >
-            <div class="mobile-detail-card__section-title">
-              {{ t('phonology.phonology.evolution.mobileDetail.breakdownBy', { dimension: level2Column }) }}
-            </div>
             <div
               v-for="level2Item in selectedPieDetail.level2Items"
               :key="`${selectedPieDetail.key}-${level2Item.label}`"
@@ -269,10 +274,13 @@ const containerWidth = ref(1200)
 const isMobileLayout = ref(false)
 const selectedPieDetail = ref(null)
 
+const desktopCardPosition = ref({ left: '0px', top: '0px' })
+const isCardPinned = ref(false) // 记录卡片是否被点击固定
+
 // ========== 配置数据 ==========
 const tableOptions = [
   { value: 'characters', label: '中古音（廣韻）' },
-  { value: 'fenyun', label: '分韻撮要（粵語）' },
+  { value: 'fenyun', label: '分韻撮要' },
   { value: 'hongwu', label: '洪武正韻' },
   { value: 'menggu', label: '蒙古字韻' },
   { value: 'old_chinese', label: '上古音' },
@@ -459,6 +467,7 @@ const clearSankeyChart = () => {
 
 const closeMobilePieDetail = () => {
   selectedPieDetail.value = null
+  isCardPinned.value = false // 重置固定状态
 }
 
 const updateMobileLayout = () => {
@@ -467,29 +476,6 @@ const updateMobileLayout = () => {
   }
 
   isMobileLayout.value = window.matchMedia(MOBILE_LAYOUT_MEDIA_QUERY).matches
-}
-
-const handlePieSliceClick = (pieIndex, params) => {
-  if (!isMobileLayout.value || showSankey.value || params?.dataIndex == null) {
-    return
-  }
-
-  const detail = buildEvolutionMobileDetail({
-    pie: currentPieData.value[pieIndex],
-    pieIndex,
-    itemIndex: params.dataIndex,
-  })
-
-  if (!detail) {
-    return
-  }
-
-  if (isSameEvolutionMobileDetail(selectedPieDetail.value, detail)) {
-    closeMobilePieDetail()
-    return
-  }
-
-  selectedPieDetail.value = detail
 }
 
 // ========== 饼图渲染 ==========
@@ -508,10 +494,12 @@ const generatePieChartOption = (pieData) => {
       subtext: `${total}条`,
       left: 'center',
       top: 'center',
+      itemGap: 4,
       textStyle: {
         fontSize: 14,
         fontWeight: 'bold',
-        color: '#333'
+        color: '#333',
+        lineHeight: 14
       },
       subtextStyle: {
         fontSize: 11,
@@ -519,58 +507,64 @@ const generatePieChartOption = (pieData) => {
       }
     },
     tooltip: {
-      show: !isMobileLayout.value,
-      trigger: 'item',
-      triggerOn: isMobileLayout.value ? 'none' : 'mousemove|click',
-      confine: true,
-      formatter: (params) => {
-        const item = items[params.dataIndex]
-        if (!item) return ''
-
-        let html = `<div style="padding: 8px;">
-          <div style="font-weight: bold; margin-bottom: 6px;">
-            ${params.name}: ${item.count}条 (${item.percent}%)
-          </div>`
-
-        if (item.level2 && item.level2.length > 0) {
-          html += `<div style="border-top: 1px solid #eee; margin: 6px 0; padding-top: 6px;">
-            <div style="font-size: 12px; color: #666; margin-bottom: 4px;">
-              细分（按${level2Column.value}）：
-            </div>`
-
-          item.level2.forEach(l2 => {
-            html += `<div style="margin-left: 8px; font-size: 11px;">
-              • ${l2.label}：${l2.count} (${l2.percent}%)
-            </div>`
-
-            if (l2.chars && l2.chars.length > 0) {
-              const displayChars = l2.chars.slice(0, 10)
-              const remaining = l2.chars.length - displayChars.length
-              html += `<div style="margin-left: 16px; font-size: 10px; color: #888;">
-                字：${displayChars.join('、')}${remaining > 0 ? ` +${remaining}个` : ''}
-              </div>`
-            }
-          })
-
-          html += `</div>`
-        } else if (item.chars && item.chars.length > 0) {
-          const displayChars = item.chars.slice(0, 15)
-          const remaining = item.chars.length - displayChars.length
-          html += `<div style="border-top: 1px solid #eee; margin: 6px 0; padding-top: 6px; font-size: 11px;">
-            字：${displayChars.join('、')}${remaining > 0 ? ` +${remaining}个` : ''}
-          </div>`
-        }
-
-        html += `</div>`
-        return html
-      }
+      show: false // 彻底移除自带 tooltip
     },
+    // tooltip: {
+    //   show: !isMobileLayout.value,
+    //   trigger: 'item',
+    //   triggerOn: isMobileLayout.value ? 'none' : 'mousemove|click',
+    //   confine: true,
+    //   formatter: (params) => {
+    //     const item = items[params.dataIndex]
+    //     if (!item) return ''
+    //
+    //     let html = `<div style="padding: 8px;">
+    //       <div style="font-weight: bold; margin-bottom: 6px;">
+    //         ${params.name}: ${item.count}条 (${item.percent}%)
+    //       </div>`
+    //
+    //     if (item.level2 && item.level2.length > 0) {
+    //       html += `<div style="border-top: 1px solid #eee; margin: 6px 0; padding-top: 6px;">
+    //         <div style="font-size: 12px; color: #666; margin-bottom: 4px;">
+    //           细分（按${level2Column.value}）：
+    //         </div>`
+    //
+    //       item.level2.forEach(l2 => {
+    //         html += `<div style="margin-left: 8px; font-size: 11px;">
+    //           • ${l2.label}：${l2.count} (${l2.percent}%)
+    //         </div>`
+    //
+    //         if (l2.chars && l2.chars.length > 0) {
+    //           const displayChars = l2.chars.slice(0, 10)
+    //           const remaining = l2.chars.length - displayChars.length
+    //           html += `<div style="margin-left: 16px; font-size: 10px; color: #888;">
+    //             字：${displayChars.join('、')}${remaining > 0 ? ` +${remaining}个` : ''}
+    //           </div>`
+    //         }
+    //       })
+    //
+    //       html += `</div>`
+    //     } else if (item.chars && item.chars.length > 0) {
+    //       const displayChars = item.chars.slice(0, 15)
+    //       const remaining = item.chars.length - displayChars.length
+    //       html += `<div style="border-top: 1px solid #eee; margin: 6px 0; padding-top: 6px; font-size: 11px;">
+    //         字：${displayChars.join('、')}${remaining > 0 ? ` +${remaining}个` : ''}
+    //       </div>`
+    //     }
+    //
+    //     html += `</div>`
+    //     return html
+    //   }
+    // },
     series: [{
       type: 'pie',
-      radius: ['40%', '70%'],
+      // 1. 缩小外半径，给周围的文字留出充足空间（原来是 ['40%', '70%']）
+      radius: ['30%', '55%'],
+      // 确保饼图在正中间
+      center: ['50%', '50%'],
       avoidLabelOverlap: true,
       itemStyle: {
-        borderRadius: 6,
+        borderRadius: 4,
         borderColor: '#fff',
         borderWidth: 2
       },
@@ -578,11 +572,24 @@ const generatePieChartOption = (pieData) => {
         show: true,
         position: 'outside',
         formatter: '{b}\n{d}%',
-        fontSize: 10
+        fontSize: 10,
+        lineHeight: 14, // 增加行高，让文字看起来不那么挤
+        // 2. 优化：如果文字太长，允许换行截断 (Echarts 5+ 特性)
+        overflow: 'break',
+        // 根据你的小容器，限制标签最大宽度
+        width: 50
+      },
+      // 3. 关键：大幅缩短牵引线（Guide Line）
+      labelLine: {
+        show: true,
+        length: 8,       // 第一段线（靠近饼图的直线）长度
+        length2: 12,     // 第二段线（靠近文字的横线）长度
+        smooth: false,   // 关闭平滑，用折线更省空间
+        maxSurfaceAngle: 80 // 控制线的最大倾斜角，防止线乱飘
       },
       emphasis: {
-        scale: false, // 禁用hover放大
-        focus: 'none' // 禁用focus效果
+        scale: false,
+        focus: 'none'
       },
       data: items.map(item => ({
         name: isByValue ? item.label : item.value,
@@ -599,7 +606,7 @@ const initPieChart = (container, pieData, index) => {
   const width = container.clientWidth
   const height = container.clientHeight
   if (width === 0 || height === 0) {
-    console.warn(`[Evolution] Container ${index} has zero size, skipping initialization`)
+    // console.warn(`[Evolution] Container ${index} has zero size, skipping initialization`)
     return null
   }
 
@@ -616,10 +623,60 @@ const initPieChart = (container, pieData, index) => {
     })
   }
 
-  chart.on('click', (params) => {
-    handlePieSliceClick(index, params)
-  })
+  // 替换原来的 chart.on('click', ...)
+  const handleInteraction = (pieIndex, params, isClick) => {
+    if (showSankey.value || params?.dataIndex == null) return
 
+    // 如果当前已经是点击固定状态，且触发的只是 Hover，则忽略，避免打断用户的固定查看
+    if (!isClick && isCardPinned.value) return
+
+    const detail = buildEvolutionMobileDetail({
+      pie: currentPieData.value[pieIndex],
+      pieIndex: pieIndex,
+      itemIndex: params.dataIndex,
+    })
+
+    if (!detail) return
+    // 优化：如果是重复点击同一个，且没有换位置，可以不用重新赋值（复用你之前的逻辑）
+    if (isClick && isSameEvolutionMobileDetail(selectedPieDetail.value, detail)) {
+      // 你可以选择再次点击关闭，或者什么都不做。这里我们保持简单的更新即可。
+    }
+
+    selectedPieDetail.value = detail
+
+    if (isClick) {
+      isCardPinned.value = true // 点击时，钉住卡片
+    }
+
+    // 更新位置 (仅桌面端)
+    if (!isMobileLayout.value && params.event?.event) {
+      const e = params.event.event
+      const cardWidth = 340
+      const cardHeight = 420
+
+      let x = e.clientX + 20
+      let y = e.clientY + 20
+
+      // 边缘检测防溢出
+      if (x + cardWidth > window.innerWidth) x = e.clientX - cardWidth - 20
+      if (y + cardHeight > window.innerHeight) y = window.innerHeight - cardHeight - 20
+
+      desktopCardPosition.value = { left: `${x}px`, top: `${y}px` }
+    }
+  }
+
+  // 绑定点击：钉住卡片 (注意传 index)
+  chart.on('click', (params) => handleInteraction(index, params, true))
+
+  // 绑定悬浮：展示卡片 (注意传 index)
+  chart.on('mouseover', (params) => handleInteraction(index, params, false))
+
+  // 绑定离开：如果没钉住，就关闭卡片
+  chart.on('mouseout', () => {
+    if (!isMobileLayout.value && !isCardPinned.value) {
+      selectedPieDetail.value = null
+    }
+  })
   return chart
 }
 
@@ -639,7 +696,7 @@ const initPieChart = (container, pieData, index) => {
 
 const renderAllPies = async () => {
   const startTime = performance.now()
-  console.log(`[Evolution] Starting to render ${currentPieData.value.length} pies...`)
+  // console.log(`[Evolution] Starting to render ${currentPieData.value.length} pies...`)
 
   await nextTick()
   clearPieCharts()
@@ -666,12 +723,12 @@ const renderAllPies = async () => {
       })
       // 每批之间让出控制权，避免阻塞UI
       await nextTick()
-      console.log(`[Evolution] Batch ${Math.floor(i / batchSize) + 1} rendered in ${(performance.now() - batchStart).toFixed(2)}ms`)
+      // console.log(`[Evolution] Batch ${Math.floor(i / batchSize) + 1} rendered in ${(performance.now() - batchStart).toFixed(2)}ms`)
     }
   }
 
   const endTime = performance.now()
-  console.log(`[Evolution] Total rendering took ${(endTime - startTime).toFixed(2)}ms`)
+  // console.log(`[Evolution] Total rendering took ${(endTime - startTime).toFixed(2)}ms`)
 }
 
 const buildSankeyData = () => {
@@ -758,6 +815,10 @@ const generateSankeyOption = () => {
     },
     series: [{
       type: 'sankey',
+      left: '5%',   // 距离左侧的边距
+      right: '12%',  // 距离右侧的边距（覆盖默认的 20%）
+      top: '10%',   // 距离顶部的边距（根据你的标题高度微调）
+      bottom: '5%', // 距离底部的边距
       data: sankeyData.nodes,
       links: sankeyData.links,
       nodeAlign: 'justify',
@@ -1042,7 +1103,7 @@ onUnmounted(() => {
 .mode-radio-label {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   cursor: pointer;
   font-size: 15px;
   font-weight: 500;
@@ -1244,8 +1305,34 @@ onUnmounted(() => {
   border-bottom: 1px solid rgba(0, 0, 0, 0.08);
 }
 
+/* 桌面端弹窗样式覆盖 */
+.mobile-detail-card.is-desktop-card {
+  position: fixed;
+  right: auto;
+  bottom: auto;
+  width: 320px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+  border: 1px solid var(--border-medium);
+  z-index: 9999;
+  pointer-events: auto;
+}
+
+/* 防止 Hover 状态下卡片遮挡鼠标导致图表触发 mouseout 闪烁 */
+.mobile-detail-card.is-desktop-card:not(:has(.mobile-detail-card__close:visible)) {
+  pointer-events: none;
+}
+
 .mobile-detail-card__meta {
   min-width: 0;
+  flex:1;
+}
+
+.mobile-detail-card__title-row {
+  display: flex;
+  justify-content: space-between; /* 核心：把子元素推向两端（一左一右） */
+  align-items: center; /* 让左右的文字在垂直方向上居中对齐 */
+  width: 100%; /* 确保撑满父容器 */
+  gap: 12px; /* 加上一点间距，防止文字太长撞在一起 */
 }
 
 .mobile-detail-card__title {
@@ -1375,7 +1462,7 @@ onUnmounted(() => {
   }
 
   .mode-selector {
-    gap: 12px;
+    gap: 10px;
   }
 
   .feature-tabs {

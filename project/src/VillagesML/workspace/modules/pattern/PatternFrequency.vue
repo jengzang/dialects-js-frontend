@@ -10,14 +10,11 @@
 
       <!-- Query Mode Selection -->
       <div class="mode-selector">
-        <label class="radio-label">
-          <input type="radio" v-model="queryMode" value="global" />
-          <span>全局模式</span>
-        </label>
-        <label class="radio-label">
-          <input type="radio" v-model="queryMode" value="regional" />
-          <span>區域模式</span>
-        </label>
+        <RadioGroup
+            name="patternQueryMode"
+            :options="queryModeOptions"
+            v-model="queryMode"
+        />
       </div>
 
       <!-- Controls -->
@@ -125,12 +122,18 @@ import {
   getPatternFrequencyRegional
 } from '@/api/index.js'
 import { showError } from '@/utils/message.js'
+import RadioGroup from "@/components/selector/RadioGroup.vue";
 
 const router = useRouter()
 const route = useRoute()
 
 // State
 const queryMode = ref('global')
+const queryModeOptions = [
+  { value: 'global', label: '全局模式' },
+  { value: 'regional', label: '區域模式' }
+]
+
 const patterns = ref([])
 const loading = ref(false)
 

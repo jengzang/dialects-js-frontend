@@ -459,7 +459,11 @@ async function handleCustomRegionQuery(locations) {
     })
 
     if (data.success) {
-      selectedCount.value = data.locations_result?.length || 0
+      // ✅ 同样加上去重逻辑
+      const uniqueLocations = Array.isArray(data.locations_result)
+          ? [...new Set(data.locations_result)]
+          : []
+      selectedCount.value = uniqueLocations.length
 
       // 更新父組件
       emit('update:modelValue', {
@@ -956,10 +960,14 @@ async function fetchLocationsResult() {
       region_mode: regionUsing.value
     })
 
+    // ✅ 拿到結果後立即使用 Set 去重
+    const uniqueLocations = Array.isArray(data?.locations_result)
+        ? [...new Set(data.locations_result)]
+        : []
     // ✅ 存列表（用於預覽與彈層）
-    locationsResult.value = Array.isArray(data?.locations_result) ? data.locations_result : []
+    locationsResult.value = uniqueLocations
     // 6️⃣ 核心結果：locations_result
-    const count = data?.locations_result?.length ?? 0
+    const count = uniqueLocations.length
     selectedCount.value = count
 
     // 7️⃣ 對齊原來的限制邏輯（showToast 對應 bottom-hint）
