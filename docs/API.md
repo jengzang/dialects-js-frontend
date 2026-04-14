@@ -296,7 +296,7 @@ import {
 
 ### 分層原則
 
-`VillagesML` 的 API 已經證明：當某個子應用有明確的功能邊界、獨立入口與大量專屬分析能力時，應把接口集中放在 `src/api/<ModuleName>/` 下，而不要全部塞回 `src/api/main/`。
+`VillagesML` 的 API 已經證明：當某個子應用有明確的功能邊界、獨立入口與大量專屬分析能力時，應把接口集中放在 `project/src/api/<ModuleName>/` 下，而不要全部塞回 `project/src/api/main/`。
 
 這也是你未來新增獨立模塊時應優先沿用的方式。
 

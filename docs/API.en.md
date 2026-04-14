@@ -302,7 +302,7 @@ import {
 - its own route space
 - many dedicated analytical APIs
 
-In that situation, APIs should live under `src/api/<ModuleName>/` instead of being folded back into `src/api/main/`.
+In that situation, APIs should live under `project/src/api/<ModuleName>/` instead of being folded back into `project/src/api/main/`.
 
 ---
 

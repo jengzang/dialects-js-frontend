@@ -97,6 +97,22 @@ For future standalone modules, prefer this mental model:
 - the main site may expose an Explore entry for discovery
 - main-app bridge logic is optional compatibility infrastructure, not a default requirement
 
+### Naming consistency for new standalone modules
+
+If the owner gives a new module a PascalCase name such as `PhoneticToolbox`, keep that casing consistent across the module's major entry points:
+
+- `project/PhoneticToolbox/index.html`
+- `project/src/PhoneticToolbox/`
+- `project/src/api/PhoneticToolbox/`
+- `/PhoneticToolbox`
+
+The existing `VillagesML` module keeps a historical mixed-case split:
+
+- `project/villagesML/index.html`
+- `project/src/VillagesML/`
+
+Treat that as an existing module-specific convention, not a license to mix naming styles casually in new work.
+
 ---
 
 ## Development Workflow
@@ -268,8 +284,8 @@ function handleClick() {
 - Template literals for interpolation: `` `Hello ${name}` ``
 
 **Semicolons:**
-- Optional but be consistent
-- Project uses semicolons
+- Optional, but be consistent inside the file you are editing
+- Follow surrounding file style instead of mass-normalizing punctuation
 
 **Spacing:**
 ```javascript
@@ -294,28 +310,29 @@ import { useRoute, useRouter } from 'vue-router'
 // 2. External libraries
 import { useDebounceFn } from '@vueuse/core'
 
-// 3. Internal APIs (always from @/api)
-import { searchChars, showSuccess, showError } from '@/api'
+// 3. Internal APIs
+import { searchChars, getLocations } from '@/api'
 
 // 4. Internal utilities
-import { globalPayload, userStore } from '@/utils/store.js'
+import { useAuthGuard } from '@/composables/router/useAuthGuard.js'
+import { showError } from '@/utils/message.js'
 
 // 5. Components
-import NavBar from '@/components/NavBar.vue'
-import ResultList from '@/components/result/ResultList.vue'
+import CommonBar from '@/components/bar/CommonBar.vue'
+import AppModal from '@/components/common/AppModal.vue'
 ```
 
 ### API Import Convention
 
-**CRITICAL:** Always import from `@/api`, never from subdirectories.
+In page, component, and composable code, prefer importing from `@/api`. Direct subdirectory imports are mainly for API-layer organization work.
 
 ```javascript
 // ✅ CORRECT
 import { searchChars, getLocations, sqlQuery } from '@/api'
 
-// ❌ WRONG
-import { searchChars } from '@/api/query/core.js'
-import { getLocations } from '@/api/query/LocationAndRegion.js'
+// Usually avoid this in page/component code
+import { searchChars } from '@/api/main/core/query.js'
+import { getLocations } from '@/api/main/geo/LocationAndRegion.js'
 ```
 
 ---
@@ -426,11 +443,12 @@ emit('itemSelected', item)
 
 ### Creating New API Functions
 
-**Location:** `src/api/<category>/<file>.js`
+**Location:** `project/src/api/<ModuleName>/<file>.js` for standalone modules, or the appropriate `project/src/api/main/*` area for shared main-site work.
 
 **Pattern:**
 ```javascript
-import { api } from '../auth/auth.js'
+// Example for a module-local API file under project/src/api/PhoneticToolbox/
+import { api } from '../auth/httpClient.js'
 
 /**
  * Search characters across dialects
@@ -447,10 +465,10 @@ export async function searchChars(payload) {
 }
 ```
 
-**Export from central hub:**
+**Export from central hub when cross-module reuse is intentional:**
 ```javascript
-// src/api/index.js
-export * from './query/core.js'
+// project/src/api/index.js
+export * from './PhoneticToolbox/index.js'
 ```
 
 ### Error Handling

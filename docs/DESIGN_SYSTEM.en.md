@@ -111,7 +111,7 @@ If you are adding a standalone page or sub-app such as `PhoneticToolbox`, its st
 
 Recommended approach:
 
-- page-private styles stay in `src/<ModuleName>/...`
+- page-private styles stay in `project/src/<ModuleName>/...`
 - only extract to shared layers after a pattern is clearly reused in multiple places
 - before promoting anything to a shared layer, confirm that it is truly cross-module and not just a one-off page treatment
 

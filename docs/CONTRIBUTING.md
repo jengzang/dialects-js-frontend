@@ -287,7 +287,7 @@ docs(contributing): document standalone module boundaries
 
 默認目標模型應為：
 
-- 模組有自己的 canonical path，例如 `/villagesML`、`/phoneticToolbox`。
+- 模組有自己的 canonical path，例如 `/villagesML`、`/PhoneticToolbox`。
 - 模組有自己的 HTML 入口與子應用 router。
 - 主站可以提供 Explore 入口頁或導航入口。
 - 是否再額外增加主站橋接 / legacy 兼容層，由維護者決定，不作為新模組默認要求。
@@ -298,7 +298,7 @@ docs(contributing): document standalone module boundaries
 
 ```text
 project/
-├── <moduleName>/index.html
+├── <EntryName>/index.html
 ├── src/<ModuleName>/
 │   ├── app/
 │   │   ├── App.vue
@@ -309,15 +309,24 @@ project/
 │   ├── composables/
 │   ├── config/
 │   └── ...
-└── src/api/<moduleName>/
+└── src/api/<ModuleName>/
 ```
 
 建議命名方式：
 
+- MPA 入口目錄：`project/PhoneticToolbox/index.html`
 - 模組根目錄：`project/src/PhoneticToolbox/`
-- API 目錄：`project/src/api/phoneticToolbox/`
+- API 目錄：`project/src/api/PhoneticToolbox/`
+- canonical path：`/PhoneticToolbox`
 
 請注意大小寫一致性。不要同時出現 `PhoneticToolbox`、`phoneticToolbox`、`phonetic-toolbox` 三種不同風格混用在不該混用的位置。
+
+現有的 `VillagesML` 出於歷史原因，入口目錄與源碼目錄存在混合大小寫：
+
+- `project/villagesML/index.html`
+- `project/src/VillagesML/`
+
+請把它理解為既有模組的歷史約定，而不是新模組可以隨意混用大小寫的模板。新模組應遵循 owner 指定的單一命名方案，並在入口目錄、源碼目錄、API 目錄與路由 path 中保持一致。
 
 ### 6.3 預設協作模式：先模組內開發，再最小接線
 
@@ -339,9 +348,9 @@ project/
 
 協作者則只在以下範圍工作：
 
-- `project/<moduleName>/index.html`
+- `project/<EntryName>/index.html`
 - `project/src/<ModuleName>/**`
-- `project/src/api/<moduleName>/**`
+- `project/src/api/<ModuleName>/**`
 - `project/src/i18n/**` 的模組相關部分
 
 #### 模式 B：協作者獲准完成整體接入
@@ -354,7 +363,7 @@ project/
 - `project/src/main/config/BarAndTabs/SideBarConfig.js`
 - `project/src/main/views/explore/**/<ModuleName>.vue`
 - `project/src/i18n/**`
-- `project/<moduleName>/index.html`
+- `project/<EntryName>/index.html`
 
 僅在以下情況下，才允許再修改：
 
@@ -563,7 +572,7 @@ import { useRoute, useRouter } from 'vue-router'
 
 import { useDebounceFn } from '@vueuse/core'
 
-import { getToken } from '@/api/auth'
+import { getToken } from '@/api'
 
 import { useAuthGuard } from '@/composables/router/useAuthGuard.js'
 import { showError } from '@/utils/message.js'
@@ -575,7 +584,7 @@ import CommonBar from '@/components/bar/CommonBar.vue'
 
 新增模組時請保持 API 層邊界清晰：
 
-- 與模組直接相關的 API 請放入 `project/src/api/<moduleName>/`。
+- 與模組直接相關的 API 請放入 `project/src/api/<ModuleName>/`。
 - 權限與登入相關邏輯請複用 `project/src/api/auth/`。
 - 若要做 API 聚合導出，請在模組自己的 API 入口文件中完成，不要把模組私有 API 混進無關聚合文件。
 
