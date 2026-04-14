@@ -48,6 +48,7 @@ beforeEach(() => {
 
 describe('auth session lifecycle', () => {
   it('restores a cached authenticated session synchronously during bootstrap', { timeout: 10000 }, async () => {
+
     const {
       bootstrapAuthSession,
       saveToken,
