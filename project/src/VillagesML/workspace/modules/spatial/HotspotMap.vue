@@ -85,6 +85,7 @@ const map = shallowRef(null)
 const currentStyleKey = ref('gaode')
 const loading = ref(false)
 const isFullScreen = ref(false)
+let villageLayerInteractionsBound = false
 
 // 彈窗狀態
 const showPopup = ref(false)
@@ -108,6 +109,7 @@ onBeforeUnmount(() => {
     map.value.remove()
     map.value = null
   }
+  villageLayerInteractionsBound = false
 })
 
 // 監聽熱點數據變化
@@ -116,6 +118,26 @@ watch(() => props.hotspot, (newHotspot) => {
     renderHotspot()
   }
 }, { deep: true })
+
+const handleVillageLayerClick = (e) => {
+  if (e.features && e.features.length > 0) {
+    const feature = e.features[0]
+    selectedVillage.value = feature.properties
+    showPopup.value = true
+  }
+}
+
+const handleVillageLayerMouseEnter = () => {
+  if (map.value) {
+    map.value.getCanvas().style.cursor = 'pointer'
+  }
+}
+
+const handleVillageLayerMouseLeave = () => {
+  if (map.value) {
+    map.value.getCanvas().style.cursor = ''
+  }
+}
 
 const initMap = () => {
   if (!mapContainer.value) return
@@ -134,24 +156,6 @@ const initMap = () => {
     if (props.hotspot) {
       renderHotspot()
     }
-  })
-
-  // 點擊村莊點事件
-  map.value.on('click', 'villages-layer', (e) => {
-    if (e.features && e.features.length > 0) {
-      const feature = e.features[0]
-      selectedVillage.value = feature.properties
-      showPopup.value = true
-    }
-  })
-
-  // 鼠標懸停效果
-  map.value.on('mouseenter', 'villages-layer', () => {
-    map.value.getCanvas().style.cursor = 'pointer'
-  })
-
-  map.value.on('mouseleave', 'villages-layer', () => {
-    map.value.getCanvas().style.cursor = ''
   })
 }
 
@@ -249,6 +253,20 @@ const renderHotspot = () => {
         'circle-stroke-color': '#ffffff'
       }
     })
+
+    if (villageLayerInteractionsBound) {
+      map.value.off('click', 'villages-layer', handleVillageLayerClick)
+      map.value.off('mouseenter', 'villages-layer', handleVillageLayerMouseEnter)
+      map.value.off('mouseleave', 'villages-layer', handleVillageLayerMouseLeave)
+    }
+
+    // 點擊村莊點事件
+    map.value.on('click', 'villages-layer', handleVillageLayerClick)
+
+    // 鼠標懸停效果
+    map.value.on('mouseenter', 'villages-layer', handleVillageLayerMouseEnter)
+    map.value.on('mouseleave', 'villages-layer', handleVillageLayerMouseLeave)
+    villageLayerInteractionsBound = true
   }
 
 // 根據半徑計算合適的縮放級別
@@ -282,7 +300,7 @@ const handleStyleChange = () => {
   map.value.setStyle(newStyle)
 
   // 樣式加載完成後重新渲染
-  map.value.once('styledata', () => {
+  map.value.once('style.load', () => {
     if (props.hotspot) {
       renderHotspot()
     }
