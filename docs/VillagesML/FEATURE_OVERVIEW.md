@@ -30,10 +30,10 @@
 |------|------|------|
 | UI 框架 | Vue 3.5 + Composition API | `<script setup>` 語法 |
 | 構建工具 | Vite 7.1 (MPA) | 多入口點構建 |
-| 狀態管理 | 自研響應式 Store | `villagesMLStore.js` |
+| 狀態管理 | 自研響應式 Store | `project/src/VillagesML/store/villagesMLStore.js` |
 | 地圖渲染 | MapLibre GL 5.16 | GPU 加速，零 DOM 標記 |
 | 圖表庫 | ECharts 5.6 | 熱圖、柱狀、網絡圖、散點圖、雷達圖 |
-| API 中心 | `src/api/villagesML/` | 16 個子模組統一管理 |
+| API 中心 | `project/src/api/villagesML/` | VillagesML 專屬 API 模組 |
 | 虛擬滾動 | vue-virtual-scroller | 大數據列表性能優化 |
 | 樣式系統 | 玻璃態設計（Glassmorphism） | 半透明面板、毛玻璃效果、漸變背景 |
 
@@ -41,14 +41,14 @@
 
 | 組件名 | 路徑 | 功能說明 |
 |--------|------|----------|
-| `FilterableSelect` | `src/components/common/` | 三級行政區聯動選擇器，支持市/縣/鎮逐層過濾 |
-| `SimpleSelectDropdown` | `src/components/common/` | 通用下拉選擇器，支持搜尋過濾 |
-| `AlgorithmSelector` | `src/views/VillagesML/ml/clustering/shared/` | ML 算法選擇器（K-Means/DBSCAN/GMM） |
-| `FeatureToggles` | `src/views/VillagesML/ml/clustering/shared/` | 特徵類型開關（語義/形態/多樣性） |
-| `SpatialFeatureToggles` | `src/views/VillagesML/ml/clustering/shared/` | 空間特徵開關（坐標/密度/最近鄰距離） |
-| `PreprocessingSettings` | `src/views/VillagesML/ml/clustering/shared/` | 預處理配置（標準化/PCA 降維） |
-| `RegionSelectorPanel` | `src/views/VillagesML/character/` | 地區選擇面板，支持多地區對比 |
-| `TendencyHeatmapPanel` | `src/views/VillagesML/character/` | 傾向性熱圖面板，支持指標切換 |
+| `FilterableSelect` | `project/src/VillagesML/components/` | 三級行政區聯動選擇器，支持市/縣/鎮逐層過濾 |
+| `SimpleSelectDropdown` | `project/src/components/selector/` | 共用下拉選擇器，支持搜尋過濾 |
+| `AlgorithmSelector` | `project/src/VillagesML/workspace/modules/ml/clustering/shared/` | ML 算法選擇器（K-Means/DBSCAN/GMM） |
+| `FeatureToggles` | `project/src/VillagesML/workspace/modules/ml/clustering/shared/` | 特徵類型開關（語義/形態/多樣性） |
+| `SpatialFeatureToggles` | `project/src/VillagesML/workspace/modules/ml/clustering/shared/` | 空間特徵開關（坐標/密度/最近鄰距離） |
+| `PreprocessingSettings` | `project/src/VillagesML/workspace/modules/ml/clustering/shared/` | 預處理配置（標準化/PCA 降維） |
+| `RegionSelectorPanel` | `project/src/VillagesML/workspace/modules/character/` | 地區選擇面板，支持多地區對比 |
+| `TendencyHeatmapPanel` | `project/src/VillagesML/workspace/modules/character/` | 傾向性熱圖面板，支持指標切換 |
 
 ### 前端交互模式
 
@@ -96,14 +96,22 @@
 
 ### 前端路由與導航
 
-**主路由：** `/villagesML`
+VillagesML 目前建議分兩層理解：
 
-**模組切換：** 通過 URL 查詢參數 `module` 切換模組
+1. **Explore 入口殼頁**：`/explore/villages/ml`
+   - 由主站懶加載 `project/src/VillagesML/dashboard/Dashboard.vue`
+   - 負責總覽、搜索入口與模塊卡片分流
+
+2. **工作區 canonical path**：`/villagesML?module=...&subtab=...`
+   - 由 `project/src/VillagesML/app/router.js` 與 `VillagesMLWorkspace.vue` 承接
+   - 真正的分析模塊都在這一層運行
+
+**工作區模組切換：** 通過 URL 查詢參數 `module` 切換主模塊，`subtab` 切換子功能
 
 | 模組 | 路由參數 | 組件 |
 |------|---------|------|
-| 系統信息 | `?module=system` | `Dashboard.vue` |
-| 搜尋探索 | `?module=search` | `SearchPanel.vue` |
+| Dashboard 入口頁 | `/explore/villages/ml` | `Dashboard.vue` |
+| 搜尋探索 | `?module=search` | `SearchPanel.vue` + `VillageListPanel.vue` |
 | 字符分析 | `?module=character` | 子標籤切換 |
 | 語義分析 | `?module=semantic` | 子標籤切換 |
 | 空間分析 | `?module=spatial` | 子標籤切換 |
@@ -112,26 +120,27 @@
 | ML計算 | `?module=compute` | 子標籤切換 |
 
 **子標籤導航：**
-- 使用 `villagesMLStore` 管理當前激活的子標籤
-- 子標籤切換時不刷新頁面，僅切換組件顯示
-- 子標籤狀態持久化至 `sessionStorage`
+- 子標籤切換時不刷新頁面，僅切換工作區內容
+- 當前導航由 `CommonBar` + `BarConfig.js` 管理
+- 子標籤記憶使用 session 級存儲（由 CommonBar schema 持久化）
 
 **導航組件：**
-- **頂部導航欄**：顯示當前模組名稱和用戶登錄狀態
-- **側邊欄**：模組列表，點擊切換模組
-- **子標籤欄**：當前模組的子功能標籤，水平排列
-- **麵包屑導航**：顯示當前位置（模組 > 子標籤）
+- **Dashboard 卡片**：從 Explore 入口頁導向工作區具體模塊
+- **CommonBar**：工作區頂部模塊導航與子菜單
+- **SimpleSidebar**：移動端 / 側欄導航承接
+- **工作區內容區**：按 `module + subtab` 動態載入對應面板
 
 **權限控制：**
-- ML 計算模組（Module 7）需要登錄才能訪問
-- 未登錄用戶訪問時顯示登錄提示和「前往登入」按鈕
-- 登錄狀態通過 `villagesMLStore.isAuthenticated` 管理
+- 工作區共享主站賬戶體系
+- 部分頁面與操作使用 `useAuthGuard`，未登錄時會跳轉到 `/auth?redirect=...`
+- 目前文檔中應優先把「需要登錄才能執行某些操作」理解為行為級限制，而不是所有模塊一刀切完全不可見
 
 
 ### 模組/子頁面統計
 
 | 模組 | 子頁面數 | 主要技術 |
 |------|----------|----------|
+| Dashboard 入口頁 | 1 | Explore gateway、功能卡片、工作區深鏈接 |
 | 搜尋探索 | 1 | 分頁搜尋、三級行政區過濾 |
 | 字符分析 | 4 | 嵌入向量、卡方檢驗、共現網絡 |
 | 語義分析 | 6 | VTF、PMI、Z-score 傾向性 |
@@ -139,14 +148,13 @@
 | 模式分析 | 5 | N-gram、結構解析、通配符匹配 |
 | 區域分析 | 4 | 三級聚合、Cosine/Jaccard 相似度、區域向量 |
 | ML計算 | 7 | K-means/DBSCAN/GMM、PCA、層次聚類、特徵提取、子集分析 |
-| 系統信息 | 1 | Dashboard、統計概覽 |
 
 ---
 
 ## Module 1 — 搜尋探索
 
 **路由：** `/villagesML?module=search`
-**組件：** `SearchPanel.vue` + `VillageListPanel.vue` + `VillageDeepAnalysisModal.vue`
+**組件：** `project/src/VillagesML/workspace/modules/search/SearchPanel.vue` + `VillageListPanel.vue` + `VillageDeepAnalysisModal.vue`
 
 ### 功能說明
 
@@ -209,7 +217,7 @@
 ## Module 2 — 字符分析
 
 **路由：** `/villagesML?module=character`
-**組件目錄：** `src/components/villagesML/character/`
+**組件目錄：** `project/src/VillagesML/workspace/modules/character/`
 
 ---
 
@@ -671,7 +679,7 @@
 ## Module 3 — 語義分析
 
 **路由：** `/villagesML?module=semantic`
-**組件目錄：** `src/components/villagesML/semantic/`
+**組件目錄：** `project/src/VillagesML/workspace/modules/semantic/`
 
 語義分析體系以 **9 大語義類別 + 40+ 精細子類** 為核心（見 [語義類別完整清單](#語義類別完整清單)）。
 
@@ -1524,7 +1532,7 @@
 ## Module 4 — 空間分析
 
 **路由：** `/villagesML?module=spatial`
-**組件目錄：** `src/components/villagesML/spatial/`
+**組件目錄：** `project/src/VillagesML/workspace/modules/spatial/`
 **地圖技術：** MapLibre GL 5.16（GPU Symbol Layer，零 DOM 標記）
 
 ---
@@ -2264,7 +2272,7 @@
 ## Module 5 — 模式分析
 
 **路由：** `/villagesML?module=pattern`
-**組件目錄：** `src/components/villagesML/pattern/`
+**組件目錄：** `project/src/VillagesML/workspace/modules/pattern/`
 
 ---
 
@@ -2496,7 +2504,7 @@
 ## Module 6 — 區域分析
 
 **路由：** `/villagesML?module=regional`
-**組件目錄：** `src/components/villagesML/regional/`
+**組件目錄：** `project/src/VillagesML/workspace/modules/regional/`
 
 ---
 
@@ -2727,8 +2735,8 @@
 ## Module 7 — ML計算
 
 **路由：** `/villagesML?module=compute`
-**組件目錄：** `src/components/villagesML/ml/clustering/`
-**訪問限制：** 需登錄（`ensureAuthenticated`）
+**組件目錄：** `project/src/VillagesML/workspace/modules/ml/`
+**訪問限制：** 需登錄（前端通過 `useAuthGuard` 引導至 `/auth`）
 
 ---
 
@@ -2977,7 +2985,7 @@
 - 特徵相關性熱圖
 - 可導出為 CSV/JSON 格式
 
-**訪問限制：** 需登錄（`ensureAuthenticated`）
+**訪問限制：** 需登錄（前端通過 `useAuthGuard` 引導至 `/auth`）
 
 | 函數 | 端點 | 主要參數 |
 |------|------|---------|
@@ -3207,7 +3215,7 @@
 - **空間差異**：地理分佈的空間自相關分析（Moran's I）
 - **命名模式差異**：高頻 N-gram 對比、結構模式對比
 
-**訪問限制：** 需登錄（`ensureAuthenticated`）
+**訪問限制：** 需登錄（前端通過 `useAuthGuard` 引導至 `/auth`）
 
 | 函數 | 端點 | 主要參數 |
 |------|------|---------|
@@ -3481,10 +3489,10 @@
 
 ## 系統信息 Dashboard
 
-**路由：** `/villagesML?module=system`
-**組件：** `Dashboard.vue` + `SystemInfo.vue`
+**入口頁：** `/explore/villages/ml`
+**相關組件：** `project/src/VillagesML/dashboard/Dashboard.vue` + `project/src/VillagesML/workspace/modules/system/SystemInfo.vue`
 
-**功能：** 系統入口和總覽頁面，展示核心統計指標和功能模組快速入口。
+**功能：** 作為 VillagesML 的總覽與分流頁，展示核心統計指標、搜索入口與功能模組快速入口。
 
 **統計卡片（6 個 KPI）：**
 
