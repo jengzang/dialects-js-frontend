@@ -1,21 +1,24 @@
-# Contributing Guide
+# Contributing and Collaboration Guide
 
 > Guidelines for contributing to the 方音圖鑑 (Chinese Dialect Atlas) project
+
+> If the Chinese and English documents diverge, follow the Chinese version and the maintainer's latest instructions.
 
 ---
 
 ## Table of Contents
 
 1. [Getting Started](#getting-started)
-2. [Development Workflow](#development-workflow)
-3. [Code Standards](#code-standards)
-4. [Component Guidelines](#component-guidelines)
-5. [API Guidelines](#api-guidelines)
-6. [Testing](#testing)
-7. [Documentation](#documentation)
-8. [Pull Request Process](#pull-request-process)
-9. [Issue Guidelines](#issue-guidelines)
-10. [Community](#community)
+2. [Repository-Specific Structure Notes](#repository-specific-structure-notes)
+3. [Development Workflow](#development-workflow)
+4. [Code Standards](#code-standards)
+5. [Component Guidelines](#component-guidelines)
+6. [API Guidelines](#api-guidelines)
+7. [Testing](#testing)
+8. [Documentation](#documentation)
+9. [Pull Request Process](#pull-request-process)
+10. [Issue Guidelines](#issue-guidelines)
+11. [Community](#community)
 
 ---
 
@@ -62,6 +65,37 @@ Before contributing, ensure you have:
 6. **Verify setup**
    - Open `http://localhost:5173` in browser
    - Check that the application loads correctly
+
+---
+
+## Repository-Specific Structure Notes
+
+This repository is not a single pure SPA. The actual frontend project lives in `project/`, while the repository root also contains documentation and project-level guidance.
+
+At a minimum, the current runtime is split into:
+
+- `project/src/main` - the main site application
+- `project/src/VillagesML` - the VillagesML sub-application
+
+`VillagesML` currently uses multiple layers at once:
+
+- a standalone entry in `project/villagesML/index.html`
+- its own sub-app router in `project/src/VillagesML/app/router.js`
+- Explore entry pages inside the main app
+- some main-app bridge / compatibility logic
+
+Important distinction:
+
+- A standalone path such as `/villagesML` is the module's canonical path.
+- A main-app bridge is only one possible implementation for navigating from the main SPA into that standalone app.
+- The bridge is not what makes the standalone route valid.
+
+For future standalone modules, prefer this mental model:
+
+- the module owns its own canonical path
+- the module owns its own app shell and router
+- the main site may expose an Explore entry for discovery
+- main-app bridge logic is optional compatibility infrastructure, not a default requirement
 
 ---
 
