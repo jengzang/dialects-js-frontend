@@ -1,480 +1,310 @@
 # 設計系統
 
-> 方音圖鑑平台的視覺設計規範和組件模式
+> 以當前代碼結構為準的樣式入口、共享組件與復用約束說明
 
-**文檔語言:** [English](./DESIGN_SYSTEM.en.md) | 中文
-
----
-
-## 設計理念
-
-### 核心原則
-
-1. **清晰** - 信息應易於查找和理解
-2. **一致性** - 相似元素應具有相似的外觀和行為
-3. **效率** - 最小化點擊和認知負擔
-4. **美觀** - 美學設計增強用戶體驗
-5. **可訪問性** - 所有人都可使用，無論能力如何
-
-### 視覺風格
-
-平台使用 **現代玻璃擬態** 美學：
-- 帶背景模糊的半透明背景
-- 微妙的陰影和邊框
-- 流暢的過渡和動畫
-- 高對比度文本以提高可讀性
-- 簡潔、極簡的界面
+**文檔語言：** [English](./DESIGN_SYSTEM.en.md) | 中文
 
 ---
 
-## 顏色系統
+## 文檔定位
 
-### CSS 變量
+這份文檔不是脫離代碼的品牌手冊，而是面向當前倉庫協作的前端實作說明。它回答的是：
 
-所有顏色在 `src/style.css` 中定義為 CSS 變量：
+- 全局樣式從哪裡進來
+- 主站與 `VillagesML` 各自有哪些樣式層
+- 哪些組件應優先複用
+- 新增頁面或子應用時，應在哪裡落樣式、哪些共享能力可以直接拿來用
 
-```css
-:root {
-  /* 主要顏色 */
-  --primary-color: #4a90e2;        /* 藍色 - 主要操作 */
-  --secondary-color: #50c878;      /* 綠色 - 成功狀態 */
-  --accent-color: #f39c12;         /* 橙色 - 高亮 */
-
-  /* 文本顏色 */
-  --text-primary: #2c3e50;         /* 深灰色 - 主要文本 */
-  --text-secondary: #7f8c8d;       /* 中灰色 - 次要文本 */
-  --text-light: #ffffff;           /* 白色 - 深色背景上的文本 */
-
-  /* 背景顏色 */
-  --bg-primary: #ffffff;           /* 白色 - 主要背景 */
-  --bg-secondary: #f8f9fa;         /* 淺灰色 - 次要背景 */
-
-  /* 玻璃效果 */
-  --glass-bg: rgba(255, 255, 255, 0.7);      /* 半透明白色 */
-  --glass-border: rgba(255, 255, 255, 0.8);  /* 玻璃元素邊框 */
-  --glass-shadow: rgba(0, 0, 0, 0.1);        /* 微妙陰影 */
-
-  /* 語義顏色 */
-  --success-color: #50c878;        /* 綠色 - 成功 */
-  --warning-color: #f39c12;        /* 橙色 - 警告 */
-  --error-color: #e74c3c;          /* 紅色 - 錯誤 */
-  --info-color: #3498db;           /* 藍色 - 信息 */
-}
-```
-
-### 顏色使用指南
-
-**主要顏色 (`--primary-color`):**
-- 主要按鈕
-- 活動導航項
-- 鏈接
-- 焦點狀態
-
-**次要顏色 (`--secondary-color`):**
-- 成功消息
-- 確認按鈕
-- 正面指示器
-
-**強調顏色 (`--accent-color`):**
-- 高亮
-- 徽章
-- 重要通知
+如果你只是想知道某個頁面應該從哪一層接入樣式、是否應該復用 `CommonBar`、`TabsContainer` 或 `AppModal`，請先看這份文檔。
 
 ---
 
-## 排版
+## 當前樣式入口
 
-### 字體堆棧
+當前樣式不再是單一的 `src/style.css`，而是按「全局基礎層 / 主站層 / VillagesML 層」拆成獨立入口。
 
-```css
-:root {
-  --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI',
-                 'Roboto', 'Helvetica Neue', Arial, sans-serif,
-                 'Apple Color Emoji', 'Segoe UI Emoji';
+### 入口文件
 
-  --font-family-mono: 'SF Mono', Monaco, 'Cascadia Code',
-                      'Roboto Mono', Consolas, 'Courier New', monospace;
-}
+```text
+project/src/styles/
+├── global-entry.scss
+├── main-entry.scss
+├── villagesml-entry.scss
+├── _legacy.scss
+├── global/
+├── main/
+└── villagesml/
 ```
 
-### 字體大小
+### 三個入口的責任
 
-```css
-:root {
-  --font-size-xs: 0.75rem;    /* 12px - 說明文字 */
-  --font-size-sm: 0.875rem;   /* 14px - 小文本 */
-  --font-size-base: 1rem;     /* 16px - 正文 */
-  --font-size-lg: 1.125rem;   /* 18px - 大文本 */
-  --font-size-xl: 1.25rem;    /* 20px - 標題 */
-  --font-size-2xl: 1.5rem;    /* 24px - 大標題 */
-  --font-size-3xl: 1.875rem;  /* 30px - 頁面標題 */
-}
-```
+- `global-entry.scss`
+  - 所有應用共用的基礎樣式入口
+  - 載入 global tokens、base、scrollbars、loading、glass、utilities 等
+- `main-entry.scss`
+  - 主站專用樣式入口
+  - 在全局基礎層之上，再疊加 buttons、forms、surfaces、toolbars、overlays、popups、states
+- `villagesml-entry.scss`
+  - `VillagesML` 專用樣式入口
+  - 在全局基礎層之上，再疊加 villagesml 的 surfaces、panels、controls、workspace
 
-### 字體粗細
+### 關於 `_legacy.scss`
 
-```css
-:root {
-  --font-weight-normal: 400;
-  --font-weight-medium: 500;
-  --font-weight-semibold: 600;
-  --font-weight-bold: 700;
-}
-```
+目前 token 遷移尚未完全結束。`project/src/styles/global/_tokens.scss` 已經預留為長期 token 宿主，但實際 token 仍主要從 `project/src/styles/_legacy.scss` 延續過來，以確保現有視覺輸出不被打斷。
+
+這意味著：
+
+- 不要輕易重命名或刪除既有 legacy token
+- 不要假設所有樣式已經完成新 token 化
+- 若只是新增頁面，優先複用現有變量與現有樣式結構，不要順手重構整個樣式體系
 
 ---
 
-## 間距與佈局
+## 樣式分層規則
 
-### 間距比例
+### `global/`
 
-```css
-:root {
-  --spacing-xs: 0.25rem;   /* 4px */
-  --spacing-sm: 0.5rem;    /* 8px */
-  --spacing-md: 1rem;      /* 16px */
-  --spacing-lg: 1.5rem;    /* 24px */
-  --spacing-xl: 2rem;      /* 32px */
-  --spacing-2xl: 3rem;     /* 48px */
-  --spacing-3xl: 4rem;     /* 64px */
-}
-```
+`project/src/styles/global/` 放所有應用都可以共享的基礎能力，目前包括：
 
----
+- `_base.scss`
+- `_close-buttons.scss`
+- `_glass.scss`
+- `_loading.scss`
+- `_scrollbars.scss`
+- `_tokens.scss`
+- `_utilities.scss`
 
-## 玻璃擬態風格
+這一層適合放：
 
-### 核心玻璃效果
+- reset / base
+- 全局工具類
+- 滾動條、關閉按鈕、loading 這類通用表現
+- 不依賴具體頁面語義的視覺基礎
 
-```css
-.glass {
-  background: var(--glass-bg);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid var(--glass-border);
-  border-radius: 12px;
-  box-shadow: 0 8px 32px 0 var(--glass-shadow);
-}
-```
+### `main/`
 
-### 玻璃變體
+`project/src/styles/main/` 服務主站頁面與主站公共交互，適合放：
 
-**淺色玻璃:**
-```css
-.glass-light {
-  background: rgba(255, 255, 255, 0.5);
-  backdrop-filter: blur(8px);
-}
-```
+- 表單外觀
+- 工具欄
+- 覆層與彈窗表現
+- 主站特定 surface / state 樣式
 
-**深色玻璃:**
-```css
-.glass-dark {
-  background: rgba(0, 0, 0, 0.3);
-  backdrop-filter: blur(10px);
-  color: var(--text-light);
-}
-```
+### `villagesml/`
 
-### 玻璃性能優化
+`project/src/styles/villagesml/` 僅服務 `VillagesML` 工作區，適合放：
 
-**對於粘性元素:**
-```css
-.sticky-glass {
-  position: sticky;
-  top: 0;
-  transform: translateZ(0);  /* 強制 GPU 層 */
-  isolation: isolate;
-}
-
-.sticky-glass::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  backdrop-filter: blur(10px);  /* 隔離到偽元素 */
-  z-index: -1;
-}
-```
+- 分析面板
+- 工作區佈局
+- 模塊控制區
+- `VillagesML` 專屬 surface 樣式
 
 ---
 
-## 組件模式
+## 新頁面與新子應用的樣式策略
 
-### 按鈕
+### 1. 先落在自己的工作區
 
-**主要按鈕:**
-```css
-.btn-primary {
-  background: var(--primary-color);
-  color: var(--text-light);
-  padding: var(--spacing-sm) var(--spacing-lg);
-  border: none;
-  border-radius: 8px;
-  font-weight: var(--font-weight-medium);
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
+如果你在新增一個獨立頁面或子應用，例如 `PhoneticToolbox`，默認應先把樣式留在它自己的工作區內，而不是直接往共享層丟樣式。
 
-.btn-primary:hover {
-  background: #3a7bc8;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(74, 144, 226, 0.3);
-}
-```
+建議做法：
 
-**次要按鈕:**
-```css
-.btn-secondary {
-  background: transparent;
-  color: var(--primary-color);
-  border: 2px solid var(--primary-color);
-  padding: var(--spacing-sm) var(--spacing-lg);
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
+- 頁面私有樣式：留在自己的 `src/<ModuleName>/...` 內
+- 只有當樣式模式已被多處穩定復用時，才考慮抽到共享層
+- 抽到共享層前，先確認那真的是跨模塊通用能力，而不是某個頁面的一次性外觀
 
-.btn-secondary:hover {
-  background: var(--primary-color);
-  color: var(--text-light);
-}
-```
+### 2. 不要隨意改共享組件樣式
 
-### 卡片
+你的倉庫已經有成熟的主站與 `VillagesML` 視覺模式。新增子項目時，除非你在做的是明確的共享能力擴展，否則不應修改：
 
-**玻璃卡片:**
-```css
-.card {
-  background: var(--glass-bg);
-  backdrop-filter: blur(10px);
-  border: 1px solid var(--glass-border);
-  border-radius: 12px;
-  padding: var(--spacing-lg);
-  box-shadow: 0 8px 32px 0 var(--glass-shadow);
-  transition: all 0.3s ease;
-}
+- `project/src/components/`
+- `project/src/styles/global/`
+- `project/src/styles/main/`
+- `project/src/styles/villagesml/`
 
-.card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 48px 0 rgba(0, 0, 0, 0.15);
-}
-```
+尤其當用戶已明確要求「只在自己的工作區內改」，就更應該把改動收斂在該模塊目錄下。
 
-### 輸入框
+### 3. 盡量接入現有樣式層，而不是另起一套全局機制
 
-**文本輸入:**
-```css
-.input {
-  width: 100%;
-  padding: var(--spacing-sm) var(--spacing-md);
-  border: 2px solid var(--border-color);
-  border-radius: 8px;
-  font-size: var(--font-size-base);
-  transition: all 0.3s ease;
-  background: var(--bg-primary);
-}
+當前項目已經有：
 
-.input:focus {
-  outline: none;
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
-}
-```
+- 全局樣式入口
+- 主站樣式入口
+- `VillagesML` 樣式入口
+- 現成的公共組件與交互樣式
 
-### 表格
-
-**玻璃表格:**
-```css
-.table {
-  width: 100%;
-  border-collapse: separate;
-  border-spacing: 0;
-  background: var(--glass-bg);
-  backdrop-filter: blur(10px);
-  border-radius: 12px;
-  overflow: hidden;
-}
-
-.table th {
-  background: rgba(74, 144, 226, 0.1);
-  padding: var(--spacing-md);
-  text-align: left;
-  font-weight: var(--font-weight-semibold);
-  position: sticky;
-  top: 0;
-}
-
-.table tr:hover {
-  background: rgba(74, 144, 226, 0.05);
-}
-```
+新頁面應優先復用這些基礎能力，而不是再引入一套平行的全局樣式機制。
 
 ---
 
-## 動畫與過渡
+## 共享組件清單與推薦復用順序
 
-### 過渡時長
+目前最值得優先複用的共享組件位於 `project/src/components/`。
 
-```css
-:root {
-  --transition-fast: 150ms;
-  --transition-base: 300ms;
-  --transition-slow: 500ms;
-  --transition-ease: cubic-bezier(0.4, 0, 0.2, 1);
-}
-```
+### 導航與頂欄
 
-### 常見過渡
+#### `project/src/components/bar/CommonBar.vue`
 
-**淡入:**
-```css
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
+適用場景：
 
-.fade-in {
-  animation: fadeIn var(--transition-base) var(--transition-ease);
-}
-```
+- 新的獨立模塊有多個頂部 tab
+- 需要可配置的頂欄 schema
+- 需要桌面 / 移動端共同工作
 
-**向上滑動:**
-```css
-@keyframes slideUp {
-  from {
-    transform: translateY(20px);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
+這是目前最推薦新子應用優先複用的頂欄組件。你之前提到「多個 tab 的時候強烈推薦復用 `CommonBar`」，這個判斷是對的，而且應該明確寫給協作者。
 
-.slide-up {
-  animation: slideUp var(--transition-base) var(--transition-ease);
-}
-```
+#### `project/src/components/bar/ExploreBar.vue`
 
----
+適用場景：
 
-## 響應式設計
+- 主站 `explore` 體系下的頁面
 
-### 斷點
+這個組件與主站 `Explore` 的配置和記憶子路由邏輯耦合較深，不適合拿來當通用新模塊頂欄模板。對新子應用來說，應優先看 `CommonBar`，而不是 `ExploreBar`。
 
-```css
-:root {
-  --breakpoint-sm: 640px;
-  --breakpoint-md: 768px;
-  --breakpoint-lg: 1024px;
-  --breakpoint-xl: 1280px;
-}
-```
+#### 其他 bar 類組件
 
-### 媒體查詢
+- `NavBar.vue`
+- `SimpleSidebar.vue`
+- `IntroTabBar.vue`
+- `FloatingButtons.vue`
 
-**移動優先:**
-```css
-/* 移動設備（默認） */
-.container {
-  padding: var(--spacing-md);
-}
+這些可以視場景複用，但如果只是做獨立模塊頂欄，優先順序仍然是 `CommonBar`。
 
-/* 平板 */
-@media (min-width: 768px) {
-  .container {
-    padding: var(--spacing-lg);
-  }
-}
+### 局部 tab 與容器
 
-/* 桌面 */
-@media (min-width: 1024px) {
-  .container {
-    padding: var(--spacing-xl);
-  }
-}
-```
+#### `project/src/components/common/TabsContainer.vue`
 
----
+適用場景：
 
-## 可訪問性
+- 單頁內部的局部 tab 切換
+- 需要簡單的 `v-model` / route 同步
+- 不需要重新發明一套 tabs 容器
 
-### 焦點狀態
+如果是頁面內部子區塊切換，而不是整個模塊頂部導航，優先考慮複用它。
 
-```css
-*:focus {
-  outline: 2px solid var(--primary-color);
-  outline-offset: 2px;
-}
+### 模態框
 
-*:focus:not(:focus-visible) {
-  outline: none;
-}
-```
+#### `project/src/components/common/AppModal.vue`
 
-### 僅屏幕閱讀器
+適用場景：
 
-```css
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border-width: 0;
-}
-```
+- 新增 modal / dialog
+- 需要固定 header、可滾動 content 的標準結構
+- 需要 Teleport、玻璃感面板、統一 close button 樣式
 
-### 減少動畫
+這個組件也符合你倉庫裡的重要約束：modal header 不應跟著內容一起滾動。新模塊做彈窗時，應優先複用，而不是再從頭寫一個。
 
-```css
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
-}
-```
+### 選擇器
+
+目前可複用的下拉與選擇類組件包括：
+
+- `project/src/components/selector/ChoiceSelector.vue`
+- `project/src/components/selector/MultiSelectDropdown.vue`
+- `project/src/components/selector/SimpleDropdown.vue`
+- `project/src/components/selector/SimpleSelectDropdown.vue`
+
+適用場景：
+
+- 常規單選 / 多選
+- 需要搜索的下拉選項
+- 與現有視覺風格保持一致的表單控件
+
+如果只是列表選擇，不要急著自己寫新的 dropdown。
+
+### 反饋與幫助
+
+目前可複用的反饋組件包括：
+
+- `project/src/components/ToastAndHelp/GlobalToast.vue`
+- `project/src/components/ToastAndHelp/GlobalConfirm.vue`
+- `project/src/components/ToastAndHelp/HelpIcon.vue`
+- `project/src/components/ToastAndHelp/RateLimitNotice.vue`
+- `project/src/components/ToastAndHelp/UpdateNoticeModal.vue`
+
+這些組件覆蓋了全局提示、確認框、幫助說明與限流提示。新增頁面需要全局反饋時，應優先接入這一套。
 
 ---
 
-## 實施指南
+## 路由、頁面身份與佈局約定
 
-### 使用 CSS 變量
+這些雖然不完全是純設計問題，但會直接影響頁面結構與 UI 實作方式，因此需要一併遵守。
 
-```vue
-<style scoped>
-.my-component {
-  color: var(--text-primary);
-  background: var(--glass-bg);
-  padding: var(--spacing-md);
-  border-radius: 12px;
-  transition: all var(--transition-base) var(--transition-ease);
-}
-</style>
-```
+### 路徑優先於 query 表示頁面身份
 
-### 最佳實踐
+頂層頁面身份應優先用 path route 表達，而不是用 query 表示「你現在在什麼頁」。query 更適合表示頁面內部狀態。
 
-1. **始終使用 CSS 變量** - 絕不硬編碼顏色或間距
-2. **遵循命名約定** - 使用 BEM 或類似方法
-3. **作用域樣式** - 在 Vue 組件中使用 `scoped`
-4. **優化性能** - 對動畫使用 `will-change` 和 `contain`
-5. **測試可訪問性** - 檢查鍵盤導航和屏幕閱讀器
-6. **默認響應式** - 移動優先設計
-7. **一致的間距** - 對所有邊距和內邊距使用間距比例
-8. **流暢過渡** - 使用 300ms 作為默認過渡時長
+### modal header 不隨內容滾動
+
+這在你的倉庫裡是高優先級約束。若新增彈窗，應維持：
+
+- header 固定
+- content 區單獨滾動
+- 關閉按鈕位置一致
+
+### 新增入口應接入既有導航體系
+
+如果是新的獨立子應用，除了自己的路由與工作區外，也應考慮：
+
+- 是否需要在 `Explore` 入口頁放一個入口
+- 是否需要讓主站進入它時走一個明確入口頁
+- 是否保留主站到子應用的橋接層
+
+你此前已明確過：`/villagesML/:pathMatch(.*)*` 這種獨立路徑是保留的，橋接不是頁面身份本身，而是主站與子應用之間的接線層。協作者不應隨意取消這種模式。
 
 ---
 
-**更多詳細信息，請參閱：**
-- [架構文檔](./ARCHITECTURE.md)
-- [API 文檔](./API.md)
-- [貢獻指南](./CONTRIBUTING.md)
-- [完整英文版](./DESIGN_SYSTEM.en.md)
+## 命名與技術風格
+
+### 新模塊名稱建議使用 PascalCase
+
+對於新的獨立模塊或子應用，名稱建議使用 PascalCase，例如：
+
+- `PhoneticToolbox`
+- `VillagesML`
+
+這比混用多種大小寫風格更容易維持一致的目錄、入口與 API 命名。
+
+### Composition API + SCSS 是推薦組合
+
+你現在的項目整體仍以 JavaScript 為主，但新頁面或新子模塊若沿用：
+
+- Vue Composition API
+- SCSS
+
+會更貼近你現在的共享層與樣式分層方式。
+
+### TypeScript 的建議
+
+由於當前項目主體仍是 JS-first，若協作者想在新模塊中引入 TypeScript，最好滿足兩個條件：
+
+- 影響範圍清晰，局限在自己的模塊內
+- 不把 TS 要求擴散到現有共享層與主站既有頁面
+
+也就是說，局部、邊界清晰的 TS 可以討論；默默把整個共享層往 TS 方向推，不適合作為默認策略。
+
+---
+
+## 協作者實作建議
+
+如果協作者要新增一個新的獨立頁面或子應用，推薦順序如下：
+
+1. 先確認是否已有共享組件能覆蓋需求
+2. 多 tab 頂欄優先看 `CommonBar`
+3. 局部 tab 優先看 `TabsContainer`
+4. 彈窗優先看 `AppModal`
+5. 下拉與選擇器優先看 `selector/`
+6. 全局提示、確認與說明優先看 `ToastAndHelp/`
+7. 樣式先留在自己的模塊工作區
+8. 只有在能力已被多處穩定復用時，再考慮往共享層抽
+
+這能最大程度降低對主站、`VillagesML` 和其他既有子項目的干擾。
+
+---
+
+## 與其他文檔的關係
+
+- 整體結構與入口關係：見 [ARCHITECTURE.md](./ARCHITECTURE.md)
+- API 組織：見 [API.md](./API.md)
+- 協作邊界與新增模塊規則：見 [CONTRIBUTING.md](./CONTRIBUTING.md)
+
+如果你要新增像 `PhoneticToolbox` 這樣的獨立模塊，本文件應與 `CONTRIBUTING.md` 一起閱讀：前者約束樣式與組件復用，後者約束目錄、路由、API 放置與協作邊界。
