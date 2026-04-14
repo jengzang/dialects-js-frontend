@@ -75,6 +75,7 @@ const map = shallowRef(null)
 const currentStyleKey = ref('gaode')
 const loading = ref(false)
 const isFullScreen = ref(false)
+const layerInteractionHandlers = new Map()
 
 // Options for SimpleSelectDropdown
 const mapStyleOptions = computed(() =>
@@ -90,6 +91,7 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   if (map.value) {
+    clearLayerInteractions()
     map.value.remove()
     map.value = null
   }
@@ -101,6 +103,33 @@ watch(() => [props.hotspot, props.clusters, props.points, props.layers], () => {
     renderData()
   }
 }, { deep: true })
+
+const unbindLayerInteractions = (layerId) => {
+  const handlers = layerInteractionHandlers.get(layerId)
+  if (!handlers) return
+
+  if (map.value) {
+    map.value.off('click', layerId, handlers.click)
+    map.value.off('mouseenter', layerId, handlers.mouseenter)
+    map.value.off('mouseleave', layerId, handlers.mouseleave)
+  }
+
+  layerInteractionHandlers.delete(layerId)
+}
+
+const clearLayerInteractions = () => {
+  Array.from(layerInteractionHandlers.keys()).forEach(unbindLayerInteractions)
+}
+
+const bindLayerInteractions = (layerId, handlers) => {
+  if (!map.value) return
+
+  unbindLayerInteractions(layerId)
+  map.value.on('click', layerId, handlers.click)
+  map.value.on('mouseenter', layerId, handlers.mouseenter)
+  map.value.on('mouseleave', layerId, handlers.mouseleave)
+  layerInteractionHandlers.set(layerId, handlers)
+}
 
 const initMap = () => {
   if (!mapContainer.value) return
@@ -181,24 +210,22 @@ const renderMultipleLayers = () => {
         }
       })
 
-      // 添加點擊事件
-      map.value.on('click', layerId, (e) => {
-        if (e.features && e.features.length > 0) {
-          const props = e.features[0].properties
-          emit('point-click', props)
+      bindLayerInteractions(layerId, {
+        click: (e) => {
+          if (e.features && e.features.length > 0) {
+            const props = e.features[0].properties
+            emit('point-click', props)
 
-          // 顯示彈窗
-          showPopup(e.features[0], e.lngLat)
+            // 顯示彈窗
+            showPopup(e.features[0], e.lngLat)
+          }
+        },
+        mouseenter: () => {
+          map.value.getCanvas().style.cursor = 'pointer'
+        },
+        mouseleave: () => {
+          map.value.getCanvas().style.cursor = ''
         }
-      })
-
-      // 添加懸停效果
-      map.value.on('mouseenter', layerId, () => {
-        map.value.getCanvas().style.cursor = 'pointer'
-      })
-
-      map.value.on('mouseleave', layerId, () => {
-        map.value.getCanvas().style.cursor = ''
       })
     }
 
@@ -311,6 +338,8 @@ const showPopup = (feature, lngLat) => {
 
 const clearLayers = () => {
   if (!map.value) return
+
+  clearLayerInteractions()
 
   // 清除舊的固定圖層
   const fixedLayersToRemove = ['hotspot-circle', 'villages-layer', 'clusters-layer', 'clusters-labels', 'points-layer']
@@ -437,31 +466,30 @@ const renderHotspot = () => {
       }
     })
 
-    // 點擊村莊點事件
-    map.value.on('click', 'villages-layer', (e) => {
-      if (e.features && e.features.length > 0) {
-        const props = e.features[0].properties
-        new maplibregl.Popup()
-          .setLngLat(e.features[0].geometry.coordinates)
-          .setHTML(`
-            <div style="padding: 8px;">
-              <h4 style="margin: 0 0 8px 0;">${props.village_name}</h4>
-              <p style="margin: 4px 0;"><strong>坐標:</strong> ${props.lat}, ${props.lon}</p>
-              ${props.city ? `<p style="margin: 4px 0;"><strong>城市:</strong> ${props.city}</p>` : ''}
-              ${props.county ? `<p style="margin: 4px 0;"><strong>區縣:</strong> ${props.county}</p>` : ''}
-              ${props.township ? `<p style="margin: 4px 0;"><strong>鄉鎮:</strong> ${props.township}</p>` : ''}
-            </div>
-          `)
-          .addTo(map.value)
+    bindLayerInteractions('villages-layer', {
+      click: (e) => {
+        if (e.features && e.features.length > 0) {
+          const props = e.features[0].properties
+          new maplibregl.Popup()
+            .setLngLat(e.features[0].geometry.coordinates)
+            .setHTML(`
+              <div style="padding: 8px;">
+                <h4 style="margin: 0 0 8px 0;">${props.village_name}</h4>
+                <p style="margin: 4px 0;"><strong>坐標:</strong> ${props.lat}, ${props.lon}</p>
+                ${props.city ? `<p style="margin: 4px 0;"><strong>城市:</strong> ${props.city}</p>` : ''}
+                ${props.county ? `<p style="margin: 4px 0;"><strong>區縣:</strong> ${props.county}</p>` : ''}
+                ${props.township ? `<p style="margin: 4px 0;"><strong>鄉鎮:</strong> ${props.township}</p>` : ''}
+              </div>
+            `)
+            .addTo(map.value)
+        }
+      },
+      mouseenter: () => {
+        map.value.getCanvas().style.cursor = 'pointer'
+      },
+      mouseleave: () => {
+        map.value.getCanvas().style.cursor = ''
       }
-    })
-
-    map.value.on('mouseenter', 'villages-layer', () => {
-      map.value.getCanvas().style.cursor = 'pointer'
-    })
-
-    map.value.on('mouseleave', 'villages-layer', () => {
-      map.value.getCanvas().style.cursor = ''
     })
   }
 }
@@ -542,28 +570,28 @@ const renderClusters = () => {
     }
   })
 
-  map.value.on('click', 'clusters-layer', (e) => {
-    if (e.features && e.features.length > 0) {
-      const props = e.features[0].properties
-      new maplibregl.Popup()
-        .setLngLat(e.features[0].geometry.coordinates)
-        .setHTML(`
-          <div style="padding: 8px;">
-            <h4 style="margin: 0 0 8px 0;">聚類 #${props.cluster_id}</h4>
-            <p style="margin: 4px 0;"><strong>大小:</strong> ${props.cluster_size} 點</p>
-            <p style="margin: 4px 0;"><strong>平均距離:</strong> ${props.avg_distance_km?.toFixed(2)} km</p>
-          </div>
-        `)
-        .addTo(map.value)
+  bindLayerInteractions('clusters-layer', {
+    click: (e) => {
+      if (e.features && e.features.length > 0) {
+        const props = e.features[0].properties
+        new maplibregl.Popup()
+          .setLngLat(e.features[0].geometry.coordinates)
+          .setHTML(`
+            <div style="padding: 8px;">
+              <h4 style="margin: 0 0 8px 0;">聚類 #${props.cluster_id}</h4>
+              <p style="margin: 4px 0;"><strong>大小:</strong> ${props.cluster_size} 點</p>
+              <p style="margin: 4px 0;"><strong>平均距離:</strong> ${props.avg_distance_km?.toFixed(2)} km</p>
+            </div>
+          `)
+          .addTo(map.value)
+      }
+    },
+    mouseenter: () => {
+      map.value.getCanvas().style.cursor = 'pointer'
+    },
+    mouseleave: () => {
+      map.value.getCanvas().style.cursor = ''
     }
-  })
-
-  map.value.on('mouseenter', 'clusters-layer', () => {
-    map.value.getCanvas().style.cursor = 'pointer'
-  })
-
-  map.value.on('mouseleave', 'clusters-layer', () => {
-    map.value.getCanvas().style.cursor = ''
   })
 
   // 计算中心点和边界

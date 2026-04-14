@@ -91,6 +91,8 @@ const currentStyle = ref('gaode')
 const displayMode = ref('name') // 'name' | 'dialect'
 const isFullscreen = ref(false)
 let currentMarkers = []
+let clusteredPopup = null
+let clusteredInteractionHandlers = null
 
 // Map style options
 const mapStyleOptions = computed(() => {
@@ -146,11 +148,93 @@ const initMap = () => {
   })
 }
 
+const unbindClusteredInteractions = () => {
+  if (clusteredPopup) {
+    clusteredPopup.remove()
+    clusteredPopup = null
+  }
+
+  if (!map.value || !clusteredInteractionHandlers) {
+    clusteredInteractionHandlers = null
+    return
+  }
+
+  map.value.off('click', 'clusters', clusteredInteractionHandlers.clickClusters)
+  map.value.off('mouseenter', 'unclustered-point-bg', clusteredInteractionHandlers.mouseEnterPoint)
+  map.value.off('mouseleave', 'unclustered-point-bg', clusteredInteractionHandlers.mouseLeavePoint)
+  map.value.off('mouseenter', 'clusters', clusteredInteractionHandlers.mouseEnterClusters)
+  map.value.off('mouseleave', 'clusters', clusteredInteractionHandlers.mouseLeaveClusters)
+  clusteredInteractionHandlers = null
+}
+
+const bindClusteredInteractions = () => {
+  if (!map.value) return
+
+  unbindClusteredInteractions()
+
+  clusteredPopup = new maplibregl.Popup({
+    closeButton: false,
+    closeOnClick: false,
+    offset: 10
+  })
+
+  clusteredInteractionHandlers = {
+    clickClusters: (e) => {
+      const features = map.value.queryRenderedFeatures(e.point, {
+        layers: ['clusters']
+      })
+
+      if (!features.length) return
+
+      const clusterId = features[0].properties.cluster_id
+      map.value.getSource('villages').getClusterExpansionZoom(
+        clusterId,
+        (err, zoom) => {
+          if (err) return
+
+          map.value.easeTo({
+            center: features[0].geometry.coordinates,
+            zoom: zoom + 0.5
+          })
+        }
+      )
+    },
+    mouseEnterPoint: (e) => {
+      map.value.getCanvas().style.cursor = 'pointer'
+
+      if (e.features.length > 0) {
+        const feature = e.features[0]
+        const { name, dialect } = feature.properties
+        clusteredPopup.setLngLat(e.lngLat)
+          .setHTML(`<strong>${name}</strong><br>${dialect || ''}`)
+          .addTo(map.value)
+      }
+    },
+    mouseLeavePoint: () => {
+      map.value.getCanvas().style.cursor = ''
+      clusteredPopup.remove()
+    },
+    mouseEnterClusters: () => {
+      map.value.getCanvas().style.cursor = 'pointer'
+    },
+    mouseLeaveClusters: () => {
+      map.value.getCanvas().style.cursor = ''
+    }
+  }
+
+  map.value.on('click', 'clusters', clusteredInteractionHandlers.clickClusters)
+  map.value.on('mouseenter', 'unclustered-point-bg', clusteredInteractionHandlers.mouseEnterPoint)
+  map.value.on('mouseleave', 'unclustered-point-bg', clusteredInteractionHandlers.mouseLeavePoint)
+  map.value.on('mouseenter', 'clusters', clusteredInteractionHandlers.mouseEnterClusters)
+  map.value.on('mouseleave', 'clusters', clusteredInteractionHandlers.mouseLeaveClusters)
+}
+
 // 渲染标记 - 村名模式使用聚合，方言模式不聚合
 const renderMarkers = () => {
   // 清除旧标记和图层
   currentMarkers.forEach(m => m.remove())
   currentMarkers.length = 0
+  unbindClusteredInteractions()
 
   if (!map.value || !validVillages.value.length) return
 
@@ -325,59 +409,7 @@ const renderWithClustering = (geojsonData) => {
     }
   })
 
-  // 点击聚合圆圈时放大
-  map.value.on('click', 'clusters', (e) => {
-    const features = map.value.queryRenderedFeatures(e.point, {
-      layers: ['clusters']
-    })
-
-    if (!features.length) return
-
-    const clusterId = features[0].properties.cluster_id
-    map.value.getSource('villages').getClusterExpansionZoom(
-      clusterId,
-      (err, zoom) => {
-        if (err) return
-
-        map.value.easeTo({
-          center: features[0].geometry.coordinates,
-          zoom: zoom + 0.5
-        })
-      }
-    )
-  })
-
-  // 悬停效果
-  const popup = new maplibregl.Popup({
-    closeButton: false,
-    closeOnClick: false,
-    offset: 10
-  })
-
-  map.value.on('mouseenter', 'unclustered-point-bg', (e) => {
-    map.value.getCanvas().style.cursor = 'pointer'
-
-    if (e.features.length > 0) {
-      const feature = e.features[0]
-      const { name, dialect } = feature.properties
-      popup.setLngLat(e.lngLat)
-        .setHTML(`<strong>${name}</strong><br>${dialect || ''}`)
-        .addTo(map.value)
-    }
-  })
-
-  map.value.on('mouseleave', 'unclustered-point-bg', () => {
-    map.value.getCanvas().style.cursor = ''
-    popup.remove()
-  })
-
-  map.value.on('mouseenter', 'clusters', () => {
-    map.value.getCanvas().style.cursor = 'pointer'
-  })
-
-  map.value.on('mouseleave', 'clusters', () => {
-    map.value.getCanvas().style.cursor = ''
-  })
+  bindClusteredInteractions()
 }
 
 // 不带聚合的渲染（方言模式）- 使用 DOM Marker，优化性能
@@ -480,12 +512,16 @@ const changeMapStyle = () => {
   if (!map.value) return
   const newStyle = mapStyle(currentStyle.value)
   map.value.setStyle(newStyle)
+  map.value.once('style.load', () => {
+    renderMarkers()
+  })
 }
 
 // 清理地图
 const cleanupMap = () => {
   currentMarkers.forEach(m => m.remove())
   currentMarkers.length = 0
+  unbindClusteredInteractions()
 
   // 清理全局 popup
   if (window._villagePopup) {
@@ -494,13 +530,6 @@ const cleanupMap = () => {
   }
 
   if (map.value) {
-    // 移除村名模式（聚合）的事件监听器
-    map.value.off('click', 'clusters')
-    map.value.off('mouseenter', 'unclustered-point-bg')
-    map.value.off('mouseleave', 'unclustered-point-bg')
-    map.value.off('mouseenter', 'clusters')
-    map.value.off('mouseleave', 'clusters')
-
     // 移除所有图层
     const layersToRemove = [
       'unclustered-point-text',

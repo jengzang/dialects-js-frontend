@@ -537,7 +537,7 @@ const handleStyleChange = () => {
   map.value.setStyle(newStyle)
 
   // 样式加载完成后重新添加 layers
-  map.value.once('styledata', () => {
+  map.value.once('style.load', () => {
     if (!currentData) return
 
     // 重新添加 source
@@ -545,8 +545,8 @@ const handleStyleChange = () => {
       type: 'geojson',
       data: currentData,
       cluster: true,
-      clusterMaxZoom: 12,
-      clusterRadius: 30
+      clusterMaxZoom: 14,
+      clusterRadius: 50
     })
 
     // 重新添加所有 layers（复用 initMap 中的代码）
