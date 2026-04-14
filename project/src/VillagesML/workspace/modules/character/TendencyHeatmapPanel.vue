@@ -137,6 +137,7 @@ watch(() => selectedMetric.value, () => {
 
 onMounted(() => {
   window.addEventListener('resize', handleResize)
+  nextTick(renderChart)
 })
 
 onBeforeUnmount(() => {
