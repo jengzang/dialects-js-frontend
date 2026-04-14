@@ -1,839 +1,550 @@
-# Architecture Documentation
+# Architecture Guide
 
-> Detailed technical architecture of the 方音圖鑑 (Chinese Dialect Atlas) platform
+> Current frontend architecture, entry model, and shared-layer overview for Chinese Dialect Atlas
+
+**Documentation Language:** English | [中文](./ARCHITECTURE.md)
 
 ---
 
 ## Table of Contents
 
 1. [System Overview](#system-overview)
-2. [Multi-Page Application (MPA) Structure](#multi-page-application-mpa-structure)
-3. [Component Hierarchy](#component-hierarchy)
-4. [State Management](#state-management)
-5. [API Architecture](#api-architecture)
-6. [Routing System](#routing-system)
-7. [Performance Optimizations](#performance-optimizations)
-8. [Build Configuration](#build-configuration)
+2. [Current Codebase Map](#current-codebase-map)
+3. [Multi-Entry Build Model](#multi-entry-build-model)
+4. [Main Site and VillagesML Sub-Application](#main-site-and-villagesml-sub-application)
+5. [Routing and Compatibility Layers](#routing-and-compatibility-layers)
+6. [Component and Module Layering](#component-and-module-layering)
+7. [State Management](#state-management)
+8. [API Architecture](#api-architecture)
+9. [Layouts and Style Layers](#layouts-and-style-layers)
+10. [Build and Runtime Notes](#build-and-runtime-notes)
 
 ---
 
 ## System Overview
 
+As of 2026-04, three facts matter most when reading the frontend:
+
+1. The real frontend project lives under `project/`; the repository root mainly holds documentation and collaboration material.
+2. The frontend is no longer a single Vue app. It is a hybrid of the `main` site, the `VillagesML` sub-application, and a shared infrastructure layer.
+3. Path routes are the current primary page identity. Query-style URLs such as `/menu?tab=...` and `/explore?page=...` are mainly preserved for legacy compatibility.
+
 ### Architecture Principles
 
-The platform follows these core architectural principles:
-
-1. **Multi-Page Application (MPA)** - 5 separate entry points for better code splitting
-2. **Feature-based organization** - Components grouped by functionality
-3. **Centralized API layer** - Single source of truth for backend communication
-4. **Custom state management** - Lightweight reactive stores without Vuex/Pinia
-5. **Progressive enhancement** - Performance optimizations for large datasets
+- **Multi-entry build**: separate HTML inputs for distinct entry roots and better chunking.
+- **Main-site / sub-app split**: the main site owns shared navigation shells and most tool pages; VillagesML owns its own entry, router, and workspace.
+- **Shared infrastructure**: `api`, `i18n`, `layouts`, `styles`, `components`, and `utils` are reused across entries.
+- **Compatibility layers**: legacy query routes still exist, but entry pages translate them into path-based routes.
+- **Lightweight reactive state**: the project still relies on Vue `ref` / `reactive` stores instead of Vuex or Pinia.
 
 ### Technology Stack
 
-**Frontend:**
-- Vue 3.5.20 (Composition API)
-- Vite 7.1.3 (Build tool)
-- Vue Router 4 (Routing)
+**Frontend**
+- Vue 3.5
+- Vite 7
+- Vue Router 4
 
-**Visualization:**
-- MapLibre GL 5.16 (Maps)
-- ECharts 5.6 (Charts)
-- wavesurfer.js 7.12 (Audio)
+**Visualization**
+- MapLibre GL
+- ECharts
+- wavesurfer.js
 
-**State & Data:**
-- Vue Reactive API (State management)
-- opencc-js (Chinese conversion)
-- xlsx (Excel operations)
+**Shared platform layers**
+- `src/api/auth`: auth, session restore, token handling
+- `src/i18n`: Simplified Chinese, Traditional Chinese, and English
+- `src/styles`: global, main-site, and VillagesML style entry layers
 
 ---
 
-## Multi-Page Application (MPA) Structure
+## Current Codebase Map
 
-### Entry Points
+The current top-level structure that matters most is:
 
-The application has **5 separate entry points** defined in `vite.config.js`:
+```text
+project/
+├── index.html
+├── auth/index.html
+├── menu/index.html
+├── intro/index.html
+├── explore/index.html
+├── villagesML/index.html
+├── vite.config.js
+└── src/
+    ├── main/
+    ├── VillagesML/
+    ├── api/
+    ├── components/
+    ├── i18n/
+    ├── layouts/
+    ├── styles/
+    └── utils/
+```
+
+### Main-Site Key Directories
+
+```text
+project/src/main/
+├── main.js
+├── App.vue
+├── router.js
+├── router/
+│   ├── menuRoutes.js
+│   ├── exploreRoutes.js
+│   └── legacyRouteMap.js
+├── views/
+│   ├── entry/
+│   ├── menu/
+│   ├── explore/
+│   └── intro/
+├── components/
+└── store/
+```
+
+### VillagesML Key Directories
+
+```text
+project/src/VillagesML/
+├── app/
+│   ├── main.js
+│   ├── App.vue
+│   ├── router.js
+│   ├── Entry.vue
+│   └── ExternalRouteBridge.vue
+├── dashboard/
+├── workspace/
+│   ├── VillagesMLWorkspace.vue
+│   └── modules/
+├── store/
+├── config/
+└── components/
+```
+
+---
+
+## Multi-Entry Build Model
+
+### Current Vite Inputs
+
+`project/vite.config.js` currently defines 6 HTML build inputs:
 
 ```javascript
-// vite.config.js
-export default defineConfig({
-  build: {
-    rollupOptions: {
-      input: {
-        main: resolve(__dirname, 'index.html'),
-        menu: resolve(__dirname, 'menu/index.html'),
-        explore: resolve(__dirname, 'explore/index.html'),
-        auth: resolve(__dirname, 'auth/index.html'),
-        intro: resolve(__dirname, 'intro/index.html')
-      }
+build: {
+  rollupOptions: {
+    input: {
+      main: path.resolve(__dirname, 'index.html'),
+      auth: path.resolve(__dirname, 'auth/index.html'),
+      menu: path.resolve(__dirname, 'menu/index.html'),
+      intro: path.resolve(__dirname, 'intro/index.html'),
+      explore: path.resolve(__dirname, 'explore/index.html'),
+      villagesML: path.resolve(__dirname, 'villagesML/index.html'),
     }
   }
-})
-```
-
-### Entry Point Details
-
-#### 1. Root Entry (`/`)
-- **File:** `index.html`
-- **Purpose:** Redirect to main application
-- **Behavior:** Automatically redirects to `/menu?tab=query`
-
-#### 2. Menu Entry (`/menu`)
-- **File:** `menu/index.html`
-- **Purpose:** Main application interface
-- **Features:**
-  - Query system (4 modes)
-  - Results display
-  - Map visualization
-  - Settings and user management
-- **Dynamic Loading:** Uses `MenuEntry.vue` with tab-based component loading
-
-#### 3. Explore Entry (`/explore`)
-- **File:** `explore/index.html`
-- **Purpose:** Analysis and research tools
-- **Features:**
-  - Phonology statistics
-  - Syllable counting
-  - Custom phoneme classification
-  - Praat audio analysis
-  - Data management tools
-- **Dynamic Loading:** Uses `ExploreEntry.vue` with tab-based component loading
-
-#### 4. Auth Entry (`/auth`)
-- **File:** `auth/index.html`
-- **Purpose:** Authentication pages
-- **Features:**
-  - Login
-  - Registration
-  - Password reset
-
-#### 5. Intro Entry (`/intro`)
-- **File:** `intro/index.html`
-- **Purpose:** Information pages
-- **Features:**
-  - About the project
-  - Data sources
-  - Privacy policy
-
-### Dynamic Component Loading
-
-Both `MenuEntry.vue` and `ExploreEntry.vue` use dynamic component loading based on URL query parameters:
-
-```vue
-<script setup>
-import { computed } from 'vue'
-import { useRoute } from 'vue-router'
-
-const route = useRoute()
-
-const tabMap = {
-  query: () => import('./menu/QueryPage.vue'),
-  result: () => import('./menu/ResultPage.vue'),
-  map: () => import('./menu/MapPage.vue'),
-  setting: () => import('./menu/SettingPage.vue')
 }
-
-const activeComponent = computed(() => {
-  const tab = route.query.tab
-  return tabMap[tab] || tabMap.query
-})
-</script>
-
-<template>
-  <component :is="activeComponent" />
-</template>
 ```
 
-**Benefits:**
-- Code splitting per tab
-- Lazy loading of components
-- Reduced initial bundle size
-- Better caching strategy
+### Entry Semantics
+
+| Route Root | HTML Entry | Role |
+| --- | --- | --- |
+| `/` | `project/index.html` | main-site root |
+| `/auth` | `project/auth/index.html` | authentication pages |
+| `/menu` | `project/menu/index.html` | main-site core pages |
+| `/intro` | `project/intro/index.html` | intro / support pages |
+| `/explore` | `project/explore/index.html` | Explore tools and gateway pages |
+| `/villagesML` | `project/villagesML/index.html` | VillagesML sub-application |
+
+### Dev-Time MPA Rewriting
+
+The `dev-mpa-rewrite` plugin in `vite.config.js` rewrites HTML requests for `/menu/*`, `/explore/*`, `/villagesML/*`, and the other entry roots to the correct `index.html` file during development.
+This is what makes direct sub-path access work in the local dev server.
+
+### Chunking Strategy
+
+The build currently creates explicit chunks for:
+
+- `i18n`
+- `echarts`
+- `maplibre`
+- `xlsx`
+- `wavesurfer`
+- `logs`
+- `vue-vendor`
+- other third-party `vendor` code
+
+That reflects an ongoing architectural goal: large visualization and tooling dependencies should stay as on-demand as possible across entries.
 
 ---
 
-## Component Hierarchy
+## Main Site and VillagesML Sub-Application
 
-### Directory Structure
+### Main Site
 
-```
-src/
-├── views/                      # Page-level components
-│   ├── MenuEntry.vue           # Menu entry with dynamic tab loading
-│   ├── ExploreEntry.vue        # Explore entry with dynamic tab loading
-│   ├── menu/                   # Menu pages
-│   │   ├── QueryPage.vue       # Query interface
-│   │   ├── ResultPage.vue      # Results display
-│   │   ├── MapPage.vue         # Map visualization
-│   │   ├── SettingPage.vue     # Settings
-│   │   ├── AboutPage.vue       # About
-│   │   ├── SourcePage.vue      # Data sources
-│   │   └── PrivacyPage.vue     # Privacy policy
-│   └── explore/                # Explore pages
-│       ├── PhonologyPage.vue   # Phonology statistics
-│       ├── Countphos.vue       # Syllable counting
-│       ├── PhonologyCustom.vue # Custom classification
-│       ├── Praat.vue           # Audio analysis
-│       ├── CheckTool.vue       # Character table validation
-│       ├── MergeTool.vue       # Table merging
-│       └── Jyut2IpaTool.vue    # Jyutping to IPA
-│
-├── components/                 # Reusable components
-│   ├── NavBar.vue              # Top navigation
-│   ├── GlobalToast.vue         # Toast notifications
-│   ├── GlobalConfirm.vue       # Confirmation dialogs
-│   ├── UniversalTable.vue      # Generic table component
-│   │
-│   ├── query/                  # Query-related components
-│   │   ├── LocationAndRegionInput.vue
-│   │   ├── RegionSelector.vue
-│   │   ├── ZhongguSelector.vue
-│   │   ├── YinweiSelector.vue
-│   │   └── FloatingDice.vue
-│   │
-│   ├── result/                 # Result display components
-│   │   ├── ResultList.vue
-│   │   ├── CharsAndTones.vue
-│   │   ├── DataRow.vue
-│   │   ├── FeaturePopup.vue
-│   │   └── ValuePopup.vue
-│   │
-│   ├── map/                    # Map components
-│   │   ├── MapLibre.vue
-│   │   ├── YuBaoMap.vue
-│   │   ├── CustomTab.vue
-│   │   └── DivideTab.vue
-│   │
-│   ├── praat/                  # Praat analysis components
-│   │   ├── AudioInputPanel.vue
-│   │   ├── SettingsPanel.vue
-│   │   ├── JobStatusPanel.vue
-│   │   ├── AnalysisResultsPanel.vue
-│   │   └── AudioPreviewPanel.vue
-│   │
-│   └── TableAndTree/           # Table and tree components
-│       ├── PhonologyTable.vue
-│       └── TreeView.vue
-```
+The main site boots from:
 
-### Component Communication
+- `project/src/main/main.js`
+- `project/src/main/App.vue`
+- `project/src/main/router.js`
 
-**Parent-Child Communication:**
-```vue
-<!-- Parent -->
-<ChildComponent
-  :prop-data="data"
-  @custom-event="handleEvent"
-/>
+At startup, the main site:
 
-<!-- Child -->
-<script setup>
-const props = defineProps(['propData'])
-const emit = defineEmits(['customEvent'])
-</script>
-```
+- loads `main-entry.scss`
+- mounts the shared message system
+- initializes i18n
+- runs `bootstrapAuthSession()`
+- chooses `MenuLayout`, `ExploreLayout`, `IntroLayout`, or `SimpleLayout` based on the current path
 
-**Global State Communication:**
+The main site owns:
+
+- `/menu/*` query, compare, phonology, result, map, and portal flows
+- `/explore/*` tool pages, data pages, and the VillagesML gateway page
+- `/auth/*` and `/intro/*`
+- global toast / confirm / rate-limit UI
+
+### VillagesML
+
+VillagesML boots from:
+
+- `project/src/VillagesML/app/main.js`
+- `project/src/VillagesML/app/App.vue`
+- `project/src/VillagesML/app/router.js`
+- `project/src/VillagesML/app/Entry.vue`
+
+At startup, VillagesML:
+
+- loads `villagesml-entry.scss`
+- reuses the shared message system and i18n
+- owns `/villagesML/*` through its own router
+- mounts `VillagesMLWorkspace.vue` in `Entry.vue`
+
+VillagesML is internally split into:
+
+- `dashboard/`: the dashboard shell lazily loaded by the main-site Explore gateway
+- `workspace/`: the actual analysis workspace, split into `modules/*`
+
+### Why This Hybrid Model Exists
+
+This arrangement preserves two useful properties at once:
+
+- the main site can offer a unified Explore shell and discovery path
+- VillagesML can still evolve as a standalone sub-application with its own canonical route space and workspace organization
+
+---
+
+## Routing and Compatibility Layers
+
+### Current Canonical Paths
+
+The main site and VillagesML now primarily use path-based routing:
+
+- `/menu/query/:sub`
+- `/menu/compare/:sub`
+- `/menu/map/:sub`
+- `/menu/pho/:section`
+- `/explore/tools/check`
+- `/explore/tools/jyut2ipa`
+- `/explore/tools/merge`
+- `/explore/tools/praat`
+- `/explore/manage`
+- `/explore/yubao`
+- `/explore/char-class`
+- `/explore/villages/ml`
+- `/villagesML/*`
+
+### Legacy Query Entry Still Exists
+
+The main site keeps two entry translators:
+
+- `project/src/main/views/entry/MenuEntry.vue`
+- `project/src/main/views/entry/ExploreEntry.vue`
+
+Together with `project/src/main/router/legacyRouteMap.js`, they translate:
+
+- `/menu?tab=...&sub=...` into `/menu/...`
+- `/explore?page=...` into `/explore/...`
+
+So query-style routing should be understood as:
+
+- not the current primary page organization
+- but still part of the compatibility surface for old links and bookmarks
+
+### The Role of the VillagesML Bridge
+
+In the main router, the following route exists:
+
 ```javascript
-import { globalPayload, userStore } from '@/utils/store.js'
-
-// Read state
-console.log(userStore.role)
-
-// Update state
-globalPayload.value = { chars: '你好', locations: ['广州'] }
+{
+  path: '/villagesML/:pathMatch(.*)*',
+  component: VillagesMLBridge
+}
 ```
+
+Its component, `project/src/main/views/entry/ExternalRouteBridge.vue`, runs:
+
+```javascript
+window.location.replace(route.fullPath)
+```
+
+The bridge does not host VillagesML business UI. Its purpose is to hand the browser off to the `villagesML/index.html` entry so the VillagesML sub-app can own that path.
+
+Conversely, `project/src/VillagesML/app/router.js` also keeps a fallback bridge:
+
+- `/villagesML/*` stays inside VillagesML
+- unmatched paths are handed back through `ExternalRouteBridge.vue`
+
+That means the current bridge design should be read as:
+
+- **the canonical path remains independent**
+- **the bridge is part of the current multi-entry deployment and handoff model**
+- **the bridge is not the final owner of the VillagesML UI**
+
+### Query Allowlist and Guards
+
+`project/src/main/router.js` also contains two important runtime mechanisms:
+
+- `ROUTE_QUERY_ALLOWLIST`: filters unsupported query keys by route
+- `router.beforeEach()`: sanitizes queries, updates the document title, and performs auth checks for selected routes
+
+At the moment, `/auth/data` and `/auth/regions` wait for `waitForAuthReady()` before deciding whether the user can proceed.
+
+---
+
+## Component and Module Layering
+
+### Shared UI Layer
+
+Cross-app shared components currently live in:
+
+```text
+project/src/components/
+├── ToastAndHelp/
+├── bar/
+├── common/
+└── selector/
+```
+
+This layer currently includes:
+
+- global messaging and notices
+- navigation bars such as `CommonBar`, `ExploreBar`, and `NavBar`
+- containers such as `AppModal` and `TabsContainer`
+- commonly reused selectors and dropdown components
+
+### Main-Site View Layering
+
+Main-site pages are mainly organized under:
+
+- `project/src/main/views/menu/`
+- `project/src/main/views/explore/`
+- `project/src/main/views/intro/`
+- `project/src/main/views/entry/`
+
+Within that structure:
+
+- `menuRoutes.js` owns `/menu/*`
+- `exploreRoutes.js` owns `/explore/*`
+- `views/entry/*` mainly handles legacy entry translation and bridge behavior
+
+### VillagesML Workspace Layering
+
+VillagesML workspace features are split into:
+
+```text
+project/src/VillagesML/workspace/modules/
+├── character/
+├── ml/
+├── pattern/
+├── regional/
+├── search/
+├── semantic/
+├── spatial/
+├── system/
+└── village/
+```
+
+This is an important architectural signal: VillagesML is no longer just a dashboard page. It is a real sub-application with its own workspace module hierarchy.
 
 ---
 
 ## State Management
 
-### Custom Reactive Store System
+### Main-Site State
 
-The project uses a custom reactive store system without Vuex or Pinia, located in `src/utils/store.js`.
+Main-site state currently lives mainly in:
 
-### Store Definitions
+- `project/src/main/store/store.js`
+- `project/src/main/store/customRegionStore.js`
+- `project/src/main/store/userStats.js`
 
-#### 1. globalPayload
-**Purpose:** Cross-page query data transfer
+`store.js` still uses Vue-native `ref` / `reactive` state objects, with core stores such as:
 
-```javascript
-export const globalPayload = ref({
-  chars: '',
-  path_strings: [],
-  group_inputs: [],
-  pho_values: [],
-  locations: [],
-  regions: [],
-  features: [],
-  region_mode: 'full'
-})
-```
+- `globalPayload`
+- `userStore`
+- `mapStore`
+- `queryStore`
+- `resultCache`
+- `uiStore`
 
-**Usage:**
-- Set in QueryPage.vue when user submits query
-- Read in ResultPage.vue to display results
-- Read in MapPage.vue to visualize on map
+This keeps the project's long-standing pattern of using lightweight domain stores without Vuex or Pinia.
 
-#### 2. userStore
-**Purpose:** User authentication state
+### VillagesML State
 
-```javascript
-export const userStore = reactive({
-  role: 'anonymous',        // 'anonymous' | 'user' | 'admin'
-  isAuthenticated: false,
-  username: '',
-  id: null
-})
-```
+VillagesML currently uses:
 
-**Usage:**
-- Updated on login/logout
-- Checked for permission-based features
-- Used to display user info in NavBar
+- `project/src/VillagesML/store/villagesMLStore.js`
 
-#### 3. mapStore
-**Purpose:** Map visualization state
+That store centralizes:
 
-```javascript
-export const mapStore = reactive({
-  mode: 'query',           // 'query' | 'custom' | 'divide'
-  mapData: [],
-  mergedData: [],
-  loading: false
-})
-```
+- active tab state
+- village search filters and results
+- regional analysis data
+- clustering settings and results
+- semantic-network settings
+- workspace-level loading and error state
 
-**Usage:**
-- Updated when query results arrive
-- Read by MapLibre.vue to render markers
-- Mode determines which data source to use
-
-#### 4. queryStore
-**Purpose:** Query configuration state
-
-```javascript
-export const queryStore = reactive({
-  locations: [],
-  regions: [],
-  regionUsing: false
-})
-```
-
-**Usage:**
-- Stores selected locations and regions
-- Persisted across page navigation
-- Used to validate query limits
-
-#### 5. resultCache
-**Purpose:** Result caching for performance
-
-```javascript
-export const resultCache = reactive({
-  mode: '',
-  features: [],
-  latestResults: []
-})
-```
-
-**Usage:**
-- Caches last query results
-- Avoids re-fetching on page navigation
-- Cleared when new query is submitted
-
-#### 6. uiStore
-**Purpose:** UI state management
-
-```javascript
-export const uiStore = reactive({
-  activeTab: 'query',
-  buttonStates: {},
-  sidebarCollapsed: false
-})
-```
-
-**Usage:**
-- Tracks active tab
-- Manages button loading states
-- Controls sidebar visibility
-
-### State Persistence
-
-Some stores are persisted to localStorage:
-
-```javascript
-// Save to localStorage
-watch(userStore, (newValue) => {
-  localStorage.setItem('userStore', JSON.stringify(newValue))
-}, { deep: true })
-
-// Load from localStorage
-const savedUserStore = localStorage.getItem('userStore')
-if (savedUserStore) {
-  Object.assign(userStore, JSON.parse(savedUserStore))
-}
-```
+So the current state model is not a single monolithic global store. It is a parallel set of domain stores for the main site and VillagesML.
 
 ---
 
 ## API Architecture
 
-### Centralized API Module System
+### Shared API Root
 
-All API functions are organized in `src/api/` and exported through a central hub (`src/api/index.js`).
+APIs are currently organized under:
 
-### API Directory Structure
-
-```
-src/api/
-├── index.js                    # Central export hub
+```text
+project/src/api/
 ├── auth/
-│   └── auth.js                 # Authentication & token management
-├── query/
-│   ├── core.js                 # searchChars, searchZhongGu, searchYinWei, searchTones
-│   ├── phonology.js            # getPhonologyMatrix, queryPhonology
-│   ├── geo.js                  # getCoordinates
-│   └── LocationAndRegion.js    # getLocations, getRegions
-├── praat/
-│   ├── index.js
-│   └── Praat.js          # Audio analysis APIs
-├── sql/
-│   ├── query.js                # sqlQuery, distinctQuery
-│   ├── mutate.js               # mutateSingleRow, batchMutate
-│   └── tree.js                 # lazyLoadTree, loadFullTree
-├── tools/
-│   ├── check.js                # Character table validation
-│   ├── merge.js                # Table merging
-│   └── jyut2ipa.js             # Jyutping to IPA conversion
-├── user/
-│   ├── custom.js               # getCustomData, submitCustomForm
-│   └── custom-data.js          # getAllCustomData, editCustomData
-└── logs/
-    └── visits.js               # getTodayVisits, getTotalVisits
+├── logs/
+├── main/
+│   ├── core/
+│   ├── geo/
+│   ├── sql/
+│   ├── tools/
+│   └── user/
+├── villagesML/
+└── index.js
 ```
 
-### Central Export Hub
+### Main Layers
 
-**File:** `src/api/index.js`
+- `src/api/auth/`: auth, session, token storage, HTTP client, validation
+- `src/api/main/`: main-site business APIs
+  - `core/`: query, compare, phonology
+  - `geo/`: locations and geographic data
+  - `sql/`: database query and mutation helpers
+  - `tools/`: Praat, check, merge, jyut2ipa
+  - `user/`: custom data and custom region APIs
+- `src/api/villagesML/`: VillagesML-specific analysis APIs
+- `src/api/logs/`: visit and logging-related APIs
 
-```javascript
-// Authentication
-export * from './auth/auth.js'
+### Central Export Layer
 
-// Query APIs
-export * from './query/core.js'
-export * from './query/phonology.js'
-export * from './query/geo.js'
-export * from './query/LocationAndRegion.js'
+`project/src/api/index.js` still provides a central export surface:
 
-// Praat APIs
-export * from './praat/index.js'
+- convenient for main-site pages that want a single import entry
+- also already re-exporting a large number of VillagesML APIs
 
-// SQL APIs
-export * from './sql/query.js'
-export * from './sql/mutate.js'
-export * from './sql/tree.js'
+In other words, the current codebase uses:
 
-// Tool APIs
-export * from './tools/check.js'
-export * from './tools/merge.js'
-export * from './tools/jyut2ipa.js'
+- **namespaced directories at the lower layer**
+- **aggregated exports where the upper layer benefits from them**
 
-// User APIs
-export * from './user/custom.js'
-export * from './user/custom-data.js'
-
-// Log APIs
-export * from './logs/visits.js'
-
-// Message utilities
-export * from '../utils/message.js'
-```
-
-### Import Convention
-
-**CRITICAL RULE:** Always import from `@/api`, never from subdirectories.
-
-```javascript
-// ✅ CORRECT
-import { searchChars, getLocations, sqlQuery } from '@/api'
-
-// ❌ WRONG
-import { searchChars } from '@/api/query/core.js'
-```
-
-**Benefits:**
-- Single import statement for all APIs
-- Easy to refactor API structure
-- Consistent import pattern across codebase
-- Better tree-shaking
-
-### API Function Pattern
-
-All API functions follow this pattern:
-
-```javascript
-import { api } from './auth.js'
-
-export async function searchChars(payload) {
-  return await api('/phonology', {
-    method: 'POST',
-    body: JSON.stringify(payload)
-  })
-}
-```
-
-### Authentication Flow
-
-```javascript
-// src/api/auth/auth.js
-
-// Base API function with token management
-export async function api(endpoint, options = {}) {
-  const token = localStorage.getItem('token')
-
-  const headers = {
-    'Content-Type': 'application/json',
-    ...(token && { 'Authorization': `Bearer ${token}` }),
-    ...options.headers
-  }
-
-  const response = await fetch(`${BASE_URL}${endpoint}`, {
-    ...options,
-    headers
-  })
-
-  if (response.status === 401) {
-    // Token expired, try to refresh
-    await refreshToken()
-    // Retry request
-    return api(endpoint, options)
-  }
-
-  return response.json()
-}
-
-// Ensure user is authenticated
-export async function ensureAuthenticated() {
-  if (!userStore.isAuthenticated) {
-    throw new Error('请先登录')
-  }
-}
-```
+That is also the current architectural precedent for future standalone modules.
 
 ---
 
-## Routing System
+## Layouts and Style Layers
 
-### Vue Router Configuration
+### Shared Layout Shells
 
-**File:** `src/router.js`
+Layout shells live in:
 
-```javascript
-import { createRouter, createWebHashHistory } from 'vue-router'
-
-const router = createRouter({
-  history: createWebHashHistory(),
-  routes: [
-    {
-      path: '/',
-      redirect: '/menu?tab=query'
-    },
-    {
-      path: '/menu',
-      component: () => import('./views/MenuEntry.vue')
-    },
-    {
-      path: '/explore',
-      component: () => import('./views/ExploreEntry.vue')
-    },
-    {
-      path: '/auth',
-      component: () => import('./views/auth/AuthPage.vue')
-    },
-    {
-      path: '/intro',
-      component: () => import('./views/intro/IntroPage.vue')
-    }
-  ]
-})
-
-export default router
+```text
+project/src/layouts/
+├── ExploreLayout.vue
+├── IntroLayout.vue
+├── MenuLayout.vue
+└── SimpleLayout.vue
 ```
 
-### Hash-based Routing
+The main site's `App.vue` decides which layout to use based on the route:
 
-The project uses hash-based routing (`createWebHashHistory`) for compatibility with static hosting:
+- `/` and `/villagesML/*`: `SimpleLayout`
+- `/intro*`: `IntroLayout`
+- typical `/explore/*`: `ExploreLayout`
+- other main-site pages: `MenuLayout`
 
-```
-https://dialects.yzup.top/#/menu?tab=query
-                          ↑
-                          Hash-based route
-```
+So layout selection is centralized in the app shell rather than delegated to each page independently.
 
-**Benefits:**
-- No server configuration needed
-- Works with static file hosting
-- Preserves query parameters
-- Browser history support
+### Style Entry Layers
 
-### Query Parameter Navigation
+Styles are currently split into three entry layers:
 
-Tab switching uses query parameters instead of nested routes:
-
-```javascript
-// Navigate to different tabs
-router.push({ path: '/menu', query: { tab: 'query' } })
-router.push({ path: '/menu', query: { tab: 'result' } })
-router.push({ path: '/menu', query: { tab: 'map' } })
+```text
+project/src/styles/
+├── global-entry.scss
+├── main-entry.scss
+├── villagesml-entry.scss
+├── global/
+├── main/
+└── villagesml/
 ```
 
-**Benefits:**
-- Simpler route configuration
-- Easy to add new tabs
-- Preserves other query parameters
-- Better for analytics tracking
+Their roles are:
+
+- `global/`: shared tokens, base rules, glass, scrollbars, utilities
+- `main/`: main-site forms, toolbars, overlays, surfaces
+- `villagesml/`: VillagesML workspace and panel styling
+
+This matches the runtime architecture: shared foundations exist, but the main site and VillagesML already have their own style sub-layers.
 
 ---
 
-## Performance Optimizations
+## Build and Runtime Notes
 
-### 1. Progressive Rendering
+### Router Mode
 
-**Problem:** Large tables (6,400+ cells) block UI thread during initial render.
+Both the main site and VillagesML currently use `createWebHistory()`.
+That means the old hash-router mental model should no longer be treated as current architecture.
 
-**Solution:** Render in chunks using `requestAnimationFrame`.
+In practice:
 
-```javascript
-// PhonologyTable.vue
-const visibleRows = ref(15)  // Show first 15 rows immediately
+- deployment needs to consider path routing together with multi-entry HTML
+- documentation and collaboration guidance should describe canonical path routes first
 
-onMounted(() => {
-  const addMoreRows = () => {
-    if (visibleRows.value < totalRows.value) {
-      visibleRows.value += 10  // Add 10 rows at a time
-      requestAnimationFrame(addMoreRows)
-    }
-  }
-  requestAnimationFrame(addMoreRows)
-})
-```
+### Lazy Loading
 
-**Result:** 50-70% faster initial render, imperceptible progressive loading.
+Lazy loading is used heavily in:
 
-### 2. Memoized Cell Data
+- `menuRoutes.js` and `exploreRoutes.js`
+- the VillagesML dashboard gateway
+- VillagesML workspace panels and feature modules
 
-**Problem:** Repeated object traversal for cell data lookups.
+This remains one of the main strategies for controlling initial bundle size and analysis-page cost.
 
-**Solution:** Compute Map for O(1) lookups.
+### Shared Infrastructure Is Still Shared
 
-```javascript
-const cellDataMap = computed(() => {
-  const map = new Map()
-  matrix.value.forEach(row => {
-    const key = `${row.final}_${row.initial}_${row.tone}`
-    map.set(key, row)
-  })
-  return map
-})
+Even though `main` and `VillagesML` are now distinct applications, they still share important infrastructure:
 
-const getCellData = (final, initial, tone) => {
-  return cellDataMap.value.get(`${final}_${initial}_${tone}`)
-}
-```
+- `src/api/auth`
+- `src/i18n`
+- `src/components/ToastAndHelp`
+- `src/layouts`
+- `src/utils/message.js`
 
-**Result:** Eliminates repeated traversal, ~2-3MB memory for 64,000 entries.
+### The Single Most Important Takeaway
 
-### 3. GPU Acceleration
+If you only remember one thing, remember this:
 
-**Problem:** Expensive backdrop-filter recalculation on scroll (Android).
-
-**Solution:** Isolate backdrop-filter to pseudo-elements and force GPU layers.
-
-```css
-.matrix-wrapper {
-  will-change: transform;
-  contain: layout style;
-}
-
-.sticky-header {
-  transform: translateZ(0);  /* Force GPU layer */
-  isolation: isolate;
-}
-
-.sticky-header::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  backdrop-filter: blur(10px);  /* Isolated to pseudo-element */
-  z-index: -1;
-}
-
-.matrix-cell {
-  contain: layout style paint;  /* Layout isolation */
-}
-```
-
-**Result:** 80-90% smoother scrolling on Android.
-
-### 4. Symbol Layer Rendering
-
-**Problem:** 1000+ DOM markers cause lag.
-
-**Solution:** Use MapLibre Symbol Layer with GeoJSON.
-
-```javascript
-// Convert to GeoJSON
-const geojson = {
-  type: 'FeatureCollection',
-  features: mapData.map(item => ({
-    type: 'Feature',
-    geometry: {
-      type: 'Point',
-      coordinates: [item.lng, item.lat]
-    },
-    properties: {
-      label: item.label,
-      bgColor: item.bgColor,
-      textColor: item.textColor
-    }
-  }))
-}
-
-// Add Symbol Layer
-map.addLayer({
-  id: 'markers',
-  type: 'symbol',
-  source: 'markers',
-  layout: {
-    'text-field': ['get', 'label'],
-    'text-size': 12
-  },
-  paint: {
-    'text-color': ['get', 'textColor']
-  }
-})
-```
-
-**Result:** Zero DOM elements, 90%+ performance improvement, supports 10,000+ markers.
-
-### 5. Debounced Search
-
-**Problem:** Excessive API calls during typing.
-
-**Solution:** Debounce search input.
-
-```javascript
-import { useDebounceFn } from '@vueuse/core'
-
-const debouncedSearch = useDebounceFn((value) => {
-  performSearch(value)
-}, 1000)
-```
-
-### 6. KeepAlive Caching
-
-**Problem:** Query page re-renders on navigation.
-
-**Solution:** Use `<keep-alive>` to cache component.
-
-```vue
-<router-view v-slot="{ Component }">
-  <keep-alive include="QueryPage">
-    <component :is="Component" />
-  </keep-alive>
-</router-view>
-```
+- `main` and `VillagesML` are now two clearly separated Vue application entries
+- they still share a substantial infrastructure layer
+- bridge pages and legacy route maps are part of the deployment and compatibility model, not proof that the apps lack independent route identity
 
 ---
 
-## Build Configuration
+**Further reading:**
 
-### Vite Configuration
-
-**File:** `vite.config.js`
-
-```javascript
-import { defineConfig } from 'vite'
-import vue from '@vitejs/plugin-vue'
-import { resolve } from 'path'
-
-export default defineConfig({
-  plugins: [vue()],
-
-  resolve: {
-    alias: {
-      '@': resolve(__dirname, 'src')
-    }
-  },
-
-  build: {
-    rollupOptions: {
-      input: {
-        main: resolve(__dirname, 'index.html'),
-        menu: resolve(__dirname, 'menu/index.html'),
-        explore: resolve(__dirname, 'explore/index.html'),
-        auth: resolve(__dirname, 'auth/index.html'),
-        intro: resolve(__dirname, 'intro/index.html')
-      }
-    },
-    chunkSizeWarningLimit: 1000,
-    sourcemap: false
-  },
-
-  server: {
-    port: 5173,
-    proxy: {
-      '/api': {
-        target: 'http://127.0.0.1:5000',
-        changeOrigin: true
-      }
-    }
-  }
-})
-```
-
-### Build Output Structure
-
-```
-dist/
-├── index.html
-├── menu/
-│   └── index.html
-├── explore/
-│   └── index.html
-├── auth/
-│   └── index.html
-├── intro/
-│   └── index.html
-└── assets/
-    ├── index-[hash].js
-    ├── menu-[hash].js
-    ├── explore-[hash].js
-    ├── auth-[hash].js
-    ├── intro-[hash].js
-    ├── vendor-[hash].js
-    └── style-[hash].css
-```
-
-### Code Splitting Strategy
-
-1. **Entry point chunks** - One per MPA entry
-2. **Vendor chunk** - Shared dependencies (Vue, Vue Router, etc.)
-3. **Dynamic imports** - Lazy-loaded components
-4. **CSS extraction** - Separate CSS files with hashed names
-
----
-
-## Summary
-
-The architecture is designed for:
-- **Scalability** - Easy to add new features and pages
-- **Performance** - Optimized for large datasets and complex visualizations
-- **Maintainability** - Clear separation of concerns and consistent patterns
-- **Developer Experience** - Simple conventions and powerful abstractions
-
-For more details on specific aspects, see:
-- [API Documentation](./API.md)
-- [Design System](./DESIGN_SYSTEM.md)
-- [Contributing Guide](./CONTRIBUTING.md)
+- [Documentation Center](./README.en.md)
+- [Contributing Guide](./CONTRIBUTING.en.md)
+- [API Reference](./API.en.md)
+- [VillagesML Feature Overview](./VillagesML/FEATURE_OVERVIEW.md)
