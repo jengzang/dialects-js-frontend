@@ -10,6 +10,7 @@ const praatViewPath = resolve(projectRoot, 'src/main/views/Praat.vue')
 const audioInputPanelPath = resolve(projectRoot, 'src/main/components/praat/AudioInputPanel.vue')
 const jobStatusPanelPath = resolve(projectRoot, 'src/main/components/praat/JobStatusPanel.vue')
 const analysisResultsPanelPath = resolve(projectRoot, 'src/main/components/praat/AnalysisResultsPanel.vue')
+const praatApiPath = resolve(projectRoot, 'src/api/main/tools/Praat.js')
 const enLocalePath = resolve(projectRoot, 'src/i18n/locales/en/praat.json')
 const zhCnLocalePath = resolve(projectRoot, 'src/i18n/locales/zh-CN/praat.json')
 const zhHantLocalePath = resolve(projectRoot, 'src/i18n/locales/zh-Hant/praat.json')
@@ -36,6 +37,18 @@ describe('Praat front-end risk controls', () => {
     expect(source).toContain("jobStage.value = t('praat.main.status.reusingUpload')")
     expect(source).toContain('if (isExpiredUploadError(error)) {')
     expect(source).toContain("@clear-selection=\"handleClearSelection\"")
+    expect(source).not.toContain(':context="resultContext"')
+  })
+
+  it('Praat keeps direct analysis for original uploads and binds polling to the current job id', () => {
+    const source = readSource(praatViewPath)
+
+    expect(source).toMatch(/const originalSegment = \{/)
+    expect(source).toMatch(/audioSegments\.value = \[originalSegment\]/)
+    expect(source).toMatch(/selectedSegment\.value = originalSegment/)
+    expect(source).toMatch(/const currentJobId = jobId\.value/)
+    expect(source).toMatch(/\(\) => getJobStatus\(currentJobId\)/)
+    expect(source).toMatch(/const results = await getJobResult\(currentJobId, 'full'\)/)
   })
 
   it('Audio input emits structured file payloads and forwards clear-selection to the parent', () => {
@@ -56,13 +69,20 @@ describe('Praat front-end risk controls', () => {
     expect(source).toContain("t('praat.jobStatus.canceled.title')")
   })
 
-  it('Analysis results panel exposes result context for job id and upload source', () => {
+  it('Analysis results panel does not expose upload/session internals to users', () => {
     const source = readSource(analysisResultsPanelPath)
 
-    expect(source).toContain('context: {')
-    expect(source).toContain("t('praat.results.context.jobLabel')")
-    expect(source).toContain("t('praat.results.context.uploadSourceLabel')")
-    expect(source).toContain("context.reusedUpload")
+    expect(source).not.toContain('result-context')
+    expect(source).not.toContain('context: {')
+    expect(source).not.toContain("t('praat.results.context.jobLabel')")
+  })
+
+  it('Praat API suppresses raw background error toasts for job status, result, and cancel requests', () => {
+    const source = readSource(praatApiPath)
+
+    expect(source).toMatch(/api\(`\/api\/tools\/praat\/jobs\/progress\/\$\{jobId\}`,\s*\{\s*showError: false/)
+    expect(source).toMatch(/api\(`\/api\/tools\/praat\/jobs\/progress\/\$\{jobId\}\/result\?view=\$\{view\}`,\s*\{\s*showError: false/)
+    expect(source).toMatch(/api\(`\/api\/tools\/praat\/jobs\/progress\/\$\{jobId\}`,\s*\{\s*method: 'DELETE',\s*showError: false/)
   })
 
   it('Praat locales include the new risk-control and result-context copy', () => {
@@ -73,7 +93,6 @@ describe('Praat front-end risk controls', () => {
     for (const source of [enSource, zhCnSource, zhHantSource]) {
       expect(source).toContain('"analysisInProgress"')
       expect(source).toContain('"reusingUpload"')
-      expect(source).toContain('"uploadSourceLabel"')
       expect(source).toContain('"canceled"')
     }
   })

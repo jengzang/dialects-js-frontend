@@ -243,7 +243,9 @@ export function praat() {
    */
   const getJobStatus = async (jobId) => {
     try {
-      return await api(`/api/tools/praat/jobs/progress/${jobId}`)
+      return await api(`/api/tools/praat/jobs/progress/${jobId}`, {
+        showError: false
+      })
     } catch (error) {
       console.error('Get job status error:', error)
       throw new Error(error.message || '獲取任務狀態失敗')
@@ -263,8 +265,9 @@ export function praat() {
    */
   const getJobResult = async (jobId, view = 'full') => {
     try {
-      return await
-          api(`/api/tools/praat/jobs/progress/${jobId}/result?view=${view}`)
+      return await api(`/api/tools/praat/jobs/progress/${jobId}/result?view=${view}`, {
+        showError: false
+      })
     } catch (error) {
       console.error('Get job result error:', error)
       throw new Error(error.message || '獲取分析結果失敗')
@@ -281,7 +284,8 @@ export function praat() {
   const cancelJob = async (jobId) => {
     try {
       return await api(`/api/tools/praat/jobs/progress/${jobId}`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        showError: false
       })
     } catch (error) {
       console.error('Cancel job error:', error)

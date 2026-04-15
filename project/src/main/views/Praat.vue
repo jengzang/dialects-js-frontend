@@ -121,7 +121,7 @@
           </div>
 
           <!-- Analysis Results -->
-          <AnalysisResultsPanel v-else :results="analysisResults" :context="resultContext" />
+          <AnalysisResultsPanel v-else :results="analysisResults" />
         </div>
 
       <!-- Tab 3: Vowel Space - NEW -->
@@ -281,7 +281,6 @@ const jobError = ref(null)
 const pollingFailCount = ref(0)  // ✅ 添加失败计数器
 const isAnalyzing = ref(false)   // ✅ 分析进行中标志（包括上传阶段）
 const analysisRunId = ref(0)
-const resultContext = ref(null)
 
 // Results
 const analysisResults = ref(null)
@@ -366,7 +365,6 @@ const resetAnalysisState = () => {
   isUploading.value = false
   isAnalyzing.value = false
   analysisResults.value = null
-  resultContext.value = null
   resultsTabEnabled.value = false
 }
 
@@ -419,14 +417,7 @@ const invalidateAudioVersion = () => {
 const setSingleAudioSelection = (payload) => {
   invalidateAudioVersion()
 
-  audioFile.value = payload.file
-  audioBlob.value = payload.blob
-  audioSegments.value = []
-  selectedSegment.value = null
-  currentAudioDuration.value = payload.duration ?? null
-  showPreview.value = true
-
-  originalSegments.value = [{
+  const originalSegment = {
     file: payload.file,
     blob: payload.blob,
     duration: payload.duration ?? 0,
@@ -435,7 +426,16 @@ const setSingleAudioSelection = (payload) => {
     index: 0,
     name: payload.file.name,
     origin: payload.origin || 'original',
-  }]
+  }
+
+  audioFile.value = payload.file
+  audioBlob.value = payload.blob
+  audioSegments.value = [originalSegment]
+  selectedSegment.value = originalSegment
+  currentAudioDuration.value = payload.duration ?? null
+  showPreview.value = true
+
+  originalSegments.value = [originalSegment]
   segmentOriginMode.value = payload.origin || 'original'
 }
 
@@ -780,12 +780,8 @@ const startAnalysis = async () => {
     if (!jobStart) return
     if (!isCurrentRun(runId)) return
 
-    const { jobResponse, reusedUpload } = jobStart
+    const { jobResponse } = jobStart
     jobId.value = jobResponse.job_id
-    resultContext.value = {
-      jobId: jobResponse.job_id,
-      reusedUpload,
-    }
 
     await setActiveTab('results')
     if (!isCurrentRun(runId)) return
@@ -809,9 +805,10 @@ const startAnalysis = async () => {
 
 const startPolling = async (runId) => {
   pollingFailCount.value = 0
+  const currentJobId = jobId.value
 
   await pollingTask.start(
-    () => getJobStatus(jobId.value),
+    () => getJobStatus(currentJobId),
     {
       onTick: async (status) => {
         if (!isCurrentRun(runId)) return
@@ -827,7 +824,7 @@ const startPolling = async (runId) => {
         const nextStatus = normalizeJobStatus(status.status)
         if (nextStatus === 'completed') {
           jobProgress.value = 100
-          await fetchResults(runId)
+          await fetchResults(runId, currentJobId)
           if (!isCurrentRun(runId)) return
           isAnalyzing.value = false
           return
@@ -869,9 +866,9 @@ const stopPolling = () => {
   pollingTask.stop()
 }
 
-const fetchResults = async (runId) => {
+const fetchResults = async (runId, currentJobId) => {
   try {
-    const results = await getJobResult(jobId.value, 'full')
+    const results = await getJobResult(currentJobId, 'full')
     if (!isCurrentRun(runId)) return
     analysisResults.value = results
   } catch (error) {
