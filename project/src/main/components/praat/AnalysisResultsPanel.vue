@@ -2,6 +2,21 @@
   <div v-if="results" class="analysis-results-panel main-glass-panel">
     <h2 class="panel-title">{{ t('praat.results.title') }}</h2>
 
+    <div v-if="context?.jobId" class="result-context main-glass-panel-inner">
+      <span class="context-item">
+        <span class="context-label">{{ t('praat.results.context.jobLabel') }}</span>
+        <span class="context-value">{{ context.jobId }}</span>
+      </span>
+      <span class="context-item">
+        <span class="context-label">{{ t('praat.results.context.uploadSourceLabel') }}</span>
+        <span class="context-value">
+          {{ context.reusedUpload
+            ? t('praat.results.context.reusedUpload')
+            : t('praat.results.context.freshUpload') }}
+        </span>
+      </span>
+    </div>
+
     <!-- Summary Statistics -->
     <div class="summary-section">
       <h3 class="section-title">{{ t('praat.results.basicInfo.title') }}</h3>
@@ -148,6 +163,10 @@ import { useI18n } from 'vue-i18n'
 
 const props = defineProps({
   results: {
+    type: Object,
+    default: null
+  },
+  context: {
     type: Object,
     default: null
   }
@@ -734,6 +753,31 @@ onBeforeUnmount(() => {
   font-size: 1.5rem;
   font-weight: 600;
   margin-bottom: 1.5rem;
+  color: var(--color-text-primary);
+}
+
+.result-context {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 0.9rem 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.context-item {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.context-label {
+  font-size: 0.9rem;
+  color: var(--color-text-secondary);
+}
+
+.context-value {
+  font-size: 0.95rem;
+  font-weight: 600;
   color: var(--color-text-primary);
 }
 

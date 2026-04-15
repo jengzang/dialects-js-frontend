@@ -70,7 +70,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['file-selected', 'segments-ready'])
+const emit = defineEmits(['file-selected', 'segments-ready', 'clear-selection'])
 const { t } = useI18n()
 
 const isDragOver = ref(false)
@@ -146,7 +146,13 @@ const processFile = async (file) => {
     if (segments.length === 1) {
       // Single segment, emit as before
       const blob = new Blob([file], { type: file.type })
-      emit('file-selected', file, blob)
+      const duration = segments[0]?.duration ?? 0
+      emit('file-selected', {
+        file,
+        blob,
+        duration: duration,
+        origin: 'original'
+      })
     } else {
       // Multiple segments, emit segments array
       emit('segments-ready', segments)
@@ -341,13 +347,23 @@ const startRecording = async () => {
       try {
         const segments = await checkAndSplitAudio(audioFile)
         if (segments.length === 1) {
-          emit('file-selected', audioFile, audioBlob)
+          emit('file-selected', {
+            file: audioFile,
+            blob: audioBlob,
+            duration: segments[0]?.duration ?? 0,
+            origin: 'original'
+          })
         } else {
           emit('segments-ready', segments)
         }
       } catch (error) {
         console.error('Process recording error:', error)
-        emit('file-selected', audioFile, audioBlob)
+        emit('file-selected', {
+          file: audioFile,
+          blob: audioBlob,
+          duration: 0,
+          origin: 'original'
+        })
       }
 
       cleanupRecording()
@@ -394,6 +410,7 @@ const clearFile = () => {
   if (fileInput.value) {
     fileInput.value.value = ''
   }
+  emit('clear-selection')
 }
 
 const formatFileSize = (bytes) => {

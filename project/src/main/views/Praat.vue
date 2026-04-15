@@ -80,6 +80,7 @@
             :selected-segment="selectedSegment"
             @file-selected="handleFileSelected"
             @segments-ready="handleSegmentsReady"
+            @clear-selection="handleClearSelection"
           />
 
           <!-- Start Analysis Button -->
@@ -88,10 +89,11 @@
             <button
                 class="start-button main-glass-button"
                 @click="startAnalysis"
-                :disabled="isUploading || !audioFile"
+                :disabled="isActionLocked"
                 :class="{ 'disabled-state': !audioFile }"
             >
               <span v-if="isUploading">{{ t('praat.main.actions.uploading') }}</span>
+              <span v-else-if="isAnalyzing || isActiveJobStatus(normalizedJobStatus)">{{ t('praat.main.actions.analysisInProgress') }}</span>
               <span v-else-if="!audioFile">{{ t('praat.main.actions.pleaseSelectAudio') }}</span>
               <span v-else>{{ t('praat.main.actions.startAnalysis') }}</span>
             </button>
@@ -102,9 +104,9 @@
       <div v-show="activeTab === 'results'" class="page-content" :class="{ 'tab-hidden': activeTab !== 'results' }">
           <!-- Job Status Panel (shown during analysis, including upload phase) -->
           <JobStatusPanel
-            v-if="isAnalyzing"
+            v-if="shouldShowJobStatusPanel"
             :job-id="jobId"
-            :status="jobStatus"
+            :status="normalizedJobStatus"
             :progress="jobProgress"
             :stage="jobStage"
             :error="jobError"
@@ -119,7 +121,7 @@
           </div>
 
           <!-- Analysis Results -->
-          <AnalysisResultsPanel v-else :results="analysisResults" />
+          <AnalysisResultsPanel v-else :results="analysisResults" :context="resultContext" />
         </div>
 
       <!-- Tab 3: Vowel Space - NEW -->
@@ -251,6 +253,8 @@ const audioFile = ref(null)
 const audioBlob = ref(null)
 const audioSegments = ref([])
 const selectedSegment = ref(null)
+const currentAudioDuration = ref(null)
+const audioRevision = ref(0)
 
 // Segment preservation state
 const originalSegments = ref([])  // Store first uploaded segments
@@ -258,19 +262,240 @@ const segmentOriginMode = ref(null)  // 'original' | 'auto-split' | null
 
 // Upload state
 const isUploading = ref(false)
-const uploadId = ref(null)
+const createEmptyUploadSession = () => ({
+  uploadId: null,
+  audioRevision: 0,
+  durationS: null,
+  createdAt: null,
+  lastJobId: null,
+  reuseEligible: false,
+})
+const uploadSession = ref(createEmptyUploadSession())
 
 // Job state
 const jobId = ref(null)
-const jobStatus = ref('queued')
+const jobStatus = ref('idle')
 const jobProgress = ref(0)
 const jobStage = ref(null)
 const jobError = ref(null)
 const pollingFailCount = ref(0)  // ✅ 添加失败计数器
 const isAnalyzing = ref(false)   // ✅ 分析进行中标志（包括上传阶段）
+const analysisRunId = ref(0)
+const resultContext = ref(null)
 
 // Results
 const analysisResults = ref(null)
+
+const normalizeJobStatus = (status) => {
+  switch (status) {
+    case 'queued':
+      return 'queued'
+    case 'running':
+    case 'processing':
+      return 'processing'
+    case 'completed':
+    case 'done':
+      return 'completed'
+    case 'failed':
+    case 'error':
+      return 'error'
+    case 'canceled':
+    case 'cancelled':
+      return 'canceled'
+    default:
+      return 'idle'
+  }
+}
+
+const normalizedJobStatus = computed(() => normalizeJobStatus(jobStatus.value))
+
+const isActiveJobStatus = (status) => {
+  return status === 'queued' || status === 'processing'
+}
+
+const isActionLocked = computed(() => {
+  if (!audioFile.value) {
+    return true
+  }
+
+  return isUploading.value || isAnalyzing.value || isActiveJobStatus(normalizedJobStatus.value)
+})
+
+const shouldShowJobStatusPanel = computed(() => {
+  if (isAnalyzing.value) {
+    return true
+  }
+
+  return Boolean(
+    jobId.value &&
+    (
+      normalizedJobStatus.value === 'error' ||
+      normalizedJobStatus.value === 'canceled'
+    )
+  )
+})
+
+const getCurrentAudioDuration = () => {
+  return currentAudioDuration.value
+    ?? selectedSegment.value?.duration
+    ?? originalSegments.value[0]?.duration
+    ?? null
+}
+
+const clearUploadSession = () => {
+  uploadSession.value = createEmptyUploadSession()
+}
+
+const resetAnalysisState = () => {
+  stopPolling()
+  jobId.value = null
+  jobStatus.value = 'idle'
+  jobProgress.value = 0
+  jobStage.value = null
+  jobError.value = null
+  pollingFailCount.value = 0
+  isUploading.value = false
+  isAnalyzing.value = false
+  analysisResults.value = null
+  resultContext.value = null
+  resultsTabEnabled.value = false
+}
+
+const isCurrentRun = (runId) => runId === analysisRunId.value
+
+const beginAnalysisRun = () => {
+  stopPolling()
+  analysisRunId.value += 1
+  return analysisRunId.value
+}
+
+const invalidateAnalysisRun = () => {
+  analysisRunId.value += 1
+}
+
+const persistUploadSession = (uploadId, durationS) => {
+  uploadSession.value = {
+    uploadId,
+    audioRevision: audioRevision.value,
+    durationS,
+    createdAt: Date.now(),
+    lastJobId: null,
+    reuseEligible: true,
+  }
+}
+
+const isSameSegment = (left, right) => {
+  if (!left || !right) return false
+  return left.name === right.name &&
+    left.startTime === right.startTime &&
+    left.endTime === right.endTime &&
+    left.origin === right.origin
+}
+
+const cancelActiveJobIfNeeded = () => {
+  if (jobId.value && isActiveJobStatus(normalizedJobStatus.value)) {
+    cancelJob(jobId.value).catch(console.error)
+  }
+}
+
+const invalidateAudioVersion = () => {
+  cancelActiveJobIfNeeded()
+  invalidateAnalysisRun()
+  audioRevision.value += 1
+  clearUploadSession()
+  resetAnalysisState()
+  setActiveTab('upload')
+}
+
+const setSingleAudioSelection = (payload) => {
+  invalidateAudioVersion()
+
+  audioFile.value = payload.file
+  audioBlob.value = payload.blob
+  audioSegments.value = []
+  selectedSegment.value = null
+  currentAudioDuration.value = payload.duration ?? null
+  showPreview.value = true
+
+  originalSegments.value = [{
+    file: payload.file,
+    blob: payload.blob,
+    duration: payload.duration ?? 0,
+    startTime: 0,
+    endTime: payload.duration ?? 0,
+    index: 0,
+    name: payload.file.name,
+    origin: payload.origin || 'original',
+  }]
+  segmentOriginMode.value = payload.origin || 'original'
+}
+
+const setSegmentsSelection = (segments, originMode) => {
+  invalidateAudioVersion()
+
+  audioSegments.value = segments
+  audioBlob.value = null
+  selectedSegment.value = segments[0] || null
+  audioFile.value = selectedSegment.value?.file || null
+  currentAudioDuration.value = selectedSegment.value?.duration ?? null
+  showPreview.value = true
+
+  originalSegments.value = [...segments]
+  segmentOriginMode.value = originMode
+}
+
+const getErrorText = (error) => {
+  const detail = typeof error?.detail === 'string'
+    ? error.detail
+    : error?.detail
+      ? JSON.stringify(error.detail)
+      : ''
+
+  return [error?.message, detail]
+    .filter(Boolean)
+    .join(' ')
+    .toLowerCase()
+}
+
+const isExpiredUploadError = (error) => {
+  const status = error?.status ?? error?.response?.status
+  if (status === 404 || status === 410) return true
+
+  const errorText = getErrorText(error)
+  return errorText.includes('upload') &&
+    (
+      errorText.includes('not found') ||
+      errorText.includes('expired') ||
+      errorText.includes('missing') ||
+      errorText.includes('不存在') ||
+      errorText.includes('过期') ||
+      errorText.includes('過期')
+    )
+}
+
+const isBusyUploadError = (error) => {
+  const status = error?.status ?? error?.response?.status
+  if (status === 409) return true
+
+  const errorText = getErrorText(error)
+  return errorText.includes('busy') ||
+    errorText.includes('already running') ||
+    errorText.includes('still processing') ||
+    errorText.includes('processing') ||
+    errorText.includes('处理中') ||
+    errorText.includes('處理中') ||
+    errorText.includes('运行中') ||
+    errorText.includes('運行中')
+}
+
+const canReuseCurrentUpload = () => {
+  return Boolean(
+    uploadSession.value.uploadId &&
+    uploadSession.value.reuseEligible &&
+    uploadSession.value.audioRevision === audioRevision.value &&
+    !isActiveJobStatus(normalizedJobStatus.value)
+  )
+}
 
 // Default settings
 const defaultSettings = {
@@ -347,127 +572,179 @@ const pollingTask = usePollingTask({
   maxFailures: MAX_POLLING_FAILURES,
 })
 
-const handleFileSelected = (file, blob) => {
-  // console.log('🔴 父组件收到了文件:', file); // <--- 加上这一行！
-  audioFile.value = file
-  audioBlob.value = blob
-  audioSegments.value = [] // Clear segments for single file
-  selectedSegment.value = null
-  showPreview.value = true
-
-  // Store as original segment (single file upload)
-  originalSegments.value = [{
-    file: file,
-    blob: blob,
-    duration: 0,  // Will be updated by WaveSurfer
-    startTime: 0,
-    endTime: 0,
-    index: 0,
-    name: file.name,
-    origin: 'original'
-  }]
-  segmentOriginMode.value = 'original'
-
-  // Reset previous analysis
-  jobId.value = null
-  jobStatus.value = 'queued'
-  analysisResults.value = null
-  uploadId.value = null
-  pollingFailCount.value = 0  // ✅ 重置失败计数
-
-  // Reset tab state
-  resultsTabEnabled.value = false
-  setActiveTab('upload')
+const handleFileSelected = (payload) => {
+  setSingleAudioSelection(payload)
 }
 
 const handleSegmentsReady = (segments) => {
-  audioSegments.value = segments
-  audioBlob.value = null // Clear single blob
-  audioFile.value = null
-  selectedSegment.value = segments[0] // Auto-select first segment
-  showPreview.value = true
-
-  // Store as original segments (auto-split)
-  originalSegments.value = [...segments]
-  segmentOriginMode.value = 'auto-split'
-
-  // Reset previous analysis
-  jobId.value = null
-  jobStatus.value = 'queued'
-  analysisResults.value = null
-  uploadId.value = null
-  pollingFailCount.value = 0  // ✅ 重置失败计数
-
-  // Reset tab state
-  resultsTabEnabled.value = false
-  setActiveTab('upload')
+  setSegmentsSelection(segments, 'auto-split')
 }
 
 const handleManualSegmentsReady = (segments) => {
-  if (segments.length === 0) {
-    // User cleared all manual segments - restore original
-    if (originalSegments.value.length > 0) {
-      audioSegments.value = [...originalSegments.value]
-      audioFile.value = originalSegments.value[0].file
-      selectedSegment.value = originalSegments.value[0]
+  const fallbackOriginalSegments = [...originalSegments.value]
+  const fallbackOriginMode = segmentOriginMode.value
 
-      // Restore audioBlob if it was a single file upload
-      if (segmentOriginMode.value === 'original') {
-        audioBlob.value = originalSegments.value[0].blob
+  if (segments.length === 0) {
+    invalidateAudioVersion()
+
+    if (fallbackOriginalSegments.length > 0) {
+      audioSegments.value = [...fallbackOriginalSegments]
+      selectedSegment.value = fallbackOriginalSegments[0]
+      audioFile.value = fallbackOriginalSegments[0].file
+      currentAudioDuration.value = fallbackOriginalSegments[0].duration ?? null
+      originalSegments.value = fallbackOriginalSegments
+      segmentOriginMode.value = fallbackOriginMode
+
+      if (fallbackOriginMode === 'original') {
+        audioBlob.value = fallbackOriginalSegments[0].blob
+      } else {
+        audioBlob.value = null
       }
+      showPreview.value = true
     } else {
       audioSegments.value = []
       audioFile.value = null
+      audioBlob.value = null
       selectedSegment.value = null
+      currentAudioDuration.value = null
+      originalSegments.value = []
+      segmentOriginMode.value = null
     }
     return
   }
 
   // Check if original should be preserved
-  const hasOriginalSegment = segmentOriginMode.value === 'original'
+  const hasOriginalSegment = fallbackOriginMode === 'original'
+  let nextSegments = segments
 
   if (hasOriginalSegment) {
     // Preserve original + add manual segments
-    const originalSeg = originalSegments.value[0]
-    audioSegments.value = [originalSeg, ...segments]
-  } else {
-    // Replace auto-split segments with manual segments
-    audioSegments.value = segments
+    const originalSeg = fallbackOriginalSegments[0]
+    nextSegments = [originalSeg, ...segments]
   }
 
-  // Auto-select first manual segment (or first segment if no manual)
-  const firstManualSegment = audioSegments.value.find(s => s.origin === 'manual')
-  selectedSegment.value = firstManualSegment || audioSegments.value[0]
-
-  // Set audioFile based on selected segment
-  audioFile.value = selectedSegment.value.file
-
-  // Reset previous analysis
-  jobId.value = null
-  jobStatus.value = 'queued'
-  analysisResults.value = null
-  uploadId.value = null
-  pollingFailCount.value = 0
-
-  // Reset tab state
-  resultsTabEnabled.value = false
-  setActiveTab('upload')
+  invalidateAudioVersion()
+  audioSegments.value = nextSegments
+  selectedSegment.value = audioSegments.value.find(s => s.origin === 'manual') || audioSegments.value[0]
+  audioFile.value = selectedSegment.value?.file || null
+  audioBlob.value = hasOriginalSegment ? fallbackOriginalSegments[0]?.blob || null : null
+  currentAudioDuration.value = selectedSegment.value?.duration ?? null
+  originalSegments.value = fallbackOriginalSegments
+  segmentOriginMode.value = fallbackOriginMode
+  showPreview.value = true
 }
 
 const handleSegmentSelected = (segment) => {
+  const selectionChanged = !isSameSegment(selectedSegment.value, segment)
   selectedSegment.value = segment
-  // 【修复】：加个判断，防止把已有的 file 覆盖成 undefined
   if (segment.file) {
     audioFile.value = segment.file
   }
-  // blob 通常都有，可以照常更新
   if (segment.blob) {
     audioBlob.value = segment.blob
+  }
+  currentAudioDuration.value = segment.duration ?? currentAudioDuration.value
+
+  if (selectionChanged) {
+    invalidateAudioVersion()
+    selectedSegment.value = segment
+    audioFile.value = segment.file || null
+    audioBlob.value = segment.blob || null
+    currentAudioDuration.value = segment.duration ?? currentAudioDuration.value
+    showPreview.value = true
+  }
+}
+
+const handleClearSelection = () => {
+  invalidateAudioVersion()
+  audioFile.value = null
+  audioBlob.value = null
+  audioSegments.value = []
+  selectedSegment.value = null
+  currentAudioDuration.value = null
+  originalSegments.value = []
+  segmentOriginMode.value = null
+  showPreview.value = false
+}
+
+const createJobWithCurrentUpload = async (runId) => {
+  if (canReuseCurrentUpload()) {
+    jobStage.value = t('praat.main.status.reusingUpload')
+
+    try {
+      const jobResponse = await createJob(uploadSession.value.uploadId, settings)
+      if (!isCurrentRun(runId)) return null
+
+      uploadSession.value = {
+        ...uploadSession.value,
+        lastJobId: jobResponse.job_id,
+      }
+
+      return {
+        jobResponse,
+        reusedUpload: true,
+      }
+    } catch (error) {
+      if (!isCurrentRun(runId)) return null
+
+      if (isExpiredUploadError(error)) {
+        clearUploadSession()
+        jobStage.value = t('praat.main.status.retryingUpload')
+      } else if (isBusyUploadError(error)) {
+        throw new Error(t('praat.main.errors.uploadBusy'))
+      } else {
+        throw error
+      }
+    }
+  }
+
+  isUploading.value = true
+  jobStage.value = t('praat.main.status.uploading')
+  const uploadResponse = await uploadAudio(audioFile.value)
+  if (!isCurrentRun(runId)) return null
+
+  const duration = uploadResponse.normalized_meta?.duration_s || uploadResponse.audio_metadata?.duration_s || getCurrentAudioDuration()
+  persistUploadSession(uploadResponse.task_id, duration)
+
+  jobStage.value = t('praat.main.status.creatingJob')
+  const jobResponse = await createJob(uploadSession.value.uploadId, settings)
+  if (!isCurrentRun(runId)) return null
+
+  uploadSession.value = {
+    ...uploadSession.value,
+    lastJobId: jobResponse.job_id,
+  }
+
+  return {
+    jobResponse,
+    reusedUpload: false,
   }
 }
 
 const startAnalysis = async () => {
   if (!audioFile.value) return
+  if (isUploading.value || isAnalyzing.value || isActiveJobStatus(normalizedJobStatus.value)) {
+    showWarning(t('praat.main.errors.analysisInProgress'))
+    return
+  }
+
+  const duration = getCurrentAudioDuration()
+  const hasSpectrogramModule = settings.modules && settings.modules.includes('spectrogram')
+  const isAdmin = userStore.role === 'admin'
+
+  if (hasSpectrogramModule && duration && duration > 3 && !isAdmin) {
+    showWarning(
+      t('praat.main.errors.durationExceeded', {
+        duration: duration.toFixed(1),
+      }),
+      5000,
+    )
+
+    setTimeout(() => {
+      showSettings.value = true
+    }, 300)
+    return
+  }
 
   // 进入分析前统一走鉴权封装，保留原来的 toast + 登录跳转 + redirect 回跳行为。
   const authed = await requireAuth({
@@ -478,123 +755,94 @@ const startAnalysis = async () => {
     return
   }
 
+  const runId = beginAnalysisRun()
+
   // Clear previous results and reset status IMMEDIATELY
   analysisResults.value = null
   jobStatus.value = 'queued'
   jobProgress.value = 0
   jobStage.value = t('praat.main.status.preparingUpload')
   jobError.value = null
-  isAnalyzing.value = true  // ✅ 立即设置分析中标志
-
-
-  // Enable results tab and auto-switch
+  isAnalyzing.value = true
   resultsTabEnabled.value = true
 
-
   try {
-    // Upload audio
-    isUploading.value = true
-    jobStage.value = t('praat.main.status.uploading')
-    const uploadResponse = await uploadAudio(audioFile.value)
-    uploadId.value = uploadResponse.task_id  // ✅ 后端返回的是 task_id
-    // isUploading.value = false  // ❌ 延续 loading 状态直到跳转到结果页面
+    const jobStart = await createJobWithCurrentUpload(runId)
+    if (!jobStart) return
+    if (!isCurrentRun(runId)) return
 
-    // 管理员不受此限制
-    const duration = uploadResponse.normalized_meta?.duration_s || uploadResponse.audio_metadata?.duration_s
-    const hasSpectrogramModule = settings.modules && settings.modules.includes('spectrogram')
-    const isAdmin = userStore.role === 'admin'
-
-    if (hasSpectrogramModule && duration && duration > 3 && !isAdmin) {
-      // 阻止分析并显示警告
-      showWarning(
-        t('praat.main.errors.durationExceeded', {
-          duration: duration.toFixed(1)
-        }),
-        5000  // 5秒显示时长
-      )
-
-      // 延迟打开设置面板，确保 toast 先显示
-      setTimeout(() => {
-        showSettings.value = true
-      }, 300)
-
-      // 重置状态
-      jobStatus.value = 'idle'
-      jobStage.value = ''
-      await setActiveTab('upload')
-      isAnalyzing.value = false  // ✅ 清除分析中标志
-      isUploading.value = false  // ✅ 取消 loading 状态
-
-      console.warn(`[Praat] Audio duration ${duration}s exceeds 3s limit for spectrogram analysis - analysis blocked`)
-      return
-    }
-
-    // 管理员使用长音频时的提示
-    if (hasSpectrogramModule && duration && duration > 3 && isAdmin) {
-      console.log(`[Praat] Admin user bypassing 3s limit for spectrogram analysis (duration: ${duration}s)`)
-    }
-
-    // Create job
-    jobStage.value = t('praat.main.status.creatingJob')
-    const jobResponse = await createJob(uploadId.value, settings)
+    const { jobResponse, reusedUpload } = jobStart
     jobId.value = jobResponse.job_id
+    resultContext.value = {
+      jobId: jobResponse.job_id,
+      reusedUpload,
+    }
 
     await setActiveTab('results')
-    isUploading.value = false  // ✅ 跳转到结果页面时取消 loading 状态
+    if (!isCurrentRun(runId)) return
 
-    // Start polling
+    isUploading.value = false
+
     jobStage.value = t('praat.main.status.startingAnalysis')
-    await startPolling()
+    await startPolling(runId)
   } catch (error) {
+    if (!isCurrentRun(runId)) return
+
     console.error('Start analysis error:', error)
     showError(error.message || t('praat.main.errors.analysisStartFailed'))
     await setActiveTab('results')
     isUploading.value = false
     jobStatus.value = 'error'
     jobError.value = error.message
-    isAnalyzing.value = false  // ✅ 清除分析中标志
+    isAnalyzing.value = false
   }
 }
 
-const startPolling = async () => {
-  // 每轮新分析都从 0 开始记失败次数，避免继承上一次任务状态。
+const startPolling = async (runId) => {
   pollingFailCount.value = 0
 
   await pollingTask.start(
     () => getJobStatus(jobId.value),
     {
       onTick: async (status) => {
+        if (!isCurrentRun(runId)) return
+
         pollingFailCount.value = 0
         jobStatus.value = status.status
         jobProgress.value = status.progress || 0
         jobStage.value = status.stage
         jobError.value = status.error
 
-        // 一旦完成就立即拉结果，并清掉“分析中”标记，结果页继续保留给用户查看。
-        if (status.status === 'completed' || status.status === 'done') {
-          await fetchResults()
+        const nextStatus = normalizeJobStatus(status.status)
+        if (nextStatus === 'completed') {
+          await fetchResults(runId)
+          if (!isCurrentRun(runId)) return
           isAnalyzing.value = false
           return
         }
 
-        // 失败/取消由轮询层停表，页面层这里只负责提示和状态收尾。
-        if (status.status === 'failed' || status.status === 'error' || status.status === 'canceled') {
+        if (nextStatus === 'error') {
           showError(status.error || t('praat.main.errors.analysisFailed'))
+          isAnalyzing.value = false
+          return
+        }
+
+        if (nextStatus === 'canceled') {
+          jobError.value = null
           isAnalyzing.value = false
         }
       },
-      shouldStop: (status) => (
-        status.status === 'completed' ||
-        status.status === 'done' ||
-        status.status === 'failed' ||
-        status.status === 'error' ||
-        status.status === 'canceled'
-      ),
+      shouldStop: (status) => {
+        const nextStatus = normalizeJobStatus(status.status)
+        return nextStatus === 'completed' || nextStatus === 'error' || nextStatus === 'canceled'
+      },
       onError: (error, count) => {
+        if (!isCurrentRun(runId)) return
         console.error('Polling error:', error)
         pollingFailCount.value = count
       },
       onMaxFailures: () => {
+        if (!isCurrentRun(runId)) return
         jobStatus.value = 'error'
         jobError.value = t('praat.main.status.pollingFailed')
         showError(t('praat.main.status.pollingFailedCount', { count: MAX_POLLING_FAILURES }))
@@ -609,12 +857,13 @@ const stopPolling = () => {
   pollingTask.stop()
 }
 
-const fetchResults = async () => {
+const fetchResults = async (runId) => {
   try {
     const results = await getJobResult(jobId.value, 'full')
+    if (!isCurrentRun(runId)) return
     analysisResults.value = results
-    // No auto-close - user controls tab visibility
   } catch (error) {
+    if (!isCurrentRun(runId)) return
     console.error('Fetch results error:', error)
     showError(t('praat.main.errors.resultsFetchFailed'))
   }
@@ -622,23 +871,36 @@ const fetchResults = async () => {
 
 const cancelAnalysis = async () => {
   if (!jobId.value) return
+  const currentJobId = jobId.value
 
   try {
-    await cancelJob(jobId.value)
     stopPolling()
+    invalidateAnalysisRun()
+    await cancelJob(currentJobId)
     jobStatus.value = 'canceled'
-    isAnalyzing.value = false  // ✅ 取消分析，清除标志
+    jobStage.value = null
+    jobError.value = null
+    isUploading.value = false
+    isAnalyzing.value = false
   } catch (error) {
     console.error('Cancel error:', error)
     showError(t('praat.main.errors.cancelFailed'))
+
+    if (jobId.value === currentJobId && isActiveJobStatus(normalizedJobStatus.value)) {
+      const recoveryRunId = beginAnalysisRun()
+      await startPolling(recoveryRunId)
+    }
   }
 }
 
 // Cleanup on page close
 onBeforeUnmount(() => {
+  const currentJobId = jobId.value
+  const currentStatus = normalizedJobStatus.value
+  invalidateAnalysisRun()
   stopPolling()
-  if (jobId.value && (jobStatus.value === 'running' || jobStatus.value === 'queued')) {
-    cancelJob(jobId.value).catch(console.error)
+  if (currentJobId && isActiveJobStatus(currentStatus)) {
+    cancelJob(currentJobId).catch(console.error)
   }
 })
 

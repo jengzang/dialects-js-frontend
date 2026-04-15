@@ -22,14 +22,19 @@
     "actions": {
       "startAnalysis": "开始分析",
       "pleaseSelectAudio": "请先选择音频",
-      "uploading": "上传中..."
+      "uploading": "上传中...",
+      "analysisInProgress": "分析进行中..."
     },
     "closePreview": "关闭预览",
     "status": {
       "preparingUpload": "准备上传音频...",
       "uploading": "上传音频中...",
       "creatingJob": "创建分析任务...",
-      "startingAnalysis": "开始分析..."
+      "startingAnalysis": "开始分析...",
+      "reusingUpload": "复用已有上传中...",
+      "retryingUpload": "缓存上传已失效，重新上传中...",
+      "pollingFailed": "轮询任务状态失败",
+      "pollingFailedCount": "轮询任务状态连续失败 {count} 次"
     },
     "errors": {
       "loginRequired": "请先登录",
@@ -37,7 +42,9 @@
       "analysisFailed": "分析任务失败",
       "resultsFetchFailed": "获取分析结果失败",
       "cancelFailed": "取消任务失败",
-      "durationExceeded": "音频时长为 {duration} 秒，超过 3 秒限制。频谱图分析不支持超过 3 秒的音频。请在设置中关闭频谱图模块后重试。"
+      "durationExceeded": "音频时长为 {duration} 秒，超过 3 秒限制。频谱图分析不支持超过 3 秒的音频。请在设置中关闭频谱图模块后重试。",
+      "analysisInProgress": "已有分析任务正在进行中，请等待完成或先取消。",
+      "uploadBusy": "当前上传仍在忙碌中，请等待现有分析结束后再试。"
     },
     "noResults": {
       "title": "暂无分析结果",
@@ -176,10 +183,19 @@
     },
     "completed": {
       "title": "分析完成"
+    },
+    "canceled": {
+      "title": "分析已取消"
     }
   },
   "results": {
     "title": "分析结果",
+    "context": {
+      "jobLabel": "当前结果任务：",
+      "uploadSourceLabel": "上传来源：",
+      "reusedUpload": "复用已有上传",
+      "freshUpload": "重新上传"
+    },
     "basicInfo": {
       "title": "基本信息",
       "duration": "音频时长",

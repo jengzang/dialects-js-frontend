@@ -22,14 +22,19 @@
     "actions": {
       "startAnalysis": "開始分析",
       "pleaseSelectAudio": "請先選擇音訊",
-      "uploading": "上傳中..."
+      "uploading": "上傳中...",
+      "analysisInProgress": "分析進行中..."
     },
     "closePreview": "關閉預覽",
     "status": {
       "preparingUpload": "準備上傳音訊...",
       "uploading": "上傳音訊中...",
       "creatingJob": "建立分析任務...",
-      "startingAnalysis": "開始分析..."
+      "startingAnalysis": "開始分析...",
+      "reusingUpload": "復用既有上傳中...",
+      "retryingUpload": "快取上傳已失效，重新上傳中...",
+      "pollingFailed": "輪詢任務狀態失敗",
+      "pollingFailedCount": "輪詢任務狀態連續失敗 {count} 次"
     },
     "errors": {
       "loginRequired": "請先登入",
@@ -37,7 +42,9 @@
       "analysisFailed": "分析任務失敗",
       "resultsFetchFailed": "取得分析結果失敗",
       "cancelFailed": "取消任務失敗",
-      "durationExceeded": "音訊時長為 {duration} 秒，超過 3 秒限制。頻譜圖分析不支援超過 3 秒的音訊。請在設定中關閉頻譜圖模組後重試。"
+      "durationExceeded": "音訊時長為 {duration} 秒，超過 3 秒限制。頻譜圖分析不支援超過 3 秒的音訊。請在設定中關閉頻譜圖模組後重試。",
+      "analysisInProgress": "已有分析任務正在進行中，請等待完成或先取消。",
+      "uploadBusy": "目前上傳仍在忙碌中，請等待現有分析結束後再試。"
     },
     "noResults": {
       "title": "尚無分析結果",
@@ -176,10 +183,19 @@
     },
     "completed": {
       "title": "分析完成"
+    },
+    "canceled": {
+      "title": "分析已取消"
     }
   },
   "results": {
     "title": "分析結果",
+    "context": {
+      "jobLabel": "目前結果任務：",
+      "uploadSourceLabel": "上傳來源：",
+      "reusedUpload": "復用既有上傳",
+      "freshUpload": "重新上傳"
+    },
     "basicInfo": {
       "title": "基本資訊",
       "duration": "音訊時長",
