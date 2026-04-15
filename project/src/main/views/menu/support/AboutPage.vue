@@ -197,22 +197,10 @@
     </template>
   </TabsContainer>
 
-  <AppModal
-    :model-value="showQRCodes"
-    size="sm"
-    :title="$t('about.like.qrModal.title')"
-    @update:modelValue="showQRCodes = false"
-  >
-    <p class="qr-subtitle">{{ $t('about.like.qrModal.subtitle') }}</p>
-    <div class="qr-image-group">
-      <div class="qr-box">
-        <img :src="weixinQR" :alt="$t('about.like.weixinAlt')" />
-      </div>
-      <div class="qr-box">
-        <img :src="alipayQR" :alt="$t('about.like.alipayAlt')" />
-      </div>
-    </div>
-  </AppModal>
+  <SupportPopup
+    :visible="showQRCodes"
+    @close="showQRCodes = false"
+  />
   </div>
 </template>
 
@@ -223,9 +211,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { setLocale } from '@/i18n/index.js'
 import { SUPPORTED_LOCALES } from '@/i18n/localeDetector.js'
 import { showSuccess } from '@/utils/message.js'
-import weixinQR from '@/assets/picture/weixin.png'
-import alipayQR from '@/assets/picture/zfb.jpg'
-import AppModal from '@/components/common/AppModal.vue'
+import SupportPopup from '@/main/components/popup/SupportPopup.vue'
 import TabsContainer from '@/components/common/TabsContainer.vue'
 
 const { t, locale } = useI18n()
@@ -587,46 +573,6 @@ p em.emoji {
   .github-icon {
     width: 24px;
     height: 24px;
-  }
-}
-
-.qr-subtitle {
-  margin: 0 0 1.5rem;
-  font-size: 1rem;
-  color: #666;
-  text-align: center;
-}
-
-.qr-image-group {
-  display: flex;
-  justify-content: center;
-  gap: 1.5rem;
-  flex-wrap: wrap;
-}
-
-.qr-box {
-  flex: 1 1 120px;
-  max-width: 160px;
-  text-align: center;
-}
-
-.qr-box img {
-  width: 100%;
-  max-width: 300px;
-  height: auto;
-  border-radius: 12px;
-  border: 1px solid #eee;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-  transition: transform 0.2s ease;
-}
-
-.qr-box img:hover {
-  transform: scale(1.2);
-}
-
-@media (max-width: 500px) {
-  .qr-box img {
-    width: 120px;
   }
 }
 

@@ -40,24 +40,10 @@
       <p></p>
       <p></p>
     </div>
-    <AppModal
-      :model-value="showQRCodes"
-      size="sm"
-      :title="$t('home.intro.likeAuthor.modalTitle')"
-      @update:modelValue="showQRCodes = false"
-    >
-      <p class="qr-subtitle">{{ $t('home.intro.likeAuthor.modalSubtitle') }}</p>
-      <div class="qr-image-group">
-        <div class="qr-box">
-          <img :src="weixinQR" :alt="$t('home.intro.likeAuthor.weixinAlt')" />
-<!--            <p>微信支付</p>-->
-        </div>
-        <div class="qr-box">
-          <img :src="alipayQR" :alt="$t('home.intro.likeAuthor.alipayAlt')" />
-<!--            <p>支付寶</p>-->
-        </div>
-      </div>
-    </AppModal>
+    <SupportPopup
+      :visible="showQRCodes"
+      @close="showQRCodes = false"
+    />
   </div>
 
 </template>
@@ -65,9 +51,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import weixinQR from '@/assets/picture/weixin.png'
-import alipayQR from '@/assets/picture/zfb.jpg'
-import AppModal from '@/components/common/AppModal.vue'
+import SupportPopup from '@/main/components/popup/SupportPopup.vue'
 
 const { t } = useI18n()
 const showQRCodes = ref(false)
@@ -248,50 +232,6 @@ function followClicked() {
   .github-icon {
     width: 24px;
     height: 24px;
-  }
-}
-
-
-.qr-subtitle {
-  margin: 0 0 1.5rem;
-  font-size: 1rem;
-  color: #666;
-  text-align: center;
-}
-
-/* 二維碼排版區 */
-.qr-image-group {
-  display: flex;
-  justify-content: center;
-  gap: 1.5rem;
-  flex-wrap: wrap;
-}
-
-.qr-box {
-  flex: 1 1 120px;
-  max-width: 160px;
-  text-align: center;
-}
-
-
-.qr-box img {
-  width: 100%;
-  max-width: 300px;   /* ✅ 最大寬度，超過不放大 */
-  height: auto;       /* ✅ 高度自適應，保持比例 */
-  border-radius: 12px;
-  border: 1px solid #eee;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-  transition: transform 0.2s ease;
-}
-
-.qr-box img:hover {
-  transform: scale(1.2);
-}
-
-/* 手機適配 */
-@media (max-width: 500px) {
-  .qr-box img {
-    width: 120px;
   }
 }
 
