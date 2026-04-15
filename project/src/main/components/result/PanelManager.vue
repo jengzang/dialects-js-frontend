@@ -59,6 +59,7 @@ import FeaturePopup from '../popup/result/FeaturePopup.vue';
 import { parseFeatureString, get_detail } from '@/main/utils/ResultTable.js';
 import { PANEL_CONFIG, LAYOUT_CONFIG } from '@/main/config/constants.js';
 import { resultCache } from '@/main/store/store.js';
+import { showWarning } from '@/utils/message.js';
 
 // === 1. Vue 状态管理 ===
 const panels = ref([]);
@@ -300,6 +301,13 @@ const shouldShowLocation = (item, index, dataArray) => {
 };
 
 const onTriggerPopup = (type, item, feature, value, e) => {
+  // Temporary compromise: these popup/query flows still depend on the
+  // characters-table schema. Remove this guard after multi-table adaptation lands.
+  if (resultCache.tableName !== 'characters') {
+    showWarning(t('result.panelManager.unsupportedTable'));
+    return;
+  }
+
   showPopupValue.value = false;
   showPopupFeature.value = false;
   const dataObj = { location: item.地點, feature, value: String(value).replace(/·/g, '') };

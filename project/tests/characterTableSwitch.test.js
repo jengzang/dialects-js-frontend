@@ -10,6 +10,7 @@ const aboutPagePath = resolve(projectRoot, 'src/main/views/menu/support/AboutPag
 const queryPagePath = resolve(projectRoot, 'src/main/views/menu/QueryPage.vue')
 const comparePagePath = resolve(projectRoot, 'src/main/views/menu/ComparePage.vue')
 const resultPagePath = resolve(projectRoot, 'src/main/views/menu/ResultPage.vue')
+const panelManagerPath = resolve(projectRoot, 'src/main/components/result/PanelManager.vue')
 const phonologyCustomPath = resolve(projectRoot, 'src/main/components/pho/PhonologyCustom.vue')
 const resultTablePath = resolve(projectRoot, 'src/main/utils/ResultTable.js')
 const storePath = resolve(projectRoot, 'src/main/store/store.js')
@@ -19,6 +20,9 @@ const enNavigationLocalePath = resolve(projectRoot, 'src/i18n/locales/en/navigat
 const zhCnPhonologyLocalePath = resolve(projectRoot, 'src/i18n/locales/zh-CN/phonology.json')
 const zhHantPhonologyLocalePath = resolve(projectRoot, 'src/i18n/locales/zh-Hant/phonology.json')
 const enPhonologyLocalePath = resolve(projectRoot, 'src/i18n/locales/en/phonology.json')
+const zhCnResultLocalePath = resolve(projectRoot, 'src/i18n/locales/zh-CN/result.json')
+const zhHantResultLocalePath = resolve(projectRoot, 'src/i18n/locales/zh-Hant/result.json')
+const enResultLocalePath = resolve(projectRoot, 'src/i18n/locales/en/result.json')
 
 function readSource(path) {
   return readFileSync(path, 'utf8')
@@ -57,6 +61,7 @@ describe('global character table switching', () => {
     const querySource = readSource(queryPagePath)
     const compareSource = readSource(comparePagePath)
     const resultSource = readSource(resultPagePath)
+    const panelManagerSource = readSource(panelManagerPath)
     const phonologySource = readSource(phonologyCustomPath)
     const resultTableSource = readSource(resultTablePath)
     const storeSource = readSource(storePath)
@@ -83,6 +88,9 @@ describe('global character table switching', () => {
     expect(resultSource).toContain('resultCache.tableName')
     expect(resultSource).toContain('table_name:')
 
+    expect(panelManagerSource).toContain("resultCache.tableName !== 'characters'")
+    expect(panelManagerSource).toContain("showWarning(t('result.panelManager.unsupportedTable'))")
+
     expect(resultTableSource).toContain('resultCache.tableName || DEFAULT_CHARACTER_TABLE')
     expect(resultTableSource).toContain('table_name: tableName')
 
@@ -98,6 +106,9 @@ describe('global character table switching', () => {
     const zhCnPhonology = readJson(zhCnPhonologyLocalePath)
     const zhHantPhonology = readJson(zhHantPhonologyLocalePath)
     const enPhonology = readJson(enPhonologyLocalePath)
+    const zhCnResult = readJson(zhCnResultLocalePath)
+    const zhHantResult = readJson(zhHantResultLocalePath)
+    const enResult = readJson(enResultLocalePath)
 
     expect(zhCnNavigation.settings.characterTable).toEqual({
       title: expect.any(String),
@@ -115,5 +126,9 @@ describe('global character table switching', () => {
     expect(zhCnPhonology.phonology.custom.states.unsupportedTable).toBeTruthy()
     expect(zhHantPhonology.phonology.custom.states.unsupportedTable).toBeTruthy()
     expect(enPhonology.phonology.custom.states.unsupportedTable).toBeTruthy()
+
+    expect(zhCnResult.panelManager.unsupportedTable).toBeTruthy()
+    expect(zhHantResult.panelManager.unsupportedTable).toBeTruthy()
+    expect(enResult.panelManager.unsupportedTable).toBeTruthy()
   })
 })
