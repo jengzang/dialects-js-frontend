@@ -280,7 +280,8 @@
         "items": {
           "matrix": "查音系",
           "classification": "查音素",
-          "counts": "音節統計"
+          "counts": "音節統計",
+          "pie": "演變"
         }
       },
       "tools": {
@@ -297,7 +298,8 @@
         "items": {
           "coordinates": "坐標查詢",
           "table": "表格查詢",
-          "tree": "樹形查詢"
+          "tree": "樹形查詢",
+          "villages": "村落機器學習"
         },
         "tooltips": {
           "coordinates": "用於取得地圖繪製所需的坐標資料，查中古、查音位、查字、查調、分區圖與自定繪圖等都會使用。",
