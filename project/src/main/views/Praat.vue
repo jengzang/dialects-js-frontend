@@ -335,6 +335,15 @@ const shouldShowJobStatusPanel = computed(() => {
   )
 })
 
+const normalizeFractionProgress = (value) => {
+  const numeric = Number(value)
+  if (!Number.isFinite(numeric)) {
+    return 0
+  }
+
+  return Math.min(100, Math.max(0, Math.round(numeric * 100)))
+}
+
 const getCurrentAudioDuration = () => {
   return currentAudioDuration.value
     ?? selectedSegment.value?.duration
@@ -809,12 +818,15 @@ const startPolling = async (runId) => {
 
         pollingFailCount.value = 0
         jobStatus.value = status.status
-        jobProgress.value = status.progress || 0
+        if (status.progress !== undefined && status.progress !== null) {
+          jobProgress.value = normalizeFractionProgress(status.progress)
+        }
         jobStage.value = status.stage
         jobError.value = status.error
 
         const nextStatus = normalizeJobStatus(status.status)
         if (nextStatus === 'completed') {
+          jobProgress.value = 100
           await fetchResults(runId)
           if (!isCurrentRun(runId)) return
           isAnalyzing.value = false

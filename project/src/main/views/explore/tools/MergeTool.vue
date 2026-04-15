@@ -446,6 +446,17 @@ const resetMergeStats = () => {
   mergeStats.totalColumns = 0
 }
 
+const isFailedProgressStatus = (status) => status === 'failed' || status === 'error'
+
+const normalizePercentProgress = (value) => {
+  const numeric = Number(value)
+  if (!Number.isFinite(numeric)) {
+    return 0
+  }
+
+  return Math.min(100, Math.max(0, Math.round(numeric)))
+}
+
 const setReferenceFile = async (file) => {
   const authed = await requireAuth({
     message: t('tools.merge.validation.loginRequired'),
@@ -558,25 +569,26 @@ const startMerge = async () => {
 
   try {
     await executeMerge(taskId.value)
-
-    progress.value = 10
+    processingText.value = t('tools.merge.processing.running')
 
     await mergePollingTask.start(
       () => getMergeProgress(taskId.value),
       {
         onTick: (progressData) => {
-          progress.value = progressData.progress || 0
-          processingText.value = t('tools.merge.processing.running')
+          if (progressData.progress !== undefined && progressData.progress !== null) {
+            progress.value = normalizePercentProgress(progressData.progress)
+          }
+          processingText.value = progressData.message || t('tools.merge.processing.running')
 
           if (progressData.processed !== undefined) {
             mergeStats.processed = progressData.processed
             mergeStats.success = progressData.processed
           }
 
-          if (progressData.status === 'failed') {
+          if (isFailedProgressStatus(progressData.status)) {
             processing.value = false
             showError(t('tools.merge.messages.progressFailed', {
-              message: progressData.message || t('tools.merge.processing.running')
+              message: progressData.error || progressData.message || t('tools.merge.processing.running')
             }))
             reset()
             return
@@ -594,7 +606,7 @@ const startMerge = async () => {
         },
         shouldStop: (progressData) => (
           progressData.status === 'completed' ||
-          progressData.status === 'failed'
+          isFailedProgressStatus(progressData.status)
         ),
         onError: (error) => {
           showError(t('tools.merge.messages.progressFailed', { message: error.message }))

@@ -12,22 +12,32 @@ export function usePollingTask(options = {}) {
   const lastError = ref(null)
 
   let timer = null
+  let inFlight = false
+  let runId = 0
 
   const isRunning = computed(() => status.value === 'running')
 
-  function stop() {
-    // 始终只保留一个活动定时器，避免重复 start 后出现并发轮询。
+  function clearTimer() {
     if (timer) {
-      clearInterval(timer)
+      clearTimeout(timer)
       timer = null
     }
+  }
+
+  function stop() {
+    // 始终只保留一个活动定时器，避免重复 start 后出现并发轮询。
+    runId += 1
+    clearTimer()
+    inFlight = false
 
     if (status.value === 'running') {
       status.value = 'stopped'
     }
   }
 
-  async function tick(task, handlers) {
+  async function tick(task, handlers, currentRunId) {
+    if (currentRunId !== runId || inFlight) return
+
     const {
       shouldStop,
       onTick,
@@ -35,8 +45,12 @@ export function usePollingTask(options = {}) {
       onMaxFailures,
     } = handlers
 
+    inFlight = true
+
     try {
       const result = await task()
+      if (currentRunId !== runId || status.value !== 'running') return
+
       lastResult.value = result
       lastError.value = null
       // 只要成功拿到一次结果，就把连续失败计数清零。
@@ -46,11 +60,15 @@ export function usePollingTask(options = {}) {
         await onTick(result)
       }
 
+      if (currentRunId !== runId || status.value !== 'running') return
+
       if (shouldStop && shouldStop(result)) {
-        stop()
+        clearTimer()
         status.value = 'completed'
       }
     } catch (error) {
+      if (currentRunId !== runId || status.value !== 'running') return
+
       lastError.value = error
       failureCount.value += 1
 
@@ -58,35 +76,60 @@ export function usePollingTask(options = {}) {
         await onError(error, failureCount.value)
       }
 
+      if (currentRunId !== runId || status.value !== 'running') return
+
       if (failureCount.value >= maxFailures) {
-        stop()
+        clearTimer()
         status.value = 'error'
         // 达到上限后不再继续轮询，由页面决定如何提示和收尾。
         if (onMaxFailures) {
           await onMaxFailures(error, failureCount.value)
         }
       }
+    } finally {
+      inFlight = false
     }
+  }
+
+  function scheduleNextTick(task, handlers, currentRunId) {
+    if (currentRunId !== runId || status.value !== 'running') {
+      return
+    }
+
+    clearTimer()
+    timer = setTimeout(() => {
+      void runTickCycle(task, handlers, currentRunId)
+    }, handlers.intervalMs ?? intervalMs)
+  }
+
+  async function runTickCycle(task, handlers, currentRunId) {
+    await tick(task, handlers, currentRunId)
+
+    if (currentRunId !== runId || status.value !== 'running') {
+      return
+    }
+
+    scheduleNextTick(task, handlers, currentRunId)
   }
 
   async function start(task, handlers = {}) {
     // 新一轮 start 会先停掉旧轮询，确保状态与当前任务一一对应。
     stop()
+    runId += 1
+    const currentRunId = runId
 
     status.value = 'running'
     failureCount.value = 0
     lastError.value = null
 
     if (handlers.immediate !== false) {
-      await tick(task, handlers)
-      if (status.value !== 'running') {
+      await tick(task, handlers, currentRunId)
+      if (currentRunId !== runId || status.value !== 'running') {
         return
       }
     }
 
-    timer = setInterval(() => {
-      tick(task, handlers)
-    }, handlers.intervalMs ?? intervalMs)
+    scheduleNextTick(task, handlers, currentRunId)
   }
 
   if (getCurrentScope()) {
