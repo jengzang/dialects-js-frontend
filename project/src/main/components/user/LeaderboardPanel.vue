@@ -95,6 +95,10 @@ const categoryConfigs = computed(() => [
       {
         key: 'endpoint__api_feature_counts',
         label: t('user.leaderboard.categories.analysis.items.counts')
+      },
+      {
+        key: 'endpoint_group_pho_pie',
+        label: t('user.leaderboard.categories.analysis.items.pie')
       }
     ]
   },
@@ -142,7 +146,12 @@ const categoryConfigs = computed(() => [
         key: 'endpoint__sql_tree_full',
         label: t('user.leaderboard.categories.other.items.tree'),
         tooltip: t('user.leaderboard.categories.other.tooltips.tree')
-      }
+      },
+      {
+        key:'endpoint_group_villages_ml',
+        label: t('user.leaderboard.categories.other.items.villages'),
+        // tooltip: t()
+      },
     ]
   }
 ])

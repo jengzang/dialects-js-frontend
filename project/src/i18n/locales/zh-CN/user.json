@@ -280,7 +280,8 @@
         "items": {
           "matrix": "查音系",
           "classification": "查音素",
-          "counts": "音节统计"
+          "counts": "音节统计",
+          "pie": "演变"
         }
       },
       "tools": {
@@ -297,7 +298,8 @@
         "items": {
           "coordinates": "坐标查询",
           "table": "表格查询",
-          "tree": "树形查询"
+          "tree": "树形查询",
+          "villages": "村落机器学习"
         },
         "tooltips": {
           "coordinates": "用于获取地图绘制所需的坐标数据，查中古、查音位、查字、查调、分区图与自定义绘图等都会使用。",

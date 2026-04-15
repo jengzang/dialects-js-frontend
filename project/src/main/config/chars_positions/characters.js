@@ -292,7 +292,7 @@ export const TABLE_COLUMN_SCHEMAS = {
   }),
   old_chinese: createTableSchema({
     meta: {
-      label: '上古音(諧聲)',
+      label: '上古音 (諧聲)',
       description: '上古音'
     },
     columns: {

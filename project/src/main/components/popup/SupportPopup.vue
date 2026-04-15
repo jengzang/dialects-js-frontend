@@ -78,13 +78,13 @@ const donors = [
     amount: '9.90',
     method: '微信'
   },
-  {
-    sortTime: '2025-09-01T21:15:12+08:00',
-    time: '2025.9.1 21:15:12',
-    name: '不*',
-    amount: '1.00',
-    method: '微信'
-  },
+  // {
+  //   sortTime: '2025-09-01T21:15:12+08:00',
+  //   time: '2025.9.1 21:15:12',
+  //   name: '不*',
+  //   amount: '1.00',
+  //   method: '微信'
+  // },
   {
     sortTime: '2026-01-09T21:42:04+08:00',
     time: '2026.1.9 21:42:04',
@@ -194,7 +194,7 @@ function handleClose() {
 
 .donor-table {
   width: 100%;
-  min-width: 620px;
+  min-width: 200px;
   border-collapse: collapse;
 }
 
