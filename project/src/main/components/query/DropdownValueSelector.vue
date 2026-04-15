@@ -332,7 +332,7 @@ onUnmounted(() => {
   padding: 8px 0px;
   font-size: 14px;
   background: transparent;
-  width: 80px;
+  width: 75px;
   color: #333;
   text-align: center;
 }
@@ -346,7 +346,7 @@ onUnmounted(() => {
 .arrow-trigger {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: start;
   cursor: pointer;
   background: var(--color-primary-medium);
   border-left: 1px solid rgba(255, 255, 255, 0.3);
@@ -365,6 +365,7 @@ onUnmounted(() => {
 }
 
 .arrow-icon {
+  margin-left: 8px;
   font-size: 14px;
   color: white;
   font-weight: bold;
