@@ -91,6 +91,10 @@
     "language": {
       "title": "Language Settings",
       "description": "Choose your preferred interface language"
+    },
+    "characterTable": {
+      "title": "Character Table",
+      "description": "Choose the default table for new queries"
     }
   },
   "stats": {

@@ -99,6 +99,7 @@ import DataRow from './DataRow.vue';
 import { parseFeatureString,get_detail } from '@/main/utils/ResultTable.js';
 import ValuePopup from "../popup/result/ValuePopup.vue";
 import FeaturePopup from "../popup/result/FeaturePopup.vue";
+import { resultCache } from '@/main/store/store.js';
 
 const props = defineProps({
   data: { type: Array, default: () => [] },
@@ -276,7 +277,7 @@ const handleValueConfirm = ({ location, value, bool }) => {
 // 处理 FeaturePopup 的确认回调
 const handleFeatureConfirm = ({ location, feature, field }) => {
   if (typeof get_detail === 'function') {
-    const parseResult = parseFeatureString(feature);
+    const parseResult = parseFeatureString(feature, resultCache.tableName);
     if (parseResult.matched_fields === null) {
       // 传递 group_inputs
       get_detail(location, feature, false, true, null, [field]);

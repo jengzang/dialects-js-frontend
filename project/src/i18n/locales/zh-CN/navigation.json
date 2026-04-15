@@ -91,6 +91,10 @@
     "language": {
       "title": "语言设置",
       "description": "选择您偏好的界面语言"
+    },
+    "characterTable": {
+      "title": "字表设置",
+      "description": "选择新查询默认使用的字表"
     }
   },
   "stats": {

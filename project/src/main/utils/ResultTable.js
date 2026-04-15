@@ -142,6 +142,7 @@ export async function get_detail(location, feature_value, bool=false, vue=false,
 
     let mode_raw = resultCache.mode || '';
     let mode = '';
+    const tableName = resultCache.tableName || DEFAULT_CHARACTER_TABLE
 
     // 基礎模式判斷
     if (mode_raw === '查音位') mode = 'p2s';
@@ -187,7 +188,8 @@ export async function get_detail(location, feature_value, bool=false, vue=false,
         status_inputs,
         group_inputs,
         pho_values,
-        region_mode
+        region_mode,
+        table_name: tableName
     };
     try {
         // ✅ 使用统一的 api 函数（替代 window.fetch）

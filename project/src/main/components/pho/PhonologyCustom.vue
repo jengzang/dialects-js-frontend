@@ -20,6 +20,11 @@
         {{ feature }}
       </label>
     </div>
+    <div v-if="!isTableSupported" class="empty unsupported-state">
+      <p>{{ t('phonology.phonology.custom.states.unsupportedTable', { table: currentTableLabel }) }}</p>
+    </div>
+
+    <template v-else>
     <!-- 地点输入组件 -->
     <div class="input-section">
       <LocationMultiInput
@@ -33,7 +38,7 @@
         <div class="selector-group">
           <label>{{ $t('phonology.phonology.custom.columns.horizontal') }}</label>
           <SimpleSelectDropdown
-            v-model="horizontalColumn"
+            v-model="horizontalColumnChinese"
             :options="columnOptionsArray"
           />
         </div>
@@ -41,7 +46,7 @@
         <div class="selector-group">
           <label>{{ $t('phonology.phonology.custom.columns.vertical') }}</label>
           <SimpleSelectDropdown
-            v-model="verticalColumn"
+            v-model="verticalColumnChinese"
             :options="columnOptionsArray"
           />
         </div>
@@ -49,7 +54,7 @@
         <div class="selector-group">
           <label>{{ $t('phonology.phonology.custom.columns.cellRow') }}</label>
           <SimpleSelectDropdown
-            v-model="cellRowColumn"
+            v-model="cellRowColumnChinese"
             :options="columnOptionsArray"
           />
         </div>
@@ -93,6 +98,7 @@
     <div v-else class="empty">
       <p>{{ $t('phonology.phonology.custom.states.emptyInput') }}</p>
     </div>
+    </template>
   </div>
 </template>
 
@@ -106,6 +112,8 @@ import PhonologyMatrix from '@/main/components/TableAndTree/PhonologyTable.vue'
 import LocationMultiInput from '@/main/components/geo/LocationMultiInput.vue'
 import { PHONOLOGY_LOCATION_LIMITS } from '@/main/config/constants.js'
 import SimpleSelectDropdown from '@/components/selector/SimpleSelectDropdown.vue'
+import { TABLE_COLUMN_SCHEMAS } from '@/main/config/index.js'
+import { preferredCharacterTable } from '@/main/store/store.js'
 import {
   parsePhonologyCustomParams,
   validatePhonologyParams
@@ -122,6 +130,7 @@ const error = ref(null)
 const matrixData = ref(null)
 const isMatching = ref(false)
 const shouldSyncUrl = ref(false)
+const selectedCharacterTable = preferredCharacterTable
 
 // 特徵選擇（聲母/韻母/聲調） - Keep original values for API
 const FEATURE_KEYS = ['聲母', '韻母', '聲調']
@@ -139,36 +148,83 @@ const getChineseFeature = (translatedValue) => {
   return index >= 0 ? FEATURE_KEYS[index] : FEATURE_KEYS[0]
 }
 
-// Column keys - Keep original values for API
-const COLUMN_KEYS = ['攝', '韻', '等', '呼', '入', '清濁', '系', '組', '母', '調', '部位', '方式']
-const getColumnKey = (chineseValue) => {
-  const map = {
-    '攝': 'rhyme', '韻': 'rhymeDetail', '等': 'grade', '呼': 'openness',
-    '入': 'entering', '清濁': 'voicing', '系': 'series', '組': 'group',
-    '母': 'initial', '調': 'tone', '部位': 'place', '方式': 'manner'
+const COLUMN_TRANSLATION_KEYS = {
+  '攝': 'rhyme',
+  '韻': 'rhymeDetail',
+  '等': 'grade',
+  '呼': 'openness',
+  '入': 'entering',
+  '清濁': 'voicing',
+  '系': 'series',
+  '組': 'group',
+  '母': 'initial',
+  '調': 'tone',
+  '部位': 'place',
+  '方式': 'manner'
+}
+
+const PHONOLOGY_CUSTOM_TABLE_CONFIGS = {
+  characters: {
+    columnKeys: ['攝', '韻', '等', '呼', '入', '清濁', '系', '組', '母', '調', '部位', '方式'],
+    featureDefaults: {
+      '聲母': { horizontal: '清濁', vertical: '部位', cellRow: '母' },
+      '韻母': { horizontal: '等', vertical: '攝', cellRow: '入' },
+      '聲調': { horizontal: '清濁', vertical: '調', cellRow: '組' }
+    }
+  },
+  fenyun: {
+    columnKeys: ['聲母', '韻母', '韻部', '聲調'],
+    featureDefaults: {
+      '聲母': { horizontal: '聲調', vertical: '韻部', cellRow: '聲母' },
+      '韻母': { horizontal: '聲調', vertical: '韻部', cellRow: '韻母' },
+      '聲調': { horizontal: '韻部', vertical: '聲母', cellRow: '聲調' }
+    }
+  },
+  hongwu: {
+    columnKeys: ['聲母', '韻部', '聲調', '清濁', '聲類'],
+    featureDefaults: {
+      '聲母': { horizontal: '清濁', vertical: '聲類', cellRow: '聲母' },
+      '韻母': { horizontal: '清濁', vertical: '韻部', cellRow: '聲調' },
+      '聲調': { horizontal: '清濁', vertical: '韻部', cellRow: '聲調' }
+    }
+  },
+  old_chinese: {
+    columnKeys: ['聲母', '韻母', '韻部', '聲調', '聲母組', '諧聲域'],
+    featureDefaults: {
+      '聲母': { horizontal: '聲母組', vertical: '聲調', cellRow: '聲母' },
+      '韻母': { horizontal: '聲調', vertical: '韻部', cellRow: '韻母' },
+      '聲調': { horizontal: '聲母組', vertical: '韻部', cellRow: '聲調' }
+    }
+  },
+  zhongyuan: {
+    columnKeys: ['聲母', '韻母', '呼', '等', '聲調'],
+    featureDefaults: {
+      '聲母': { horizontal: '呼', vertical: '等', cellRow: '聲母' },
+      '韻母': { horizontal: '呼', vertical: '等', cellRow: '韻母' },
+      '聲調': { horizontal: '呼', vertical: '韻母', cellRow: '聲調' }
+    }
   }
-  return map[chineseValue]
 }
 
-const getChineseColumn = (translatedValue) => {
-  const index = columnOptions.value.indexOf(translatedValue)
-  return index >= 0 ? COLUMN_KEYS[index] : COLUMN_KEYS[0]
+const isTableSupported = computed(() => Boolean(PHONOLOGY_CUSTOM_TABLE_CONFIGS[selectedCharacterTable.value]))
+const currentTableConfig = computed(() => PHONOLOGY_CUSTOM_TABLE_CONFIGS[selectedCharacterTable.value] || null)
+const currentTableLabel = computed(() => TABLE_COLUMN_SCHEMAS[selectedCharacterTable.value]?.meta?.label || selectedCharacterTable.value)
+const activeColumnKeys = computed(() => currentTableConfig.value?.columnKeys || [])
+const currentFeatureDefaults = computed(() => currentTableConfig.value?.featureDefaults || PHONOLOGY_CUSTOM_TABLE_CONFIGS.characters.featureDefaults)
+
+const getColumnLabel = (columnKey) => {
+  const translationKey = COLUMN_TRANSLATION_KEYS[columnKey]
+
+  if (selectedCharacterTable.value === 'characters' && translationKey) {
+    return t(`phonology.phonology.custom.columnOptions.${translationKey}`)
+  }
+
+  return columnKey
 }
 
-// 每個特徵的默認分類欄位配置 - Use Chinese keys
-const featureDefaults = {
-  '聲母': { horizontal: '清濁', vertical: '部位', cellRow: '母' },
-  '韻母': { horizontal: '等', vertical: '攝', cellRow: '入' },
-  '聲調': { horizontal: '清濁', vertical: '調', cellRow: '組' }
-}
-
-// 可選的分類欄位
-const columnOptions = computed(() => COLUMN_KEYS.map(key => t(`phonology.phonology.custom.columnOptions.${getColumnKey(key)}`)))
-
-// Column options for dropdown
-const columnOptionsArray = computed(() => columnOptions.value.map(col => ({
-  label: col,
-  value: col
+const columnOptionsArray = computed(() => activeColumnKeys.value.map(columnKey => ({
+  label: getColumnLabel(columnKey),
+  value: columnKey
 })))
 
 // 解析 URL 参数
@@ -184,7 +240,7 @@ const { set: setFeatureQuery } = useRouteQueryState('feature', {
 const validation = validatePhonologyParams(
   urlParams,
   FEATURE_KEYS,
-  COLUMN_KEYS
+  activeColumnKeys.value
 )
 
 if (!validation.isValid) {
@@ -196,20 +252,15 @@ const queryStrings = ref(urlParams.locations)
 const matchedLocations = ref([])
 
 // 辅助函数：获取初始分类字段值
-const getInitialColumn = (urlValue, defaultValue) => {
-  return urlValue && COLUMN_KEYS.includes(urlValue) ? urlValue : defaultValue
+const getInitialColumn = (urlValue, defaultValue, allowedColumns = activeColumnKeys.value) => {
+  return urlValue && allowedColumns.includes(urlValue) ? urlValue : defaultValue
 }
 
-// Get translated default values
-const getTranslatedColumn = (chineseValue) => {
-  const index = COLUMN_KEYS.indexOf(chineseValue)
-  return index >= 0 ? columnOptions.value[index] : columnOptions.value[0]
-}
+const initialSelectedFeature = FEATURE_KEYS.includes(urlParams.feature) ? urlParams.feature : FEATURE_KEYS[0]
+const initialFeatureDefaults = currentFeatureDefaults.value[initialSelectedFeature] || currentFeatureDefaults.value[FEATURE_KEYS[0]]
 
 // 初始化特征 - Use Chinese value internally
-const selectedFeatureChinese = ref(
-  FEATURE_KEYS.includes(urlParams.feature) ? urlParams.feature : FEATURE_KEYS[0]
-)
+const selectedFeatureChinese = ref(initialSelectedFeature)
 const selectedFeature = computed({
   get: () => {
     const index = FEATURE_KEYS.indexOf(selectedFeatureChinese.value)
@@ -224,41 +275,23 @@ const selectedFeature = computed({
 const horizontalColumnChinese = ref(
   getInitialColumn(
     urlParams.horizontalColumn,
-    featureDefaults[selectedFeatureChinese.value].horizontal
+    initialFeatureDefaults.horizontal
   )
 )
-const horizontalColumn = computed({
-  get: () => getTranslatedColumn(horizontalColumnChinese.value),
-  set: (translatedValue) => {
-    horizontalColumnChinese.value = getChineseColumn(translatedValue)
-  }
-})
 
 const verticalColumnChinese = ref(
   getInitialColumn(
     urlParams.verticalColumn,
-    featureDefaults[selectedFeatureChinese.value].vertical
+    initialFeatureDefaults.vertical
   )
 )
-const verticalColumn = computed({
-  get: () => getTranslatedColumn(verticalColumnChinese.value),
-  set: (translatedValue) => {
-    verticalColumnChinese.value = getChineseColumn(translatedValue)
-  }
-})
 
 const cellRowColumnChinese = ref(
   getInitialColumn(
     urlParams.cellRowColumn,
-    featureDefaults[selectedFeatureChinese.value].cellRow
+    initialFeatureDefaults.cellRow
   )
 )
-const cellRowColumn = computed({
-  get: () => getTranslatedColumn(cellRowColumnChinese.value),
-  set: (translatedValue) => {
-    cellRowColumnChinese.value = getChineseColumn(translatedValue)
-  }
-})
 
 const displayLocations = computed(() => {
   if (!matrixData.value) return []
@@ -303,13 +336,36 @@ watch(selectedFeatureChinese, async (newFeature) => {
   error.value = null
 
   // 更新分類欄位為新特徵的默認值
-  horizontalColumnChinese.value = featureDefaults[newFeature].horizontal
-  verticalColumnChinese.value = featureDefaults[newFeature].vertical
-  cellRowColumnChinese.value = featureDefaults[newFeature].cellRow
+  if (!isTableSupported.value) {
+    return
+  }
+
+  const defaults = currentFeatureDefaults.value[newFeature]
+  horizontalColumnChinese.value = defaults.horizontal
+  verticalColumnChinese.value = defaults.vertical
+  cellRowColumnChinese.value = defaults.cellRow
 })
 
 // 監聽分類字段變化
 watch([horizontalColumnChinese, verticalColumnChinese, cellRowColumnChinese], () => {
+  if (shouldSyncUrl.value) {
+    updatePhonologyCustomUrl()
+  }
+})
+
+watch(selectedCharacterTable, () => {
+  matrixData.value = null
+  error.value = null
+
+  if (!isTableSupported.value) {
+    return
+  }
+
+  const defaults = currentFeatureDefaults.value[selectedFeatureChinese.value]
+  horizontalColumnChinese.value = defaults.horizontal
+  verticalColumnChinese.value = defaults.vertical
+  cellRowColumnChinese.value = defaults.cellRow
+
   if (shouldSyncUrl.value) {
     updatePhonologyCustomUrl()
   }
@@ -375,6 +431,11 @@ const transformMatrixData = (apiData) => {
 }
 
 const loadData = async () => {
+  if (!isTableSupported.value) {
+    error.value = t('phonology.phonology.custom.states.unsupportedTable', { table: currentTableLabel.value })
+    return
+  }
+
   if (matchedLocations.value.length === 0) {
     error.value = t('phonology.phonology.custom.states.minLocationError')
     return
@@ -388,7 +449,8 @@ const loadData = async () => {
       feature: selectedFeatureChinese.value,  // Use Chinese value for API
       horizontal_column: horizontalColumnChinese.value,  // Use Chinese value for API
       vertical_column: verticalColumnChinese.value,  // Use Chinese value for API
-      cell_row_column: cellRowColumnChinese.value  // Use Chinese value for API
+      cell_row_column: cellRowColumnChinese.value,  // Use Chinese value for API
+      table_name: selectedCharacterTable.value
     }
 
     const result = await getPhonologyClassificationMatrix(requestBody)
@@ -414,6 +476,10 @@ const loadData = async () => {
 
 // 页面加载时自动查询
 onMounted(() => {
+  if (!isTableSupported.value) {
+    return
+  }
+
   const hasLocations = urlParams.locations.length > 0
   const hasAllColumns = urlParams.horizontalColumn &&
                         urlParams.verticalColumn &&
@@ -430,7 +496,7 @@ onMounted(() => {
 })
 
 // 处理浏览器前进/后退
-watch(() => route.query, (newQuery) => {
+watch(() => route.query, () => {
   const newParams = parsePhonologyCustomParams(route)
 
   // 更新特征
@@ -449,17 +515,17 @@ watch(() => route.query, (newQuery) => {
 
   // 更新分类字段
   if (newParams.horizontalColumn &&
-      COLUMN_KEYS.includes(newParams.horizontalColumn)) {
+      activeColumnKeys.value.includes(newParams.horizontalColumn)) {
     horizontalColumnChinese.value = newParams.horizontalColumn
   }
 
   if (newParams.verticalColumn &&
-      COLUMN_KEYS.includes(newParams.verticalColumn)) {
+      activeColumnKeys.value.includes(newParams.verticalColumn)) {
     verticalColumnChinese.value = newParams.verticalColumn
   }
 
   if (newParams.cellRowColumn &&
-      COLUMN_KEYS.includes(newParams.cellRowColumn)) {
+      activeColumnKeys.value.includes(newParams.cellRowColumn)) {
     cellRowColumnChinese.value = newParams.cellRowColumn
   }
 }, { deep: true })
@@ -479,6 +545,11 @@ watch(() => route.query, (newQuery) => {
   gap: 5px;
   justify-content: center;
   align-items: center;
+}
+
+.unsupported-state {
+  max-width: 640px;
+  margin: 24px auto;
 }
 
 /* 容器：保证在同一行居中 */

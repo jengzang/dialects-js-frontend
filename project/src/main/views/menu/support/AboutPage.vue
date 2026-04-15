@@ -193,6 +193,17 @@
             </div>
           </div>
         </div>
+
+        <div class="setting-section">
+          <h3 class="section-title">{{ $t('navigation.settings.characterTable.title') }}</h3>
+          <p class="section-description">{{ $t('navigation.settings.characterTable.description') }}</p>
+
+          <SimpleSelectDropdown
+            v-model="currentCharacterTable"
+            :options="characterTableOptions"
+            width="100%"
+          />
+        </div>
       </div>
     </template>
   </TabsContainer>
@@ -213,6 +224,9 @@ import { SUPPORTED_LOCALES } from '@/i18n/localeDetector.js'
 import { showSuccess } from '@/utils/message.js'
 import SupportPopup from '@/main/components/popup/SupportPopup.vue'
 import TabsContainer from '@/components/common/TabsContainer.vue'
+import SimpleSelectDropdown from '@/components/selector/SimpleSelectDropdown.vue'
+import { TABLE_COLUMN_SCHEMAS } from '@/main/config/index.js'
+import { preferredCharacterTable, setPreferredCharacterTable } from '@/main/store/store.js'
 
 const { t, locale } = useI18n()
 const route = useRoute()
@@ -279,6 +293,18 @@ const languages = ref([
   SUPPORTED_LOCALES['zh-CN'],
   SUPPORTED_LOCALES['en']
 ])
+
+const characterTableOptions = computed(() =>
+  Object.entries(TABLE_COLUMN_SCHEMAS).map(([tableName, schema]) => ({
+    value: tableName,
+    label: schema.meta?.label || tableName
+  }))
+)
+
+const currentCharacterTable = computed({
+  get: () => preferredCharacterTable.value,
+  set: (tableName) => setPreferredCharacterTable(tableName)
+})
 
 function changeLanguage(newLocale) {
   if (newLocale === currentLocale.value) {
