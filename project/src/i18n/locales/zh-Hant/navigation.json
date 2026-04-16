@@ -93,8 +93,8 @@
       "description": "選擇您偏好的界面語言"
     },
     "characterTable": {
-      "title": "字表設置",
-      "description": "選擇新查詢默認使用的字表"
+      "title": "字集設置",
+      "description": "選擇新查詢默認使用的字集"
     }
   },
   "stats": {

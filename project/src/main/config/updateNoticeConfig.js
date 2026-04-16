@@ -18,7 +18,7 @@ export function getHomeUpdateNotice(t) {
     ]
   return {
     version: 'v4.4.5',
-    lastUpdateDate: '2026-04-016',
+    lastUpdateDate: '2026-04-16',
     title: '🎊 ' + t('home.updateNotice.title'),
     items
   }
