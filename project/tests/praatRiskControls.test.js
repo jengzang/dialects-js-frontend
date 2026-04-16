@@ -20,27 +20,23 @@ function readSource(path) {
 }
 
 describe('Praat front-end risk controls', () => {
-  it('Praat view normalizes job states, blocks re-entry, and tracks run tokens', () => {
+  it('Praat view keeps the linear upload-create-poll flow and avoids upload session state machines', () => {
     const source = readSource(praatViewPath)
 
-    expect(source).toContain('const analysisRunId = ref(0)')
-    expect(source).toContain('const uploadSession = ref(createEmptyUploadSession())')
-    expect(source).toContain('const normalizedJobStatus = computed(() => normalizeJobStatus(jobStatus.value))')
-    expect(source).toContain('const shouldShowJobStatusPanel = computed(() => {')
-    expect(source).toContain('const isActionLocked = computed(() => {')
-    expect(source).toContain(":disabled=\"isActionLocked\"")
-    expect(source).toContain('v-if="shouldShowJobStatusPanel"')
-    expect(source).toContain("if (isUploading.value || isAnalyzing.value || isActiveJobStatus(normalizedJobStatus.value)) {")
-    expect(source).toContain("const runId = beginAnalysisRun()")
-    expect(source).toContain("if (!isCurrentRun(runId)) return")
-    expect(source).toContain("const recoveryRunId = beginAnalysisRun()")
-    expect(source).toContain("jobStage.value = t('praat.main.status.reusingUpload')")
-    expect(source).toContain('if (isExpiredUploadError(error)) {')
-    expect(source).toContain("@clear-selection=\"handleClearSelection\"")
+    expect(source).toContain('const uploadId = ref(null)')
+    expect(source).toContain("const uploadResponse = await uploadAudio(audioFile.value)")
+    expect(source).toContain('uploadId.value = uploadResponse.task_id')
+    expect(source).toContain('const jobResponse = await createJob(uploadId.value, settings)')
+    expect(source).toContain('await startPolling()')
+    expect(source).not.toContain('const analysisRunId = ref(0)')
+    expect(source).not.toContain('const uploadSession = ref(createEmptyUploadSession())')
+    expect(source).not.toContain('const createJobWithCurrentUpload = async')
+    expect(source).not.toContain('const invalidateAudioVersion = () => {')
+    expect(source).not.toContain("jobStage.value = t('praat.main.status.reusingUpload')")
     expect(source).not.toContain(':context="resultContext"')
   })
 
-  it('Praat keeps direct analysis for original uploads and binds polling to the current job id', () => {
+  it('Praat keeps direct analysis for original uploads, and passive segment selection does not invalidate the chain', () => {
     const source = readSource(praatViewPath)
 
     expect(source).toMatch(/const originalSegment = \{/)
@@ -49,6 +45,8 @@ describe('Praat front-end risk controls', () => {
     expect(source).toMatch(/const currentJobId = jobId\.value/)
     expect(source).toMatch(/\(\) => getJobStatus\(currentJobId\)/)
     expect(source).toMatch(/const results = await getJobResult\(currentJobId, 'full'\)/)
+    expect(source).not.toContain('const selectionChanged = !isSameSegment(selectedSegment.value, segment)')
+    expect(source).not.toContain('invalidateAudioVersion()')
   })
 
   it('Audio input emits structured file payloads and forwards clear-selection to the parent', () => {
@@ -85,14 +83,13 @@ describe('Praat front-end risk controls', () => {
     expect(source).toMatch(/api\(`\/api\/tools\/praat\/jobs\/progress\/\$\{jobId\}`,\s*\{\s*method: 'DELETE',\s*showError: false/)
   })
 
-  it('Praat locales include the new risk-control and result-context copy', () => {
+  it('Praat locales keep the analysis-in-progress and canceled copy', () => {
     const enSource = readSource(enLocalePath)
     const zhCnSource = readSource(zhCnLocalePath)
     const zhHantSource = readSource(zhHantLocalePath)
 
     for (const source of [enSource, zhCnSource, zhHantSource]) {
       expect(source).toContain('"analysisInProgress"')
-      expect(source).toContain('"reusingUpload"')
       expect(source).toContain('"canceled"')
     }
   })

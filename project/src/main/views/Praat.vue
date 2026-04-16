@@ -254,7 +254,6 @@ const audioBlob = ref(null)
 const audioSegments = ref([])
 const selectedSegment = ref(null)
 const currentAudioDuration = ref(null)
-const audioRevision = ref(0)
 
 // Segment preservation state
 const originalSegments = ref([])  // Store first uploaded segments
@@ -262,15 +261,7 @@ const segmentOriginMode = ref(null)  // 'original' | 'auto-split' | null
 
 // Upload state
 const isUploading = ref(false)
-const createEmptyUploadSession = () => ({
-  uploadId: null,
-  audioRevision: 0,
-  durationS: null,
-  createdAt: null,
-  lastJobId: null,
-  reuseEligible: false,
-})
-const uploadSession = ref(createEmptyUploadSession())
+const uploadId = ref(null)
 
 // Job state
 const jobId = ref(null)
@@ -280,7 +271,6 @@ const jobStage = ref(null)
 const jobError = ref(null)
 const pollingFailCount = ref(0)  // ✅ 添加失败计数器
 const isAnalyzing = ref(false)   // ✅ 分析进行中标志（包括上传阶段）
-const analysisRunId = ref(0)
 
 // Results
 const analysisResults = ref(null)
@@ -350,12 +340,15 @@ const getCurrentAudioDuration = () => {
     ?? null
 }
 
-const clearUploadSession = () => {
-  uploadSession.value = createEmptyUploadSession()
-}
-
-const resetAnalysisState = () => {
+const resetAnalysisState = ({ cancelCurrentJob = false } = {}) => {
+  const currentJobId = jobId.value
+  const currentStatus = normalizedJobStatus.value
   stopPolling()
+  if (cancelCurrentJob && currentJobId && isActiveJobStatus(currentStatus)) {
+    cancelJob(currentJobId).catch(console.error)
+  }
+
+  uploadId.value = null
   jobId.value = null
   jobStatus.value = 'idle'
   jobProgress.value = 0
@@ -368,54 +361,8 @@ const resetAnalysisState = () => {
   resultsTabEnabled.value = false
 }
 
-const isCurrentRun = (runId) => runId === analysisRunId.value
-
-const beginAnalysisRun = () => {
-  stopPolling()
-  analysisRunId.value += 1
-  return analysisRunId.value
-}
-
-const invalidateAnalysisRun = () => {
-  analysisRunId.value += 1
-}
-
-const persistUploadSession = (uploadId, durationS) => {
-  uploadSession.value = {
-    uploadId,
-    audioRevision: audioRevision.value,
-    durationS,
-    createdAt: Date.now(),
-    lastJobId: null,
-    reuseEligible: true,
-  }
-}
-
-const isSameSegment = (left, right) => {
-  if (!left || !right) return false
-  return left.name === right.name &&
-    left.startTime === right.startTime &&
-    left.endTime === right.endTime &&
-    left.origin === right.origin
-}
-
-const cancelActiveJobIfNeeded = () => {
-  if (jobId.value && isActiveJobStatus(normalizedJobStatus.value)) {
-    cancelJob(jobId.value).catch(console.error)
-  }
-}
-
-const invalidateAudioVersion = () => {
-  cancelActiveJobIfNeeded()
-  invalidateAnalysisRun()
-  audioRevision.value += 1
-  clearUploadSession()
-  resetAnalysisState()
-  setActiveTab('upload')
-}
-
 const setSingleAudioSelection = (payload) => {
-  invalidateAudioVersion()
+  resetAnalysisState({ cancelCurrentJob: true })
 
   const originalSegment = {
     file: payload.file,
@@ -437,10 +384,11 @@ const setSingleAudioSelection = (payload) => {
 
   originalSegments.value = [originalSegment]
   segmentOriginMode.value = payload.origin || 'original'
+  setActiveTab('upload')
 }
 
 const setSegmentsSelection = (segments, originMode) => {
-  invalidateAudioVersion()
+  resetAnalysisState({ cancelCurrentJob: true })
 
   audioSegments.value = segments
   audioBlob.value = null
@@ -451,59 +399,7 @@ const setSegmentsSelection = (segments, originMode) => {
 
   originalSegments.value = [...segments]
   segmentOriginMode.value = originMode
-}
-
-const getErrorText = (error) => {
-  const detail = typeof error?.detail === 'string'
-    ? error.detail
-    : error?.detail
-      ? JSON.stringify(error.detail)
-      : ''
-
-  return [error?.message, detail]
-    .filter(Boolean)
-    .join(' ')
-    .toLowerCase()
-}
-
-const isExpiredUploadError = (error) => {
-  const status = error?.status ?? error?.response?.status
-  if (status === 404 || status === 410) return true
-
-  const errorText = getErrorText(error)
-  return errorText.includes('upload') &&
-    (
-      errorText.includes('not found') ||
-      errorText.includes('expired') ||
-      errorText.includes('missing') ||
-      errorText.includes('不存在') ||
-      errorText.includes('过期') ||
-      errorText.includes('過期')
-    )
-}
-
-const isBusyUploadError = (error) => {
-  const status = error?.status ?? error?.response?.status
-  if (status === 409) return true
-
-  const errorText = getErrorText(error)
-  return errorText.includes('busy') ||
-    errorText.includes('already running') ||
-    errorText.includes('still processing') ||
-    errorText.includes('processing') ||
-    errorText.includes('处理中') ||
-    errorText.includes('處理中') ||
-    errorText.includes('运行中') ||
-    errorText.includes('運行中')
-}
-
-const canReuseCurrentUpload = () => {
-  return Boolean(
-    uploadSession.value.uploadId &&
-    uploadSession.value.reuseEligible &&
-    uploadSession.value.audioRevision === audioRevision.value &&
-    !isActiveJobStatus(normalizedJobStatus.value)
-  )
+  setActiveTab('upload')
 }
 
 // Default settings
@@ -590,26 +486,19 @@ const handleSegmentsReady = (segments) => {
 }
 
 const handleManualSegmentsReady = (segments) => {
-  const fallbackOriginalSegments = [...originalSegments.value]
-  const fallbackOriginMode = segmentOriginMode.value
-
   if (segments.length === 0) {
-    invalidateAudioVersion()
+    resetAnalysisState({ cancelCurrentJob: true })
 
-    if (fallbackOriginalSegments.length > 0) {
-      audioSegments.value = [...fallbackOriginalSegments]
-      selectedSegment.value = fallbackOriginalSegments[0]
-      audioFile.value = fallbackOriginalSegments[0].file
-      currentAudioDuration.value = fallbackOriginalSegments[0].duration ?? null
-      originalSegments.value = fallbackOriginalSegments
-      segmentOriginMode.value = fallbackOriginMode
-
-      if (fallbackOriginMode === 'original') {
-        audioBlob.value = fallbackOriginalSegments[0].blob
-      } else {
-        audioBlob.value = null
-      }
+    if (originalSegments.value.length > 0) {
+      audioSegments.value = [...originalSegments.value]
+      audioFile.value = originalSegments.value[0].file
+      audioBlob.value = segmentOriginMode.value === 'original'
+        ? originalSegments.value[0].blob
+        : null
+      selectedSegment.value = originalSegments.value[0]
+      currentAudioDuration.value = originalSegments.value[0].duration ?? null
       showPreview.value = true
+      setActiveTab('upload')
     } else {
       audioSegments.value = []
       audioFile.value = null
@@ -618,33 +507,32 @@ const handleManualSegmentsReady = (segments) => {
       currentAudioDuration.value = null
       originalSegments.value = []
       segmentOriginMode.value = null
+      showPreview.value = false
+      setActiveTab('upload')
     }
     return
   }
 
-  // Check if original should be preserved
-  const hasOriginalSegment = fallbackOriginMode === 'original'
-  let nextSegments = segments
+  resetAnalysisState({ cancelCurrentJob: true })
 
-  if (hasOriginalSegment) {
-    // Preserve original + add manual segments
-    const originalSeg = fallbackOriginalSegments[0]
-    nextSegments = [originalSeg, ...segments]
+  if (segmentOriginMode.value === 'original') {
+    const originalSeg = originalSegments.value[0]
+    audioSegments.value = [originalSeg, ...segments]
+    audioBlob.value = originalSeg?.blob || null
+  } else {
+    audioSegments.value = segments
+    audioBlob.value = null
   }
 
-  invalidateAudioVersion()
-  audioSegments.value = nextSegments
-  selectedSegment.value = audioSegments.value.find(s => s.origin === 'manual') || audioSegments.value[0]
+  const firstManualSegment = audioSegments.value.find(s => s.origin === 'manual')
+  selectedSegment.value = firstManualSegment || audioSegments.value[0]
   audioFile.value = selectedSegment.value?.file || null
-  audioBlob.value = hasOriginalSegment ? fallbackOriginalSegments[0]?.blob || null : null
   currentAudioDuration.value = selectedSegment.value?.duration ?? null
-  originalSegments.value = fallbackOriginalSegments
-  segmentOriginMode.value = fallbackOriginMode
   showPreview.value = true
+  setActiveTab('upload')
 }
 
 const handleSegmentSelected = (segment) => {
-  const selectionChanged = !isSameSegment(selectedSegment.value, segment)
   selectedSegment.value = segment
   if (segment.file) {
     audioFile.value = segment.file
@@ -653,19 +541,10 @@ const handleSegmentSelected = (segment) => {
     audioBlob.value = segment.blob
   }
   currentAudioDuration.value = segment.duration ?? currentAudioDuration.value
-
-  if (selectionChanged) {
-    invalidateAudioVersion()
-    selectedSegment.value = segment
-    audioFile.value = segment.file || null
-    audioBlob.value = segment.blob || null
-    currentAudioDuration.value = segment.duration ?? currentAudioDuration.value
-    showPreview.value = true
-  }
 }
 
 const handleClearSelection = () => {
-  invalidateAudioVersion()
+  resetAnalysisState({ cancelCurrentJob: true })
   audioFile.value = null
   audioBlob.value = null
   audioSegments.value = []
@@ -674,60 +553,7 @@ const handleClearSelection = () => {
   originalSegments.value = []
   segmentOriginMode.value = null
   showPreview.value = false
-}
-
-const createJobWithCurrentUpload = async (runId) => {
-  if (canReuseCurrentUpload()) {
-    jobStage.value = t('praat.main.status.reusingUpload')
-
-    try {
-      const jobResponse = await createJob(uploadSession.value.uploadId, settings)
-      if (!isCurrentRun(runId)) return null
-
-      uploadSession.value = {
-        ...uploadSession.value,
-        lastJobId: jobResponse.job_id,
-      }
-
-      return {
-        jobResponse,
-        reusedUpload: true,
-      }
-    } catch (error) {
-      if (!isCurrentRun(runId)) return null
-
-      if (isExpiredUploadError(error)) {
-        clearUploadSession()
-        jobStage.value = t('praat.main.status.retryingUpload')
-      } else if (isBusyUploadError(error)) {
-        throw new Error(t('praat.main.errors.uploadBusy'))
-      } else {
-        throw error
-      }
-    }
-  }
-
-  isUploading.value = true
-  jobStage.value = t('praat.main.status.uploading')
-  const uploadResponse = await uploadAudio(audioFile.value)
-  if (!isCurrentRun(runId)) return null
-
-  const duration = uploadResponse.normalized_meta?.duration_s || uploadResponse.audio_metadata?.duration_s || getCurrentAudioDuration()
-  persistUploadSession(uploadResponse.task_id, duration)
-
-  jobStage.value = t('praat.main.status.creatingJob')
-  const jobResponse = await createJob(uploadSession.value.uploadId, settings)
-  if (!isCurrentRun(runId)) return null
-
-  uploadSession.value = {
-    ...uploadSession.value,
-    lastJobId: jobResponse.job_id,
-  }
-
-  return {
-    jobResponse,
-    reusedUpload: false,
-  }
+  setActiveTab('upload')
 }
 
 const startAnalysis = async () => {
@@ -764,9 +590,6 @@ const startAnalysis = async () => {
     return
   }
 
-  const runId = beginAnalysisRun()
-
-  // Clear previous results and reset status IMMEDIATELY
   analysisResults.value = null
   jobStatus.value = 'queued'
   jobProgress.value = 0
@@ -776,23 +599,51 @@ const startAnalysis = async () => {
   resultsTabEnabled.value = true
 
   try {
-    const jobStart = await createJobWithCurrentUpload(runId)
-    if (!jobStart) return
-    if (!isCurrentRun(runId)) return
+    isUploading.value = true
+    jobStage.value = t('praat.main.status.uploading')
+    const uploadResponse = await uploadAudio(audioFile.value)
+    uploadId.value = uploadResponse.task_id
 
-    const { jobResponse } = jobStart
+    const uploadedDuration = uploadResponse.normalized_meta?.duration_s
+      || uploadResponse.audio_metadata?.duration_s
+      || duration
+    currentAudioDuration.value = uploadedDuration ?? currentAudioDuration.value
+
+    if (hasSpectrogramModule && uploadedDuration && uploadedDuration > 3 && !isAdmin) {
+      showWarning(
+        t('praat.main.errors.durationExceeded', {
+          duration: uploadedDuration.toFixed(1),
+        }),
+        5000,
+      )
+
+      setTimeout(() => {
+        showSettings.value = true
+      }, 300)
+
+      jobStatus.value = 'idle'
+      jobStage.value = ''
+      uploadId.value = null
+      await setActiveTab('upload')
+      isAnalyzing.value = false
+      isUploading.value = false
+      return
+    }
+
+    if (hasSpectrogramModule && uploadedDuration && uploadedDuration > 3 && isAdmin) {
+      console.log(`[Praat] Admin user bypassing 3s limit for spectrogram analysis (duration: ${uploadedDuration}s)`)
+    }
+
+    jobStage.value = t('praat.main.status.creatingJob')
+    const jobResponse = await createJob(uploadId.value, settings)
     jobId.value = jobResponse.job_id
 
     await setActiveTab('results')
-    if (!isCurrentRun(runId)) return
-
     isUploading.value = false
 
     jobStage.value = t('praat.main.status.startingAnalysis')
-    await startPolling(runId)
+    await startPolling()
   } catch (error) {
-    if (!isCurrentRun(runId)) return
-
     console.error('Start analysis error:', error)
     showError(error.message || t('praat.main.errors.analysisStartFailed'))
     await setActiveTab('results')
@@ -803,7 +654,7 @@ const startAnalysis = async () => {
   }
 }
 
-const startPolling = async (runId) => {
+const startPolling = async () => {
   pollingFailCount.value = 0
   const currentJobId = jobId.value
 
@@ -811,8 +662,6 @@ const startPolling = async (runId) => {
     () => getJobStatus(currentJobId),
     {
       onTick: async (status) => {
-        if (!isCurrentRun(runId)) return
-
         pollingFailCount.value = 0
         jobStatus.value = status.status
         if (status.progress !== undefined && status.progress !== null) {
@@ -824,8 +673,7 @@ const startPolling = async (runId) => {
         const nextStatus = normalizeJobStatus(status.status)
         if (nextStatus === 'completed') {
           jobProgress.value = 100
-          await fetchResults(runId, currentJobId)
-          if (!isCurrentRun(runId)) return
+          await fetchResults(currentJobId)
           isAnalyzing.value = false
           return
         }
@@ -846,12 +694,10 @@ const startPolling = async (runId) => {
         return nextStatus === 'completed' || nextStatus === 'error' || nextStatus === 'canceled'
       },
       onError: (error, count) => {
-        if (!isCurrentRun(runId)) return
         console.error('Polling error:', error)
         pollingFailCount.value = count
       },
       onMaxFailures: () => {
-        if (!isCurrentRun(runId)) return
         jobStatus.value = 'error'
         jobError.value = t('praat.main.status.pollingFailed')
         showError(t('praat.main.status.pollingFailedCount', { count: MAX_POLLING_FAILURES }))
@@ -866,13 +712,11 @@ const stopPolling = () => {
   pollingTask.stop()
 }
 
-const fetchResults = async (runId, currentJobId) => {
+const fetchResults = async (currentJobId) => {
   try {
     const results = await getJobResult(currentJobId, 'full')
-    if (!isCurrentRun(runId)) return
     analysisResults.value = results
   } catch (error) {
-    if (!isCurrentRun(runId)) return
     console.error('Fetch results error:', error)
     showError(t('praat.main.errors.resultsFetchFailed'))
   }
@@ -884,7 +728,6 @@ const cancelAnalysis = async () => {
 
   try {
     stopPolling()
-    invalidateAnalysisRun()
     await cancelJob(currentJobId)
     jobStatus.value = 'canceled'
     jobStage.value = null
@@ -894,11 +737,6 @@ const cancelAnalysis = async () => {
   } catch (error) {
     console.error('Cancel error:', error)
     showError(t('praat.main.errors.cancelFailed'))
-
-    if (jobId.value === currentJobId && isActiveJobStatus(normalizedJobStatus.value)) {
-      const recoveryRunId = beginAnalysisRun()
-      await startPolling(recoveryRunId)
-    }
   }
 }
 
@@ -906,7 +744,6 @@ const cancelAnalysis = async () => {
 onBeforeUnmount(() => {
   const currentJobId = jobId.value
   const currentStatus = normalizedJobStatus.value
-  invalidateAnalysisRun()
   stopPolling()
   if (currentJobId && isActiveJobStatus(currentStatus)) {
     cancelJob(currentJobId).catch(console.error)
