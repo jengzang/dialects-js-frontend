@@ -235,6 +235,9 @@ const switchTab = async (tab) => {
   if (tab === 'vowelspace' && !vowelspaceTabEnabled.value) return
   if (tab === 'pitchtone' && !pitchtoneTabEnabled.value) return
 
+  tracePraat('tab.switch', {
+    nextTab: tab,
+  })
   await setActiveTab(tab)
 
   // Auto-show preview when returning to Tab 1 if there's audio data
@@ -302,6 +305,45 @@ const isActiveJobStatus = (status) => {
   return status === 'queued' || status === 'processing'
 }
 
+const MAX_JOB_NOT_READY_WARMUP_RETRIES = 3
+const MAX_RESULT_NOT_READY_RETRIES = 4
+const RESULT_NOT_READY_RETRY_MS = 800
+const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms))
+
+const isJobNotReadyError = (error) => {
+  if ((error?.status ?? error?.response?.status) !== 404) {
+    return false
+  }
+
+  return error?.detail?.error?.code === 'JOB_NOT_FOUND'
+}
+
+const PRAAT_TRACE_ENABLED = import.meta.env.DEV
+
+const getErrorTracePayload = (error) => ({
+  message: error?.message ?? null,
+  status: error?.status ?? error?.response?.status ?? null,
+  code: error?.detail?.error?.code ?? null,
+  detail: error?.detail ?? null,
+})
+
+const tracePraat = (event, payload = {}) => {
+  if (!PRAAT_TRACE_ENABLED) {
+    return
+  }
+
+  console.log(`[Praat trace] ${event}`, {
+    at: new Date().toISOString(),
+    activeTab: activeTab.value,
+    uploadId: uploadId.value,
+    jobId: jobId.value,
+    normalizedJobStatus: normalizedJobStatus.value,
+    isUploading: isUploading.value,
+    isAnalyzing: isAnalyzing.value,
+    ...payload,
+  })
+}
+
 const isActionLocked = computed(() => {
   if (!audioFile.value) {
     return true
@@ -343,8 +385,17 @@ const getCurrentAudioDuration = () => {
 const resetAnalysisState = ({ cancelCurrentJob = false } = {}) => {
   const currentJobId = jobId.value
   const currentStatus = normalizedJobStatus.value
+  tracePraat('analysis.reset', {
+    cancelCurrentJob,
+    currentJobId,
+    currentStatus,
+  })
   stopPolling()
   if (cancelCurrentJob && currentJobId && isActiveJobStatus(currentStatus)) {
+    tracePraat('analysis.cancel-before-reset', {
+      currentJobId,
+      currentStatus,
+    })
     cancelJob(currentJobId).catch(console.error)
   }
 
@@ -597,12 +648,23 @@ const startAnalysis = async () => {
   jobError.value = null
   isAnalyzing.value = true
   resultsTabEnabled.value = true
+  tracePraat('analysis.start', {
+    fileName: audioFile.value?.name ?? null,
+    duration,
+    hasSpectrogramModule,
+    modules: Array.isArray(settings.modules) ? [...settings.modules] : [],
+  })
 
   try {
     isUploading.value = true
     jobStage.value = t('praat.main.status.uploading')
     const uploadResponse = await uploadAudio(audioFile.value)
     uploadId.value = uploadResponse.task_id
+    tracePraat('analysis.uploaded', {
+      uploadTaskId: uploadResponse.task_id,
+      normalizedMeta: uploadResponse.normalized_meta ?? null,
+      audioMetadata: uploadResponse.audio_metadata ?? null,
+    })
 
     const uploadedDuration = uploadResponse.normalized_meta?.duration_s
       || uploadResponse.audio_metadata?.duration_s
@@ -637,6 +699,11 @@ const startAnalysis = async () => {
     jobStage.value = t('praat.main.status.creatingJob')
     const jobResponse = await createJob(uploadId.value, settings)
     jobId.value = jobResponse.job_id
+    tracePraat('analysis.job-created', {
+      currentUploadId: uploadId.value,
+      createdJobId: jobResponse.job_id,
+      jobResponse,
+    })
 
     await setActiveTab('results')
     isUploading.value = false
@@ -657,9 +724,29 @@ const startAnalysis = async () => {
 const startPolling = async () => {
   pollingFailCount.value = 0
   const currentJobId = jobId.value
+  let warmupNotFoundRetries = 0
+  tracePraat('polling.start', {
+    currentJobId,
+  })
 
   await pollingTask.start(
-    () => getJobStatus(currentJobId),
+    async () => {
+      try {
+        return await getJobStatus(currentJobId)
+      } catch (error) {
+        if (isJobNotReadyError(error) && warmupNotFoundRetries < MAX_JOB_NOT_READY_WARMUP_RETRIES) {
+          warmupNotFoundRetries += 1
+          return {
+            status: 'queued',
+            progress: 0,
+            stage: jobStage.value || t('praat.main.status.startingAnalysis'),
+            error: null,
+          }
+        }
+
+        throw error
+      }
+    },
     {
       onTick: async (status) => {
         pollingFailCount.value = 0
@@ -669,10 +756,23 @@ const startPolling = async () => {
         }
         jobStage.value = status.stage
         jobError.value = status.error
+        tracePraat('polling.tick', {
+          currentJobId,
+          status: status.status,
+          normalizedStatus: normalizeJobStatus(status.status),
+          progress: status.progress ?? null,
+          stage: status.stage ?? null,
+          error: status.error ?? null,
+        })
 
         const nextStatus = normalizeJobStatus(status.status)
         if (nextStatus === 'completed') {
           jobProgress.value = 100
+          tracePraat('polling.completed-before-result', {
+            currentJobId,
+            rawStatus: status.status,
+            stage: status.stage ?? null,
+          })
           await fetchResults(currentJobId)
           isAnalyzing.value = false
           return
@@ -696,12 +796,21 @@ const startPolling = async () => {
       onError: (error, count) => {
         console.error('Polling error:', error)
         pollingFailCount.value = count
+        tracePraat('polling.error', {
+          currentJobId,
+          count,
+          error: getErrorTracePayload(error),
+        })
       },
       onMaxFailures: () => {
         jobStatus.value = 'error'
         jobError.value = t('praat.main.status.pollingFailed')
         showError(t('praat.main.status.pollingFailedCount', { count: MAX_POLLING_FAILURES }))
         isAnalyzing.value = false
+        tracePraat('polling.max-failures', {
+          currentJobId,
+          maxFailures: MAX_POLLING_FAILURES,
+        })
       },
     }
   )
@@ -713,12 +822,46 @@ const stopPolling = () => {
 }
 
 const fetchResults = async (currentJobId) => {
-  try {
-    const results = await getJobResult(currentJobId, 'full')
-    analysisResults.value = results
-  } catch (error) {
-    console.error('Fetch results error:', error)
-    showError(t('praat.main.errors.resultsFetchFailed'))
+  for (let attempt = 0; attempt <= MAX_RESULT_NOT_READY_RETRIES; attempt += 1) {
+    try {
+      tracePraat('result.request', {
+        currentJobId,
+        attempt,
+      })
+      const results = await getJobResult(currentJobId, 'full')
+      analysisResults.value = results
+      tracePraat('result.success', {
+        currentJobId,
+        attempt,
+        resultKeys: results ? Object.keys(results) : [],
+      })
+      return
+    } catch (error) {
+      let statusSnapshot = null
+      try {
+        statusSnapshot = await getJobStatus(currentJobId)
+      } catch (statusError) {
+        statusSnapshot = {
+          statusCheckFailed: true,
+          error: getErrorTracePayload(statusError),
+        }
+      }
+
+      tracePraat('result.error', {
+        currentJobId,
+        attempt,
+        error: getErrorTracePayload(error),
+        statusSnapshot,
+      })
+
+      if (!isJobNotReadyError(error) || attempt === MAX_RESULT_NOT_READY_RETRIES) {
+        console.error('Fetch results error:', error)
+        showError(t('praat.main.errors.resultsFetchFailed'))
+        return
+      }
+
+      await wait(RESULT_NOT_READY_RETRY_MS)
+    }
   }
 }
 
@@ -744,8 +887,16 @@ const cancelAnalysis = async () => {
 onBeforeUnmount(() => {
   const currentJobId = jobId.value
   const currentStatus = normalizedJobStatus.value
+  tracePraat('page.before-unmount', {
+    currentJobId,
+    currentStatus,
+  })
   stopPolling()
   if (currentJobId && isActiveJobStatus(currentStatus)) {
+    tracePraat('page.before-unmount-cancel', {
+      currentJobId,
+      currentStatus,
+    })
     cancelJob(currentJobId).catch(console.error)
   }
 })

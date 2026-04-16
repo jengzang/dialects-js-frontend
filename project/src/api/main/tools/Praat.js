@@ -6,6 +6,29 @@ import { api } from '../../auth/httpClient.js'
  * 涵盖所有后端端点：上传管理 + 任务管理 + 能力查询
  */
 export function praat() {
+  const isJobNotFoundError = (error) => {
+    return error?.status === 404 && error?.detail?.error?.code === 'JOB_NOT_FOUND'
+  }
+
+  const logApiError = (label, error, { suppressJobNotFound = false } = {}) => {
+    if (suppressJobNotFound && isJobNotFoundError(error)) {
+      return
+    }
+
+    console.error(label, error)
+  }
+
+  const rethrowOriginalError = (error, fallbackMessage) => {
+    if (error instanceof Error) {
+      if (!error.message) {
+        error.message = fallbackMessage
+      }
+
+      throw error
+    }
+
+    throw new Error(fallbackMessage)
+  }
 
   // ========== 1. 能力查询 ==========
 
@@ -247,8 +270,8 @@ export function praat() {
         showError: false
       })
     } catch (error) {
-      console.error('Get job status error:', error)
-      throw new Error(error.message || '獲取任務狀態失敗')
+      logApiError('Get job status error:', error, { suppressJobNotFound: true })
+      rethrowOriginalError(error, '獲取任務狀態失敗')
     }
   }
 
@@ -269,8 +292,8 @@ export function praat() {
         showError: false
       })
     } catch (error) {
-      console.error('Get job result error:', error)
-      throw new Error(error.message || '獲取分析結果失敗')
+      logApiError('Get job result error:', error, { suppressJobNotFound: true })
+      rethrowOriginalError(error, '獲取分析結果失敗')
     }
   }
 
@@ -288,8 +311,8 @@ export function praat() {
         showError: false
       })
     } catch (error) {
-      console.error('Cancel job error:', error)
-      throw new Error(error.message || '取消任務失敗')
+      logApiError('Cancel job error:', error)
+      rethrowOriginalError(error, '取消任務失敗')
     }
   }
 
