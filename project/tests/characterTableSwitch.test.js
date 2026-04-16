@@ -88,11 +88,12 @@ describe('global character table switching', () => {
     expect(resultSource).toContain('resultCache.tableName')
     expect(resultSource).toContain('table_name:')
 
-    expect(panelManagerSource).toContain("resultCache.tableName !== 'characters'")
-    expect(panelManagerSource).toContain("showWarning(t('result.panelManager.unsupportedTable'))")
-
     expect(resultTableSource).toContain('resultCache.tableName || DEFAULT_CHARACTER_TABLE')
     expect(resultTableSource).toContain('table_name: tableName')
+    expect(resultTableSource).toContain("if (tableName !== 'characters') {")
+    expect(resultTableSource).toContain("showWarning(i18n.global.t('result.panelManager.unsupportedTable'))")
+    expect(resultTableSource).toContain('Remove this guard after multi-table adaptation lands.')
+    expect(panelManagerSource).not.toContain("resultCache.tableName !== 'characters'")
 
     expect(phonologySource).toContain('preferredCharacterTable')
     expect(phonologySource).toContain('table_name: selectedCharacterTable.value')
