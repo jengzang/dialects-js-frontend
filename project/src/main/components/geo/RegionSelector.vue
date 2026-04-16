@@ -282,7 +282,7 @@ import { showError, showSuccess, showConfirm } from '@/utils/message.js'
 import AppModal from '@/components/common/AppModal.vue'
 import MultiSelectDropdown from '@/components/selector/MultiSelectDropdown.vue'
 import {STATIC_REGION_TREE, top_yindian} from "@/main/config/RegionTree.js";
-import { usePartitionCache } from '@/composables/domain/geo/usePartitionCache.js'
+import { usePartitionCache } from '@/composables/domain/usePartitionCache.js'
 
 const { t } = useI18n()
 

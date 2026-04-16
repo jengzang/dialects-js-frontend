@@ -8,27 +8,11 @@
 
     <!-- Mode Selector -->
     <div class="mode-selector vml-glass-panel">
-      <button
-        class="mode-button"
-        :class="{ 'active': queryMode === 'search' }"
-        @click="queryMode = 'search'"
-      >
-        查找相似區域
-      </button>
-      <button
-        class="mode-button"
-        :class="{ 'active': queryMode === 'pair' }"
-        @click="queryMode = 'pair'"
-      >
-        兩區域對比
-      </button>
-      <button
-        class="mode-button"
-        :class="{ 'active': queryMode === 'matrix' }"
-        @click="queryMode = 'matrix'"
-      >
-        相似度矩陣
-      </button>
+      <RadioGroup
+          name="regionSimilarityMode"
+          :options="similarityModeOptions"
+          v-model="queryMode"
+      />
     </div>
 
     <!-- Search Mode -->
@@ -311,17 +295,24 @@ import * as echarts from 'echarts'
 import FilterableSelect from '@/VillagesML/components/FilterableSelect.vue'
 import SimpleSelectDropdown from '@/components/selector/SimpleSelectDropdown.vue'
 import HelpIcon from '@/components/ToastAndHelp/HelpIcon.vue'
+import RadioGroup from "@/components/selector/RadioGroup.vue";
 
 export default {
   name: 'RegionSimilarity',
   components: {
+    RadioGroup,
     FilterableSelect,
     SimpleSelectDropdown,
-    HelpIcon
+    HelpIcon,
   },
   setup() {
     // State
     const queryMode = ref('search')
+    const similarityModeOptions = [
+      { value: 'search', label: '查找相似區域' },
+      { value: 'pair', label: '兩區域對比' },
+      { value: 'matrix', label: '相似度矩陣' }
+    ]
 
     // Search mode
     const targetRegion = ref('')
@@ -604,6 +595,7 @@ export default {
 
     return {
       queryMode,
+      similarityModeOptions,
       targetRegion,
       targetRegionLevel,
       metric,
@@ -657,6 +649,8 @@ export default {
 
 .mode-selector {
   display: flex;
+  justify-content: center;
+  align-items: center;
   gap: 12px;
   padding: 12px;
 }

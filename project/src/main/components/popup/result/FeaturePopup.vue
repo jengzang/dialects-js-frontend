@@ -44,7 +44,7 @@ const { t } = useI18n();
 const checkedFeatures = computed(() => translateResultTerms(t, resultCache.features));
 
 const unmatchedFields = computed(() => {
-  return parseFeatureString(props.data?.feature || '').unmatched_fields || [];
+  return parseFeatureString(props.data?.feature || '', resultCache.tableName).unmatched_fields || [];
 });
 
 const handleFieldClick = (field) => {

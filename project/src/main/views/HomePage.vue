@@ -535,7 +535,7 @@
     />
 
     <!-- Support Modal -->
-    <HomeSupportPopup
+    <SupportPopup
       :visible="showSupport"
       @close="showSupport = false"
     />
@@ -570,8 +570,8 @@ import { getHomeUpdateNotice } from '@/main/config/updateNoticeConfig.js'
 const UserBenefitsPopup = defineAsyncComponent(() =>
   import('@/main/components/popup/user/UserBenefitsPopup.vue')
 )
-const HomeSupportPopup = defineAsyncComponent(() =>
-  import('@/main/components/popup/HomeSupportPopup.vue')
+const SupportPopup = defineAsyncComponent(() =>
+  import('@/main/components/popup/SupportPopup.vue')
 )
 const UpdateNoticeModal = defineAsyncComponent(() =>
   import('@/components/ToastAndHelp/UpdateNoticeModal.vue')

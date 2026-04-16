@@ -75,7 +75,8 @@
         "minLocationError": "请至少输入一个地点",
         "loadError": "加载数据时发生错误",
         "apiError": "API 返回的数据为空",
-        "missingMatrix": "API 返回的数据缺少 matrix 属性"
+        "missingMatrix": "API 返回的数据缺少 matrix 属性",
+        "unsupportedTable": "当前字表“{table}”暂不支持音素分类页面"
       }
     },
     "countphos": {

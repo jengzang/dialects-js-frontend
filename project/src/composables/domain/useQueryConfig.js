@@ -8,7 +8,7 @@ import { computed, unref } from 'vue'
 import {
   DEFAULT_CHARACTER_TABLE,
   getCharacterTableSchema
-} from '@/main/config'
+} from '@/main/config/index.js'
 
 export function useQueryConfig(tableName = DEFAULT_CHARACTER_TABLE) {
   const schema = computed(() => getCharacterTableSchema(unref(tableName)))

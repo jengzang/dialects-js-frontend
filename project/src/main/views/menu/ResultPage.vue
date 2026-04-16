@@ -54,6 +54,7 @@ import ResultList from "@/main/components/result/ResultList.vue";
 import CharsAndTones from "@/main/components/result/CharsAndTones.vue";
 import SimpleSelectDropdown from "@/components/selector/SimpleSelectDropdown.vue";
 import {generateTonesMergedData,generateCharsMergedData,func_mergeData} from "@/utils/map/MapData.js";
+import { DEFAULT_CHARACTER_TABLE } from '@/main/config/index.js'
 
 const { t } = useI18n();
 const route = useRoute();
@@ -130,7 +131,9 @@ watch(
       payload.value = newPayload;
       // console.log("payload:",payload.value)
       const sourceTab = newPayload._sourceTab || 'tab2';
+      const tableName = newPayload.table_name || DEFAULT_CHARACTER_TABLE
       currentTabRef.value = sourceTab;
+      resultCache.tableName = tableName
 
       startTimer();
 
@@ -204,6 +207,7 @@ watch(
           const response = await searchZhongGu({
             ...payload.value,
             exclude_columns: payload.value.exclude_columns || [],
+            table_name: tableName,
             include_custom: userStore.isAuthenticated && userStore.role !== 'anonymous'
           })
 
@@ -234,7 +238,8 @@ watch(
 
           const response = await searchYinWei({
             ...payload.value,
-            exclude_columns: payload.value.exclude_columns || []
+            exclude_columns: payload.value.exclude_columns || [],
+            table_name: tableName
           })
 
           if (seq !== requestSeq) return;

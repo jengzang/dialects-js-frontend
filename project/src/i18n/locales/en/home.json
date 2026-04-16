@@ -236,6 +236,13 @@
   "supportModal": {
     "title": "?? Buy the Author a Coffee",
     "subtitle": "Thank you for your support! ??",
+    "donorThanks": "Thank you for buying the author a coffee. Every contribution becomes part of the motivation to keep this site maintained.",
+    "donorColumns": {
+      "time": "Time",
+      "donor": "Donor",
+      "amount": "Amount (CNY)",
+      "method": "Method"
+    },
     "weixinAlt": "WeChat payment QR code",
     "weixinLabel": "WeChat",
     "alipayAlt": "Alipay payment QR code",

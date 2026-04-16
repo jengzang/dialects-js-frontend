@@ -22,14 +22,19 @@
     "actions": {
       "startAnalysis": "Start Analysis",
       "pleaseSelectAudio": "Select audio first",
-      "uploading": "Uploading..."
+      "uploading": "Uploading...",
+      "analysisInProgress": "Analysis in progress..."
     },
     "closePreview": "Close preview",
     "status": {
       "preparingUpload": "Preparing audio upload...",
       "uploading": "Uploading audio...",
       "creatingJob": "Creating analysis job...",
-      "startingAnalysis": "Starting analysis..."
+      "startingAnalysis": "Starting analysis...",
+      "reusingUpload": "Reusing existing upload...",
+      "retryingUpload": "Cached upload expired, uploading again...",
+      "pollingFailed": "Failed to poll job status",
+      "pollingFailedCount": "Failed to poll job status after {count} attempts"
     },
     "errors": {
       "loginRequired": "Please sign in first",
@@ -37,7 +42,9 @@
       "analysisFailed": "Analysis job failed",
       "resultsFetchFailed": "Failed to fetch analysis results",
       "cancelFailed": "Failed to cancel the job",
-      "durationExceeded": "The audio is {duration} seconds long, which exceeds the 3-second limit. Spectrogram analysis does not support audio longer than 3 seconds. Disable the spectrogram module in settings and try again."
+      "durationExceeded": "The audio is {duration} seconds long, which exceeds the 3-second limit. Spectrogram analysis does not support audio longer than 3 seconds. Disable the spectrogram module in settings and try again.",
+      "analysisInProgress": "An analysis is already running. Wait for it to finish or cancel it first.",
+      "uploadBusy": "This upload is still busy. Wait for the current analysis to finish and try again."
     },
     "noResults": {
       "title": "No analysis results yet",
@@ -176,10 +183,19 @@
     },
     "completed": {
       "title": "Analysis Complete"
+    },
+    "canceled": {
+      "title": "Analysis canceled"
     }
   },
   "results": {
     "title": "Analysis Results",
+    "context": {
+      "jobLabel": "Current result job:",
+      "uploadSourceLabel": "Upload source:",
+      "reusedUpload": "Reused existing upload",
+      "freshUpload": "Uploaded again"
+    },
     "basicInfo": {
       "title": "Basic Information",
       "duration": "Audio Duration",

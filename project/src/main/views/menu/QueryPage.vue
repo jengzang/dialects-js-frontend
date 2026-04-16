@@ -88,6 +88,7 @@
                 :is-dropdown-open="excludeDropdownOpen === 'tab2'"
                 :selected-card="tabStates.tab2.card"
                 :exclude-columns="tabStates.tab2.excludeColumns"
+                :table-name="selectedCharacterTable"
                 @update:runDisabled="setTabContentDisabled('query', 'tab2', $event)"
                 ref="ZhongguRef"
             />
@@ -202,6 +203,7 @@
       </div>
     </div>
     <FloatingDice
+        v-if="selectedCharacterTable === 'characters'"
         :current-tab="currentTab"
         @applyConfig="handleApplyConfig"
     />
@@ -220,17 +222,25 @@ import FloatingDice from "@/main/components/query/FloatingDice.vue";
 import KeyButtonGroup from "@/main/components/query/KeyButtonGroup.vue";
 import DropdownValueSelector from "@/main/components/query/DropdownValueSelector.vue";
 import ChoiceSelector from "@/components/selector/ChoiceSelector.vue";
-import { globalPayload, queryStore, uiStore, isQueryButtonDisabled, setRunning, setTabContentDisabled } from '@/main/store/store.js'
-import { S2T_T2S_MAPPING } from '@/main/config'
-import { useQueryConfig } from '@/utils/useQueryConfig'
+import {
+  globalPayload,
+  queryStore,
+  uiStore,
+  isQueryButtonDisabled,
+  preferredCharacterTable,
+  setRunning,
+  setTabContentDisabled
+} from '@/main/store/store.js'
+import { useQueryConfig } from '@/composables/domain/useQueryConfig.js'
 import { translateResultTerm } from '@/i18n/utils/resultI18n.js'
 import { showWarning } from '@/utils/message.js'
 import { limitEffectiveChars } from '@/main/utils/queryLimits.js'
 
 const { t } = useI18n()
+const selectedCharacterTable = preferredCharacterTable
 
 // 使用查询配置 Composable
-const { keyValueMap, availableKeys, exclusiveRules, singleSelectKeys } = useQueryConfig()
+const { keyValueMap, availableKeys, exclusiveRules, singleSelectKeys } = useQueryConfig(selectedCharacterTable)
 
 const locationRef = ref(null)
 const router = useRouter()
@@ -264,13 +274,22 @@ const hanziInput = ref('')
 const hasShownCharLimitWarning = ref(false)
 
 // ✨ 過濾器相關狀態
-const excludeOptions = [
-  { value: '多地位標記', label: t('query.tab2.excludeOptions.allMulti') },
-  { value: '多等', label: t('query.tab2.excludeOptions.excludeMultiGrade') },
-  { value: '多韻', label: t('query.tab2.excludeOptions.excludeMultiRime') },
-  { value: '多聲母', label: t('query.tab2.excludeOptions.excludeMultiInitial') },
-  { value: '多調', label: t('query.tab2.excludeOptions.excludeMultiTone') }
-]
+const excludeOptions = computed(() => {
+  const options = [
+    { value: '多地位標記', label: t('query.tab2.excludeOptions.allMulti') }
+  ]
+
+  if (selectedCharacterTable.value === 'characters') {
+    options.push(
+      { value: '多等', label: t('query.tab2.excludeOptions.excludeMultiGrade') },
+      { value: '多韻', label: t('query.tab2.excludeOptions.excludeMultiRime') },
+      { value: '多聲母', label: t('query.tab2.excludeOptions.excludeMultiInitial') },
+      { value: '多調', label: t('query.tab2.excludeOptions.excludeMultiTone') }
+    )
+  }
+
+  return options
+})
 const excludeFilterTriggerRef = reactive({ tab2: null, tab3: null })
 const excludeDropdownOpen = ref(null) // 'tab2' 或 'tab3' 或 null
 const excludeDropdownStyle = ref({
@@ -290,6 +309,7 @@ const tabStates = reactive({
   tab3: {
     card: '韻母',
     keys: ['攝'], // Tab3 专用的键名
+    valueMap: {},
     excludeColumns: [] // ✨ 新增：多音字过滤选项
     // Tab3 没有 valueMap 下拉框，如果有也放在这
   }
@@ -345,6 +365,46 @@ watch(currentTab, (newTab) => {
   uiStore.currentSubTab.query = newTab
 }, { immediate: true })
 
+function getNormalizedKeys(keys = []) {
+  const allowedKeys = availableKeys.value || []
+  const nextKeys = keys.filter(key => allowedKeys.includes(key))
+  return nextKeys.length > 0 ? nextKeys : (allowedKeys[0] ? [allowedKeys[0]] : [])
+}
+
+function getNormalizedValueMap(keys = [], valueMap = {}) {
+  return keys.reduce((nextMap, key) => {
+    const allowedValues = keyValueMap.value[key] || []
+    const values = Array.isArray(valueMap[key])
+      ? valueMap[key].filter(value => allowedValues.includes(value))
+      : []
+
+    if (values.length > 0) {
+      nextMap[key] = values
+    }
+
+    return nextMap
+  }, {})
+}
+
+function getNormalizedExcludeColumns(excludeColumns = []) {
+  const allowedColumns = excludeOptions.value.map(option => option.value)
+  return excludeColumns.filter(column => allowedColumns.includes(column))
+}
+
+function syncTabStateWithTable(tab) {
+  const state = tabStates[tab]
+  const nextKeys = getNormalizedKeys(state.keys)
+
+  state.keys = nextKeys
+  state.valueMap = getNormalizedValueMap(nextKeys, state.valueMap)
+  state.excludeColumns = getNormalizedExcludeColumns(state.excludeColumns)
+}
+
+watch(selectedCharacterTable, () => {
+  syncTabStateWithTable('tab2')
+  syncTabStateWithTable('tab3')
+}, { immediate: true })
+
 // 4️⃣ 🔥 最终计算属性：控制按钮是否禁用（使用 store 的 computed helper）
 const isRunDisabled = isQueryButtonDisabled
 
@@ -378,7 +438,7 @@ function getExcludeDisplayText(tab) {
 
   // ✨ 新增：将 value 转换为 label
   const labels = list.map(value => {
-    const option = excludeOptions.find(opt => opt.value === value)
+    const option = excludeOptions.value.find(opt => opt.value === value)
     return option ? option.label : value  // 找不到就用原值
   })
 
@@ -485,7 +545,8 @@ const runAction = async () => {
     const finalPayload = {
       ...payload,           // 原本的数据 (path_strings, locations 等)
       _sourceTab: 'tab2',    // 👈 手动加上当前的 Tab 标记
-      exclude_columns: tabStates.tab2.excludeColumns  // ✨ 新增
+      exclude_columns: tabStates.tab2.excludeColumns,  // ✨ 新增
+      table_name: selectedCharacterTable.value
     }
 
     // 2. 存入全局仓库
@@ -510,7 +571,8 @@ const runAction = async () => {
     const finalPayload = {
       ...payload,           // 原本的数据 (path_strings, locations 等)
       _sourceTab: 'tab3',    // 👈 手动加上当前的 Tab 标记
-      exclude_columns: tabStates.tab3.excludeColumns  // ✨ 新增
+      exclude_columns: tabStates.tab3.excludeColumns,  // ✨ 新增
+      table_name: selectedCharacterTable.value
     }
 
     // 2. 存入全局仓库

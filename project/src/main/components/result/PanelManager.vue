@@ -58,6 +58,7 @@ import ValuePopup from '../popup/result/ValuePopup.vue';
 import FeaturePopup from '../popup/result/FeaturePopup.vue';
 import { parseFeatureString, get_detail } from '@/main/utils/ResultTable.js';
 import { PANEL_CONFIG, LAYOUT_CONFIG } from '@/main/config/constants.js';
+import { resultCache } from '@/main/store/store.js';
 
 // === 1. Vue 状态管理 ===
 const panels = ref([]);
@@ -319,7 +320,7 @@ const handleValueConfirm = ({ location, value }) => {
 
 const handleFeatureConfirm = ({ location, feature, field }) => {
   if (typeof get_detail === 'function') {
-    const parseResult = parseFeatureString(feature);
+    const parseResult = parseFeatureString(feature, resultCache.tableName);
     if (parseResult.matched_fields === null) get_detail(location, feature, false, true, null, [field]);
     else {
       const newFeature = `${feature.replace(/·/g, '')}-${field}`;

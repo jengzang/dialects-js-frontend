@@ -75,7 +75,8 @@
         "minLocationError": "請至少輸入一個地點",
         "loadError": "加載數據時發生錯誤",
         "apiError": "API 返回的數據為空",
-        "missingMatrix": "API 返回的數據缺少 matrix 屬性"
+        "missingMatrix": "API 返回的數據缺少 matrix 屬性",
+        "unsupportedTable": "當前字表「{table}」暫不支持音素分類頁面"
       }
     },
     "countphos": {

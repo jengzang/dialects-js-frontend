@@ -9,27 +9,11 @@
 
       <!-- Query Mode Selector -->
       <div class="mode-selector vml-glass-panel">
-        <button
-          class="mode-button"
-          :class="{ 'active': queryMode === 'overview' }"
-          @click="queryMode = 'overview'"
-        >
-          總覽
-        </button>
-        <button
-          class="mode-button"
-          :class="{ 'active': queryMode === 'by-char' }"
-          @click="queryMode = 'by-char'"
-        >
-          按字符
-        </button>
-        <button
-          class="mode-button"
-          :class="{ 'active': queryMode === 'by-cluster' }"
-          @click="queryMode = 'by-cluster'"
-        >
-          按聚類
-        </button>
+        <RadioGroup
+            name="spatialQueryMode"
+            :options="queryModeOptions"
+            v-model="queryMode"
+        />
       </div>
 
       <!-- Overview Mode -->
@@ -365,9 +349,16 @@ import {
 } from '@/api/index.js'
 import { showError } from '@/utils/message.js'
 import { getCategoryName } from '@/VillagesML/config/villagesML.js'
+import RadioGroup from "@/components/selector/RadioGroup.vue";
 
 // State
 const queryMode = ref('overview')
+const queryModeOptions = [
+  { value: 'overview', label: '總覽' },
+  { value: 'by-char', label: '按字符' },
+  { value: 'by-cluster', label: '按聚類' }
+]
+
 const queryChar = ref('')
 const clusterId = ref(null)
 
@@ -705,7 +696,8 @@ onMounted(() => {
 
 .mode-selector {
   display: flex;
-  gap: 12px;
+  justify-content: center; /* 确保容器内容居中 */
+  align-items: center;
   padding: 12px;
   margin-bottom: 16px;
 }

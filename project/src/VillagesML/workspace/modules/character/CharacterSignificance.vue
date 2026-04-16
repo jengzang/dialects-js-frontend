@@ -11,26 +11,13 @@
         />
       </h3>
 
-      <!-- Query Mode Selector -->
-      <div class="mode-selector vml-glass-panel">
-        <button
-          class="mode-button"
-          :class="{ 'active': queryMode === 'by-char' }"
-          @click="queryMode = 'by-char'"
-        >
-          按字符查詢
-        </button>
-        <button
-          class="mode-button"
-          :class="{ 'active': queryMode === 'by-region' }"
-          @click="queryMode = 'by-region'"
-        >
-          按區域查詢
-        </button>
-      </div>
-
       <!-- Query Form -->
       <div class="query-form vml-glass-panel">
+        <RadioGroup
+            name="queryModeRadio"
+            :options="queryModeOptions"
+            v-model="queryMode"
+        />
         <!-- By Character Mode -->
         <div v-if="queryMode === 'by-char'" class="form-content">
           <h3>按字符查詢顯著性</h3>
@@ -189,6 +176,7 @@ import {
 } from '@/api/index.js'
 import { showError } from '@/utils/message.js'
 import { getSignificanceLabel } from '@/VillagesML/config/villagesML.js'
+import RadioGroup from "@/components/selector/RadioGroup.vue";
 
 // State
 const queryMode = ref('by-char')
@@ -206,6 +194,11 @@ const regionLevelOptions = [
   { label: '城市', value: 'city' },
   { label: '區縣', value: 'county' },
   { label: '鄉鎮', value: 'township' }
+]
+
+const queryModeOptions = [
+  { value: 'by-char', label: '按字符查詢' },
+  { value: 'by-region', label: '按區域查詢' }
 ]
 
 // Methods
@@ -301,6 +294,9 @@ const getSignificanceBadge = (pValue) => {
 </script>
 
 <style scoped>
+.query-button{
+  margin: 0 auto 0;
+}
 .character-significance-page {
   padding: 12px;
   max-width: 1400px;
@@ -317,6 +313,8 @@ const getSignificanceBadge = (pValue) => {
 
 .mode-selector {
   display: flex;
+  justify-content: center; /* 新增：水平居中 */
+  align-items: center;     /* 新增：垂直居中 */
   gap: 12px;
   padding: 12px;
   margin-bottom: 16px;

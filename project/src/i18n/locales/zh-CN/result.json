@@ -91,7 +91,8 @@
     "statCount": "{count} 字 ({ratio}%)"
   },
   "panelManager": {
-    "loading": "查询中..."
+    "loading": "查询中...",
+    "unsupportedTable": "尚未完成适配"
   },
   "loading": "正在分析中...",
   "longWaitWarning": "⚠️ 当前请求数据量较大，运算需时较长。<br>建议适当减少查询条件以提升速度。",

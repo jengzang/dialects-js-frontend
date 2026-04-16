@@ -525,7 +525,7 @@ const handleAdjustParams = (action) => {
   margin-top: 20px;
 }
 .two-column-layout2{
-  grid-template-columns: 1fr 3fr;
+  grid-template-columns: 1fr 2.5fr;
 }
 @media (max-width: 768px) {
   .two-column-layout,.two-column-layout2  {

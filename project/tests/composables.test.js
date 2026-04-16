@@ -21,7 +21,7 @@ import { useAsyncData } from '../src/composables/core/useAsyncData.js'
 import { useAsyncTask } from '../src/composables/core/useAsyncTask.js'
 import { usePollingTask } from '../src/composables/core/usePollingTask.js'
 import { useStorageState } from '../src/composables/core/useStorageState.js'
-import { usePartitionCache } from '../src/composables/domain/geo/usePartitionCache.js'
+import { usePartitionCache } from '@/composables/domain/usePartitionCache.js'
 import { useAuthGuard } from '../src/composables/router/useAuthGuard.js'
 import { useRouteQueryState } from '../src/composables/router/useRouteQueryState.js'
 import { userStore } from '../src/main/store/store.js'
@@ -271,5 +271,94 @@ describe('composables', () => {
     expect(count).toBe(2)
 
     vi.useRealTimers()
+  })
+
+  it('usePollingTask does not overlap interval ticks when a request is still in flight', async () => {
+    vi.useFakeTimers()
+
+    const polling = usePollingTask({
+      intervalMs: 50,
+      maxFailures: 2,
+    })
+
+    let activeRequests = 0
+    let maxActiveRequests = 0
+
+    const startPromise = polling.start(
+      async () => {
+        activeRequests += 1
+        maxActiveRequests = Math.max(maxActiveRequests, activeRequests)
+
+        await new Promise((resolve) => setTimeout(resolve, 100))
+
+        activeRequests -= 1
+        return { done: false }
+      },
+      {
+        shouldStop: () => false,
+      }
+    )
+
+    await vi.advanceTimersByTimeAsync(110)
+    await startPromise
+    await vi.advanceTimersByTimeAsync(160)
+
+    polling.stop()
+
+    expect(maxActiveRequests).toBe(1)
+
+    vi.useRealTimers()
+  })
+
+  it('usePollingTask ignores stale responses after a run is stopped and restarted', async () => {
+    const polling = usePollingTask({
+      intervalMs: 50,
+      maxFailures: 2,
+    })
+
+    let resolveFirstTask
+    let resolveSecondTask
+
+    const firstTask = new Promise((resolve) => {
+      resolveFirstTask = resolve
+    })
+    const secondTask = new Promise((resolve) => {
+      resolveSecondTask = resolve
+    })
+
+    const task = vi.fn()
+      .mockImplementationOnce(async () => {
+        await firstTask
+        return { label: 'first' }
+      })
+      .mockImplementationOnce(async () => {
+        await secondTask
+        return { label: 'second' }
+      })
+
+    const firstOnTick = vi.fn()
+    const secondOnTick = vi.fn()
+
+    const firstStart = polling.start(task, {
+      onTick: firstOnTick,
+      shouldStop: () => false,
+    })
+
+    polling.stop()
+
+    const secondStart = polling.start(task, {
+      onTick: secondOnTick,
+      shouldStop: () => false,
+    })
+
+    resolveSecondTask()
+    await secondStart
+
+    resolveFirstTask()
+    await firstStart
+    await Promise.resolve()
+
+    expect(secondOnTick).toHaveBeenCalledWith({ label: 'second' })
+    expect(firstOnTick).not.toHaveBeenCalled()
   })
 })

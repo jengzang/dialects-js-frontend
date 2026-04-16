@@ -280,7 +280,8 @@
         "items": {
           "matrix": "Phonology matrix",
           "classification": "Phoneme classes",
-          "counts": "Syllable stats"
+          "counts": "Syllable stats",
+          "pie": "evolution"
         }
       },
       "tools": {
@@ -297,7 +298,8 @@
         "items": {
           "coordinates": "Coordinate lookup",
           "table": "Table lookup",
-          "tree": "Tree lookup"
+          "tree": "Tree lookup",
+          "villages": "Villages Machine Learning"
         },
         "tooltips": {
           "coordinates": "Used to fetch map coordinates for Middle Chinese, phoneme, character, tone, partition-map, and custom-map queries.",

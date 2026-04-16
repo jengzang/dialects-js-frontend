@@ -2,6 +2,8 @@
 import { queryPhonology } from '@/api'
 import { API_CONFIG } from '../config/constants.js'
 import { resultCache } from '../store/store.js'
+import i18n from '@/i18n'
+import { showWarning } from '@/utils/message.js'
 import {
     DEFAULT_CHARACTER_TABLE,
     getCharacterTableColumnValues
@@ -124,6 +126,13 @@ export async function get_detail(location, feature_value, bool=false, vue=false,
                                  mountTarget /* 廢棄 */, group_inputs = []) {
 
     if (!location || !feature_value) return;
+    const tableName = resultCache.tableName || DEFAULT_CHARACTER_TABLE
+    // Temporary compromise: these detail queries still depend on the
+    // characters-table schema. Remove this guard after multi-table adaptation lands.
+    if (tableName !== 'characters') {
+        showWarning(i18n.global.t('result.panelManager.unsupportedTable'));
+        return;
+    }
     // ============================================
     // ★ 修改點 1：在 fetch 之前，先打開窗口！
     // ============================================
@@ -187,7 +196,8 @@ export async function get_detail(location, feature_value, bool=false, vue=false,
         status_inputs,
         group_inputs,
         pho_values,
-        region_mode
+        region_mode,
+        table_name: tableName
     };
     try {
         // ✅ 使用统一的 api 函数（替代 window.fetch）

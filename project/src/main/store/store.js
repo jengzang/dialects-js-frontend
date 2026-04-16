@@ -1,10 +1,32 @@
 // src/utils/store.js
 import { ref, reactive, computed } from 'vue'
+import { useStorageState } from '@/composables/core/useStorageState.js'
+import {
+    DEFAULT_CHARACTER_TABLE,
+    resolveCharacterTableName
+} from '@/main/config/index.js'
 
 // ========================================
 // 全局 Payload（用于跨组件传递查询数据）
 // ========================================
 export const globalPayload = ref(null)
+
+const {
+    state: preferredCharacterTableState,
+    write: writePreferredCharacterTableState
+} = useStorageState('preferred-character-table', {
+    defaultValue: DEFAULT_CHARACTER_TABLE
+})
+
+preferredCharacterTableState.value = resolveCharacterTableName(preferredCharacterTableState.value)
+
+export const preferredCharacterTable = preferredCharacterTableState
+
+export function setPreferredCharacterTable(tableName) {
+    const nextTableName = resolveCharacterTableName(tableName)
+    preferredCharacterTable.value = nextTableName
+    writePreferredCharacterTableState(nextTableName)
+}
 
 // ========================================
 // 用户状态管理（替代 window.userRole 和 window.currentUser）
@@ -48,7 +70,8 @@ export const queryStore = reactive({
 export const resultCache = reactive({
     mode: '',                 // 查询模式
     features: [],             // 特征列表
-    latestResults: []         // 最新结果（替代 window.latestdetailResults）
+    latestResults: [],        // 最新结果（替代 window.latestdetailResults）
+    tableName: DEFAULT_CHARACTER_TABLE
 })
 
 // ========================================

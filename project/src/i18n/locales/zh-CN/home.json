@@ -235,6 +235,13 @@
     "supportModal":  {
                          "title":  "☕️ 请作者喝杯咖啡",
                          "subtitle":  "感谢您的支持！ 💖",
+                         "donorThanks":  "感谢你们请作者喝咖啡。每一份支持，都会转化成继续维护本站的动力。",
+                         "donorColumns":  {
+                                              "time":  "时间",
+                                              "donor":  "捐赠者",
+                                              "amount":  "金额(元)",
+                                              "method":  "方式"
+                                          },
                          "weixinAlt":  "微信收款码",
                          "weixinLabel":  "微信",
                          "alipayAlt":  "支付宝收款码",

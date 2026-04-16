@@ -1,7 +1,8 @@
 @mixin vm-query-button-styles($padding: 10px 20px, $radius: 8px, $font-size: 14px) {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  display: block;
+  width: fit-content; /* 确保按钮包裹文字，而不是撑满整行 */
+  //margin: 0 auto 0; /* 核心：左右 margin 为 auto 实现绝对居中，上边距给 20px 留白 */
+
   white-space: nowrap;
   padding: $padding;
   background: var(--color-primary);
@@ -12,6 +13,17 @@
   font-weight: 500;
   cursor: pointer;
   transition: all 0.3s ease;
+
+  &:hover:not(:disabled) {
+    background: var(--color-primary-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px var(--color-primary-shadow);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
 }
 
 @mixin vm-query-button-disabled-styles {

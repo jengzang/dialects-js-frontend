@@ -79,7 +79,8 @@ const props = defineProps({
   valueMap: { type: Object, default: () => ({}) },
   isDropdownOpen: { type: Boolean, default: false },
   selectedCard: { type: String, default: '結果' },
-  excludeColumns: { type: Array, default: () => [] }  // ✨ 新增
+  excludeColumns: { type: Array, default: () => [] },  // ✨ 新增
+  tableName: { type: String, default: 'characters' }
 })
 
 const loading = ref(false)
@@ -191,7 +192,8 @@ async function fetchData(pathStrings) {
     const data = await getCharList({
       path_strings: pathStrings,
       combine_query: false,
-      exclude_columns: props.excludeColumns
+      exclude_columns: props.excludeColumns,
+      table_name: props.tableName
     })
     results.value = Array.isArray(data) ? data : []
 

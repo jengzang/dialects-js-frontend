@@ -7,20 +7,11 @@
 
     <!-- Mode Selector -->
     <div class="mode-selector vml-glass-panel">
-      <button
-        class="mode-button"
-        :class="{ 'active': viewMode === 'regional' }"
-        @click="viewMode = 'regional'"
-      >
-        區域對比
-      </button>
-      <button
-        class="mode-button"
-        :class="{ 'active': viewMode === 'ranking' }"
-        @click="viewMode = 'ranking'"
-      >
-        傾向排行
-      </button>
+      <RadioGroup
+          name="viewModeRadio"
+          :options="viewModeOptions"
+          v-model="viewMode"
+      />
     </div>
 
     <!-- Regional Comparison Mode -->
@@ -227,13 +218,15 @@ import FilterableSelect from '@/VillagesML/components/FilterableSelect.vue'
 import SimpleSelectDropdown from '@/components/selector/SimpleSelectDropdown.vue'
 import HelpIcon from '@/components/ToastAndHelp/HelpIcon.vue'
 import { SEMANTIC_SUBCATEGORY_NAMES } from '@/VillagesML/config/villagesML.js'
+import RadioGroup from "@/components/selector/RadioGroup.vue";
 
 export default {
   name: 'SemanticSubcategories',
   components: {
+    RadioGroup,
     FilterableSelect,
     SimpleSelectDropdown,
-    HelpIcon
+    HelpIcon,
   },
   setup() {
     // Helper function to get subcategory Chinese name
@@ -256,6 +249,10 @@ export default {
 
     // State
     const viewMode = ref('regional')  // 默认显示区域对比
+    const viewModeOptions = [
+      { value: 'regional', label: '區域對比' },
+      { value: 'ranking', label: '傾向排行' }
+    ]
 
     // List mode (移除，不再需要)
     const selectedParentCategory = ref(null)
@@ -582,6 +579,7 @@ export default {
     return {
       parentCategories,
       viewMode,
+      viewModeOptions,
       selectedParentCategory,
       subcategoryList,
       loadingList,
@@ -611,6 +609,10 @@ export default {
 </script>
 
 <style scoped>
+.query-button{
+  margin: 0 auto 0;
+}
+
 .semantic-subcategories-page {
   padding: 20px;
   max-width: 1400px;
@@ -629,11 +631,6 @@ export default {
   margin-bottom: 20px;
 }
 
-.mode-selector {
-  display: flex;
-  gap: 12px;
-  padding: 12px;
-}
 
 .query-form h3 {
   margin-bottom: 16px;

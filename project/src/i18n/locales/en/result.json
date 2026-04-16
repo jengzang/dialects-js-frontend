@@ -91,7 +91,8 @@
     "statCount": "{count} chars ({ratio}%)"
   },
   "panelManager": {
-    "loading": "Querying..."
+    "loading": "Querying...",
+    "unsupportedTable": "Adaptation is not finished yet"
   },
   "loading": "Analyzing...",
   "longWaitWarning": "⚠️ The current request involves a large dataset and may take longer.<br>Consider reducing query conditions to improve speed.",

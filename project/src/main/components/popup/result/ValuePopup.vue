@@ -84,7 +84,7 @@ const getBaseModeText = (modeId, value) => {
 };
 
 const shouldUseBaseDescription = (modeId) => {
-  const parseResult = parseFeatureString(props.data?.feature || '');
+  const parseResult = parseFeatureString(props.data?.feature || '', resultCache.tableName);
   const hasMatchedFields = parseResult?.matched_fields !== null;
 
   return (modeId === 'character' && !hasMatchedFields) ||

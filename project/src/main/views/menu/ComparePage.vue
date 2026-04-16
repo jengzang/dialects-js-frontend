@@ -187,6 +187,7 @@
               :is-dropdown-open="excludeDropdownOpen === 'tab2_current'"
               :selected-card="tabStates.tab2.current.card"
               :exclude-columns="tabStates.tab2.current.excludeColumns"
+              :table-name="selectedCharacterTable"
               ref="ZhongguRefCurrent"
           />
             </div>
@@ -264,17 +265,26 @@ import ZhongguSelector from "@/main/components/query/ZhongguSelector.vue";
 import KeyButtonGroup from "@/main/components/query/KeyButtonGroup.vue";
 import DropdownValueSelector from "@/main/components/query/DropdownValueSelector.vue";
 import ChoiceSelector from "@/components/selector/ChoiceSelector.vue";
-import { globalPayload, queryStore, uiStore, isCompareButtonDisabled, setRunning, setTabContentDisabled, mapStore, userStore } from '@/main/store/store.js'
-import { S2T_T2S_MAPPING } from '@/main/config'
+import {
+  queryStore,
+  uiStore,
+  isCompareButtonDisabled,
+  mapStore,
+  preferredCharacterTable,
+  setRunning,
+  setTabContentDisabled,
+  userStore
+} from '@/main/store/store.js'
 import { compareChars, compareZhongGu, compareTones } from '@/api/index.js'
 import { getCoordinates } from '@/api'
 import { showWarning } from '@/utils/message.js'
-import { useQueryConfig } from '@/utils/useQueryConfig'
+import { useQueryConfig } from '@/composables/domain/useQueryConfig.js'
 
 const { t } = useI18n()
+const selectedCharacterTable = preferredCharacterTable
 
 // 使用查询配置 Composable
-const { keyValueMap, availableKeys, exclusiveRules, singleSelectKeys } = useQueryConfig()
+const { keyValueMap, availableKeys, exclusiveRules, singleSelectKeys } = useQueryConfig(selectedCharacterTable)
 const locationRef = ref(null)
 const router = useRouter()
 const route = useRoute()
@@ -310,10 +320,14 @@ const hanziInput = ref({
 // ✨ 過濾器相關狀態
 const excludeOptions = computed(() => [
   { value: '多地位標記', label: t('compare.excludeOptions.allMulti') },
-  { value: '多等', label: t('compare.excludeOptions.excludeMultiGrade') },
-  { value: '多韻', label: t('compare.excludeOptions.excludeMultiRime') },
-  { value: '多聲母', label: t('compare.excludeOptions.excludeMultiInitial') },
-  { value: '多調', label: t('compare.excludeOptions.excludeMultiTone') }
+  ...(selectedCharacterTable.value === 'characters'
+    ? [
+        { value: '多等', label: t('compare.excludeOptions.excludeMultiGrade') },
+        { value: '多韻', label: t('compare.excludeOptions.excludeMultiRime') },
+        { value: '多聲母', label: t('compare.excludeOptions.excludeMultiInitial') },
+        { value: '多調', label: t('compare.excludeOptions.excludeMultiTone') }
+      ]
+    : [])
 ])
 const excludeFilterTriggerRef = reactive({
   tab2_current: null,  // ✅ 添加 current 的 ref
@@ -525,6 +539,50 @@ function getToneCheckboxClass(toneValue) {
 // 3️⃣ 同步当前 Tab 到 store
 watch(currentTab, (newTab) => {
   uiStore.currentSubTab.compare = newTab
+}, { immediate: true })
+
+function getNormalizedKeys(keys = []) {
+  const allowedKeys = availableKeys.value || []
+  const nextKeys = keys.filter(key => allowedKeys.includes(key))
+  return nextKeys.length > 0 ? nextKeys : (allowedKeys[0] ? [allowedKeys[0]] : [])
+}
+
+function getNormalizedValueMap(keys = [], valueMap = {}) {
+  return keys.reduce((nextMap, key) => {
+    const allowedValues = keyValueMap.value[key] || []
+    const values = Array.isArray(valueMap[key])
+      ? valueMap[key].filter(value => allowedValues.includes(value))
+      : []
+
+    if (values.length > 0) {
+      nextMap[key] = values
+    }
+
+    return nextMap
+  }, {})
+}
+
+function getNormalizedExcludeColumns(excludeColumns = []) {
+  const allowedColumns = excludeOptions.value.map(option => option.value)
+  return excludeColumns.filter(column => allowedColumns.includes(column))
+}
+
+function syncCurrentSelectorWithTable() {
+  const current = tabStates.tab2.current
+  const nextKeys = getNormalizedKeys(current.keys)
+
+  current.keys = nextKeys
+  current.valueMap = getNormalizedValueMap(nextKeys, current.valueMap)
+  current.excludeColumns = getNormalizedExcludeColumns(current.excludeColumns)
+}
+
+watch(selectedCharacterTable, (newTable, oldTable) => {
+  syncCurrentSelectorWithTable()
+
+  if (oldTable && newTable !== oldTable) {
+    tabStates.tab2.group1Items = []
+    tabStates.tab2.group2Items = []
+  }
 }, { immediate: true })
 
 // 4️⃣ 最终计算属性：控制按钮是否禁用
@@ -900,7 +958,8 @@ const runAction = async () => {
         locations: locationList,
         regions: regionList,
         features: [group1Card, group2Card],
-        region_mode: locationRef.value?.regionUsing || 'yindian'
+        region_mode: locationRef.value?.regionUsing || 'yindian',
+        table_name: selectedCharacterTable.value
       }
 
       // console.log('🔍 比較中古參數:', {

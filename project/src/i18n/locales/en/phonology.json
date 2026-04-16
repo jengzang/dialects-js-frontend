@@ -75,7 +75,8 @@
                                                     "minLocationError":  "Please enter at least one location",
                                                     "loadError":  "Error loading data",
                                                     "apiError":  "API returned empty data",
-                                                    "missingMatrix":  "API data missing matrix property"
+                                                    "missingMatrix":  "API data missing matrix property",
+                                                    "unsupportedTable":  "The current table \"{table}\" is not supported on this page yet"
                                                 }
                                  },
                       "countphos":  {

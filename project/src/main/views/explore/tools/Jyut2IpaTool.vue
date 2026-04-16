@@ -520,9 +520,22 @@ const resetStats = () => {
   stats.failed = 0
 }
 
+const isFailedProgressStatus = (status) => status === 'failed' || status === 'error'
+
+const normalizePercentProgress = (value) => {
+  const numeric = Number(value)
+  if (!Number.isFinite(numeric)) {
+    return 0
+  }
+
+  return Math.min(100, Math.max(0, Math.round(numeric)))
+}
+
 const applyProgressData = (progressData) => {
-  progress.value = progressData.progress || 0
-  processingText.value = t('tools.jyut2ipa.processing.running')
+  if (progressData.progress !== undefined && progressData.progress !== null) {
+    progress.value = normalizePercentProgress(progressData.progress)
+  }
+  processingText.value = progressData.message || t('tools.jyut2ipa.processing.running')
 
   if (progressData.status !== 'completed') {
     return
@@ -572,18 +585,16 @@ const processFile = async (file) => {
     const uploadData = await uploadJyutFile(file)
 
     taskId.value = uploadData.task_id
-    progress.value = 10
 
     processingText.value = t('tools.jyut2ipa.processing.preparingConvert')
     await processJyut2Ipa(taskId.value)
-
-    progress.value = 20
+    processingText.value = t('tools.jyut2ipa.processing.running')
 
     await progressPolling.start(
       async () => {
         const progressData = await getJyut2IpaProgress(taskId.value)
-        if (progressData.status === 'failed') {
-          throw new Error(progressData.message || t('tools.jyut2ipa.processing.running'))
+        if (isFailedProgressStatus(progressData.status)) {
+          throw new Error(progressData.error || progressData.message || t('tools.jyut2ipa.processing.running'))
         }
         return progressData
       },

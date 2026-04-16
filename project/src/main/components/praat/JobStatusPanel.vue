@@ -5,7 +5,7 @@
         <span class="job-label">{{ t('praat.jobStatus.jobId') }}</span>
         <span class="job-id">{{ jobId }}</span>
       </div>
-      <button v-if="status === 'queued' || status === 'running'"
+      <button v-if="status === 'queued' || status === 'processing'"
               class="cancel-button"
               @click="$emit('cancel')">
         {{ t('praat.jobStatus.cancel') }}
@@ -13,7 +13,7 @@
     </div>
 
     <!-- Loading State -->
-    <div v-if="status === 'queued' || status === 'running'" class="loading-content">
+    <div v-if="status === 'queued' || status === 'processing'" class="loading-content">
       <div class="ui-loading--page" aria-hidden="true"></div>
       <h3 class="loading-title">{{ t('praat.jobStatus.loading.title') }}</h3>
       <p class="loading-text">{{ stage || t('praat.jobStatus.loading.defaultText') }}</p>
@@ -36,6 +36,11 @@
     <div v-else-if="status === 'completed' || status === 'done'" class="completed-content">
       <div class="completed-icon">✅</div>
       <h3 class="completed-title">{{ t('praat.jobStatus.completed.title') }}</h3>
+    </div>
+
+    <div v-else-if="status === 'canceled'" class="canceled-content">
+      <div class="canceled-icon">🟠</div>
+      <h3 class="canceled-title">{{ t('praat.jobStatus.canceled.title') }}</h3>
     </div>
   </div>
 </template>
@@ -223,5 +228,24 @@ onUnmounted(() => {
   font-size: 1.3rem;
   font-weight: 600;
   color: #34c759;
+}
+
+.canceled-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 2rem 0;
+}
+
+.canceled-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.canceled-title {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #ff9500;
 }
 </style>
