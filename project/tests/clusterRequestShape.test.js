@@ -12,7 +12,7 @@ function readSource(relativePath) {
 
 describe('cluster request shape contracts', () => {
   it('builds grouped requests for path_strings and resolved_chars', () => {
-    const source = readSource('src/main/views/menu/DialectClustering.vue')
+    const source = readSource('src/main/views/menu/cluster/useClusterWorkspace.js')
 
     expect(source).toContain('function buildPreviewRequestDraft()')
     expect(source).toContain("source_mode: 'path_strings'")
@@ -25,7 +25,7 @@ describe('cluster request shape contracts', () => {
   })
 
   it('branches clustering payloads by algorithm and maps staged rollback targets', () => {
-    const source = readSource('src/main/views/menu/DialectClustering.vue')
+    const source = readSource('src/main/views/menu/cluster/useClusterWorkspace.js')
 
     expect(source).toContain("algorithm === 'agglomerative'")
     expect(source).toContain("algorithm === 'dbscan'")
