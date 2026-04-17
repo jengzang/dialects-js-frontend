@@ -7,6 +7,7 @@ export * from './auth/index.js'
 
 // ==================== Praat 音频分析 ====================
 export {
+  useClusterApi,
   praat,
   usePraatApi
 } from './main/tools/index.js'

@@ -21,6 +21,7 @@ import villages from './villages.json'
 import result from './result.json'
 import tableTree from './tableTree.json'
 import user from './user.json'
+import cluster from './cluster.json'
 
 export default {
   common,
@@ -42,5 +43,6 @@ export default {
   villages,
   result,
   tableTree,
-  user
+  user,
+  cluster
 }
