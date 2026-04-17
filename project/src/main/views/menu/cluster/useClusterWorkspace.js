@@ -6,177 +6,29 @@ import { usePollingTask } from '@/composables/core/usePollingTask.js'
 import { useQueryConfig } from '@/composables/domain/useQueryConfig.js'
 import { useRouteQueryState } from '@/composables/router/useRouteQueryState.js'
 import { showError, showSuccess, showWarning } from '@/utils/message.js'
-
-export const QUICK_RUN_FALLBACK_LABEL = 'Quick Run'
-
-const STEP_ORDER = ['input', 'preview', 'prepare', 'distance', 'cluster', 'result']
-const STORAGE_KEY = 'cluster-workspace-v1'
-const DEFAULT_GROUP_KEYS = ['攝']
-
-function createDefaultClusteringState() {
-  return {
-    algorithm: 'agglomerative',
-    n_clusters: 8,
-    linkage: 'average',
-    random_state: 42,
-    eps: 0.5,
-    min_samples: 5
-  }
-}
-
-function createIdleActiveTask(source = 'staged') {
-  return {
-    stage: '',
-    taskId: '',
-    status: 'idle',
-    progress: 0,
-    message: '',
-    source
-  }
-}
-
-function createEmptyGroup() {
-  return {
-    id: `group-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-    label: '',
-    compare_dimension: 'final',
-    source_mode: 'path_strings',
-    pathKeys: [...DEFAULT_GROUP_KEYS],
-    pathValueMap: {},
-    resolvedCharsText: '',
-    table_name: 'characters'
-  }
-}
-
-function createDefaultWorkspaceState() {
-  return {
-    currentStep: 'input',
-    requestDraft: {
-      groups: [createEmptyGroup()],
-      locations: [],
-      regions: [],
-      region_mode: 'yindian',
-      include_special_locations: false
-    },
-    previewData: null,
-    prepareHash: '',
-    prepareTaskId: '',
-    prepareCompleted: false,
-    selectedPhonemeMode: 'intra_group',
-    distanceHashByMode: {},
-    distanceTaskIdByMode: {},
-    resultHashByKey: {},
-    resultTaskIdByKey: {},
-    activeResultSource: 'staged',
-    activeTask: createIdleActiveTask('staged'),
-    clustering: createDefaultClusteringState()
-  }
-}
-
-function normalizeStringArray(values) {
-  if (!Array.isArray(values)) {
-    return []
-  }
-
-  return values
-    .map((value) => typeof value === 'string' ? value.trim() : '')
-    .filter(Boolean)
-}
-
-function normalizeWorkspaceState(value) {
-  const defaults = createDefaultWorkspaceState()
-  const requestDraft = value?.requestDraft || defaults.requestDraft
-  const groups = Array.isArray(requestDraft.groups) && requestDraft.groups.length > 0
-    ? requestDraft.groups.map((group) => ({
-        ...createEmptyGroup(),
-        ...group,
-        pathKeys: Array.isArray(group.pathKeys) && group.pathKeys.length > 0 ? group.pathKeys : [...DEFAULT_GROUP_KEYS],
-        pathValueMap: group.pathValueMap || {},
-        resolvedCharsText: group.resolvedCharsText || ''
-      }))
-    : defaults.requestDraft.groups
-
-  return {
-    ...defaults,
-    ...value,
-    requestDraft: {
-      ...defaults.requestDraft,
-      ...requestDraft,
-      groups,
-      locations: normalizeStringArray(requestDraft.locations),
-      regions: normalizeStringArray(requestDraft.regions),
-      region_mode: requestDraft.region_mode || 'yindian',
-      include_special_locations: Boolean(requestDraft.include_special_locations)
-    },
-    distanceHashByMode: { ...defaults.distanceHashByMode, ...(value?.distanceHashByMode || {}) },
-    distanceTaskIdByMode: { ...defaults.distanceTaskIdByMode, ...(value?.distanceTaskIdByMode || {}) },
-    resultHashByKey: { ...defaults.resultHashByKey, ...(value?.resultHashByKey || {}) },
-    resultTaskIdByKey: { ...defaults.resultTaskIdByKey, ...(value?.resultTaskIdByKey || {}) },
-    activeTask: {
-      ...defaults.activeTask,
-      ...(value?.activeTask || {})
-    },
-    clustering: {
-      ...defaults.clustering,
-      ...(value?.clustering || {})
-    }
-  }
-}
-
-function normalizePositiveInteger(value, fallbackValue) {
-  const numericValue = Number(value)
-
-  if (!Number.isFinite(numericValue) || numericValue <= 0) {
-    return fallbackValue
-  }
-
-  return Math.round(numericValue)
-}
-
-function normalizeInteger(value, fallbackValue) {
-  const numericValue = Number(value)
-
-  if (!Number.isFinite(numericValue)) {
-    return fallbackValue
-  }
-
-  return Math.round(numericValue)
-}
-
-function normalizePositiveNumber(value, fallbackValue) {
-  const numericValue = Number(value)
-
-  if (!Number.isFinite(numericValue) || numericValue <= 0) {
-    return fallbackValue
-  }
-
-  return numericValue
-}
-
-function formatNumeric(value) {
-  const numericValue = Number(value)
-
-  if (!Number.isFinite(numericValue)) {
-    return '—'
-  }
-
-  return numericValue % 1 === 0 ? String(numericValue) : numericValue.toFixed(2)
-}
-
-function formatStructuredValue(value) {
-  return JSON.stringify(value, null, 2)
-}
-
-function mapTaskStatus(status) {
-  if (status === 'queued') return 'pending'
-  if (status === 'done') return 'completed'
-  if (status === 'error') return 'failed'
-  return status || 'idle'
-}
-
-function isTaskBusy(status) {
-  return ['pending', 'processing', 'queued'].includes(status)
-}
+import {
+  QUICK_RUN_FALLBACK_LABEL,
+  STEP_ORDER,
+  STORAGE_KEY,
+  DEFAULT_GROUP_KEYS,
+  createDefaultWorkspaceState,
+  createIdleActiveTask,
+  createEmptyGroup,
+  normalizeStringArray,
+  normalizeWorkspaceState,
+  formatNumeric,
+  formatStructuredValue,
+  mapTaskStatus,
+  isTaskBusy,
+  getGroupPathStrings,
+  getResolvedChars,
+  getEffectiveGroups,
+  buildPreviewRequestDraft,
+  buildClusteringPayload,
+  buildResultKey,
+  resolveErrorMessage,
+  resolveNotFoundStage
+} from './clusterWorkspaceShared.js'
 
 export function useClusterWorkspace() {
   const { t } = useI18n()
@@ -290,7 +142,10 @@ export function useClusterWorkspace() {
     return workspaceState.distanceHashByMode[workspaceState.selectedPhonemeMode] || ''
   })
 
-  const currentResultKey = computed(() => buildResultKey(workspaceState.selectedPhonemeMode, buildClusteringPayload()))
+  const currentResultKey = computed(() => buildResultKey(
+    workspaceState.selectedPhonemeMode,
+    buildClusteringPayload(workspaceState.clustering)
+  ))
   const currentResultHash = computed(() => workspaceState.resultHashByKey[currentResultKey.value] || '')
 
   const resultGroups = computed(() => {
@@ -385,140 +240,6 @@ export function useClusterWorkspace() {
     group.pathValueMap = value || {}
   }
 
-  function getGroupPathStrings(group) {
-    const validEntries = group.pathKeys
-      .map((key) => ({
-        key,
-        values: Array.isArray(group.pathValueMap[key]) ? group.pathValueMap[key].filter(Boolean) : []
-      }))
-      .filter((entry) => entry.values.length > 0)
-
-    if (validEntries.length === 0) {
-      return []
-    }
-
-    return validEntries.reduce((paths, entry) => {
-      const nextPaths = []
-
-      paths.forEach((path) => {
-        entry.values.forEach((value) => {
-          nextPaths.push(`${path}[${value}]{${entry.key}}`)
-        })
-      })
-
-      return nextPaths
-    }, [''])
-  }
-
-  function getResolvedChars(group) {
-    return Array.from(new Set(
-      String(group.resolvedCharsText || '')
-        .split(/[\s,，;；、]+/)
-        .flatMap((token) => Array.from(token.trim()))
-        .filter(Boolean)
-    ))
-  }
-
-  function getEffectiveGroups() {
-    return workspaceState.requestDraft.groups.map((group) => {
-      const pathStrings = getGroupPathStrings(group)
-      const resolvedChars = getResolvedChars(group)
-
-      return {
-        ...group,
-        pathStrings,
-        resolvedChars
-      }
-    })
-  }
-
-  function buildPreviewRequestDraft() {
-    const groups = getEffectiveGroups()
-      .filter((group) => group.label && group.compare_dimension)
-      .map((group) => {
-        if (group.source_mode === 'resolved_chars') {
-          return {
-            label: group.label,
-            source_mode: 'resolved_chars',
-            resolved_chars: group.resolvedChars,
-            compare_dimension: group.compare_dimension
-          }
-        }
-
-        return {
-          label: group.label,
-          source_mode: 'path_strings',
-          table_name: 'characters',
-          path_strings: group.pathStrings,
-          compare_dimension: group.compare_dimension
-        }
-      })
-
-    return {
-      groups,
-      locations: normalizeStringArray(workspaceState.requestDraft.locations),
-      regions: normalizeStringArray(workspaceState.requestDraft.regions),
-      region_mode: workspaceState.requestDraft.region_mode || 'yindian',
-      include_special_locations: Boolean(workspaceState.requestDraft.include_special_locations)
-    }
-  }
-
-  function buildClusteringPayload() {
-    const { algorithm } = workspaceState.clustering
-
-    if (algorithm === 'agglomerative') {
-      return {
-        algorithm,
-        n_clusters: normalizePositiveInteger(workspaceState.clustering.n_clusters, 8),
-        linkage: workspaceState.clustering.linkage || 'average',
-        random_state: normalizeInteger(workspaceState.clustering.random_state, 42)
-      }
-    }
-
-    if (algorithm === 'dbscan') {
-      return {
-        algorithm,
-        eps: normalizePositiveNumber(workspaceState.clustering.eps, 0.5),
-        min_samples: normalizePositiveInteger(workspaceState.clustering.min_samples, 5)
-      }
-    }
-
-    if (algorithm === 'kmeans') {
-      return {
-        algorithm,
-        n_clusters: normalizePositiveInteger(workspaceState.clustering.n_clusters, 8),
-        random_state: normalizeInteger(workspaceState.clustering.random_state, 42)
-      }
-    }
-
-    if (algorithm === 'gmm') {
-      return {
-        algorithm,
-        n_clusters: normalizePositiveInteger(workspaceState.clustering.n_clusters, 8),
-        random_state: normalizeInteger(workspaceState.clustering.random_state, 42)
-      }
-    }
-
-    return {
-      algorithm: 'agglomerative',
-      n_clusters: 8,
-      linkage: 'average',
-      random_state: 42
-    }
-  }
-
-  function buildResultKey(phonemeMode, clustering) {
-    return JSON.stringify({
-      phonemeMode,
-      algorithm: clustering.algorithm,
-      n_clusters: clustering.n_clusters ?? null,
-      linkage: clustering.linkage ?? null,
-      eps: clustering.eps ?? null,
-      min_samples: clustering.min_samples ?? null,
-      random_state: clustering.random_state ?? null
-    })
-  }
-
   function validateRequestDraft() {
     if (locationInputDisabled.value) {
       return t('cluster.errors.locationRequired')
@@ -528,7 +249,7 @@ export function useClusterWorkspace() {
       return t('cluster.errors.invalidInput')
     }
 
-    for (const group of getEffectiveGroups()) {
+    for (const group of getEffectiveGroups(workspaceState.requestDraft.groups)) {
       if (!group.label.trim()) {
         return t('cluster.errors.groupLabelRequired')
       }
@@ -604,7 +325,7 @@ export function useClusterWorkspace() {
       return
     }
 
-    const requestDraft = buildPreviewRequestDraft()
+    const requestDraft = buildPreviewRequestDraft(workspaceState.requestDraft)
     workspaceState.requestDraft = {
       ...workspaceState.requestDraft,
       ...requestDraft
@@ -725,7 +446,7 @@ export function useClusterWorkspace() {
     formErrorMessage.value = ''
 
     try {
-      const clustering = buildClusteringPayload()
+      const clustering = buildClusteringPayload(workspaceState.clustering)
       const response = await runClusterStage(currentDistanceHash.value, clustering)
       const resultKey = buildResultKey(workspaceState.selectedPhonemeMode, clustering)
 
@@ -774,9 +495,9 @@ export function useClusterWorkspace() {
 
     try {
       const response = await runClusterJob({
-        ...buildPreviewRequestDraft(),
+        ...buildPreviewRequestDraft(workspaceState.requestDraft),
         clustering: {
-          ...buildClusteringPayload(),
+          ...buildClusteringPayload(workspaceState.clustering),
           phoneme_mode: workspaceState.selectedPhonemeMode
         }
       })
@@ -952,28 +673,6 @@ export function useClusterWorkspace() {
     }
   }
 
-  function resolveNotFoundStage(error, fallbackStage) {
-    const detail = resolveErrorMessage(error)
-
-    if (detail.includes('任务不存在')) {
-      return 'task'
-    }
-
-    if (detail.includes('result_hash') || detail.includes('result artifact')) {
-      return 'cluster'
-    }
-
-    if (detail.includes('distance')) {
-      return 'distance'
-    }
-
-    if (detail.includes('prepare')) {
-      return 'prepare'
-    }
-
-    return fallbackStage
-  }
-
   function handleActionError(error, fallbackStage) {
     if (error?.status === 404) {
       const notFoundStage = resolveNotFoundStage(error, fallbackStage)
@@ -999,22 +698,6 @@ export function useClusterWorkspace() {
 
     formErrorMessage.value = resolveErrorMessage(error) || t('cluster.errors.restart')
     showError(formErrorMessage.value)
-  }
-
-  function resolveErrorMessage(error) {
-    if (typeof error?.detail === 'string' && error.detail.trim()) {
-      return error.detail.trim()
-    }
-
-    if (error?.detail?.message && typeof error.detail.message === 'string') {
-      return error.detail.message
-    }
-
-    if (typeof error?.message === 'string' && error.message.trim()) {
-      return error.message.trim()
-    }
-
-    return ''
   }
 
   function statusBadgeClass(status) {
